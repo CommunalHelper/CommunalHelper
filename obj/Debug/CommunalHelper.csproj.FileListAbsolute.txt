@@ -1,0 +1,8 @@
+C:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CommunalHelper\bin\Debug\CommunalHelper.dll
+C:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CommunalHelper\bin\Debug\CommunalHelper.pdb
+C:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CommunalHelper\obj\Debug\CommunalHelper.csprojAssemblyReference.cache
+C:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CommunalHelper\obj\Debug\CommunalHelper.csproj.CoreCompileInputs.cache
+C:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CommunalHelper\obj\Debug\CommunalHelper.dll
+C:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CommunalHelper\obj\Debug\CommunalHelper.pdb
+C:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CommunalHelper\bin\Debug\MonoMod.Utils.dll
+C:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CommunalHelper\obj\Debug\CommunalHelper.csproj.CopyComplete

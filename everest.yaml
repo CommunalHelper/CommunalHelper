@@ -1,0 +1,6 @@
+- Name: CommunalHelper
+  Version: 1.0.0
+  DLL: bin/Debug/CommunalHelper.dll
+  Dependencies:
+    - Name: Everest
+      Version: 1.0.0
