@@ -14,6 +14,10 @@ using System.Reflection;
 // * add dreamTunnelDash timer so that the dream tunnel dash is effectively consumed
 // * MAKE SURE YOU CREDIT JA ON THE GAMEBANANA PAGE FOR THE CODE
 
+// * caterpillar:
+// * make the space jam with the feather controls look different PLEASE do it now
+// * add the custom sounds
+
 namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperModule : EverestModule {
         public static CommunalHelperModule Instance;
@@ -24,12 +28,14 @@ namespace Celeste.Mod.CommunalHelper {
             On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
 
 			DreamRefillHooks.hook();
+			ConnectedDreamBlockHooks.Hook();
 		}
 
         public override void Unload() {
             On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
 
 			DreamRefillHooks.unhook();
+			ConnectedDreamBlockHooks.Unhook();
 		}
         #endregion
 
