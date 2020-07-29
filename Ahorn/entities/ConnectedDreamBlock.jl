@@ -19,14 +19,14 @@ const placements = Ahorn.PlacementDict(
             "featherMode" => true
         )
     ),
-	"Connected Dream Block (Normal, One use) (Communal Helper)" => Ahorn.EntityPlacement(
+	"Connected Dream Block (Normal, One Use) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedDreamBlock,
 		"rectangle",
         Dict{String, Any}(
             "oneUse" => true
         )
     ),
-	"Connected Dream Block (Feather Mode, One use) (Communal Helper)" => Ahorn.EntityPlacement(
+	"Connected Dream Block (Feather Mode, One Use) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedDreamBlock,
 		"rectangle",
         Dict{String, Any}(

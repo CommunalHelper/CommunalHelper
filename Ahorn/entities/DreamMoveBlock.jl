@@ -10,10 +10,13 @@ using ..Ahorn, Maple
                                                               fast::Bool=false) 
 
 const placements = Ahorn.PlacementDict(
-    "Dream Move Block (Communal Helper)" => Ahorn.EntityPlacement(
+    "Dream Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
         DreamMoveBlock,
-        "rectangle"
-    )
+        "rectangle",
+        Dict{String, Any}(
+            "direction" => direction
+        )
+    ) for direction in Maple.move_block_directions
 )
 
 Ahorn.editingOptions(entity::DreamMoveBlock) = Dict{String, Any}(

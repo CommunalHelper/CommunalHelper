@@ -266,7 +266,7 @@ namespace Celeste.Mod.CommunalHelper {
 				while (!triggered && !HasPlayerRider()) {
 					yield return null;
 				}
-				Audio.Play("event:/game/04_cliffside/arrowblock_activate", Position);
+				Audio.Play("event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_activate", Position);
 				state = MovementState.Moving;
 				StartShaking(0.2f);
 				ActivateParticles();
@@ -334,7 +334,7 @@ namespace Celeste.Mod.CommunalHelper {
 					}
 					yield return null;
 				}
-				Audio.Play("event:/game/04_cliffside/arrowblock_break", Position);
+				Audio.Play("event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_break", Position);
 				moveSfx.Stop();
 				state = MovementState.Breaking;
 				speed = (targetSpeed = 0f);
@@ -380,7 +380,7 @@ namespace Celeste.Mod.CommunalHelper {
 				foreach (Debris d3 in debris) {
 					d3.RemoveSelf();
 				}
-				Audio.Play("event:/game/04_cliffside/arrowblock_reappear", Position);
+				Audio.Play("event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_reappear", Position);
 				Visible = true;
 				EnableStaticMovers();
 				speed = (targetSpeed = 0f);
