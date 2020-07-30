@@ -5,15 +5,6 @@ using System;
 using System.Collections;
 using System.Reflection;
 
-// TODO
-// * Fix displacement bursts
-// * Fix sprite updating
-// * Fix not being able to downwards diagonal dream tunnel dash when standing on a surface
-// * Fix being able to tunnel into another room
-// * Fix not dieing from colliding with a dream block when dream tunnel dashing
-// * add dreamTunnelDash timer so that the dream tunnel dash is effectively consumed
-// * MAKE SURE YOU CREDIT JA ON THE GAMEBANANA PAGE FOR THE CODE
-
 namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperModule : EverestModule {
         public static CommunalHelperModule Instance;
@@ -36,8 +27,11 @@ namespace Celeste.Mod.CommunalHelper {
         #region Ensures the player always properly enters a dream block even when it's moving fast
         private void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
             orig(player);
-            player.Position.X += Math.Sign(player.DashDir.X);
-            player.Position.Y += Math.Sign(player.DashDir.Y);
+            DreamBlock dreamBlock = getPlayerData(player).Get<DreamBlock>("dreamBlock");
+            if (dreamBlock is DreamZipMover || dreamBlock is DreamSwapBlock) {
+                player.Position.X += Math.Sign(player.DashDir.X);
+                player.Position.Y += Math.Sign(player.DashDir.Y);
+            }
         }
 		#endregion
 
@@ -50,7 +44,7 @@ namespace Celeste.Mod.CommunalHelper {
             //if (_playerData != null && _playerData.Get<Level>("level") != null) {
             //    return _playerData;
             //}
-            return _playerData = new DynData<Player>(player);
+            return new DynData<Player>(player);
         }
         #endregion
     }

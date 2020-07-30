@@ -1,0 +1,14 @@
+**CREDIT JA FOR STATE MACHINE EXTENSION CODE**
+* Update to include new mechanic entries and descriptions
+* Include espritox as co-author and re-write description to better represent it as a team effort
+* Include Holly's effort vs. cool graph in the community suggestion part?
+
+----
+
+This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that I have. If you have any ideas for new mechanics/entities that you want to see implemented, let me know, and if it sounds cool/doable I'll add it to the collection. You can find me in the [Celeste Discord](https://discord.gg/g8Mw3XH) @Bio.
+
+The current list of included mechanics:
+
+    Dream Zip Mover - The body of a Zip Mover with the soul of a Dream Block.
+    Dream Move Block - Move Block by day, Dream Block by night.
+    Dream Swap Block - I think you get the idea.

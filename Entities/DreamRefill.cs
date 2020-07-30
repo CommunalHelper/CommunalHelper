@@ -152,11 +152,10 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
 		private void OnPlayer(Player player) {
-			var playerData = CommunalHelperModule.getPlayerData(player);
-			if (player.Stamina < 20f || !playerData.Get<bool>("hasDreamTunnelDash")) {
+			if (player.Stamina < 20f || !DreamRefillHooks.hasDreamTunnelDash) {
 				player.RefillDash();
 				player.RefillStamina();
-				playerData["hasDreamTunnelDash"] = true;
+				DreamRefillHooks.hasDreamTunnelDash = true;
 
 				Audio.Play("event:/game/general/diamond_touch", Position);
 				Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
@@ -197,39 +196,70 @@ namespace Celeste.Mod.CommunalHelper {
 	class DreamRefillHooks {
 		#region Vanilla constants
 		private const float DashSpeed = 240f;
+		private const float DashAttackTime = 0.3f;
 		private const float ClimbMaxStamina = 110f;
 		private const float DreamDashMinTime = 0.1f;
 		#endregion
 
 		private static int StDreamTunnelDash;
+		public static bool hasDreamTunnelDash = false;
+		private static float dreamTunnelDashAttackTimer = 0f;
+		private static bool dreamTunnelDashAttacking {
+			get { return dreamTunnelDashAttackTimer > 0f; }
+        }
 
 		public static void hook() {
 			On.Celeste.Player.ctor += modPlayerCtor;
+			On.Celeste.Player.DashBegin += modDashBegin;
+			On.Celeste.Player.Update += modUpdate;
 			On.Celeste.Player.OnCollideH += modOnCollideH;
 			On.Celeste.Player.OnCollideV += modOnCollideV;
 			On.Celeste.Player.OnBoundsH += modOnBoundsH;
 			On.Celeste.Player.OnBoundsV += modOnBoundsV;
-			On.Celeste.Player.Die += modPlayerDie;
+			On.Celeste.Player.Die += modDie;
+			On.Celeste.Player.UpdateSprite += modUpdateSprite;
+			On.Celeste.Player.DashCoroutine += modDashCoroutine;
+			On.Celeste.Level.EnforceBounds += modLevelEnforceBounds;
 		}
 
 		public static void unhook() {
 			On.Celeste.Player.ctor -= modPlayerCtor;
+			On.Celeste.Player.DashBegin -= modDashBegin;
+			On.Celeste.Player.Update -= modUpdate;
 			On.Celeste.Player.OnCollideH -= modOnCollideH;
 			On.Celeste.Player.OnCollideV -= modOnCollideV;
 			On.Celeste.Player.OnBoundsH -= modOnBoundsH;
 			On.Celeste.Player.OnBoundsV -= modOnBoundsV;
-			On.Celeste.Player.Die -= modPlayerDie;
+			On.Celeste.Player.Die -= modDie;
+			On.Celeste.Player.UpdateSprite -= modUpdateSprite;
+			On.Celeste.Player.DashCoroutine -= modDashCoroutine;
+			On.Celeste.Level.EnforceBounds -= modLevelEnforceBounds;
 		}
 
+		// Adds custom dream tunnel dash state
 		private static void modPlayerCtor(On.Celeste.Player.orig_ctor orig, Player player, Vector2 position, PlayerSpriteMode spriteMode) {
 			orig(player, position, spriteMode);
 
 			var update = new Func<int>(DreamTunnelDashUpdate);
 			StDreamTunnelDash = player.StateMachine.AddState(update, null, DreamTunnelDashBegin, DreamTunnelDashEnd);
-
-			getPlayerData(player).Set("hasDreamTunnelDash", false);
-
 		}
+
+		// Dream tunnel dash triggering
+		private static void modDashBegin(On.Celeste.Player.orig_DashBegin orig, Player player) {
+			orig(player);
+			if (hasDreamTunnelDash) {
+				dreamTunnelDashAttackTimer = DashAttackTime;
+				hasDreamTunnelDash = false;
+            }
+        }
+
+		// Dream tunnel dash attack timer updating
+		private static void modUpdate(On.Celeste.Player.orig_Update orig, Player player) {
+			orig(player);
+			if (dreamTunnelDashAttackTimer > 0f) {
+				dreamTunnelDashAttackTimer -= Engine.DeltaTime;
+            }
+        }
 
 		#region State machine extension stuff
 		private static void DreamTunnelDashBegin() {
@@ -297,7 +327,7 @@ namespace Celeste.Mod.CommunalHelper {
 			if (dreamDashCanEndTimer > 0f) {
 				playerData["dreamDashCanEndTimer"] = dreamDashCanEndTimer - Engine.DeltaTime;
 			}
-			if (player.CollideCheck<Solid>()) {
+			if (player.CollideCheck<Solid, DreamBlock>()) {
 				if (player.Scene.OnInterval(0.1f)) {
 					CreateTrail(player);
 				}
@@ -369,7 +399,11 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 		#endregion
 
+		// Dream tunnel dash/dashing into dream block detection
 		private static void modOnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player player, CollisionData data) {
+			if (dreamTunnelDashAttacking && data.Hit is DreamBlock) {
+				player.Die(-data.Direction);
+			}
 			if (player.StateMachine.State == StDreamTunnelDash) {
 				return;
 			}
@@ -383,8 +417,10 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 			orig(player, data);
 		}
-
 		private static void modOnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player player, CollisionData data) {
+			if (dreamTunnelDashAttacking && data.Hit is DreamBlock) {
+				player.Die(-data.Direction);
+            } 
 			if (player.StateMachine.State == StDreamTunnelDash) {
 				return;
 			}
@@ -400,9 +436,8 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
 		private static bool dreamTunnelDashCheck(Player player, Vector2 dir) {
-			if (player.DashAttacking && (dir.X == (float)Math.Sign(player.DashDir.X) || dir.Y == (float)Math.Sign(player.DashDir.Y))) {
-				var playerData = getPlayerData(player);
-				if (player.CollideCheck<Solid>(player.Position + dir) && playerData.Get<bool>("hasDreamTunnelDash")) {
+			if (dreamTunnelDashAttacking && (dir.X == (float)Math.Sign(player.DashDir.X) || dir.Y == (float)Math.Sign(player.DashDir.Y))) {
+				if (player.CollideCheck<Solid>(player.Position + dir)) {
 					return true;
 				}
 
@@ -445,13 +480,13 @@ namespace Celeste.Mod.CommunalHelper {
 			return false;
 		}
 
+		// Kills player when dream tunnel dashing into level bounds
 		private static void modOnBoundsH(On.Celeste.Player.orig_OnBoundsH orig, Player player) {
 			orig(player);
 			if (player.StateMachine.State == StDreamTunnelDash) {
 				player.Die(Vector2.Zero);
 			}
 		}
-
 		private static void modOnBoundsV(On.Celeste.Player.orig_OnBoundsV orig, Player player) {
 			orig(player);
 			if (player.StateMachine.State == StDreamTunnelDash) {
@@ -459,12 +494,59 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 		}
 
-		private static PlayerDeadBody modPlayerDie(On.Celeste.Player.orig_Die orig, Player player, Vector2 dir, bool evenIfInvincible = false, bool registerDeathInStats = true) {
+		// Fixes bug with dreamSfx soundsource not being stopped
+		private static PlayerDeadBody modDie(On.Celeste.Player.orig_Die orig, Player player, Vector2 dir, bool evenIfInvincible = false, bool registerDeathInStats = true) {
+			hasDreamTunnelDash = false;
 			SoundSource dreamSfxLoop = getPlayerData(player).Get<SoundSource>("dreamSfxLoop");
 			if (dreamSfxLoop != null) {
 				dreamSfxLoop.Stop();
 			}
 			return orig(player, dir, evenIfInvincible, registerDeathInStats);
+		}
+
+		// Updates sprite for dream tunnel dash state
+		private static void modUpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player player) {
+			if (player.StateMachine.State == StDreamTunnelDash) {
+				if (player.Sprite.CurrentAnimationID != "dreamDashIn" && player.Sprite.CurrentAnimationID != "dreamDashLoop") {
+					player.Sprite.Play("dreamDashIn");
+				}
+			} else {
+				orig(player);
+            }
+        }
+
+		// Allows downwards diagonal dream tunnel dashing when on the ground 
+		private static IEnumerator modDashCoroutine(On.Celeste.Player.orig_DashCoroutine orig, Player player) {
+			IEnumerator origEnum = orig(player);
+			origEnum.MoveNext();
+			yield return origEnum.Current;
+
+			bool forceDownwardDiagonalDash = false;
+			Vector2 origDashDir = Input.GetAimVector(player.Facing);
+			if (player.OnGround() && origDashDir.X != 0f && origDashDir.Y > 0f && dreamTunnelDashAttacking) {
+				forceDownwardDiagonalDash = true;
+			}
+			origEnum.MoveNext();
+			if (forceDownwardDiagonalDash) {
+				player.DashDir = origDashDir;
+				player.Speed = origDashDir * DashSpeed;
+				if (player.CanUnDuck) {
+					player.Ducking = false;
+				}
+			}
+			yield return origEnum.Current;
+
+			origEnum.MoveNext();
+		}
+
+		// Ensures that dream tunnel dashing does not allow transitioning into other rooms
+		private static void modLevelEnforceBounds(On.Celeste.Level.orig_EnforceBounds orig, Level level, Player player) {
+			Rectangle bounds = level.Bounds;
+			if (player.Right > bounds.Right || player.Left < bounds.Left || player.Top < bounds.Top || player.Bottom > bounds.Bottom) {
+				player.Die(Vector2.Zero);
+			} else {
+				orig(level, player);
+            }
 		}
 
 		#region Misc
