@@ -15,12 +15,14 @@ namespace Celeste.Mod.CommunalHelper {
             On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
 
 			DreamRefillHooks.hook();
+			ConnectedDreamBlockHooks.Hook();
 		}
 
         public override void Unload() {
             On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
 
 			DreamRefillHooks.unhook();
+			ConnectedDreamBlockHooks.Unhook();
 		}
         #endregion
 

@@ -203,7 +203,8 @@ namespace Celeste.Mod.CommunalHelper {
 					continue;
 				}
 				//sfx.Play("event:/game/01_forsaken_city/zip_mover");
-				sfx.Play("event:/new_content/game/10_farewell/zip_mover");
+				//sfx.Play("event:/new_content/game/10_farewell/zip_mover");
+				sfx.Play("event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover");
 				Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 				StartShaking(0.1f);
 				yield return 0.1f;
