@@ -6,13 +6,14 @@ using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using MonoMod.Utils;
 using System.Collections;
+using FMOD;
 
 namespace Celeste.Mod.CommunalHelper
 {
     [CustomEntity("CommunalHelper/ConnectedDreamBlock")]
-    [Tracked]
+    [TrackedAs(typeof(DreamBlock))]
 
-    class ConnectedDreamBlock : Solid
+    class ConnectedDreamBlock : DreamBlock
     {
         private struct DreamParticle
         {
@@ -92,9 +93,10 @@ namespace Celeste.Mod.CommunalHelper
         public Point GroupBoundsMin;
         public Point GroupBoundsMax;
 
-        public bool starFlyControl;
+        public bool featherMode;
         public bool canDreamDash = true;
         public bool oneUse;
+        private bool shattering = false;
         private float colorLerp = 0.0f;
 
         private float groupWidth, groupHeight;
@@ -117,12 +119,11 @@ namespace Celeste.Mod.CommunalHelper
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse")) { }
 
-        public ConnectedDreamBlock(Vector2 position, int width, int height, bool flyControl, bool useOnce)
-            : base(position, width, height, safe: true)
+        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool useOnce)
+            : base(position, width, height, null, false, false)
         {
-            base.Depth = -11000;
             oneUse = useOnce;
-            starFlyControl = flyControl;
+            this.featherMode = featherMode;
             SurfaceSoundIndex = 11;
             particleTextures = new MTexture[4]
             {
@@ -141,10 +142,6 @@ namespace Celeste.Mod.CommunalHelper
         {
             base.Added(scene);
             playerHasDreamDash = SceneAs<Level>().Session.Inventory.DreamDash;
-            if (!playerHasDreamDash)
-            {
-                Add(new LightOcclude());
-            }
         }
 
         public override void Awake(Scene scene)
@@ -316,11 +313,13 @@ namespace Celeste.Mod.CommunalHelper
             {
                 from.master = this;
             }
-            foreach (ConnectedDreamBlock e in base.Scene.Tracker.GetEntities<ConnectedDreamBlock>())
+            foreach (DreamBlock block in Scene.Tracker.GetEntities<DreamBlock>())
             {
-                if (!e.HasGroup && e.starFlyControl == from.starFlyControl && base.Scene.CollideCheck(new Rectangle((int)from.X, (int)from.Y, (int)from.Width, (int)from.Height), e))
-                {
-                    AddToGroupAndFindChildren(e);
+                if (block is ConnectedDreamBlock) {
+                    ConnectedDreamBlock connectedBlock = block as ConnectedDreamBlock;
+                    if (!connectedBlock.HasGroup && connectedBlock.featherMode == from.featherMode && base.Scene.CollideCheck(new Rectangle((int)from.X, (int)from.Y, (int)from.Width, (int)from.Height), connectedBlock)) {
+                        AddToGroupAndFindChildren(connectedBlock);
+                    }
                 }
             }
         }
@@ -331,7 +330,7 @@ namespace Celeste.Mod.CommunalHelper
             groupHeight = GroupBoundsMax.Y - GroupBoundsMin.Y;
 
             /* Setup particles, will be rendered by the Group Master */
-            float countFactor = starFlyControl ? 0.5f : 0.7f;
+            float countFactor = featherMode ? 0.5f : 0.7f;
             particles = new DreamParticle[(int)(groupWidth / 8f * (groupHeight / 8f) * 0.7f * countFactor)];
             for (int i = 0; i < particles.Length; i++)
             {
@@ -358,7 +357,7 @@ namespace Celeste.Mod.CommunalHelper
                 }
 
                 #region Feather particle stuff
-                if (starFlyControl) {
+                if (featherMode) {
                     particles[i].Speed = Calc.Random.Range(6f, 16f);
                     particles[i].Spin = Calc.Random.Range(8f, 12f) * 0.2f;
                     particles[i].RotationCounter = Calc.Random.NextAngle();
@@ -376,7 +375,6 @@ namespace Celeste.Mod.CommunalHelper
                 if (MasterOfGroup)
                 {
                     animTimer += 6f * Engine.DeltaTime;
-
                     wobbleEase += Engine.DeltaTime * 2f;
                     if (wobbleEase > 1f)
                     {
@@ -385,11 +383,10 @@ namespace Celeste.Mod.CommunalHelper
                         wobbleTo = Calc.Random.NextFloat((float)Math.PI * 2f);
                     }
 
-                    if (starFlyControl) {
+                    if (featherMode) {
                         UpdateParticles();
                     }
                 }
-                SurfaceSoundIndex = 12;
             }
         }
 
@@ -440,7 +437,7 @@ namespace Celeste.Mod.CommunalHelper
                     int layer = particle.Layer;
                     Vector2 position = particle.Position + cameraPositon * (0.3f + 0.25f * layer);
                     float rotation = 1.5707963705062866f - 0.8f + (float)Math.Sin(particle.RotationCounter * particle.MaxRotate);
-                    if (starFlyControl) {
+                    if (featherMode) {
                         position += Calc.AngleToVector(rotation, 4f);
                     }
                     position = PutInside(position, groupRect);
@@ -449,7 +446,7 @@ namespace Celeste.Mod.CommunalHelper
 
                     Color color = Color.Lerp(particle.Color, Color.Black, colorLerp);
 
-                    if (starFlyControl)
+                    if (featherMode)
                     {
                         petalTextures[layer].DrawCentered(position + Shake, color, 1, rotation);
                     } 
@@ -596,7 +593,7 @@ namespace Celeste.Mod.CommunalHelper
             return new Vector2((int)GroupBoundsMin.X + x * 8, (int)GroupBoundsMin.Y + y * 8);
         }
 
-        public void FootstepRipple(Vector2 position)
+        public void ConnectedFootstepRipple(Vector2 position)
         {
             if (playerHasDreamDash)
             {
@@ -611,35 +608,6 @@ namespace Celeste.Mod.CommunalHelper
             }
         }
 
-        public static void CreateTrail(Player player)
-        {
-            Vector2 scale = new Vector2(Math.Abs(player.Sprite.Scale.X) * (float)player.Facing, player.Sprite.Scale.Y);
-            TrailManager.Add(player, scale, player.GetCurrentTrailColor(), 1f);
-        }
-
-        public void OnPlayerExit(Player player)
-        {
-            Dust.Burst(player.Position, player.Speed.Angle(), 16, null);
-            Vector2 value = Vector2.Zero;
-            if (CollideCheck(player, Position + Vector2.UnitX * 4f))
-            {
-                value = Vector2.UnitX;
-            }
-            else if (CollideCheck(player, Position - Vector2.UnitX * 4f))
-            {
-                value = -Vector2.UnitX;
-            }
-            else if (CollideCheck(player, Position + Vector2.UnitY * 4f))
-            {
-                value = Vector2.UnitY;
-            }
-            else if (CollideCheck(player, Position - Vector2.UnitY * 4f))
-            {
-                value = -Vector2.UnitY;
-            }
-            _ = (value != Vector2.Zero);
-        }
-
         private void OneUseDestroy()
         {
             Collidable = (Visible = false);
@@ -648,11 +616,15 @@ namespace Celeste.Mod.CommunalHelper
 
         public void BeginShatter()
         {
-            ConnectedDreamBlock mastr = MasterOfGroup ? this : master;
-            foreach (ConnectedDreamBlock jam in mastr.group)
-            {
-                jam.Add(new Coroutine(jam.ShatterSeq()));
-                jam.canDreamDash = false;
+            if (!shattering) {
+                shattering = true;
+                Audio.Play("event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_shatter", Position);
+
+                ConnectedDreamBlock mastr = MasterOfGroup ? this : master;
+                foreach (ConnectedDreamBlock jam in mastr.group) {
+                    jam.Add(new Coroutine(jam.ShatterSeq()));
+                    jam.canDreamDash = false;
+                }
             }
         }
 
@@ -677,19 +649,32 @@ namespace Celeste.Mod.CommunalHelper
                     GroupBoundsMax.X - GroupBoundsMin.X,
                     GroupBoundsMax.Y - GroupBoundsMin.Y);
 
+                Vector2 centre = new Vector2(groupRect.Center.X, groupRect.Center.Y);
                 for (int i = 0; i < particles.Length; i++)
                 {
                     Vector2 position = particles[i].Position;
                     position += camera * (0.3f + 0.25f * particles[i].Layer);
                     position = PutInside(position, groupRect);
-                    if (!Scene.CollideCheck<ConnectedDreamBlock>(position))
-                    {
+                    bool inside = false;
+                    foreach(ConnectedDreamBlock block in group) {
+                        if (block.CollidePoint(position)) {
+                            inside = true;
+                            break;
+                        }
+                    }
+                    if (!inside) {
                         continue;
                     }
-                    ParticleType type = new ParticleType(Lightning.P_Shatter)
-                    {
+
+                    Color flickerColor = Color.Lerp(particles[i].Color, Color.White, 0.6f);
+                    ParticleType type = new ParticleType(Lightning.P_Shatter) {
+                        ColorMode = ParticleType.ColorModes.Fade,
                         Color = particles[i].Color,
-                        Color2 = Color.Lerp(particles[i].Color, Color.White, 0.5f)
+                        Color2 = flickerColor, //Color.Lerp(particles[i].Color, Color.White, 0.5f),
+                        Source = featherMode ? petalTextures[particles[i].Layer] : particleTextures[2],
+                        SpinMax = featherMode ? (float)Math.PI : 0,
+                        RotationMode = featherMode ? ParticleType.RotationModes.Random : ParticleType.RotationModes.None,
+                        Direction = (position - centre).Angle()
                     };
                     level.ParticlesFG.Emit(type, 1, position, Vector2.One * 3f);
                 }
@@ -733,408 +718,71 @@ namespace Celeste.Mod.CommunalHelper
 
     class ConnectedDreamBlockHooks
     {
-        private static int ConnectedDreamBlockState;
-        private static ConnectedDreamBlock connectedDreamBlock;
-
-
-        /* Connected Space Jam Behavior & Changes */
-        private static bool DreamDashCheck(Player player, Vector2 dir)
-        {
-            DynData<Player> data = new DynData<Player>(player);
-            bool flag = player.Inventory.DreamDash && player.DashAttacking && (dir.X == (float)Math.Sign(player.DashDir.X) || dir.Y == (float)Math.Sign(player.DashDir.Y));
-            if (flag)
-            {
-                ConnectedDreamBlock dreamBlock = player.CollideFirst<ConnectedDreamBlock>(player.Position + dir);
-                bool flag2 = dreamBlock != null;
-
-                if (flag2)
-                {
-                    if (!dreamBlock.canDreamDash) return false;
-
-                    bool flag3 = player.CollideCheck<Solid, ConnectedDreamBlock>(player.Position + dir);
-                    if (flag3)
-                    {
-                        Vector2 value = new Vector2(Math.Abs(dir.Y), Math.Abs(dir.X));
-                        bool flag4 = dir.X != 0f;
-                        bool flag5;
-                        bool flag6;
-                        if (flag4)
-                        {
-                            flag5 = (player.Speed.Y <= 0f);
-                            flag6 = (player.Speed.Y >= 0f);
-                        }
-                        else
-                        {
-                            flag5 = (player.Speed.X <= 0f);
-                            flag6 = (player.Speed.X >= 0f);
-                        }
-                        if (flag5)
-                        {
-                            for (int i = -1; i >= -4; i--)
-                            {
-                                Vector2 at = player.Position + dir + value * (float)i;
-                                bool flag8 = !player.CollideCheck<Solid, ConnectedDreamBlock>(at);
-                                if (flag8)
-                                {
-                                    player.Position += value * (float)i;
-                                    connectedDreamBlock = dreamBlock;
-                                    return true;
-                                }
-                            }
-                        }
-                        if (flag6)
-                        {
-                            for (int j = 1; j <= 4; j++)
-                            {
-                                Vector2 at2 = player.Position + dir + value * (float)j;
-                                bool flag10 = !player.CollideCheck<Solid, ConnectedDreamBlock>(at2);
-                                if (flag10)
-                                {
-                                    player.Position += value * (float)j;
-                                    connectedDreamBlock = dreamBlock;
-                                    return true;
-                                }
-                            }
-                        }
-                        return false;
-                    }
-                    connectedDreamBlock = dreamBlock;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static int DreamDashUpdate()
-        {
-            Player player = CommunalHelperModule.getPlayer();
-            DynData<Player> data = new DynData<Player>(player);
-
-            // Star Fly Controls
-            if (connectedDreamBlock.starFlyControl)
-            {
-                Vector2 input = Input.Aim.Value.SafeNormalize(Vector2.Zero);
-                if (input != Vector2.Zero)
-                {
-                    Vector2 vector = player.Speed.SafeNormalize(Vector2.Zero);
-                    if (vector != Vector2.Zero)
-                    {
-                        vector = Vector2.Dot(input, vector) != -0.8f ? vector.RotateTowards(input.Angle(), 5f * Engine.DeltaTime) : vector;
-                        data.Set("dreamDashLastDir", vector);
-                        player.Speed = vector * 240f;
-                    }
-                }
-            }
-
-            Input.Rumble(RumbleStrength.Light, RumbleLength.Medium);
-            Vector2 position = player.Position;
-            player.NaiveMove(player.Speed * Engine.DeltaTime);
-            float dreamDashCanEndTimer = data.Get<float>("dreamDashCanEndTimer");
-            bool flag = dreamDashCanEndTimer > 0f;
-            if (flag)
-            {
-                data.Set<float>("dreamDashCanEndTimer", dreamDashCanEndTimer -= Engine.DeltaTime);
-            }
-            ConnectedDreamBlock dreamBlock = player.CollideFirst<ConnectedDreamBlock>();
-            if (dreamBlock == null)
-            {
-                if (DreamDashedIntoSolid(player))
-                {
-                    bool invincible = SaveData.Instance.Assists.Invincible;
-                    if (invincible)
-                    {
-                        player.Position = position;
-                        player.Speed *= -1f;
-                        player.Play("event:/game/general/assist_dreamblockbounce", null, 0f);
-                    }
-                    else
-                    {
-                        player.Die(Vector2.Zero, false, true);
-                    }
-                }
-                else
-                {
-                    if (dreamDashCanEndTimer <= 0f)
-                    {
-                        Celeste.Freeze(0.05f);
-                        bool flag5 = Input.Jump.Pressed && player.DashDir.X != 0f;
-                        if (flag5)
-                        {
-                            data.Set("dreamJump", true);
-                            player.Jump(true, true);
-                        }
-
-                        return 0;
-                    }
-                }
-            }
-            else
-            {
-                // new property
-                data.Set("connectedSpaceJam", dreamBlock);
-                if (player.Scene.OnInterval(0.1f))
-                {
-                    ConnectedDreamBlock.CreateTrail(player);
-                }
-                if (player.SceneAs<Level>().OnInterval(0.04f))
-                {
-                    DisplacementRenderer.Burst burst = player.SceneAs<Level>().Displacement.AddBurst(player.Center, 0.3f, 0f, 40f, 1f, null, null);
-                    burst.WorldClipCollider = dreamBlock.Collider;
-                    burst.WorldClipPadding = 2;
-                }
-            }
-            return ConnectedDreamBlockState;
-        }
-
-        private static void DreamDashBegin()
-        {
-            Player player = CommunalHelperModule.getPlayer();
-            DynData<Player> data = new DynData<Player>(player);
-            SoundSource dreamSfxLoop = data.Get<SoundSource>("dreamSfxLoop");
-            bool flag = dreamSfxLoop == null;
-            if (flag)
-            {
-                dreamSfxLoop = new SoundSource();
-                player.Add(dreamSfxLoop);
-                data.Set("dreamSfxLoop", dreamSfxLoop);
-            }
-            player.Speed = player.DashDir * 240f;
-            data.Set("dreamDashLastDir", player.Speed);
-            player.TreatNaive = true;
-            player.Depth = -12000;
-            data.Set("dreamDashCanEndTimer", 0.1f);
-            player.Stamina = 110f;
-            data.Set("dreamJump", false);
-            player.Play("event:/char/madeline/dreamblock_enter", null, 0f);
-            if (connectedDreamBlock.starFlyControl)
-            {
-                player.Loop(dreamSfxLoop, "event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_fly_travel");
-            }
-            else
-            {
-                player.Loop(dreamSfxLoop, "event:/char/madeline/dreamblock_travel");
-            }
-        }
-
-        private static void DreamDashEnd()
-        {
-            Player player = CommunalHelperModule.getPlayer();
-            DynData<Player> data = new DynData<Player>(player);
-            player.Depth = 0;
-            if (!data.Get<bool>("dreamJump"))
-            {
-                player.AutoJump = true;
-                player.AutoJumpTimer = 0f;
-            }
-            bool flag2 = !player.Inventory.NoRefills;
-            if (flag2)
-            {
-                player.RefillDash();
-            }
-            player.RefillStamina();
-            player.TreatNaive = false;
-            ConnectedDreamBlock dreamBlock = connectedDreamBlock;
-            if (dreamBlock != null)
-            {
-                bool flag4 = player.DashDir.X != 0f;
-                if (flag4)
-                {
-                    data.Set("jumpGraceTimer", 0.1f);
-                    data.Set("dreamJump", true);
-                }
-                else
-                {
-                    data.Set("jumpGraceTimer", 0f);
-                }
-                dreamBlock.OnPlayerExit(player);
-                data.Set<ConnectedDreamBlock>("connectedSpaceJam", null);
-            }
-            player.Stop(data.Get<SoundSource>("dreamSfxLoop"));
-            player.Play("event:/char/madeline/dreamblock_exit", null, 0f);
-            Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-            if (dreamBlock.oneUse)
-            {
-                dreamBlock.BeginShatter();
-                Audio.Play("event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_shatter", player.Position);
-            }
-        }
-
-        private static bool DreamDashedIntoSolid(Player player)
-        {
-            bool flag = player.CollideCheck<Solid>();
-            bool result;
-            if (flag)
-            {
-                for (int i = 1; i <= 5; i++)
-                {
-                    for (int j = -1; j <= 1; j += 2)
-                    {
-                        for (int k = 1; k <= 5; k++)
-                        {
-                            for (int l = -1; l <= 1; l += 2)
-                            {
-                                Vector2 value = new Vector2((float)(i * j), (float)(k * l));
-                                bool flag2 = !player.CollideCheck<Solid>(player.Position + value);
-                                if (flag2)
-                                {
-                                    player.Position += value;
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                }
-                result = true;
-            }
-            else
-            {
-                result = false;
-            }
-            return result;
-        }
-
-
-        // Hooking stuff. Collaboration :)
         public static void Hook()
         {
-            On.Celeste.Player.ctor += Player_ctor;
-
-            On.Celeste.Player.OnCollideV += Player_OnCollideV;
-            On.Celeste.Player.OnCollideH += Player_OnCollideH;
-            On.Celeste.Player.UpdateSprite += Player_UpdateSprite;
-            On.Celeste.Player.RefillDash += Player_RefillDash;
-            On.Celeste.Player.ClimbBegin += Player_ClimbBegin;
-            On.Celeste.Player.WallJump += Player_WallJump;
+            On.Celeste.DreamBlock.FootstepRipple += modFootstepRipple;
+            On.Celeste.DreamBlock.OnPlayerExit += modOnPlayerExit;
+            On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
+            On.Celeste.Player.DreamDashUpdate += modDreamDashUpdate;
         }
 
         public static void Unhook()
         {
-            On.Celeste.Player.ctor -= Player_ctor;
-
-            On.Celeste.Player.OnCollideV -= Player_OnCollideV;
-            On.Celeste.Player.OnCollideH -= Player_OnCollideH;
-            On.Celeste.Player.UpdateSprite -= Player_UpdateSprite;
-            On.Celeste.Player.RefillDash -= Player_RefillDash;
-            On.Celeste.Player.ClimbBegin -= Player_ClimbBegin;
-            On.Celeste.Player.WallJump -= Player_WallJump;
+            On.Celeste.DreamBlock.FootstepRipple -= modFootstepRipple;
+            On.Celeste.DreamBlock.OnPlayerExit -= modOnPlayerExit;
+            On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
+            On.Celeste.Player.DreamDashUpdate -= modDreamDashUpdate;
         }
 
-        private static bool Player_RefillDash(On.Celeste.Player.orig_RefillDash orig, Player self)
-        {
-            if (self.StateMachine.State != ConnectedDreamBlockState)
-                return orig(self);
-            return false;
-        }
-
-        private static void Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self)
-        {
-            if (ConnectedDreamBlockState != 0 && self.StateMachine.State == ConnectedDreamBlockState)
-            {
-                if (self.Sprite.CurrentAnimationID != "dreamDashIn" && self.Sprite.CurrentAnimationID != "dreamDashLoop")
-                {
-                    self.Sprite.Play("dreamDashIn", false, false);
+        private static void modOnPlayerExit(On.Celeste.DreamBlock.orig_OnPlayerExit orig, DreamBlock dreamBlock, Player player) {
+            orig(dreamBlock, player);
+            if (dreamBlock is ConnectedDreamBlock) {
+                ConnectedDreamBlock connectedDreamBlock = dreamBlock as ConnectedDreamBlock;
+                if (connectedDreamBlock.oneUse) {
+                    connectedDreamBlock.BeginShatter();
                 }
             }
-            else
-            {
-                orig(self);
+        }
+
+        private static void modFootstepRipple(On.Celeste.DreamBlock.orig_FootstepRipple orig, DreamBlock dreamBlock, Vector2 pos) {
+            if (dreamBlock is ConnectedDreamBlock) {
+                (dreamBlock as ConnectedDreamBlock).ConnectedFootstepRipple(pos);
+            } else {
+                orig(dreamBlock, pos);
             }
         }
 
-        private static void Player_OnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player self, CollisionData data)
-        {
-            if (self.StateMachine.State == 2 || self.StateMachine.State == 5)
-            {
-                bool flag14 = DreamDashCheck(self, Vector2.UnitX * (float)Math.Sign(self.Speed.X));
-                if (flag14)
-                {
-                    self.StateMachine.State = ConnectedDreamBlockState;
-                    DynData<Player> ddata = new DynData<Player>(self);
-                    ddata.Set("dashAttackTimer", 0f);
-                    ddata.Set("gliderBoostTimer", 0f);
-                    return;
-                }
+        private static void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
+            orig(player);
+            var playerData = getPlayerData(player);
+            DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
+            if (dreamBlock is ConnectedDreamBlock && (dreamBlock as ConnectedDreamBlock).featherMode) {
+                SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
+                player.Stop(dreamSfxLoop);
+                player.Loop(dreamSfxLoop, "event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_fly_travel");
             }
-            if (self.StateMachine.State != ConnectedDreamBlockState)
-            {
-                orig(self, data);
-            }
-
 
         }
 
-        private static void Player_OnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player self, CollisionData data)
-        {
-            DynData<Player> ddata = new DynData<Player>(self);
-            if (
-            !(self.StateMachine.State == 19) &&
-            !(self.StateMachine.State == 3) &&
-            !(self.StateMachine.State == 9) &&
-            self.Speed.Y > 0f &&
-            !((self.StateMachine.State == 2 || self.StateMachine.State == 5) && !ddata.Get<bool>("dashStartedOnGround")) &&
-            !(self.StateMachine.State == 1))
-            {
-                Platform platformByPriority = SurfaceIndex.GetPlatformByPriority(
-                    self.CollideAll<Platform>(self.Position + new Vector2(0f, 1f), ddata.Get<List<Entity>>("temp")));
-                if (platformByPriority != null)
-                {
-                    if (platformByPriority is ConnectedDreamBlock)
-                    {
-                        (platformByPriority as ConnectedDreamBlock).FootstepRipple(self.Position);
+        private static int modDreamDashUpdate(On.Celeste.Player.orig_DreamDashUpdate orig, Player player) {
+            var playerData = getPlayerData(player);
+            DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
+            if (dreamBlock is ConnectedDreamBlock && (dreamBlock as ConnectedDreamBlock).featherMode) {
+                Vector2 input = Input.Aim.Value.SafeNormalize(Vector2.Zero);
+                if (input != Vector2.Zero) {
+                    Vector2 vector = player.Speed.SafeNormalize(Vector2.Zero);
+                    if (vector != Vector2.Zero) {
+                        vector = Vector2.Dot(input, vector) != -0.8f ? vector.RotateTowards(input.Angle(), 5f * Engine.DeltaTime) : vector;
+                        playerData.Set("dreamDashLastDir", vector);
+                        player.Speed = vector * 240f;
                     }
                 }
             }
-            if (self.StateMachine.State == 2 || self.StateMachine.State == 5)
-            {
-                bool flag14 = DreamDashCheck(self, Vector2.UnitY * (float)Math.Sign(self.Speed.Y));
-                if (flag14)
-                {
-                    self.StateMachine.State = ConnectedDreamBlockState;
-                    ddata.Set("dashAttackTimer", 0f);
-                    ddata.Set("gliderBoostTimer", 0f);
-                    return;
-                }
-            }
-            if (self.StateMachine.State != ConnectedDreamBlockState)
-            {
-                orig(self, data);
-            }
+            return orig(player);
         }
 
-        private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode)
-        {
-            orig(self, position, spriteMode);
-            ConnectedDreamBlockState = self.StateMachine.AddState(new Func<int>(DreamDashUpdate), null, DreamDashBegin, DreamDashEnd);
-        }
-
-        private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
-        {
-            DynData<Player> ddata = new DynData<Player>(self);
-            Platform platformByPriority = SurfaceIndex.GetPlatformByPriority(self.CollideAll<Solid>(self.Position - Vector2.UnitX * dir * 4f, ddata.Get<List<Entity>>("temp")));
-            if (platformByPriority != null)
-            {
-                if (platformByPriority is ConnectedDreamBlock)
-                {
-                    (platformByPriority as ConnectedDreamBlock).FootstepRipple(self.Position + new Vector2(dir * 3, -4f));
-                }
-            }
-            orig(self, dir);
-        }
-
-        private static void Player_ClimbBegin(On.Celeste.Player.orig_ClimbBegin orig, Player self)
-        {
-
-            DynData<Player> ddata = new DynData<Player>(self);
-            Platform platformByPriority = SurfaceIndex.GetPlatformByPriority(self.CollideAll<Solid>(self.Position + Vector2.UnitX * (float)self.Facing, ddata.Get<List<Entity>>("temp")));
-            if (platformByPriority != null)
-            {
-                if (platformByPriority is ConnectedDreamBlock)
-                {
-                    (platformByPriority as ConnectedDreamBlock).FootstepRipple(self.Position + new Vector2((int)self.Facing * 3, -4f));
-                }
-            }
-
-            orig(self);
+        private static DynData<Player> getPlayerData(Player player) {
+            return new DynData<Player>(player);
         }
     }
 }

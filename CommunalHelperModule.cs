@@ -43,7 +43,7 @@ namespace Celeste.Mod.CommunalHelper {
         }
         #endregion
 
-        #region Allows downwards diagonal dream tunnel dashing and dashing into connected dream blocks when on the ground 
+        #region Allows downwards diagonal dream tunnel dashing when on the ground 
         private static IEnumerator modDashCoroutine(On.Celeste.Player.orig_DashCoroutine orig, Player player) {
 			IEnumerator origEnum = orig(player);
 			origEnum.MoveNext();
@@ -51,8 +51,7 @@ namespace Celeste.Mod.CommunalHelper {
 
 			bool forceDownwardDiagonalDash = false;
 			Vector2 origDashDir = Input.GetAimVector(player.Facing);
-			bool shouldForce = DreamRefillHooks.dreamTunnelDashAttacking || player.CollideCheck<ConnectedDreamBlock>(player.Position + Vector2.UnitY);
-			if (player.OnGround() && origDashDir.X != 0f && origDashDir.Y > 0f && shouldForce) {
+			if (player.OnGround() && origDashDir.X != 0f && origDashDir.Y > 0f && DreamRefillHooks.dreamTunnelDashAttacking) {
 				forceDownwardDiagonalDash = true;
 			}
 			origEnum.MoveNext();
@@ -87,7 +86,7 @@ namespace Celeste.Mod.CommunalHelper {
 		#endregion
 	}
 
-    // JaThePlayer's code
+    #region JaThePlayer's state machine extension code
     internal static class StateMachineExt {
 		/// <summary>
 		/// Adds a state to a StateMachine
@@ -118,4 +117,5 @@ namespace Celeste.Mod.CommunalHelper {
 		private static FieldInfo StateMachine_ends = typeof(StateMachine).GetField("ends", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static FieldInfo StateMachine_coroutines = typeof(StateMachine).GetField("coroutines", BindingFlags.Instance | BindingFlags.NonPublic);
 	}
+    #endregion
 }
