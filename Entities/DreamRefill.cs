@@ -4,6 +4,7 @@ using Monocle;
 using MonoMod.Utils;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/DreamRefill")]
@@ -211,45 +212,59 @@ namespace Celeste.Mod.CommunalHelper {
 		private static float dreamTunnelDashAttackTimer = 0f;
 		public static bool dreamTunnelDashAttacking {
 			get { return dreamTunnelDashAttackTimer > 0f; }
-        }
+		}
 		private static ParticleType[] dreamParticles;
 		private static int dreamParticleIndex = 0;
 
 		private static Color[] dreamHairColors;
 		private static int dreamHairColorIndex = 0;
-		private static float dreamHairColorChangeTime = 1 / 10f;
-		private static float dreamHairColorTimer = dreamHairColorChangeTime;
 
-		static DreamRefillHooks() {
+		private static Color customPlayerHairColor;
+		private static Color actualPlayerHairColor;
+
+		public static List<MTexture> bangs;
+
+		static DreamRefillHooks()
+		{
 			dreamHairColors = new Color[5];
 			dreamHairColors[0] = Calc.HexToColor("FFEF11");
-			dreamHairColors[1] = Calc.HexToColor("5FCDE4");
+			dreamHairColors[1] = Calc.HexToColor("08A310");
 			dreamHairColors[2] = Calc.HexToColor("FF00D0");
-			dreamHairColors[3] = Calc.HexToColor("08A310");
+			dreamHairColors[3] = Calc.HexToColor("5FCDE4");
 			dreamHairColors[4] = Calc.HexToColor("E0564C");
+			customPlayerHairColor = dreamHairColors[0];
+			actualPlayerHairColor = dreamHairColors[0];
+		}
 
-			//dreamParticles = new ParticleType[4];
-			//ParticleType particle = new ParticleType(Strawberry.P_Glow);
-			//particle.ColorMode = ParticleType.ColorModes.Choose;
+		public static void InitializeParticles()
+		{
+			dreamParticles = new ParticleType[5];
+			ParticleType particle = new ParticleType(Strawberry.P_Glow);
+			particle.ColorMode = ParticleType.ColorModes.Blink;
 
-			//particle.Color = Calc.HexToColor("FFEF11");
-			//particle.Color2 = Calc.HexToColor("FF00D0");
-			//dreamParticles[0] = particle;
+			particle.Color = Calc.HexToColor("FFEF11");
+			particle.Color2 = Color.Lerp(Calc.HexToColor("08A310"), Color.White, 0.5f);
+			dreamParticles[0] = particle;
 
-			//particle = new ParticleType(particle);
-			//particle.Color = Calc.HexToColor("08a310");
-			//particle.Color2 = Calc.HexToColor("5fcde4");
-			//dreamParticles[1] = particle;
+			particle = new ParticleType(particle);
+			particle.Color = Calc.HexToColor("5FCDE4");
+			particle.Color2 = Color.Lerp(Calc.HexToColor("E0564C"), Color.White, 0.5f);
+			dreamParticles[1] = particle;
 
-			//particle = new ParticleType(particle);
-			//particle.Color = Calc.HexToColor("7fb25e");
-			//particle.Color2 = Calc.HexToColor("E0564C");
-			//dreamParticles[2] = particle;
+			particle = new ParticleType(particle);
+			particle.Color = Calc.HexToColor("FF00D0");
+			particle.Color2 = Color.Lerp(Calc.HexToColor("5FCDE4"), Color.White, 0.5f);
+			dreamParticles[2] = particle;
 
-			//particle = new ParticleType(particle);
-			//particle.Color = Calc.HexToColor("5b6ee1");
-			//particle.Color2 = Calc.HexToColor("CC3B3B");
-			//dreamParticles[3] = particle;
+			particle = new ParticleType(particle);
+			particle.Color = Calc.HexToColor("08A310");
+			particle.Color2 = Color.Lerp(Calc.HexToColor("FFEF11"), Color.White, 0.5f);
+			dreamParticles[3] = particle;
+
+			particle = new ParticleType(particle);
+			particle.Color = Calc.HexToColor("E0564C");
+			particle.Color2 = Color.Lerp(Calc.HexToColor("FF00D0"), Color.White, 0.5f);
+			dreamParticles[4] = particle;
 		}
 
 		public static void hook() {
@@ -261,6 +276,7 @@ namespace Celeste.Mod.CommunalHelper {
             On.Celeste.Level.EnforceBounds += modLevelEnforceBounds;
             On.Celeste.Player.Die += modDie;
             On.Celeste.Player.UpdateSprite += modUpdateSprite;
+			On.Celeste.PlayerHair.Render += modPlayerHairRender;
         }
 
 		public static void unhook() {
@@ -272,7 +288,70 @@ namespace Celeste.Mod.CommunalHelper {
             On.Celeste.Level.EnforceBounds -= modLevelEnforceBounds;
             On.Celeste.Player.Die -= modDie;
             On.Celeste.Player.UpdateSprite -= modUpdateSprite;
-        }
+			On.Celeste.PlayerHair.Render -= modPlayerHairRender;
+		}
+
+		// Custom Hair rendering for Madeline's hair to resemble a little more dream blocks.
+		private static void modPlayerHairRender(On.Celeste.PlayerHair.orig_Render orig, PlayerHair self)
+		{
+			var playerHairData = new DynData<PlayerHair>(self);
+			if (playerHairData.Get<Color?>("hairEndColor") == null)
+			{
+				orig(self); return;
+			} else
+			{
+				PlayerSprite sprite = self.Sprite;
+				if (!sprite.HasHair)
+				{
+					return;
+				}
+				Vector2 origin = new Vector2(5f, 5f);
+				Color color = self.Border;
+				if (self.DrawPlayerSpriteOutline)
+				{
+					Color color2 = sprite.Color;
+					Vector2 position = sprite.Position;
+					sprite.Color = color;
+					sprite.Position = position + new Vector2(0f, -1f);
+					sprite.Render();
+					sprite.Position = position + new Vector2(0f, 1f);
+					sprite.Render();
+					sprite.Position = position + new Vector2(-1f, 0f);
+					sprite.Render();
+					sprite.Position = position + new Vector2(1f, 0f);
+					sprite.Render();
+					sprite.Color = color2;
+					sprite.Position = position;
+				}
+				self.Nodes[0] = self.Nodes[0].Floor();
+				if (color.A > 0)
+				{
+					for (int i = 0; i < sprite.HairCount; i++)
+					{
+						MTexture hairTexture = GetCustomHairTexture(self, i);
+						Vector2 hairScale = self.GetHairScale(i);
+						hairTexture.Draw(self.Nodes[i] + new Vector2(-1f, 0f), origin, color, hairScale);
+						hairTexture.Draw(self.Nodes[i] + new Vector2(1f, 0f), origin, color, hairScale);
+						hairTexture.Draw(self.Nodes[i] + new Vector2(0f, -1f), origin, color, hairScale);
+						hairTexture.Draw(self.Nodes[i] + new Vector2(0f, 1f), origin, color, hairScale);
+					}
+				}
+				for (int num = sprite.HairCount - 1; num >= 0; num--)
+				{
+					self.GetHairTexture(num).Draw(self.Nodes[num], origin, 
+						(num >= sprite.HairCount - 3) ? actualPlayerHairColor : self.GetHairColor(num), 
+						self.GetHairScale(num));
+				}
+			}
+		}
+		private static MTexture GetCustomHairTexture(PlayerHair self, int index)
+		{
+			if (index == 0)
+			{
+				return bangs[self.Sprite.HairFrame];
+			}
+			return GFX.Game["characters/player/hair00"];
+		}
 
 		// Adds custom dream tunnel dash state
 		private static void modPlayerCtor(On.Celeste.Player.orig_ctor orig, Player player, Vector2 position, PlayerSpriteMode spriteMode) {
@@ -298,25 +377,37 @@ namespace Celeste.Mod.CommunalHelper {
 				dreamTunnelDashAttackTimer -= Engine.DeltaTime;
             }
 
+			var playerHairData = new DynData<PlayerHair>(player.Hair);
+
 			Level level = player.Scene as Level;
-			//if (hasDreamTunnelDash && level.OnInterval(0.1f)) {
-			//	level.ParticlesFG.Emit(dreamParticles[dreamParticleIndex], 1, player.Center, Vector2.Zero);
-			//	++dreamParticleIndex;
-			//	dreamParticleIndex %= 4;
-			//}
+			if (hasDreamTunnelDash)
+			{
+				playerHairData.Set<Color?>("hairEndColor", actualPlayerHairColor);
+				player.Hair.Border = Color.White;
+				player.OverrideHairColor = Color.Black;
 
-			//if (hasDreamTunnelDash) {
-			//             player.OverrideHairColor = dreamHairColors[dreamHairColorIndex];
-			//             dreamHairColorTimer -= Engine.DeltaTime;
-			//             if (dreamHairColorTimer <= 0f) {
-			//                 ++dreamHairColorIndex;
-			//                 dreamHairColorIndex %= 5;
-			//                 dreamHairColorTimer = dreamHairColorChangeTime;
-			//             }
+				if (level.OnInterval(0.05f))
+				{
+					level.ParticlesBG.Emit(dreamParticles[dreamParticleIndex], 1, player.Center, Vector2.Zero);
+					++dreamParticleIndex;
+					dreamParticleIndex %= 5;
+				}
+				if (level.OnInterval(0.1f))
+				{
+					customPlayerHairColor = dreamHairColors[dreamHairColorIndex];
+					++dreamHairColorIndex;
+					dreamHairColorIndex %= 5;
+				}
 
-			//         } else {
-			//	player.OverrideHairColor = null;
-			//         }
+				actualPlayerHairColor = Color.Lerp(actualPlayerHairColor, customPlayerHairColor, 15f * Engine.DeltaTime);
+
+			}
+			else
+			{
+				playerHairData.Set<Color?>("hairEndColor", null);
+				player.OverrideHairColor = null;
+				player.Hair.Border = Color.Black;
+			}
 		}
 
 		#region State machine extension stuff

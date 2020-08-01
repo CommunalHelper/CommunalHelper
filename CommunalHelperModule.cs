@@ -23,7 +23,13 @@ namespace Celeste.Mod.CommunalHelper {
             ConnectedDreamBlockHooks.Hook();
         }
 
-        public override void Unload() {
+		public override void LoadContent(bool firstLoad)
+		{
+			DreamRefillHooks.bangs = GFX.Game.GetAtlasSubtextures("characters/player/CommunalHelper/bangs"); // Custom hair sprites to allow the Madeline's hair border to be completely white.
+			DreamRefillHooks.InitializeParticles(); // Initialize particles.
+		}
+
+		public override void Unload() {
             On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
             On.Celeste.Player.DashCoroutine -= modDashCoroutine;
 

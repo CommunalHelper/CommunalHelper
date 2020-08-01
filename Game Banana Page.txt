@@ -5,3 +5,4 @@ The current list of included mechanics:
     Dream Zip Mover - The body of a Zip Mover with the soul of a Dream Block.
     Dream Move Block - Move Block by day, Dream Block by night.
     Dream Swap Block - I think you get the idea.
+    Connected Dream Block - Dream Blocks that nicely connect together, if they overlap, to make up any shape. They can also shatter after use if enabled, and they can optionally let you move inside as if you had a feather.
