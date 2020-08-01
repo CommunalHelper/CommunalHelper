@@ -10,20 +10,26 @@ namespace Celeste.Mod.CommunalHelper {
         public static CommunalHelperModule Instance;
 		private static DynData<Player> _playerData = null;
 
-		#region Setup
-		public override void Load() {
-            On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
+		#region Vanilla constants
+		private const float DashSpeed = 240f;
+        #endregion
 
-			DreamRefillHooks.hook();
-			ConnectedDreamBlockHooks.Hook();
-		}
+        #region Setup
+        public override void Load() {
+            On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
+            On.Celeste.Player.DashCoroutine += modDashCoroutine;
+
+            DreamRefillHooks.hook();
+            ConnectedDreamBlockHooks.Hook();
+        }
 
         public override void Unload() {
             On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
+            On.Celeste.Player.DashCoroutine -= modDashCoroutine;
 
-			DreamRefillHooks.unhook();
-			ConnectedDreamBlockHooks.Unhook();
-		}
+            DreamRefillHooks.unhook();
+            ConnectedDreamBlockHooks.Unhook();
+        }
         #endregion
 
         #region Ensures the player always properly enters a dream block even when it's moving fast
@@ -35,10 +41,36 @@ namespace Celeste.Mod.CommunalHelper {
                 player.Position.Y += Math.Sign(player.DashDir.Y);
             }
         }
-		#endregion
+        #endregion
 
-		#region Misc
-		public static Player getPlayer() {
+        #region Allows downwards diagonal dream tunnel dashing and dashing into connected dream blocks when on the ground 
+        private static IEnumerator modDashCoroutine(On.Celeste.Player.orig_DashCoroutine orig, Player player) {
+			IEnumerator origEnum = orig(player);
+			origEnum.MoveNext();
+			yield return origEnum.Current;
+
+			bool forceDownwardDiagonalDash = false;
+			Vector2 origDashDir = Input.GetAimVector(player.Facing);
+			bool shouldForce = DreamRefillHooks.dreamTunnelDashAttacking || player.CollideCheck<ConnectedDreamBlock>(player.Position + Vector2.UnitY);
+			if (player.OnGround() && origDashDir.X != 0f && origDashDir.Y > 0f && shouldForce) {
+				forceDownwardDiagonalDash = true;
+			}
+			origEnum.MoveNext();
+			if (forceDownwardDiagonalDash) {
+				player.DashDir = origDashDir;
+				player.Speed = origDashDir * DashSpeed;
+				if (player.CanUnDuck) {
+					player.Ducking = false;
+				}
+			}
+			yield return origEnum.Current;
+
+			origEnum.MoveNext();
+		}
+        #endregion
+
+        #region Misc
+        public static Player getPlayer() {
 			return (Engine.Scene as Level).Tracker.GetEntity<Player>();
         }
 
@@ -48,8 +80,12 @@ namespace Celeste.Mod.CommunalHelper {
             //}
             return new DynData<Player>(player);
         }
-        #endregion
-    }
+
+		public static void log(string str) {
+			Logger.Log("Communal Helper", str);
+		}
+		#endregion
+	}
 
     // JaThePlayer's code
     internal static class StateMachineExt {

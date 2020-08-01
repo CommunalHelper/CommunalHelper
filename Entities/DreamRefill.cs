@@ -18,8 +18,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         private Sprite sprite;
 		private Sprite flash;
-		private Image outline;
-		private Wiggler wiggler;
+        private Image outline;
+        private Wiggler wiggler;
 		private BloomPoint bloom;
 		private VertexLight light;
 
@@ -65,10 +65,10 @@ namespace Celeste.Mod.CommunalHelper {
 			base.Collider = new Hitbox(16f, 16f, -8f, -8f);
 			Add(new PlayerCollider(OnPlayer));
 			this.oneUse = oneUse;
-			Add(outline = new Image(GFX.Game["objects/refill/outline"]));
-			outline.CenterOrigin();
-			outline.Visible = false;
-			Add(sprite = new Sprite(GFX.Game, "objects/CommunalHelper/dreamRefill/idle"));
+            Add(outline = new Image(GFX.Game["objects/refill/outline"]));
+            outline.CenterOrigin();
+            outline.Visible = false;
+            Add(sprite = new Sprite(GFX.Game, "objects/CommunalHelper/dreamRefill/idle"));
 			sprite.AddLoop("idle", "", 0.1f);
 			sprite.Play("idle");
 			sprite.CenterOrigin();
@@ -125,8 +125,8 @@ namespace Celeste.Mod.CommunalHelper {
 			if (!Collidable) {
 				Collidable = true;
 				sprite.Visible = true;
-				outline.Visible = false;
-				base.Depth = -100;
+                outline.Visible = false;
+                base.Depth = -100;
 				wiggler.Start();
 				Audio.Play("event:/game/general/diamond_return", Position);
 				for (int i = 0; i < 16; ++i) {
@@ -171,8 +171,8 @@ namespace Celeste.Mod.CommunalHelper {
 			level.Shake();
 			sprite.Visible = (flash.Visible = false);
 			if (!oneUse) {
-				outline.Visible = true;
-			}
+                outline.Visible = true;
+            }
 			Depth = 8999;
 			yield return 0.05f;
 			float angle = player.Speed.Angle();
@@ -193,6 +193,11 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 	}
 
+	// TODO 
+	// * fix dreamTunnelDashCheck
+	// * Do hair stuff
+	// * do particle stuff
+	// * merge dreamTunnelDashCheck solid collision logic with dreamblock death collision logic
 	class DreamRefillHooks {
 		#region Vanilla constants
 		private const float DashSpeed = 240f;
@@ -201,48 +206,81 @@ namespace Celeste.Mod.CommunalHelper {
 		private const float DreamDashMinTime = 0.1f;
 		#endregion
 
-		private static int StDreamTunnelDash;
+		public static int StDreamTunnelDash;
 		public static bool hasDreamTunnelDash = false;
 		private static float dreamTunnelDashAttackTimer = 0f;
-		private static bool dreamTunnelDashAttacking {
+		public static bool dreamTunnelDashAttacking {
 			get { return dreamTunnelDashAttackTimer > 0f; }
         }
+		private static ParticleType[] dreamParticles;
+		private static int dreamParticleIndex = 0;
+
+		private static Color[] dreamHairColors;
+		private static int dreamHairColorIndex = 0;
+		private static float dreamHairColorChangeTime = 1 / 10f;
+		private static float dreamHairColorTimer = dreamHairColorChangeTime;
+
+		static DreamRefillHooks() {
+			dreamHairColors = new Color[5];
+			dreamHairColors[0] = Calc.HexToColor("FFEF11");
+			dreamHairColors[1] = Calc.HexToColor("5FCDE4");
+			dreamHairColors[2] = Calc.HexToColor("FF00D0");
+			dreamHairColors[3] = Calc.HexToColor("08A310");
+			dreamHairColors[4] = Calc.HexToColor("E0564C");
+
+			//dreamParticles = new ParticleType[4];
+			//ParticleType particle = new ParticleType(Strawberry.P_Glow);
+			//particle.ColorMode = ParticleType.ColorModes.Choose;
+
+			//particle.Color = Calc.HexToColor("FFEF11");
+			//particle.Color2 = Calc.HexToColor("FF00D0");
+			//dreamParticles[0] = particle;
+
+			//particle = new ParticleType(particle);
+			//particle.Color = Calc.HexToColor("08a310");
+			//particle.Color2 = Calc.HexToColor("5fcde4");
+			//dreamParticles[1] = particle;
+
+			//particle = new ParticleType(particle);
+			//particle.Color = Calc.HexToColor("7fb25e");
+			//particle.Color2 = Calc.HexToColor("E0564C");
+			//dreamParticles[2] = particle;
+
+			//particle = new ParticleType(particle);
+			//particle.Color = Calc.HexToColor("5b6ee1");
+			//particle.Color2 = Calc.HexToColor("CC3B3B");
+			//dreamParticles[3] = particle;
+		}
 
 		public static void hook() {
-			On.Celeste.Player.ctor += modPlayerCtor;
-			On.Celeste.Player.DashBegin += modDashBegin;
-			On.Celeste.Player.Update += modUpdate;
-			On.Celeste.Player.OnCollideH += modOnCollideH;
-			On.Celeste.Player.OnCollideV += modOnCollideV;
-			On.Celeste.Player.OnBoundsH += modOnBoundsH;
-			On.Celeste.Player.OnBoundsV += modOnBoundsV;
-			On.Celeste.Player.Die += modDie;
-			On.Celeste.Player.UpdateSprite += modUpdateSprite;
-			On.Celeste.Player.DashCoroutine += modDashCoroutine;
-			On.Celeste.Level.EnforceBounds += modLevelEnforceBounds;
-		}
+            On.Celeste.Player.ctor += modPlayerCtor;
+            On.Celeste.Player.DashBegin += modDashBegin;
+            On.Celeste.Player.Update += modUpdate;
+            On.Celeste.Player.OnCollideH += modOnCollideH;
+            On.Celeste.Player.OnCollideV += modOnCollideV;
+            On.Celeste.Level.EnforceBounds += modLevelEnforceBounds;
+            On.Celeste.Player.Die += modDie;
+            On.Celeste.Player.UpdateSprite += modUpdateSprite;
+        }
 
 		public static void unhook() {
-			On.Celeste.Player.ctor -= modPlayerCtor;
-			On.Celeste.Player.DashBegin -= modDashBegin;
-			On.Celeste.Player.Update -= modUpdate;
-			On.Celeste.Player.OnCollideH -= modOnCollideH;
-			On.Celeste.Player.OnCollideV -= modOnCollideV;
-			On.Celeste.Player.OnBoundsH -= modOnBoundsH;
-			On.Celeste.Player.OnBoundsV -= modOnBoundsV;
-			On.Celeste.Player.Die -= modDie;
-			On.Celeste.Player.UpdateSprite -= modUpdateSprite;
-			On.Celeste.Player.DashCoroutine -= modDashCoroutine;
-			On.Celeste.Level.EnforceBounds -= modLevelEnforceBounds;
-		}
+            On.Celeste.Player.ctor -= modPlayerCtor;
+            On.Celeste.Player.DashBegin -= modDashBegin;
+            On.Celeste.Player.Update -= modUpdate;
+            On.Celeste.Player.OnCollideH -= modOnCollideH;
+            On.Celeste.Player.OnCollideV -= modOnCollideV;
+            On.Celeste.Level.EnforceBounds -= modLevelEnforceBounds;
+            On.Celeste.Player.Die -= modDie;
+            On.Celeste.Player.UpdateSprite -= modUpdateSprite;
+        }
 
 		// Adds custom dream tunnel dash state
 		private static void modPlayerCtor(On.Celeste.Player.orig_ctor orig, Player player, Vector2 position, PlayerSpriteMode spriteMode) {
 			orig(player, position, spriteMode);
 
-			var update = new Func<int>(DreamTunnelDashUpdate);
-			StDreamTunnelDash = player.StateMachine.AddState(update, null, DreamTunnelDashBegin, DreamTunnelDashEnd);
-		}
+            var update = new Func<int>(DreamTunnelDashUpdate);
+            StDreamTunnelDash = player.StateMachine.AddState(update, null, DreamTunnelDashBegin, DreamTunnelDashEnd);
+        }
 
 		// Dream tunnel dash triggering
 		private static void modDashBegin(On.Celeste.Player.orig_DashBegin orig, Player player) {
@@ -259,7 +297,27 @@ namespace Celeste.Mod.CommunalHelper {
 			if (dreamTunnelDashAttackTimer > 0f) {
 				dreamTunnelDashAttackTimer -= Engine.DeltaTime;
             }
-        }
+
+			Level level = player.Scene as Level;
+			//if (hasDreamTunnelDash && level.OnInterval(0.1f)) {
+			//	level.ParticlesFG.Emit(dreamParticles[dreamParticleIndex], 1, player.Center, Vector2.Zero);
+			//	++dreamParticleIndex;
+			//	dreamParticleIndex %= 4;
+			//}
+
+			//if (hasDreamTunnelDash) {
+			//             player.OverrideHairColor = dreamHairColors[dreamHairColorIndex];
+			//             dreamHairColorTimer -= Engine.DeltaTime;
+			//             if (dreamHairColorTimer <= 0f) {
+			//                 ++dreamHairColorIndex;
+			//                 dreamHairColorIndex %= 5;
+			//                 dreamHairColorTimer = dreamHairColorChangeTime;
+			//             }
+
+			//         } else {
+			//	player.OverrideHairColor = null;
+			//         }
+		}
 
 		#region State machine extension stuff
 		private static void DreamTunnelDashBegin() {
@@ -399,9 +457,9 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 		#endregion
 
-		// Dream tunnel dash/dashing into dream block detection
+		// Dream tunnel dash/dashing into dream block detection 
 		private static void modOnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player player, CollisionData data) {
-			if (dreamTunnelDashAttacking && data.Hit is DreamBlock) {
+			if ((dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) && data.Hit is DreamBlock) {
 				player.Die(-data.Direction);
 			}
 			if (player.StateMachine.State == StDreamTunnelDash) {
@@ -418,7 +476,7 @@ namespace Celeste.Mod.CommunalHelper {
 			orig(player, data);
 		}
 		private static void modOnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player player, CollisionData data) {
-			if (dreamTunnelDashAttacking && data.Hit is DreamBlock) {
+			if ((dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) && data.Hit is DreamBlock) {
 				player.Die(-data.Direction);
             } 
 			if (player.StateMachine.State == StDreamTunnelDash) {
@@ -433,6 +491,17 @@ namespace Celeste.Mod.CommunalHelper {
 				return;
 			}
 			orig(player, data);
+		}
+
+		// Kills the player if they dream tunnel dash into the level bounds
+		private static void modLevelEnforceBounds(On.Celeste.Level.orig_EnforceBounds orig, Level level, Player player) {
+			Rectangle bounds = level.Bounds;
+			bool canDie = player.StateMachine.State == StDreamTunnelDash && player.CollideCheck<Solid>();
+			if (canDie && (player.Right > bounds.Right || player.Left < bounds.Left || player.Top < bounds.Top || player.Bottom > bounds.Bottom)) {
+				player.Die(Vector2.Zero);
+			} else {
+				orig(level, player);
+			}
 		}
 
 		private static bool dreamTunnelDashCheck(Player player, Vector2 dir) {
@@ -480,20 +549,6 @@ namespace Celeste.Mod.CommunalHelper {
 			return false;
 		}
 
-		// Kills player when dream tunnel dashing into level bounds
-		private static void modOnBoundsH(On.Celeste.Player.orig_OnBoundsH orig, Player player) {
-			orig(player);
-			if (player.StateMachine.State == StDreamTunnelDash) {
-				player.Die(Vector2.Zero);
-			}
-		}
-		private static void modOnBoundsV(On.Celeste.Player.orig_OnBoundsV orig, Player player) {
-			orig(player);
-			if (player.StateMachine.State == StDreamTunnelDash) {
-				player.Die(Vector2.Zero);
-			}
-		}
-
 		// Fixes bug with dreamSfx soundsource not being stopped
 		private static PlayerDeadBody modDie(On.Celeste.Player.orig_Die orig, Player player, Vector2 dir, bool evenIfInvincible = false, bool registerDeathInStats = true) {
 			hasDreamTunnelDash = false;
@@ -506,48 +561,14 @@ namespace Celeste.Mod.CommunalHelper {
 
 		// Updates sprite for dream tunnel dash state
 		private static void modUpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player player) {
-			if (player.StateMachine.State == StDreamTunnelDash) {
+			if (StDreamTunnelDash != 0 && player.StateMachine.State == StDreamTunnelDash) {
 				if (player.Sprite.CurrentAnimationID != "dreamDashIn" && player.Sprite.CurrentAnimationID != "dreamDashLoop") {
 					player.Sprite.Play("dreamDashIn");
 				}
 			} else {
 				orig(player);
-            }
+			}
         }
-
-		// Allows downwards diagonal dream tunnel dashing when on the ground 
-		private static IEnumerator modDashCoroutine(On.Celeste.Player.orig_DashCoroutine orig, Player player) {
-			IEnumerator origEnum = orig(player);
-			origEnum.MoveNext();
-			yield return origEnum.Current;
-
-			bool forceDownwardDiagonalDash = false;
-			Vector2 origDashDir = Input.GetAimVector(player.Facing);
-			if (player.OnGround() && origDashDir.X != 0f && origDashDir.Y > 0f && dreamTunnelDashAttacking) {
-				forceDownwardDiagonalDash = true;
-			}
-			origEnum.MoveNext();
-			if (forceDownwardDiagonalDash) {
-				player.DashDir = origDashDir;
-				player.Speed = origDashDir * DashSpeed;
-				if (player.CanUnDuck) {
-					player.Ducking = false;
-				}
-			}
-			yield return origEnum.Current;
-
-			origEnum.MoveNext();
-		}
-
-		// Ensures that dream tunnel dashing does not allow transitioning into other rooms
-		private static void modLevelEnforceBounds(On.Celeste.Level.orig_EnforceBounds orig, Level level, Player player) {
-			Rectangle bounds = level.Bounds;
-			if (player.Right > bounds.Right || player.Left < bounds.Left || player.Top < bounds.Top || player.Bottom > bounds.Bottom) {
-				player.Die(Vector2.Zero);
-			} else {
-				orig(level, player);
-            }
-		}
 
 		#region Misc
 		private static Player getPlayer() {

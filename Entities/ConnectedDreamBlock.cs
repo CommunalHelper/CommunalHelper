@@ -17,14 +17,15 @@ namespace Celeste.Mod.CommunalHelper
         private struct DreamParticle
         {
             public Vector2 Position;
-            public Vector2 Direction;
-            public float Speed;
-            public float Spin;
-            public float Percent;
-            public float Duration;
             public int Layer;
             public Color Color;
             public float TimeOffset;
+
+            // Feather particle stuff
+            public float Speed;
+            public float Spin;
+            public float MaxRotate;
+            public float RotationCounter;
         }
 
         private struct SpaceJamTile
@@ -80,7 +81,7 @@ namespace Celeste.Mod.CommunalHelper
         public float animTimer;
 
         private MTexture[] particleTextures;
-        private MTexture featherTexture;
+        private MTexture[] petalTextures;
         private bool playerHasDreamDash;
         private DreamParticle[] particles;
 
@@ -130,7 +131,10 @@ namespace Celeste.Mod.CommunalHelper
                 GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7),
                 GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7)
             };
-            featherTexture = GFX.Game["particles/feather"];
+            petalTextures = new MTexture[3];
+            petalTextures[0] = GFX.Game["particles/CommunalHelper/petalBig"];
+            petalTextures[1] = GFX.Game["particles/CommunalHelper/petalMedium"];
+            petalTextures[2] = GFX.Game["particles/CommunalHelper/petalSmall"];
         }
 
         public override void Added(Scene scene)
@@ -323,14 +327,17 @@ namespace Celeste.Mod.CommunalHelper
 
         private void SetupParticles()
         {
-            groupWidth = GroupBoundsMax.X - GroupBoundsMin.X; groupHeight = GroupBoundsMax.Y - GroupBoundsMin.Y;
+            groupWidth = GroupBoundsMax.X - GroupBoundsMin.X; 
+            groupHeight = GroupBoundsMax.Y - GroupBoundsMin.Y;
 
             /* Setup particles, will be rendered by the Group Master */
-            particles = new DreamParticle[(int)(groupWidth / 8f * (groupHeight / 8f) * 0.7f * (starFlyControl ? 1f : 0.821f))];
+            float countFactor = starFlyControl ? 0.5f : 0.7f;
+            particles = new DreamParticle[(int)(groupWidth / 8f * (groupHeight / 8f) * 0.7f * countFactor)];
             for (int i = 0; i < particles.Length; i++)
             {
-                ResetParticle(i, Calc.Random.NextFloat(), groupWidth, groupHeight);
-                particles[i].Color = Color.LightGray * (0.5f + (float)particles[i].Layer / 2f * 0.5f);
+                particles[i].Position = new Vector2(Calc.Random.NextFloat(groupWidth), Calc.Random.NextFloat(groupHeight));
+                particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
+                particles[i].TimeOffset = Calc.Random.NextFloat();
 
                 if (playerHasDreamDash)
                 {
@@ -346,7 +353,18 @@ namespace Celeste.Mod.CommunalHelper
                             particles[i].Color = Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64"));
                             break;
                     }
+                } else {
+                    particles[i].Color = Color.LightGray * (0.5f + (float)particles[i].Layer / 2f * 0.5f);
                 }
+
+                #region Feather particle stuff
+                if (starFlyControl) {
+                    particles[i].Speed = Calc.Random.Range(6f, 16f);
+                    particles[i].Spin = Calc.Random.Range(8f, 12f) * 0.2f;
+                    particles[i].RotationCounter = Calc.Random.NextAngle();
+                    particles[i].MaxRotate = Calc.Random.Range(0.3f, 0.6f) * ((float)Math.PI / 2f);
+                }
+                #endregion
             }
         }
 
@@ -367,46 +385,25 @@ namespace Celeste.Mod.CommunalHelper
                         wobbleTo = Calc.Random.NextFloat((float)Math.PI * 2f);
                     }
 
-                    UpdateParticles();
+                    if (starFlyControl) {
+                        UpdateParticles();
+                    }
                 }
                 SurfaceSoundIndex = 12;
             }
         }
 
-        private void ResetParticle(int i, float p, float w, float h)
-        {
-            particles[i].Percent = p;
-
-            particles[i].Position = new Vector2(Calc.Random.NextFloat(w), Calc.Random.NextFloat(h));
-            particles[i].Direction = Calc.AngleToVector(Calc.Random.NextFloat((float)Math.PI * 2f), 1f);
-            particles[i].Speed = Calc.Random.Range(4, 14);
-            particles[i].Spin = Calc.Random.Range(0.25f, (float)Math.PI * 6f);
-
-            particles[i].Duration = Calc.Random.Range(1f, 4f);
-            particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
-            particles[i].TimeOffset = Calc.Random.NextFloat();
-        }
-
         private void UpdateParticles()
         {
-            if (!starFlyControl) return;
-
             for (int i = 0; i < particles.Length; i++)
             {
-                if (particles[i].Percent >= 1f)
-                {
-                    ResetParticle(i, 0f, groupWidth, groupHeight);
-                }
-                particles[i].Percent += Engine.DeltaTime / particles[i].Duration;
-                particles[i].Position += particles[i].Direction * particles[i].Speed * Engine.DeltaTime;
-                particles[i].Direction.Rotate(particles[i].Spin * Engine.DeltaTime);
-                particles[i].Position.Y += 8f * Engine.DeltaTime;
+                particles[i].Position.Y += 0.5f * particles[i].Speed * GetLayerScaleFactor(particles[i].Layer) * Engine.DeltaTime;
+                particles[i].RotationCounter += particles[i].Spin * Engine.DeltaTime;
             }
         }
 
         public override void Render()
         {
-
             Camera camera = SceneAs<Level>().Camera;
             Rectangle groupRect = new Rectangle(
                     GroupBoundsMin.X,
@@ -424,7 +421,8 @@ namespace Celeste.Mod.CommunalHelper
                 Color lineColor = Color.Lerp(playerHasDreamDash ? activeLineColor : disabledLineColor, Color.Black, colorLerp);
                 Color backColor = Color.Lerp(playerHasDreamDash ? activeBackColor : disabledBackColor, Color.White, colorLerp);
 
-                Vector2 position = SceneAs<Level>().Camera.Position;
+                #region Background rendering
+                Vector2 cameraPositon = SceneAs<Level>().Camera.Position;
                 foreach (ConnectedDreamBlock e in group)
                 {
                     if (e.Right < camera.Left || e.Left > camera.Right || e.Bottom < camera.Top || e.Top > camera.Bottom)
@@ -433,51 +431,55 @@ namespace Celeste.Mod.CommunalHelper
                     }
                     Draw.Rect(e.Collider, backColor);
                 }
+                #endregion
 
+                #region Particlue rendering
                 for (int i = 0; i < particles.Length; i++)
                 {
-                    int layer = particles[i].Layer;
-                    Vector2 position2 = particles[i].Position;
-                    position2 += position * (0.3f + 0.25f * (float)layer);
-                    position2 = PutInside(position2, groupRect);
+                    DreamParticle particle = particles[i];
+                    int layer = particle.Layer;
+                    Vector2 position = particle.Position + cameraPositon * (0.3f + 0.25f * layer);
+                    float rotation = 1.5707963705062866f - 0.8f + (float)Math.Sin(particle.RotationCounter * particle.MaxRotate);
+                    if (starFlyControl) {
+                        position += Calc.AngleToVector(rotation, 4f);
+                    }
+                    position = PutInside(position, groupRect);
 
-                    if (!CheckGroupStarCollide(position2)) continue;
+                    if (!CheckGroupParticleCollide(position)) continue;
 
-                    Color color = Color.Lerp(particles[i].Color, Color.Black, colorLerp);
+                    Color color = Color.Lerp(particle.Color, Color.Black, colorLerp);
 
-                    MTexture mTexture = featherTexture;
                     if (starFlyControl)
                     {
-                        float percent = particles[i].Percent;
-                        float num = (!(percent < 0.7f)) ? Calc.ClampedMap(percent, 0.7f, 1f, 1f, 0f) : Calc.ClampedMap(percent, 0f, 0.3f);
-                        float scale = particles[i].Layer + 1; scale = 1f / (scale * (scale > 1 ? 0.6f : 1f));
-                        
-                        mTexture.DrawCentered(position2 + Shake, color * num, scale, particles[i].Spin);
+                        petalTextures[layer].DrawCentered(position + Shake, color, 1, rotation);
                     } 
                     else
                     {
+                        MTexture particleTexture;
                         switch (layer)
                         {
                             case 0:
                                 {
-                                    int num2 = (int)((particles[i].TimeOffset * 4f + animTimer) % 4f);
-                                    mTexture = particleTextures[3 - num2];
+                                    int index = (int)((particle.TimeOffset * 4f + animTimer) % 4f);
+                                    particleTexture = particleTextures[3 - index];
                                     break;
                                 }
                             case 1:
                                 {
-                                    int num = (int)((particles[i].TimeOffset * 2f + animTimer) % 2f);
-                                    mTexture = particleTextures[1 + num];
+                                    int index = (int)((particle.TimeOffset * 2f + animTimer) % 2f);
+                                    particleTexture = particleTextures[1 + index];
                                     break;
                                 }
                             default:
-                                mTexture = particleTextures[2];
+                                particleTexture = particleTextures[2];
                                 break;
                         }
-                        mTexture.DrawCentered(position2 + Shake, color);
+                        particleTexture.DrawCentered(position + Shake, color);
                     }
                 }
+                #endregion
 
+                #region Edge Rendering
                 foreach (ConnectedDreamBlock e in group)
                 {
                     if (e.Right < camera.Left || e.Left > camera.Right || e.Bottom < camera.Top || e.Top > camera.Bottom)
@@ -513,6 +515,7 @@ namespace Celeste.Mod.CommunalHelper
                     }
                     WobbleLine(start, end, edge.wobbleOffset, lineColor, backColor);
                 }
+                #endregion
             }
         }
 
@@ -551,16 +554,21 @@ namespace Celeste.Mod.CommunalHelper
             return a + (b - a) * percent;
         }
 
-        private bool CheckGroupStarCollide(Vector2 position)
+        private bool CheckGroupParticleCollide(Vector2 position)
         {
+            float offset = 2f;
             foreach (ConnectedDreamBlock e in group)
             {
-                if (position.X >= e.X + 2f && position.Y >= e.Y + 2f && position.X < e.Right - 2f && position.Y < e.Bottom - 2f)
+                if (position.X >= e.X + offset && position.Y >= e.Y + offset && position.X < e.Right - offset && position.Y < e.Bottom - offset)
                 {
                     return true;
                 }
             }
             return false;
+        }
+
+        private float GetLayerScaleFactor(int layer) {
+            return 1/ (0.3f + 0.25f * layer);
         }
 
         private bool TileHasGroupSpaceJam(int x, int y)
@@ -721,12 +729,12 @@ namespace Celeste.Mod.CommunalHelper
             }
             return pos;
         }
-
     }
 
     class ConnectedDreamBlockHooks
     {
         private static int ConnectedDreamBlockState;
+        private static ConnectedDreamBlock connectedDreamBlock;
 
 
         /* Connected Space Jam Behavior & Changes */
@@ -769,7 +777,7 @@ namespace Celeste.Mod.CommunalHelper
                                 if (flag8)
                                 {
                                     player.Position += value * (float)i;
-                                    data.Set<ConnectedDreamBlock>("connectedSpaceJam", dreamBlock);
+                                    connectedDreamBlock = dreamBlock;
                                     return true;
                                 }
                             }
@@ -783,14 +791,14 @@ namespace Celeste.Mod.CommunalHelper
                                 if (flag10)
                                 {
                                     player.Position += value * (float)j;
-                                    data.Set<ConnectedDreamBlock>("connectedSpaceJam", dreamBlock);
+                                    connectedDreamBlock = dreamBlock;
                                     return true;
                                 }
                             }
                         }
                         return false;
                     }
-                    data.Set<ConnectedDreamBlock>("connectedSpaceJam", dreamBlock);
+                    connectedDreamBlock = dreamBlock;
                     return true;
                 }
             }
@@ -803,7 +811,7 @@ namespace Celeste.Mod.CommunalHelper
             DynData<Player> data = new DynData<Player>(player);
 
             // Star Fly Controls
-            if (data.Get<ConnectedDreamBlock>("connectedSpaceJam").starFlyControl)
+            if (connectedDreamBlock.starFlyControl)
             {
                 Vector2 input = Input.Aim.Value.SafeNormalize(Vector2.Zero);
                 if (input != Vector2.Zero)
@@ -898,7 +906,7 @@ namespace Celeste.Mod.CommunalHelper
             player.Stamina = 110f;
             data.Set("dreamJump", false);
             player.Play("event:/char/madeline/dreamblock_enter", null, 0f);
-            if (data.Get<ConnectedDreamBlock>("connectedSpaceJam").starFlyControl)
+            if (connectedDreamBlock.starFlyControl)
             {
                 player.Loop(dreamSfxLoop, "event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_fly_travel");
             }
@@ -925,7 +933,7 @@ namespace Celeste.Mod.CommunalHelper
             }
             player.RefillStamina();
             player.TreatNaive = false;
-            ConnectedDreamBlock dreamBlock = data.Get<ConnectedDreamBlock>("connectedSpaceJam");
+            ConnectedDreamBlock dreamBlock = connectedDreamBlock;
             if (dreamBlock != null)
             {
                 bool flag4 = player.DashDir.X != 0f;
@@ -1020,7 +1028,7 @@ namespace Celeste.Mod.CommunalHelper
 
         private static void Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self)
         {
-            if (self.StateMachine.State == ConnectedDreamBlockState)
+            if (ConnectedDreamBlockState != 0 && self.StateMachine.State == ConnectedDreamBlockState)
             {
                 if (self.Sprite.CurrentAnimationID != "dreamDashIn" && self.Sprite.CurrentAnimationID != "dreamDashLoop")
                 {
