@@ -317,6 +317,15 @@ namespace Celeste.Mod.CommunalHelper {
 			//         } else {
 			//	player.OverrideHairColor = null;
 			//         }
+
+			if (hasDreamTunnelDash) {
+				var playerData = getPlayerData(player);
+				player.Hair.StepPerSegment = new Vector2((float)Math.Sin(player.Scene.TimeActive * 2f) * 0.7f - ((int)player.Facing * 3), (float)Math.Sin(player.Scene.TimeActive * 1f));
+				player.Hair.StepInFacingPerSegment = 0f;
+				player.Hair.StepApproach = 90f;
+				player.Hair.StepYSinePerSegment = 1f;
+				player.Hair.StepPerSegment.Y += playerData.Get<Vector2>("windDirection").Y * 2f;
+			}
 		}
 
 		#region State machine extension stuff
