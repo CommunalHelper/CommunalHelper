@@ -403,11 +403,11 @@ namespace Celeste.Mod.CommunalHelper {
 				if (level.OnInterval(0.1f))
 				{
 					customPlayerHairColor = dreamHairColors[dreamHairColorIndex];
-					dreamHairColorIndex++;
+					++dreamHairColorIndex;
 					dreamHairColorIndex %= 5;
 				}
 
-
+				actualPlayerHairColor = Color.Lerp(actualPlayerHairColor, customPlayerHairColor, 12f * Engine.DeltaTime);
 			}
 			else
 			{
