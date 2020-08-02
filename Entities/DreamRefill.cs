@@ -382,6 +382,14 @@ namespace Celeste.Mod.CommunalHelper {
 			Level level = player.Scene as Level;
 			if (hasDreamTunnelDash)
 			{
+				var playerData = getPlayerData(player);
+
+				player.Hair.StepPerSegment = new Vector2((float)Math.Sin(player.Scene.TimeActive * 2f) * 0.7f - ((int)player.Facing * 3), (float)Math.Sin(player.Scene.TimeActive * 1f));
+				player.Hair.StepInFacingPerSegment = 0f;
+				player.Hair.StepApproach = 90f;
+				player.Hair.StepYSinePerSegment = 1f;
+				player.Hair.StepPerSegment.Y += playerData.Get<Vector2>("windDirection").Y * 2f;
+				
 				playerHairData.Set<Color?>("hairEndColor", actualPlayerHairColor);
 				player.Hair.Border = Color.White;
 				player.OverrideHairColor = Color.Black;
@@ -395,11 +403,10 @@ namespace Celeste.Mod.CommunalHelper {
 				if (level.OnInterval(0.1f))
 				{
 					customPlayerHairColor = dreamHairColors[dreamHairColorIndex];
-					++dreamHairColorIndex;
+					dreamHairColorIndex++;
 					dreamHairColorIndex %= 5;
 				}
 
-				actualPlayerHairColor = Color.Lerp(actualPlayerHairColor, customPlayerHairColor, 15f * Engine.DeltaTime);
 
 			}
 			else
