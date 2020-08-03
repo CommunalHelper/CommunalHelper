@@ -2,7 +2,7 @@
 * Updated DreamDashBegin hook to no longer affect vanilla dreamblock behaviour
 * Added Dream Refill
 * Added custom sounds to Dream Zip, Move and Swap blocks
-* Updated Connected Dream Block's rendering logic
+* Added Connected Dream Block
 
 --1.0.0 (25/07/2020)--
 * Added Dream Zip Mover

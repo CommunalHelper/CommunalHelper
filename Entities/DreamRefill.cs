@@ -40,24 +40,25 @@ namespace Celeste.Mod.CommunalHelper {
 				ParticleType particle = new ParticleType(particles[i][0]);
 				particle.ColorMode = ParticleType.ColorModes.Choose;
 
-				particle.Color = Calc.HexToColor("FFEF11");
-				particle.Color2 = Calc.HexToColor("FF00D0");
-				particles[i][0] = particle;
+				particles[i][0] = new ParticleType(particle) {
+					Color = Calc.HexToColor("FFEF11"),
+					Color2 = Calc.HexToColor("FF00D0")
+				};
 
-				particle = new ParticleType(particle);
-				particle.Color = Calc.HexToColor("08a310");
-				particle.Color2 = Calc.HexToColor("5fcde4");
-				particles[i][1] = particle;
+				particles[i][1] = new ParticleType(particle) {
+					Color = Calc.HexToColor("08a310"),
+					Color2 = Calc.HexToColor("5fcde4")
+				};
 
-				particle = new ParticleType(particle);
-				particle.Color = Calc.HexToColor("7fb25e");
-				particle.Color2 = Calc.HexToColor("E0564C");
-				particles[i][2] = particle;
+				particles[i][2] = new ParticleType(particle) {
+					Color = Calc.HexToColor("7fb25e"),
+					Color2 = Calc.HexToColor("E0564C")
+				};
 
-				particle = new ParticleType(particle);
-				particle.Color = Calc.HexToColor("5b6ee1");
-				particle.Color2 = Calc.HexToColor("CC3B3B");
-				particles[i][3] = particle;
+				particles[i][3] = new ParticleType(particle) {
+					Color = Calc.HexToColor("5b6ee1"),
+					Color2 = Calc.HexToColor("CC3B3B")
+				};
 			}
 		}
 
@@ -195,11 +196,12 @@ namespace Celeste.Mod.CommunalHelper {
 	}
 
 	// TODO 
-	// * fix dreamTunnelDashCheck
-	// * Do hair stuff
-	// * do particle stuff
-	// * merge dreamTunnelDashCheck solid collision logic with dreamblock death collision logic
+	// * make the "Dream tunnel dashing into dream block checking" logic check for solid instead of dreamblock, 
+	//   and kill only if can't wrap around dreamblock
+	// * investigate exit velocity when dream tunnel dashing into a 1 tile thin wall
+	// * fix not being carried by a swap block when dream tunnel dashing into it
 	class DreamRefillHooks {
+
 		#region Vanilla constants
 		private const float DashSpeed = 240f;
 		private const float DashAttackTime = 0.3f;
@@ -209,148 +211,45 @@ namespace Celeste.Mod.CommunalHelper {
 
 		public static int StDreamTunnelDash;
 		public static bool hasDreamTunnelDash = false;
-		private static float dreamTunnelDashAttackTimer = 0f;
-		public static bool dreamTunnelDashAttacking {
-			get { return dreamTunnelDashAttackTimer > 0f; }
-		}
-		private static ParticleType[] dreamParticles;
-		private static int dreamParticleIndex = 0;
+		public static bool dreamTunnelDashAttacking = false;
 
-		private static Color[] dreamHairColors;
-		private static int dreamHairColorIndex = 0;
-
-		private static Color customPlayerHairColor;
-		private static Color actualPlayerHairColor;
-
-		public static List<MTexture> bangs;
+		private static Color[] dreamTrailColors;
+		private static int dreamTrailColorIndex = 0;
 
 		static DreamRefillHooks()
 		{
-			dreamHairColors = new Color[5];
-			dreamHairColors[0] = Calc.HexToColor("FFEF11");
-			dreamHairColors[1] = Calc.HexToColor("08A310");
-			dreamHairColors[2] = Calc.HexToColor("FF00D0");
-			dreamHairColors[3] = Calc.HexToColor("5FCDE4");
-			dreamHairColors[4] = Calc.HexToColor("E0564C");
-			customPlayerHairColor = dreamHairColors[0];
-			actualPlayerHairColor = dreamHairColors[0];
-		}
-
-		public static void InitializeParticles()
-		{
-			dreamParticles = new ParticleType[5];
-			ParticleType particle = new ParticleType(Strawberry.P_Glow);
-			particle.ColorMode = ParticleType.ColorModes.Blink;
-
-			particle.Color = Calc.HexToColor("FFEF11");
-			particle.Color2 = Color.Lerp(Calc.HexToColor("08A310"), Color.White, 0.5f);
-			dreamParticles[0] = particle;
-
-			particle = new ParticleType(particle);
-			particle.Color = Calc.HexToColor("5FCDE4");
-			particle.Color2 = Color.Lerp(Calc.HexToColor("E0564C"), Color.White, 0.5f);
-			dreamParticles[1] = particle;
-
-			particle = new ParticleType(particle);
-			particle.Color = Calc.HexToColor("FF00D0");
-			particle.Color2 = Color.Lerp(Calc.HexToColor("5FCDE4"), Color.White, 0.5f);
-			dreamParticles[2] = particle;
-
-			particle = new ParticleType(particle);
-			particle.Color = Calc.HexToColor("08A310");
-			particle.Color2 = Color.Lerp(Calc.HexToColor("FFEF11"), Color.White, 0.5f);
-			dreamParticles[3] = particle;
-
-			particle = new ParticleType(particle);
-			particle.Color = Calc.HexToColor("E0564C");
-			particle.Color2 = Color.Lerp(Calc.HexToColor("FF00D0"), Color.White, 0.5f);
-			dreamParticles[4] = particle;
+			dreamTrailColors = new Color[5];
+			dreamTrailColors[0] = Calc.HexToColor("FFEF11");
+			dreamTrailColors[1] = Calc.HexToColor("08A310");
+			dreamTrailColors[2] = Calc.HexToColor("FF00D0");
+			dreamTrailColors[3] = Calc.HexToColor("5FCDE4");
+			dreamTrailColors[4] = Calc.HexToColor("E0564C");
 		}
 
 		public static void hook() {
             On.Celeste.Player.ctor += modPlayerCtor;
             On.Celeste.Player.DashBegin += modDashBegin;
             On.Celeste.Player.Update += modUpdate;
-            On.Celeste.Player.OnCollideH += modOnCollideH;
+			On.Celeste.Player.CreateTrail += modCreateTrail;
+			On.Celeste.Player.OnCollideH += modOnCollideH;
             On.Celeste.Player.OnCollideV += modOnCollideV;
             On.Celeste.Level.EnforceBounds += modLevelEnforceBounds;
             On.Celeste.Player.Die += modDie;
             On.Celeste.Player.UpdateSprite += modUpdateSprite;
-			On.Celeste.PlayerHair.Render += modPlayerHairRender;
+			On.Celeste.Player.IsRiding_Solid += modIsRiding;
         }
 
 		public static void unhook() {
             On.Celeste.Player.ctor -= modPlayerCtor;
             On.Celeste.Player.DashBegin -= modDashBegin;
             On.Celeste.Player.Update -= modUpdate;
-            On.Celeste.Player.OnCollideH -= modOnCollideH;
+			On.Celeste.Player.CreateTrail -= modCreateTrail;
+			On.Celeste.Player.OnCollideH -= modOnCollideH;
             On.Celeste.Player.OnCollideV -= modOnCollideV;
             On.Celeste.Level.EnforceBounds -= modLevelEnforceBounds;
             On.Celeste.Player.Die -= modDie;
             On.Celeste.Player.UpdateSprite -= modUpdateSprite;
-			On.Celeste.PlayerHair.Render -= modPlayerHairRender;
-		}
-
-		// Custom Hair rendering for Madeline's hair to resemble a little more dream blocks.
-		private static void modPlayerHairRender(On.Celeste.PlayerHair.orig_Render orig, PlayerHair self)
-		{
-			var playerHairData = new DynData<PlayerHair>(self);
-			if (playerHairData.Get<Color?>("hairEndColor") == null)
-			{
-				orig(self); return;
-			} else
-			{
-				PlayerSprite sprite = self.Sprite;
-				if (!sprite.HasHair)
-				{
-					return;
-				}
-				Vector2 origin = new Vector2(5f, 5f);
-				Color color = self.Border;
-				if (self.DrawPlayerSpriteOutline)
-				{
-					Color color2 = sprite.Color;
-					Vector2 position = sprite.Position;
-					sprite.Color = color;
-					sprite.Position = position + new Vector2(0f, -1f);
-					sprite.Render();
-					sprite.Position = position + new Vector2(0f, 1f);
-					sprite.Render();
-					sprite.Position = position + new Vector2(-1f, 0f);
-					sprite.Render();
-					sprite.Position = position + new Vector2(1f, 0f);
-					sprite.Render();
-					sprite.Color = color2;
-					sprite.Position = position;
-				}
-				self.Nodes[0] = self.Nodes[0].Floor();
-				if (color.A > 0)
-				{
-					for (int i = 0; i < sprite.HairCount; i++)
-					{
-						MTexture hairTexture = GetCustomHairTexture(self, i);
-						Vector2 hairScale = self.GetHairScale(i);
-						hairTexture.Draw(self.Nodes[i] + new Vector2(-1f, 0f), origin, color, hairScale);
-						hairTexture.Draw(self.Nodes[i] + new Vector2(1f, 0f), origin, color, hairScale);
-						hairTexture.Draw(self.Nodes[i] + new Vector2(0f, -1f), origin, color, hairScale);
-						hairTexture.Draw(self.Nodes[i] + new Vector2(0f, 1f), origin, color, hairScale);
-					}
-				}
-				for (int num = sprite.HairCount - 1; num >= 0; num--)
-				{
-					self.GetHairTexture(num).Draw(self.Nodes[num], origin, 
-						(num >= sprite.HairCount - 3) ? actualPlayerHairColor : self.GetHairColor(num), 
-						self.GetHairScale(num));
-				}
-			}
-		}
-		private static MTexture GetCustomHairTexture(PlayerHair self, int index)
-		{
-			if (index == 0)
-			{
-				return bangs[self.Sprite.HairFrame];
-			}
-			return GFX.Game["characters/player/hair00"];
+			On.Celeste.Player.IsRiding_Solid -= modIsRiding;
 		}
 
 		// Adds custom dream tunnel dash state
@@ -365,57 +264,44 @@ namespace Celeste.Mod.CommunalHelper {
 		private static void modDashBegin(On.Celeste.Player.orig_DashBegin orig, Player player) {
 			orig(player);
 			if (hasDreamTunnelDash) {
-				dreamTunnelDashAttackTimer = DashAttackTime;
+				dreamTunnelDashAttacking = true;
 				hasDreamTunnelDash = false;
             }
         }
 
-		// Dream tunnel dash attack timer updating
+		// Dream trail creation and dreamTunnelDashAttacking updating
 		private static void modUpdate(On.Celeste.Player.orig_Update orig, Player player) {
 			orig(player);
-			if (dreamTunnelDashAttackTimer > 0f) {
-				dreamTunnelDashAttackTimer -= Engine.DeltaTime;
-            }
-
-			var playerHairData = new DynData<PlayerHair>(player.Hair);
-
+			
 			Level level = player.Scene as Level;
-			if (hasDreamTunnelDash)
+			if (hasDreamTunnelDash && level.OnInterval(0.1f))
 			{
-				var playerData = getPlayerData(player);
-
-				player.Hair.StepPerSegment = new Vector2((float)Math.Sin(player.Scene.TimeActive * 2f) * 0.7f - ((int)player.Facing * 3), (float)Math.Sin(player.Scene.TimeActive * 1f));
-				player.Hair.StepInFacingPerSegment = 0f;
-				player.Hair.StepApproach = 90f;
-				player.Hair.StepYSinePerSegment = 1f;
-				player.Hair.StepPerSegment.Y += playerData.Get<Vector2>("windDirection").Y * 2f;
-				
-				playerHairData.Set<Color?>("hairEndColor", actualPlayerHairColor);
-				player.Hair.Border = Color.White;
-				player.OverrideHairColor = Color.Black;
-
-				if (level.OnInterval(0.05f))
-				{
-					level.ParticlesBG.Emit(dreamParticles[dreamParticleIndex], 1, player.Center, Vector2.Zero);
-					++dreamParticleIndex;
-					dreamParticleIndex %= 5;
-				}
-				if (level.OnInterval(0.1f))
-				{
-					customPlayerHairColor = dreamHairColors[dreamHairColorIndex];
-					++dreamHairColorIndex;
-					dreamHairColorIndex %= 5;
-				}
-
-				actualPlayerHairColor = Color.Lerp(actualPlayerHairColor, customPlayerHairColor, 12f * Engine.DeltaTime);
+				CreateDreamTrail(player);
 			}
-			else
-			{
-				playerHairData.Set<Color?>("hairEndColor", null);
-				player.OverrideHairColor = null;
-				player.Hair.Border = Color.Black;
+			if (!player.DashAttacking) {
+				dreamTunnelDashAttacking = false;
 			}
 		}
+		private static void CreateTrail(Player player, Color color) {
+			Vector2 scale = new Vector2(Math.Abs(player.Sprite.Scale.X) * (float)player.Facing, player.Sprite.Scale.Y);
+			TrailManager.Add(player, scale, color);
+		}
+		private static void CreateDreamTrail(Player player) {
+			CreateTrail(player, dreamTrailColors[dreamTrailColorIndex]);
+			++dreamTrailColorIndex;
+			dreamTrailColorIndex %= 5;
+		}
+
+		// Dream tunnel dash trail recoloring
+		private static void modCreateTrail(On.Celeste.Player.orig_CreateTrail orig, Player player) {
+			if (dreamTunnelDashAttacking) {
+				CreateTrail(player, dreamTrailColors[dreamTrailColorIndex]);
+				++dreamTrailColorIndex;
+				dreamTrailColorIndex %= 5;
+			} else {
+				orig(player);
+            }
+        }
 
 		#region State machine extension stuff
 		private static void DreamTunnelDashBegin() {
@@ -485,7 +371,7 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 			if (player.CollideCheck<Solid, DreamBlock>()) {
 				if (player.Scene.OnInterval(0.1f)) {
-					CreateTrail(player);
+					CreateDreamTrail(player);
 				}
 
 				Level level = playerData.Get<Level>("level");
@@ -548,22 +434,43 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 			return false;
 		}
-
-		private static void CreateTrail(Player player) {
-			Vector2 scale = new Vector2(Math.Abs(player.Sprite.Scale.X) * (float)player.Facing, player.Sprite.Scale.Y);
-			TrailManager.Add(player, scale, player.GetCurrentTrailColor());
-		}
 		#endregion
 
 		// Dream tunnel dash/dashing into dream block detection 
 		private static void modOnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player player, CollisionData data) {
-			if ((dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) && data.Hit is DreamBlock) {
-				player.Die(-data.Direction);
-			}
 			if (player.StateMachine.State == StDreamTunnelDash) {
 				return;
 			}
-			if (dreamTunnelDashCheck(player, Vector2.UnitX * Math.Sign(player.Speed.X))) {
+
+			Vector2 moveDir = new Vector2(Math.Sign(player.Speed.X), 0);
+
+			#region Dream tunnel dashing into dream block checking
+			if (dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) {
+				if (player.CollideCheck<DreamBlock>(player.Position + moveDir) && player.Speed.Y == 0f) {
+					bool dashedIntoDreamBlock = true;
+					for (int dist = 1; dist <= 4; dist++) {
+						for (int dir = 1; dir >= -1; dir -= 2) {
+							int offset = dist * dir;
+							if (!player.CollideCheck<Solid>(player.Position + new Vector2(moveDir.X, offset))) {
+								player.MoveVExact(offset);
+								player.MoveHExact((int)moveDir.X);
+								dashedIntoDreamBlock = false;
+								break;
+							}
+						}
+						if (!dashedIntoDreamBlock) {
+							break;
+                        }
+					}
+					if (dashedIntoDreamBlock) {
+						player.Die(-moveDir);
+						return;
+                    }
+				}
+			}
+            #endregion
+
+            if (dreamTunnelDashCheck(player, moveDir)) {
 				player.StateMachine.State = StDreamTunnelDash;
 
 				var playerData = getPlayerData(player);
@@ -571,16 +478,44 @@ namespace Celeste.Mod.CommunalHelper {
 				playerData["gliderBoostTimer"] = 0f;
 				return;
 			}
-			orig(player, data);
+			if (!player.Dead) {
+				orig(player, data);
+			}
 		}
 		private static void modOnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player player, CollisionData data) {
-			if ((dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) && data.Hit is DreamBlock) {
-				player.Die(-data.Direction);
-            } 
 			if (player.StateMachine.State == StDreamTunnelDash) {
 				return;
 			}
-			if (dreamTunnelDashCheck(player, Vector2.UnitY * Math.Sign(player.Speed.Y))) {
+
+			Vector2 moveDir = new Vector2(0, Math.Sign(player.Speed.Y));
+
+            #region Dream tunnel dashing into dream block checking
+            if (dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) {
+				if (player.CollideCheck<DreamBlock>(player.Position + moveDir) && player.Speed.X == 0f) {
+					bool dashedIntoDreamBlock = true;
+					for (int dist = 1; dist <= 4; dist++) {
+						for (int dir = 1; dir >= -1; dir -= 2) {
+							int offset = dist * dir;
+							if (!player.CollideCheck<Solid>(player.Position + new Vector2(offset, moveDir.Y))) {
+								player.MoveHExact(offset);
+								player.MoveVExact((int)moveDir.Y);
+								dashedIntoDreamBlock = false;
+								break;
+							}
+						}
+						if (!dashedIntoDreamBlock) {
+							break;
+						}
+					}
+					if (dashedIntoDreamBlock) {
+						player.Die(-moveDir);
+						return;
+					}
+				}
+			}
+            #endregion
+
+            if (dreamTunnelDashCheck(player, moveDir)) {
 				player.StateMachine.State = StDreamTunnelDash;
 
 				var playerData = getPlayerData(player);
@@ -588,7 +523,49 @@ namespace Celeste.Mod.CommunalHelper {
 				playerData["gliderBoostTimer"] = 0f;
 				return;
 			}
-			orig(player, data);
+			if (!player.Dead) {
+				orig(player, data);
+			}
+		}
+
+		private static bool dreamTunnelDashCheck(Player player, Vector2 dir) {
+			if (dreamTunnelDashAttacking) {
+                if (player.CollideCheck<Solid, DreamBlock>(player.Position + dir)) {
+                    if (player.CollideCheck<DreamBlock>(player.Position + dir)) {
+                        Vector2 value = new Vector2(Math.Abs(dir.Y), Math.Abs(dir.X));
+                        bool flag;
+                        bool flag2;
+                        if (dir.X != 0f) {
+                            flag = (player.Speed.Y <= 0f);
+                            flag2 = (player.Speed.Y >= 0f);
+                        } else {
+                            flag = (player.Speed.X <= 0f);
+                            flag2 = (player.Speed.X >= 0f);
+                        }
+                        if (flag) {
+                            for (int num = -1; num >= -4; num--) {
+                                Vector2 at = player.Position + dir + value * num;
+                                if (!player.CollideCheck<DreamBlock>(at)) {
+                                    player.Position += value * num;
+                                    return true;
+                                }
+                            }
+                        }
+                        if (flag2) {
+                            for (int i = 1; i <= 4; i++) {
+                                Vector2 at2 = player.Position + dir + value * i;
+                                if (!player.CollideCheck<DreamBlock>(at2)) {
+                                    player.Position += value * i;
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    }
+                    return true;
+                }
+            }
+			return false;
 		}
 
 		// Kills the player if they dream tunnel dash into the level bounds
@@ -600,51 +577,6 @@ namespace Celeste.Mod.CommunalHelper {
 			} else {
 				orig(level, player);
 			}
-		}
-
-		private static bool dreamTunnelDashCheck(Player player, Vector2 dir) {
-			if (dreamTunnelDashAttacking && (dir.X == (float)Math.Sign(player.DashDir.X) || dir.Y == (float)Math.Sign(player.DashDir.Y))) {
-				if (player.CollideCheck<Solid>(player.Position + dir)) {
-					return true;
-				}
-
-				//DreamBlock dreamBlock = player.CollideFirst<DreamBlock>(player.Position + dir);
-				//if (dreamBlock != null) {
-				//	if (player.CollideCheck<Solid, DreamBlock>(player.Position + dir)) {
-				//		Vector2 value = new Vector2(Math.Abs(dir.Y), Math.Abs(dir.X));
-				//		bool flag;
-				//		bool flag2;
-				//		if (dir.X != 0f) {
-				//			flag = (player.Speed.Y <= 0f);
-				//			flag2 = (player.Speed.Y >= 0f);
-				//		} else {
-				//			flag = (player.Speed.X <= 0f);
-				//			flag2 = (player.Speed.X >= 0f);
-				//		}
-				//		if (flag) {
-				//			for (int num = -1; num >= -4; num--) {
-				//				Vector2 at = player.Position + dir + value * num;
-				//				if (!player.CollideCheck<Solid, DreamBlock>(at)) {
-				//					player.Position += value * num;
-				//					return true;
-				//				}
-				//			}
-				//		}
-				//		if (flag2) {
-				//			for (int i = 1; i <= 4; i++) {
-				//				Vector2 at2 = player.Position + dir + value * i;
-				//				if (!player.CollideCheck<Solid, DreamBlock>(at2)) {
-				//					player.Position += value * i;
-				//					return true;
-				//				}
-				//			}
-				//		}
-				//		return false;
-				//	}
-				//	return true;
-				//}
-			}
-			return false;
 		}
 
 		// Fixes bug with dreamSfx soundsource not being stopped
@@ -666,6 +598,14 @@ namespace Celeste.Mod.CommunalHelper {
 			} else {
 				orig(player);
 			}
+        }
+
+		// Ensures that the player is transported by moving solids when dream tunnel dashing through them
+		private static bool modIsRiding(On.Celeste.Player.orig_IsRiding_Solid orig, Player player, Solid solid) {
+			if (player.StateMachine.State == StDreamTunnelDash) {
+				return player.CollideCheck(solid);
+            }
+			return orig(player, solid);
         }
 
 		#region Misc
