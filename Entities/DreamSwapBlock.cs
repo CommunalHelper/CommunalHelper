@@ -64,6 +64,9 @@ namespace Celeste.Mod.CommunalHelper {
             dreamParticles = new ParticleType[4];
             ParticleType particle = new ParticleType(SwapBlock.P_Move);
             particle.ColorMode = ParticleType.ColorModes.Choose;
+            particle.FadeMode = ParticleType.FadeModes.Late;
+            particle.LifeMin = 0.6f; particle.LifeMin = 1f;
+
             particle.Color = Calc.HexToColor("FFEF11");
             particle.Color2 = Calc.HexToColor("FF00D0");
             dreamParticles[0] = particle;
@@ -144,9 +147,10 @@ namespace Celeste.Mod.CommunalHelper {
             Audio.Stop(returnSfx);
             Audio.Stop(moveSfx);
             if (!Swapping) {
-                Audio.Play("event:/game/05_mirror_temple/swapblock_move_end", base.Center);
+                Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
+                Audio.Stop(moveSfx);
             } else {
-                moveSfx = Audio.Play("event:/game/05_mirror_temple/swapblock_move", base.Center);
+                moveSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move", base.Center);
             }
         }
 
@@ -157,7 +161,7 @@ namespace Celeste.Mod.CommunalHelper {
                 if (returnTimer <= 0f) {
                     target = 0;
                     speed = 0f;
-                    returnSfx = Audio.Play("event:/game/05_mirror_temple/swapblock_return", base.Center);
+                    returnSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return", base.Center);
                 }
             }
             if (burst != null) {
@@ -170,6 +174,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
             float num = lerp;
             lerp = Calc.Approach(lerp, target, speed * Engine.DeltaTime);
+            if (lerp == 1) Audio.Stop(moveSfx);
             if (lerp != num) {
                 Vector2 liftSpeed = (end - start) * speed;
                 Vector2 position = Position;
@@ -188,9 +193,10 @@ namespace Celeste.Mod.CommunalHelper {
                     Audio.Position(returnSfx, base.Center);
                     if (Position == start && target == 0) {
                         Audio.SetParameter(returnSfx, "end", 1f);
-                        Audio.Play("event:/game/05_mirror_temple/swapblock_return_end", base.Center);
+                        Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
                     } else if (Position == end && target == 1) {
-                        Audio.Play("event:/game/05_mirror_temple/swapblock_move_end", base.Center);
+                        Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end", base.Center);
+                        Audio.Stop(moveSfx);
                     }
                 }
             }

@@ -130,7 +130,7 @@ namespace Celeste.Mod.CommunalHelper {
                 outline.Visible = false;
                 base.Depth = -100;
 				wiggler.Start();
-				Audio.Play("event:/game/general/diamond_return", Position);
+				Audio.Play("event:/CommunalHelperEvents/game/dreamRefill/dream_refill_return", Position);
 				for (int i = 0; i < 16; ++i) {
 					level.ParticlesFG.Emit(regenParticles[regenParticleIndex], 1, Position, Vector2.One * 2f);
 					++regenParticleIndex;
@@ -159,7 +159,7 @@ namespace Celeste.Mod.CommunalHelper {
 				player.RefillStamina();
 				DreamRefillHooks.hasDreamTunnelDash = true;
 
-				Audio.Play("event:/game/general/diamond_touch", Position);
+				Audio.Play("event:/CommunalHelperEvents/game/dreamRefill/dream_refill_touch", Position);
 				Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
 				Collidable = false;
 				Add(new Coroutine(RefillRoutine(player)));
