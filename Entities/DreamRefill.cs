@@ -320,7 +320,7 @@ namespace Celeste.Mod.CommunalHelper {
             player.Position.Y += Math.Sign(player.DashDir.Y);
 
             player.Depth = Depths.PlayerDreamDashing;
-			playerData["dreamDashCanEndTimer"] = DreamDashMinTime;
+			playerData["dreamDashCanEndTimer"] = 0.07f; // jank fix, should be 0.1f ...
 			player.Stamina = ClimbMaxStamina;
 			playerData["dreamJump"] = false;
 
@@ -443,7 +443,6 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 
 			Vector2 moveDir = new Vector2(Math.Sign(player.Speed.X), 0);
-
 			#region Dream tunnel dashing into dream block checking
 			if (dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) {
 				if (player.CollideCheck<DreamBlock>(player.Position + moveDir) && player.Speed.Y == 0f) {
