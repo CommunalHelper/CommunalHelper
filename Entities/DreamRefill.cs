@@ -329,7 +329,6 @@ namespace Celeste.Mod.CommunalHelper {
             player.Depth = Depths.PlayerDreamDashing;
 			player.Stamina = ClimbMaxStamina;
 			playerData["dreamDashCanEndTimer"] = 0.07f; // jank fix, should be 0.1f
-			playerData["dreamDashCanEndTimer"] = DreamDashMinTime;
 			playerData["dreamJump"] = false;
 
 			player.Play("event:/char/madeline/dreamblock_enter");
