@@ -196,10 +196,8 @@ namespace Celeste.Mod.CommunalHelper {
 	}
 
 	// TODO 
-	// * make the "Dream tunnel dashing into dream block checking" logic check for solid instead of dreamblock, 
-	//   and kill only if can't wrap around dreamblock
-	// * investigate exit velocity when dream tunnel dashing into a 1 tile thin wall
 	// * fix not being carried by a swap block when dream tunnel dashing into it
+	// * investigate exit velocity when dream tunnel dashing into a 1 tile thin wall
 	class DreamRefillHooks {
 
 		#region Vanilla constants
@@ -265,6 +263,18 @@ namespace Celeste.Mod.CommunalHelper {
 			if (hasDreamTunnelDash) {
 				dreamTunnelDashAttacking = true;
 				hasDreamTunnelDash = false;
+
+				// Ensures the player enters the dream tunnel dash state if dashing into a fast moving block
+				var playerData = getPlayerData(player);
+				Vector2 lastAim = playerData.Get<Vector2>("lastAim");
+				int dirX = Math.Sign(lastAim.X);
+				int dirY = Math.Sign(lastAim.Y);
+				Vector2 dir = new Vector2(dirX, dirY);
+				if (player.CollideCheck<Solid, DreamBlock>(player.Position + dir)) {
+					player.Speed = player.DashDir = dir;
+					player.MoveHExact(dirX, playerData.Get<Collision>("onCollideH"));
+					player.MoveVExact(dirY, playerData.Get<Collision>("onCollideV"));
+                }
             }
         }
 
@@ -315,13 +325,13 @@ namespace Celeste.Mod.CommunalHelper {
 			player.Speed = player.DashDir * DashSpeed;
 			player.TreatNaive = true;
 
-            // Puts player inside solid so that are are immediately carried with it if it is moving
-            player.Position.X += Math.Sign(player.DashDir.X);
-            player.Position.Y += Math.Sign(player.DashDir.Y);
+			// Puts the player inside a fast moving solid to ensure they are carried with it
+			player.Position.X += Math.Sign(player.DashDir.X);
+			player.Position.Y += Math.Sign(player.DashDir.Y);
 
-            player.Depth = Depths.PlayerDreamDashing;
-			playerData["dreamDashCanEndTimer"] = DreamDashMinTime;
+			player.Depth = Depths.PlayerDreamDashing;
 			player.Stamina = ClimbMaxStamina;
+			playerData["dreamDashCanEndTimer"] = DreamDashMinTime;
 			playerData["dreamJump"] = false;
 
 			player.Play("event:/char/madeline/dreamblock_enter");
@@ -442,44 +452,8 @@ namespace Celeste.Mod.CommunalHelper {
 				return;
 			}
 
-			Vector2 moveDir = new Vector2(Math.Sign(player.Speed.X), 0);
-
-			#region Dream tunnel dashing into dream block checking
-			if (dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) {
-				if (player.CollideCheck<DreamBlock>(player.Position + moveDir) && player.Speed.Y == 0f) {
-					bool dashedIntoDreamBlock = true;
-					for (int dist = 1; dist <= 4; dist++) {
-						for (int dir = 1; dir >= -1; dir -= 2) {
-							int offset = dist * dir;
-							if (!player.CollideCheck<Solid>(player.Position + new Vector2(moveDir.X, offset))) {
-								player.MoveVExact(offset);
-								player.MoveHExact((int)moveDir.X);
-								dashedIntoDreamBlock = false;
-								break;
-							}
-						}
-						if (!dashedIntoDreamBlock) {
-							break;
-                        }
-					}
-					if (dashedIntoDreamBlock) {
-						player.Die(-moveDir);
-						return;
-                    }
-				}
-			}
-            #endregion
-
-            if (dreamTunnelDashCheck(player, moveDir)) {
-				player.StateMachine.State = StDreamTunnelDash;
-				dreamTunnelDashAttacking = false;
-
-				var playerData = getPlayerData(player);
-				playerData["dashAttackTimer"] = 0f;
-				playerData["gliderBoostTimer"] = 0f;
-				return;
-			}
-			if (!player.Dead) {
+			log("here");
+			if (!dreamTunnelDashCheck(player, new Vector2(Math.Sign(player.Speed.X), 0))) {
 				orig(player, data);
 			}
 		}
@@ -488,85 +462,61 @@ namespace Celeste.Mod.CommunalHelper {
 				return;
 			}
 
-			Vector2 moveDir = new Vector2(0, Math.Sign(player.Speed.Y));
+			if (!dreamTunnelDashCheck(player, new Vector2(0, Math.Sign(player.Speed.Y)))) {
+                orig(player, data);
+            }
+		}
+		private static bool dreamTunnelDashCheck(Player player, Vector2 direction) {
+			if (dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) {
+				Vector2 perpendicular = new Vector2(Math.Abs(direction.Y), Math.Abs(direction.X));
 
-            #region Dream tunnel dashing into dream block checking
-            if (dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) {
-				if (player.CollideCheck<DreamBlock>(player.Position + moveDir) && player.Speed.X == 0f) {
+				// Dream block checking
+				if (player.CollideCheck<DreamBlock>(player.Position + direction)) {
+					bool decrease = direction.X != 0f ? player.Speed.Y <= 0f : player.Speed.X <= 0f;
+					bool increase = direction.X != 0f ? player.Speed.Y >= 0f : player.Speed.X >= 0f;
 					bool dashedIntoDreamBlock = true;
-					for (int dist = 1; dist <= 4; dist++) {
-						for (int dir = 1; dir >= -1; dir -= 2) {
-							int offset = dist * dir;
-							if (!player.CollideCheck<Solid>(player.Position + new Vector2(offset, moveDir.Y))) {
-								player.MoveHExact(offset);
-								player.MoveVExact((int)moveDir.Y);
-								dashedIntoDreamBlock = false;
-								break;
+					for (int dist = 1; dist <= 4 && dashedIntoDreamBlock; dist++) {
+						for (int dir = -1; dir <= 1; dir += 2) {
+							if (dir == 1 ? increase : decrease) {
+								Vector2 offset = dir * dist * perpendicular;
+								if (!player.CollideCheck<DreamBlock>(player.Position + direction + offset)) {
+									player.Position += offset;
+									dashedIntoDreamBlock = false;
+									break;
+								}
 							}
-						}
-						if (!dashedIntoDreamBlock) {
-							break;
 						}
 					}
 					if (dashedIntoDreamBlock) {
-						player.Die(-moveDir);
-						return;
+						player.Die(-direction);
+						return true;
+                    }
+				}
+
+				// Solid checking
+				if (player.CollideCheck<Solid, DreamBlock>(player.Position + direction)) {
+					bool decrease = direction.X != 0f ? player.Speed.Y <= 0f : player.Speed.X <= 0f;
+					bool increase = direction.X != 0f ? player.Speed.Y >= 0f : player.Speed.X >= 0f;
+					for (int dist = 1; dist <= 4; dist++) {
+						for (int dir = -1; dir <= 1; dir += 2) {
+							if (dir == 1 ? increase : decrease) {
+								Vector2 offset = dir * dist * perpendicular;
+								if (!player.CollideCheck<Solid, DreamBlock>(player.Position + direction + offset)) {
+									// Actual position offset handled by orig collide
+									return false;
+								}
+							}
+						}
 					}
+					player.StateMachine.State = StDreamTunnelDash;
+					dreamTunnelDashAttacking = false;
+
+					var playerData = getPlayerData(player);
+					playerData["dashAttackTimer"] = 0f;
+					playerData["gliderBoostTimer"] = 0f;
+					return true;
 				}
 			}
-            #endregion
-
-            if (dreamTunnelDashCheck(player, moveDir)) {
-				player.StateMachine.State = StDreamTunnelDash;
-				dreamTunnelDashAttacking = false;
-
-				var playerData = getPlayerData(player);
-				playerData["dashAttackTimer"] = 0f;
-				playerData["gliderBoostTimer"] = 0f;
-				return;
-			}
-			if (!player.Dead) {
-				orig(player, data);
-			}
-		}
-
-		private static bool dreamTunnelDashCheck(Player player, Vector2 dir) {
-			if (dreamTunnelDashAttacking) {
-                if (player.CollideCheck<Solid, DreamBlock>(player.Position + dir)) {
-                    if (player.CollideCheck<DreamBlock>(player.Position + dir)) {
-                        Vector2 value = new Vector2(Math.Abs(dir.Y), Math.Abs(dir.X));
-                        bool flag;
-                        bool flag2;
-                        if (dir.X != 0f) {
-                            flag = (player.Speed.Y <= 0f);
-                            flag2 = (player.Speed.Y >= 0f);
-                        } else {
-                            flag = (player.Speed.X <= 0f);
-                            flag2 = (player.Speed.X >= 0f);
-                        }
-                        if (flag) {
-                            for (int num = -1; num >= -4; num--) {
-                                Vector2 at = player.Position + dir + value * num;
-                                if (!player.CollideCheck<DreamBlock>(at)) {
-                                    player.Position += value * num;
-                                    return true;
-                                }
-                            }
-                        }
-                        if (flag2) {
-                            for (int i = 1; i <= 4; i++) {
-                                Vector2 at2 = player.Position + dir + value * i;
-                                if (!player.CollideCheck<DreamBlock>(at2)) {
-                                    player.Position += value * i;
-                                    return true;
-                                }
-                            }
-                        }
-                        return false;
-                    }
-                    return true;
-                }
-            }
 			return false;
 		}
 
