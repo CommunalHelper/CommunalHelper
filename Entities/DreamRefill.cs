@@ -195,9 +195,6 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 	}
 
-	// TODO 
-	// * fix not being carried by a swap block when dream tunnel dashing into it
-	// * investigate exit velocity when dream tunnel dashing into a 1 tile thin wall
 	class DreamRefillHooks {
 
 		#region Vanilla constants
@@ -329,8 +326,9 @@ namespace Celeste.Mod.CommunalHelper {
 			player.Position.X += Math.Sign(player.DashDir.X);
 			player.Position.Y += Math.Sign(player.DashDir.Y);
 
-			player.Depth = Depths.PlayerDreamDashing;
+            player.Depth = Depths.PlayerDreamDashing;
 			player.Stamina = ClimbMaxStamina;
+			playerData["dreamDashCanEndTimer"] = 0.07f; // jank fix, should be 0.1f
 			playerData["dreamDashCanEndTimer"] = DreamDashMinTime;
 			playerData["dreamJump"] = false;
 
@@ -451,8 +449,6 @@ namespace Celeste.Mod.CommunalHelper {
 			if (player.StateMachine.State == StDreamTunnelDash) {
 				return;
 			}
-
-			log("here");
 			if (!dreamTunnelDashCheck(player, new Vector2(Math.Sign(player.Speed.X), 0))) {
 				orig(player, data);
 			}
