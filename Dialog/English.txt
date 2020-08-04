@@ -1,0 +1,92 @@
+# Inline Text Commands:
+# {~}wavy text{/~}
+# {!}impact text{/!}
+# {>> x}changes speed at which characters are displayed{>>}
+# {# 000000}this text is black{#} (uses HEX color values)
+# {+MENU_BEGIN} inserts the dialog from the MENU_BEGIN value (in English, "CLIMB")
+# {n} creates a newline, without a page break
+# {0.5} creates a 0.5 second pause
+# {big}this text is large{/big}
+
+
+#   THEO=				{# FF9523}Theo{#}
+#   THEO_UNDER_STARS=	{# FFFF4C}TheoUnderStars{#}
+#   MIXMASTER_THEO=		{# FF9523}Mix Master Theo{#}
+#   MOM=				{# 339CC7}Mom{#}
+#   MROSHIRO=			{# 7BD838}Mr\. Oshiro{#}
+#   OSHIRO=				{# 7BD838}Oshiro{#}
+#   ELCREEPO=			{# 7BD838}El Creepo{#}
+#   MADELINE=			{# F94A4A}{savedata Name}{#}
+#   MS_MADELINE=		{# F94A4A}Ms\. {savedata Name}{#}
+#   RESORT=				{# b864be}Celestial Resort{#}
+#   THOUGHT=			{# 696a6a}{~}(
+#   ENDTHOUGHT=			){/~}{#}
+#   MOUNTAIN=			{# 96EFFF}Mountain{#}
+#   CELESTE_MOUNTAIN=	{# 96EFFF}Celeste Mountain{#}
+#   PART_OF_ME=			{# d678db}{~}Part of Me{/~}{#}
+#   PART_OF_YOU=		{# d678db}{~}Part of You{/~}{#}
+#   ST_BAD=				{# d678db}{~}
+#   END_BAD=			{/~}{#}
+#   GRANNY=				{# 66ea3a}Granny{#}
+#   PART_OF_HER=		{# 66ea3a}{~}Part of Her{/~}{#}
+#   PART_OF_GRANNY=		{# 66ea3a}{~}Part of Granny{/~}{#}
+	
+	
+
+Communal_Helper_CommunalHelperDemoMap=Demonstration Map
+
+# *** Trailer Talking ***
+
+	communalhelper_titles=
+		Communal Helper
+		
+	communalhelper_trailer_01=
+		
+		[MADELINE sad left]
+		{# 856bff}Dream Zip Movers{#}, {# 856bff}Dream Swap Blocks{#} and {# 856bff}Dream Move Blocks{#} are zip movers, swap blocks or move blocks...
+		
+		[MADELINE normal left]
+		... But they act like dream blocks! 
+		
+	communalhelper_trailer_02=
+	
+		[MADELINE normal left]
+		The {# 856bff}Dream Refill{#}, once consumed, allows you to dash through any kind of solid, except for dream blocks, which will kill you.
+		{+THOUGHT}They also give your dash back, of course!{+ENDTHOUGHT}
+
+	communalhelper_trailer_03=
+	
+		[MADELINE normal left]
+		{# 856bff}Connected Dream Blocks{#}, when placed so that they overlap, will combine to form continuous regions.
+		
+	communalhelper_trailer_04=
+	
+		[MADELINE normal left]
+		Optionally, you can turn on Feather Mode, which will allow you to control your direction of movement while moving through the block.
+		
+	communalhelper_trailer_05=
+	
+		[MADELINE normal left]
+		Since {# 856bff}Connected Dream Blocks{#} are a group of overlapping rectangles...
+		...you can optionally turn on the "One Use" mode for any rectangle you want, and the entire Dream Block will shatter if you exit it from the one use rectangles.
+
+	communalhelper_trailer_end=
+	
+		[MADELINE together left]
+		Have fun!
+		
+		[MADELINE peaceful left]
+		Thanks for watching.
+		
+
+
+
+
+
+
+
+
+
+
+
+
