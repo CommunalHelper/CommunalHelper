@@ -204,7 +204,6 @@ namespace Celeste.Mod.CommunalHelper {
 
 		#region Vanilla constants
 		private const float DashSpeed = 240f;
-		private const float DashAttackTime = 0.3f;
 		private const float ClimbMaxStamina = 110f;
 		private const float DreamDashMinTime = 0.1f;
 		#endregion
@@ -316,11 +315,11 @@ namespace Celeste.Mod.CommunalHelper {
 			player.Speed = player.DashDir * DashSpeed;
 			player.TreatNaive = true;
 
-			// Puts player inside solid so that are are immediately carried with it if it is moving
-			player.Position.X += Math.Sign(player.DashDir.X);
-			player.Position.Y += Math.Sign(player.DashDir.Y);
+            // Puts player inside solid so that are are immediately carried with it if it is moving
+            player.Position.X += Math.Sign(player.DashDir.X);
+            player.Position.Y += Math.Sign(player.DashDir.Y);
 
-			player.Depth = Depths.PlayerDreamDashing;
+            player.Depth = Depths.PlayerDreamDashing;
 			playerData["dreamDashCanEndTimer"] = DreamDashMinTime;
 			player.Stamina = ClimbMaxStamina;
 			playerData["dreamJump"] = false;
@@ -367,7 +366,8 @@ namespace Celeste.Mod.CommunalHelper {
 
 			float dreamDashCanEndTimer = playerData.Get<float>("dreamDashCanEndTimer");
 			if (dreamDashCanEndTimer > 0f) {
-				playerData["dreamDashCanEndTimer"] = dreamDashCanEndTimer - Engine.DeltaTime;
+				dreamDashCanEndTimer -= Engine.DeltaTime;
+				playerData["dreamDashCanEndTimer"] = dreamDashCanEndTimer;
 			}
 			if (player.CollideCheck<Solid, DreamBlock>()) {
 				if (player.Scene.OnInterval(0.1f)) {
@@ -393,9 +393,9 @@ namespace Celeste.Mod.CommunalHelper {
 						playerData["dreamJump"] = true;
 						player.Jump();
 					} else if (player.DashDir.Y >= 0f || player.DashDir.X != 0f) {
-						if (player.DashDir.X > 0f && player.CollideCheck<Solid>(player.Position - Vector2.UnitX * 5f)) {
+						if (player.DashDir.X > 0f && player.CollideCheck<DreamBlock>(player.Position - Vector2.UnitX * 5f)) {
 							player.MoveHExact(-5);
-						} else if (player.DashDir.X < 0f && player.CollideCheck<Solid>(player.Position + Vector2.UnitX * 5f)) {
+						} else if (player.DashDir.X < 0f && player.CollideCheck<DreamBlock>(player.Position + Vector2.UnitX * 5f)) {
 							player.MoveHExact(5);
 						}
 
@@ -472,6 +472,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             if (dreamTunnelDashCheck(player, moveDir)) {
 				player.StateMachine.State = StDreamTunnelDash;
+				dreamTunnelDashAttacking = false;
 
 				var playerData = getPlayerData(player);
 				playerData["dashAttackTimer"] = 0f;
@@ -517,6 +518,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             if (dreamTunnelDashCheck(player, moveDir)) {
 				player.StateMachine.State = StDreamTunnelDash;
+				dreamTunnelDashAttacking = false;
 
 				var playerData = getPlayerData(player);
 				playerData["dashAttackTimer"] = 0f;
@@ -616,6 +618,10 @@ namespace Celeste.Mod.CommunalHelper {
 		public static DynData<Player> getPlayerData(Player player) {
 			return CommunalHelperModule.getPlayerData(player);
 		}
+
+		private static void log(string str) {
+			CommunalHelperModule.log(str);
+        }
 		#endregion
 	}
 }
