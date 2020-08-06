@@ -3,7 +3,7 @@ using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/ConnectedDreamBlock" ConnectedDreamBlock(
 			x::Integer, y::Integer,
-			width::Integer=8, height::Integer=8,
+			width::Integer=16, height::Integer=16,
 			featherMode::Bool = false,
 			oneUse::Bool = false)
 			
