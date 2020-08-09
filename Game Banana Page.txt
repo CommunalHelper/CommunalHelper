@@ -5,4 +5,4 @@ The current list of included mechanics:
 * Dream Move Block - Move Block by day, Dream Block by night.
 * Dream Swap Block - I think you get the idea.
 * Dream Refill - A special refill that once collected, allows the player to dash through any solid, except for dream blocks which will kill them.
-* Connected Dream Block - Dream blocks that when placed such that they overlap, will form continuous regions. The "feather mode" option allows the player to control their direction of movement while travelling throug the block, and the "one use" option will cause the dream block to shatter upon exit.
+* Connected Dream Block - Dream blocks that when placed such that they overlap, will form continuous regions. The "feather mode" option allows the player to control their direction of movement while traveling through the block, and the "one use" option will cause the dream block to shatter upon exit.

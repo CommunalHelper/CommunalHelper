@@ -8,10 +8,11 @@ using System.Collections.Generic;
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/DreamZipMover")]
 	[TrackedAs(typeof(DreamBlock))]
-	class DreamZipMover : DreamBlock {
+	class DreamZipMover : CustomDreamBlock {
 		private class DreamZipMoverPathRenderer : Entity {
 			public DreamZipMover DreamZipMover;
 			private MTexture cog;
+			private MTexture cogWhite;
 
 			private Vector2 from;
 			private Vector2 to;
@@ -43,6 +44,7 @@ namespace Celeste.Mod.CommunalHelper {
 				sparkDirToA = num + (float)Math.PI - (float)Math.PI / 8f;
 				sparkDirToB = num + (float)Math.PI + (float)Math.PI / 8f;
 				cog = GFX.Game[dreamAesthetic ? "objects/CommunalHelper/dreamZipMover/cog" : "objects/zipmover/cog"];
+				cogWhite = GFX.Game["objects/CommunalHelper/dreamZipMover/cogWhite"];
 
 				dreamColors[0] = Calc.HexToColor("FFEF11");
 				dreamColors[1] = Calc.HexToColor("FF00D0");
@@ -68,12 +70,13 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 
 			private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
+				float whiteLerp = DreamZipMover.colorLerp;
 				Vector2 travelDir = (to - from).SafeNormalize();
 				Vector2 hOffset1 = travelDir.Perpendicular() * 3f;
 				Vector2 hOffset2 = -travelDir.Perpendicular() * 4f;
 				float rotation = -DreamZipMover.percent * (float)Math.PI * 2f;
 
-				Color color = dreamAesthetic ? dreamRopeColor : ropeColor;
+				Color color = Color.Lerp(dreamAesthetic ? dreamRopeColor : ropeColor, Color.White, whiteLerp);
 				Draw.Line(from + hOffset1 + offset, to + hOffset1 + offset, colorOverride.HasValue ? colorOverride.Value : color);
 				Draw.Line(from + hOffset2 + offset, to + hOffset2 + offset, colorOverride.HasValue ? colorOverride.Value : color);
 				float dist = (to - from).Length();
@@ -86,11 +89,17 @@ namespace Celeste.Mod.CommunalHelper {
 					if (dreamAesthetic) {
 						lightColor = dreamColors[(int)mod((float)Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
 					}
+					lightColor = Color.Lerp(lightColor, Color.White, whiteLerp);
 					Draw.Line(value3 + offset, value3 + travelDir * 2f + offset, colorOverride.HasValue ? colorOverride.Value : lightColor);
 					Draw.Line(value4 + offset, value4 - travelDir * 2f + offset, colorOverride.HasValue ? colorOverride.Value : lightColor);
 				}
                 cog.DrawCentered(from + offset, colorOverride.HasValue ? colorOverride.Value : Color.White, 1f, rotation);
                 cog.DrawCentered(to + offset, colorOverride.HasValue ? colorOverride.Value : Color.White, 1f, rotation);
+				if (whiteLerp > 0f && !colorOverride.HasValue) {
+					Color tempColor = Color.Lerp(Color.Transparent, Color.White, whiteLerp);
+					cogWhite.DrawCentered(from + offset, tempColor, 1f, rotation);
+					cogWhite.DrawCentered(to + offset, tempColor, 1f, rotation);
+				}
             }
 
 			private float mod(float x, float m) {
@@ -107,11 +116,13 @@ namespace Celeste.Mod.CommunalHelper {
 		private SoundSource sfx = new SoundSource();
 
 		private bool dreamAesthetic;
+		private bool noReturn;
 
-		public DreamZipMover(Vector2 position, int width, int height, Vector2 target, bool dreamAesthetic)
-			: base(position, width, height, null, false, false) {
+		public DreamZipMover(Vector2 position, int width, int height, Vector2 target, bool noReturn, bool dreamAesthetic, bool featherMode, bool oneUse)
+			: base(position, width, height, featherMode, oneUse) {
 			start = Position;
 			this.target = target;
+			this.noReturn = noReturn;
 			this.dreamAesthetic = dreamAesthetic;
 			Add(new Coroutine(Sequence()));
 			Add(new LightOcclude());
@@ -120,7 +131,7 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
 		public DreamZipMover(EntityData data, Vector2 offset)
-			: this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("dreamAesthetic", false)) {
+			: this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("noReturn", false), data.Bool("dreamAesthetic", false), data.Bool("featherMode", false), data.Bool("oneUse", false)) {
 		}
 
 		public override void Added(Scene scene) {
@@ -128,7 +139,12 @@ namespace Celeste.Mod.CommunalHelper {
 			scene.Add(pathRenderer = new DreamZipMoverPathRenderer(this, dreamAesthetic));
 		}
 
-		public override void Removed(Scene scene) {
+        public override void Awake(Scene scene) {
+            base.Awake(scene);
+			SetupParticles(Width, Height);
+        }
+
+        public override void Removed(Scene scene) {
 			scene.Remove(pathRenderer);
 			pathRenderer = null;
 			base.Removed(scene);
@@ -202,8 +218,6 @@ namespace Celeste.Mod.CommunalHelper {
 					yield return null;
 					continue;
 				}
-				//sfx.Play("event:/game/01_forsaken_city/zip_mover");
-				//sfx.Play("event:/new_content/game/10_farewell/zip_mover");
 				sfx.Play("event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover");
 				Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 				StartShaking(0.1f);
@@ -239,6 +253,13 @@ namespace Celeste.Mod.CommunalHelper {
 				StartShaking(0.2f);
 				yield return 0.5f;
 			}
+		}
+
+		protected override void OneUseDestroy() {
+			base.OneUseDestroy();
+			Scene.Remove(pathRenderer);
+			pathRenderer = null;
+			sfx.Stop();
 		}
 	}
 }

@@ -8,6 +8,7 @@ using System.Reflection;
 namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperModule : EverestModule {
         public static CommunalHelperModule Instance;
+
 		private static DynData<Player> _playerData = null;
 
 		#region Vanilla constants
@@ -15,21 +16,25 @@ namespace Celeste.Mod.CommunalHelper {
         #endregion
 
         #region Setup
-        public override void Load() {
+		public override void Load() {
             On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
             On.Celeste.Player.DashCoroutine += modDashCoroutine;
 
-            DreamRefillHooks.hook();
+            DreamRefillHooks.Hook();
+			CustomDreamBlockHooks.Hook();
             ConnectedDreamBlockHooks.Hook();
+			SyncedZipMoverActivationControllerHooks.Hook();
         }
 
 		public override void Unload() {
             On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
             On.Celeste.Player.DashCoroutine -= modDashCoroutine;
 
-            DreamRefillHooks.unhook();
-            ConnectedDreamBlockHooks.Unhook();
-        }
+            DreamRefillHooks.Unhook();
+			CustomDreamBlockHooks.Unhook();
+			ConnectedDreamBlockHooks.Unhook();
+			SyncedZipMoverActivationControllerHooks.Unhook();
+		}
         #endregion
 
         #region Ensures the player always properly enters a dream block even when it's moving fast

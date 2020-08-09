@@ -7,7 +7,7 @@ using System;
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/DreamSwapBlock")]
     [TrackedAs(typeof(DreamBlock))]
-    class DreamSwapBlock : DreamBlock {
+    class DreamSwapBlock : CustomDreamBlock {
         private class PathRenderer : Entity {
             private DreamSwapBlock block;
 
@@ -27,6 +27,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             public override void Render() {
                 float scale = 0.5f * (0.5f + ((float)Math.Sin(timer) + 1f) * 0.25f);
+                scale = Calc.LerpClamp(scale, 1, block.colorLerp);
                 block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, Color.White * scale);
             }
         }
@@ -87,8 +88,8 @@ namespace Celeste.Mod.CommunalHelper {
             dreamParticles[3] = particle;
         }
 
-        public DreamSwapBlock(Vector2 position, float width, float height, Vector2 node)
-            : base(position, width, height, null, false, false) {
+        public DreamSwapBlock(Vector2 position, int width, int height, Vector2 node, bool featherMode, bool oneUse)
+            : base(position, width, height, featherMode, oneUse) {
             start = Position;
             end = node;
             maxForwardSpeed = 360f / Vector2.Distance(start, end);
@@ -114,12 +115,13 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public DreamSwapBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset) {
+            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("featherMode", false), data.Bool("oneUse", false)) {
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
             scene.Add(path = new PathRenderer(this));
+            SetupParticles(Width, Height);
         }
 
         public override void Removed(Scene scene) {
@@ -154,8 +156,19 @@ namespace Celeste.Mod.CommunalHelper {
             }
         }
 
+        protected override void OneUseDestroy() {
+            base.OneUseDestroy();
+            Audio.Stop(moveSfx);
+            Audio.Stop(returnSfx);
+            Scene.Remove(path);
+        }
+
         public override void Update() {
             base.Update();
+            if (shattering) {
+                return;
+            }
+
             if (returnTimer > 0f) {
                 returnTimer -= Engine.DeltaTime;
                 if (returnTimer <= 0f) {

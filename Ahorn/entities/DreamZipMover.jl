@@ -5,8 +5,11 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/DreamZipMover" DreamZipMover(x::Integer, 
                                                             y::Integer, 
                                                             width::Integer=Maple.defaultBlockWidth, 
-                                                            height::Integer=Maple.defaultBlockHeight, 
-                                                            dreamAesthetic::Bool=false) 
+                                                            height::Integer=Maple.defaultBlockHeight,
+                                                            noReturn::Bool=false,
+                                                            dreamAesthetic::Bool=false,
+                                                            featherMode::Bool=false,
+                                                            oneUse::Bool=false) 
 
 const placements = Ahorn.PlacementDict(
     "Dream Zip Mover (Communal Helper)" => Ahorn.EntityPlacement(
@@ -40,7 +43,7 @@ end
 
 ropeColor = (102, 57, 49) ./ 255
 
-function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover)
+function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover, featherMode::Bool, oneUse::Bool)
     x, y = Ahorn.position(entity)
     nx, ny = Int.(entity.data["nodes"][1])
 
@@ -60,7 +63,9 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
     # Dream block stuff
     Ahorn.set_antialias(ctx, 1)
     Ahorn.set_line_width(ctx, 1)
-    Ahorn.drawRectangle(ctx, x, y, width, height, (0.0, 0.0, 0.0, 0.4), (1.0, 1.0, 1.0, 1.0))
+    fillColor = featherMode ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
+	lineColor = oneUse ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
+    Ahorn.drawRectangle(ctx, x, y, width, height, fillColor, lineColor)
 
     Ahorn.translate(ctx, cx, cy)
     Ahorn.rotate(ctx, theta)
@@ -82,7 +87,7 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
 end
 
 function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover, room::Maple.Room)
-    renderDreamZipMover(ctx, entity)
+    renderDreamZipMover(ctx, entity, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
 end
 
 end

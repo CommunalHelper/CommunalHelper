@@ -220,7 +220,7 @@ namespace Celeste.Mod.CommunalHelper {
 			dreamTrailColors[4] = Calc.HexToColor("E0564C");
 		}
 
-		public static void hook() {
+		public static void Hook() {
             On.Celeste.Player.ctor += modPlayerCtor;
             On.Celeste.Player.DashBegin += modDashBegin;
             On.Celeste.Player.Update += modUpdate;
@@ -233,7 +233,7 @@ namespace Celeste.Mod.CommunalHelper {
 			On.Celeste.Player.IsRiding_Solid += modIsRiding;
         }
 
-		public static void unhook() {
+		public static void Unhook() {
             On.Celeste.Player.ctor -= modPlayerCtor;
             On.Celeste.Player.DashBegin -= modDashBegin;
             On.Celeste.Player.Update -= modUpdate;

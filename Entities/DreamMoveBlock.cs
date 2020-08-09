@@ -13,7 +13,7 @@ using System.Collections.Generic;
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/DreamMoveBlock")]
     [TrackedAs(typeof(DreamBlock))]
-    class DreamMoveBlock : DreamBlock {
+    class DreamMoveBlock : CustomDreamBlock {
 		public enum Directions {
 			Left,
 			Right,
@@ -190,12 +190,12 @@ namespace Celeste.Mod.CommunalHelper {
 		private List<MTexture> arrows = new List<MTexture>();
 
 		private float flash;
-
 		private SoundSource moveSfx;
 
 		private bool triggered;
-
 		private float particleRemainder;
+
+		private Coroutine controller;
 
 		static DreamMoveBlock() {
 			P_Activate = new ParticleType(MoveBlock.P_Activate);
@@ -226,8 +226,8 @@ namespace Celeste.Mod.CommunalHelper {
 			dreamParticles[3] = particle;
 		}
 
-		public DreamMoveBlock(Vector2 position, int width, int height, Directions direction, bool fast)
-			: base(position, width, height, null, false, false) {
+		public DreamMoveBlock(Vector2 position, int width, int height, Directions direction, bool fast, bool featherMode, bool oneUse)
+			: base(position, width, height, featherMode, oneUse) {
 			startPosition = position;
 			this.direction = direction;
 			this.fast = fast;
@@ -247,16 +247,17 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 			arrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/arrow");
 			Add(moveSfx = new SoundSource());
-			Add(new Coroutine(Controller()));
+			Add(controller = new Coroutine(Controller()));
 			Add(new LightOcclude(0.5f));
 		}
 
 		public DreamMoveBlock(EntityData data, Vector2 offset)
-			: this(data.Position + offset, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast")) {
+			: this(data.Position + offset, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast"), data.Bool("featherMode", false), data.Bool("oneUse", false)) {
 		}
 
 		public override void Awake(Scene scene) {
 			base.Awake(scene);
+			SetupParticles(Width, Height);
 		}
 
 		private IEnumerator Controller() {
@@ -278,7 +279,7 @@ namespace Celeste.Mod.CommunalHelper {
 				float crashTimer = 0.15f;
 				float crashResetTimer = 0.1f;
 				while (true) {
-					if (Scene.OnInterval(0.02f)) {
+					if (Scene.OnInterval(0.02f) && Collidable) {
 						MoveParticles();
 					}
 					speed = Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
@@ -316,7 +317,7 @@ namespace Celeste.Mod.CommunalHelper {
 					if (hit) {
 						moveSfx.Param("arrow_stop", 1f);
 						crashResetTimer = 0.1f;
-						if (!(crashTimer > 0f)) {
+						if (!(crashTimer > 0f) && !shattering) {
 							break;
 						}
 						crashTimer -= Engine.DeltaTime;
@@ -390,7 +391,17 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 		}
 
-		private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<Debris> debris) {
+        protected override void OneUseDestroy() {
+            base.OneUseDestroy();
+			Remove(controller);
+			moveSfx.Stop();
+        }
+
+        protected override bool ShatterCheck() {
+            return base.ShatterCheck() && state != MovementState.Breaking;
+        }
+
+        private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<Debris> debris) {
 			while (true) {
 				instance.getPlaybackState(out PLAYBACK_STATE state);
 				if (state == PLAYBACK_STATE.STOPPED) {
@@ -478,12 +489,14 @@ namespace Celeste.Mod.CommunalHelper {
 			Vector2 position = Position;
 			Position += base.Shake;
 			base.Render();
+
+			Color color = Color.Lerp(Color.White, Color.Black, colorLerp);
             if (state != MovementState.Breaking) {
                 int value = (int)Math.Floor((0f - angle + (float)Math.PI * 2f) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f + 0.5f);
                 MTexture arrow = arrows[Calc.Clamp(value, 0, 7)];
-				arrow.DrawCentered(base.Center);
+				arrow.DrawCentered(base.Center + shake, color);
 			} else {
-                GFX.Game["objects/CommunalHelper/dreamMoveBlock/x"].DrawCentered(base.Center);
+                GFX.Game["objects/CommunalHelper/dreamMoveBlock/x"].DrawCentered(base.Center + shake, color);
             }
             float num = flash * 4f;
             Draw.Rect(base.X - num, base.Y - num, base.Width + num * 2f, base.Height + num * 2f, Color.White * flash);
