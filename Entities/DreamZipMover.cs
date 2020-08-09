@@ -70,13 +70,14 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 
 			private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
-				float whiteLerp = DreamZipMover.colorLerp;
+				float colorLerp = DreamZipMover.colorLerp;
+				Color colorLerpTarget = DreamZipMover.activeLineColor;
 				Vector2 travelDir = (to - from).SafeNormalize();
 				Vector2 hOffset1 = travelDir.Perpendicular() * 3f;
 				Vector2 hOffset2 = -travelDir.Perpendicular() * 4f;
 				float rotation = -DreamZipMover.percent * (float)Math.PI * 2f;
 
-				Color color = Color.Lerp(dreamAesthetic ? dreamRopeColor : ropeColor, Color.White, whiteLerp);
+				Color color = Color.Lerp(dreamAesthetic ? dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
 				Draw.Line(from + hOffset1 + offset, to + hOffset1 + offset, colorOverride.HasValue ? colorOverride.Value : color);
 				Draw.Line(from + hOffset2 + offset, to + hOffset2 + offset, colorOverride.HasValue ? colorOverride.Value : color);
 				float dist = (to - from).Length();
@@ -89,14 +90,14 @@ namespace Celeste.Mod.CommunalHelper {
 					if (dreamAesthetic) {
 						lightColor = dreamColors[(int)mod((float)Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
 					}
-					lightColor = Color.Lerp(lightColor, Color.White, whiteLerp);
+					lightColor = Color.Lerp(lightColor, colorLerpTarget, colorLerp);
 					Draw.Line(value3 + offset, value3 + travelDir * 2f + offset, colorOverride.HasValue ? colorOverride.Value : lightColor);
 					Draw.Line(value4 + offset, value4 - travelDir * 2f + offset, colorOverride.HasValue ? colorOverride.Value : lightColor);
 				}
                 cog.DrawCentered(from + offset, colorOverride.HasValue ? colorOverride.Value : Color.White, 1f, rotation);
                 cog.DrawCentered(to + offset, colorOverride.HasValue ? colorOverride.Value : Color.White, 1f, rotation);
-				if (whiteLerp > 0f && !colorOverride.HasValue) {
-					Color tempColor = Color.Lerp(Color.Transparent, Color.White, whiteLerp);
+				if (colorLerp > 0f && !colorOverride.HasValue) {
+					Color tempColor = Color.Lerp(Color.Transparent, colorLerpTarget, colorLerp);
 					cogWhite.DrawCentered(from + offset, tempColor, 1f, rotation);
 					cogWhite.DrawCentered(to + offset, tempColor, 1f, rotation);
 				}
@@ -119,7 +120,7 @@ namespace Celeste.Mod.CommunalHelper {
 		private bool noReturn;
 
 		public DreamZipMover(Vector2 position, int width, int height, Vector2 target, bool noReturn, bool dreamAesthetic, bool featherMode, bool oneUse)
-			: base(position, width, height, featherMode, oneUse) {
+			: base(position, width, height, featherMode, oneUse, noReturn) {
 			start = Position;
 			this.target = target;
 			this.noReturn = noReturn;
@@ -213,6 +214,7 @@ namespace Celeste.Mod.CommunalHelper {
 
 		private IEnumerator Sequence() {
 			Vector2 start = Position;
+			Vector2 end = target;
 			while (true) {
 				if (!HasPlayerRider()) {
 					yield return null;
@@ -222,13 +224,14 @@ namespace Celeste.Mod.CommunalHelper {
 				Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 				StartShaking(0.1f);
 				yield return 0.1f;
+
 				StopPlayerRunIntoAnimation = false;
 				float at2 = 0f;
 				while (at2 < 1f) {
 					yield return null;
 					at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
 					percent = Ease.SineIn(at2);
-					Vector2 to = Vector2.Lerp(start, target, percent);
+					Vector2 to = Vector2.Lerp(start, end, percent);
 					ScrapeParticlesCheck(to);
 					if (Scene.OnInterval(0.1f)) {
 						pathRenderer.CreateSparks();
@@ -240,18 +243,26 @@ namespace Celeste.Mod.CommunalHelper {
 				SceneAs<Level>().Shake();
 				StopPlayerRunIntoAnimation = true;
 				yield return 0.5f;
-				StopPlayerRunIntoAnimation = false;
-				float at = 0f;
-				while (at < 1f) {
-					yield return null;
-					at = Calc.Approach(at, 1f, 0.5f * Engine.DeltaTime);
-					percent = 1f - Ease.SineIn(at);
-					Vector2 to2 = Vector2.Lerp(target, start, Ease.SineIn(at));
-					MoveTo(to2);
-				}
-				StopPlayerRunIntoAnimation = true;
-				StartShaking(0.2f);
-				yield return 0.5f;
+
+				if (!noReturn) {
+					StopPlayerRunIntoAnimation = false;
+					float at = 0f;
+					while (at < 1f) {
+						yield return null;
+						at = Calc.Approach(at, 1f, 0.5f * Engine.DeltaTime);
+						percent = 1f - Ease.SineIn(at);
+						Vector2 to2 = Vector2.Lerp(end, start, Ease.SineIn(at));
+						MoveTo(to2);
+					}
+					StopPlayerRunIntoAnimation = true;
+					StartShaking(0.2f);
+					yield return 0.5f;
+				} else {
+					sfx.Stop();
+					Vector2 temp = start;
+					start = end;
+					end = temp;
+                }
 			}
 		}
 

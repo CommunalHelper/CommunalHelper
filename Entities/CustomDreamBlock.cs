@@ -25,7 +25,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         private static readonly Color activeBackColor = Color.Black;
         private static readonly Color disabledBackColor = Calc.HexToColor("1f2e2d");
-        private static readonly Color activeLineColor = Color.White;
+        protected Color activeLineColor = Color.White;
         private static readonly Color disabledLineColor = Calc.HexToColor("6a8480");
 
         public float animTimer;
@@ -46,22 +46,23 @@ namespace Celeste.Mod.CommunalHelper {
 
         protected Vector2 shake = Vector2.Zero;
         private bool shakeToggle = false;
-        private static ParticleType shakeParticle;
+        private ParticleType shakeParticle;
         private float[] particleRemainders = new float[4];
 
-        static CustomDreamBlock() {
+        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool altLineColor = false)
+            : base(position, width, height, null, false, false) {
+            this.featherMode = featherMode;
+            this.oneUse = oneUse;
+            if (altLineColor) {
+                activeLineColor = Calc.HexToColor("FF66D9");
+            }
             shakeParticle = new ParticleType(SwitchGate.P_Behind) {
-                Color = Color.White,
+                Color = activeLineColor,
                 ColorMode = ParticleType.ColorModes.Static,
                 Acceleration = Vector2.Zero,
                 DirectionRange = (float)Math.PI / 2
             };
-        }
 
-        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse)
-            : base(position, width, height, null, false, false) {
-            this.featherMode = featherMode;
-            this.oneUse = oneUse;
             particleTextures = new MTexture[4]
             {
                 GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7),
@@ -78,6 +79,11 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Added(Scene scene) {
             base.Added(scene);
             playerHasDreamDash = SceneAs<Level>().Session.Inventory.DreamDash;
+        }
+
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            Glitch.Value = 0f;
         }
 
         // Called by implementing classes
@@ -205,7 +211,7 @@ namespace Celeste.Mod.CommunalHelper {
                 return;
             }
 
-            Color backColor = Color.Lerp(playerHasDreamDash ? activeBackColor : disabledBackColor, Color.White, colorLerp);
+            Color backColor = Color.Lerp(playerHasDreamDash ? activeBackColor : disabledBackColor, activeLineColor, colorLerp);
             Draw.Rect(base.X, base.Y, base.Width, base.Height, backColor);
 
             #region Particle rendering
@@ -259,8 +265,8 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         protected void WobbleLine(Vector2 from, Vector2 to, float offset) {
-            Color lineColor = Color.White;
-            Color backColor = Color.Lerp(playerHasDreamDash ? activeBackColor : disabledBackColor, Color.White, colorLerp);
+            Color lineColor = playerHasDreamDash ? activeLineColor : disabledLineColor;
+            Color backColor = Color.Lerp(playerHasDreamDash ? activeBackColor : disabledBackColor, activeLineColor, colorLerp);
 
             float num = (to - from).Length();
             Vector2 value = Vector2.Normalize(to - from);

@@ -143,6 +143,11 @@ namespace Celeste.Mod.CommunalHelper
             playerHasDreamDash = SceneAs<Level>().Session.Inventory.DreamDash;
         }
 
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            Glitch.Value = 0f;
+        }
+
         public override void Awake(Scene scene)
         {
             base.Awake(scene);

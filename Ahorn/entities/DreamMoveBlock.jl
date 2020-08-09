@@ -8,6 +8,7 @@ using ..Ahorn, Maple
                                                               height::Integer=Maple.defaultBlockHeight,
                                                               direction::String="Right", 
                                                               fast::Bool=false,
+                                                              noCollide::Bool=false,
                                                               featherMode::Bool=false,
                                                               oneUse::Bool=false) 
 

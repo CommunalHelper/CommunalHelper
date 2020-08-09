@@ -6,6 +6,7 @@ using ..Ahorn, Maple
                                                               y::Integer, 
                                                               width::Integer=16, 
                                                               height::Integer=16,
+                                                              noReturn::Bool=false,
                                                               featherMode::Bool=false,
                                                               oneUse::Bool=false) 
 
