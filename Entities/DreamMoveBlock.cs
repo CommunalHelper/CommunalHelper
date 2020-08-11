@@ -6,10 +6,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-// TODO:
-// Change all particle types to dream particles
-// Remove all code related to uneeded stuff
-// Fix vanilla dream block exit logic to take into account lift speed?
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/DreamMoveBlock")]
     [TrackedAs(typeof(DreamBlock))]

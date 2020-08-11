@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+
+<Sprites>
+
+	<smallStationBlockArrow path="objects/CommunalHelper/stationBlock/arrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
+	  <Loop id="IdleRight" path="small" frames="4" delay="0.04"/>
+	  <Loop id="IdleDown" path="small" frames="8" delay="0.04"/>
+	  <Loop id="IdleLeft" path="small" frames="12" delay="0.04"/>
+	  
+	  <Anim id="UpToUp" path="small" frames="0,1,0,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="small" frames="4,3,4,5,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="small" frames="8,9,8,7,8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="small" frames="12,13,12,11,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="small" frames="0-4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="small" frames="0,1,2,6,7,8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="small" frames="0,15,14,13,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="small" frames="4,3,2,1,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="small" frames="4-8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="small" frames="4,5,6,10,11,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="small" frames="8,7,6,5,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="small" frames="8,9,10,14,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="small" frames="8-12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="small" frames="12,13,14,2,3,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="small" frames="12,13,14,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="small" frames="12,11,10,9,8" delay="0.04" goto="IdleDown"/>
+	</smallStationBlockArrow>
+	
+	<mediumStationBlockArrow path="objects/CommunalHelper/stationBlock/arrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
+	  <Loop id="IdleRight" path="med" frames="4" delay="0.05"/>
+	  <Loop id="IdleDown" path="med" frames="8" delay="0.05"/>
+	  <Loop id="IdleLeft" path="med" frames="12" delay="0.05"/>
+	  
+	  <Anim id="UpToUp" path="med" frames="0,1,0,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="med" frames="4,3,4,5,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="med" frames="8,9,8,7,8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="med" frames="12,13,12,11,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="med" frames="0-4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="med" frames="0,1,2,6,7,8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="med" frames="0,15,14,13,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="med" frames="4,3,2,1,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="med" frames="4-8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="med" frames="4,5,6,10,11,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="med" frames="8,7,6,5,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="med" frames="8,9,10,14,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="med" frames="8-12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="med" frames="12,13,14,2,3,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="med" frames="12,13,14,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="med" frames="12,11,10,9,8" delay="0.05" goto="IdleDown"/>
+	</mediumStationBlockArrow>
+	
+	<bigStationBlockArrow path="objects/CommunalHelper/stationBlock/arrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
+	  <Loop id="IdleRight" path="big" frames="4" delay="0.06"/>
+	  <Loop id="IdleDown" path="big" frames="8" delay="0.06"/>
+	  <Loop id="IdleLeft" path="big" frames="12" delay="0.06"/>
+	  
+	  <Anim id="UpToUp" path="big" frames="0,1,0,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="big" frames="4,3,4,5,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="big" frames="8,9,8,7,8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="big" frames="12,13,12,11,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="big" frames="0-4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="big" frames="0,1,2,6,7,8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="big" frames="0,15,14,13,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="big" frames="4,3,2,1,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="big" frames="4-8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="big" frames="4,5,6,10,11,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="big" frames="8,7,6,5,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="big" frames="8,9,10,14,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="big" frames="8-12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="big" frames="12,13,14,2,3,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="big" frames="12,13,14,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="big" frames="12,11,10,9,8" delay="0.06" goto="IdleDown"/>
+	</bigStationBlockArrow>
+	
+	<smallAltStationBlockArrow path="objects/CommunalHelper/stationBlock/altArrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
+	  <Loop id="IdleRight" path="small" frames="4" delay="0.04"/>
+	  <Loop id="IdleDown" path="small" frames="8" delay="0.04"/>
+	  <Loop id="IdleLeft" path="small" frames="12" delay="0.04"/>
+	  
+	  <Anim id="UpToUp" path="small" frames="0,1,0,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="small" frames="4,3,4,5,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="small" frames="8,9,8,7,8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="small" frames="12,13,12,11,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="small" frames="0-4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="small" frames="0,1,2,6,7,8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="small" frames="0,15,14,13,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="small" frames="4,3,2,1,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="small" frames="4-8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="small" frames="4,5,6,10,11,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="small" frames="8,7,6,5,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="small" frames="8,9,10,14,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="small" frames="8-12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="small" frames="12,13,14,2,3,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="small" frames="12,13,14,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="small" frames="12,11,10,9,8" delay="0.04" goto="IdleDown"/>
+	</smallAltStationBlockArrow>
+	
+	<mediumAltStationBlockArrow path="objects/CommunalHelper/stationBlock/altArrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
+	  <Loop id="IdleRight" path="med" frames="4" delay="0.05"/>
+	  <Loop id="IdleDown" path="med" frames="8" delay="0.05"/>
+	  <Loop id="IdleLeft" path="med" frames="12" delay="0.05"/>
+	  
+	  <Anim id="UpToUp" path="med" frames="0,1,0,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="med" frames="4,3,4,5,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="med" frames="8,9,8,7,8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="med" frames="12,13,12,11,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="med" frames="0-4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="med" frames="0,1,2,6,7,8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="med" frames="0,15,14,13,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="med" frames="4,3,2,1,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="med" frames="4-8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="med" frames="4,5,6,10,11,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="med" frames="8,7,6,5,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="med" frames="8,9,10,14,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="med" frames="8-12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="med" frames="12,13,14,2,3,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="med" frames="12,13,14,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="med" frames="12,11,10,9,8" delay="0.05" goto="IdleDown"/>
+	</mediumAltStationBlockArrow>
+	
+	<bigAltStationBlockArrow path="objects/CommunalHelper/stationBlock/altArrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
+	  <Loop id="IdleRight" path="big" frames="4" delay="0.06"/>
+	  <Loop id="IdleDown" path="big" frames="8" delay="0.06"/>
+	  <Loop id="IdleLeft" path="big" frames="12" delay="0.06"/>
+	  
+	  <Anim id="UpToUp" path="big" frames="0,1,0,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="big" frames="4,3,4,5,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="big" frames="8,9,8,7,8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="big" frames="12,13,12,11,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="big" frames="0-4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="big" frames="0,1,2,6,7,8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="big" frames="0,15,14,13,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="big" frames="4,3,2,1,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="big" frames="4-8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="big" frames="4,5,6,10,11,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="big" frames="8,7,6,5,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="big" frames="8,9,10,14,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="big" frames="8-12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="big" frames="12,13,14,2,3,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="big" frames="12,13,14,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="big" frames="12,11,10,9,8" delay="0.06" goto="IdleDown"/>
+	</bigAltStationBlockArrow>
+	
+	<smallMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/moonArrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
+	  <Loop id="IdleRight" path="small" frames="4" delay="0.04"/>
+	  <Loop id="IdleDown" path="small" frames="8" delay="0.04"/>
+	  <Loop id="IdleLeft" path="small" frames="12" delay="0.04"/>
+	  
+	  <Anim id="UpToUp" path="small" frames="0,1,0,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="small" frames="4,3,4,5,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="small" frames="8,9,8,7,8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="small" frames="12,13,12,11,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="small" frames="0-4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="small" frames="0,1,2,6,7,8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="small" frames="0,15,14,13,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="small" frames="4,3,2,1,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="small" frames="4-8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="small" frames="4,5,6,10,11,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="small" frames="8,7,6,5,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="small" frames="8,9,10,14,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="small" frames="8-12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="small" frames="12,13,14,2,3,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="small" frames="12,13,14,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="small" frames="12,11,10,9,8" delay="0.04" goto="IdleDown"/>
+	</smallMoonStationBlockArrow>
+	
+	<mediumMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/moonArrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
+	  <Loop id="IdleRight" path="med" frames="4" delay="0.05"/>
+	  <Loop id="IdleDown" path="med" frames="8" delay="0.05"/>
+	  <Loop id="IdleLeft" path="med" frames="12" delay="0.05"/>
+	  
+	  <Anim id="UpToUp" path="med" frames="0,1,0,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="med" frames="4,3,4,5,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="med" frames="8,9,8,7,8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="med" frames="12,13,12,11,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="med" frames="0-4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="med" frames="0,1,2,6,7,8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="med" frames="0,15,14,13,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="med" frames="4,3,2,1,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="med" frames="4-8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="med" frames="4,5,6,10,11,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="med" frames="8,7,6,5,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="med" frames="8,9,10,14,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="med" frames="8-12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="med" frames="12,13,14,2,3,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="med" frames="12,13,14,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="med" frames="12,11,10,9,8" delay="0.05" goto="IdleDown"/>
+	</mediumMoonStationBlockArrow>
+	
+	<bigMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/moonArrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
+	  <Loop id="IdleRight" path="big" frames="4" delay="0.06"/>
+	  <Loop id="IdleDown" path="big" frames="8" delay="0.06"/>
+	  <Loop id="IdleLeft" path="big" frames="12" delay="0.06"/>
+	  
+	  <Anim id="UpToUp" path="big" frames="0,1,0,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="big" frames="4,3,4,5,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="big" frames="8,9,8,7,8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="big" frames="12,13,12,11,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="big" frames="0-4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="big" frames="0,1,2,6,7,8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="big" frames="0,15,14,13,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="big" frames="4,3,2,1,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="big" frames="4-8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="big" frames="4,5,6,10,11,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="big" frames="8,7,6,5,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="big" frames="8,9,10,14,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="big" frames="8-12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="big" frames="12,13,14,2,3,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="big" frames="12,13,14,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="big" frames="12,11,10,9,8" delay="0.06" goto="IdleDown"/>
+	</bigMoonStationBlockArrow>
+	
+	<smallAltMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/altMoonArrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
+	  <Loop id="IdleRight" path="small" frames="4" delay="0.04"/>
+	  <Loop id="IdleDown" path="small" frames="8" delay="0.04"/>
+	  <Loop id="IdleLeft" path="small" frames="12" delay="0.04"/>
+	  
+	  <Anim id="UpToUp" path="small" frames="0,1,0,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="small" frames="4,3,4,5,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="small" frames="8,9,8,7,8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="small" frames="12,13,12,11,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="small" frames="0-4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="small" frames="0,1,2,6,7,8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="small" frames="0,15,14,13,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="small" frames="4,3,2,1,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="small" frames="4-8" delay="0.04" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="small" frames="4,5,6,10,11,12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="small" frames="8,7,6,5,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="small" frames="8,9,10,14,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="small" frames="8-12" delay="0.04" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="small" frames="12,13,14,2,3,4" delay="0.04" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="small" frames="12,13,14,15,0" delay="0.04" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="small" frames="12,11,10,9,8" delay="0.04" goto="IdleDown"/>
+	</smallAltMoonStationBlockArrow>
+	
+	<mediumAltMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/altMoonArrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
+	  <Loop id="IdleRight" path="med" frames="4" delay="0.05"/>
+	  <Loop id="IdleDown" path="med" frames="8" delay="0.05"/>
+	  <Loop id="IdleLeft" path="med" frames="12" delay="0.05"/>
+	  
+	  <Anim id="UpToUp" path="med" frames="0,1,0,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="med" frames="4,3,4,5,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="med" frames="8,9,8,7,8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="med" frames="12,13,12,11,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="med" frames="0-4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="med" frames="0,1,2,6,7,8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="med" frames="0,15,14,13,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="med" frames="4,3,2,1,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="med" frames="4-8" delay="0.05" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="med" frames="4,5,6,10,11,12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="med" frames="8,7,6,5,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="med" frames="8,9,10,14,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="med" frames="8-12" delay="0.05" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="med" frames="12,13,14,2,3,4" delay="0.05" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="med" frames="12,13,14,15,0" delay="0.05" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="med" frames="12,11,10,9,8" delay="0.05" goto="IdleDown"/>
+	</mediumAltMoonStationBlockArrow>
+	
+	<bigAltMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/altMoonArrow/" start="IdleUp">
+      <Center/>
+	  
+      <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
+	  <Loop id="IdleRight" path="big" frames="4" delay="0.06"/>
+	  <Loop id="IdleDown" path="big" frames="8" delay="0.06"/>
+	  <Loop id="IdleLeft" path="big" frames="12" delay="0.06"/>
+	  
+	  <Anim id="UpToUp" path="big" frames="0,1,0,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="RightToRight" path="big" frames="4,3,4,5,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="DownToDown" path="big" frames="8,9,8,7,8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="LeftToLeft" path="big" frames="12,13,12,11,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="UpToRight" path="big" frames="0-4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="UpToDown" path="big" frames="0,1,2,6,7,8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="UpToLeft" path="big" frames="0,15,14,13,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="RightToUp" path="big" frames="4,3,2,1,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="RightToDown" path="big" frames="4-8" delay="0.06" goto="IdleDown"/>
+	  <Anim id="RightToLeft" path="big" frames="4,5,6,10,11,12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="DownToRight" path="big" frames="8,7,6,5,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="DownToUp" path="big" frames="8,9,10,14,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="DownToLeft" path="big" frames="8-12" delay="0.06" goto="IdleLeft"/>
+	  
+	  <Anim id="LeftToRight" path="big" frames="12,13,14,2,3,4" delay="0.06" goto="IdleRight"/>
+	  <Anim id="LeftToUp" path="big" frames="12,13,14,15,0" delay="0.06" goto="IdleUp"/>
+	  <Anim id="LeftToDown" path="big" frames="12,11,10,9,8" delay="0.06" goto="IdleDown"/>
+	</bigAltMoonStationBlockArrow>
+	
+	
+</Sprites>

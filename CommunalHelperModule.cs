@@ -8,12 +8,11 @@ using System.Reflection;
 namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperModule : EverestModule {
         public static CommunalHelperModule Instance;
-
 		private static DynData<Player> _playerData = null;
 
 		#region Vanilla constants
 		private const float DashSpeed = 240f;
-        #endregion
+		#endregion
 
         #region Setup
 		public override void Load() {
@@ -31,13 +30,19 @@ namespace Celeste.Mod.CommunalHelper {
             On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
             On.Celeste.Player.DashCoroutine -= modDashCoroutine;
 
-            DreamRefillHooks.Unhook();
+			DreamRefillHooks.Unhook();
 			CustomDreamBlockHooks.Unhook();
 			ConnectedDreamBlockHooks.Unhook();
 			CassetteZipMoverHooks.Unhook();
 			SyncedZipMoverActivationControllerHooks.Unhook();
 		}
-        #endregion
+
+		public override void LoadContent(bool firstLoad) {
+			base.LoadContent(firstLoad);
+			StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
+			StationBlock.InitializeParticles();
+		}
+		#endregion
 
         #region Ensures the player always properly enters a dream block even when it's moving fast
         private void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {

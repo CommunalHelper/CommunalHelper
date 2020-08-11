@@ -62,6 +62,8 @@
     <Compile Include="Entities\DreamRefill.cs" />
     <Compile Include="Entities\DreamSwapBlock.cs" />
     <Compile Include="Entities\DreamZipMover.cs" />
+    <Compile Include="Entities\StationBlock.cs" />
+    <Compile Include="Entities\StationBlockTrack.cs" />
     <Compile Include="Entities\SyncedZipMoverActivationController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
