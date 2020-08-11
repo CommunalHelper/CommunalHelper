@@ -55,16 +55,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommunalHelperModule.cs" />
-    <Compile Include="Entities\CassetteZipMover.cs" />
-    <Compile Include="Entities\CustomDreamBlock.cs" />
-    <Compile Include="Entities\ConnectedDreamBlock.cs" />
-    <Compile Include="Entities\DreamMoveBlock.cs" />
-    <Compile Include="Entities\DreamRefill.cs" />
-    <Compile Include="Entities\DreamSwapBlock.cs" />
-    <Compile Include="Entities\DreamZipMover.cs" />
-    <Compile Include="Entities\StationBlock.cs" />
-    <Compile Include="Entities\StationBlockTrack.cs" />
-    <Compile Include="Entities\SyncedZipMoverActivationController.cs" />
+    <Compile Include="Entities\CassetteStuff\CassetteZipMover.cs" />
+    <Compile Include="Entities\DreamStuff\CustomDreamBlock.cs" />
+    <Compile Include="Entities\DreamStuff\ConnectedDreamBlock.cs" />
+    <Compile Include="Entities\DreamStuff\DreamMoveBlock.cs" />
+    <Compile Include="Entities\DreamStuff\DreamRefill.cs" />
+    <Compile Include="Entities\DreamStuff\DreamSwapBlock.cs" />
+    <Compile Include="Entities\DreamStuff\DreamZipMover.cs" />
+    <Compile Include="Entities\StationBlock\StationBlock.cs" />
+    <Compile Include="Entities\StationBlock\StationBlockTrack.cs" />
+    <Compile Include="Entities\Misc\SyncedZipMoverActivationController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
