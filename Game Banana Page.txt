@@ -1,8 +1,8 @@
-This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that I have. If you have any ideas for new mechanics/entities that you want to see implemented, let me know, and if it sounds cool/doable I'll add it to the collection. You can find me in the [Celeste Discord](https://discord.gg/g8Mw3XH) @Bio.
+This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection. You can find us in the [Celeste Discord](https://discord.gg/g8Mw3XH) @Bio and @espritox.
 
 The current list of included mechanics:
-
-    Dream Zip Mover - The body of a Zip Mover with the soul of a Dream Block.
-    Dream Move Block - Move Block by day, Dream Block by night.
-    Dream Swap Block - I think you get the idea.
-    Connected Dream Block - Dream Blocks that nicely connect together, if they overlap, to make up any shape. They can also shatter after use if enabled, and they can optionally let you move inside as if you had a feather.
+* Dream Zip Mover - The body of a Zip Mover with the soul of a Dream Block.
+* Dream Move Block - Move Block by day, Dream Block by night.
+* Dream Swap Block - I think you get the idea.
+* Dream Refill - A special refill that once collected, allows the player to dash through any solid, except for dream blocks which will kill them.
+* Connected Dream Block - Dream blocks that when placed such that they overlap, will form continuous regions. The "feather mode" option allows the player to control their direction of movement while travelling throug the block, and the "one use" option will cause the dream block to shatter upon exit.
