@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommunalHelperModule.cs" />
+    <Compile Include="Entities\CassetteZipMover.cs" />
     <Compile Include="Entities\CustomDreamBlock.cs" />
     <Compile Include="Entities\ConnectedDreamBlock.cs" />
     <Compile Include="Entities\DreamMoveBlock.cs" />

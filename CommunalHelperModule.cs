@@ -23,6 +23,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamRefillHooks.Hook();
 			CustomDreamBlockHooks.Hook();
             ConnectedDreamBlockHooks.Hook();
+			CassetteZipMoverHooks.Hook();
 			SyncedZipMoverActivationControllerHooks.Hook();
         }
 
@@ -33,6 +34,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamRefillHooks.Unhook();
 			CustomDreamBlockHooks.Unhook();
 			ConnectedDreamBlockHooks.Unhook();
+			CassetteZipMoverHooks.Unhook();
 			SyncedZipMoverActivationControllerHooks.Unhook();
 		}
         #endregion
@@ -84,11 +86,21 @@ namespace Celeste.Mod.CommunalHelper {
             //}
             return new DynData<Player>(player);
         }
+		#endregion
+	}
+
+	public static class Util {
+		public static Color Mult(this Color color, Color other) {
+			color.R = (byte)(color.R * other.R / 256f);
+			color.G = (byte)(color.G * other.G / 256f);
+			color.B = (byte)(color.B * other.B / 256f);
+			color.A = (byte)(color.A * other.A / 256f);
+			return color;
+		}
 
 		public static void log(string str) {
 			Logger.Log("Communal Helper", str);
 		}
-		#endregion
 	}
 
     #region JaThePlayer's state machine extension code

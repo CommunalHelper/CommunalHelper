@@ -563,10 +563,6 @@ namespace Celeste.Mod.CommunalHelper {
 		public static DynData<Player> getPlayerData(Player player) {
 			return CommunalHelperModule.getPlayerData(player);
 		}
-
-		private static void log(string str) {
-			CommunalHelperModule.log(str);
-        }
 		#endregion
 	}
 }
