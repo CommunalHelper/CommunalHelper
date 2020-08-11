@@ -1,9 +1,11 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Utils;
 
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/SyncedZipMoverActivationController")]
+	[Tracked]
     class SyncedZipMoverActivationController : Entity {
 		private Level level;
 
@@ -32,12 +34,38 @@ namespace Celeste.Mod.CommunalHelper {
 
 		public override void Update() {
 			base.Update();
-			if (resetTimer > 0) {
-				resetTimer -= Engine.DeltaTime;
-			} else if (Input.Grab.Pressed) {
+            if (resetTimer > 0) {
+                resetTimer -= Engine.DeltaTime;
+            } else if (Input.Grab.Pressed || level.Session.GetFlag($"ZipMoverSync:{colorCode}")) {
+                Activate();
+            }
+        }
+
+		public void Activate() {
+			if (resetTimer <= 0f) {
 				level.Session.SetFlag($"ZipMoverSync:{colorCode}");
 				resetTimer = resetTime;
 			}
-		}
+        }
 	}
+
+	class SyncedZipMoverActivationControllerHooks {
+		public static void Hook() {
+			On.Monocle.Engine.Update += modEngineUpdate;
+        }
+
+		public static void Unhook() {
+			On.Monocle.Engine.Update -= modEngineUpdate;
+		}
+
+		private static void modEngineUpdate(On.Monocle.Engine.orig_Update orig, Engine engine, GameTime gameTime) {
+			orig(engine, gameTime);
+            if (Engine.FreezeTimer > 0f && Input.Grab.Pressed) {
+                var engineData = new DynData<Engine>(engine);
+                foreach (var controller in engineData.Get<Scene>("scene").Tracker.GetEntities<SyncedZipMoverActivationController>()) {
+                    (controller as SyncedZipMoverActivationController).Activate();
+                }
+            }
+        }
+    }
 }

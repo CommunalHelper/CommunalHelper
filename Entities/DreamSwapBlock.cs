@@ -7,7 +7,7 @@ using System;
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/DreamSwapBlock")]
     [TrackedAs(typeof(DreamBlock))]
-    class DreamSwapBlock : DreamBlock {
+    class DreamSwapBlock : CustomDreamBlock {
         private class PathRenderer : Entity {
             private DreamSwapBlock block;
 
@@ -27,7 +27,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             public override void Render() {
                 float scale = 0.5f * (0.5f + ((float)Math.Sin(timer) + 1f) * 0.25f);
-                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, Color.White * scale);
+                scale = Calc.LerpClamp(scale, 1, block.colorLerp);
+                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, block.activeLineColor * scale);
             }
         }
 
@@ -60,6 +61,9 @@ namespace Celeste.Mod.CommunalHelper {
         private static ParticleType[] dreamParticles;
         private int particleIndex = 0;
 
+        private bool noReturn;
+        private bool shattered = false;
+
         static DreamSwapBlock() {
             dreamParticles = new ParticleType[4];
             ParticleType particle = new ParticleType(SwapBlock.P_Move);
@@ -87,10 +91,11 @@ namespace Celeste.Mod.CommunalHelper {
             dreamParticles[3] = particle;
         }
 
-        public DreamSwapBlock(Vector2 position, float width, float height, Vector2 node)
-            : base(position, width, height, null, false, false) {
+        public DreamSwapBlock(Vector2 position, int width, int height, Vector2 node, bool noReturn, bool featherMode, bool oneUse)
+            : base(position, width, height, featherMode, oneUse, noReturn) {
             start = Position;
             end = node;
+            this.noReturn = noReturn;
             maxForwardSpeed = 360f / Vector2.Distance(start, end);
             maxBackwardSpeed = maxForwardSpeed * 0.4f;
             Direction.X = Math.Sign(end.X - start.X);
@@ -114,12 +119,13 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public DreamSwapBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset) {
+            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("noReturn", false), data.Bool("featherMode", false), data.Bool("oneUse", false)) {
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
             scene.Add(path = new PathRenderer(this));
+            SetupParticles(Width, Height);
         }
 
         public override void Removed(Scene scene) {
@@ -135,75 +141,136 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         private void OnDash(Vector2 direction) {
-            Swapping = (lerp < 1f);
-            target = 1;
-            returnTimer = 0.8f;
-            burst = (base.Scene as Level).Displacement.AddBurst(base.Center, 0.2f, 0f, 16f);
-            if (lerp >= 0.2f) {
-                speed = maxForwardSpeed;
-            } else {
-                speed = MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, lerp / 0.2f);
-            }
-            Audio.Stop(returnSfx);
-            Audio.Stop(moveSfx);
-            if (!Swapping) {
-                Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
+            if (noReturn) {
+                Swapping = true;
+                target = 1 - target;
+                burst = (base.Scene as Level).Displacement.AddBurst(base.Center, 0.2f, 0f, 16f);
+                float relativeLerp = target == 1 ? lerp : 1 - lerp;
+                if (relativeLerp >= 0.2f) {
+                    speed = maxForwardSpeed;
+                } else {
+                    speed = MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, relativeLerp / 0.2f);
+                }
                 Audio.Stop(moveSfx);
-            } else {
                 moveSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move", base.Center);
+            } else {
+                Swapping = (lerp < 1f);
+                target = 1;
+                returnTimer = 0.8f;
+                burst = (base.Scene as Level).Displacement.AddBurst(base.Center, 0.2f, 0f, 16f);
+                if (lerp >= 0.2f) {
+                    speed = maxForwardSpeed;
+                } else {
+                    speed = MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, lerp / 0.2f);
+                }
+                Audio.Stop(returnSfx);
+                Audio.Stop(moveSfx);
+                if (!Swapping) {
+                    Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
+                    Audio.Stop(moveSfx);
+                } else {
+                    moveSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move", base.Center);
+                }
             }
+        }
+
+        protected override void OneUseDestroy() {
+            base.OneUseDestroy();
+            Audio.Stop(moveSfx);
+            Audio.Stop(returnSfx);
+            Scene.Remove(path);
+            shattered = true;
         }
 
         public override void Update() {
             base.Update();
-            if (returnTimer > 0f) {
-                returnTimer -= Engine.DeltaTime;
-                if (returnTimer <= 0f) {
-                    target = 0;
-                    speed = 0f;
-                    returnSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return", base.Center);
-                }
+            if (shattered) {
+                return;
             }
+
             if (burst != null) {
                 burst.Position = base.Center;
             }
-            if (target == 1) {
+
+            if (noReturn) {
                 speed = Calc.Approach(speed, maxForwardSpeed, maxForwardSpeed / 0.2f * Engine.DeltaTime);
-            } else {
-                speed = Calc.Approach(speed, maxBackwardSpeed, maxBackwardSpeed / 1.5f * Engine.DeltaTime);
-            }
-            float num = lerp;
-            lerp = Calc.Approach(lerp, target, speed * Engine.DeltaTime);
-            if (lerp == 1) Audio.Stop(moveSfx);
-            if (lerp != num) {
-                Vector2 liftSpeed = (end - start) * speed;
-                Vector2 position = Position;
-                if (target == 1) {
-                    liftSpeed = (end - start) * maxForwardSpeed;
-                }
-                if (lerp < num) {
-                    liftSpeed *= -1f;
-                }
-                if (target == 1 && base.Scene.OnInterval(0.02f)) {
-                    MoveParticles(end - start);
-                }
-                MoveTo(Vector2.Lerp(start, end, lerp), liftSpeed);
-                if (position != Position) {
-                    Audio.Position(moveSfx, base.Center);
-                    Audio.Position(returnSfx, base.Center);
-                    if (Position == start && target == 0) {
-                        Audio.SetParameter(returnSfx, "end", 1f);
-                        Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
-                    } else if (Position == end && target == 1) {
-                        Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end", base.Center);
-                        Audio.Stop(moveSfx);
+                float num = lerp;
+                lerp = Calc.Approach(lerp, target, speed * Engine.DeltaTime);
+                if (lerp == 0 || lerp == 1) Audio.Stop(moveSfx);
+                if (lerp != num) {
+                    Vector2 liftSpeed = (end - start) * speed;
+                    Vector2 position = Position;
+                    if (target == 1) {
+                        liftSpeed = (end - start) * maxForwardSpeed;
+                    }
+                    if (lerp < num) {
+                        liftSpeed *= -1f;
+                    }
+                    if (Scene.OnInterval(0.02f)) {
+                        // Allows move particles in both directions
+                        MoveParticles((end - start) * (target - 0.5f) * 2);
+                    }
+                    MoveTo(Vector2.Lerp(start, end, lerp), liftSpeed);
+                    if (position != Position) {
+                        Audio.Position(moveSfx, base.Center);
+                        if (Position == start || Position == end) {
+                            //Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end", base.Center);
+                            Audio.Stop(moveSfx);
+                            Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
+                        }
                     }
                 }
+                if (Swapping && lerp >= 1f) {
+                    Swapping = false;
+                }
+                StopPlayerRunIntoAnimation = (lerp <= 0f || lerp >= 1f);
+            } else {
+                if (returnTimer > 0f) {
+                    returnTimer -= Engine.DeltaTime;
+                    if (returnTimer <= 0f) {
+                        target = 0;
+                        speed = 0f;
+                        returnSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return", base.Center);
+                    }
+                }
+                if (target == 1) {
+                    speed = Calc.Approach(speed, maxForwardSpeed, maxForwardSpeed / 0.2f * Engine.DeltaTime);
+                } else {
+                    speed = Calc.Approach(speed, maxBackwardSpeed, maxBackwardSpeed / 1.5f * Engine.DeltaTime);
+                }
+                float num = lerp;
+                lerp = Calc.Approach(lerp, target, speed * Engine.DeltaTime);
+                if (lerp == 1) Audio.Stop(moveSfx);
+                if (lerp != num) {
+                    Vector2 liftSpeed = (end - start) * speed;
+                    Vector2 position = Position;
+                    if (target == 1) {
+                        liftSpeed = (end - start) * maxForwardSpeed;
+                    }
+                    if (lerp < num) {
+                        liftSpeed *= -1f;
+                    }
+                    if (target == 1 && base.Scene.OnInterval(0.02f)) {
+                        MoveParticles(end - start);
+                    }
+                    MoveTo(Vector2.Lerp(start, end, lerp), liftSpeed);
+                    if (position != Position) {
+                        Audio.Position(moveSfx, base.Center);
+                        Audio.Position(returnSfx, base.Center);
+                        if (Position == start && target == 0) {
+                            Audio.SetParameter(returnSfx, "end", 1f);
+                            Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end", base.Center);
+                        } else if (Position == end && target == 1) {
+                            Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
+                            Audio.Stop(moveSfx);
+                        }
+                    }
+                }
+                if (Swapping && lerp >= 1f) {
+                    Swapping = false;
+                }
+                StopPlayerRunIntoAnimation = (lerp <= 0f || lerp >= 1f);
             }
-            if (Swapping && lerp >= 1f) {
-                Swapping = false;
-            }
-            StopPlayerRunIntoAnimation = (lerp <= 0f || lerp >= 1f);
         }
 
         private void MoveParticles(Vector2 normal) {
@@ -236,7 +303,6 @@ namespace Celeste.Mod.CommunalHelper {
             int num2 = (int)particlesRemainder;
             particlesRemainder -= num2;
             positionRange *= 0.5f;
-            // TODO make dream particles
             SceneAs<Level>().Particles.Emit(dreamParticles[particleIndex], num2, position, positionRange, direction);
             ++particleIndex;
             particleIndex %= 4;

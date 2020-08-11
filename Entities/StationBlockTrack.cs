@@ -3,15 +3,12 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Celeste.Mod.CommunalHelper.Entities
+namespace Celeste.Mod.CommunalHelper
 {
     [CustomEntity("CommunalHelper/StationBlockTrack")]
     [Tracked(false)]
-    class StationBlockTrack : Entity
+    public class StationBlockTrack : Entity
     {
         public class StationBlockNode
         {

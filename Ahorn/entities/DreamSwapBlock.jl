@@ -5,7 +5,10 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/DreamSwapBlock" DreamSwapBlock(x::Integer, 
                                                               y::Integer, 
                                                               width::Integer=16, 
-                                                              height::Integer=16) 
+                                                              height::Integer=16,
+                                                              noReturn::Bool=false,
+                                                              featherMode::Bool=false,
+                                                              oneUse::Bool=false) 
 
 function swapFinalizer(entity)
     x, y = Ahorn.position(entity)
@@ -65,13 +68,15 @@ function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number)
     Ahorn.drawImage(ctx, trail, x + 2, y + height - 8, 0, 14, 6, 6)
 end
 
-function renderDreamSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, width::Number, height::Number)
+function renderDreamSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, width::Number, height::Number, featherMode::Bool, oneUse::Bool)
     Ahorn.Cairo.save(ctx)
 
     Ahorn.set_antialias(ctx, 1)
     Ahorn.set_line_width(ctx, 1)
 
-    Ahorn.drawRectangle(ctx, x, y, width, height, (0.0, 0.0, 0.0, 0.4), (1.0, 1.0, 1.0, 1.0))
+    fillColor = featherMode ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
+	lineColor = oneUse ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
+    Ahorn.drawRectangle(ctx, x, y, width, height, fillColor, lineColor)
 
     Ahorn.restore(ctx)
 end
@@ -84,7 +89,7 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwa
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
 
-    renderDreamSwapBlock(ctx, stopX, stopY, width, height)
+    renderDreamSwapBlock(ctx, stopX, stopY, width, height, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
 end
 
@@ -98,7 +103,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock, 
     height = Int(get(entity.data, "height", 32))
 
     renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height)
-    renderDreamSwapBlock(ctx, startX, startY, width, height)
+    renderDreamSwapBlock(ctx, startX, startY, width, height, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
 end
 
 end

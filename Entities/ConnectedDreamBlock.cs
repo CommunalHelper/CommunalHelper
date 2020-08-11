@@ -82,7 +82,7 @@ namespace Celeste.Mod.CommunalHelper
         public float animTimer;
 
         private MTexture[] particleTextures;
-        private MTexture[] petalTextures;
+        private MTexture[] featherTextures;
         private bool playerHasDreamDash;
         private DreamParticle[] particles;
 
@@ -94,7 +94,6 @@ namespace Celeste.Mod.CommunalHelper
         public Point GroupBoundsMax;
 
         public bool featherMode;
-        public bool canDreamDash = true;
         public bool oneUse;
         private bool shattering = false;
         private float colorLerp = 0.0f;
@@ -119,10 +118,10 @@ namespace Celeste.Mod.CommunalHelper
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse")) { }
 
-        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool useOnce)
+        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse)
             : base(position, width, height, null, false, false)
         {
-            oneUse = useOnce;
+            this.oneUse = oneUse;
             this.featherMode = featherMode;
             SurfaceSoundIndex = 11;
             particleTextures = new MTexture[4]
@@ -132,16 +131,21 @@ namespace Celeste.Mod.CommunalHelper
                 GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7),
                 GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7)
             };
-            petalTextures = new MTexture[3];
-            petalTextures[0] = GFX.Game["particles/CommunalHelper/petalBig"];
-            petalTextures[1] = GFX.Game["particles/CommunalHelper/petalMedium"];
-            petalTextures[2] = GFX.Game["particles/CommunalHelper/petalSmall"];
+            featherTextures = new MTexture[3];
+            featherTextures[0] = GFX.Game["particles/CommunalHelper/featherBig"];
+            featherTextures[1] = GFX.Game["particles/CommunalHelper/featherMedium"];
+            featherTextures[2] = GFX.Game["particles/CommunalHelper/featherSmall"];
         }
 
         public override void Added(Scene scene)
         {
             base.Added(scene);
             playerHasDreamDash = SceneAs<Level>().Session.Inventory.DreamDash;
+        }
+
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            Glitch.Value = 0f;
         }
 
         public override void Awake(Scene scene)
@@ -415,7 +419,7 @@ namespace Celeste.Mod.CommunalHelper
 
             if (MasterOfGroup)
             {
-                Color lineColor = Color.Lerp(playerHasDreamDash ? activeLineColor : disabledLineColor, Color.Black, colorLerp);
+                Color lineColor = Color.White;
                 Color backColor = Color.Lerp(playerHasDreamDash ? activeBackColor : disabledBackColor, Color.White, colorLerp);
 
                 #region Background rendering
@@ -442,13 +446,13 @@ namespace Celeste.Mod.CommunalHelper
                     }
                     position = PutInside(position, groupRect);
 
-                    if (!CheckGroupParticleCollide(position)) continue;
+                    if (!CheckParticleCollide(position)) continue;
 
                     Color color = Color.Lerp(particle.Color, Color.Black, colorLerp);
 
                     if (featherMode)
                     {
-                        petalTextures[layer].DrawCentered(position + Shake, color, 1, rotation);
+                        featherTextures[layer].DrawCentered(position + Shake, color, 1, rotation);
                     } 
                     else
                     {
@@ -551,7 +555,7 @@ namespace Celeste.Mod.CommunalHelper
             return a + (b - a) * percent;
         }
 
-        private bool CheckGroupParticleCollide(Vector2 position)
+        private bool CheckParticleCollide(Vector2 position)
         {
             float offset = 2f;
             foreach (ConnectedDreamBlock e in group)
@@ -623,7 +627,6 @@ namespace Celeste.Mod.CommunalHelper
                 ConnectedDreamBlock mastr = MasterOfGroup ? this : master;
                 foreach (ConnectedDreamBlock jam in mastr.group) {
                     jam.Add(new Coroutine(jam.ShatterSeq()));
-                    jam.canDreamDash = false;
                 }
             }
         }
@@ -671,7 +674,7 @@ namespace Celeste.Mod.CommunalHelper
                         ColorMode = ParticleType.ColorModes.Fade,
                         Color = particles[i].Color,
                         Color2 = flickerColor, //Color.Lerp(particles[i].Color, Color.White, 0.5f),
-                        Source = featherMode ? petalTextures[particles[i].Layer] : particleTextures[2],
+                        Source = featherMode ? featherTextures[particles[i].Layer] : particleTextures[2],
                         SpinMax = featherMode ? (float)Math.PI : 0,
                         RotationMode = featherMode ? ParticleType.RotationModes.Random : ParticleType.RotationModes.None,
                         Direction = (position - centre).Angle()
@@ -720,36 +723,18 @@ namespace Celeste.Mod.CommunalHelper
     {
         public static void Hook()
         {
-            On.Celeste.DreamBlock.FootstepRipple += modFootstepRipple;
-            On.Celeste.DreamBlock.OnPlayerExit += modOnPlayerExit;
             On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
             On.Celeste.Player.DreamDashUpdate += modDreamDashUpdate;
+            On.Celeste.DreamBlock.OnPlayerExit += modOnPlayerExit;
+            On.Celeste.DreamBlock.FootstepRipple += modFootstepRipple;
         }
 
         public static void Unhook()
         {
-            On.Celeste.DreamBlock.FootstepRipple -= modFootstepRipple;
-            On.Celeste.DreamBlock.OnPlayerExit -= modOnPlayerExit;
             On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
             On.Celeste.Player.DreamDashUpdate -= modDreamDashUpdate;
-        }
-
-        private static void modOnPlayerExit(On.Celeste.DreamBlock.orig_OnPlayerExit orig, DreamBlock dreamBlock, Player player) {
-            orig(dreamBlock, player);
-            if (dreamBlock is ConnectedDreamBlock) {
-                ConnectedDreamBlock connectedDreamBlock = dreamBlock as ConnectedDreamBlock;
-                if (connectedDreamBlock.oneUse) {
-                    connectedDreamBlock.BeginShatter();
-                }
-            }
-        }
-
-        private static void modFootstepRipple(On.Celeste.DreamBlock.orig_FootstepRipple orig, DreamBlock dreamBlock, Vector2 pos) {
-            if (dreamBlock is ConnectedDreamBlock) {
-                (dreamBlock as ConnectedDreamBlock).ConnectedFootstepRipple(pos);
-            } else {
-                orig(dreamBlock, pos);
-            }
+            On.Celeste.DreamBlock.OnPlayerExit -= modOnPlayerExit;
+            On.Celeste.DreamBlock.FootstepRipple -= modFootstepRipple;
         }
 
         private static void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
@@ -773,12 +758,29 @@ namespace Celeste.Mod.CommunalHelper
                     Vector2 vector = player.Speed.SafeNormalize(Vector2.Zero);
                     if (vector != Vector2.Zero) {
                         vector = Vector2.Dot(input, vector) != -0.8f ? vector.RotateTowards(input.Angle(), 5f * Engine.DeltaTime) : vector;
-                        playerData.Set("dreamDashLastDir", vector);
                         player.Speed = vector * 240f;
                     }
                 }
             }
             return orig(player);
+        }
+
+        private static void modOnPlayerExit(On.Celeste.DreamBlock.orig_OnPlayerExit orig, DreamBlock dreamBlock, Player player) {
+            orig(dreamBlock, player);
+            if (dreamBlock is ConnectedDreamBlock) {
+                ConnectedDreamBlock customDreamBlock = dreamBlock as ConnectedDreamBlock;
+                if (customDreamBlock.oneUse && customDreamBlock.Collidable) {
+                    customDreamBlock.BeginShatter();
+                }
+            }
+        }
+
+        private static void modFootstepRipple(On.Celeste.DreamBlock.orig_FootstepRipple orig, DreamBlock dreamBlock, Vector2 pos) {
+            if (dreamBlock is ConnectedDreamBlock) {
+                (dreamBlock as ConnectedDreamBlock).ConnectedFootstepRipple(pos);
+            } else {
+                orig(dreamBlock, pos);
+            }
         }
 
         private static DynData<Player> getPlayerData(Player player) {

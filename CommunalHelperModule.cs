@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
 using System;
@@ -16,33 +15,37 @@ namespace Celeste.Mod.CommunalHelper {
 		#endregion
 
         #region Setup
-        public override void Load() {
+		public override void Load() {
             On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
             On.Celeste.Player.DashCoroutine += modDashCoroutine;
 
-            DreamRefillHooks.hook();
+            DreamRefillHooks.Hook();
+			CustomDreamBlockHooks.Hook();
             ConnectedDreamBlockHooks.Hook();
+			CassetteZipMoverHooks.Hook();
+			SyncedZipMoverActivationControllerHooks.Hook();
         }
 
 		public override void Unload() {
             On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
             On.Celeste.Player.DashCoroutine -= modDashCoroutine;
 
-            DreamRefillHooks.unhook();
-            ConnectedDreamBlockHooks.Unhook();
-        }
+			DreamRefillHooks.Unhook();
+			CustomDreamBlockHooks.Unhook();
+			ConnectedDreamBlockHooks.Unhook();
+			CassetteZipMoverHooks.Unhook();
+			SyncedZipMoverActivationControllerHooks.Unhook();
+		}
 
 		public override void LoadContent(bool firstLoad) {
-			// Look. Look! No new line there.
 			base.LoadContent(firstLoad);
-
 			StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
 			StationBlock.InitializeParticles();
 		}
 		#endregion
 
-		#region Ensures the player always properly enters a dream block even when it's moving fast
-		private void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
+        #region Ensures the player always properly enters a dream block even when it's moving fast
+        private void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
             orig(player);
             DreamBlock dreamBlock = getPlayerData(player).Get<DreamBlock>("dreamBlock");
             if (dreamBlock is DreamZipMover || dreamBlock is DreamSwapBlock) {
@@ -88,11 +91,21 @@ namespace Celeste.Mod.CommunalHelper {
             //}
             return new DynData<Player>(player);
         }
+		#endregion
+	}
+
+	public static class Util {
+		public static Color Mult(this Color color, Color other) {
+			color.R = (byte)(color.R * other.R / 256f);
+			color.G = (byte)(color.G * other.G / 256f);
+			color.B = (byte)(color.B * other.B / 256f);
+			color.A = (byte)(color.A * other.A / 256f);
+			return color;
+		}
 
 		public static void log(string str) {
 			Logger.Log("Communal Helper", str);
 		}
-		#endregion
 	}
 
     #region JaThePlayer's state machine extension code

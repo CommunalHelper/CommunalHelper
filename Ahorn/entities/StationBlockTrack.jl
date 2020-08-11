@@ -24,6 +24,7 @@ const placements = Ahorn.PlacementDict(
 )
 
 Ahorn.minimumSize(entity::StationBlockTrack) = 24, 24
+
 Ahorn.resizable(entity::StationBlockTrack) = Bool(get(entity.data, "horizontal", false)), !(Bool(get(entity.data, "horizontal", false)))
 
 function Ahorn.selection(entity::StationBlockTrack)
@@ -38,9 +39,9 @@ end
 
 black = (0, 0, 0, 255) ./255
 
-nodeSprite = "objects/CommunalHelper/stationBlock/tracks/ball"
-vTrack = "objects/CommunalHelper/stationBlock/tracks/pipeV"
-hTrack = "objects/CommunalHelper/stationBlock/tracks/pipeH"
+nodeSprite = "objects/CommunalHelper/stationBlock/tracks/track/ball"
+vTrack = "objects/CommunalHelper/stationBlock/tracks/track/pipeV"
+hTrack = "objects/CommunalHelper/stationBlock/tracks/track/pipeH"
 
 function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlockTrack, room::Maple.Room)
     x, y = Ahorn.position(entity)

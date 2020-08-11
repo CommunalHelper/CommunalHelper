@@ -6,14 +6,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-// TODO:
-// Change all particle types to dream particles
-// Remove all code related to uneeded stuff
-// Fix vanilla dream block exit logic to take into account lift speed?
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/DreamMoveBlock")]
     [TrackedAs(typeof(DreamBlock))]
-    class DreamMoveBlock : DreamBlock {
+    class DreamMoveBlock : CustomDreamBlock {
 		public enum Directions {
 			Left,
 			Right,
@@ -75,18 +71,18 @@ namespace Celeste.Mod.CommunalHelper {
 			protected override void OnSquish(CollisionData data) {
 			}
 
-			public Debris Init(Vector2 position, Vector2 center, Vector2 returnTo) {
+			public Debris Init(Vector2 position, Vector2 center, Vector2 returnTo, Color color) {
 				Collidable = true;
 				Position = position;
 				speed = (position - center).SafeNormalize(60f + Calc.Random.NextFloat(60f));
 				home = returnTo;
 				sprite.Position = Vector2.Zero;
 				sprite.Rotation = Calc.Random.NextAngle();
+				sprite.Color = color;
 				returning = false;
 				shaking = false;
 				sprite.Scale.X = 1f;
 				sprite.Scale.Y = 1f;
-				sprite.Color = Color.White;
 				alpha = 1f;
 				firstHit = false;
 				spin = Calc.Random.Range(3.49065852f, 10.4719753f) * (float)Calc.Random.Choose(1, -1);
@@ -190,12 +186,13 @@ namespace Celeste.Mod.CommunalHelper {
 		private List<MTexture> arrows = new List<MTexture>();
 
 		private float flash;
-
 		private SoundSource moveSfx;
 
 		private bool triggered;
-
 		private float particleRemainder;
+
+		private Coroutine controller;
+		private bool noCollide;
 
 		static DreamMoveBlock() {
 			P_Activate = new ParticleType(MoveBlock.P_Activate);
@@ -226,11 +223,12 @@ namespace Celeste.Mod.CommunalHelper {
 			dreamParticles[3] = particle;
 		}
 
-		public DreamMoveBlock(Vector2 position, int width, int height, Directions direction, bool fast)
-			: base(position, width, height, null, false, false) {
+		public DreamMoveBlock(Vector2 position, int width, int height, Directions direction, bool fast, bool noCollide, bool featherMode, bool oneUse)
+			: base(position, width, height, featherMode, oneUse, noCollide) {
 			startPosition = position;
 			this.direction = direction;
 			this.fast = fast;
+			this.noCollide = noCollide;
 			switch (direction) {
 				default:
 					homeAngle = (targetAngle = (angle = 0f));
@@ -247,16 +245,17 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 			arrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/arrow");
 			Add(moveSfx = new SoundSource());
-			Add(new Coroutine(Controller()));
+			Add(controller = new Coroutine(Controller()));
 			Add(new LightOcclude(0.5f));
 		}
 
 		public DreamMoveBlock(EntityData data, Vector2 offset)
-			: this(data.Position + offset, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast")) {
+			: this(data.Position + offset, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast"), data.Bool("noCollide"), data.Bool("featherMode", false), data.Bool("oneUse", false)) {
 		}
 
 		public override void Awake(Scene scene) {
 			base.Awake(scene);
+			SetupParticles(Width, Height);
 		}
 
 		private IEnumerator Controller() {
@@ -278,7 +277,7 @@ namespace Celeste.Mod.CommunalHelper {
 				float crashTimer = 0.15f;
 				float crashResetTimer = 0.1f;
 				while (true) {
-					if (Scene.OnInterval(0.02f)) {
+					if (Scene.OnInterval(0.02f) && Collidable) {
 						MoveParticles();
 					}
 					speed = Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
@@ -316,7 +315,7 @@ namespace Celeste.Mod.CommunalHelper {
 					if (hit) {
 						moveSfx.Param("arrow_stop", 1f);
 						crashResetTimer = 0.1f;
-						if (!(crashTimer > 0f)) {
+						if (!(crashTimer > 0f) && !shattering) {
 							break;
 						}
 						crashTimer -= Engine.DeltaTime;
@@ -347,7 +346,7 @@ namespace Celeste.Mod.CommunalHelper {
 				for (int x = 0; (float)x < Width; x += 8) {
 					for (int y = 0; (float)y < Height; y += 8) {
 						Vector2 offset = new Vector2((float)x + 4f, (float)y + 4f);
-						Debris d = Engine.Pooler.Create<Debris>().Init(Position + offset, Center, startPosition + offset);
+						Debris d = Engine.Pooler.Create<Debris>().Init(Position + offset, Center, startPosition + offset, activeLineColor);
 						debris.Add(d);
 						Scene.Add(d);
 					}
@@ -360,7 +359,7 @@ namespace Celeste.Mod.CommunalHelper {
 				foreach (Debris d2 in debris) {
 					d2.StopMoving();
 				}
-				while (CollideCheck<Actor>() || CollideCheck<Solid>()) {
+				while (CollideCheck<Actor>() || (noCollide ? CollideCheck<DreamBlock>() : CollideCheck<Solid>())) {
 					yield return null;
 				}
 				Collidable = true;
@@ -390,7 +389,17 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 		}
 
-		private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<Debris> debris) {
+		protected override void OneUseDestroy() {
+            base.OneUseDestroy();
+			Remove(controller);
+			moveSfx.Stop();
+        }
+
+        protected override bool ShatterCheck() {
+            return base.ShatterCheck() && state != MovementState.Breaking;
+        }
+
+        private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<Debris> debris) {
 			while (true) {
 				instance.getPlaybackState(out PLAYBACK_STATE state);
 				if (state == PLAYBACK_STATE.STOPPED) {
@@ -440,36 +449,44 @@ namespace Celeste.Mod.CommunalHelper {
 
 		private bool MoveCheck(Vector2 speed) {
 			if (speed.X != 0f) {
-				if (MoveHCollideSolids(speed.X, thruDashBlocks: false)) {
-					for (int i = 1; i <= 3; i++) {
-						for (int num = 1; num >= -1; num -= 2) {
-							Vector2 value = new Vector2(Math.Sign(speed.X), i * num);
-							if (!CollideCheck<Solid>(Position + value)) {
-								MoveVExact(i * num);
-								MoveHExact(Math.Sign(speed.X));
-								return false;
+				if (CollideCheck<DreamBlock>(Position + speed.XComp())) {
+					if (MoveHCollideSolids(speed.X, thruDashBlocks: false)) {
+						for (int i = 1; i <= 3; i++) {
+							for (int num = 1; num >= -1; num -= 2) {
+								Vector2 value = new Vector2(Math.Sign(speed.X), i * num);
+								if (!CollideCheck<Solid>(Position + value)) {
+									MoveVExact(i * num);
+									MoveHExact(Math.Sign(speed.X));
+									return false;
+								}
 							}
 						}
+						return true;
 					}
-					return true;
-				}
-				return false;
+				} else {
+					MoveH(speed.X);
+					return false;
+                }
 			}
 			if (speed.Y != 0f) {
-				if (MoveVCollideSolids(speed.Y, thruDashBlocks: false)) {
-					for (int j = 1; j <= 3; j++) {
-						for (int num2 = 1; num2 >= -1; num2 -= 2) {
-							Vector2 value2 = new Vector2(j * num2, Math.Sign(speed.Y));
-							if (!CollideCheck<Solid>(Position + value2)) {
-								MoveHExact(j * num2);
-								MoveVExact(Math.Sign(speed.Y));
-								return false;
+				if (CollideCheck<DreamBlock>(Position + speed.YComp())) {
+					if (MoveVCollideSolids(speed.Y, thruDashBlocks: false)) {
+						for (int j = 1; j <= 3; j++) {
+							for (int num2 = 1; num2 >= -1; num2 -= 2) {
+								Vector2 value2 = new Vector2(j * num2, Math.Sign(speed.Y));
+								if (!CollideCheck<Solid>(Position + value2)) {
+									MoveHExact(j * num2);
+									MoveVExact(Math.Sign(speed.Y));
+									return false;
+								}
 							}
 						}
+						return true;
 					}
-					return true;
-				}
-				return false;
+				} else {
+					MoveV(speed.Y);
+					return false;
+                }
 			}
 			return false;
 		}
@@ -478,12 +495,14 @@ namespace Celeste.Mod.CommunalHelper {
 			Vector2 position = Position;
 			Position += base.Shake;
 			base.Render();
+
+			Color color = Color.Lerp(activeLineColor, Color.Black, colorLerp);
             if (state != MovementState.Breaking) {
                 int value = (int)Math.Floor((0f - angle + (float)Math.PI * 2f) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f + 0.5f);
                 MTexture arrow = arrows[Calc.Clamp(value, 0, 7)];
-				arrow.DrawCentered(base.Center);
+				arrow.DrawCentered(base.Center + shake, color);
 			} else {
-                GFX.Game["objects/CommunalHelper/dreamMoveBlock/x"].DrawCentered(base.Center);
+                GFX.Game["objects/CommunalHelper/dreamMoveBlock/x"].DrawCentered(base.Center + shake, color);
             }
             float num = flash * 4f;
             Draw.Rect(base.X - num, base.Y - num, base.Width + num * 2f, base.Height + num * 2f, Color.White * flash);
