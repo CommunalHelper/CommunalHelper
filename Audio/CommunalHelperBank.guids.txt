@@ -10,4 +10,6 @@
 {0de2650b-5d69-4513-8c01-af370b6b8373} event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end
 {2e363b71-094d-4615-bad7-337829a4734c} event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return
 {5f28ccd9-635e-487d-a261-e4f0ce28a530} event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end
+{9cf2912d-3599-4d67-9bda-0e86743dadef} event:/CommunalHelperEvents/game/stationBlock/station_block_seq
+{f80c696c-0f98-481b-a522-c63b689e09e5} event:/CommunalHelperEvents/game/stationBlock/moon_block_seq
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank

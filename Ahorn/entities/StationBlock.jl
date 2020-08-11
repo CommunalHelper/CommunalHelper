@@ -1,22 +1,32 @@
 module CommunalHelperStationBlock
 using ..Ahorn, Maple
 
+const themes = ["Normal", "Moon"]
+const behaviors = ["Pulling", "Pushing"]
+
 @mapdef Entity "CommunalHelper/StationBlock" StationBlock(
 			x::Integer, y::Integer,
-			width::Integer=16, height::Integer=16)
+			width::Integer=16, height::Integer=16,
+			theme::String="Normal", behavior::String="Pulling")
 
 const placements = Ahorn.PlacementDict(
-    "Station Block (Communal Helper)" => Ahorn.EntityPlacement(
+    "Station Block ($theme, $behavior) (Communal Helper)" => Ahorn.EntityPlacement(
         StationBlock,
-		"rectangle"
-    )
+		"rectangle",
+		Dict{String, Any}(
+			"theme" => theme,
+			"behavior" => behavior,
+		)
+    ) for theme in themes for behavior in behaviors
+)
+
+Ahorn.editingOptions(entity::StationBlock) = Dict{String, Any}(
+    "theme" => themes,
+	"behavior" => behaviors
 )
 
 Ahorn.minimumSize(entity::StationBlock) = 16, 16
 Ahorn.resizable(entity::StationBlock) = true, true
-
-const block = "objects/CommunalHelper/stationBlock/block"
-const backColor = (123, 151, 171) ./ 255
 
 function Ahorn.selection(entity::StationBlock)
     x, y = Ahorn.position(entity)
@@ -31,14 +41,20 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock, ro
     renderStationBlock(ctx, entity)
 end
 
-function getArrowSprite(blockSize::Integer)
-	if blockSize <= 16
-		return "objects/CommunalHelper/stationBlock/smallArrow/smal00"
-	elseif blockSize <= 24
-		return "objects/CommunalHelper/stationBlock/medArrow/med00"
-	else 
-		return "objects/CommunalHelper/stationBlock/bigArrow/big00"
-	end
+function getSprites(blockSize::Integer, entity::StationBlock)
+	theme = lowercase(get(entity, "theme", "normal"))
+	behavior = lowercase(get(entity, "behavior", "pulling"))
+
+	path = "objects/CommunalHelper/stationBlock/"
+	arrowDirectory, block = (theme == "normal") ? 
+					   ((behavior == "pulling") ? ("arrow/", "/block") : ("altArrow/", "/alt_block")) : 
+					   ((behavior == "pulling") ? ("moonArrow/", "/moon_block") : ("altMoonArrow/", "/alt_moon_block"))
+	
+    arrow = (blockSize <= 16) ? "small00" : ((blockSize <= 24) ? "med00" : "big00")
+    
+    return (path * arrowDirectory * arrow), (path * "blocks" * block)
+	
+	return
 end
 
 function renderStationBlock(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock)
@@ -47,28 +63,18 @@ function renderStationBlock(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock)
     width = Int(get(entity.data, "width", 16))
     height = Int(get(entity.data, "height", 16))
 	
-	arrow = getArrowSprite(Integer(min(width, height)))
+	arrow, block = getSprites(Integer(min(width, height)), entity)
 	arrowSprite = Ahorn.getSprite(arrow, "Gameplay")
 	
     tilesWidth = div(width, 8)
     tilesHeight = div(height, 8)
 	
-	Ahorn.drawRectangle(ctx, x + 8, y + 8, width - 16, height - 16, backColor)
-	
-    for i in 2:tilesWidth - 1
-        Ahorn.drawImage(ctx, block, x + (i - 1) * 8, y, 8, 0, 8, 8)
-        Ahorn.drawImage(ctx, block, x + (i - 1) * 8, y + height - 8, 8, 16, 8, 8)
-    end
+    for i in 1:tilesWidth, j in 1:tilesHeight
+        tx = (i == 1) ? 0 : ((i == tilesWidth) ? 16 : 8)
+        ty = (j == 1) ? 0 : ((j == tilesHeight) ? 16 : 8)
 
-    for i in 2:tilesHeight - 1
-        Ahorn.drawImage(ctx, block, x, y + (i - 1) * 8, 0, 8, 8, 8)
-        Ahorn.drawImage(ctx, block, x + width - 8, y + (i - 1) * 8, 16, 8, 8, 8)
+        Ahorn.drawImage(ctx, block, x + (i - 1) * 8, y + (j - 1) * 8, tx, ty, 8, 8)
     end
-
-    Ahorn.drawImage(ctx, block, x, y, 0, 0, 8, 8)
-    Ahorn.drawImage(ctx, block, x + width - 8, y, 16, 0, 8, 8)
-    Ahorn.drawImage(ctx, block, x, y + height - 8, 0, 16, 8, 8)
-    Ahorn.drawImage(ctx, block, x + width - 8, y + height - 8, 16, 16, 8, 8)
 	
 	Ahorn.drawImage(ctx, arrowSprite, x + floor(Int, (width - arrowSprite.width) / 2), y + floor(Int, (height - arrowSprite.height) / 2))
 end

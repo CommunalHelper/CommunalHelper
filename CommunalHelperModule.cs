@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
 using System;
@@ -12,7 +13,7 @@ namespace Celeste.Mod.CommunalHelper {
 
 		#region Vanilla constants
 		private const float DashSpeed = 240f;
-        #endregion
+		#endregion
 
         #region Setup
         public override void Load() {
@@ -30,10 +31,18 @@ namespace Celeste.Mod.CommunalHelper {
             DreamRefillHooks.unhook();
             ConnectedDreamBlockHooks.Unhook();
         }
-        #endregion
 
-        #region Ensures the player always properly enters a dream block even when it's moving fast
-        private void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
+		public override void LoadContent(bool firstLoad) {
+			// Look. Look! No new line there.
+			base.LoadContent(firstLoad);
+
+			StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
+			StationBlock.InitializeParticles();
+		}
+		#endregion
+
+		#region Ensures the player always properly enters a dream block even when it's moving fast
+		private void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
             orig(player);
             DreamBlock dreamBlock = getPlayerData(player).Get<DreamBlock>("dreamBlock");
             if (dreamBlock is DreamZipMover || dreamBlock is DreamSwapBlock) {
