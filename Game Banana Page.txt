@@ -1,4 +1,4 @@
-This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection. You can find us in the [Celeste Discord](https://discord.gg/g8Mw3XH) @Bio and @espritox.
+This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection. You can find us in the [Celeste Discord](https://discord.gg/g8Mw3XH) @Bio and @catapillie.
 
 The current list of included mechanics:
 * Dream Zip Mover - The body of a Zip Mover with the soul of a Dream Block.
@@ -6,3 +6,6 @@ The current list of included mechanics:
 * Dream Swap Block - I think you get the idea.
 * Dream Refill - A special refill that once collected, allows the player to dash through any solid, except for dream blocks which will kill them.
 * Connected Dream Block - Dream blocks that when placed such that they overlap, will form continuous regions. The "feather mode" option allows the player to control their direction of movement while traveling through the block, and the "one use" option will cause the dream block to shatter upon exit.
+* Station Block - When dashed into, this block will move along its track in the direction you dashed in, or the opposite, depending on the behavior you choose.
+* Station Block Tracks - Those are the tracks you place for the Station Blocks. They can connect, but ONLY if they are connected by one of their ends (nodes). They can have only one Station Block attached to them, and they will move to it so that the block doesn't look oddly offset from the track. If placed incorrectly, the tracks won't connect.
+* Cassette Zip Movers - You guessed it, Zip Movers, but ticking on and off, like Cassette Blocks.

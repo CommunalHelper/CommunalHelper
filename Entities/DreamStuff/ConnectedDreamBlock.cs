@@ -757,7 +757,7 @@ namespace Celeste.Mod.CommunalHelper
                 if (input != Vector2.Zero) {
                     Vector2 vector = player.Speed.SafeNormalize(Vector2.Zero);
                     if (vector != Vector2.Zero) {
-                        vector = Vector2.Dot(input, vector) != -0.8f ? vector.RotateTowards(input.Angle(), 5f * Engine.DeltaTime) : vector;
+                        vector = player.DashDir = Vector2.Dot(input, vector) != -0.8f ? vector.RotateTowards(input.Angle(), 5f * Engine.DeltaTime) : vector;
                         player.Speed = vector * 240f;
                     }
                 }
