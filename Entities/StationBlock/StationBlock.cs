@@ -156,6 +156,9 @@ namespace Celeste.Mod.CommunalHelper
 
         private DashCollisionResults OnDashed(Player player, Vector2 dir)
         {
+            // Weird, lame fix, but eh.
+            if (player.StateMachine.State == 5) player.StateMachine.State = 0;
+
             if (IsMoving || !IsAttachedToTrack || (player.CollideCheck<Spikes>() && !SaveData.Instance.Assists.Invincible))
             {
                 return DashCollisionResults.NormalCollision;
