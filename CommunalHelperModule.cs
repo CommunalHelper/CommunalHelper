@@ -8,6 +8,9 @@ using System.Reflection;
 namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperModule : EverestModule {
         public static CommunalHelperModule Instance;
+		public override Type SettingsType => typeof(CommunalHelperSettings);
+		public static CommunalHelperSettings Settings => (CommunalHelperSettings)Instance._Settings;
+
 		private static DynData<Player> _playerData = null;
 
 		#region Vanilla constants
@@ -15,6 +18,10 @@ namespace Celeste.Mod.CommunalHelper {
 		#endregion
 
         #region Setup
+		public CommunalHelperModule() {
+			Instance = this;
+        }
+
 		public override void Load() {
             On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
             On.Celeste.Player.DashCoroutine += modDashCoroutine;
@@ -22,8 +29,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamRefillHooks.Hook();
 			CustomDreamBlockHooks.Hook();
             ConnectedDreamBlockHooks.Hook();
-			CassetteZipMoverHooks.Hook();
-			SyncedZipMoverActivationControllerHooks.Hook();
+            CustomCassetteBlockHooks.Hook();
+            SyncedZipMoverActivationControllerHooks.Hook();
         }
 
 		public override void Unload() {
@@ -33,8 +40,8 @@ namespace Celeste.Mod.CommunalHelper {
 			DreamRefillHooks.Unhook();
 			CustomDreamBlockHooks.Unhook();
 			ConnectedDreamBlockHooks.Unhook();
-			CassetteZipMoverHooks.Unhook();
-			SyncedZipMoverActivationControllerHooks.Unhook();
+            CustomCassetteBlockHooks.Unhook();
+            SyncedZipMoverActivationControllerHooks.Unhook();
 		}
 
 		public override void LoadContent(bool firstLoad) {

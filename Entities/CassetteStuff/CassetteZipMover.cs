@@ -1,16 +1,15 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Utils;
 using System;
 using System.Collections;
 
 
-// TODO
-// * Ahorn script
 namespace Celeste.Mod.CommunalHelper {
 	[CustomEntity("CommunalHelper/CassetteZipMover")]
 	[TrackedAs(typeof(CassetteBlock))]
-	class CassetteZipMover : CassetteBlock {
+	class CassetteZipMover : CustomCassetteBlock {
 		private class CassetteZipMoverPathRenderer : Entity {
 			public CassetteZipMover zipMover;
 
@@ -116,29 +115,11 @@ namespace Celeste.Mod.CommunalHelper {
 
 		private SoundSource sfx = new SoundSource();
 
-		private Color[] colorOptions = new Color[] { 
-			Calc.HexToColor("49aaf0"), 
-			Calc.HexToColor("f049be"), 
-			Calc.HexToColor("fcdc3a"), 
-			Calc.HexToColor("38e04e")
-		};
-		public Color color;
-		private static int blockIndex = 4;
-		private int beforeIndex;
-		public int blockHeight = 2;
-		public Vector2 blockOffset = Vector2.Zero;
-
 		public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2 target, int index, float tempo)
-			: base(position, id, width, height, index, tempo) {
-			base.Depth = -9999;
+			: base(position, id, width, height, index, 0, tempo) {
 			start = Position;
 			this.target = target;
-			beforeIndex = index;
-			color = colorOptions[index];
-			Index = blockIndex + index;
-			blockIndex += 12;
 			Add(new Coroutine(Sequence()));
-			Add(new LightOcclude());
 			sfx.Position = new Vector2(base.Width, base.Height) / 2f;
 			Add(sfx);
 		}
@@ -152,11 +133,6 @@ namespace Celeste.Mod.CommunalHelper {
 			scene.Add(pathRenderer = new CassetteZipMoverPathRenderer(this));
 		}
 
-        public override void Awake(Scene scene) {
-			base.Awake(scene);
-			Index = beforeIndex;
-        }
-
         public override void Removed(Scene scene) {
 			scene.Remove(pathRenderer);
 			pathRenderer = null;
@@ -166,51 +142,6 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Render() {
 			Vector2 position = Position;
 			Position += base.Shake;
-			//Draw.Rect(base.X + 1f, base.Y + 1f, base.Width - 2f, base.Height - 2f, Color.Black);
-			//int num = 1;
-			//float num2 = 0f;
-			//int count = innerCogs.Count;
-			//for (int i = 4; (float)i <= base.Height - 4f; i += 8) {
-			//	int num3 = num;
-			//	for (int j = 4; (float)j <= base.Width - 4f; j += 8) {
-			//		int index = (int)(mod((num2 + (float)num * percent * (float)Math.PI * 4f) / ((float)Math.PI / 2f), 1f) * (float)count);
-			//		MTexture mTexture = innerCogs[index];
-			//		Rectangle rectangle = new Rectangle(0, 0, mTexture.Width, mTexture.Height);
-			//		Vector2 zero = Vector2.Zero;
-			//		if (j <= 4) {
-			//			zero.X = 2f;
-			//			rectangle.X = 2;
-			//			rectangle.Width -= 2;
-			//		} else if ((float)j >= base.Width - 4f) {
-			//			zero.X = -2f;
-			//			rectangle.Width -= 2;
-			//		}
-			//		if (i <= 4) {
-			//			zero.Y = 2f;
-			//			rectangle.Y = 2;
-			//			rectangle.Height -= 2;
-			//		} else if ((float)i >= base.Height - 4f) {
-			//			zero.Y = -2f;
-			//			rectangle.Height -= 2;
-			//		}
-			//		mTexture = mTexture.GetSubtexture(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height, temp);
-			//		mTexture.DrawCentered(Position + new Vector2(j, i) + zero, Color.White * ((num < 0) ? 0.5f : 1f));
-			//		num = -num;
-			//		num2 += (float)Math.PI / 3f;
-			//	}
-			//	if (num3 == num) {
-			//		num = -num;
-			//	}
-			//}
-			//for (int k = 0; (float)k < base.Width / 8f; k++) {
-			//	for (int l = 0; (float)l < base.Height / 8f; l++) {
-			//		int num4 = (k != 0) ? (((float)k != base.Width / 8f - 1f) ? 1 : 2) : 0;
-			//		int num5 = (l != 0) ? (((float)l != base.Height / 8f - 1f) ? 1 : 2) : 0;
-			//		if (num4 != 1 || num5 != 1) {
-			//			edges[num4, num5].Draw(new Vector2(base.X + (float)(k * 8), base.Y + (float)(l * 8)));
-			//		}
-			//	}
-			//}
 			base.Render();
 			Position = position;
 		}
@@ -290,11 +221,11 @@ namespace Celeste.Mod.CommunalHelper {
 					if (Scene.OnInterval(0.1f)) {
 						pathRenderer.CreateSparks();
 					}
-					Vector2 diff = to - (Position - blockOffset);
-					MoveH(diff.X);
-					MoveV(diff.Y);
-				}
-				StartShaking(0.2f);
+                    Vector2 diff = to - (ExactPosition - blockOffset);
+                    MoveH(diff.X);
+                    MoveV(diff.Y);
+                }
+                StartShaking(0.2f);
 				Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
 				SceneAs<Level>().Shake();
 				StopPlayerRunIntoAnimation = true;
@@ -306,40 +237,14 @@ namespace Celeste.Mod.CommunalHelper {
 					at = Calc.Approach(at, 1f, 0.5f * Engine.DeltaTime);
 					percent = 1f - Ease.SineIn(at);
 					Vector2 to = Vector2.Lerp(target, start, Ease.SineIn(at));
-					Vector2 diff = to - (Position - blockOffset);
-					MoveH(diff.X);
-					MoveV(diff.Y);
-				}
+                    Vector2 diff = to - (ExactPosition - blockOffset);
+                    MoveH(diff.X);
+                    MoveV(diff.Y);
+                }
 				StopPlayerRunIntoAnimation = true;
 				StartShaking(0.2f);
 				yield return 0.5f;
 			}
 		}
-
-		private float mod(float x, float m) {
-			return (x % m + m) % m;
-		}
 	}
-
-	class CassetteZipMoverHooks {
-		public static void Hook() {
-			On.Celeste.CassetteBlock.ShiftSize += modShiftSize;
-		}
-
-		public static void Unhook() {
-			On.Celeste.CassetteBlock.ShiftSize -= modShiftSize;
-		}
-
-		private static void modShiftSize(On.Celeste.CassetteBlock.orig_ShiftSize orig, CassetteBlock block, int amount) {
-			if (block is CassetteZipMover) {
-				if (block.Activated && block.CollideCheck<Player>()) {
-					amount *= -1;
-				}
-				CassetteZipMover zipMover = block as CassetteZipMover;
-				zipMover.blockHeight -= amount;
-				zipMover.blockOffset = (2 - zipMover.blockHeight) * Vector2.UnitY;
-            }
-			orig(block, amount);
-		}
-    }
 }

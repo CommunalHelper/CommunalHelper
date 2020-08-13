@@ -1,9 +1,12 @@
 --1.2.0 (??/08/2020)--
-* Dream Zip Mover, Move Block and Swap Block now all have access to the "feather mode" and "one use" options.
+* Added Dream Falling Block.
+* Dream Zip Mover, Move Block, Swap Block and Falling Block now all have access to the "feather mode" and "one use" options.
 * Dream Zip Mover and Swap Block now have access to "no return" modes, and the Dream Move Block now has access to the "no collide" mode, which will allow it to pass through any solids other than Dream Blocks while moving.
 * Added Station Block & Station Block Tracks.
-* Added Cassette Zip Movers.
+* Added Cassette Zip Mover, Move Block, Swap Block and Falling Block.
 * Fixed Feather Dream Dashing Jumps (couldn't dream jump out of feather dream blocks when dashing into them vertically).
+* Fixed the ability to hold onto a Dream Refill charge after restarting/exiting the level.
+* Added a mod option that allows you to always possess a dream refill charge.
 
 --1.1.0 (07/08/2020)--
 * Updated DreamDashBegin hook to no longer affect vanilla dreamblock behaviour.
