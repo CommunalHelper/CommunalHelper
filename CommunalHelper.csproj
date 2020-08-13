@@ -56,6 +56,9 @@
   <ItemGroup>
     <Compile Include="CommunalHelperModule.cs" />
     <Compile Include="Entities\CassetteStuff\CassetteZipMover.cs" />
+    <Compile Include="Entities\ConnectedStuff\ConnectedSolid.cs" />
+    <Compile Include="Entities\ConnectedStuff\ConnectedZipMover.cs" />
+    <Compile Include="Entities\ConnectedStuff\SolidExtension.cs" />
     <Compile Include="Entities\DreamStuff\CustomDreamBlock.cs" />
     <Compile Include="Entities\DreamStuff\ConnectedDreamBlock.cs" />
     <Compile Include="Entities\DreamStuff\DreamMoveBlock.cs" />
@@ -67,5 +70,6 @@
     <Compile Include="Entities\Misc\SyncedZipMoverActivationController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

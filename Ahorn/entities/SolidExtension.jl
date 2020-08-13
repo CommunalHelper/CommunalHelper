@@ -1,21 +1,21 @@
-﻿module CommunalHelperZipMoverExtension
+﻿module CommunalHelperZipSolidExtension
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/ZipMoverExtension" ZipMoverExtension(
+@mapdef Entity "CommunalHelper/SolidExtension" SolidExtension(
 			x::Integer, y::Integer,
 			width::Integer=16, height::Integer=16)
 
 const placements = Ahorn.PlacementDict(
-    "Zip Mover Extension (Communal Helper)" => Ahorn.EntityPlacement(
-        ZipMoverExtension,
+    "Solid Extension (Communal Helper)" => Ahorn.EntityPlacement(
+        SolidExtension,
 		"rectangle"
     )
 )
 
-Ahorn.minimumSize(entity::ZipMoverExtension) = 16, 16
-Ahorn.resizable(entity::ZipMoverExtension) = true, true
+Ahorn.minimumSize(entity::SolidExtension) = 16, 16
+Ahorn.resizable(entity::SolidExtension) = true, true
 
-function Ahorn.selection(entity::ZipMoverExtension)
+function Ahorn.selection(entity::SolidExtension)
     x, y = Ahorn.position(entity)
 	
     width = Int(get(entity.data, "width", 8))
@@ -28,7 +28,7 @@ const block = "objects/CommunalHelper/connectedZipMover/extension_outline"
 
 # Gets rectangles from Zip Mover Extensions & Zip Movers
 function getZipMoverRectangles(room::Maple.Room)
-    entitiesExtensions = filter(e -> e.name == "CommunalHelper/ZipMoverExtension", room.entities)
+    entitiesExtensions = filter(e -> e.name == "CommunalHelper/SolidExtension", room.entities)
     entitiesZipMovers = filter(e -> e.name == "CommunalHelper/ConnectedZipMover", room.entities)
     rects = []
 
@@ -53,7 +53,7 @@ function getZipMoverRectangles(room::Maple.Room)
 end
 
 # Checks for collision with an array of rectangles at specified tile position
-function notAdjacent(entity::ZipMoverExtension, ox, oy, rects)
+function notAdjacent(entity::SolidExtension, ox, oy, rects)
     x, y = Ahorn.position(entity)
     rect = Ahorn.Rectangle(x + ox + 4, y + oy + 4, 1, 1)
 
@@ -66,7 +66,7 @@ function notAdjacent(entity::ZipMoverExtension, ox, oy, rects)
     return true
 end
 
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::ZipMoverExtension, room::Maple.Room)
+function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::SolidExtension, room::Maple.Room)
     rects = getZipMoverRectangles(room)
 
     x, y = Ahorn.position(entity)
