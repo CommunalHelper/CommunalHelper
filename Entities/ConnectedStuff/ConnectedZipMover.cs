@@ -312,8 +312,18 @@ namespace Celeste.Mod.CommunalHelper
 
 			foreach (Hitbox extension in Colliders)
 			{
-				Draw.Rect(extension.Left + 2f + X, extension.Top + Y, extension.Width - 4f, extension.Height, backgroundColor);
-				Draw.Rect(extension.Left + X, extension.Top + 2f + Y, extension.Width, extension.Height - 4f, backgroundColor);
+				if (theme == Themes.Moon)
+				{
+					Draw.Rect(extension.Left + 2f + X, extension.Top + Y, extension.Width - 4f, extension.Height, backgroundColor);
+					Draw.Rect(extension.Left + X, extension.Top + 2f + Y, extension.Width, extension.Height - 4f, backgroundColor);
+					foreach(Image t in base.InnerCornerTiles)
+					{
+						Draw.Rect(t.X + X, t.Y + Y, 8, 8, backgroundColor);
+					}
+				} else
+				{
+					Draw.Rect(extension.Left + X, extension.Top + Y, extension.Width, extension.Height, backgroundColor);
+				}
 			}
 
 			int num = 1;

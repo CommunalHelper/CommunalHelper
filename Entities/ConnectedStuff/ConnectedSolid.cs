@@ -20,6 +20,11 @@ namespace Celeste.Mod.CommunalHelper
 
         public int MasterWidth, MasterHeight;
 
+        public List<Image> Tiles = new List<Image>();
+        public List<Image> EdgeTiles = new List<Image>();
+        public List<Image> CornerTiles = new List<Image>();        
+        public List<Image> InnerCornerTiles = new List<Image>();
+
         public ConnectedSolid(Vector2 position, int width, int height, bool safe)
             : base(position, width, height, safe)
         {
@@ -70,6 +75,7 @@ namespace Celeste.Mod.CommunalHelper
         /// <param name="innerCorners"> Split tiles from a 16x16 texture, for the inside turns. </param>
         public void AutoTile(MTexture[,] edges, MTexture[,] innerCorners)
         {
+
             int tWidth = (int)((GroupBoundsMax.X - GroupBoundsMin.X) / 8.0f);
             int tHeight = (int)((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8.0f);
 
@@ -81,7 +87,6 @@ namespace Celeste.Mod.CommunalHelper
                     GroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
                 }
             }
-            GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - base.Position;
             for (int x = 1; x < tWidth + 1; x++)
             {
                 for (int y = 1; y < tHeight + 1; y++)
@@ -103,41 +108,58 @@ namespace Celeste.Mod.CommunalHelper
             bool downleft = tiles[x - 1, y + 1];
             bool downright = tiles[x + 1, y + 1];
 
-            MTexture texture = AutoTileTexture(
+            Image image = AutoTileTexture(
                 up, down, left, right,
                 upleft, upright, downleft, downright,
                 edges, innerCorners);
 
-            if (texture == null) return;
+            if (image == null) return;
 
-            // Apply the texture
-            Image image = new Image(texture)
-            {
-                Position = (new Vector2(x - 1, y - 1) * 8f) + offset
-            };
+            image.Position = (new Vector2(x - 1, y - 1) * 8f) + offset;
+            Tiles.Add(image);
             Add(image);
         }
 
-        private MTexture AutoTileTexture(bool up, bool down, bool left, bool right, bool upleft, bool upright, bool downleft, bool downright, MTexture[,] edges, MTexture[,] innerCorners)
+        private Image AutoTileTexture(bool up, bool down, bool left, bool right, bool upleft, bool upright, bool downleft, bool downright, MTexture[,] edges, MTexture[,] innerCorners)
         {
-            if (up && down && left && right && upleft && upright && downleft && downright) return null;
+            bool completelyClosed = up && down && left && right;
+            if (completelyClosed && upleft && upright && downleft && downright) return null;
 
-            if (!up && down && left && right) return edges[1, 0];
-            if (up && !down && left && right) return edges[1, 2];
-            if (up && down && !left && right) return edges[0, 1];
-            if (up && down && left && !right) return edges[2, 1];
+            MTexture tex = null;
+            Image res;
+            bool edge = false, 
+                 corner = false, 
+                 innercorner = false;
 
-            if (!up && down && !left && right) return edges[0, 0];
-            if (!up && down && left && !right) return edges[2, 0];
-            if (up && !down && !left && right) return edges[0, 2];
-            if (up && !down && left && !right) return edges[2, 2];
+            if (completelyClosed)
+            {
 
-            if (!upleft) return innerCorners[0, 0];
-            if (!upright) return innerCorners[1, 0];
-            if (!downleft) return innerCorners[0, 1];
-            if (!downright) return innerCorners[1, 1];
+                if (!upleft) { tex = innerCorners[0, 0]; innercorner = true; }
+                if (!upright) { tex = innerCorners[1, 0]; innercorner = true; }
+                if (!downleft) { tex = innerCorners[0, 1]; innercorner = true; }
+                if (!downright) { tex = innerCorners[1, 1]; innercorner = true; }
+            }
+            else
+            {
 
-            return null;
+                if (!up && down && left && right) { tex = edges[1, 0]; edge = true; }
+                if (up && !down && left && right) { tex = edges[1, 2]; edge = true; }
+                if (up && down && !left && right) { tex = edges[0, 1]; edge = true; }
+                if (up && down && left && !right) { tex = edges[2, 1]; edge = true; }
+
+                if (!up && down && !left && right) { tex = edges[0, 0]; corner = true; }
+                if (!up && down && left && !right) { tex = edges[2, 0]; corner = true; }
+                if (up && !down && !left && right) { tex = edges[0, 2]; corner = true; }
+                if (up && !down && left && !right) { tex = edges[2, 2]; corner = true; }
+            }
+
+            res = new Image(tex);
+
+            if (edge) EdgeTiles.Add(res);
+            else if (corner) CornerTiles.Add(res);
+            else if (innercorner) InnerCornerTiles.Add(res);
+
+            return res;
         }
 
         private bool TileCollideWithGroup(int x, int y)
