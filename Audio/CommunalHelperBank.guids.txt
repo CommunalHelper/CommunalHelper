@@ -12,4 +12,12 @@
 {5f28ccd9-635e-487d-a261-e4f0ce28a530} event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end
 {9cf2912d-3599-4d67-9bda-0e86743dadef} event:/CommunalHelperEvents/game/stationBlock/station_block_seq
 {f80c696c-0f98-481b-a522-c63b689e09e5} event:/CommunalHelperEvents/game/stationBlock/moon_block_seq
+{70f3ff6c-1f4b-4eb6-9001-ab16f702795a} event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_finish
+{0c74f600-c028-49b2-9fa8-45bb1e91693f} event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_return
+{5b29caf1-2edc-430e-b9cb-34e76dc7e14e} event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_start
+{ed1dc0b4-6b3f-47e9-862a-3bd0971394a0} event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_tick
+{a996e0af-d378-41fb-bcf5-bab70bb9d763} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_finish
+{2bcf18f4-d0cf-423c-841f-7bf54151cf0d} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_return
+{1069f2f2-d704-4cec-ad66-c9509e388a43} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_start
+{93fa1eca-cd8f-46fe-8167-84f6eefcc601} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_tick
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank

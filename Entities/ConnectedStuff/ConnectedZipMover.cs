@@ -486,7 +486,7 @@ namespace Celeste.Mod.CommunalHelper
 					to = targets[i];
 
 					// Start shaking.
-					sfx.Play("event:/espritox_custom_objects/game/" + themePath + "_zip_mover_start");
+					sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_start");
 					Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 					StartShaking(0.1f);
 					yield return 0.1f;
@@ -536,7 +536,7 @@ namespace Celeste.Mod.CommunalHelper
 							{
 								tickTime = 0.0f;
 								tickNum++;
-								sfx.Play("event:/espritox_custom_objects/game/" + themePath + "_zip_mover_tick");
+								sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_tick");
 								StartShaking(0.1f);
 							}
 						}
@@ -566,7 +566,7 @@ namespace Celeste.Mod.CommunalHelper
 						// Goes back to start with a speed that is four times slower.
 						StopPlayerRunIntoAnimation = false;
 						streetlight.SetAnimationFrame(2);
-						sfx.Play("event:/espritox_custom_objects/game/" + themePath + "_zip_mover_return");
+						sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_return");
 						at2 = 0f;
 						while (at2 < 1f)
 						{
@@ -582,7 +582,7 @@ namespace Celeste.Mod.CommunalHelper
 						}
 
 						StartShaking(0.2f);
-						altSfx.Play("event:/espritox_custom_objects/game/" + themePath + "_zip_mover_finish");
+						altSfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_finish");
 					}
 
 					StopPlayerRunIntoAnimation = true;
@@ -596,8 +596,8 @@ namespace Celeste.Mod.CommunalHelper
 
 					// Done, will never be activated again.
 					StartShaking(0.3f);
-					altSfx.Play("event:/espritox_custom_objects/game/" + themePath + "_zip_mover_finish");
-					sfx.Play("event:/espritox_custom_objects/game/" + themePath + "_zip_mover_tick");
+					altSfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_finish");
+					sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_tick");
 					SceneAs<Level>().Shake(0.15f);
 					streetlight.SetAnimationFrame(0);
 					while (true)
