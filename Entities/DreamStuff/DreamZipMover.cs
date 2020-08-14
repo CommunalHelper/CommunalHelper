@@ -118,9 +118,10 @@ namespace Celeste.Mod.CommunalHelper {
 
 		private bool dreamAesthetic;
 		private bool noReturn;
+		private MTexture cross;
 
 		public DreamZipMover(Vector2 position, int width, int height, Vector2 target, bool noReturn, bool dreamAesthetic, bool featherMode, bool oneUse)
-			: base(position, width, height, featherMode, oneUse, noReturn) {
+			: base(position, width, height, featherMode, oneUse) {
 			start = Position;
 			this.target = target;
 			this.noReturn = noReturn;
@@ -129,6 +130,7 @@ namespace Celeste.Mod.CommunalHelper {
 			Add(new LightOcclude());
 			sfx.Position = new Vector2(base.Width, base.Height) / 2f;
 			Add(sfx);
+			cross = GFX.Game["objects/CommunalHelper/dreamMoveBlock/x"];
 		}
 
 		public DreamZipMover(EntityData data, Vector2 offset)
@@ -155,6 +157,9 @@ namespace Celeste.Mod.CommunalHelper {
 			Vector2 position = Position;
             Position += base.Shake;
             base.Render();
+			if (noReturn) {
+				cross.DrawCentered(Center + shake);
+			}
 			Position = position;
 		}
 

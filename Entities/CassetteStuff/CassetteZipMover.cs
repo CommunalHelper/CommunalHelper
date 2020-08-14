@@ -1,10 +1,8 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
-using MonoMod.Utils;
 using System;
 using System.Collections;
-
 
 namespace Celeste.Mod.CommunalHelper {
 	[CustomEntity("CommunalHelper/CassetteZipMover")]
@@ -115,20 +113,33 @@ namespace Celeste.Mod.CommunalHelper {
 
 		private SoundSource sfx = new SoundSource();
 
-		public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2 target, int index, float tempo)
+		private bool noReturn;
+
+		public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2 target, int index, float tempo, bool noReturn)
 			: base(position, id, width, height, index, 0, tempo) {
 			start = Position;
 			this.target = target;
+			this.noReturn = noReturn;
 			Add(new Coroutine(Sequence()));
 			sfx.Position = new Vector2(base.Width, base.Height) / 2f;
 			Add(sfx);
 		}
 
 		public CassetteZipMover(EntityData data, Vector2 offset, EntityID id)
-			: this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f)) {
+			: this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("noReturn", false)) {
 		}
 
-		public override void Added(Scene scene) {
+        public override void Awake(Scene scene) {
+			Image cross = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/x"]);
+			Image crossPressed = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xPressed"]);
+
+			base.Awake(scene);
+			if (noReturn) {
+				AddCenterSymbol(cross, crossPressed);
+			}
+		}
+
+        public override void Added(Scene scene) {
 			base.Added(scene);
 			scene.Add(pathRenderer = new CassetteZipMoverPathRenderer(this));
 		}
@@ -201,6 +212,8 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
 		private IEnumerator Sequence() {
+			Vector2 start = Position - blockOffset;
+			Vector2 end = target;
 			while (true) {
 				if (!HasPlayerRider()) {
 					yield return null;
@@ -210,40 +223,49 @@ namespace Celeste.Mod.CommunalHelper {
 				Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 				StartShaking(0.1f);
 				yield return 0.1f;
+
 				StopPlayerRunIntoAnimation = false;
 				float at2 = 0f;
 				while (at2 < 1f) {
 					yield return null;
 					at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
 					percent = Ease.SineIn(at2);
-					Vector2 to = Vector2.Lerp(start, target, percent);
+					Vector2 to = Vector2.Lerp(start, end, percent);
 					ScrapeParticlesCheck(to);
 					if (Scene.OnInterval(0.1f)) {
 						pathRenderer.CreateSparks();
 					}
-                    Vector2 diff = to - (ExactPosition - blockOffset);
-                    MoveH(diff.X);
-                    MoveV(diff.Y);
-                }
-                StartShaking(0.2f);
+					Vector2 diff = to - (ExactPosition - blockOffset);
+					MoveH(diff.X);
+					MoveV(diff.Y);
+				}
+				StartShaking(0.2f);
 				Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
 				SceneAs<Level>().Shake();
 				StopPlayerRunIntoAnimation = true;
 				yield return 0.5f;
-				StopPlayerRunIntoAnimation = false;
-				float at = 0f;
-				while (at < 1f) {
-					yield return null;
-					at = Calc.Approach(at, 1f, 0.5f * Engine.DeltaTime);
-					percent = 1f - Ease.SineIn(at);
-					Vector2 to = Vector2.Lerp(target, start, Ease.SineIn(at));
-                    Vector2 diff = to - (ExactPosition - blockOffset);
-                    MoveH(diff.X);
-                    MoveV(diff.Y);
-                }
-				StopPlayerRunIntoAnimation = true;
-				StartShaking(0.2f);
-				yield return 0.5f;
+
+				if (!noReturn) {
+					StopPlayerRunIntoAnimation = false;
+					float at = 0f;
+					while (at < 1f) {
+						yield return null;
+						at = Calc.Approach(at, 1f, 0.5f * Engine.DeltaTime);
+						percent = 1f - Ease.SineIn(at);
+						Vector2 to = Vector2.Lerp(end, start, Ease.SineIn(at));
+						Vector2 diff = to - (ExactPosition - blockOffset);
+						MoveH(diff.X);
+						MoveV(diff.Y);
+					}
+					StopPlayerRunIntoAnimation = true;
+					StartShaking(0.2f);
+					yield return 0.5f;
+				} else {
+					sfx.Stop();
+					Vector2 temp = start;
+					start = end;
+					end = temp;
+				}
 			}
 		}
 	}

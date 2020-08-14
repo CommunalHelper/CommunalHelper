@@ -7,7 +7,8 @@ using ..Ahorn, Maple
                                                                   width::Integer=Maple.defaultBlockWidth, 
                                                                   height::Integer=Maple.defaultBlockHeight,
                                                                   index::Integer=0,
-                                                                  tempo::Number=1.0) 
+                                                                  tempo::Number=1.0,
+                                                                  noReturn::Bool=false) 
 
 const colorNames = Dict{String, Int}(
     "Blue" => 0,

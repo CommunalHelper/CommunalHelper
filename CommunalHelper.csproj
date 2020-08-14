@@ -56,6 +56,8 @@
   <ItemGroup>
     <Compile Include="CommunalHelperModule.cs" />
     <Compile Include="CommunalHelperSettings.cs" />
+    <Compile Include="Entities\CassetteStuff\CassetteMoveBlock.cs" />
+    <Compile Include="Entities\CassetteStuff\CassetteSwapBlock.cs" />
     <Compile Include="Entities\CassetteStuff\CassetteZipMover.cs" />
     <Compile Include="Entities\CassetteStuff\CustomCassetteBlock.cs" />
     <Compile Include="Entities\DreamStuff\CustomDreamBlock.cs" />

@@ -62,6 +62,7 @@ namespace Celeste.Mod.CommunalHelper {
         private int particleIndex = 0;
 
         private bool noReturn;
+        private MTexture cross;
         private bool shattered = false;
 
         static DreamSwapBlock() {
@@ -92,7 +93,7 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public DreamSwapBlock(Vector2 position, int width, int height, Vector2 node, bool noReturn, bool featherMode, bool oneUse)
-            : base(position, width, height, featherMode, oneUse, noReturn) {
+            : base(position, width, height, featherMode, oneUse) {
             start = Position;
             end = node;
             this.noReturn = noReturn;
@@ -116,6 +117,7 @@ namespace Celeste.Mod.CommunalHelper {
                 }
             }
             Add(new LightOcclude(0.2f));
+            cross = GFX.Game["objects/CommunalHelper/dreamMoveBlock/x"];
         }
 
         public DreamSwapBlock(EntityData data, Vector2 offset)
@@ -167,7 +169,6 @@ namespace Celeste.Mod.CommunalHelper {
                 Audio.Stop(moveSfx);
                 if (!Swapping) {
                     Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
-                    Audio.Stop(moveSfx);
                 } else {
                     moveSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move", base.Center);
                 }
@@ -270,6 +271,13 @@ namespace Celeste.Mod.CommunalHelper {
                     Swapping = false;
                 }
                 StopPlayerRunIntoAnimation = (lerp <= 0f || lerp >= 1f);
+            }
+        }
+
+        public override void Render() {
+            base.Render();
+            if (noReturn) {
+                cross.DrawCentered(Center + shake);
             }
         }
 

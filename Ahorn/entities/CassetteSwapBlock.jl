@@ -11,18 +11,19 @@ function swapFinalizer(entity)
 end
 
 @mapdef Entity "CommunalHelper/CassetteSwapBlock" CassetteSwapBlock(x::Integer, 
-                                                                  y::Integer, 
-                                                                  width::Integer=Maple.defaultBlockWidth, 
-                                                                  height::Integer=Maple.defaultBlockHeight,
-                                                                  index::Integer=0,
-                                                                  tempo::Number=1.0) 
+                                                                    y::Integer, 
+                                                                    width::Integer=Maple.defaultBlockWidth, 
+                                                                    height::Integer=Maple.defaultBlockHeight,
+                                                                    index::Integer=0,
+                                                                    tempo::Number=1.0,
+                                                                    noReturn::Bool=false) 
 
 const colorNames = Dict{String, Int}(
     "Blue" => 0,
     "Rose" => 1,
     "Bright Sun" => 2,
     "Malachite" => 3
-)   
+)
 
 const colors = Dict{Int, Ahorn.colorTupleType}(
     1 => (240, 73, 190, 255) ./ 255,
