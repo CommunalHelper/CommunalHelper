@@ -1,0 +1,64 @@
+# -- Entity and Trigger Tooltips -- 
+#    placements.entities.entityName.tooltips.attr=Tooltip
+#    placements.triggers.triggerName.tooltips.attr=Tooltip
+
+
+
+# -- Entities -- 
+
+# -- Synced Zip Mover Activation Controller --
+placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.zipMoverSpeedMultiplier=Speed Multiplier for the controlled Zip Movers.
+placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.colorCode=Target color code.
+
+# -- Station Block Track --
+placements.entities.CommunalHelper/StationBlockTrack.tooltips.horizontal=Whether the track should be handled as a horizontal one.
+
+# -- Station Block --
+placements.entities.CommunalHelper/StationBlock.tooltips.theme=Aspect theme of the Station Block.
+placements.entities.CommunalHelper/StationBlock.tooltips.behavior=Behavior of the Station Block. Pulling will make it move towards you, and Pushing does the opposite. This changes slightly the appearance of the block, depending on the behavior.
+
+# -- Dream Zip Mover --
+placements.entities.CommunalHelper/DreamZipMover.tooltips.noReturn=Whether the Dream Zip Mover should return to its starting point or not.
+placements.entities.CommunalHelper/DreamZipMover.tooltips.dreamAesthetic=Optional look for this entity, mostly unused, but left there.
+placements.entities.CommunalHelper/DreamZipMover.tooltips.featherMode=Whether the Dream Zip Mover has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/DreamZipMover.tooltips.oneUse=Whether the Dream Zip Mover should shatter upon exit.
+
+# -- Dream Swap Block --
+placements.entities.CommunalHelper/DreamSwapBlock.tooltips.noReturn=Whether the Dream Swap Block should return to its starting point or not.
+placements.entities.CommunalHelper/DreamSwapBlock.tooltips.featherMode=Whether the Dream Swap Block has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/DreamSwapBlock.tooltips.oneUse=Whether the Dream Swap Block should shatter upon exit.
+
+# -- Dream Refill --
+placements.entities.CommunalHelper/DreamRefill.tooltips.oneUse=Whether the Dream Refill should be only used once.
+
+# -- Dream Move Block --
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.direction=The direction in which the Dream Move Block moves.
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.fast=Whether the Dream Move Block should move faster.
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.noCollide=Whether the Dream Move Block should go through everything.
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.oneUse=Whether the Dream Move Block should shatter upon exit.
+
+# -- Connected Dream Block --
+placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.featherMode=Whether the Connected Dream Block has the Dream Block Feather controls enabled. Connected Dream Blocks only connect with other dream blocks with the same controls.
+placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.oneUse=Whether THIS Connected Dream Block should make its entire group shatter upon leaving it.
+
+# -- Cassette Zip Mover --
+placements.entities.CommunalHelper/CassetteZipMover.tooltips.index=The color of the Cassette Zip Mover.
+placements.entities.CommunalHelper/CassetteZipMover.tooltips.tempo=The tempo of the cassette music in the room.
+placements.entities.CommunalHelper/CassetteZipMover.tooltips.noReturn=Whether the Cassette Zip Mover should return to its starting point or not.
+
+# -- Cassette Swap Block --
+placements.entities.CommunalHelper/CassetteSwapBlock.tooltips.noReturn=Whether Cassette Swap Block should return to its starting point or not.
+placements.entities.CommunalHelper/CassetteSwapBlock.tooltips.index=The color of the Cassette Swap Block.
+placements.entities.CommunalHelper/CassetteSwapBlock.tooltips.tempo=The tempo of the cassette music in the room.
+
+# -- Cassette Move Block --
+placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.direction=The direction in which the Cassette Move Block moves.
+placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.fast=Whether the Cassette Move Block should move faster.
+placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.index=The color of the Cassette Move Block.
+placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.tempo=The tempo of the cassette music in the room.
+
+# -- Cassette Falling Block --
+placements.entities.CommunalHelper/CassetteFallingBlock.tooltips.index=The color of the Cassette Falling Block.
+placements.entities.CommunalHelper/CassetteFallingBlock.tooltips.tempo=The tempo of the cassette music in the room.
+
