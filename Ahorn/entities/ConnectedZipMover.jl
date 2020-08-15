@@ -79,9 +79,9 @@ end
 
 ropeColor = (102, 57, 49) ./ 255
 
-# Gets rectangles from Zip Mover Extensions
-function getZipMoverExtensionRectangles(room::Maple.Room)
-    entities = filter(e -> e.name == "CommunalHelper/ZipMoverExtension", room.entities)
+# Gets rectangles from Solid Extensions
+function getExtensionRectangles(room::Maple.Room)
+    entities = filter(e -> e.name == "CommunalHelper/SolidExtension", room.entities)
     rects = []
 
     for e in entities
@@ -111,7 +111,7 @@ function notAdjacent(entity::ConnectedZipMover, ox, oy, rects)
 end
 
 function renderZipMover(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedZipMover, room::Maple.Room)
-	rects = getZipMoverExtensionRectangles(room)
+	rects = getExtensionRectangles(room)
 	
     x, y = Ahorn.position(entity)
 	px, py = x, y
@@ -225,23 +225,8 @@ function renderZipMover(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedZipMover
                 Ahorn.drawImage(ctx, block, x + drawX, y + drawY, 16, 16, 8, 8)
             end
         end
-	end
-
-    #for i in 2:tileWidth - 1
-    #    Ahorn.drawImage(ctx, block, x + (i - 1) * 8, y, 8, 0, 8, 8)
-    #    Ahorn.drawImage(ctx, block, x + (i - 1) * 8, y + height - 8, 8, 16, 8, 8)
-    #end
-    #
-    #for i in 2:tileHeight - 1
-    #    Ahorn.drawImage(ctx, block, x, y + (i - 1) * 8, 0, 8, 8, 8)
-    #    Ahorn.drawImage(ctx, block, x + width - 8, y + (i - 1) * 8, 16, 8, 8, 8)
-    #end
-
-    #Ahorn.drawImage(ctx, block, x, y, 0, 0, 8, 8)
-    #Ahorn.drawImage(ctx, block, x + width - 8, y, 16, 0, 8, 8)
-    #Ahorn.drawImage(ctx, block, x, y + height - 8, 0, 16, 8, 8)
-    #Ahorn.drawImage(ctx, block, x + width - 8, y + height - 8, 16, 16, 8, 8)
-
+    end
+    
     Ahorn.drawImage(ctx, lightSprite, x + floor(Int, (width - lightSprite.width) / 2), y)
 end
 

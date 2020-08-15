@@ -1,0 +1,6 @@
+# -- Connected Swap Block --
+placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearence of the Connected Swap Block.
+
+# -- Connected Move Block --
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.fast=Whether the Connected Move Block should move faster.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.

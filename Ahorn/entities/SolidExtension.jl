@@ -26,21 +26,19 @@ end
 
 const block = "objects/CommunalHelper/connectedZipMover/extension_outline"
 
+const connectTo = [
+                  "CommunalHelper/SolidExtension", 
+                  "CommunalHelper/ConnectedZipMover",
+                  "CommunalHelper/ConnectedSwapBlock",
+                  "CommunalHelper/ConnectedMoveBlock"
+                  ]
+
 # Gets rectangles from Zip Mover Extensions & Zip Movers
 function getZipMoverRectangles(room::Maple.Room)
-    entitiesExtensions = filter(e -> e.name == "CommunalHelper/SolidExtension", room.entities)
-    entitiesZipMovers = filter(e -> e.name == "CommunalHelper/ConnectedZipMover", room.entities)
+    entities = filter(e -> e.name in connectTo, room.entities)
     rects = []
 
-    for e in entitiesExtensions
-        push!(rects, Ahorn.Rectangle(
-            Int(get(e.data, "x", 0)),
-            Int(get(e.data, "y", 0)),
-            Int(get(e.data, "width", 8)),
-            Int(get(e.data, "height", 8))
-        ))
-    end
-    for e in entitiesZipMovers
+    for e in entities
         push!(rects, Ahorn.Rectangle(
             Int(get(e.data, "x", 0)),
             Int(get(e.data, "y", 0)),
@@ -90,7 +88,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::SolidExtension, 
         closedUp = !notAdjacent(entity, drawX, drawY - 8, rects)
         closedDown = !notAdjacent(entity, drawX, drawY + 8, rects)
         completelyClosed = closedLeft && closedRight && closedUp && closedDown
-
+        
         if completelyClosed
             if notAdjacent(entity, drawX + 8, drawY + 8, rects)
                 # down right
@@ -136,6 +134,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::SolidExtension, 
                 Ahorn.drawImage(ctx, block, x + drawX, y + drawY, 16, 16, 8, 8)
             end
         end
+
     end
 end
 
