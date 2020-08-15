@@ -31,6 +31,7 @@ namespace Celeste.Mod.CommunalHelper {
             ConnectedDreamBlockHooks.Hook();
             CustomCassetteBlockHooks.Hook();
             SyncedZipMoverActivationControllerHooks.Hook();
+			AttachedWallBoosterHooks.Hook();
         }
 
 		public override void Unload() {
@@ -42,6 +43,7 @@ namespace Celeste.Mod.CommunalHelper {
 			ConnectedDreamBlockHooks.Unhook();
             CustomCassetteBlockHooks.Unhook();
             SyncedZipMoverActivationControllerHooks.Unhook();
+			AttachedWallBoosterHooks.Unhook();
 		}
 
 		public override void LoadContent(bool firstLoad) {

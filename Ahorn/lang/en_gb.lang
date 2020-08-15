@@ -62,3 +62,7 @@ placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.tempo=The tempo of
 placements.entities.CommunalHelper/CassetteFallingBlock.tooltips.index=The color of the Cassette Falling Block.
 placements.entities.CommunalHelper/CassetteFallingBlock.tooltips.tempo=The tempo of the cassette music in the room.
 
+# -- Attached Wall Booster --
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the Wall Booster should attach to the left sides of solids.
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whether the Wall Booster should ignore the current Core Mode and be in Ice Mode.
+
