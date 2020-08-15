@@ -42,6 +42,10 @@ placements.entities.CommunalHelper/DreamMoveBlock.tooltips.oneUse=Whether the Dr
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.featherMode=Whether the Connected Dream Block has the Dream Block Feather controls enabled. Connected Dream Blocks only connect with other dream blocks with the same controls.
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.oneUse=Whether THIS Connected Dream Block should make its entire group shatter upon leaving it.
 
+# -- Dream Falling Block --
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.featherMode=Whether the Dream Falling Block has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.oneUse=Whether the Dream Falling Block should shatter upon exit.
+
 # -- Cassette Zip Mover --
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.index=The color of the Cassette Zip Mover.
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.tempo=The tempo of the cassette music in the room.

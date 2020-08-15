@@ -41,6 +41,7 @@ function getTextures(entity::DreamZipMover)
     dreamAesthetic = Bool(get(entity.data, "dreamAesthetic", false))
     return "objects/zipmover/block", "objects/zipmover/light01", (dreamAesthetic ? "objects/CommunalHelper/dreamZipMover/cog" : "objects/zipmover/cog")
 end
+const crossSprite = "objects/CommunalHelper/dreamMoveBlock/x"
 
 ropeColor = (102, 57, 49) ./ 255
 
@@ -86,6 +87,11 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
     Ahorn.Cairo.restore(ctx)
 
     Ahorn.drawSprite(ctx, cog, cnx, cny)
+
+    if Bool(get(entity.data, "noReturn", false))
+        noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")
+        Ahorn.drawImage(ctx, noReturnSprite, x + div(width - noReturnSprite.width, 2), y + div(height - noReturnSprite.height, 2))
+    end
 end
 
 function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover, room::Maple.Room)

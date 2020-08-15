@@ -72,6 +72,7 @@ function Ahorn.selection(entity::CassetteSwapBlock)
 end
 
 const block = "objects/cassetteblock/solid"
+const crossSprite = "objects/CommunalHelper/cassetteMoveBlock/x"
 
 function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number, trail::String, index::Int)
     tilesWidth = div(width, 8)
@@ -143,6 +144,11 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::CassetteSwapBloc
         ty = (j == 1) ? 0 : ((j == tileHeight) ? 16 : 8)
 
         Ahorn.drawImage(ctx, block, x + (i - 1) * 8, y + (j - 1) * 8, tx, ty, 8, 8, tint=color)
+    end
+
+    if Bool(get(entity.data, "noReturn", false))
+        noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")
+        Ahorn.drawImage(ctx, noReturnSprite, x + div(width - noReturnSprite.width, 2), y + div(height - noReturnSprite.height, 2), tint=color)
     end
 end
 
