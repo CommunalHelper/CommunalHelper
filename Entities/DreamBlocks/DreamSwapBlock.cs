@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 
-namespace Celeste.Mod.CommunalHelper {
+namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamSwapBlock")]
     [TrackedAs(typeof(DreamBlock))]
     class DreamSwapBlock : CustomDreamBlock {
@@ -16,7 +16,7 @@ namespace Celeste.Mod.CommunalHelper {
             public PathRenderer(DreamSwapBlock block)
                 : base(block.Position) {
                 this.block = block;
-                base.Depth = 8999;
+                Depth = 8999;
                 timer = Calc.Random.NextFloat();
             }
 
@@ -26,9 +26,9 @@ namespace Celeste.Mod.CommunalHelper {
             }
 
             public override void Render() {
-                float scale = 0.5f * (0.5f + ((float)Math.Sin(timer) + 1f) * 0.25f);
-                scale = Calc.LerpClamp(scale, 1, block.colorLerp);
-                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, block.activeLineColor * scale);
+                float scale = 0.5f * (0.5f + ((float) Math.Sin(timer) + 1f) * 0.25f);
+                scale = Calc.LerpClamp(scale, 1, block.ColorLerp);
+                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, block.baseData.Get<Color>("activeLineColor") * scale);
             }
         }
 
@@ -70,7 +70,8 @@ namespace Celeste.Mod.CommunalHelper {
             ParticleType particle = new ParticleType(SwapBlock.P_Move);
             particle.ColorMode = ParticleType.ColorModes.Choose;
             particle.FadeMode = ParticleType.FadeModes.Late;
-            particle.LifeMin = 0.6f; particle.LifeMin = 1f;
+            particle.LifeMin = 0.6f;
+            particle.LifeMin = 1f;
 
             particle.Color = Calc.HexToColor("FFEF11");
             particle.Color2 = Calc.HexToColor("FF00D0");
@@ -92,11 +93,14 @@ namespace Celeste.Mod.CommunalHelper {
             dreamParticles[3] = particle;
         }
 
-        public DreamSwapBlock(Vector2 position, int width, int height, Vector2 node, bool noReturn, bool featherMode, bool oneUse)
-            : base(position, width, height, featherMode, oneUse) {
+
+
+        public DreamSwapBlock(EntityData data, Vector2 offset)
+            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode", false), data.Bool("oneUse", false)) {
             start = Position;
-            end = node;
-            this.noReturn = noReturn;
+            end = data.Nodes[0] + offset;
+            noReturn = data.Bool("noReturn", false);
+
             maxForwardSpeed = 360f / Vector2.Distance(start, end);
             maxBackwardSpeed = maxForwardSpeed * 0.4f;
             Direction.X = Math.Sign(end.X - start.X);
@@ -104,11 +108,13 @@ namespace Celeste.Mod.CommunalHelper {
             Add(new DashListener {
                 OnDash = OnDash
             });
-            int num = (int)MathHelper.Min(base.X, node.X);
-            int num2 = (int)MathHelper.Min(base.Y, node.Y);
-            int num3 = (int)MathHelper.Max(base.X + base.Width, node.X + base.Width);
-            int num4 = (int)MathHelper.Max(base.Y + base.Height, node.Y + base.Height);
+
+            int num = (int) MathHelper.Min(X, end.X);
+            int num2 = (int) MathHelper.Min(Y, end.Y);
+            int num3 = (int) MathHelper.Max(X + Width, end.X + Width);
+            int num4 = (int) MathHelper.Max(Y + Height, end.Y + Height);
             moveRect = new Rectangle(num, num2, num3 - num, num4 - num2);
+
             MTexture targetTexture = GFX.Game["objects/swapblock/target"];
             nineSliceTarget = new MTexture[3, 3];
             for (int i = 0; i < 3; i++) {
@@ -116,18 +122,14 @@ namespace Celeste.Mod.CommunalHelper {
                     nineSliceTarget[i, j] = targetTexture.GetSubtexture(new Rectangle(i * 8, j * 8, 8, 8));
                 }
             }
+
             Add(new LightOcclude(0.2f));
             cross = GFX.Game["objects/CommunalHelper/dreamMoveBlock/x"];
-        }
-
-        public DreamSwapBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("noReturn", false), data.Bool("featherMode", false), data.Bool("oneUse", false)) {
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
             scene.Add(path = new PathRenderer(this));
-            SetupParticles(Width, Height);
         }
 
         public override void Removed(Scene scene) {
@@ -146,7 +148,7 @@ namespace Celeste.Mod.CommunalHelper {
             if (noReturn) {
                 Swapping = true;
                 target = 1 - target;
-                burst = (base.Scene as Level).Displacement.AddBurst(base.Center, 0.2f, 0f, 16f);
+                burst = (Scene as Level).Displacement.AddBurst(Center, 0.2f, 0f, 16f);
                 float relativeLerp = target == 1 ? lerp : 1 - lerp;
                 if (relativeLerp >= 0.2f) {
                     speed = maxForwardSpeed;
@@ -154,12 +156,12 @@ namespace Celeste.Mod.CommunalHelper {
                     speed = MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, relativeLerp / 0.2f);
                 }
                 Audio.Stop(moveSfx);
-                moveSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move", base.Center);
+                moveSfx = Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move, Center);
             } else {
                 Swapping = (lerp < 1f);
                 target = 1;
-                returnTimer = 0.8f;
-                burst = (base.Scene as Level).Displacement.AddBurst(base.Center, 0.2f, 0f, 16f);
+                returnTimer = ReturnTime;
+                burst = (Scene as Level).Displacement.AddBurst(Center, 0.2f, 0f, 16f);
                 if (lerp >= 0.2f) {
                     speed = maxForwardSpeed;
                 } else {
@@ -168,9 +170,9 @@ namespace Celeste.Mod.CommunalHelper {
                 Audio.Stop(returnSfx);
                 Audio.Stop(moveSfx);
                 if (!Swapping) {
-                    Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
+                    Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move_end, Center);
                 } else {
-                    moveSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move", base.Center);
+                    moveSfx = Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move, Center);
                 }
             }
         }
@@ -190,14 +192,15 @@ namespace Celeste.Mod.CommunalHelper {
             }
 
             if (burst != null) {
-                burst.Position = base.Center;
+                burst.Position = Center;
             }
 
             if (noReturn) {
                 speed = Calc.Approach(speed, maxForwardSpeed, maxForwardSpeed / 0.2f * Engine.DeltaTime);
                 float num = lerp;
                 lerp = Calc.Approach(lerp, target, speed * Engine.DeltaTime);
-                if (lerp == 0 || lerp == 1) Audio.Stop(moveSfx);
+                if (lerp == 0 || lerp == 1)
+                    Audio.Stop(moveSfx);
                 if (lerp != num) {
                     Vector2 liftSpeed = (end - start) * speed;
                     Vector2 position = Position;
@@ -213,11 +216,11 @@ namespace Celeste.Mod.CommunalHelper {
                     }
                     MoveTo(Vector2.Lerp(start, end, lerp), liftSpeed);
                     if (position != Position) {
-                        Audio.Position(moveSfx, base.Center);
+                        Audio.Position(moveSfx, Center);
                         if (Position == start || Position == end) {
                             //Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end", base.Center);
                             Audio.Stop(moveSfx);
-                            Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
+                            Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move_end, Center);
                         }
                     }
                 }
@@ -231,7 +234,7 @@ namespace Celeste.Mod.CommunalHelper {
                     if (returnTimer <= 0f) {
                         target = 0;
                         speed = 0f;
-                        returnSfx = Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return", base.Center);
+                        returnSfx = Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_return, Center);
                     }
                 }
                 if (target == 1) {
@@ -241,7 +244,8 @@ namespace Celeste.Mod.CommunalHelper {
                 }
                 float num = lerp;
                 lerp = Calc.Approach(lerp, target, speed * Engine.DeltaTime);
-                if (lerp == 1) Audio.Stop(moveSfx);
+                if (lerp == 1)
+                    Audio.Stop(moveSfx);
                 if (lerp != num) {
                     Vector2 liftSpeed = (end - start) * speed;
                     Vector2 position = Position;
@@ -251,18 +255,18 @@ namespace Celeste.Mod.CommunalHelper {
                     if (lerp < num) {
                         liftSpeed *= -1f;
                     }
-                    if (target == 1 && base.Scene.OnInterval(0.02f)) {
+                    if (target == 1 && Scene.OnInterval(0.02f)) {
                         MoveParticles(end - start);
                     }
                     MoveTo(Vector2.Lerp(start, end, lerp), liftSpeed);
                     if (position != Position) {
-                        Audio.Position(moveSfx, base.Center);
-                        Audio.Position(returnSfx, base.Center);
+                        Audio.Position(moveSfx, Center);
+                        Audio.Position(returnSfx, Center);
                         if (Position == start && target == 0) {
                             Audio.SetParameter(returnSfx, "end", 1f);
-                            Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end", base.Center);
+                            Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_return_end, Center);
                         } else if (Position == end && target == 1) {
-                            Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end", base.Center);
+                            Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move_end, Center);
                             Audio.Stop(moveSfx);
                         }
                     }
@@ -277,7 +281,7 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Render() {
             base.Render();
             if (noReturn) {
-                cross.DrawCentered(Center + shake);
+                cross.DrawCentered(Center + baseData.Get<Vector2>("shake"));
             }
         }
 
@@ -287,28 +291,28 @@ namespace Celeste.Mod.CommunalHelper {
             float direction;
             float num;
             if (normal.X > 0f) {
-                position = base.CenterLeft;
-                positionRange = Vector2.UnitY * (base.Height - 6f);
-                direction = (float)Math.PI;
-                num = Math.Max(2f, base.Height / 14f);
+                position = CenterLeft;
+                positionRange = Vector2.UnitY * (Height - 6f);
+                direction = (float) Math.PI;
+                num = Math.Max(2f, Height / 14f);
             } else if (normal.X < 0f) {
-                position = base.CenterRight;
-                positionRange = Vector2.UnitY * (base.Height - 6f);
+                position = CenterRight;
+                positionRange = Vector2.UnitY * (Height - 6f);
                 direction = 0f;
-                num = Math.Max(2f, base.Height / 14f);
+                num = Math.Max(2f, Height / 14f);
             } else if (normal.Y > 0f) {
-                position = base.TopCenter;
-                positionRange = Vector2.UnitX * (base.Width - 6f);
-                direction = -(float)Math.PI / 2f;
-                num = Math.Max(2f, base.Width / 14f);
+                position = TopCenter;
+                positionRange = Vector2.UnitX * (Width - 6f);
+                direction = -(float) Math.PI / 2f;
+                num = Math.Max(2f, Width / 14f);
             } else {
-                position = base.BottomCenter;
-                positionRange = Vector2.UnitX * (base.Width - 6f);
-                direction = (float)Math.PI / 2f;
-                num = Math.Max(2f, base.Width / 14f);
+                position = BottomCenter;
+                positionRange = Vector2.UnitX * (Width - 6f);
+                direction = (float) Math.PI / 2f;
+                num = Math.Max(2f, Width / 14f);
             }
             particlesRemainder += num;
-            int num2 = (int)particlesRemainder;
+            int num2 = (int) particlesRemainder;
             particlesRemainder -= num2;
             positionRange *= 0.5f;
             SceneAs<Level>().Particles.Emit(dreamParticles[particleIndex], num2, position, positionRange, direction);
@@ -317,8 +321,8 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         private void DrawBlockStyle(Vector2 pos, float width, float height, MTexture[,] ninSlice, Sprite middle, Color color) {
-            int num = (int)(width / 8f);
-            int num2 = (int)(height / 8f);
+            int num = (int) (width / 8f);
+            int num2 = (int) (height / 8f);
             ninSlice[0, 0].Draw(pos + new Vector2(0f, 0f), Vector2.Zero, color);
             ninSlice[2, 0].Draw(pos + new Vector2(width - 8f, 0f), Vector2.Zero, color);
             ninSlice[0, 2].Draw(pos + new Vector2(0f, height - 8f), Vector2.Zero, color);
