@@ -1,0 +1,15 @@
+{2c2d55e6-5011-4a1a-99a4-e9ca9eeb1de1} event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_fly_travel
+{03a25dc3-b401-4c0a-8104-583eeb9d873e} event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_shatter
+{596b795d-af4d-4284-8836-506c20eaf2a9} event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_activate
+{6f9b0cdf-b702-40ef-96fd-ff265ad64d5b} event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_break
+{f808b781-963d-4742-8b47-e4340c395936} event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_reappear
+{a41e1c94-5260-48e9-8cf9-ce822ea5e223} event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover
+{5f7c0a5d-3e19-46ac-a426-a42e88db368e} event:/CommunalHelperEvents/game/dreamRefill/dream_refill_touch
+{ffba3497-9e9a-402b-aa9b-673b7eceff28} event:/CommunalHelperEvents/game/dreamRefill/dream_refill_return
+{aad14bdf-e08e-48ad-a8c0-ca154a5ff9da} event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move
+{0de2650b-5d69-4513-8c01-af370b6b8373} event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_move_end
+{2e363b71-094d-4615-bad7-337829a4734c} event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return
+{5f28ccd9-635e-487d-a261-e4f0ce28a530} event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end
+{9cf2912d-3599-4d67-9bda-0e86743dadef} event:/CommunalHelperEvents/game/stationBlock/station_block_seq
+{f80c696c-0f98-481b-a522-c63b689e09e5} event:/CommunalHelperEvents/game/stationBlock/moon_block_seq
+{c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank

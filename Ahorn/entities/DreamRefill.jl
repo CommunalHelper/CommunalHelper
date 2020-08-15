@@ -7,7 +7,7 @@ using ..Ahorn, Maple
                                                         oneUse::Bool=false)
 
 const placements = Ahorn.PlacementDict(
-    "Dream Refill (CommunalHelper)" => Ahorn.EntityPlacement(
+    "Dream Refill (Communal Helper)" => Ahorn.EntityPlacement(
         DreamRefill,
         "point"
     )
