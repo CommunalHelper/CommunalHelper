@@ -57,7 +57,6 @@ namespace CommunalHelper.Entities.CassetteStuff {
 		private float maxBackwardSpeed;
 		private float returnTimer;
 
-		private float redAlpha = 1f;
 		private MTexture[,] nineSliceTarget;
 
 		private EventInstance moveSfx;

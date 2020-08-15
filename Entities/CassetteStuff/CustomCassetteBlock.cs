@@ -19,24 +19,44 @@ namespace Celeste.Mod.CommunalHelper {
 
 		private int beforeIndex;
 
-		public bool present = true;
 		public int blockHeight = 2;
-		public Vector2 blockOffset = Vector2.Zero;
+		protected Vector2 blockOffset = Vector2.Zero;
+		private bool dynamicHitbox;
+		private Hitbox[] hitboxes;
+		public bool virtualCollidable = true;
 
 		public DynData<CassetteBlock> blockData;
 
-		public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, int typeIndex, float tempo) 
+		public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, int typeIndex, float tempo, bool dynamicHitbox = false) 
 			: base(position, id, width, height, index, tempo) {
 			beforeIndex = index;
 			color = colorOptions[index];
 			pressedColor = color.Mult(Calc.HexToColor("667da5"));
             Index = typeCounts[typeIndex] * typeCounts.Length * 4 + index + 4;
             ++typeCounts[typeIndex];
+			this.dynamicHitbox = dynamicHitbox;
+			if (dynamicHitbox) {
+				hitboxes = new Hitbox[3];
+				hitboxes[0] = new Hitbox(Collider.Width, Collider.Height - 2);
+				hitboxes[1] = new Hitbox(Collider.Width, Collider.Height - 1);
+				hitboxes[2] = Collider as Hitbox;
+			}
 		}
 
         public override void Awake(Scene scene) {
 			blockData = new DynData<CassetteBlock>(this);
 			base.Awake(scene);
+        }
+
+        public override void Update() {
+			if (!Visible) {
+				Collidable = virtualCollidable;
+            }
+            base.Update();
+			virtualCollidable = Collidable;
+			if (!Visible) {
+				Collidable = false;
+            }
         }
 
         public void ResetIndex() {
@@ -64,6 +84,21 @@ namespace Celeste.Mod.CommunalHelper {
 			Add(pressed);
 			all.Add(pressed);
 		}
+
+		public void HandleShiftSize(int amount) {
+			blockHeight -= amount;
+			blockOffset = (2 - blockHeight) * Vector2.UnitY;
+			if (dynamicHitbox) {
+				if (blockHeight < 0 || blockHeight > 2) {
+					Util.log("blockHeight:" + blockHeight);
+                }
+				Collider = hitboxes[Calc.Clamp(blockHeight, 0, 2)];
+            }
+		}
+
+		public virtual void HandleUpdateVisualState() {
+
+        }
 	}
 
 	class CustomCassetteBlockHooks {
@@ -73,6 +108,7 @@ namespace Celeste.Mod.CommunalHelper {
 		public static void Hook() {
             On.Celeste.CassetteBlock.ShiftSize += modShiftSize;
 			On.Celeste.CassetteBlock.UpdateVisualState += modUpdateVisualState;
+            On.Celeste.CassetteBlock.WillToggle += modWillToggle;
 			On.Celeste.Level.LoadLevel += modLoadLevel;
             On.Celeste.Level.LoadCustomEntity += modLoadCustomEntity;
             On.Monocle.EntityList.UpdateLists += modUpdateLists;
@@ -81,34 +117,44 @@ namespace Celeste.Mod.CommunalHelper {
         public static void Unhook() {
             On.Celeste.CassetteBlock.ShiftSize -= modShiftSize;
 			On.Celeste.CassetteBlock.UpdateVisualState -= modUpdateVisualState;
+			On.Celeste.CassetteBlock.WillToggle -= modWillToggle;
 			On.Celeste.Level.LoadLevel -= modLoadLevel;
             On.Celeste.Level.LoadCustomEntity -= modLoadCustomEntity;
 			On.Monocle.EntityList.UpdateLists -= modUpdateLists;
 		}
 
 		private static void modShiftSize(On.Celeste.CassetteBlock.orig_ShiftSize orig, CassetteBlock block, int amount) {
-			if (block is CustomCassetteBlock) {
-				if (block.Activated && block.CollideCheck<Player>()) {
-					amount *= -1;
+			bool shift = true;
+			var cassetteBlock = block as CustomCassetteBlock;
+			if (cassetteBlock != null) {
+                if (block.Activated && block.CollideCheck<Player>()) { 
+                	amount *= -1;
+                }
+				int newBlockHeight = cassetteBlock.blockHeight - amount;
+				if (newBlockHeight > 2 || newBlockHeight < 0) {
+					shift = false;
+                } else {
+					cassetteBlock.HandleShiftSize(amount);
 				}
-				CustomCassetteBlock customBlock = block as CustomCassetteBlock;
-				customBlock.blockHeight -= amount;
-				customBlock.blockOffset = (2 - customBlock.blockHeight) * Vector2.UnitY;
 			}
-			orig(block, amount);
+			if (shift) {
+				orig(block, amount);
+			}
 		}
 
 		private static void modUpdateVisualState(On.Celeste.CassetteBlock.orig_UpdateVisualState orig, CassetteBlock block) {
 			orig(block);
-			CustomCassetteBlock customBlock = block as CustomCassetteBlock;
-			if (customBlock != null) {
-				if (!customBlock.present) {
-					customBlock.blockData.Get<Entity>("side").Visible = false;
-				}
-				if (customBlock is CassetteMoveBlock) {
-					(customBlock as CassetteMoveBlock).UpdateSymbol();
-                }
-            }
+			(block as CustomCassetteBlock)?.HandleUpdateVisualState();
+		}
+
+		private static void modWillToggle(On.Celeste.CassetteBlock.orig_WillToggle orig, CassetteBlock block) {
+			if (false && !block.Visible) {
+				block.Collidable = (block as CustomCassetteBlock).virtualCollidable;
+				orig(block);
+				block.Collidable = false;
+			} else {
+				orig(block);
+			}
 		}
 
 		private static void modLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes introType, bool isFromLoader = false) {
