@@ -449,7 +449,7 @@ namespace Celeste.Mod.CommunalHelper {
 
 		private bool MoveCheck(Vector2 speed) {
 			if (speed.X != 0f) {
-				if (CollideCheck<DreamBlock>(Position + speed.XComp())) {
+				if (!noCollide || CollideCheck<DreamBlock>(Position + speed.XComp())) {
 					if (MoveHCollideSolids(speed.X, thruDashBlocks: false)) {
 						for (int i = 1; i <= 3; i++) {
 							for (int num = 1; num >= -1; num -= 2) {
@@ -469,7 +469,7 @@ namespace Celeste.Mod.CommunalHelper {
                 }
 			}
 			if (speed.Y != 0f) {
-				if (CollideCheck<DreamBlock>(Position + speed.YComp())) {
+				if (!noCollide || CollideCheck<DreamBlock>(Position + speed.YComp())) {
 					if (MoveVCollideSolids(speed.Y, thruDashBlocks: false)) {
 						for (int j = 1; j <= 3; j++) {
 							for (int num2 = 1; num2 >= -1; num2 -= 2) {
@@ -600,26 +600,28 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
 		private void ScrapeParticles(Vector2 dir) {
-			bool collidable = Collidable;
-			Collidable = false;
-			if (dir.X != 0f) {
-				float x = (!(dir.X > 0f)) ? (base.Left - 1f) : base.Right;
-				for (int i = 0; (float)i < base.Height; i += 8) {
-					Vector2 vector = new Vector2(x, base.Top + 4f + (float)i);
-					if (base.Scene.CollideCheck<Solid>(vector)) {
-						SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector);
+			if (!noCollide) {
+				bool collidable = Collidable;
+				Collidable = false;
+				if (dir.X != 0f) {
+					float x = (!(dir.X > 0f)) ? (base.Left - 1f) : base.Right;
+					for (int i = 0; (float)i < base.Height; i += 8) {
+						Vector2 vector = new Vector2(x, base.Top + 4f + (float)i);
+						if (base.Scene.CollideCheck<Solid>(vector)) {
+							SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector);
+						}
+					}
+				} else {
+					float y = (!(dir.Y > 0f)) ? (base.Top - 1f) : base.Bottom;
+					for (int j = 0; (float)j < base.Width; j += 8) {
+						Vector2 vector2 = new Vector2(base.Left + 4f + (float)j, y);
+						if (base.Scene.CollideCheck<Solid>(vector2)) {
+							SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector2);
+						}
 					}
 				}
-			} else {
-				float y = (!(dir.Y > 0f)) ? (base.Top - 1f) : base.Bottom;
-				for (int j = 0; (float)j < base.Width; j += 8) {
-					Vector2 vector2 = new Vector2(base.Left + 4f + (float)j, y);
-					if (base.Scene.CollideCheck<Solid>(vector2)) {
-						SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector2);
-					}
-				}
+				Collidable = true;
 			}
-			Collidable = true;
 		}
 	}
 }

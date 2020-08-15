@@ -23,6 +23,8 @@ namespace Celeste.Mod.CommunalHelper {
 		protected Vector2 blockOffset = Vector2.Zero;
 		private bool dynamicHitbox;
 		private Hitbox[] hitboxes;
+
+		public bool present = true;
 		public bool virtualCollidable = true;
 
 		public DynData<CassetteBlock> blockData;
@@ -49,13 +51,14 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public override void Update() {
-			if (!Visible) {
+			if (!present) {
 				Collidable = virtualCollidable;
             }
-            base.Update();
+			base.Update();
 			virtualCollidable = Collidable;
-			if (!Visible) {
+			if (!present) {
 				Collidable = false;
+				DisableStaticMovers();
             }
         }
 
@@ -89,15 +92,20 @@ namespace Celeste.Mod.CommunalHelper {
 			blockHeight -= amount;
 			blockOffset = (2 - blockHeight) * Vector2.UnitY;
 			if (dynamicHitbox) {
-				if (blockHeight < 0 || blockHeight > 2) {
-					Util.log("blockHeight:" + blockHeight);
-                }
-				Collider = hitboxes[Calc.Clamp(blockHeight, 0, 2)];
+				Collider = hitboxes[blockHeight];
             }
 		}
 
 		public virtual void HandleUpdateVisualState() {
+			blockData.Get<Entity>("side").Visible &= Visible;
+			foreach (StaticMover staticMover in staticMovers) {
+				staticMover.Visible = Visible;
+			}
+		}
 
+		protected void UpdatePresent(bool present) {
+			this.present = present;
+			Collidable = present && virtualCollidable;
         }
 	}
 
@@ -108,7 +116,6 @@ namespace Celeste.Mod.CommunalHelper {
 		public static void Hook() {
             On.Celeste.CassetteBlock.ShiftSize += modShiftSize;
 			On.Celeste.CassetteBlock.UpdateVisualState += modUpdateVisualState;
-            On.Celeste.CassetteBlock.WillToggle += modWillToggle;
 			On.Celeste.Level.LoadLevel += modLoadLevel;
             On.Celeste.Level.LoadCustomEntity += modLoadCustomEntity;
             On.Monocle.EntityList.UpdateLists += modUpdateLists;
@@ -117,7 +124,6 @@ namespace Celeste.Mod.CommunalHelper {
         public static void Unhook() {
             On.Celeste.CassetteBlock.ShiftSize -= modShiftSize;
 			On.Celeste.CassetteBlock.UpdateVisualState -= modUpdateVisualState;
-			On.Celeste.CassetteBlock.WillToggle -= modWillToggle;
 			On.Celeste.Level.LoadLevel -= modLoadLevel;
             On.Celeste.Level.LoadCustomEntity -= modLoadCustomEntity;
 			On.Monocle.EntityList.UpdateLists -= modUpdateLists;
@@ -145,16 +151,6 @@ namespace Celeste.Mod.CommunalHelper {
 		private static void modUpdateVisualState(On.Celeste.CassetteBlock.orig_UpdateVisualState orig, CassetteBlock block) {
 			orig(block);
 			(block as CustomCassetteBlock)?.HandleUpdateVisualState();
-		}
-
-		private static void modWillToggle(On.Celeste.CassetteBlock.orig_WillToggle orig, CassetteBlock block) {
-			if (false && !block.Visible) {
-				block.Collidable = (block as CustomCassetteBlock).virtualCollidable;
-				orig(block);
-				block.Collidable = false;
-			} else {
-				orig(block);
-			}
 		}
 
 		private static void modLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes introType, bool isFromLoader = false) {

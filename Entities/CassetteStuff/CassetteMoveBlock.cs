@@ -351,20 +351,18 @@ namespace Celeste.Mod.CommunalHelper {
 					}
 				}
 				Vector2 newPosition = startPosition + blockOffset;
-				Util.log("blockOffset: " + blockOffset);
 				MoveStaticMovers(newPosition - Position);
-				DisableStaticMovers();
 				Position = newPosition;
-				Visible = (Collidable = false);
-				yield return 2.2f;
+				Visible = false;
+				UpdatePresent(false);
+                yield return 2.2f;
 				foreach (Debris d2 in debris) {
 					d2.StopMoving();
 				}
 				while (CollideCheck<Actor>() || CollideCheck<Solid>()) {
 					yield return null;
 				}
-				Collidable = virtualCollidable;
-				Util.log("collidable: " + Collidable);
+				UpdatePresent(true);
 				EventInstance sound = Audio.Play("event:/game/04_cliffside/arrowblock_reform_begin", debris[0].Position);
 				Coroutine component;
 				Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(sound, debris));
@@ -383,7 +381,9 @@ namespace Celeste.Mod.CommunalHelper {
 				}
 				Audio.Play("event:/game/04_cliffside/arrowblock_reappear", Position);
 				Visible = true;
-				EnableStaticMovers();
+				if (Collidable) {
+					EnableStaticMovers();
+				}
 				speed = (targetSpeed = 0f);
 				angle = (targetAngle = homeAngle);
 				noSquish = null;
@@ -484,8 +484,7 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
 		public override void HandleUpdateVisualState() {
-			blockData.Get<Entity>("side").Visible &= Visible;
-
+			base.HandleUpdateVisualState();
 			bool crossVisible = state == MovementState.Breaking;
 			arrow.Visible &= !crossVisible;
 			arrowPressed.Visible &= !crossVisible;
