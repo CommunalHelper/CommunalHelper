@@ -43,10 +43,10 @@ Ahorn.resizable(entity::CassetteMoveBlock) = true, true
 Ahorn.selection(entity::CassetteMoveBlock) = Ahorn.getEntityRectangle(entity)
 
 const arrows = Dict{String, String}(
-    "up" => "objects/CommunalHelper/dreamMoveBlock/arrow02",
-    "left" => "objects/CommunalHelper/dreamMoveBlock/arrow04",
-    "right" => "objects/CommunalHelper/dreamMoveBlock/arrow00",
-    "down" => "objects/CommunalHelper/dreamMoveBlock/arrow06",
+    "up" => "objects/CommunalHelper/cassetteMoveBlock/arrow02",
+    "left" => "objects/CommunalHelper/cassetteMoveBlock/arrow04",
+    "right" => "objects/CommunalHelper/cassetteMoveBlock/arrow00",
+    "down" => "objects/CommunalHelper/cassetteMoveBlock/arrow06",
 )
 
 const block = "objects/cassetteblock/solid"
@@ -73,7 +73,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::CassetteMoveBlock, 
     direction = lowercase(get(entity.data, "direction", "up"))
     arrowSprite = Ahorn.getSprite(arrows[lowercase(direction)], "Gameplay")
 
-    Ahorn.drawImage(ctx, arrowSprite, div(width - arrowSprite.width, 2), div(height - arrowSprite.height, 2))
+    Ahorn.drawImage(ctx, arrowSprite, div(width - arrowSprite.width, 2), div(height - arrowSprite.height, 2), tint=color)
 end
 
 end

@@ -33,6 +33,8 @@ Ahorn.nodeLimits(entity::DreamSwapBlock) = 1, 1
 Ahorn.minimumSize(entity::DreamSwapBlock) = 16, 16
 Ahorn.resizable(entity::DreamSwapBlock) = true, true
 
+const crossSprite = "objects/CommunalHelper/dreamMoveBlock/x"
+
 function Ahorn.selection(entity::DreamSwapBlock)
     x, y = Ahorn.position(entity)
     stopX, stopY = Int.(entity.data["nodes"][1])
@@ -104,6 +106,11 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock, 
 
     renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height)
     renderDreamSwapBlock(ctx, startX, startY, width, height, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
+
+    if Bool(get(entity.data, "noReturn", false))
+        noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")
+        Ahorn.drawImage(ctx, noReturnSprite, startX + div(width - noReturnSprite.width, 2), startY + div(height - noReturnSprite.height, 2))
+    end
 end
 
 end
