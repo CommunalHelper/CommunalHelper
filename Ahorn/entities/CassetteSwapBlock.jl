@@ -11,25 +11,34 @@ function swapFinalizer(entity)
 end
 
 @mapdef Entity "CommunalHelper/CassetteSwapBlock" CassetteSwapBlock(x::Integer, 
-                                                                  y::Integer, 
-                                                                  width::Integer=Maple.defaultBlockWidth, 
-                                                                  height::Integer=Maple.defaultBlockHeight,
-                                                                  index::Integer=0,
-                                                                  tempo::Number=1.0) 
+                                                                    y::Integer, 
+                                                                    width::Integer=Maple.defaultBlockWidth, 
+                                                                    height::Integer=Maple.defaultBlockHeight,
+                                                                    index::Integer=0,
+                                                                    tempo::Number=1.0,
+                                                                    noReturn::Bool=false) 
 
 const colorNames = Dict{String, Int}(
     "Blue" => 0,
     "Rose" => 1,
     "Bright Sun" => 2,
     "Malachite" => 3
-)   
+)
 
 const colors = Dict{Int, Ahorn.colorTupleType}(
     1 => (240, 73, 190, 255) ./ 255,
 	2 => (252, 220, 58, 255) ./ 255,
 	3 => (56, 224, 78, 255) ./ 255
-)             
-const defaultColor = (73, 170, 240, 255) ./ 255    
+)
+
+const ropeColors = Dict{Int, Ahorn.colorTupleType}(
+    1 => (194, 116, 171, 255) ./ 255,
+	2 => (227, 214, 148, 255) ./ 255,
+	3 => (128, 224, 141, 255) ./ 255
+)
+
+const defaultRopeColor = (110, 189, 245, 255) ./ 255
+const defaultColor = (73, 170, 240, 255) ./ 255
 
 
 const placements = Ahorn.PlacementDict(
@@ -63,29 +72,32 @@ function Ahorn.selection(entity::CassetteSwapBlock)
 end
 
 const block = "objects/cassetteblock/solid"
+const crossSprite = "objects/CommunalHelper/cassetteMoveBlock/x"
 
-function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number, trail::String)
+function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number, trail::String, index::Int)
     tilesWidth = div(width, 8)
     tilesHeight = div(height, 8)
 
+    ropeColor = get(ropeColors, index, defaultRopeColor)
+
     for i in 2:tilesWidth - 1
-        Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + 2, 6, 0, 8, 6)
-        Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + height - 8, 6, 14, 8, 6)
+        Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + 2, 6, 0, 8, 6, tint=ropeColor)
+        Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + height - 8, 6, 14, 8, 6, tint=ropeColor)
     end
 
     for i in 2:tilesHeight - 1
-        Ahorn.drawImage(ctx, trail, x + 2, y + (i - 1) * 8, 0, 6, 6, 8)
-        Ahorn.drawImage(ctx, trail, x + width - 8, y + (i - 1) * 8, 14, 6, 6, 8)
+        Ahorn.drawImage(ctx, trail, x + 2, y + (i - 1) * 8, 0, 6, 6, 8, tint=ropeColor)
+        Ahorn.drawImage(ctx, trail, x + width - 8, y + (i - 1) * 8, 14, 6, 6, 8, tint=ropeColor)
     end
 
     for i in 2:tilesWidth - 1, j in 2:tilesHeight - 1
-        Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + (j - 1) * 8, 6, 6, 8, 8)
+        Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + (j - 1) * 8, 6, 6, 8, 8, tint=ropeColor)
     end
 
-    Ahorn.drawImage(ctx, trail, x + width - 8, y + 2, 14, 0, 6, 6)
-    Ahorn.drawImage(ctx, trail, x + width - 8, y + height - 8, 14, 14, 6, 6)
-    Ahorn.drawImage(ctx, trail, x + 2, y + 2, 0, 0, 6, 6)
-    Ahorn.drawImage(ctx, trail, x + 2, y + height - 8, 0, 14, 6, 6)
+    Ahorn.drawImage(ctx, trail, x + width - 8, y + 2, 14, 0, 6, 6, tint=ropeColor)
+    Ahorn.drawImage(ctx, trail, x + width - 8, y + height - 8, 14, 14, 6, 6, tint=ropeColor)
+    Ahorn.drawImage(ctx, trail, x + 2, y + 2, 0, 0, 6, 6, tint=ropeColor)
+    Ahorn.drawImage(ctx, trail, x + 2, y + height - 8, 0, 14, 6, 6, tint=ropeColor)
 end
 
 function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::CassetteSwapBlock, room::Maple.Room)
@@ -125,13 +137,18 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::CassetteSwapBloc
     index = Int(get(entity.data, "index", 0))
     color = get(colors, index, defaultColor)
 
-    renderTrail(ctx, min(x, stopX), min(y, stopY), abs(x - stopX) + width, abs(y - stopY) + height, "objects/swapblock/target")
+    renderTrail(ctx, min(x, stopX), min(y, stopY), abs(x - stopX) + width, abs(y - stopY) + height, "objects/swapblock/target", index)
 
     for i in 1:tileWidth, j in 1:tileHeight
         tx = (i == 1) ? 0 : ((i == tileWidth) ? 16 : 8)
         ty = (j == 1) ? 0 : ((j == tileHeight) ? 16 : 8)
 
         Ahorn.drawImage(ctx, block, x + (i - 1) * 8, y + (j - 1) * 8, tx, ty, 8, 8, tint=color)
+    end
+
+    if Bool(get(entity.data, "noReturn", false))
+        noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")
+        Ahorn.drawImage(ctx, noReturnSprite, x + div(width - noReturnSprite.width, 2), y + div(height - noReturnSprite.height, 2), tint=color)
     end
 end
 

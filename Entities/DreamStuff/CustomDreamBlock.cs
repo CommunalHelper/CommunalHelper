@@ -45,13 +45,13 @@ namespace Celeste.Mod.CommunalHelper {
         private ParticleType shakeParticle;
         private float[] particleRemainders = new float[4];
 
-        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool altLineColor = false)
+        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse)
             : base(position, width, height, null, false, false) {
             this.featherMode = featherMode;
             this.oneUse = oneUse;
-            if (altLineColor) {
-                activeLineColor = Calc.HexToColor("FF66D9");
-            }
+            //if (altLineColor) { Dropped in favour of symbol
+            //    activeLineColor = Calc.HexToColor("FF66D9"); 
+            //}
             shakeParticle = new ParticleType(SwitchGate.P_Behind) {
                 Color = activeLineColor,
                 ColorMode = ParticleType.ColorModes.Static,

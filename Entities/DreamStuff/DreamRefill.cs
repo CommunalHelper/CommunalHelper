@@ -154,10 +154,10 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
 		private void OnPlayer(Player player) {
-			if (player.Stamina < 20f || !DreamRefillHooks.hasDreamTunnelDash) {
+			if (player.Stamina < 20f || !DreamRefillHooks.HasDreamTunnelDash) {
 				player.RefillDash();
 				player.RefillStamina();
-				DreamRefillHooks.hasDreamTunnelDash = true;
+				DreamRefillHooks.HasDreamTunnelDash = true;
 
 				Audio.Play("event:/CommunalHelperEvents/game/dreamRefill/dream_refill_touch", Position);
 				Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
@@ -204,7 +204,11 @@ namespace Celeste.Mod.CommunalHelper {
 		#endregion
 
 		public static int StDreamTunnelDash;
-		public static bool hasDreamTunnelDash = false;
+		private static bool hasDreamTunnelDash = false;
+		public static bool HasDreamTunnelDash {
+			get { return hasDreamTunnelDash || CommunalHelperModule.Settings.AlwaysActiveDreamRefillCharge; }
+			set { hasDreamTunnelDash = value; }
+        }
 		public static bool dreamTunnelDashAttacking = false;
 
 		private static Color[] dreamTrailColors;
@@ -231,7 +235,8 @@ namespace Celeste.Mod.CommunalHelper {
             On.Celeste.Player.Die += modDie;
             On.Celeste.Player.UpdateSprite += modUpdateSprite;
 			On.Celeste.Player.IsRiding_Solid += modIsRiding;
-        }
+			On.Celeste.Player.SceneEnd += modSceneEnd;
+		}
 
 		public static void Unhook() {
             On.Celeste.Player.ctor -= modPlayerCtor;
@@ -244,6 +249,7 @@ namespace Celeste.Mod.CommunalHelper {
             On.Celeste.Player.Die -= modDie;
             On.Celeste.Player.UpdateSprite -= modUpdateSprite;
 			On.Celeste.Player.IsRiding_Solid -= modIsRiding;
+			On.Celeste.Player.SceneEnd -= modSceneEnd;
 		}
 
 		// Adds custom dream tunnel dash state
@@ -257,9 +263,9 @@ namespace Celeste.Mod.CommunalHelper {
 		// Dream tunnel dash triggering
 		private static void modDashBegin(On.Celeste.Player.orig_DashBegin orig, Player player) {
 			orig(player);
-			if (hasDreamTunnelDash) {
+			if (HasDreamTunnelDash) {
 				dreamTunnelDashAttacking = true;
-				hasDreamTunnelDash = false;
+				HasDreamTunnelDash = false;
 
 				// Ensures the player enters the dream tunnel dash state if dashing into a fast moving block
 				var playerData = getPlayerData(player);
@@ -280,7 +286,7 @@ namespace Celeste.Mod.CommunalHelper {
 			orig(player);
 			
 			Level level = player.Scene as Level;
-			if (hasDreamTunnelDash && level.OnInterval(0.1f))
+			if (HasDreamTunnelDash && level.OnInterval(0.1f))
 			{
 				CreateDreamTrail(player);
 			}
@@ -462,7 +468,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
 		}
 		private static bool dreamTunnelDashCheck(Player player, Vector2 direction) {
-			if (dreamTunnelDashAttacking || player.DashAttacking && hasDreamTunnelDash) {
+			if ((dreamTunnelDashAttacking || player.DashAttacking && HasDreamTunnelDash) && Vector2.Dot(player.DashDir, direction) > 0f) {
 				Vector2 perpendicular = new Vector2(Math.Abs(direction.Y), Math.Abs(direction.X));
 
 				// Dream block checking
@@ -528,7 +534,7 @@ namespace Celeste.Mod.CommunalHelper {
 
 		// Fixes bug with dreamSfx soundsource not being stopped
 		private static PlayerDeadBody modDie(On.Celeste.Player.orig_Die orig, Player player, Vector2 dir, bool evenIfInvincible = false, bool registerDeathInStats = true) {
-			hasDreamTunnelDash = false;
+			HasDreamTunnelDash = false;
 			SoundSource dreamSfxLoop = getPlayerData(player).Get<SoundSource>("dreamSfxLoop");
 			if (dreamSfxLoop != null) {
 				dreamSfxLoop.Stop();
@@ -553,6 +559,11 @@ namespace Celeste.Mod.CommunalHelper {
 				return player.CollideCheck(solid);
             }
 			return orig(player, solid);
+        }
+
+		private static void modSceneEnd(On.Celeste.Player.orig_SceneEnd orig, Player player, Scene scene) {
+			orig(player, scene);
+			HasDreamTunnelDash = false;
         }
 
 		#region Misc

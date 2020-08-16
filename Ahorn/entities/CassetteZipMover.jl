@@ -7,7 +7,8 @@ using ..Ahorn, Maple
                                                                   width::Integer=Maple.defaultBlockWidth, 
                                                                   height::Integer=Maple.defaultBlockHeight,
                                                                   index::Integer=0,
-                                                                  tempo::Number=1.0) 
+                                                                  tempo::Number=1.0,
+                                                                  noReturn::Bool=false) 
 
 const colorNames = Dict{String, Int}(
     "Blue" => 0,
@@ -66,6 +67,7 @@ end
 function getTextures(entity::CassetteZipMover)
     return "objects/cassetteblock/solid", "objects/CommunalHelper/cassetteZipMover/cog"
 end
+const crossSprite = "objects/CommunalHelper/cassetteMoveBlock/x"
 
 function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZipMover)
     x, y = Ahorn.position(entity)
@@ -108,6 +110,11 @@ function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZ
         ty = (j == 1) ? 0 : ((j == tilesHeight) ? 16 : 8)
 
         Ahorn.drawImage(ctx, block, x + (i - 1) * 8, y + (j - 1) * 8, tx, ty, 8, 8, tint=color)
+    end
+
+    if Bool(get(entity.data, "noReturn", false))
+        noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")
+        Ahorn.drawImage(ctx, noReturnSprite, x + div(width - noReturnSprite.width, 2), y + div(height - noReturnSprite.height, 2), tint=color)
     end
 end
 
