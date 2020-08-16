@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
 
-namespace Celeste.Mod.CommunalHelper {
+namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/SyncedZipMoverActivationController")]
     [Tracked]
     class SyncedZipMoverActivationController : Entity {

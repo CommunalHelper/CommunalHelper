@@ -6,7 +6,7 @@ using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
 
-namespace Celeste.Mod.CommunalHelper
+namespace Celeste.Mod.CommunalHelper.Entities
 {
 	[CustomEntity("CommunalHelper/AttachedWallBooster")]
 	[Tracked(false)]
