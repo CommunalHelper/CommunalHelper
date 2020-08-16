@@ -11,7 +11,7 @@ using System.Collections.Generic;
 // Dealing with the period of non collidability when respawning
 // fix static movers during respawn
 // fix block staying collidable after breaking
-namespace Celeste.Mod.CommunalHelper {
+namespace Celeste.Mod.CommunalHelper.Entities {
 	[CustomEntity("CommunalHelper/CassetteMoveBlock")]
 	[TrackedAs(typeof(CassetteBlock))]
 	class CassetteMoveBlock : CustomCassetteBlock {
@@ -54,8 +54,8 @@ namespace Celeste.Mod.CommunalHelper {
 
 			public Debris()
 				: base(Vector2.Zero) {
-				base.Tag = Tags.TransitionUpdate;
-				base.Collider = new Hitbox(4f, 4f, -2f, -2f);
+                Tag = Tags.TransitionUpdate;
+                Collider = new Hitbox(4f, 4f, -2f, -2f);
 				Add(sprite = new Image(Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/debris"))));
 				sprite.CenterOrigin();
 				sprite.FlipX = Calc.Random.Chance(0.5f);
@@ -97,7 +97,7 @@ namespace Celeste.Mod.CommunalHelper {
 				sprite.Color = block.Collidable ? color : pressedColor;
 				alpha = 1f;
 				firstHit = false;
-				spin = Calc.Random.Range(3.49065852f, 10.4719753f) * (float)Calc.Random.Choose(1, -1);
+				spin = Calc.Random.Range(3.49065852f, 10.4719753f) * Calc.Random.Choose(1, -1);
 				return this;
 			}
 
@@ -112,7 +112,7 @@ namespace Celeste.Mod.CommunalHelper {
 						MoveH(speed.X * Engine.DeltaTime, onCollideH);
 						MoveV(speed.Y * Engine.DeltaTime, onCollideV);
 					}
-					if (shaking && base.Scene.OnInterval(0.05f)) {
+					if (shaking && Scene.OnInterval(0.05f)) {
 						sprite.X = -1 + Calc.Random.Next(3);
 						sprite.Y = -1 + Calc.Random.Next(3);
 					}
@@ -122,7 +122,7 @@ namespace Celeste.Mod.CommunalHelper {
 					sprite.Scale = Vector2.One * (1f + returnEase * 0.5f);
 				}
 				sprite.Color = block.Activated ? color : pressedColor;
-				if ((base.Scene as Level).Transitioning) {
+				if ((Scene as Level).Transitioning) {
 					alpha = Calc.Approach(alpha, 0f, Engine.DeltaTime * 4f);
 					sprite.Color *= alpha;
 				}
@@ -139,19 +139,19 @@ namespace Celeste.Mod.CommunalHelper {
 			}
 
 			public void ReturnHome(float duration) {
-				if (base.Scene != null) {
-					Camera camera = (base.Scene as Level).Camera;
-					if (base.X < camera.X) {
-						base.X = camera.X - 8f;
+				if (Scene != null) {
+					Camera camera = (Scene as Level).Camera;
+					if (X < camera.X) {
+                        X = camera.X - 8f;
 					}
-					if (base.Y < camera.Y) {
-						base.Y = camera.Y - 8f;
+					if (Y < camera.Y) {
+                        Y = camera.Y - 8f;
 					}
-					if (base.X > camera.X + 320f) {
-						base.X = camera.X + 320f + 8f;
+					if (X > camera.X + 320f) {
+                        X = camera.X + 320f + 8f;
 					}
-					if (base.Y > camera.Y + 180f) {
-						base.Y = camera.Y + 180f + 8f;
+					if (Y > camera.Y + 180f) {
+                        Y = camera.Y + 180f + 8f;
 					}
 				}
 				returning = true;
@@ -246,16 +246,16 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
         public override void Awake(Scene scene) {
-			int index = (int)Math.Floor((0f - angle + (float)Math.PI * 2f) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f + 0.5f);
-			arrow = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index]);
-			arrowPressed = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index]);
-			cross = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/x"]);
-			crossPressed = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xPressed"]);
+            int index = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
+            arrow = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index]);
+            arrowPressed = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index]);
+            cross = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/x"]);
+            crossPressed = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xPressed"]);
 
-			base.Awake(scene);
-			AddCenterSymbol(arrow, arrowPressed);
-			AddCenterSymbol(cross, crossPressed);
-		}
+            base.Awake(scene);
+            AddCenterSymbol(arrow, arrowPressed);
+            AddCenterSymbol(cross, crossPressed);
+        }
 
         private IEnumerator Controller() {
 			while (true) {
@@ -307,7 +307,7 @@ namespace Celeste.Mod.CommunalHelper {
 								ScrapeParticles(-Vector2.UnitX);
 							}
 						}
-						if (direction == Directions.Down && Top > (float)(SceneAs<Level>().Bounds.Bottom + 32)) {
+						if (direction == Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
 							hit = true;
 						}
 					}
@@ -327,7 +327,7 @@ namespace Celeste.Mod.CommunalHelper {
 						}
 					}
 					Level level = Scene as Level;
-					if (Left < (float)level.Bounds.Left || Top < (float)level.Bounds.Top || Right > (float)level.Bounds.Right) {
+					if (Left < level.Bounds.Left || Top < level.Bounds.Top || Right > level.Bounds.Right) {
 						break;
 					}
 					yield return null;
@@ -342,9 +342,9 @@ namespace Celeste.Mod.CommunalHelper {
 				yield return 0.2f;
 				BreakParticles();
 				List<Debris> debris = new List<Debris>();
-				for (int x = 0; (float)x < Width; x += 8) {
-					for (int y = 0; (float)y < Height; y += 8) {
-						Vector2 offset = new Vector2((float)x + 4f, (float)y + 4f);
+				for (int x = 0; x < Width; x += 8) {
+					for (int y = 0; y < Height; y += 8) {
+						Vector2 offset = new Vector2(x + 4f, y + 4f);
 						Debris d = Engine.Pooler.Create<Debris>().Init(this, Position + offset, Center, startPosition + offset, color);
 						debris.Add(d);
 						Scene.Add(d);
@@ -401,7 +401,7 @@ namespace Celeste.Mod.CommunalHelper {
 				foreach (Debris d in debris) {
 					center += d.Position;
 				}
-				center /= (float)debris.Count;
+				center /= debris.Count;
 				Audio.Position(instance, center);
 				yield return null;
 			}
@@ -422,7 +422,7 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
 		public override void MoveHExact(int move) {
-			if (noSquish != null && ((move < 0 && noSquish.X < base.X) || (move > 0 && noSquish.X > base.X))) {
+			if (noSquish != null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X))) {
 				while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + Vector2.UnitX * move)) {
 					move -= Math.Sign(move);
 				}
@@ -431,7 +431,7 @@ namespace Celeste.Mod.CommunalHelper {
 		}
 
 		public override void MoveVExact(int move) {
-			if (noSquish != null && move < 0 && noSquish.Y <= base.Y) {
+			if (noSquish != null && move < 0 && noSquish.Y <= Y) {
 				while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + Vector2.UnitY * move)) {
 					move -= Math.Sign(move);
 				}
@@ -477,9 +477,9 @@ namespace Celeste.Mod.CommunalHelper {
 
 		public override void Render() {
 			Vector2 position = Position;
-			Position += base.Shake;
+			Position += Shake;
 			base.Render();float num = flash * 4f;
-			Draw.Rect(base.X - num, base.Y - num, base.Width + num * 2f, base.Height + num * 2f, Color.White * flash);
+			Draw.Rect(X - num, Y - num, Width + num * 2f, Height + num * 2f, Color.White * flash);
 			Position = position;
 		}
 
@@ -497,22 +497,22 @@ namespace Celeste.Mod.CommunalHelper {
 			bool flag3 = !CollideCheck<Player>(Position + Vector2.UnitX);
 			bool flag4 = !CollideCheck<Player>(Position - Vector2.UnitY);
 			if (flag2) {
-				SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(base.Height / 2f), base.CenterLeft, Vector2.UnitY * (base.Height - 4f) * 0.5f, (float)Math.PI);
+				SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(Height / 2f), CenterLeft, Vector2.UnitY * (Height - 4f) * 0.5f, (float)Math.PI);
 			}
 			if (flag3) {
-				SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(base.Height / 2f), base.CenterRight, Vector2.UnitY * (base.Height - 4f) * 0.5f, 0f);
+				SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(Height / 2f), CenterRight, Vector2.UnitY * (Height - 4f) * 0.5f, 0f);
 			}
 			if (flag4) {
-				SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(base.Width / 2f), base.TopCenter, Vector2.UnitX * (base.Width - 4f) * 0.5f, -(float)Math.PI / 2f);
+				SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(Width / 2f), TopCenter, Vector2.UnitX * (Width - 4f) * 0.5f, -(float)Math.PI / 2f);
 			}
-			SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(base.Width / 2f), base.BottomCenter, Vector2.UnitX * (base.Width - 4f) * 0.5f, (float)Math.PI / 2f);
+			SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(Width / 2f), BottomCenter, Vector2.UnitX * (Width - 4f) * 0.5f, (float)Math.PI / 2f);
 		}
 
 		private void BreakParticles() {
-			Vector2 center = base.Center;
+			Vector2 center = Center;
 			ParticleType particle = Collidable ? P_Break : P_BreakPressed;
-			for (int i = 0; (float)i < base.Width; i += 4) {
-				for (int j = 0; (float)j < base.Height; j += 4) {
+			for (int i = 0; i < Width; i += 4) {
+				for (int j = 0; j < Height; j += 4) {
 					Vector2 vector = Position + new Vector2(2 + i, 2 + j);
 					SceneAs<Level>().Particles.Emit(particle, 1, vector, Vector2.One * 2f, (vector - center).Angle());
 				}
@@ -525,25 +525,25 @@ namespace Celeste.Mod.CommunalHelper {
 			float num;
 			float num2;
 			if (direction == Directions.Right) {
-				position = base.CenterLeft + Vector2.UnitX;
-				positionRange = Vector2.UnitY * (base.Height - 4f);
+				position = CenterLeft + Vector2.UnitX;
+				positionRange = Vector2.UnitY * (Height - 4f);
 				num = (float)Math.PI;
-				num2 = base.Height / 32f;
+				num2 = Height / 32f;
 			} else if (direction == Directions.Left) {
-				position = base.CenterRight;
-				positionRange = Vector2.UnitY * (base.Height - 4f);
+				position = CenterRight;
+				positionRange = Vector2.UnitY * (Height - 4f);
 				num = 0f;
-				num2 = base.Height / 32f;
+				num2 = Height / 32f;
 			} else if (direction == Directions.Down) {
-				position = base.TopCenter + Vector2.UnitY;
-				positionRange = Vector2.UnitX * (base.Width - 4f);
+				position = TopCenter + Vector2.UnitY;
+				positionRange = Vector2.UnitX * (Width - 4f);
 				num = -(float)Math.PI / 2f;
-				num2 = base.Width / 32f;
+				num2 = Width / 32f;
 			} else {
-				position = base.BottomCenter;
-				positionRange = Vector2.UnitX * (base.Width - 4f);
+				position = BottomCenter;
+				positionRange = Vector2.UnitX * (Width - 4f);
 				num = (float)Math.PI / 2f;
-				num2 = base.Width / 32f;
+				num2 = Width / 32f;
 			}
 			particleRemainder += num2;
 			int num3 = (int)particleRemainder;
@@ -558,18 +558,18 @@ namespace Celeste.Mod.CommunalHelper {
 			if (Collidable) {
 				Collidable = false;
 				if (dir.X != 0f) {
-					float x = (!(dir.X > 0f)) ? (base.Left - 1f) : base.Right;
-					for (int i = 0; (float)i < base.Height; i += 8) {
-						Vector2 vector = new Vector2(x, base.Top + 4f + (float)i);
-						if (base.Scene.CollideCheck<Solid>(vector)) {
+					float x = (!(dir.X > 0f)) ? (Left - 1f) : Right;
+					for (int i = 0; i < Height; i += 8) {
+						Vector2 vector = new Vector2(x, Top + 4f + i);
+						if (Scene.CollideCheck<Solid>(vector)) {
 							SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector);
 						}
 					}
 				} else {
-					float y = (!(dir.Y > 0f)) ? (base.Top - 1f) : base.Bottom;
-					for (int j = 0; (float)j < base.Width; j += 8) {
-						Vector2 vector2 = new Vector2(base.Left + 4f + (float)j, y);
-						if (base.Scene.CollideCheck<Solid>(vector2)) {
+					float y = (!(dir.Y > 0f)) ? (Top - 1f) : Bottom;
+					for (int j = 0; j < Width; j += 8) {
+						Vector2 vector2 = new Vector2(Left + 4f + j, y);
+						if (Scene.CollideCheck<Solid>(vector2)) {
 							SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector2);
 						}
 					}

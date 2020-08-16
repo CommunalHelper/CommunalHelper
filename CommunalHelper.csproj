@@ -7,7 +7,7 @@
     <ProjectGuid>{4B823A36-051A-46CB-BB86-041DCAE8EE76}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CommunalHelper</RootNamespace>
+    <RootNamespace>Celeste.Mod.CommunalHelper</RootNamespace>
     <AssemblyName>CommunalHelper</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -43,8 +43,21 @@
       <HintPath>..\..\MMHOOK_Celeste.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoMod">
+      <HintPath>..\..\MonoMod.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>..\..\MonoMod.RuntimeDetour.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="MonoMod.Utils">
       <HintPath>..\..\MonoMod.Utils.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -61,18 +74,21 @@
     <Compile Include="Entities\CassetteStuff\CassetteSwapBlock.cs" />
     <Compile Include="Entities\CassetteStuff\CassetteZipMover.cs" />
     <Compile Include="Entities\CassetteStuff\CustomCassetteBlock.cs" />
+    <Compile Include="Entities\DreamStuff\DreamFallingBlock.cs" />
     <Compile Include="Entities\DreamStuff\CustomDreamBlock.cs" />
     <Compile Include="Entities\DreamStuff\ConnectedDreamBlock.cs" />
-    <Compile Include="Entities\DreamStuff\DreamFallingBlock.cs" />
+    <Compile Include="Entities\DreamStuff\DreamTunnelDash.cs" />
     <Compile Include="Entities\DreamStuff\DreamMoveBlock.cs" />
     <Compile Include="Entities\DreamStuff\DreamRefill.cs" />
     <Compile Include="Entities\DreamStuff\DreamSwapBlock.cs" />
     <Compile Include="Entities\DreamStuff\DreamZipMover.cs" />
-    <Compile Include="Entities\Misc\AttachedWallBooster.cs" />
     <Compile Include="Entities\StationBlock\StationBlock.cs" />
     <Compile Include="Entities\StationBlock\StationBlockTrack.cs" />
+    <Compile Include="Entities\Misc\AttachedWallBooster.cs" />
     <Compile Include="Entities\Misc\SyncedZipMoverActivationController.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sounds.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

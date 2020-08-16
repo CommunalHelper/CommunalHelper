@@ -4,7 +4,7 @@ using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
 
-namespace Celeste.Mod.CommunalHelper {
+namespace Celeste.Mod.CommunalHelper.Entities {
     abstract class CustomCassetteBlock : CassetteBlock {
 		static int[] typeCounts = new int[4];
 
@@ -29,25 +29,26 @@ namespace Celeste.Mod.CommunalHelper {
 
 		public DynData<CassetteBlock> blockData;
 
-		public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, int typeIndex, float tempo, bool dynamicHitbox = false) 
-			: base(position, id, width, height, index, tempo) {
-			beforeIndex = index;
-			color = colorOptions[index];
-			pressedColor = color.Mult(Calc.HexToColor("667da5"));
+        public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, int typeIndex, float tempo, bool dynamicHitbox = false)
+            : base(position, id, width, height, index, tempo) {
+            beforeIndex = index;
+            color = colorOptions[index];
+            pressedColor = color.Mult(Calc.HexToColor("667da5"));
             Index = typeCounts[typeIndex] * typeCounts.Length * 4 + index + 4;
             ++typeCounts[typeIndex];
-			this.dynamicHitbox = dynamicHitbox;
-			if (dynamicHitbox) {
-				hitboxes = new Hitbox[3];
-				hitboxes[0] = new Hitbox(Collider.Width, Collider.Height - 2);
-				hitboxes[1] = new Hitbox(Collider.Width, Collider.Height - 1);
-				hitboxes[2] = Collider as Hitbox;
-			}
-		}
+
+            this.dynamicHitbox = dynamicHitbox;
+            if (dynamicHitbox) {
+                hitboxes = new Hitbox[3];
+                hitboxes[0] = new Hitbox(Collider.Width, Collider.Height - 2);
+                hitboxes[1] = new Hitbox(Collider.Width, Collider.Height - 1);
+                hitboxes[2] = Collider as Hitbox;
+            }
+        }
 
         public override void Awake(Scene scene) {
-			blockData = new DynData<CassetteBlock>(this);
-			base.Awake(scene);
+            blockData = new DynData<CassetteBlock>(this);
+            base.Awake(scene);
         }
 
         public override void Update() {
@@ -63,30 +64,30 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public void ResetIndex() {
-			Index = beforeIndex;
+            Index = beforeIndex;
         }
 
-		protected void AddCenterSymbol(Image solid, Image pressed) {
-			blockData.Get<List<Image>>("solid").Add(solid);
-			blockData.Get<List<Image>>("pressed").Add(pressed);
-			List<Image> all = blockData.Get<List<Image>>("all");
-			Vector2 origin = blockData.Get<Vector2>("groupOrigin") - Position;
-			Vector2 size = new Vector2(Width, Height);
+        protected void AddCenterSymbol(Image solid, Image pressed) {
+            blockData.Get<List<Image>>("solid").Add(solid);
+            blockData.Get<List<Image>>("pressed").Add(pressed);
+            List<Image> all = blockData.Get<List<Image>>("all");
+            Vector2 origin = blockData.Get<Vector2>("groupOrigin") - Position;
+            Vector2 size = new Vector2(Width, Height);
 
-			Vector2 value = (size - new Vector2(solid.Width, solid.Height)) * 0.5f;
-			solid.Origin = origin - value;
-			solid.Position = origin;
-			solid.Color = color;
-			Add(solid);
-			all.Add(solid);
+            Vector2 value = (size - new Vector2(solid.Width, solid.Height)) * 0.5f;
+            solid.Origin = origin - value;
+            solid.Position = origin;
+            solid.Color = color;
+            Add(solid);
+            all.Add(solid);
 
-			value = (size - new Vector2(pressed.Width, pressed.Height)) * 0.5f;
-			pressed.Origin = origin - value;
-			pressed.Position = origin;
-			pressed.Color = color;
-			Add(pressed);
-			all.Add(pressed);
-		}
+            value = (size - new Vector2(pressed.Width, pressed.Height)) * 0.5f;
+            pressed.Origin = origin - value;
+            pressed.Position = origin;
+            pressed.Color = color;
+            Add(pressed);
+            all.Add(pressed);
+        }
 
 		public void HandleShiftSize(int amount) {
 			blockHeight -= amount;
@@ -115,35 +116,34 @@ namespace Celeste.Mod.CommunalHelper {
 
 		public static void Hook() {
             On.Celeste.CassetteBlock.ShiftSize += modShiftSize;
-			On.Celeste.CassetteBlock.UpdateVisualState += modUpdateVisualState;
-			On.Celeste.Level.LoadLevel += modLoadLevel;
+            On.Celeste.CassetteBlock.UpdateVisualState += modUpdateVisualState;
+            On.Celeste.Level.LoadLevel += modLoadLevel;
             On.Celeste.Level.LoadCustomEntity += modLoadCustomEntity;
             On.Monocle.EntityList.UpdateLists += modUpdateLists;
-		}
+        }
 
         public static void Unhook() {
             On.Celeste.CassetteBlock.ShiftSize -= modShiftSize;
-			On.Celeste.CassetteBlock.UpdateVisualState -= modUpdateVisualState;
-			On.Celeste.Level.LoadLevel -= modLoadLevel;
+            On.Celeste.CassetteBlock.UpdateVisualState -= modUpdateVisualState;
+            On.Celeste.Level.LoadLevel -= modLoadLevel;
             On.Celeste.Level.LoadCustomEntity -= modLoadCustomEntity;
 			On.Monocle.EntityList.UpdateLists -= modUpdateLists;
 		}
 
 		private static void modShiftSize(On.Celeste.CassetteBlock.orig_ShiftSize orig, CassetteBlock block, int amount) {
 			bool shift = true;
-			var cassetteBlock = block as CustomCassetteBlock;
-			if (cassetteBlock != null) {
-                if (block.Activated && block.CollideCheck<Player>()) { 
-                	amount *= -1;
+            if (block is CustomCassetteBlock cassetteBlock) {
+                if (block.Activated && block.CollideCheck<Player>()) {
+                    amount *= -1;
                 }
-				int newBlockHeight = cassetteBlock.blockHeight - amount;
-				if (newBlockHeight > 2 || newBlockHeight < 0) {
-					shift = false;
+                int newBlockHeight = cassetteBlock.blockHeight - amount;
+                if (newBlockHeight > 2 || newBlockHeight < 0) {
+                    shift = false;
                 } else {
-					cassetteBlock.HandleShiftSize(amount);
-				}
-			}
-			if (shift) {
+                    cassetteBlock.HandleShiftSize(amount);
+                }
+            }
+            if (shift) {
 				orig(block, amount);
 			}
 		}
@@ -205,10 +205,10 @@ namespace Celeste.Mod.CommunalHelper {
 					blocks.Add(entity as CustomCassetteBlock);
                 }
             }
-			orig(list);
-			foreach (var block in blocks) {
-				block.ResetIndex();
+            orig(list);
+            foreach (var block in blocks) {
+                block.ResetIndex();
             }
-		}
-	}
+        }
+    }
 }

@@ -1,117 +1,53 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Entities;
 using Monocle;
-using MonoMod.Utils;
 using System;
 using System.Collections;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperModule : EverestModule {
+
         public static CommunalHelperModule Instance;
 		public override Type SettingsType => typeof(CommunalHelperSettings);
 		public static CommunalHelperSettings Settings => (CommunalHelperSettings)Instance._Settings;
 
-		private static DynData<Player> _playerData = null;
-
-		#region Vanilla constants
-		private const float DashSpeed = 240f;
-		#endregion
-
-        #region Setup
 		public CommunalHelperModule() {
 			Instance = this;
         }
 
 		public override void Load() {
-            On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
-            On.Celeste.Player.DashCoroutine += modDashCoroutine;
+			DreamTunnelDash.Load();
+            DreamRefill.Load();
 
-            DreamRefillHooks.Hook();
-			CustomDreamBlockHooks.Hook();
+            CustomDreamBlock.Load();
             ConnectedDreamBlockHooks.Hook();
             CustomCassetteBlockHooks.Hook();
             SyncedZipMoverActivationControllerHooks.Hook();
-			AttachedWallBoosterHooks.Hook();
+			AttachedWallBooster.Hook();
         }
 
 		public override void Unload() {
-            On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
-            On.Celeste.Player.DashCoroutine -= modDashCoroutine;
+			DreamTunnelDash.Unload();
+            DreamRefill.Unload();
 
-			DreamRefillHooks.Unhook();
-			CustomDreamBlockHooks.Unhook();
-			ConnectedDreamBlockHooks.Unhook();
+            CustomDreamBlock.Unload();
+            ConnectedDreamBlockHooks.Unhook();
             CustomCassetteBlockHooks.Unhook();
             SyncedZipMoverActivationControllerHooks.Unhook();
-			AttachedWallBoosterHooks.Unhook();
+			AttachedWallBooster.Unhook();
 		}
 
 		public override void LoadContent(bool firstLoad) {
-			base.LoadContent(firstLoad);
 			StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
 			StationBlock.InitializeParticles();
-		}
-		#endregion
 
-        #region Ensures the player always properly enters a dream block even when it's moving fast
-        private void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
-            orig(player);
-            DreamBlock dreamBlock = getPlayerData(player).Get<DreamBlock>("dreamBlock");
-            if (dreamBlock is DreamZipMover || dreamBlock is DreamSwapBlock) {
-                player.Position.X += Math.Sign(player.DashDir.X);
-                player.Position.Y += Math.Sign(player.DashDir.Y);
-            }
-        }
-        #endregion
-
-        #region Allows downwards diagonal dream tunnel dashing when on the ground 
-        private static IEnumerator modDashCoroutine(On.Celeste.Player.orig_DashCoroutine orig, Player player) {
-			IEnumerator origEnum = orig(player);
-			origEnum.MoveNext();
-			yield return origEnum.Current;
-
-			bool forceDownwardDiagonalDash = false;
-			Vector2 origDashDir = Input.GetAimVector(player.Facing);
-			if (player.OnGround() && origDashDir.X != 0f && origDashDir.Y > 0f && DreamRefillHooks.dreamTunnelDashAttacking) {
-				forceDownwardDiagonalDash = true;
-			}
-			origEnum.MoveNext();
-			if (forceDownwardDiagonalDash) {
-				player.DashDir = origDashDir;
-				player.Speed = origDashDir * DashSpeed;
-				if (player.CanUnDuck) {
-					player.Ducking = false;
-				}
-			}
-			yield return origEnum.Current;
-
-			origEnum.MoveNext();
-		}
-        #endregion
-
-        #region Misc
-        public static Player getPlayer() {
-			return (Engine.Scene as Level).Tracker.GetEntity<Player>();
+            DreamTunnelDash.LoadContent();
+            DreamRefill.InitializeParticles();
         }
 
-		public static DynData<Player> getPlayerData(Player player) {
-            //if (_playerData != null && _playerData.Get<Level>("level") != null) {
-            //    return _playerData;
-            //}
-            return new DynData<Player>(player);
-        }
-		#endregion
 	}
 
 	public static class Util {
-		public static Color Mult(this Color color, Color other) {
-			color.R = (byte)(color.R * other.R / 256f);
-			color.G = (byte)(color.G * other.G / 256f);
-			color.B = (byte)(color.B * other.B / 256f);
-			color.A = (byte)(color.A * other.A / 256f);
-			return color;
-		}
-
 		public static void log(string str) {
 			Logger.Log("Communal Helper", str);
 		}
@@ -149,4 +85,5 @@ namespace Celeste.Mod.CommunalHelper {
 		private static FieldInfo StateMachine_coroutines = typeof(StateMachine).GetField("coroutines", BindingFlags.Instance | BindingFlags.NonPublic);
 	}
     #endregion
+
 }

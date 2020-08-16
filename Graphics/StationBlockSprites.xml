@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
-
-
 <Sprites>
 
 	<smallStationBlockArrow path="objects/CommunalHelper/stationBlock/arrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
+    <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
 	  <Loop id="IdleRight" path="small" frames="4" delay="0.04"/>
 	  <Loop id="IdleDown" path="small" frames="8" delay="0.04"/>
 	  <Loop id="IdleLeft" path="small" frames="12" delay="0.04"/>
@@ -34,9 +32,9 @@
 	</smallStationBlockArrow>
 	
 	<mediumStationBlockArrow path="objects/CommunalHelper/stationBlock/arrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
+    <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
 	  <Loop id="IdleRight" path="med" frames="4" delay="0.05"/>
 	  <Loop id="IdleDown" path="med" frames="8" delay="0.05"/>
 	  <Loop id="IdleLeft" path="med" frames="12" delay="0.05"/>
@@ -63,10 +61,10 @@
 	  <Anim id="LeftToDown" path="med" frames="12,11,10,9,8" delay="0.05" goto="IdleDown"/>
 	</mediumStationBlockArrow>
 	
-	<bigStationBlockArrow path="objects/CommunalHelper/stationBlock/arrow/" start="IdleUp">
-      <Center/>
+	<bigStationBlockArrow path="objects/CommunalHelper/stationBlock/arrow/" start="IdleUp">	
+    <Center/>
 	  
-      <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
+    <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
 	  <Loop id="IdleRight" path="big" frames="4" delay="0.06"/>
 	  <Loop id="IdleDown" path="big" frames="8" delay="0.06"/>
 	  <Loop id="IdleLeft" path="big" frames="12" delay="0.06"/>
@@ -94,9 +92,9 @@
 	</bigStationBlockArrow>
 	
 	<smallAltStationBlockArrow path="objects/CommunalHelper/stationBlock/altArrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
+    <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
 	  <Loop id="IdleRight" path="small" frames="4" delay="0.04"/>
 	  <Loop id="IdleDown" path="small" frames="8" delay="0.04"/>
 	  <Loop id="IdleLeft" path="small" frames="12" delay="0.04"/>
@@ -124,9 +122,9 @@
 	</smallAltStationBlockArrow>
 	
 	<mediumAltStationBlockArrow path="objects/CommunalHelper/stationBlock/altArrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
+    <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
 	  <Loop id="IdleRight" path="med" frames="4" delay="0.05"/>
 	  <Loop id="IdleDown" path="med" frames="8" delay="0.05"/>
 	  <Loop id="IdleLeft" path="med" frames="12" delay="0.05"/>
@@ -154,9 +152,9 @@
 	</mediumAltStationBlockArrow>
 	
 	<bigAltStationBlockArrow path="objects/CommunalHelper/stationBlock/altArrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
+    <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
 	  <Loop id="IdleRight" path="big" frames="4" delay="0.06"/>
 	  <Loop id="IdleDown" path="big" frames="8" delay="0.06"/>
 	  <Loop id="IdleLeft" path="big" frames="12" delay="0.06"/>
@@ -184,9 +182,9 @@
 	</bigAltStationBlockArrow>
 	
 	<smallMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/moonArrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
+    <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
 	  <Loop id="IdleRight" path="small" frames="4" delay="0.04"/>
 	  <Loop id="IdleDown" path="small" frames="8" delay="0.04"/>
 	  <Loop id="IdleLeft" path="small" frames="12" delay="0.04"/>
@@ -214,9 +212,9 @@
 	</smallMoonStationBlockArrow>
 	
 	<mediumMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/moonArrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
+    <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
 	  <Loop id="IdleRight" path="med" frames="4" delay="0.05"/>
 	  <Loop id="IdleDown" path="med" frames="8" delay="0.05"/>
 	  <Loop id="IdleLeft" path="med" frames="12" delay="0.05"/>
@@ -244,9 +242,9 @@
 	</mediumMoonStationBlockArrow>
 	
 	<bigMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/moonArrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
+    <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
 	  <Loop id="IdleRight" path="big" frames="4" delay="0.06"/>
 	  <Loop id="IdleDown" path="big" frames="8" delay="0.06"/>
 	  <Loop id="IdleLeft" path="big" frames="12" delay="0.06"/>
@@ -274,9 +272,9 @@
 	</bigMoonStationBlockArrow>
 	
 	<smallAltMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/altMoonArrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
+    <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
 	  <Loop id="IdleRight" path="small" frames="4" delay="0.04"/>
 	  <Loop id="IdleDown" path="small" frames="8" delay="0.04"/>
 	  <Loop id="IdleLeft" path="small" frames="12" delay="0.04"/>
@@ -304,9 +302,9 @@
 	</smallAltMoonStationBlockArrow>
 	
 	<mediumAltMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/altMoonArrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
+    <Loop id="IdleUp" path="med" frames="0" delay="0.05"/>
 	  <Loop id="IdleRight" path="med" frames="4" delay="0.05"/>
 	  <Loop id="IdleDown" path="med" frames="8" delay="0.05"/>
 	  <Loop id="IdleLeft" path="med" frames="12" delay="0.05"/>
@@ -334,9 +332,9 @@
 	</mediumAltMoonStationBlockArrow>
 	
 	<bigAltMoonStationBlockArrow path="objects/CommunalHelper/stationBlock/altMoonArrow/" start="IdleUp">
-      <Center/>
+    <Center/>
 	  
-      <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
+    <Loop id="IdleUp" path="big" frames="0" delay="0.06"/>
 	  <Loop id="IdleRight" path="big" frames="4" delay="0.06"/>
 	  <Loop id="IdleDown" path="big" frames="8" delay="0.06"/>
 	  <Loop id="IdleLeft" path="big" frames="12" delay="0.06"/>
@@ -362,6 +360,5 @@
 	  <Anim id="LeftToUp" path="big" frames="12,13,14,15,0" delay="0.06" goto="IdleUp"/>
 	  <Anim id="LeftToDown" path="big" frames="12,11,10,9,8" delay="0.06" goto="IdleDown"/>
 	</bigAltMoonStationBlockArrow>
-	
 	
 </Sprites>
