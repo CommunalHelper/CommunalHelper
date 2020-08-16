@@ -7,7 +7,7 @@ using System;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamSwapBlock")]
     [TrackedAs(typeof(DreamBlock))]
-    class DreamSwapBlock : CustomDreamBlock {
+    public class DreamSwapBlock : CustomDreamBlock {
         private class PathRenderer : Entity {
             private DreamSwapBlock block;
 

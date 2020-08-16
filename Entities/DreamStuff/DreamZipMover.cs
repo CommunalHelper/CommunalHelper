@@ -7,7 +7,7 @@ using System.Collections;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamZipMover")]
     [TrackedAs(typeof(DreamBlock))]
-    class DreamZipMover : CustomDreamBlock {
+    public class DreamZipMover : CustomDreamBlock {
 
         private DreamZipMoverPathRenderer pathRenderer;
 

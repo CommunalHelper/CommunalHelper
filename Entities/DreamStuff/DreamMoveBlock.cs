@@ -11,7 +11,7 @@ using System.Reflection;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamMoveBlock")]
     [TrackedAs(typeof(DreamBlock))]
-    class DreamMoveBlock : CustomDreamBlock {
+    public class DreamMoveBlock : CustomDreamBlock {
 
         private static MethodInfo m_Pooler_Create = typeof(Pooler).GetMethod("Create").MakeGenericMethod(typeof(MoveBlock).GetNestedType("Debris", BindingFlags.NonPublic));
 
@@ -338,7 +338,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool MoveCheck(Vector2 speed) {
             if (speed.X != 0f) {
-                if (CollideCheck<DreamBlock>(Position + speed.XComp())) {
+                if (!noCollide || CollideCheck<DreamBlock>(Position + speed.XComp())) {
                     if (MoveHCollideSolids(speed.X, thruDashBlocks: false)) {
                         for (int i = 1; i <= 3; i++) {
                             for (int num = 1; num >= -1; num -= 2) {
@@ -358,7 +358,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
             if (speed.Y != 0f) {
-                if (CollideCheck<DreamBlock>(Position + speed.YComp())) {
+                if (!noCollide || CollideCheck<DreamBlock>(Position + speed.YComp())) {
                     if (MoveVCollideSolids(speed.Y, thruDashBlocks: false)) {
                         for (int j = 1; j <= 3; j++) {
                             for (int num2 = 1; num2 >= -1; num2 -= 2) {
@@ -489,6 +489,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void ScrapeParticles(Vector2 dir) {
+            if (noCollide)
+                return;
+
             bool collidable = Collidable;
             Collidable = false;
             if (dir.X != 0f) {

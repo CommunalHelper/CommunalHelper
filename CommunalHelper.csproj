@@ -77,7 +77,7 @@
     <Compile Include="Entities\DreamStuff\DreamFallingBlock.cs" />
     <Compile Include="Entities\DreamStuff\CustomDreamBlock.cs" />
     <Compile Include="Entities\DreamStuff\ConnectedDreamBlock.cs" />
-    <Compile Include="Entities\DreamStuff\CustomDreamBlockHooks.cs" />
+    <Compile Include="Entities\DreamStuff\DreamTunnelDash.cs" />
     <Compile Include="Entities\DreamStuff\DreamMoveBlock.cs" />
     <Compile Include="Entities\DreamStuff\DreamRefill.cs" />
     <Compile Include="Entities\DreamStuff\DreamSwapBlock.cs" />

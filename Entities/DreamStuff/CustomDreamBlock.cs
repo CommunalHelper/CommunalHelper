@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-    abstract class CustomDreamBlock : DreamBlock {
+    public abstract class CustomDreamBlock : DreamBlock {
         private struct DreamParticle {
             public Vector2 Position;
             public int Layer;
@@ -340,13 +340,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             orig(player);
             var playerData = player.GetData();
             DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
-            if (dreamBlock is CustomDreamBlock && (dreamBlock as CustomDreamBlock).FeatherMode) {
-                SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
-                player.Stop(dreamSfxLoop);
-                player.Loop(dreamSfxLoop, "event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_fly_travel");
+            if (dreamBlock is CustomDreamBlock customDreamBlock) { 
+                if (customDreamBlock.FeatherMode) {
+                    SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
+                    player.Stop(dreamSfxLoop);
+                    player.Loop(dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
+                }
 
                 // Ensures the player always properly enters a dream block even when it's moving fast
-                if (dreamBlock is DreamZipMover || dreamBlock is DreamSwapBlock) {
+                if (customDreamBlock is DreamZipMover || customDreamBlock is DreamSwapBlock) {
                     player.Position.X += Math.Sign(player.DashDir.X);
                     player.Position.Y += Math.Sign(player.DashDir.Y);
                 }
@@ -356,8 +358,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static int Player_DreamDashUpdate(On.Celeste.Player.orig_DreamDashUpdate orig, Player player) {
             var playerData = player.GetData();
-            DreamBlock block = playerData.Get<DreamBlock>("dreamBlock");
-            if (block is CustomDreamBlock dreamBlock && dreamBlock.FeatherMode) {
+            DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
+            if (dreamBlock is CustomDreamBlock customDreamBlock && customDreamBlock.FeatherMode) {
                 Vector2 input = Input.Aim.Value.SafeNormalize(Vector2.Zero);
                 if (input != Vector2.Zero) {
                     Vector2 vector = player.Speed.SafeNormalize(Vector2.Zero);

@@ -7,7 +7,7 @@ using System.Collections;
 namespace Celeste.Mod.CommunalHelper.Entities {
 	[CustomEntity("CommunalHelper/DreamFallingBlock")]
 	[TrackedAs(typeof(DreamBlock))]
-	class DreamFallingBlock : CustomDreamBlock {
+	public class DreamFallingBlock : CustomDreamBlock {
 		public bool Triggered;
 		public float FallDelay;
 

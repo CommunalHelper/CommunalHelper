@@ -16,7 +16,10 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
 		public override void Load() {
-			CustomDreamBlockHooks.Load();
+			DreamTunnelDash.Load();
+            DreamRefill.Load();
+
+            CustomDreamBlock.Load();
             ConnectedDreamBlockHooks.Hook();
             CustomCassetteBlockHooks.Hook();
             SyncedZipMoverActivationControllerHooks.Hook();
@@ -24,20 +27,23 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
 		public override void Unload() {
-			CustomDreamBlockHooks.Unload();
-			ConnectedDreamBlockHooks.Unhook();
+			DreamTunnelDash.Unload();
+            DreamRefill.Unload();
+
+            CustomDreamBlock.Unload();
+            ConnectedDreamBlockHooks.Unhook();
             CustomCassetteBlockHooks.Unhook();
             SyncedZipMoverActivationControllerHooks.Unhook();
 			AttachedWallBooster.Unhook();
 		}
 
 		public override void LoadContent(bool firstLoad) {
-			base.LoadContent(firstLoad);
 			StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
 			StationBlock.InitializeParticles();
 
-            CustomDreamBlockHooks.LoadContent();
-		}
+            DreamTunnelDash.LoadContent();
+            DreamRefill.InitializeParticles();
+        }
 
 	}
 
