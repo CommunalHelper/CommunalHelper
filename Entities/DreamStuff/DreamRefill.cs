@@ -134,15 +134,36 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static void Refill_Update(ILContext il) {
-            Refill_Update_and_Respawn(il, refill => refill.EmitGlowParticles());
+            PatchRefillParticles(il, refill => refill.EmitGlowParticles());
         }
 
         private static void Refill_Respawn(ILContext il) {
-            Refill_Update_and_Respawn(il, refill => refill.EmitRegenParticles());
+            PatchRefillParticles(il, refill => refill.EmitRegenParticles());
+
+            ILCursor cursor = new ILCursor(il);
+
+            cursor.GotoNext(MoveType.After, instr => instr.MatchLdstr(SFX.game_10_pinkdiamond_return));
+            // Cursed, apparently:
+            /*
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<Refill, string, string>>((refill, str) => {
+                if (refill is DreamRefill)
+                    return CustomSFX.game_dreamRefill_dream_refill_return;
+                return str;
+            });
+            */
+            // But this works fine:
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Isinst, t_DreamRefill);
+            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
+            cursor.Emit(OpCodes.Pop);
+            cursor.Emit(OpCodes.Ldstr, CustomSFX.game_dreamRefill_dream_refill_return);
+
         }
 
-        private static void Refill_Update_and_Respawn(ILContext il, Action<DreamRefill> method) {
+        private static void PatchRefillParticles(ILContext il, Action<DreamRefill> method) {
             ILCursor cursor = new ILCursor(il);
+
             cursor.GotoNext(instr => instr.Next.MatchLdfld<Refill>("level"));
 
             cursor.Emit(OpCodes.Ldarg_0);
