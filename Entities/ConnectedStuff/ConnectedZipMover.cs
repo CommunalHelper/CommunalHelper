@@ -390,78 +390,6 @@ namespace Celeste.Mod.CommunalHelper
 			Position = originalPosition;
 		}
 
-		private void ScrapeParticlesCheck(Vector2 to)
-		{
-			if (!base.Scene.OnInterval(0.03f))
-			{
-				return;
-			}
-			bool flag = to.Y != base.ExactPosition.Y;
-			bool flag2 = to.X != base.ExactPosition.X;
-			if (flag && !flag2)
-			{
-				int num = Math.Sign(to.Y - base.ExactPosition.Y);
-				Vector2 value = (num != 1) ? base.TopLeft : base.BottomLeft;
-				int num2 = 4;
-				if (num == 1)
-				{
-					num2 = Math.Min((int)base.Height - 12, 20);
-				}
-				int num3 = (int)base.Height;
-				if (num == -1)
-				{
-					num3 = Math.Max(16, (int)base.Height - 16);
-				}
-				if (base.Scene.CollideCheck<Solid>(value + new Vector2(-2f, num * -2)))
-				{
-					for (int i = num2; i < num3; i += 8)
-					{
-						SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, base.TopLeft + new Vector2(0f, (float)i + (float)num * 2f), (num == 1) ? (-(float)Math.PI / 4f) : ((float)Math.PI / 4f));
-					}
-				}
-				if (base.Scene.CollideCheck<Solid>(value + new Vector2(base.Width + 2f, num * -2)))
-				{
-					for (int j = num2; j < num3; j += 8)
-					{
-						SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, base.TopRight + new Vector2(-1f, (float)j + (float)num * 2f), (num == 1) ? ((float)Math.PI * -3f / 4f) : ((float)Math.PI * 3f / 4f));
-					}
-				}
-			}
-			else
-			{
-				if (!flag2 || flag)
-				{
-					return;
-				}
-				int num4 = Math.Sign(to.X - base.ExactPosition.X);
-				Vector2 value2 = (num4 != 1) ? base.TopLeft : base.TopRight;
-				int num5 = 4;
-				if (num4 == 1)
-				{
-					num5 = Math.Min((int)base.Width - 12, 20);
-				}
-				int num6 = (int)base.Width;
-				if (num4 == -1)
-				{
-					num6 = Math.Max(16, (int)base.Width - 16);
-				}
-				if (base.Scene.CollideCheck<Solid>(value2 + new Vector2(num4 * -2, -2f)))
-				{
-					for (int k = num5; k < num6; k += 8)
-					{
-						SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, base.TopLeft + new Vector2((float)k + (float)num4 * 2f, -1f), (num4 == 1) ? ((float)Math.PI * 3f / 4f) : ((float)Math.PI / 4f));
-					}
-				}
-				if (base.Scene.CollideCheck<Solid>(value2 + new Vector2(num4 * -2, base.Height + 2f)))
-				{
-					for (int l = num5; l < num6; l += 8)
-					{
-						SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, base.BottomLeft + new Vector2((float)l + (float)num4 * 2f, 0f), (num4 == 1) ? ((float)Math.PI * -3f / 4f) : (-(float)Math.PI / 4f));
-					}
-				}
-			}
-		}
-
 		private IEnumerator Sequence()
 		{
 			// Infinite.
@@ -501,7 +429,7 @@ namespace Celeste.Mod.CommunalHelper
 						at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
 						percent = Ease.SineIn(at2);
 						Vector2 vector = Vector2.Lerp(from, to, percent);
-						ScrapeParticlesCheck(vector);
+						// TODO: Here, do the ScrapeParticleCheck.
 						if (Scene.OnInterval(0.1f))
 						{
 							pathRenderer.CreateSparks();

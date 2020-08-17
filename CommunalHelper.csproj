@@ -74,6 +74,7 @@
     <Compile Include="Entities\CassetteStuff\CassetteSwapBlock.cs" />
     <Compile Include="Entities\CassetteStuff\CassetteZipMover.cs" />
     <Compile Include="Entities\CassetteStuff\CustomCassetteBlock.cs" />
+    <Compile Include="Entities\ConnectedStuff\ConnectedMoveBlock.cs" />
     <Compile Include="Entities\ConnectedStuff\ConnectedSolid.cs" />
     <Compile Include="Entities\ConnectedStuff\ConnectedZipMover.cs" />
     <Compile Include="Entities\ConnectedStuff\SolidExtension.cs" />

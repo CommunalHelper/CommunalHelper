@@ -11,26 +11,31 @@ namespace Celeste.Mod.CommunalHelper
 {
     class ConnectedSolid : Solid
     {
-        public Point GroupBoundsMin, GroupBoundsMax;
-
+        public Vector2 GroupBoundsMin, GroupBoundsMax;
+        public Vector2 GroupCenter => Position + GroupOffset + (GroupBoundsMax - GroupBoundsMin) / 2f;
+             
         public Hitbox[] Colliders;
+        private Collider masterCollider;
 
         public bool[,] GroupTiles;
         public Vector2 GroupOffset;
 
         public int MasterWidth, MasterHeight;
+        public Vector2 MasterCenter => masterCollider.Center + Position;
 
         public List<Image> Tiles = new List<Image>();
         public List<Image> EdgeTiles = new List<Image>();
         public List<Image> CornerTiles = new List<Image>();        
         public List<Image> InnerCornerTiles = new List<Image>();
+        public List<Image> FillerTiles = new List<Image>();
 
         public ConnectedSolid(Vector2 position, int width, int height, bool safe)
             : base(position, width, height, safe)
         {
-            GroupBoundsMin = new Point((int)X, (int)Y);
-            GroupBoundsMax = new Point((int)Right, (int)Bottom);
+            GroupBoundsMin = new Vector2(X, Y);
+            GroupBoundsMax = new Vector2(Right, Bottom);
             MasterWidth = width; MasterHeight = height;
+            masterCollider = base.Collider;
         }
 
         public override void Awake(Scene scene)
@@ -123,41 +128,47 @@ namespace Celeste.Mod.CommunalHelper
         private Image AutoTileTexture(bool up, bool down, bool left, bool right, bool upleft, bool upright, bool downleft, bool downright, MTexture[,] edges, MTexture[,] innerCorners)
         {
             bool completelyClosed = up && down && left && right;
-            if (completelyClosed && upleft && upright && downleft && downright) return null;
 
             MTexture tex = null;
             Image res;
             bool edge = false, 
                  corner = false, 
-                 innercorner = false;
+                 innercorner = false,
+                 filler = completelyClosed && upright && upleft && downright && downleft;
 
-            if (completelyClosed)
-            {
+            if (!filler) {
+                if (completelyClosed) {
 
-                if (!upleft) { tex = innerCorners[0, 0]; innercorner = true; }
-                if (!upright) { tex = innerCorners[1, 0]; innercorner = true; }
-                if (!downleft) { tex = innerCorners[0, 1]; innercorner = true; }
-                if (!downright) { tex = innerCorners[1, 1]; innercorner = true; }
-            }
-            else
-            {
+                    if (!upleft) { tex = innerCorners[0, 0]; innercorner = true; }
+                    if (!upright) { tex = innerCorners[1, 0]; innercorner = true; }
+                    if (!downleft) { tex = innerCorners[0, 1]; innercorner = true; }
+                    if (!downright) { tex = innerCorners[1, 1]; innercorner = true; }
+                } else {
 
-                if (!up && down && left && right) { tex = edges[1, 0]; edge = true; }
-                if (up && !down && left && right) { tex = edges[1, 2]; edge = true; }
-                if (up && down && !left && right) { tex = edges[0, 1]; edge = true; }
-                if (up && down && left && !right) { tex = edges[2, 1]; edge = true; }
+                    if (!up && down && left && right) { tex = edges[1, 0]; edge = true; }
+                    if (up && !down && left && right) { tex = edges[1, 2]; edge = true; }
+                    if (up && down && !left && right) { tex = edges[0, 1]; edge = true; }
+                    if (up && down && left && !right) { tex = edges[2, 1]; edge = true; }
 
-                if (!up && down && !left && right) { tex = edges[0, 0]; corner = true; }
-                if (!up && down && left && !right) { tex = edges[2, 0]; corner = true; }
-                if (up && !down && !left && right) { tex = edges[0, 2]; corner = true; }
-                if (up && !down && left && !right) { tex = edges[2, 2]; corner = true; }
+                    if (!up && down && !left && right) { tex = edges[0, 0]; corner = true; }
+                    if (!up && down && left && !right) { tex = edges[2, 0]; corner = true; }
+                    if (up && !down && !left && right) { tex = edges[0, 2]; corner = true; }
+                    if (up && !down && left && !right) { tex = edges[2, 2]; corner = true; }
+                }
+            } else {
+                tex = edges[1, 1];
             }
 
             res = new Image(tex);
 
-            if (edge) EdgeTiles.Add(res);
-            else if (corner) CornerTiles.Add(res);
-            else if (innercorner) InnerCornerTiles.Add(res);
+            if (edge)
+                EdgeTiles.Add(res);
+            else if (corner)
+                CornerTiles.Add(res);
+            else if (innercorner)
+                InnerCornerTiles.Add(res);
+            else if (filler)
+                FillerTiles.Add(res);
 
             return res;
         }
