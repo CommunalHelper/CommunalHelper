@@ -20,4 +20,5 @@
 {2bcf18f4-d0cf-423c-841f-7bf54151cf0d} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_return
 {1069f2f2-d704-4cec-ad66-c9509e388a43} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_start
 {93fa1eca-cd8f-46fe-8167-84f6eefcc601} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_tick
+{a2bc8729-8243-400b-85bf-7aee35017dae} event:/CommunalHelperEvents/game/seedCrystalHeart/shards_reform
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank
