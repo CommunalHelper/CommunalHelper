@@ -45,6 +45,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamRefill.InitializeParticles();
 
             ConnectedMoveBlock.InitializeTextures();
+
+            ConnectedSwapBlock.InitializeTextures();
         }
 
 	}
