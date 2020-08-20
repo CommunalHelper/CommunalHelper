@@ -90,7 +90,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public bool FeatherMode;
         public bool OneUse;
-
+        public bool DoubleRefill;
 
         private MTexture[] particleTextures;
         private MTexture[] featherTextures;
@@ -115,19 +115,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private ConnectedDreamBlock master;
 
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse")) { }
+            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false)) { }
 
-        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse)
+        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill)
             : base(position, width, height, null, false, false) {
             OneUse = oneUse;
             FeatherMode = featherMode;
+            DoubleRefill = doubleRefill;
             SurfaceSoundIndex = 11;
+            MTexture particleSheet = GFX.Game[DoubleRefill ? "objects/CommunalHelper/customDreamBlock/particles" : "objects/dreamblock/particles"];
             particleTextures = new MTexture[4]
             {
-                GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7),
-                GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),
-                GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7),
-                GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7)
+                particleSheet.GetSubtexture(14, 0, 7, 7),
+                particleSheet.GetSubtexture(7, 0, 7, 7),
+                particleSheet.GetSubtexture(0, 0, 7, 7),
+                particleSheet.GetSubtexture(7, 0, 7, 7)
             };
             featherTextures = new MTexture[3];
             featherTextures[0] = GFX.Game["particles/CommunalHelper/featherBig"];
@@ -307,16 +309,30 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 particles[i].TimeOffset = Calc.Random.NextFloat();
 
                 if (playerHasDreamDash) {
-                    switch (particles[i].Layer) {
-                        case 0:
-                            particles[i].Color = Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310"));
-                            break;
-                        case 1:
-                            particles[i].Color = Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C"));
-                            break;
-                        case 2:
-                            particles[i].Color = Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64"));
-                            break;
+                    if (DoubleRefill) {
+                        switch (particles[i].Layer) {
+                            case 0:
+                                particles[i].Color = Calc.HexToColor("FFD1F9");
+                                break;
+                            case 1:
+                                particles[i].Color = Calc.HexToColor("FC99FF");
+                                break;
+                            case 2:
+                                particles[i].Color = Calc.HexToColor("E269D2");
+                                break;
+                        }
+                    } else {
+                        switch (particles[i].Layer) {
+                            case 0:
+                                particles[i].Color = Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310"));
+                                break;
+                            case 1:
+                                particles[i].Color = Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C"));
+                                break;
+                            case 2:
+                                particles[i].Color = Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64"));
+                                break;
+                        }
                     }
                 } else {
                     particles[i].Color = Color.LightGray * (0.5f + particles[i].Layer / 2f * 0.5f);
@@ -672,6 +688,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 ConnectedDreamBlock customDreamBlock = dreamBlock as ConnectedDreamBlock;
                 if (customDreamBlock.OneUse && customDreamBlock.Collidable) {
                     customDreamBlock.BeginShatter();
+                }
+                if (customDreamBlock.DoubleRefill) {
+                    player.Dashes = 2;
                 }
             }
         }

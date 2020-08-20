@@ -3,7 +3,7 @@ using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/DreamSwitchGate" DreamSwitchGate(x::Integer, y::Integer, 
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool = false, oneUse::Bool = false, permanent::Bool = false)
+    featherMode::Bool = false, oneUse::Bool = false, doubleRefill::Bool=false, permanent::Bool = false)
 
 
 const placements = Ahorn.PlacementDict(

@@ -14,7 +14,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 		public bool HasStartedFalling { get; private set; }
 
 		public DreamFallingBlock(EntityData data, Vector2 offset)
-			: base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode", false), data.Bool("oneUse", false)) {
+			: base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode", false), data.Bool("oneUse", false), data.Bool("doubleRefill", false)) {
             Add(new Coroutine(Sequence()));
         }
 
