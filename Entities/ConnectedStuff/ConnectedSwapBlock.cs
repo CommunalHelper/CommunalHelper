@@ -2,16 +2,24 @@
 using FMOD.Studio;
 using IL.Celeste.Mod.UI;
 using Microsoft.Xna.Framework;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
+using MonoMod.Utils;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Celeste.Mod.CommunalHelper {
 
     [CustomEntity("CommunalHelper/ConnectedSwapBlock")]
+    [Tracked(false)]
     class ConnectedSwapBlock : ConnectedSolid {
 
         private class PathRenderer : Entity {
@@ -356,6 +364,121 @@ namespace Celeste.Mod.CommunalHelper {
                     MoonRedInnerCornerTiles[i, j] = moonRedInnerCorners.GetSubtexture(x, y, 8, 8);
                 }
             }
+        }
+    }
+
+    public class ConnectedSwapBlockHooks {
+
+        private static MethodInfo Player_DashCoroutine = typeof(Player).GetMethod("DashCoroutine", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static FieldInfo DashCoroutine_Hook_F_This /*, DashCoroutine_Hook_F_SwapCancel */ ;
+
+        private static ILHook Player_DashCoroutine_Hook; // unused
+
+        public static void Hook() {
+
+            // The "this" field defined in the compiler-generated type
+            DashCoroutine_Hook_F_This = Player_DashCoroutine.GetStateMachineTarget().DeclaringType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+
+            // What would usually be a local variable, but is instead stored in the compiler-generated type
+            //DashCoroutine_Hook_F_SwapCancel = Player_DashCoroutine.GetStateMachineTarget().DeclaringType.GetField("<swapCancel>5__2", BindingFlags.NonPublic | BindingFlags.Instance);
+
+
+            Player_DashCoroutine_Hook = new ILHook(Player_DashCoroutine.GetStateMachineTarget(), DashCoroutineILHook);
+        }
+        public static void Unhook() {
+            Player_DashCoroutine_Hook.Dispose();
+        }
+        
+        private static void DashCoroutineILHook(ILContext il) {
+
+            // Used to emit new instructions into the method
+            ILCursor cursor = new ILCursor(il);
+
+            // There's only one Input.Grab check in the method, so go there, then to the next Brfalse_S opcode (right before swapcheck block)
+            cursor.GotoNext(instr => instr.MatchLdsfld("Celeste.Input", "Grab"));
+            cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Brfalse_S);
+
+            // Load the actual "this" (the instance of the coroutine)
+            cursor.Emit(OpCodes.Ldarg_0);
+
+            // And then load the Player object
+            cursor.Emit(OpCodes.Ldfld, DashCoroutine_Hook_F_This);
+            
+            // Emit a call to a function that takes in the player object, and returns a boolean
+            cursor.EmitDelegate<Func<Player, bool>>(Player_ClimbConnectedSwapBlockCheck);
+
+            // If the returned value is false, skip the return we're about to emit, and continue on with the rest of the method
+            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
+
+            // Perform the equivalent of "yield break"
+            cursor.Emit(OpCodes.Ldc_I4_0);
+            cursor.Emit(OpCodes.Ret);
+
+            // Next bit to modify
+            cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Stfld && ((FieldReference) instr.Operand).Name.Contains("swapCancel"));
+            FieldReference DashCoroutine_Hook_F_SwapCancel = (FieldReference) cursor.Prev.Operand;
+
+            // Load the actual "this" (the instance of the coroutine)
+            cursor.Emit(OpCodes.Ldarg_0);
+
+            // Load the previously stored field (this section could possibly be made cleaner by using a `ref` parameter but I don't want to figure that out, thanks)
+            cursor.Emit(OpCodes.Ldflda, DashCoroutine_Hook_F_SwapCancel);
+
+            // Load the actual "this" (the instance of the coroutine)
+            cursor.Emit(OpCodes.Ldarg_0);
+
+            // And then load the Player object
+            cursor.Emit(OpCodes.Ldfld, DashCoroutine_Hook_F_This);
+            
+            // Emit a call to a function that takes in the Vector2 and Player objects, and returns a Vector2
+            cursor.EmitDelegate<Func<Vector2, Player, Vector2>>(Player_CancelDashAgainstConnectedSwapBlock);
+
+            // And finally, store the result back in the field
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Stfld, DashCoroutine_Hook_F_SwapCancel);
+
+            // Log the full method, after modifying
+            foreach (Instruction i in il.Instrs)
+                try { Console.WriteLine(i); } catch { Console.WriteLine("Unable to print instruction"); }
+
+        }
+
+
+        /*
+         * Appears to set the player to its climbing state (player.StateMachine.State = 1),
+         * therefore cancelling the dash, and resetting the speed back to Vector.Zero.
+         * Does that if the Connected Swap Blocks and the player are moving in the same direction (?)
+         * (swapBlock.Direction.X == Math.Sign(player.DashDir.X))
+         */
+        private static bool Player_ClimbConnectedSwapBlockCheck(Player player) {
+            ConnectedSwapBlock swapBlock = player.CollideFirst<ConnectedSwapBlock>(player.Position + Vector2.UnitX * Math.Sign(player.DashDir.X));
+            if (swapBlock != null && swapBlock.Direction.X == Math.Sign(player.DashDir.X)) {
+                player.StateMachine.State = 1;
+                player.Speed = Vector2.Zero;
+                return true;
+            }
+            return false;
+        }
+
+        /*
+         * Looks like this cancels the player's dash direction, or somewhat change its direction.
+         * So in theory you wouldn't be able to dialogonal down dash on top of a Connected Swap Block,
+         * therefore sticking to it, and getting able to jump off of it, with the lift speed & stuff.
+         * That's probably done so that it is a little easier for the player to interact with those.
+         */
+        private static Vector2 Player_CancelDashAgainstConnectedSwapBlock(Vector2 swapCancel, Player player) {
+            foreach (ConnectedSwapBlock swapBlock2 in player.Scene.Tracker.GetEntities<ConnectedSwapBlock>()) {
+
+                if (player.CollideCheck(swapBlock2, player.Position + Vector2.UnitY) && swapBlock2 != null && swapBlock2.Swapping) {
+                    if (player.DashDir.X != 0f && swapBlock2.Direction.X == Math.Sign(player.DashDir.X)) {
+                        player.Speed.X = (swapCancel.X = 0f);
+                    }
+                    if (player.DashDir.Y != 0f && swapBlock2.Direction.Y == Math.Sign(player.DashDir.Y)) {
+                        player.Speed.Y = (swapCancel.Y = 0f);
+                    }
+                }
+            }
+            return swapCancel;
         }
     }
 }

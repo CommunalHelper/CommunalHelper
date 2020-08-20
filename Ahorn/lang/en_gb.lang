@@ -71,8 +71,15 @@ placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the
 placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whether the Wall Booster should ignore the current Core Mode and be in Ice Mode.
 
 # -- Connected Swap Block --
-placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearence of the Connected Swap Block.
+placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearance of the Connected Swap Block.
 
 # -- Connected Move Block --
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.fast=Whether the Connected Move Block should move faster.
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.
+
+# -- Connected Zip Mover --
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=The appearance of the Connected Zip Mover. The Cliffside theme is a custom theme. 
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.permanent=Whether the Connected Zip Mover should stay completely static after stopping.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.waiting=Whether the Connected Zip Mover should wait for the player at each node. Only useful if has more than one node.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.ticking=Whether the Connected Zip Mover should be ticking at each node, forcing the player to reactivate it within a limited amount of time. Will return to initial position if the player doesn't reactivate it, or locks in place completely if "permanent" is on. Only useful if has more than one node.
+
