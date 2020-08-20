@@ -49,6 +49,8 @@ namespace Celeste.Mod.CommunalHelper {
             ConnectedMoveBlock.InitializeTextures();
 
             ConnectedSwapBlock.InitializeTextures();
+
+            DreamSwitchGate.InitializeParticles();
         }
 
 	}
