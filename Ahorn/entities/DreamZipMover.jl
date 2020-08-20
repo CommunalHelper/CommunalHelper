@@ -59,7 +59,7 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
     Ahorn.Cairo.save(ctx)
 
     # Dream block stuff
-    Ahorn.CommunalHelper.renderCustomDreamBlock(ctx, x, y, width, height, featherMode), oneUse)
+    Ahorn.CommunalHelper.renderCustomDreamBlock(ctx, x, y, width, height, featherMode, oneUse)
 
     # Offset for rounding errors
     Ahorn.move_to(ctx, 0, 4 + (theta <= 0))

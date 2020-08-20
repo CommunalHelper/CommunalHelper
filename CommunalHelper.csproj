@@ -74,6 +74,10 @@
     <Compile Include="Entities\CassetteStuff\CassetteSwapBlock.cs" />
     <Compile Include="Entities\CassetteStuff\CassetteZipMover.cs" />
     <Compile Include="Entities\CassetteStuff\CustomCassetteBlock.cs" />
+    <Compile Include="Entities\ConnectedStuff\ConnectedMoveBlock.cs" />
+    <Compile Include="Entities\ConnectedStuff\ConnectedSolid.cs" />
+    <Compile Include="Entities\ConnectedStuff\ConnectedZipMover.cs" />
+    <Compile Include="Entities\ConnectedStuff\SolidExtension.cs" />
     <Compile Include="Entities\DreamStuff\DreamFallingBlock.cs" />
     <Compile Include="Entities\DreamStuff\CustomDreamBlock.cs" />
     <Compile Include="Entities\DreamStuff\ConnectedDreamBlock.cs" />
@@ -90,5 +94,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sounds.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

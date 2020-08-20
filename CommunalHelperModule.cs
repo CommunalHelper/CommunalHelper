@@ -43,6 +43,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.LoadContent();
             DreamRefill.InitializeParticles();
+
+            ConnectedMoveBlock.InitializeTextures();
         }
 
 	}
