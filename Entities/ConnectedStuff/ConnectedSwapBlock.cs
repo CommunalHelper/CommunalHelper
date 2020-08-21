@@ -390,7 +390,6 @@ namespace Celeste.Mod.CommunalHelper {
         }
         
         private static void DashCoroutineILHook(ILContext il) {
-
             // Used to emit new instructions into the method
             ILCursor cursor = new ILCursor(il);
 
@@ -413,36 +412,20 @@ namespace Celeste.Mod.CommunalHelper {
             // Perform the equivalent of "yield break"
             cursor.Emit(OpCodes.Ldc_I4_0);
             cursor.Emit(OpCodes.Ret);
-
+            
             // Next bit to modify
-            cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Stfld && ((FieldReference) instr.Operand).Name.Contains("swapCancel"));
-            FieldReference DashCoroutine_Hook_F_SwapCancel = (FieldReference) cursor.Prev.Operand;
-
-            // Load the actual "this" (the instance of the coroutine)
-            cursor.Emit(OpCodes.Ldarg_0);
-
-            // Load the previously stored field (this section could possibly be made cleaner by using a `ref` parameter but I don't want to figure that out, thanks)
-            cursor.Emit(OpCodes.Ldflda, DashCoroutine_Hook_F_SwapCancel);
+            cursor.GotoNext(MoveType.Before, instr => instr.OpCode == OpCodes.Stfld && ((FieldReference) instr.Operand).Name.Contains("swapCancel"));
 
             // Load the actual "this" (the instance of the coroutine)
             cursor.Emit(OpCodes.Ldarg_0);
 
             // And then load the Player object
             cursor.Emit(OpCodes.Ldfld, DashCoroutine_Hook_F_This);
-            
+
             // Emit a call to a function that takes in the Vector2 and Player objects, and returns a Vector2
-            cursor.EmitDelegate<Func<Vector2, Player, Vector2>>(Player_CancelDashAgainstConnectedSwapBlock);
-
-            // And finally, store the result back in the field
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Stfld, DashCoroutine_Hook_F_SwapCancel);
-
-            // Log the full method, after modifying
-            foreach (Instruction i in il.Instrs)
-                try { Console.WriteLine(i); } catch { Console.WriteLine("Unable to print instruction"); }
-
+            // The Vector2 is already loaded by the previous instructions and stored by the following ones
+            cursor.Emit(OpCodes.Call, typeof(ConnectedSwapBlockHooks).GetMethod("Player_CancelDashAgainstConnectedSwapBlock", BindingFlags.NonPublic | BindingFlags.Static));
         }
-
 
         /*
          * Appears to set the player to its climbing state (player.StateMachine.State = 1),

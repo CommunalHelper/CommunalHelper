@@ -21,7 +21,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             CustomDreamBlock.Load();
             ConnectedDreamBlockHooks.Hook();
-            // ConnectedSwapBlockHooks.Hook(); currently breaks
+            ConnectedSwapBlockHooks.Hook();
             CustomCassetteBlockHooks.Hook();
             SyncedZipMoverActivationControllerHooks.Hook();
 			AttachedWallBooster.Hook();
@@ -33,7 +33,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             CustomDreamBlock.Unload();
             ConnectedDreamBlockHooks.Unhook();
-            // ConnectedSwapBlockHooks.Unhook();
+            ConnectedSwapBlockHooks.Unhook();
             CustomCassetteBlockHooks.Unhook();
             SyncedZipMoverActivationControllerHooks.Unhook();
 			AttachedWallBooster.Unhook();
