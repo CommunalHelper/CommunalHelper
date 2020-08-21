@@ -200,6 +200,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         private MoveBlock.Directions direction;
 
+        private List<Hitbox> ArrowsList;
+
         private bool fast;
         private bool triggered;
 
@@ -267,7 +269,6 @@ namespace Celeste.Mod.CommunalHelper {
                 StopPlayerRunIntoAnimation = false;
                 float crashTimer = 0.15f;
                 float crashResetTimer = 0.1f;
-                //float noSteerTimer = 0.2f;
                 while (true) {
                     if (Scene.OnInterval(0.02f)) {
                         MoveParticles();
@@ -276,6 +277,7 @@ namespace Celeste.Mod.CommunalHelper {
                     angle = Calc.Approach(angle, targetAngle, (float) Math.PI * 16f * Engine.DeltaTime);
                     Vector2 vec = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool flag2;
+                    Vector2 start = Position;
                     if (direction == MoveBlock.Directions.Right || direction == MoveBlock.Directions.Left) {
                         flag2 = MoveCheck(vec.XComp());
                         noSquish = Scene.Tracker.GetEntity<Player>();
@@ -290,8 +292,8 @@ namespace Celeste.Mod.CommunalHelper {
                             flag2 = true;
                         }
                     }
-
-                    // TODO: Here, do the ScrapeParticleCheck.
+                    Vector2 move = Position - start;
+                    base.SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
 
                     if (flag2) {
                         moveSfx.Param("arrow_stop", 1f);
@@ -419,29 +421,6 @@ namespace Celeste.Mod.CommunalHelper {
             base.MoveVExact(move);
         }
 
-        private void ScrapeParticles(Vector2 dir) {
-            _ = Collidable;
-            Collidable = false;
-            if (dir.X != 0f) {
-                float x = (!(dir.X > 0f)) ? (base.Left - 1f) : base.Right;
-                for (int i = 0; (float) i < base.Height; i += 8) {
-                    Vector2 vector = new Vector2(x, base.Top + 4f + (float) i);
-                    if (base.Scene.CollideCheck<Solid>(vector)) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector);
-                    }
-                }
-            } else {
-                float y = (!(dir.Y > 0f)) ? (base.Top - 1f) : base.Bottom;
-                for (int j = 0; (float) j < base.Width; j += 8) {
-                    Vector2 vector2 = new Vector2(base.Left + 4f + (float) j, y);
-                    if (base.Scene.CollideCheck<Solid>(vector2)) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector2);
-                    }
-                }
-            }
-            Collidable = true;
-        }
-
         private bool MoveCheck(Vector2 speed) {
             if (speed.X != 0f) {
                 if (MoveHCollideSolids(speed.X, thruDashBlocks: false)) {
@@ -554,6 +533,14 @@ namespace Celeste.Mod.CommunalHelper {
             base.Awake(scene);
             base.AutoTile(edges, innerCorners);
             scene.Add(border = new Border(this));
+
+            // Get all the colliders that can have an arrow drawn on.
+            ArrowsList = new List<Hitbox> { (Hitbox)MasterCollider };
+            foreach (Hitbox hitbox in Colliders) {
+                if(Math.Min(hitbox.Width, hitbox.Height) >= 24) {
+                    ArrowsList.Add(hitbox);
+                }
+            }
         }
 
         public override void Update() {
@@ -576,13 +563,15 @@ namespace Celeste.Mod.CommunalHelper {
             }
 
             base.Render();
-
-            Draw.Rect(base.MasterCenter.X - 4f, base.MasterCenter.Y - 4f, 8f, 8f, fillColor);
-            if (state != MovementState.Breaking) {
-                int value = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
-                arrows[Calc.Clamp(value, 0, 7)].DrawCentered(MasterCenter);
-            } else {
-                GFX.Game["objects/moveBlock/x"].DrawCentered(MasterCenter);
+            int arrowIndex = Calc.Clamp((int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f), 0, 7);
+            foreach (Hitbox hitbox in ArrowsList) {
+                Vector2 vec = hitbox.Center + Position;
+                Draw.Rect(vec.X - 4f, vec.Y - 4f, 8f, 8f, fillColor);
+                if (state != MovementState.Breaking) {
+                    arrows[arrowIndex].DrawCentered(vec);
+                } else {
+                    GFX.Game["objects/moveBlock/x"].DrawCentered(vec);
+                }
             }
 
             foreach (Image img in Tiles) {

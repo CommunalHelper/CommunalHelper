@@ -96,7 +96,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
 
         public DreamSwapBlock(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode", false), data.Bool("oneUse", false)) {
+            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode", false), data.Bool("oneUse", false), data.Bool("doubleRefill", false)) {
             start = Position;
             end = data.Nodes[0] + offset;
             noReturn = data.Bool("noReturn", false);

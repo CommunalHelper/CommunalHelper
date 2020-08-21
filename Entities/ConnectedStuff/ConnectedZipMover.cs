@@ -429,13 +429,15 @@ namespace Celeste.Mod.CommunalHelper
 						at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
 						percent = Ease.SineIn(at2);
 						Vector2 vector = Vector2.Lerp(from, to, percent);
-						// TODO: Here, do the ScrapeParticleCheck.
-						if (Scene.OnInterval(0.1f))
-						{
-							pathRenderer.CreateSparks();
-						}
+
+                        if (Scene.OnInterval(0.1f))
+                            pathRenderer.CreateSparks();
+
 						MoveTo(vector);
-					}
+
+                        if (Scene.OnInterval(0.03f))
+                            base.SpawnScrapeParticles();
+                    }
 
 					bool last = (i == targets.Length - 1);
 

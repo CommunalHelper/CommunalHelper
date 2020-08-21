@@ -46,6 +46,11 @@ placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.oneUse=Whether T
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.featherMode=Whether the Dream Falling Block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.oneUse=Whether the Dream Falling Block should shatter upon exit.
 
+# -- Dream Switch Gate --
+placements.entities.CommunalHelper/DreamSwitchGate.tooltips.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/DreamSwitchGate.tooltips.oneUse=Whether the Dream Switch Gate should shatter upon exit.
+placements.entities.CommunalHelper/DreamSwitchGate.tooltips.permanent=Whether the Dream Switch Gate should stay at its node permanently after being activated for the entire level.
+
 # -- Cassette Zip Mover --
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.index=The color of the Cassette Zip Mover.
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.tempo=The tempo of the cassette music in the room.
@@ -71,8 +76,15 @@ placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the
 placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whether the Wall Booster should ignore the current Core Mode and be in Ice Mode.
 
 # -- Connected Swap Block --
-placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearence of the Connected Swap Block.
+placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearance of the Connected Swap Block.
 
 # -- Connected Move Block --
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.fast=Whether the Connected Move Block should move faster.
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.
+
+# -- Connected Zip Mover --
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=The appearance of the Connected Zip Mover. The Cliffside theme is a custom theme. 
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.permanent=Whether the Connected Zip Mover should stay completely static after stopping.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.waiting=Whether the Connected Zip Mover should wait for the player at each node. Only useful if has more than one node.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.ticking=Whether the Connected Zip Mover should be ticking at each node, forcing the player to reactivate it within a limited amount of time. Will return to initial position if the player doesn't reactivate it, or locks in place completely if "permanent" is on. Only useful if has more than one node.
+

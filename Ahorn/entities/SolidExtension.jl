@@ -1,4 +1,4 @@
-﻿module CommunalHelperZipSolidExtension
+﻿module CommunalHelperSolidExtension
 using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/SolidExtension" SolidExtension(

@@ -3,7 +3,7 @@ using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/ConnectedDreamBlock" ConnectedDreamBlock( x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight, 
-	featherMode::Bool = false, oneUse::Bool = false)
+	featherMode::Bool = false, oneUse::Bool = false, doubleRefill::Bool=false)
 			
 const placements = Ahorn.PlacementDict(
     "Connected Dream Block (Normal) (Communal Helper)" => Ahorn.EntityPlacement(
