@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -67,25 +68,27 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             vector /= pieces.Count;
             foreach (HeartGemShard piece in pieces) {
-                //piece.StartSpinAnimation(vector, heart.Position, num2, 4f);
+                piece.StartSpinAnimation(vector, heart.Position, num2, 4.5f);
                 num2 -= num;
             }
             Vector2 vector2 = heart.Position - new Vector2(160f, 90f);
             vector2 = vector2.Clamp(level.Bounds.Left, level.Bounds.Top, level.Bounds.Right - 320, level.Bounds.Bottom - 180);
-            Add(new Coroutine(CameraTo(vector2, 3.5f, Ease.CubeInOut, 0f), true));
-            yield return 4f;
+            Add(new Coroutine(CameraTo(vector2, 3.8f, Ease.CubeInOut, 0f), true));
+            yield return 4.5f;
 
             Input.Rumble(RumbleStrength.Light, RumbleLength.Long);
-            Audio.Play("event:/game/general/seed_complete_berry", heart.Position);
+            Audio.Play(CustomSFX.game_seedCrystalHeart_shards_reform, heart.Position);
             foreach (HeartGemShard piece in pieces) {
-                //piece.StartCombineAnimation(heart.Position, 0.6f, system);
+                piece.StartCombineAnimation(heart.Position, 0.658f, system, level);
             }
-            yield return 0.6f;
+            yield return 0.658f;
 
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
             foreach (HeartGemShard piece in pieces) {
                 piece.RemoveSelf();
             }
+            level.Shake();
+            level.Flash(Color.White * .8f);
             HeartGemShard.CollectedPieces(heartData);
             yield return 0.5f;
 

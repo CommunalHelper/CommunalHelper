@@ -36,6 +36,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float timer;
         private float bounceSfxDelay;
 
+        private SoundSource collectSfx;
+
         public static void InitializeParticles() {
             P_LightBeam = new ParticleType {
                 Source = GFX.Game["particles/shard"],
@@ -72,6 +74,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             moveWiggler = Wiggler.Create(0.8f, 2f);
             moveWiggler.StartZero = true;
             Add(moveWiggler);
+            Add(collectSfx = new SoundSource());
 
             Add(shaker = new Shaker(false));
             shaker.Interval = 0.1f;
@@ -95,33 +98,40 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(lightTween = light.CreatePulseTween());
         }
 
-        public void Collect(Player player) {
+        public void Collect(Player player, Level level) {
             Collected = true;
             Collidable = false;
             Depth = Depths.NPCs;
             sprite.Color = Color.White;
             shaker.On = true;
 
-            Audio.Play(SFX.game_05_crystaltheo_breakfree);
-
             bool allCollected = true;
             foreach (HeartGemShard piece in heartData.Get<List<HeartGemShard>>(HeartGem_HeartGemPieces))
                 if (!piece.Collected)
                     allCollected = false;
 
+
+            collectSfx.Play(CustomSFX.game_seedCrystalHeart_shard_collect, "shatter", allCollected ? 0f : 1f);
+            Celeste.Freeze(.1f);
+
+            level.Shake(.15f);
+            level.Flash(Color.White * .25f);
             if (allCollected)
                 Scene.Add(new CSGEN_HeartGemShards(Heart));
         }
 
         public void OnAllCollected() {
             Depth = Depths.Pickups;
+            Tag = Tags.FrozenUpdate;
+            base.Depth = -2000002;
             merging = true;
         }
 
         public void OnPlayer(Player player) {
-            if (!Collected && !(Scene as Level).Frozen) {
+            Level level = (Scene as Level);
+            if (!Collected && !level.Frozen) {
                 if (player.DashAttacking) {
-                    Collect(player);
+                    Collect(player, level);
                     return;
                 }
                 if (bounceSfxDelay <= 0f) {
@@ -137,13 +147,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 moveWiggler.Start();
                 moveWiggleDir = (Center - player.Center).SafeNormalize(Vector2.UnitY);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
+                
             }
         }
 
         public void OnHoldable(Holdable holdable) {
             Player player = Scene.Tracker.GetEntity<Player>();
             if (!Collected && player != null && holdable.Dangerous(holdableCollider)) {
-                Collect(player);
+                Collect(player, Scene as Level);
             }
         }
 
@@ -174,6 +185,57 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (Collected && !merging && Scene.OnInterval(Calc.Random.Range(0.5f, 0.8f))) {
                 level.Particles.Emit(P_LightBeam, 4, Center + shaker.Value, Vector2.One, Calc.Random.NextAngle());
             }
+        }
+
+        public void StartSpinAnimation(Vector2 averagePos, Vector2 centerPos, float angleOffset, float time) {
+            shaker.On = false;
+            float spinLerp = 0f;
+            Vector2 start = Position;
+            Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.CubeIn, time / 2f, start: true);
+            tween.OnUpdate = delegate (Tween t)
+            {
+                spinLerp = t.Eased;
+            };
+            Add(tween);
+            tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.CubeInOut, time, start: true);
+            tween.OnUpdate = delegate (Tween t)
+            {
+                float angleRadians = (float) Math.PI / 2f + angleOffset - MathHelper.Lerp(0f, 32.2013245f, t.Eased);
+                Vector2 value = Vector2.Lerp(averagePos, centerPos, spinLerp) + Calc.AngleToVector(angleRadians, 30f);
+                Position = Vector2.Lerp(start, value, spinLerp);
+            };
+            Add(tween);
+        }
+
+        public void StartCombineAnimation(Vector2 centerPos, float time, ParticleSystem particleSystem, Level level) {
+            collectSfx.Stop(allowFadeout: false);
+            Vector2 position = Position;
+            float startAngle = Calc.Angle(centerPos, position);
+            Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.BigBackIn, time, start: true);
+            tween.OnUpdate = delegate (Tween t) {
+                float tEased = t.Eased;
+                Vector2 oldPos = Center;
+                float angleRadians = MathHelper.Lerp(startAngle, startAngle - (float) Math.PI * 2f, Ease.CubeIn(t.Percent));
+                float length = MathHelper.Lerp(30f, 0f, t.Eased);
+                Position = centerPos + Calc.AngleToVector(angleRadians, length);
+
+                if (level.OnInterval(.03f))
+                    particleSystem.Emit(StrawberrySeed.P_Burst, 1, Center, Vector2.One, (Center - oldPos).Angle());
+
+                if (t.Percent > 0.5f) {
+                    level.Shake((t.Percent - .5f) * .5f);
+                }
+            };
+            tween.OnComplete = delegate
+            {
+                Visible = false;
+                for (int i = 0; i < 6; i++) {
+                    float num = Calc.Random.NextFloat((float) Math.PI * 2f);
+                    particleSystem.Emit(StrawberrySeed.P_Burst, 1, Position + Calc.AngleToVector(num, 4f), Vector2.Zero, num);
+                }
+                RemoveSelf();
+            };
+            Add(tween);
         }
 
         #region HeartGem Extensions
