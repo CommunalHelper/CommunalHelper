@@ -10,8 +10,14 @@ namespace Celeste.Mod.CommunalHelper {
         public static CommunalHelperModule Instance;
 		public override Type SettingsType => typeof(CommunalHelperSettings);
 		public static CommunalHelperSettings Settings => (CommunalHelperSettings)Instance._Settings;
+        
+        public override Type SaveDataType => typeof(CommunalHelperSaveData);
+        public static CommunalHelperSaveData SaveData => (CommunalHelperSaveData) Instance._SaveData;
 
-		public CommunalHelperModule() {
+        public override Type SessionType => typeof(CommunalHelperSession);
+        public static CommunalHelperSession Session => (CommunalHelperSession) Instance._Session;
+        
+        public CommunalHelperModule() {
 			Instance = this;
         }
 
@@ -25,6 +31,8 @@ namespace Celeste.Mod.CommunalHelper {
             CustomCassetteBlockHooks.Hook();
             SyncedZipMoverActivationControllerHooks.Hook();
 			AttachedWallBooster.Hook();
+
+            CustomSummitGem.Load();
         }
 
 		public override void Unload() {
@@ -37,7 +45,9 @@ namespace Celeste.Mod.CommunalHelper {
             CustomCassetteBlockHooks.Unhook();
             SyncedZipMoverActivationControllerHooks.Unhook();
 			AttachedWallBooster.Unhook();
-		}
+
+            CustomSummitGem.Unload();
+        }
 
 		public override void LoadContent(bool firstLoad) {
 			StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
@@ -52,8 +62,18 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamSwitchGate.InitializeParticles();
         }
+        
+        public override void SaveSaveData(int index) {
+            SaveData.SummitGems?.Sort();
+            base.SaveSaveData(index);
+        }
 
-	}
+        public override void SaveSession(int index) {
+            Session.SummitGems?.Sort();
+            base.SaveSession(index);
+        }
+        
+    }
 
 	public static class Util {
 		public static void log(string str) {
