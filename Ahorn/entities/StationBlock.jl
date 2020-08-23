@@ -7,7 +7,8 @@ const behaviors = ["Pulling", "Pushing"]
 @mapdef Entity "CommunalHelper/StationBlock" StationBlock(
 			x::Integer, y::Integer,
 			width::Integer=16, height::Integer=16,
-			theme::String="Normal", behavior::String="Pulling")
+            theme::String="Normal", behavior::String="Pulling",
+            customBlockPath::String="", customArrowPath::String="", customTrackPath::String="")
 
 const placements = Ahorn.PlacementDict(
     "Station Block ($theme, $behavior) (Communal Helper)" => Ahorn.EntityPlacement(
