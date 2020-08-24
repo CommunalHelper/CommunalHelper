@@ -24,6 +24,8 @@ namespace Celeste.Mod.CommunalHelper {
 		
 		public const string game_usableSummitGems_gem_unlock_la = "event:/CommunalHelperEvents/game/usableSummitGems/gem_unlock_la";
 		public const string game_usableSummitGems_gem_unlock_ti = "event:/CommunalHelperEvents/game/usableSummitGems/gem_unlock_ti";
+
+        public const string game_redirectMoveBlock_arrowblock_move = "event:/CommunalHelperEvents/game/redirectMoveBlock/arrowblock_move";
     }
 
     public static class CustomBanks {
