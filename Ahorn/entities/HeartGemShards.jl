@@ -7,7 +7,7 @@ using ..Ahorn, Maple
 	keepGoingDialog::String="CH9_KEEP_GOING")
 
 const placements = Ahorn.PlacementDict(
-	"Crystal Heart (CommunalHelper)" => Ahorn.EntityPlacement(
+	"Crystal Heart (Communal Helper)" => Ahorn.EntityPlacement(
 	CrystalHeart,
 	"point",
 	Dict{String, Any}(),
