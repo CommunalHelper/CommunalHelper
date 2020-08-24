@@ -63,7 +63,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             : base(position) {
             Heart = heart;
             heartData = new DynData<HeartGem>(Heart);
-            this.index = index;
+
+            this.index = index; 
 
             Depth = Depths.Pickups;
 
@@ -187,7 +188,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        public void StartSpinAnimation(Vector2 averagePos, Vector2 centerPos, float angleOffset, float time) {
+        public void StartSpinAnimation(Vector2 averagePos, Vector2 centerPos, float angleOffset, float time, bool regular) {
             shaker.On = false;
             float spinLerp = 0f;
             Vector2 start = Position;
@@ -201,13 +202,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             tween.OnUpdate = delegate (Tween t)
             {
                 float angleRadians = (float) Math.PI / 2f + angleOffset - MathHelper.Lerp(0f, 32.2013245f, t.Eased);
-                Vector2 value = Vector2.Lerp(averagePos, centerPos, spinLerp) + Calc.AngleToVector(angleRadians, 30f);
+                Vector2 value = Vector2.Lerp(averagePos, centerPos, spinLerp) + Calc.AngleToVector(angleRadians, regular ? 30f : MathHelper.Lerp(30f, 5f, t.Eased));
                 Position = Vector2.Lerp(start, value, spinLerp);
             };
             Add(tween);
         }
 
-        public void StartCombineAnimation(Vector2 centerPos, float time, ParticleSystem particleSystem, Level level) {
+        public void StartCombineAnimation(Vector2 centerPos, float time, ParticleSystem particleSystem, Level level, bool spin) {
             collectSfx.Stop(allowFadeout: false);
             Vector2 position = Position;
             float startAngle = Calc.Angle(centerPos, position);
@@ -215,8 +216,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             tween.OnUpdate = delegate (Tween t) {
                 float tEased = t.Eased;
                 Vector2 oldPos = Center;
-                float angleRadians = MathHelper.Lerp(startAngle, startAngle - (float) Math.PI * 2f, Ease.CubeIn(t.Percent));
-                float length = MathHelper.Lerp(30f, 0f, t.Eased);
+                float angleRadians = spin ? MathHelper.Lerp(startAngle, startAngle - (float) Math.PI * 2f, Ease.CubeIn(t.Percent)) : startAngle;
+                float length = MathHelper.Lerp(spin ? 30f : 5f + 45f * t.Percent, 0f, t.Eased);
                 Position = centerPos + Calc.AngleToVector(angleRadians, length);
 
                 if (level.OnInterval(.03f))

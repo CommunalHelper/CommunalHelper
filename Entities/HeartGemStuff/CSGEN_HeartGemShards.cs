@@ -30,7 +30,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private IEnumerator Cutscene(Level level) {
-            sfx = Audio.Play("event:/game/general/seed_complete_main", Position);
+            sfx = Audio.Play(CustomSFX.game_seedCrystalHeart_collect_all_main, Position);
             snapshot = Audio.CreateSnapshot("snapshot:/music_mains_mute", true);
             Player entity = Scene.Tracker.GetEntity<Player>();
             if (entity != null) {
@@ -61,25 +61,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             system.Tag = Tags.FrozenUpdate;
             level.Add(system);
             float num = Calc.Circle / pieces.Count;
-            float num2 = Calc.QuarterCircle;
+            float num2 = num;
             Vector2 vector = Vector2.Zero;
             foreach (HeartGemShard piece in pieces) {
                 vector += piece.Position;
             }
             vector /= pieces.Count;
+
+            float duration = 5f;;
+            bool specialCase = pieces.Count != 3;
             foreach (HeartGemShard piece in pieces) {
-                piece.StartSpinAnimation(vector, heart.Position, num2, 4.5f);
-                num2 -= num;
+                piece.StartSpinAnimation(vector, heart.Position, num2, duration, regular: specialCase);
+                num2 += num;
             }
             Vector2 vector2 = heart.Position - new Vector2(160f, 90f);
             vector2 = vector2.Clamp(level.Bounds.Left, level.Bounds.Top, level.Bounds.Right - 320, level.Bounds.Bottom - 180);
-            Add(new Coroutine(CameraTo(vector2, 3.8f, Ease.CubeInOut, 0f), true));
-            yield return 4.5f;
+            Add(new Coroutine(CameraTo(vector2, duration - .8f, Ease.CubeInOut, 0f), true));
+            yield return duration;
 
             Input.Rumble(RumbleStrength.Light, RumbleLength.Long);
             Audio.Play(CustomSFX.game_seedCrystalHeart_shards_reform, heart.Position);
             foreach (HeartGemShard piece in pieces) {
-                piece.StartCombineAnimation(heart.Position, 0.658f, system, level);
+                piece.StartCombineAnimation(heart.Position, 0.658f, system, level, spin: specialCase);
             }
             yield return 0.658f;
 

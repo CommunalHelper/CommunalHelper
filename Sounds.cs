@@ -33,6 +33,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public const string game_seedCrystalHeart_shards_reform = "event:/CommunalHelperEvents/game/seedCrystalHeart/shards_reform";
         public const string game_seedCrystalHeart_shard_collect = "event:/CommunalHelperEvents/game/seedCrystalHeart/shard_collect";
+        public const string game_seedCrystalHeart_collect_all_main = "event:/CommunalHelperEvents/game/seedCrystalHeart/collect_all_main";
     }
 
     public static class CustomBanks {
