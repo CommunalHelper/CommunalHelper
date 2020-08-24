@@ -113,46 +113,53 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (block == null) {
                     SetTrackTheme(StationBlock.Theme.Normal, false);
                 } else {
-                    SetTrackTheme(block.theme, block.reverseControls);
+                    SetTrackTheme(block.theme, block.reverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
                 }
             }
         }
 
-        private void SetTrackTheme(StationBlock.Theme theme, bool reversedControls) {
-            string node, trackV, trackH;
-            bool constantLooping;
-            switch (theme) {
-                default:
-                case StationBlock.Theme.Normal:
-                    constantLooping = false;
-                    if (reversedControls) {
-                        node = "altTrack/ball";
-                        trackV = "altTrack/pipeV";
-                        trackH = "altTrack/pipeH";
-                    } else {
-                        node = "track/ball";
-                        trackV = "track/pipeV";
-                        trackH = "track/pipeH";
-                    }
-                    break;
+        private void SetTrackTheme(StationBlock.Theme theme, bool reversedControls, MTexture customNode = null, MTexture customTrackH = null, MTexture customTrackV = null) {
+            if (customNode == null && customTrackH == null && customTrackV == null) {
+                string node, trackV, trackH;
+                bool constantLooping;
+                switch (theme) {
+                    default:
+                    case StationBlock.Theme.Normal:
+                        constantLooping = false;
+                        if (reversedControls) {
+                            node = "altTrack/ball";
+                            trackV = "altTrack/pipeV";
+                            trackH = "altTrack/pipeH";
+                        } else {
+                            node = "track/ball";
+                            trackV = "track/pipeV";
+                            trackH = "track/pipeH";
+                        }
+                        break;
 
-                case StationBlock.Theme.Moon:
-                    constantLooping = true;
-                    if (reversedControls) {
-                        node = "altMoonTrack/node";
-                        trackV = "altMoonTrack/trackV";
-                        trackH = "altMoonTrack/trackH";
-                    } else {
-                        node = "moonTrack/node";
-                        trackV = "moonTrack/trackV";
-                        trackH = "moonTrack/trackH";
-                    }
-                    break;
-            }
-            foreach (StationBlockTrack track in Group) {
-                track.trackConstantLooping = constantLooping;
-                track.trackSprite = GFX.Game[TracksPath + (track.horizontal ? trackH : trackV)];
-                track.nodeSprite = GFX.Game.GetAtlasSubtextures(TracksPath + node);
+                    case StationBlock.Theme.Moon:
+                        constantLooping = true;
+                        if (reversedControls) {
+                            node = "altMoonTrack/node";
+                            trackV = "altMoonTrack/trackV";
+                            trackH = "altMoonTrack/trackH";
+                        } else {
+                            node = "moonTrack/node";
+                            trackV = "moonTrack/trackV";
+                            trackH = "moonTrack/trackH";
+                        }
+                        break;
+                }
+                foreach (StationBlockTrack track in Group) {
+                    track.trackConstantLooping = constantLooping;
+                    track.trackSprite = GFX.Game[TracksPath + (track.horizontal ? trackH : trackV)];
+                    track.nodeSprite = GFX.Game.GetAtlasSubtextures(TracksPath + node);
+                }
+            } else {
+                foreach (StationBlockTrack track in Group) {
+                    track.trackSprite = track.horizontal ? customTrackH : customTrackV;
+                    track.nodeSprite = new List<MTexture>() { customNode };
+                }
             }
         }
 

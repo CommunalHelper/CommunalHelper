@@ -17,8 +17,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private MTexture[,] tileSlices, blockTiles;
         private Sprite arrowSprite;
 
+        public MTexture CustomNode = null, CustomTrackV = null, CustomTrackH = null;
+
         private static ParticleType P_BlueSparks;
         private static ParticleType P_PurpleSparks;
+        private ParticleType p_sparks;
 
         private ArrowDir arrowDir;
         private float percent = 0f;
@@ -65,6 +68,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             reverseControls = data.Attr("behavior", "Pulling") == "Pushing";
             theme = data.Enum<Theme>("theme");
 
+            string customBlockPath = data.Attr("customBlockPath").Trim();
+            string customArrowPath = data.Attr("customArrowPath").Trim();
+            string customTrackPath = data.Attr("customTrackPath").Trim();
+
             switch (theme) {
                 default:
                 case Theme.Normal:
@@ -89,17 +96,34 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     break;
             }
 
+            MTexture customBlock = null;
+            Sprite customArrow = null;
+
+            p_sparks = theme == Theme.Normal ? ZipMover.P_Sparks : (reverseControls ? P_PurpleSparks : P_BlueSparks);
+
+            if (customBlockPath != "") {
+                customBlock = GFX.Game["objects/" + customBlockPath];
+                p_sparks = ZipMover.P_Sparks;
+            }
+            if (customArrowPath != "") {
+                customArrow = LookForCustomSprite("objects/" + customArrowPath, size);
+            }
+            if (customTrackPath != "") {
+                CustomNode = GFX.Game["objects/" + customTrackPath + "/node"];
+                CustomTrackV = GFX.Game["objects/" + customTrackPath + "/trackv"];
+                CustomTrackH = GFX.Game["objects/" + customTrackPath + "/trackh"];
+            }
+
             tileSlices = new MTexture[3, 3];
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    tileSlices[i, j] = GFX.Game[block].GetSubtexture(i * 8, j * 8, 8, 8);
+                    tileSlices[i, j] = (customBlock ?? GFX.Game[block]).GetSubtexture(i * 8, j * 8, 8, 8);
                 }
             }
 
             GenerateTiles();
 
-            arrowSprite = StationBlockSpriteBank.Create(sprite);
-            arrowSprite.Position = this.offset;
+            arrowSprite = customArrow ?? StationBlockSpriteBank.Create(sprite);
             arrowDir = ArrowDir.Up;
             Add(arrowSprite);
 
@@ -108,6 +132,79 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(Sfx = new SoundSource());
             Sfx.Position = this.offset;
             OnDashCollide = OnDashed;
+        }
+
+        private static Sprite LookForCustomSprite(string path, string image) {
+            path += "/";
+
+            float delay;
+            switch (image) {
+                default:
+                case "big":
+                    delay = 0.06f;
+                    break;
+                case "medium":
+                    image = "med";
+                    delay = 0.05f;
+                    break;
+                case "small":
+                    delay = 0.04f;
+                    break;
+            }
+
+            Sprite sprite = new Sprite(GFX.Game, path);
+
+            sprite.JustifyOrigin(.5f, .5f);
+
+            // <Loop id="IdleUp" path="small" frames="0" delay="0.04"/>
+            // <Loop id="IdleRight" path="small" frames="4" delay="0.04"/>
+            // <Loop id="IdleDown" path="small" frames="8" delay="0.04"/>
+            // <Loop id="IdleLeft" path="small" frames="12" delay="0.04"/>
+            sprite.Add("IdleUp", image, delay, 0);
+            sprite.Add("IdleRight", image, delay, 4);
+            sprite.Add("IdleDown", image, delay, 8);
+            sprite.Add("IdleLeft", image, delay, 12);
+
+            // <Anim id="UpToUp" path="small" frames="0,1,0,15,0" delay="0.04" goto="IdleUp"/>
+            // <Anim id="RightToRight" path="small" frames="4,3,4,5,4" delay="0.04" goto="IdleRight"/>
+            // <Anim id="DownToDown" path="small" frames="8,9,8,7,8" delay="0.04" goto="IdleDown"/>
+            // <Anim id="LeftToLeft" path="small" frames="12,13,12,11,12" delay="0.04" goto="IdleLeft"/>
+            sprite.Add("UpToUp", image, delay, "IdleUp", 0, 1, 0, 15, 0);
+            sprite.Add("RightToRight", image, delay, "IdleRight", 4, 3, 4, 5, 4);
+            sprite.Add("DownToDown", image, delay, "IdleDown", 8, 9, 8, 7, 8);
+            sprite.Add("LeftToLeft", image, delay, "IdleLeft", 12, 13, 12, 11, 12);
+
+            // <Anim id="UpToRight" path="small" frames="0-4" delay="0.04" goto="IdleRight"/>
+            // <Anim id="UpToDown" path="small" frames="0,1,2,6,7,8" delay="0.04" goto="IdleDown"/>
+            // <Anim id="UpToLeft" path="small" frames="0,15,14,13,12" delay="0.04" goto="IdleLeft"/>
+            sprite.Add("UpToRight", image, delay, "IdleRight", 0, 1, 2, 3, 4);
+            sprite.Add("UpToDown", image, delay, "IdleDown", 0, 1, 2, 6, 7, 8);
+            sprite.Add("UpToLeft", image, delay, "IdleLeft", 0, 15, 14, 13, 12);
+
+            // <Anim id="RightToUp" path="small" frames="4,3,2,1,0" delay="0.04" goto="IdleUp"/>
+            // <Anim id="RightToDown" path="small" frames="4-8" delay="0.04" goto="IdleDown"/>
+            // <Anim id="RightToLeft" path="small" frames="4,5,6,10,11,12" delay="0.04" goto="IdleLeft"/>
+            sprite.Add("RightToUp", image, delay, "IdleUp", 4, 3, 2, 1, 0);
+            sprite.Add("RightToDown", image, delay, "IdleDown", 4, 5, 6, 7, 8);
+            sprite.Add("RightToLeft", image, delay, "IdleLeft", 4, 5, 6, 10, 11, 12);
+
+            // <Anim id="DownToRight" path="small" frames="8,7,6,5,4" delay="0.04" goto="IdleRight"/>
+            // <Anim id="DownToUp" path="small" frames="8,9,10,14,15,0" delay="0.04" goto="IdleUp"/>
+            // <Anim id="DownToLeft" path="small" frames="8-12" delay="0.04" goto="IdleLeft"/>
+            sprite.Add("DownToRight", image, delay, "IdleRight", 8, 7, 6, 5, 4);
+            sprite.Add("DownToUp", image, delay, "IdleUp", 8, 9, 10, 14, 15, 0);
+            sprite.Add("DownToLeft", image, delay, "IdleLeft", 8, 9, 10, 11, 12);
+
+            // <Anim id="LeftToRight" path="small" frames="12,13,14,2,3,4" delay="0.04" goto="IdleRight"/>
+            // <Anim id="LeftToUp" path="small" frames="12,13,14,15,0" delay="0.04" goto="IdleUp"/>
+            // <Anim id="LeftToDown" path="small" frames="12,11,10,9,8" delay="0.04" goto="IdleDown"/>
+            sprite.Add("LeftToRight", image, delay, "IdleRight", 12, 13, 14, 2, 3, 4);
+            sprite.Add("LeftToUp", image, delay, "IdleUp", 12, 13, 14, 15, 0);
+            sprite.Add("LeftToDown", image, delay, "IdleDown", 12, 11, 10, 9, 8);
+
+            sprite.CenterOrigin();
+
+            return sprite;
         }
 
         private void GenerateTiles() {
@@ -286,7 +383,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Vector2 vector = Vector2.Lerp(start, target, percent);
                         ScrapeParticlesCheck(vector);
                         if (Scene.OnInterval(0.05f)) {
-                            currentTrack.CreateSparks(Center, theme == Theme.Normal ? ZipMover.P_Sparks : (reverseControls ? P_PurpleSparks : P_BlueSparks));
+                            currentTrack.CreateSparks(Center, p_sparks);
                         }
 
                         MoveTo(vector);
@@ -331,7 +428,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
             arrowSprite.Scale = scale;
-            arrowSprite.Position = (new Vector2(Width, Height) / 2f) + hitOffset;
+            arrowSprite.Position = hitOffset + offset;
 
             scale.X = Calc.Approach(scale.X, 1f, Engine.DeltaTime * 4f);
             scale.Y = Calc.Approach(scale.Y, 1f, Engine.DeltaTime * 4f);
