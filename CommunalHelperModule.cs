@@ -28,7 +28,6 @@ namespace Celeste.Mod.CommunalHelper {
             SyncedZipMoverActivationControllerHooks.Hook();
             AttachedWallBooster.Hook();
 
-            MultiDashHeartGem.Load();
             HeartGemShard.Load();
 
             // External optional dependencies loaded in LoadContent

@@ -8,17 +8,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked]
     public class HeartGemShard : Entity {
 
+        /// <summary>
+        /// DynData field name for storing HeartGemShards in HeartGem
+        /// </summary>
         public const string HeartGem_HeartGemPieces = "communalHelperGemPieces";
 
-        public static ParticleType P_LightBeam;
+        public static ParticleType P_Burst;
 
         public HeartGem Heart;
         public bool Collected;
 
         protected DynData<HeartGem> heartData;
+        protected int index;
 
-        private int index;
-
+        // Separated sprite from outline for cleaner tinting
         private Image sprite;
         private Image outline;
         private HoldableCollider holdableCollider;
@@ -29,7 +32,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private VertexLight light;
         private Tween lightTween;
 
-        private Wiggler ScaleWiggler;
+        private Wiggler scaleWiggler;
         private Wiggler moveWiggler;
         private Vector2 moveWiggleDir;
         private Shaker shaker;
@@ -39,7 +42,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private SoundSource collectSfx;
 
         public static void InitializeParticles() {
-            P_LightBeam = new ParticleType {
+            P_Burst = new ParticleType {
                 Source = GFX.Game["particles/shard"],
                 Size = 0.5f,
                 Color = new Color(0.8f, 1f, 1f),
@@ -64,7 +67,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Heart = heart;
             heartData = new DynData<HeartGem>(Heart);
 
-            this.index = index; 
+            this.index = index;
 
             Depth = Depths.Pickups;
 
@@ -77,12 +80,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(moveWiggler);
             Add(collectSfx = new SoundSource());
 
-            Add(shaker = new Shaker(false));
+            Add(shaker = new Shaker(on: false));
             shaker.Interval = 0.1f;
 
+            // index % 3 determines which third of the heart this piece looks like
             Add(sprite = new Image(GFX.Game.GetAtlasSubtexturesAt("collectables/CommunalHelper/heartGemShard/shard", index % 3)).CenterOrigin());
             Add(outline = new Image(GFX.Game.GetAtlasSubtexturesAt("collectables/CommunalHelper/heartGemShard/shard_outline", index % 3)).CenterOrigin());
-            Add(ScaleWiggler = Wiggler.Create(0.5f, 4f, f => sprite.Scale = Vector2.One * (1f + f * 0.25f)));
+            Add(scaleWiggler = Wiggler.Create(0.5f, 4f, f => sprite.Scale = Vector2.One * (1f + f * 0.25f)));
 
             Add(new BloomPoint(Heart.IsFake ? 0f : 0.75f, 16f));
             Add(new MirrorReflection());
@@ -90,6 +94,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Added(Scene scene) {
             base.Added(scene);
+            // Hack to determine sprite color without resorting to a switch statement
             Color color = Heart.IsGhost ? new Color(130, 144, 198) : Heart.Get<VertexLight>().Color;
             sprite.Color = color;
 
@@ -111,30 +116,29 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (!piece.Collected)
                     allCollected = false;
 
-
             collectSfx.Play(CustomSFX.game_seedCrystalHeart_shard_collect, "shatter", allCollected ? 0f : 1f);
             Celeste.Freeze(.1f);
-
             level.Shake(.15f);
             level.Flash(Color.White * .25f);
+
             if (allCollected)
                 Scene.Add(new CSGEN_HeartGemShards(Heart));
         }
 
         public void OnAllCollected() {
-            Depth = Depths.Pickups;
             Tag = Tags.FrozenUpdate;
-            base.Depth = -2000002;
+            Depth = -2000002;
             merging = true;
         }
 
         public void OnPlayer(Player player) {
-            Level level = (Scene as Level);
+            Level level = Scene as Level;
             if (!Collected && !level.Frozen) {
                 if (player.DashAttacking) {
                     Collect(player, level);
                     return;
                 }
+
                 if (bounceSfxDelay <= 0f) {
                     if (Heart.IsFake) {
                         Audio.Play(SFX.game_10_fakeheart_bounce, Position);
@@ -143,12 +147,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                     bounceSfxDelay = 0.1f;
                 }
+
                 player.PointBounce(Center, 110f);
-                ScaleWiggler.Start();
+                scaleWiggler.Start();
                 moveWiggler.Start();
                 moveWiggleDir = (Center - player.Center).SafeNormalize(Vector2.UnitY);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
-                
             }
         }
 
@@ -162,17 +166,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             bounceSfxDelay -= Engine.DeltaTime;
             timer += Engine.DeltaTime;
+
             sprite.Position = Vector2.UnitY * (!Collected ? (float) Math.Sin(timer * 2f) * 2f : 0);
             sprite.Position += moveWiggleDir * moveWiggler.Value * -4f;
             sprite.Position += shaker.Value;
 
+            // Make sure the outline always matches up with the main sprite
             outline.Position = sprite.Position;
             outline.Scale = sprite.Scale;
 
             base.Update();
 
             Level level = SceneAs<Level>();
-            if (!Collected) { 
+            if (!Collected) {
                 if (Scene.OnInterval(0.1f))
                     level.Particles.Emit(shineParticle, 1, Center, Vector2.One * 4f);
 
@@ -184,7 +190,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             if (Collected && !merging && Scene.OnInterval(Calc.Random.Range(0.5f, 0.8f))) {
-                level.Particles.Emit(P_LightBeam, 4, Center + shaker.Value, Vector2.One, Calc.Random.NextAngle());
+                level.Particles.Emit(P_Burst, 4, Center + shaker.Value, Vector2.One, Calc.Random.NextAngle());
             }
         }
 
@@ -193,16 +199,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             float spinLerp = 0f;
             Vector2 start = Position;
             Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.CubeIn, time / 2f, start: true);
-            tween.OnUpdate = delegate (Tween t)
-            {
-                spinLerp = t.Eased;
-            };
+            tween.OnUpdate = t => spinLerp = t.Eased;
             Add(tween);
+
             tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.CubeInOut, time, start: true);
-            tween.OnUpdate = delegate (Tween t)
-            {
-                float angleRadians = (float) Math.PI / 2f + angleOffset - MathHelper.Lerp(0f, 32.2013245f, t.Eased);
-                Vector2 value = Vector2.Lerp(averagePos, centerPos, spinLerp) + Calc.AngleToVector(angleRadians, regular ? 30f : MathHelper.Lerp(30f, 5f, t.Eased));
+            tween.OnUpdate = t => {
+                float angle = Calc.QuarterCircle + angleOffset - MathHelper.Lerp(0f, Calc.Circle * 5 + Calc.EighthCircle, t.Eased);
+                Vector2 value = Vector2.Lerp(averagePos, centerPos, spinLerp) + Calc.AngleToVector(angle, regular ? 30f : MathHelper.Lerp(30f, 5f, t.Eased));
                 Position = Vector2.Lerp(start, value, spinLerp);
             };
             Add(tween);
@@ -210,15 +213,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public void StartCombineAnimation(Vector2 centerPos, float time, ParticleSystem particleSystem, Level level, bool spin) {
             collectSfx.Stop(allowFadeout: false);
-            Vector2 position = Position;
-            float startAngle = Calc.Angle(centerPos, position);
+            float startAngle = Calc.Angle(centerPos, Position);
             Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.BigBackIn, time, start: true);
-            tween.OnUpdate = delegate (Tween t) {
-                float tEased = t.Eased;
+            tween.OnUpdate = t => {
                 Vector2 oldPos = Center;
-                float angleRadians = spin ? MathHelper.Lerp(startAngle, startAngle - (float) Math.PI * 2f, Ease.CubeIn(t.Percent)) : startAngle;
+                float angle = spin ? MathHelper.Lerp(startAngle, startAngle - Calc.Circle, Ease.CubeIn(t.Percent)) : startAngle;
                 float length = MathHelper.Lerp(spin ? 30f : 5f + 45f * t.Percent, 0f, t.Eased);
-                Position = centerPos + Calc.AngleToVector(angleRadians, length);
+                Position = centerPos + Calc.AngleToVector(angle, length);
 
                 if (level.OnInterval(.03f))
                     particleSystem.Emit(StrawberrySeed.P_Burst, 1, Center, Vector2.One, (Center - oldPos).Angle());
@@ -227,12 +228,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     level.Shake((t.Percent - .5f) * .5f);
                 }
             };
-            tween.OnComplete = delegate
-            {
+            tween.OnComplete = delegate {
                 Visible = false;
                 for (int i = 0; i < 6; i++) {
-                    float num = Calc.Random.NextFloat((float) Math.PI * 2f);
-                    particleSystem.Emit(StrawberrySeed.P_Burst, 1, Position + Calc.AngleToVector(num, 4f), Vector2.Zero, num);
+                    float angle = Calc.Random.NextFloat(Calc.Circle);
+                    particleSystem.Emit(StrawberrySeed.P_Burst, 1, Position + Calc.AngleToVector(angle, 4f), Vector2.Zero, angle);
                 }
                 RemoveSelf();
             };
@@ -246,10 +246,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             heartData.Target.Active = true;
             heartData.Target.Collidable = true;
             heartData.Get<BloomPoint>("bloom").Visible = heartData.Get<VertexLight>("light").Visible = true;
-        }
-
-        public static void CollectedPieces(HeartGem heartGem) {
-            CollectedPieces(new DynData<HeartGem>(heartGem));
         }
 
         #endregion
@@ -268,6 +264,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void HeartGem_ctor_EntityData_Vector2(On.Celeste.HeartGem.orig_ctor_EntityData_Vector2 orig, HeartGem self, EntityData data, Vector2 offset) {
             orig(self, data, offset);
+
             DynData<HeartGem> gemData = new DynData<HeartGem>(self);
             if (data.Nodes != null && data.Nodes.Length != 0) {
                 List<HeartGemShard> pieces = new List<HeartGemShard>();
@@ -284,7 +281,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             orig(self, scene);
 
             DynData<HeartGem> gemData = new DynData<HeartGem>(self);
-
             List<HeartGemShard> pieces = gemData.Get<List<HeartGemShard>>(HeartGem_HeartGemPieces);
             if (pieces != null && pieces.Count > 0) {
                 foreach (HeartGemShard piece in pieces) {

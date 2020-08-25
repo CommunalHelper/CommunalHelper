@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -31,7 +30,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private IEnumerator Cutscene(Level level) {
             sfx = Audio.Play(CustomSFX.game_seedCrystalHeart_collect_all_main, Position);
-            snapshot = Audio.CreateSnapshot("snapshot:/music_mains_mute", true);
+            snapshot = Audio.CreateSnapshot(Snapshots.MAIN_DOWN, true);
+
             Player entity = Scene.Tracker.GetEntity<Player>();
             if (entity != null) {
                 cameraStart = entity.CameraTarget;
@@ -41,11 +41,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             foreach (HeartGemShard piece in pieces) {
                 piece.OnAllCollected();
             }
+
             heart.Depth = -2000002;
             heart.AddTag(Tags.FrozenUpdate);
             yield return 0.35f;
 
-            Tag = (Tags.FrozenUpdate | Tags.HUD);
+            Tag = Tags.FrozenUpdate | Tags.HUD;
             level.Frozen = true;
             level.FormationBackdrop.Display = true;
             level.FormationBackdrop.Alpha = 0.5f;
@@ -60,29 +61,29 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             system = new ParticleSystem(-2000002, 50);
             system.Tag = Tags.FrozenUpdate;
             level.Add(system);
-            float num = Calc.Circle / pieces.Count;
-            float num2 = num;
-            Vector2 vector = Vector2.Zero;
+            float angleIncr = Calc.Circle / pieces.Count;
+            float angle = angleIncr;
+            Vector2 averatePos = Vector2.Zero;
             foreach (HeartGemShard piece in pieces) {
-                vector += piece.Position;
+                averatePos += piece.Position;
             }
-            vector /= pieces.Count;
+            averatePos /= pieces.Count;
 
-            float duration = 5f;;
-            bool specialCase = pieces.Count != 3;
+            float duration = 5f;
+            bool specialCase = pieces.Count == 3;
             foreach (HeartGemShard piece in pieces) {
-                piece.StartSpinAnimation(vector, heart.Position, num2, duration, regular: specialCase);
-                num2 += num;
+                piece.StartSpinAnimation(averatePos, heart.Position, angle, duration, regular: !specialCase);
+                angle += angleIncr;
             }
-            Vector2 vector2 = heart.Position - new Vector2(160f, 90f);
-            vector2 = vector2.Clamp(level.Bounds.Left, level.Bounds.Top, level.Bounds.Right - 320, level.Bounds.Bottom - 180);
-            Add(new Coroutine(CameraTo(vector2, duration - .8f, Ease.CubeInOut, 0f), true));
+            Vector2 cameraTarget = heart.Position - new Vector2(160f, 90f);
+            cameraTarget = cameraTarget.Clamp(level.Bounds.Left, level.Bounds.Top, level.Bounds.Right - 320, level.Bounds.Bottom - 180);
+            Add(new Coroutine(CameraTo(cameraTarget, duration - .8f, Ease.CubeInOut, 0f), true));
             yield return duration;
 
             Input.Rumble(RumbleStrength.Light, RumbleLength.Long);
             Audio.Play(CustomSFX.game_seedCrystalHeart_shards_reform, heart.Position);
             foreach (HeartGemShard piece in pieces) {
-                piece.StartCombineAnimation(heart.Position, 0.658f, system, level, spin: specialCase);
+                piece.StartCombineAnimation(heart.Position, 0.658f, system, level, spin: !specialCase);
             }
             yield return 0.658f;
 
@@ -120,12 +121,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     HeartGemShard.CollectedPieces(heartData);
                     level.Camera.Position = cameraStart;
                 }
-                heart.Depth = -100;
+                heart.Depth = Depths.Pickups;
                 heart.RemoveTag(Tags.FrozenUpdate);
                 level.Frozen = false;
                 level.FormationBackdrop.Display = false;
                 level.Displacement.Enabled = true;
             };
+
             RemoveSelf();
         }
 
