@@ -71,6 +71,7 @@ namespace Celeste.Mod.CommunalHelper {
             // Call Level.LoadCustomEntity again incase we skipped over another custom entity handler
             if (entityData.Name == "CommunalHelper/CrystalHeart") {
                 entityData.Name = "blackGem";
+                entityData.Values[HeartGemShard.HeartGem_HeartGemID] = new EntityID(levelData.Name, entityData.ID);
                 return Level.LoadCustomEntity(entityData, level);
             }
 

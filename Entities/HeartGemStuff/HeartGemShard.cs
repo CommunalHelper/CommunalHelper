@@ -9,9 +9,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     public class HeartGemShard : Entity {
 
         /// <summary>
-        /// DynData field name for storing HeartGemShards in HeartGem
+        /// DynData field name for storing HeartGemShards in HeartGem.
         /// </summary>
         public const string HeartGem_HeartGemPieces = "communalHelperGemPieces";
+        /// <summary>
+        /// Dictionary entry name for storing the HeartGem EntityID in EntityData.<br/>
+        /// Also used as DynData field name for storing EntityID in HeartGem.
+        /// </summary>
+        public const string HeartGem_HeartGemID = "communalHelperHeartGemID";
 
         public static ParticleType P_Burst;
 
@@ -241,11 +246,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region HeartGem Extensions
 
+        protected static string GotShardFlag(DynData<HeartGem> heartData) => 
+            "collected_shards_of_" + heartData[HeartGem_HeartGemID].ToString();
+
         public static void CollectedPieces(DynData<HeartGem> heartData) {
             heartData.Target.Visible = true;
             heartData.Target.Active = true;
             heartData.Target.Collidable = true;
             heartData.Get<BloomPoint>("bloom").Visible = heartData.Get<VertexLight>("light").Visible = true;
+            heartData.Target.SceneAs<Level>().Session.SetFlag(GotShardFlag(heartData));
         }
 
         #endregion
@@ -265,31 +274,32 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void HeartGem_ctor_EntityData_Vector2(On.Celeste.HeartGem.orig_ctor_EntityData_Vector2 orig, HeartGem self, EntityData data, Vector2 offset) {
             orig(self, data, offset);
 
-            DynData<HeartGem> gemData = new DynData<HeartGem>(self);
+            DynData<HeartGem> heartData = new DynData<HeartGem>(self);
             if (data.Nodes != null && data.Nodes.Length != 0) {
                 List<HeartGemShard> pieces = new List<HeartGemShard>();
                 for (int i = 0; i < data.Nodes.Length; i++) {
                     pieces.Add(new HeartGemShard(self, offset + data.Nodes[i], i));
                 }
-                gemData[HeartGem_HeartGemPieces] = pieces;
+                heartData[HeartGem_HeartGemPieces] = pieces;
             } else
-                gemData[HeartGem_HeartGemPieces] = null;
+                heartData[HeartGem_HeartGemPieces] = null;
 
+            heartData[HeartGem_HeartGemID] = data.Values[HeartGem_HeartGemID];
         }
 
         private static void HeartGem_Awake(On.Celeste.HeartGem.orig_Awake orig, HeartGem self, Scene scene) {
             orig(self, scene);
 
-            DynData<HeartGem> gemData = new DynData<HeartGem>(self);
-            List<HeartGemShard> pieces = gemData.Get<List<HeartGemShard>>(HeartGem_HeartGemPieces);
-            if (pieces != null && pieces.Count > 0) {
+            DynData<HeartGem> heartData = new DynData<HeartGem>(self);
+            List<HeartGemShard> pieces = heartData.Get<List<HeartGemShard>>(HeartGem_HeartGemPieces);
+            if (pieces != null && pieces.Count > 0 && !(scene as Level).Session.GetFlag(GotShardFlag(heartData))) {
                 foreach (HeartGemShard piece in pieces) {
                     scene.Add(piece);
                 }
                 self.Visible = false;
                 self.Active = false;
                 self.Collidable = false;
-                gemData.Get<BloomPoint>("bloom").Visible = gemData.Get<VertexLight>("light").Visible = false;
+                heartData.Get<BloomPoint>("bloom").Visible = heartData.Get<VertexLight>("light").Visible = false;
             }
 
         }
