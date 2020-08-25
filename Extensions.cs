@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
+using Monocle;
 using MonoMod.Utils;
 
 namespace Celeste.Mod.CommunalHelper {
@@ -18,6 +19,17 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
+
+        #region Collider
+
+        public static bool Contains(this Collider container, Collider contained, float padding = 0) {
+            if (container.AbsoluteLeft - padding < contained.AbsoluteLeft && container.AbsoluteTop - padding < contained.AbsoluteTop &&
+                container.AbsoluteRight + padding > contained.AbsoluteRight && container.AbsoluteBottom + padding > contained.AbsoluteBottom)
+                return true;
+            return false;
+        }
+
+        #endregion
 
         #region WallBoosters
 
