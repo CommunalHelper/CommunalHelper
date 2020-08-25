@@ -221,13 +221,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     for (int y = 0; y < Height; y += 8) {
                         Vector2 offset = new Vector2(x + 4f, y + 4f);
                         DynamicData d = new DynamicData(m_Pooler_Create.Invoke(Engine.Pooler, null));
-                        d.Invoke("Remove", d.Get("sprite"));
-                        Image sprite = new Image(Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/debris")));
-                        sprite.CenterOrigin();
-                        sprite.FlipX = Calc.Random.Chance(0.5f);
-                        d.Set("sprite", sprite);
-                        d.Invoke("Add", sprite);
-                        d.Invoke("Init", Position + offset, Center, startPosition + offset, baseData.Get<Color>("activeLineColor"));
+                        d.Get<Image>("sprite").Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/debris"));
+                        d.Get<Image>("sprite").Color = baseData.Get<Color>("activeLineColor");
+                        d.Invoke("Init", Position + offset, Center, startPosition + offset);
                         debris.Add(d);
                         Scene.Add((Entity) d.Target);
                     }
