@@ -274,34 +274,38 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void HeartGem_ctor_EntityData_Vector2(On.Celeste.HeartGem.orig_ctor_EntityData_Vector2 orig, HeartGem self, EntityData data, Vector2 offset) {
             orig(self, data, offset);
 
-            DynData<HeartGem> heartData = new DynData<HeartGem>(self);
-            if (data.Nodes != null && data.Nodes.Length != 0) {
-                List<HeartGemShard> pieces = new List<HeartGemShard>();
-                for (int i = 0; i < data.Nodes.Length; i++) {
-                    pieces.Add(new HeartGemShard(self, offset + data.Nodes[i], i));
-                }
-                heartData[HeartGem_HeartGemPieces] = pieces;
-            } else
-                heartData[HeartGem_HeartGemPieces] = null;
+            // If it hasn't been loaded by our mod, don't even bother with it
+            if (data.Values.TryGetValue(HeartGem_HeartGemID, out object entityID)) {
 
-            heartData[HeartGem_HeartGemID] = data.Values[HeartGem_HeartGemID];
+                DynData<HeartGem> heartData = new DynData<HeartGem>(self);
+                if (data.Nodes != null && data.Nodes.Length != 0) {
+                    List<HeartGemShard> pieces = new List<HeartGemShard>();
+                    for (int i = 0; i < data.Nodes.Length; i++) {
+                        pieces.Add(new HeartGemShard(self, offset + data.Nodes[i], i));
+                    }
+                    heartData[HeartGem_HeartGemPieces] = pieces;
+
+                } else
+                    heartData[HeartGem_HeartGemPieces] = null;
+                heartData[HeartGem_HeartGemID] = entityID;
+            }
         }
 
         private static void HeartGem_Awake(On.Celeste.HeartGem.orig_Awake orig, HeartGem self, Scene scene) {
             orig(self, scene);
 
             DynData<HeartGem> heartData = new DynData<HeartGem>(self);
-            List<HeartGemShard> pieces = heartData.Get<List<HeartGemShard>>(HeartGem_HeartGemPieces);
-            if (pieces != null && pieces.Count > 0 && !(scene as Level).Session.GetFlag(GotShardFlag(heartData))) {
-                foreach (HeartGemShard piece in pieces) {
-                    scene.Add(piece);
+            if (heartData.Data.TryGetValue(HeartGem_HeartGemPieces, out object result)) {
+                if (result is List<HeartGemShard> pieces && pieces.Count > 0 && !(scene as Level).Session.GetFlag(GotShardFlag(heartData))) {
+                    foreach (HeartGemShard piece in pieces) {
+                        scene.Add(piece);
+                    }
+                    self.Visible = false;
+                    self.Active = false;
+                    self.Collidable = false;
+                    heartData.Get<BloomPoint>("bloom").Visible = heartData.Get<VertexLight>("light").Visible = false;
                 }
-                self.Visible = false;
-                self.Active = false;
-                self.Collidable = false;
-                heartData.Get<BloomPoint>("bloom").Visible = heartData.Get<VertexLight>("light").Visible = false;
             }
-
         }
 
         #endregion

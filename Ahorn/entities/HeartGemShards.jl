@@ -3,8 +3,7 @@ module CommunalHelperCrystalHeart
 using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/CrystalHeart" CrystalHeart(x::Integer, y::Integer, 
-	fake::Bool=false, removeCameraTriggers::Bool=false, fakeHeartDialog::String="CH9_FAKE_HEART", 
-	keepGoingDialog::String="CH9_KEEP_GOING")
+	removeCameraTriggers::Bool=false)
 
 const placements = Ahorn.PlacementDict(
 	"Crystal Heart (Communal Helper)" => Ahorn.EntityPlacement(
