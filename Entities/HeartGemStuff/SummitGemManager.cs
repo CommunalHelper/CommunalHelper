@@ -1,4 +1,6 @@
 ﻿using Celeste.Mod.Entities;
+using FMOD;
+using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -13,6 +15,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static readonly string[] UnlockEventLookup;
 
         private List<Gem> gems;
+        private Vector2? heartOffset;
+        private float[] melody;
 
         static CustomSummitGemManager() {
             UnlockEventLookup = new string[] {
@@ -27,10 +31,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public CustomSummitGemManager(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
-            gems = new List<Gem>();
             Depth = -10010;
+            // big ol' one liner
+            heartOffset = Array.ConvertAll(data.Attr("heartOffset").Split(','), str => float.Parse(str)).ToVector2();
 
-            string[] ids = data.Attr("gemIDs").Split(',');
+            if (data.Attr("melody").Contains(','))
+                melody = Array.ConvertAll(data.Attr("melody").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries), str => float.Parse(str));
+            else
+                melody = Array.ConvertAll(data.Attr("melody").ToCharArray(), chr => (float) (chr - '0'));
+
+            gems = new List<Gem>();
+            string[] ids = data.Attr("gemIds").Split(',');
             if (ids.Length < data.Nodes.Length)
                 throw new IndexOutOfRangeException("The number of supplied SummitGemManager IDs needs to match the number of nodes!");
             int idx = 0;
@@ -67,13 +78,46 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             bool alreadyHasHeart = level.Session.OldStats.Modes[0].HeartGem;
             int broken = 0;
+            int index = 0;
             foreach (Gem gem in gems) {
                 bool flag = CommunalHelperModule.Session.SummitGems.Contains(gem.ID);
                 if (!alreadyHasHeart) {
                     flag |= (CommunalHelperModule.SaveData.SummitGems != null && CommunalHelperModule.SaveData.SummitGems.Contains(gem.ID));
                 }
                 if (flag) {
-                    Audio.Play(UnlockEventLookup[gem.Index], gem.Position);
+                    float note = melody[index];
+
+                    EventInstance instance = Audio.Play(UnlockEventLookup[melody != null && melody.Length > index ? (int) Math.Truncate(note) : gem.Index], gem.Position);
+
+                    double remainder = note - Math.Truncate(note);
+                    if (remainder != 0) {
+                        Logger.Log("CommunalHelper", "Begin logging for experimental summitgem tones...");
+                        Console.WriteLine("Retrieving ChannelGroup...");
+                        RESULT result = instance.getChannelGroup(out ChannelGroup group);
+                        while (result != RESULT.OK) {
+                            yield return null;
+                            result = instance.getChannelGroup(out group);
+                        }
+
+                        Console.Write("Getting Number of Groups...\t");
+                        Console.WriteLine(group.getNumGroups(out int num));
+                        Console.WriteLine("Number of Groups: " + num);
+                        Console.Write("Getting Inner Group...\t");
+                        Console.WriteLine(group.getGroup(0, out group));
+
+                        Console.Write("Getting Number of Channels...\t");
+                        Console.WriteLine(group.getNumChannels(out int numChannels));
+                        Console.WriteLine("Number of Channels: " + numChannels);
+                        Console.Write("Getting Channel...\t");
+                        Console.WriteLine(group.getChannel(0, out Channel channel));
+
+                        Console.Write("Getting Frequency...\t");
+                        Console.WriteLine(channel.getFrequency(out float freq));
+                        Console.WriteLine("Channel Frequency: " + freq);
+                        Console.WriteLine("Setting Frequency to " + freq * (float) Math.Pow(2, remainder * 100f / 1200f));
+                        Console.WriteLine(channel.setFrequency(freq * (float) Math.Pow(2, remainder * 100f / 1200f)));
+                        Logger.Log("CommunalHelper", "End logging for experimental summitgem tones.");
+                    }
 
                     gem.Sprite.Play("spin");
                     while (gem.Sprite.CurrentAnimationID == "spin") {
@@ -100,7 +144,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     gem.Sprite.RemoveSelf();
                     yield return 0.25f;
                 }
+                index++;
             }
+
+            if (broken < index)
+                yield break;
 
             HeartGem heart = Scene.Entities.FindFirst<HeartGem>();
             if (heart != null) {
@@ -110,9 +158,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield break;
 
             Vector2 from = heart.Position;
+            Vector2 offset = heartOffset ?? Vector2.Zero;
             float p = 0f;
             while (p < 1f && heart.Scene != null) {
-                heart.Position = Vector2.Lerp(from, Position + new Vector2(0f, -16f), Ease.CubeOut(p));
+                heart.Position = Vector2.Lerp(from, Position + offset, Ease.CubeOut(p));
                 yield return null;
 
                 p += Engine.DeltaTime;
@@ -137,16 +186,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Gem(string id, Vector2 position) 
                 : base(position) {
                 ID = id;
-                Index = Calc.Clamp(id.Last() - '0', 0, 7);
+                Index = Calc.Clamp(int.Parse(id.Substring(id.LastIndexOf('/') + 1)), 0, 7);
                 Depth = -10010;
 
                 //Add(Bg = new Image(GFX.Game["collectables/summitgems/" + id + "/bg"]));
                 //Bg.CenterOrigin();
 
-                if (GFX.Game.Has("collectables/summitgems/" + id + "/gem")) {
+                if (GFX.Game.Has("collectables/summitgems/" + id + "/gem00")) {
                     Add(Sprite = new Sprite(GFX.Game, "collectables/summitgems/" + id + "/gem"));
                 } else {
-                    Add(Sprite = new Sprite(GFX.Game, "collectables/summitgems/" + Calc.Clamp(Index, 0, 5) + "/gem"));
+                    Add(Sprite = new Sprite(GFX.Game, "collectables/summitgems/" + Index + "/gem"));
                 }
                 Sprite.AddLoop("idle", "", 0.05f, 1);
                 Sprite.Add("spin", "", 0.05f, "idle");
@@ -155,7 +204,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Add(Bloom = new BloomPoint(0f, 20f));
 
-                if (Everest.Content.TryGet("collectables/summitgems/" + id + "/gem.meta", out ModAsset asset) &&
+                if (Everest.Content.TryGet(GFX.Game.RelativeDataPath + "collectables/summitgems/" + id + "/gem.meta", out ModAsset asset) &&
                     asset.TryDeserialize(out CustomSummitGem.ColorMeta meta)) {
                     ParticleColor = Calc.HexToColor(meta.Color);
                 } else

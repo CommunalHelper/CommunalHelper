@@ -21,10 +21,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         static CustomSummitGem() {
             GemColors = new Color[8];
-            Array.Copy(SummitGem.GemColors, GemColors, 5);
-            GemColors[5] = Calc.HexToColor("aaaaaa");
-            GemColors[6] = Calc.HexToColor("aaaaaa");
-            GemColors[7] = SummitGem.GemColors[5];
+            Array.Copy(SummitGem.GemColors, GemColors, 6);
+            GemColors[6] = Calc.HexToColor("57FFCD");
+            GemColors[7] = Calc.HexToColor("E00047");
         }
         
         public CustomSummitGem(EntityData data, Vector2 offset, EntityID gid) 
@@ -39,7 +38,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             CustomGemSID = $"{mapId}/{data.Level.Name}/{GemID}";
 
             Sprite sprite = baseData.Get<Sprite>("sprite");
-            if (GFX.Game.Has("collectables/summitgems/" + CustomGemSID + "/gem")) {
+            if (GFX.Game.Has("collectables/summitgems/" + CustomGemSID + "/gem00")) {
                 Remove(sprite);
                 sprite = new Sprite(GFX.Game, "collectables/summitgems/" + CustomGemSID + "/gem");
                 sprite.AddLoop("idle", "", 0.08f);
@@ -54,10 +53,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             
             if (CommunalHelperModule.SaveData.SummitGems != null && CommunalHelperModule.SaveData.SummitGems.Contains(CustomGemSID)) {
                 sprite.Color = Color.White * 0.5f;
-            } 
-            
-            if (Everest.Content.TryGet("collectables/summitgems/" + CustomGemSID + "/gem.meta", out ModAsset asset) && 
+            }
+
+            if (Everest.Content.TryGet<AssetTypeYaml>(GFX.Game.RelativeDataPath + "collectables/summitgems/" + CustomGemSID + "/gem.meta", out ModAsset asset) && 
                 asset.TryDeserialize(out ColorMeta meta)) {
+                Console.WriteLine("Found meta file");
                 particleColor = Calc.HexToColor(meta.Color);
             }
 
@@ -65,7 +65,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static EntityData SetEntityData(EntityData data) {
-            data.Values["gem"] = Calc.Clamp(data.Int("index"), 0, 5);
+            data.Values["gem"] = Calc.Clamp(data.Int("index"), 0, 7);
             return data;
         }
 

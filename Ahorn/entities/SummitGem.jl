@@ -11,25 +11,31 @@ const placements = Ahorn.PlacementDict(
 	)
 )
 
-const sprites = [
-	["collectables/summitgems/$i/gem00" for i = 0:5]; 
-	["collectables/summitgems/5/gem00",
-	"collectables/summitgems/5/gem00"]
-]
+const sprites = ["collectables/summitgems/$i/gem00" for i = 0:7]
 
-# error checking, if people want other indices, too bad
+function getSprite(index)
+	if index > length(sprites)
+		return sprites[end]
+	end
+	return sprites[index]
+end
+
+# positive numbers only
 function getClampedIndex(entity::CustomSummitGem)
 	index = Int(get(entity.data, "index", 0))
-	entity.data["index"] = index = Base.Math.clamp(index, 0, 7)
+	if index < 0
+		index = 0
+	end
+	entity.data["index"] = index
 	return index
 end
 
 function Ahorn.selection(entity::CustomSummitGem)
 	x, y = Ahorn.position(entity)
 	
-	return Ahorn.getSpriteRectangle(sprites[getClampedIndex(entity) + 1] , x, y)
+	return Ahorn.getSpriteRectangle(getSprite(getClampedIndex(entity) + 1) , x, y)
 end
 
-Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::CustomSummitGem) = Ahorn.drawSprite(ctx, sprites[getClampedIndex(entity) + 1], 0, 0)
+Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::CustomSummitGem) = Ahorn.drawSprite(ctx, getSprite(getClampedIndex(entity) + 1), 0, 0)
 
 end 
