@@ -6,7 +6,7 @@ using ..Ahorn, Maple
 	removeCameraTriggers::Bool=false)
 
 const placements = Ahorn.PlacementDict(
-	"Crystal Heart (Communal Helper)" => Ahorn.EntityPlacement(
+	"Crystal Heart (Shards) (Communal Helper)" => Ahorn.EntityPlacement(
 	CrystalHeart,
 	"point",
 	Dict{String, Any}(),
