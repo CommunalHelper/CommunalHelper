@@ -27,7 +27,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
         
         public CustomSummitGem(EntityData data, Vector2 offset, EntityID gid) 
-            : base(SetEntityData(data), offset, gid) {
+            : base(data, offset, gid) {
             baseData = new DynData<SummitGem>(this);
 
             GemID = data.Int("index");
@@ -38,19 +38,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             CustomGemSID = $"{mapId}/{data.Level.Name}/{GemID}";
 
             Sprite sprite = baseData.Get<Sprite>("sprite");
+            Remove(sprite);
             if (GFX.Game.Has("collectables/summitgems/" + CustomGemSID + "/gem00")) {
-                Remove(sprite);
                 sprite = new Sprite(GFX.Game, "collectables/summitgems/" + CustomGemSID + "/gem");
-                sprite.AddLoop("idle", "", 0.08f);
-                sprite.Play("idle");
-                sprite.CenterOrigin();
-                Add(sprite);
-
-                Remove(baseData.Get<Wiggler>("scaleWiggler"));
-                Wiggler scaleWiggler = Wiggler.Create(0.5f, 4f, f => sprite.Scale = Vector2.One * (1f + f * 0.3f));
-                Add(scaleWiggler);
+            } else {
+                sprite = new Sprite(GFX.Game, "collectables/summitgems/" + GemID + "/gem");
             }
-            
+            sprite.AddLoop("idle", "", 0.08f);
+            sprite.Play("idle");
+            sprite.CenterOrigin();
+            Add(sprite);
+
+            Remove(baseData.Get<Wiggler>("scaleWiggler"));
+            Wiggler scaleWiggler = Wiggler.Create(0.5f, 4f, f => sprite.Scale = Vector2.One * (1f + f * 0.3f));
+            Add(scaleWiggler);
+
             if (CommunalHelperModule.SaveData.SummitGems != null && CommunalHelperModule.SaveData.SummitGems.Contains(CustomGemSID)) {
                 sprite.Color = Color.White * 0.5f;
             }
@@ -62,11 +64,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             baseData["sprite"] = sprite;
-        }
-
-        private static EntityData SetEntityData(EntityData data) {
-            data.Values["gem"] = Calc.Clamp(data.Int("index"), 0, 7);
-            return data;
         }
 
         private IEnumerator SmashRoutine(Player player, Level level) {
