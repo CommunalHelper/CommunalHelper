@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public abstract class CustomDreamBlock : DreamBlock {
-        private struct DreamParticle {
+        internal struct DreamParticle {
             public Vector2 Position;
             public int Layer;
             public Color Color;
@@ -75,7 +75,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Glitch.Value = 0f;
         }
 
-        public void SetupCustomParticles(float canvasWidth, float canvasHeight) {
+        public virtual void SetupCustomParticles(float canvasWidth, float canvasHeight) {
             float countFactor = FeatherMode ? 0.5f : 0.7f;
             particles = new DreamParticle[(int) (canvasWidth / 8f * (canvasHeight / 8f) * 0.7f * countFactor)];
             for (int i = 0; i < particles.Length; i++) {
@@ -169,9 +169,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void UpdateParticles() {
-            for (int i = 0; i < particles.Length; i++) {
-                particles[i].Position.Y += 0.5f * particles[i].Speed * GetLayerScaleFactor(particles[i].Layer) * Engine.DeltaTime;
-                particles[i].RotationCounter += particles[i].Spin * Engine.DeltaTime;
+            if (baseData.Get<bool>("playerHasDreamDash")) {
+                for (int i = 0; i < particles.Length; i++) {
+                    particles[i].Position.Y += 0.5f * particles[i].Speed * GetLayerScaleFactor(particles[i].Layer) * Engine.DeltaTime;
+                    particles[i].RotationCounter += particles[i].Spin * Engine.DeltaTime;
+                }
             }
         }
 

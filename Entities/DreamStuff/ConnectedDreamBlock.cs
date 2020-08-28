@@ -6,24 +6,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ConnectedDreamBlock")]
     [TrackedAs(typeof(DreamBlock))]
     class ConnectedDreamBlock : DreamBlock {
-        private struct DreamParticle {
-            public Vector2 Position;
-            public int Layer;
-            public Color Color;
-            public float TimeOffset;
-
-            // Feather particle stuff
-            public float Speed;
-            public float Spin;
-            public float MaxRotate;
-            public float RotationCounter;
-        }
-
         private struct SpaceJamTile {
             public int X, Y;
             public int[] Edges;
@@ -78,12 +66,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             West,
         }
 
-        private static readonly Color activeBackColor = Color.Black;
-        private static readonly Color disabledBackColor = Calc.HexToColor("1f2e2d");
-        private static readonly Color activeLineColor = Color.White;
-        private static readonly Color disabledLineColor = Calc.HexToColor("6a8480");
+        private static readonly Color activeLineColor = (Color) typeof(DreamBlock).GetField("activeLineColor", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+        private static readonly Color disabledLineColor = (Color) typeof(DreamBlock).GetField("disabledLineColor", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+        private static readonly Color activeBackColor = (Color) typeof(DreamBlock).GetField("activeBackColor", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+        private static readonly Color disabledBackColor = (Color) typeof(DreamBlock).GetField("disabledBackColor", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
 
-        public float AnimTimer;
+        private static readonly MethodInfo m_DreamBlock_LineAmplitude = typeof(DreamBlock).GetMethod("LineAmplitude", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public Point GroupBoundsMin;
         public Point GroupBoundsMax;
@@ -94,12 +82,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private MTexture[] particleTextures;
         private MTexture[] featherTextures;
-        private bool playerHasDreamDash;
-        private DreamParticle[] particles;
-
-        private float wobbleEase;
-        private float wobbleFrom = Calc.Random.NextFloat((float) Math.PI * 2f);
-        private float wobbleTo = Calc.Random.NextFloat((float) Math.PI * 2f);
+        private CustomDreamBlock.DreamParticle[] particles;
 
         private bool shattering = false;
         private float colorLerp = 0.0f;
@@ -114,11 +97,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<ConnectedDreamBlock> group;
         private ConnectedDreamBlock master;
 
+        private DynData<DreamBlock> baseData;
+
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false)) { }
 
         public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill)
             : base(position, width, height, null, false, false) {
+            baseData = new DynData<DreamBlock>(this);
+
             OneUse = oneUse;
             FeatherMode = featherMode;
             DoubleRefill = doubleRefill;
@@ -135,11 +122,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             featherTextures[0] = GFX.Game["particles/CommunalHelper/featherBig"];
             featherTextures[1] = GFX.Game["particles/CommunalHelper/featherMedium"];
             featherTextures[2] = GFX.Game["particles/CommunalHelper/featherSmall"];
-        }
-
-        public override void Added(Scene scene) {
-            base.Added(scene);
-            playerHasDreamDash = SceneAs<Level>().Session.Inventory.DreamDash;
         }
 
         public override void Removed(Scene scene) {
@@ -289,7 +271,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             foreach (DreamBlock block in Scene.Tracker.GetEntities<DreamBlock>()) {
                 if (block is ConnectedDreamBlock) {
                     ConnectedDreamBlock connectedBlock = block as ConnectedDreamBlock;
-                    if (!connectedBlock.HasGroup && connectedBlock.FeatherMode == from.FeatherMode && Scene.CollideCheck(new Rectangle((int) from.X, (int) from.Y, (int) from.Width, (int) from.Height), connectedBlock)) {
+                    if (!connectedBlock.HasGroup && connectedBlock.FeatherMode == from.FeatherMode && 
+                        Scene.CollideCheck(new Rectangle((int) from.X, (int) from.Y, (int) from.Width, (int) from.Height), connectedBlock)) {
                         AddToGroupAndFindChildren(connectedBlock);
                     }
                 }
@@ -302,13 +285,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             /* Setup particles, will be rendered by the Group Master */
             float countFactor = FeatherMode ? 0.5f : 0.7f;
-            particles = new DreamParticle[(int) (groupWidth / 8f * (groupHeight / 8f) * 0.7f * countFactor)];
+            particles = new CustomDreamBlock.DreamParticle[(int) (groupWidth / 8f * (groupHeight / 8f) * 0.7f * countFactor)];
             for (int i = 0; i < particles.Length; i++) {
                 particles[i].Position = new Vector2(Calc.Random.NextFloat(groupWidth), Calc.Random.NextFloat(groupHeight));
                 particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
                 particles[i].TimeOffset = Calc.Random.NextFloat();
 
-                if (playerHasDreamDash) {
+                if (baseData.Get<bool>("playerHasDreamDash")) {
                     if (DoubleRefill) {
                         switch (particles[i].Layer) {
                             case 0:
@@ -349,29 +332,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        // base.Update Modified by IL Hook
         public override void Update() {
             base.Update();
-            if (playerHasDreamDash) {
-                if (MasterOfGroup) {
-                    AnimTimer += 6f * Engine.DeltaTime;
-                    wobbleEase += Engine.DeltaTime * 2f;
-                    if (wobbleEase > 1f) {
-                        wobbleEase = 0f;
-                        wobbleFrom = wobbleTo;
-                        wobbleTo = Calc.Random.NextFloat((float) Math.PI * 2f);
-                    }
-
-                    if (FeatherMode) {
-                        UpdateParticles();
-                    }
-                }
+            if (MasterOfGroup && FeatherMode) {
+                UpdateParticles();
             }
         }
 
         private void UpdateParticles() {
-            for (int i = 0; i < particles.Length; i++) {
-                particles[i].Position.Y += 0.5f * particles[i].Speed * GetLayerScaleFactor(particles[i].Layer) * Engine.DeltaTime;
-                particles[i].RotationCounter += particles[i].Spin * Engine.DeltaTime;
+            if (baseData.Get<bool>("playerHasDreamDash")) {
+                for (int i = 0; i < particles.Length; i++) {
+                    particles[i].Position.Y += 0.5f * particles[i].Speed * GetLayerScaleFactor(particles[i].Layer) * Engine.DeltaTime;
+                    particles[i].RotationCounter += particles[i].Spin * Engine.DeltaTime;
+                }
             }
         }
 
@@ -388,8 +362,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             if (MasterOfGroup) {
-                Color lineColor = Color.White;
-                Color backColor = Color.Lerp(playerHasDreamDash ? activeBackColor : disabledBackColor, Color.White, colorLerp);
+                Color lineColor = baseData.Get<bool>("playerHasDreamDash") ? activeLineColor : disabledLineColor;
+                Color backColor = Color.Lerp(baseData.Get<bool>("playerHasDreamDash") ? activeBackColor : disabledBackColor, Color.White, colorLerp);
 
                 #region Background rendering
                 Vector2 cameraPositon = SceneAs<Level>().Camera.Position;
@@ -401,9 +375,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
                 #endregion
 
-                #region Particlue rendering
+                #region Particle rendering
                 for (int i = 0; i < particles.Length; i++) {
-                    DreamParticle particle = particles[i];
+                    CustomDreamBlock.DreamParticle particle = particles[i];
                     int layer = particle.Layer;
                     Vector2 position = particle.Position + cameraPositon * (0.3f + 0.25f * layer);
                     float rotation = 1.5707963705062866f - 0.8f + (float) Math.Sin(particle.RotationCounter * particle.MaxRotate);
@@ -423,12 +397,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         MTexture particleTexture;
                         switch (layer) {
                             case 0: {
-                                int index = (int) ((particle.TimeOffset * 4f + AnimTimer) % 4f);
+                                int index = (int) ((particle.TimeOffset * 4f + baseData.Get<float>("animTimer")) % 4f);
                                 particleTexture = particleTextures[3 - index];
                                 break;
                             }
                             case 1: {
-                                int index = (int) ((particle.TimeOffset * 2f + AnimTimer) % 2f);
+                                int index = (int) ((particle.TimeOffset * 2f + baseData.Get<float>("animTimer")) % 2f);
                                 particleTexture = particleTextures[1 + index];
                                 break;
                             }
@@ -480,7 +454,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             float scaleFactor = 0f;
             int num2 = 16;
             for (int i = 2; i < num - 2f; i += num2) {
-                float num3 = MathHelper.Lerp(LineAmplitude(wobbleFrom + offset, i), LineAmplitude(wobbleTo + offset, i), wobbleEase);
+                float num3 = MathHelper.Lerp((float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleFrom") + offset, i }), 
+                    (float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleTo") + offset, i }), 
+                    baseData.Get<float>("wobbleEase"));
                 if (i + num2 >= num) {
                     num3 = 0f;
                 }
@@ -493,10 +469,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Draw.Line(vector2, vector3, line);
                 scaleFactor = num3;
             }
-        }
-
-        private float LineAmplitude(float seed, float index) {
-            return (float) (Math.Sin(seed + index / 16f + Math.Sin(seed * 2f + index / 32f) * Math.PI * 2) + 1.0) * 1.5f;
         }
 
         private bool CheckParticleCollide(Vector2 position) {
@@ -534,7 +506,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public void ConnectedFootstepRipple(Vector2 position) {
-            if (playerHasDreamDash) {
+            if (baseData.Get<bool>("playerHasDreamDash")) {
                 ConnectedDreamBlock master = MasterOfGroup ? this : this.master;
 
                 foreach (ConnectedDreamBlock block in master.group) {
@@ -553,7 +525,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public void BeginShatter() {
             if (!shattering) {
                 shattering = true;
-                Audio.Play("event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_shatter", Position);
+                Audio.Play(CustomSFX.game_connectedDreamBlock_dreamblock_shatter, Position);
 
                 ConnectedDreamBlock master = MasterOfGroup ? this : this.master;
                 foreach (ConnectedDreamBlock block in master.group) {
@@ -637,24 +609,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             return pos;
         }
-    }
 
-    class ConnectedDreamBlockHooks {
+        #region Hooks
+
         public static void Hook() {
-            On.Celeste.Player.DreamDashBegin += modDreamDashBegin;
-            On.Celeste.Player.DreamDashUpdate += modDreamDashUpdate;
-            On.Celeste.DreamBlock.OnPlayerExit += modOnPlayerExit;
-            On.Celeste.DreamBlock.FootstepRipple += modFootstepRipple;
+            On.Celeste.Player.DreamDashBegin += Player_DreamDashBegin;
+            On.Celeste.Player.DreamDashUpdate += Player_DreamDashUpdate;
+            On.Celeste.DreamBlock.Setup += DreamBlock_Setup;
+            On.Celeste.DreamBlock.OnPlayerExit += DreamBlock_OnPlayerExit;
+            On.Celeste.DreamBlock.FootstepRipple += DreamBlock_FootstepRipple;
         }
 
         public static void Unhook() {
-            On.Celeste.Player.DreamDashBegin -= modDreamDashBegin;
-            On.Celeste.Player.DreamDashUpdate -= modDreamDashUpdate;
-            On.Celeste.DreamBlock.OnPlayerExit -= modOnPlayerExit;
-            On.Celeste.DreamBlock.FootstepRipple -= modFootstepRipple;
+            On.Celeste.Player.DreamDashBegin -= Player_DreamDashBegin;
+            On.Celeste.Player.DreamDashUpdate -= Player_DreamDashUpdate;
+            On.Celeste.DreamBlock.Setup -= DreamBlock_Setup;
+            On.Celeste.DreamBlock.OnPlayerExit -= DreamBlock_OnPlayerExit;
+            On.Celeste.DreamBlock.FootstepRipple -= DreamBlock_FootstepRipple;
         }
 
-        private static void modDreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
+        private static void Player_DreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
             orig(player);
             var playerData = getPlayerData(player);
             DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
@@ -666,7 +640,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         }
 
-        private static int modDreamDashUpdate(On.Celeste.Player.orig_DreamDashUpdate orig, Player player) {
+        private static int Player_DreamDashUpdate(On.Celeste.Player.orig_DreamDashUpdate orig, Player player) {
             var playerData = getPlayerData(player);
             DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
             if (dreamBlock is ConnectedDreamBlock && (dreamBlock as ConnectedDreamBlock).FeatherMode) {
@@ -682,7 +656,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return orig(player);
         }
 
-        private static void modOnPlayerExit(On.Celeste.DreamBlock.orig_OnPlayerExit orig, DreamBlock dreamBlock, Player player) {
+        private static void DreamBlock_Setup(On.Celeste.DreamBlock.orig_Setup orig, DreamBlock self) {
+            if (self is ConnectedDreamBlock block)
+                block.SetupParticles();
+            else
+                orig(self);
+        }
+
+        private static void DreamBlock_OnPlayerExit(On.Celeste.DreamBlock.orig_OnPlayerExit orig, DreamBlock dreamBlock, Player player) {
             orig(dreamBlock, player);
             if (dreamBlock is ConnectedDreamBlock) {
                 ConnectedDreamBlock customDreamBlock = dreamBlock as ConnectedDreamBlock;
@@ -695,7 +676,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private static void modFootstepRipple(On.Celeste.DreamBlock.orig_FootstepRipple orig, DreamBlock dreamBlock, Vector2 pos) {
+        private static void DreamBlock_FootstepRipple(On.Celeste.DreamBlock.orig_FootstepRipple orig, DreamBlock dreamBlock, Vector2 pos) {
             if (dreamBlock is ConnectedDreamBlock) {
                 (dreamBlock as ConnectedDreamBlock).ConnectedFootstepRipple(pos);
             } else {
@@ -706,5 +687,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static DynData<Player> getPlayerData(Player player) {
             return new DynData<Player>(player);
         }
+
+        #endregion
+
     }
 }

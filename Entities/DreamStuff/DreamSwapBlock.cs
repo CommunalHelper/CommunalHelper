@@ -66,31 +66,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool shattered = false;
 
         static DreamSwapBlock() {
-            dreamParticles = new ParticleType[4];
             ParticleType particle = new ParticleType(SwapBlock.P_Move);
             particle.ColorMode = ParticleType.ColorModes.Choose;
             particle.FadeMode = ParticleType.FadeModes.Late;
             particle.LifeMin = 0.6f;
             particle.LifeMin = 1f;
 
-            particle.Color = Calc.HexToColor("FFEF11");
-            particle.Color2 = Calc.HexToColor("FF00D0");
-            dreamParticles[0] = particle;
-
-            particle = new ParticleType(particle);
-            particle.Color = Calc.HexToColor("08a310");
-            particle.Color2 = Calc.HexToColor("5fcde4");
-            dreamParticles[1] = particle;
-
-            particle = new ParticleType(particle);
-            particle.Color = Calc.HexToColor("7fb25e");
-            particle.Color2 = Calc.HexToColor("E0564C");
-            dreamParticles[2] = particle;
-
-            particle = new ParticleType(particle);
-            particle.Color = Calc.HexToColor("5b6ee1");
-            particle.Color2 = Calc.HexToColor("CC3B3B");
-            dreamParticles[3] = particle;
+            dreamParticles = new ParticleType[4];
+            for (int i = 0; i < 4; i++) {
+                dreamParticles[i] = new ParticleType(particle);
+            }
         }
 
 
@@ -282,6 +267,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Render();
             if (noReturn) {
                 cross.DrawCentered(Center + baseData.Get<Vector2>("shake"));
+            }
+        }
+
+        public override void SetupCustomParticles(float canvasWidth, float canvasHeight) {
+            base.SetupCustomParticles(canvasWidth, canvasHeight);
+            if (baseData.Get<bool>("playerHasDreamDash")) {
+                dreamParticles[0].Color = Calc.HexToColor("FFEF11");
+                dreamParticles[0].Color2 = Calc.HexToColor("FF00D0");
+
+                dreamParticles[1].Color = Calc.HexToColor("08a310");
+                dreamParticles[1].Color2 = Calc.HexToColor("5fcde4");
+
+                dreamParticles[2].Color = Calc.HexToColor("7fb25e");
+                dreamParticles[2].Color2 = Calc.HexToColor("E0564C");
+
+                dreamParticles[3].Color = Calc.HexToColor("5b6ee1");
+                dreamParticles[3].Color2 = Calc.HexToColor("CC3B3B");
+            } else {
+                for(int i = 0; i < 4; i++) {
+                    dreamParticles[i].Color = Color.LightGray * 0.5f;
+                    dreamParticles[i].Color2 = Color.LightGray * 0.75f;
+                }
             }
         }
 

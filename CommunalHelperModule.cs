@@ -30,7 +30,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamRefill.Load();
 
             CustomDreamBlock.Load();
-            ConnectedDreamBlockHooks.Hook();
+            ConnectedDreamBlock.Hook();
             ConnectedSwapBlockHooks.Hook();
             CustomCassetteBlockHooks.Hook();
             SyncedZipMoverActivationControllerHooks.Hook();
@@ -49,7 +49,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamRefill.Unload();
 
             CustomDreamBlock.Unload();
-            ConnectedDreamBlockHooks.Unhook();
+            ConnectedDreamBlock.Unhook();
             ConnectedSwapBlockHooks.Unhook();
             CustomCassetteBlockHooks.Unhook();
             SyncedZipMoverActivationControllerHooks.Unhook();
