@@ -37,8 +37,6 @@ function Ahorn.selection(entity::StationBlockTrack)
     return horiz ? Ahorn.Rectangle(x, y, width, 8) : Ahorn.Rectangle(x, y, 8, height)
 end
 
-black = (0, 0, 0, 255) ./255
-
 nodeSprite = "objects/CommunalHelper/stationBlock/tracks/track/ball"
 vTrack = "objects/CommunalHelper/stationBlock/tracks/track/pipeV"
 hTrack = "objects/CommunalHelper/stationBlock/tracks/track/pipeH"
