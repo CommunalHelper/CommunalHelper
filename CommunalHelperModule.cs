@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections;
@@ -8,15 +9,17 @@ namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperModule : EverestModule {
 
         public static CommunalHelperModule Instance;
-		public override Type SettingsType => typeof(CommunalHelperSettings);
-		public static CommunalHelperSettings Settings => (CommunalHelperSettings)Instance._Settings;
+        public override Type SettingsType => typeof(CommunalHelperSettings);
+        public static CommunalHelperSettings Settings => (CommunalHelperSettings) Instance._Settings;
 
-		public CommunalHelperModule() {
-			Instance = this;
+        public CommunalHelperModule() {
+            Instance = this;
         }
 
-		public override void Load() {
-			DreamTunnelDash.Load();
+        public override void Load() {
+            Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
+
+            DreamTunnelDash.Load();
             DreamRefill.Load();
 
             CustomDreamBlock.Load();
@@ -24,11 +27,17 @@ namespace Celeste.Mod.CommunalHelper {
             ConnectedSwapBlockHooks.Hook();
             CustomCassetteBlockHooks.Hook();
             SyncedZipMoverActivationControllerHooks.Hook();
-			AttachedWallBooster.Hook();
+            AttachedWallBooster.Hook();
+
+            HeartGemShard.Load();
+
+            // External optional dependencies loaded in LoadContent
         }
 
-		public override void Unload() {
-			DreamTunnelDash.Unload();
+        public override void Unload() {
+            Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
+
+            DreamTunnelDash.Unload();
             DreamRefill.Unload();
 
             CustomDreamBlock.Unload();
@@ -37,23 +46,44 @@ namespace Celeste.Mod.CommunalHelper {
             CustomCassetteBlockHooks.Unhook();
             SyncedZipMoverActivationControllerHooks.Unhook();
 			AttachedWallBooster.Unhook();
-		}
+
+            HeartGemShard.Unload();
+
+            // We want to keep this stuff as isolated as possible
+            // ExternalDependencyHandler.Unload();
+        }
 
 		public override void LoadContent(bool firstLoad) {
-			StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
+            // We want to keep this stuff as isolated as possible
+            // ExternalDependencyHandler.Load();
+
+            StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
 			StationBlock.InitializeParticles();
 
             DreamTunnelDash.LoadContent();
             DreamRefill.InitializeParticles();
-
+            DreamSwitchGate.InitializeParticles();
+            
             ConnectedMoveBlock.InitializeTextures();
-
             ConnectedSwapBlock.InitializeTextures();
 
-            DreamSwitchGate.InitializeParticles();
+            HeartGemShard.InitializeParticles();
         }
 
-	}
+        // Loading "custom" entities
+        private bool Level_OnLoadEntity(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
+            // Intercept an attempt to load the custom heart (has nodes)
+            // Call Level.LoadCustomEntity again incase we skipped over another custom entity handler
+            if (entityData.Name == "CommunalHelper/CrystalHeart") {
+                entityData.Name = "blackGem";
+                entityData.Values[HeartGemShard.HeartGem_HeartGemID] = new EntityID(levelData.Name, entityData.ID);
+                return Level.LoadCustomEntity(entityData, level);
+            }
+
+            return false;
+        }
+
+    }
 
 	public static class Util {
 		public static void log(string str) {

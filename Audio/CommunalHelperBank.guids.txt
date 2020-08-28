@@ -24,4 +24,6 @@
 {9629bd2f-74d2-4daf-b1cc-653e42508bb4} event:/CommunalHelperEvents/game/usableSummitGems/gem_unlock_la
 {94444ec5-a6cd-4cce-94a9-97177bc9129a} event:/CommunalHelperEvents/game/usableSummitGems/gem_unlock_ti
 {713b4c05-56c3-4d8b-ab46-e5d1f5e08014} event:/CommunalHelperEvents/game/redirectMoveBlock/arrowblock_move
+{f25c9f4e-bda1-44d4-911e-5813f8c94187} event:/CommunalHelperEvents/game/seedCrystalHeart/shard_collect
+{4b292127-06bb-4acb-a927-18571d19ca0d} event:/CommunalHelperEvents/game/seedCrystalHeart/collect_all_main
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank
