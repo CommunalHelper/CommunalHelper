@@ -9,9 +9,16 @@ namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperModule : EverestModule {
 
         public static CommunalHelperModule Instance;
+
         public override Type SettingsType => typeof(CommunalHelperSettings);
         public static CommunalHelperSettings Settings => (CommunalHelperSettings) Instance._Settings;
+        
+        public override Type SaveDataType => typeof(CommunalHelperSaveData);
+        public static CommunalHelperSaveData SaveData => (CommunalHelperSaveData) Instance._SaveData;
 
+        public override Type SessionType => typeof(CommunalHelperSession);
+        public static CommunalHelperSession Session => (CommunalHelperSession) Instance._Session;
+        
         public CommunalHelperModule() {
             Instance = this;
         }
@@ -30,11 +37,12 @@ namespace Celeste.Mod.CommunalHelper {
             AttachedWallBooster.Hook();
 
             HeartGemShard.Load();
+            CustomSummitGem.Load();
 
             // External optional dependencies loaded in LoadContent
         }
 
-        public override void Unload() {
+    public override void Unload() {
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
 
             DreamTunnelDash.Unload();
@@ -48,6 +56,7 @@ namespace Celeste.Mod.CommunalHelper {
 			AttachedWallBooster.Unhook();
 
             HeartGemShard.Unload();
+            CustomSummitGem.Unload();
 
             // We want to keep this stuff as isolated as possible
             // ExternalDependencyHandler.Unload();
@@ -82,7 +91,6 @@ namespace Celeste.Mod.CommunalHelper {
 
             return false;
         }
-
     }
 
 	public static class Util {
