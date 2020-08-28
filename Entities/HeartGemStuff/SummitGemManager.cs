@@ -50,7 +50,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             foreach (Vector2 position in data.NodesOffset(offset)) {
                 if (ids[idx].Count(s => s == '/') < 2)
                     ids[idx] = mapId + '/' + ids[idx];
-                Console.WriteLine(ids[idx]);
                 Gem item = new Gem(ids[idx], position);
                 gems.Add(item); 
                 idx++;
@@ -194,6 +193,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Index = Calc.Clamp(int.Parse(id.Substring(id.LastIndexOf('/') + 1)), 0, 7);
                 Depth = -10010;
 
+                // Will probably be implemented as Decals
                 //Add(Bg = new Image(GFX.Game["collectables/summitgems/" + id + "/bg"]));
                 //Bg.CenterOrigin();
 

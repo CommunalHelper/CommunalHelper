@@ -63,16 +63,6 @@ namespace Celeste.Mod.CommunalHelper {
             DreamSwitchGate.InitializeParticles();
         }
         
-        public override void SaveSaveData(int index) {
-            SaveData.SummitGems?.Sort();
-            base.SaveSaveData(index);
-        }
-
-        public override void SaveSession(int index) {
-            Session.SummitGems?.Sort();
-            base.SaveSession(index);
-        }
-        
     }
 
 	public static class Util {

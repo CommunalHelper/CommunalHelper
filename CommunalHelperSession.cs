@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperSession : EverestModuleSession {
-        public List<string> SummitGems { get; set; }
+        public SortedSet<string> SummitGems { get; set; }
 
         public CommunalHelperSession() {
-            SummitGems = new List<string>();
+            SummitGems = new SortedSet<string>(StringComparer.InvariantCulture);
         }
 
     }
