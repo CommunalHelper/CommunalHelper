@@ -1,6 +1,4 @@
 ﻿using Celeste.Mod.Entities;
-using FMOD;
-using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -92,8 +90,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     flag |= (CommunalHelperModule.SaveData.SummitGems != null && CommunalHelperModule.SaveData.SummitGems.Contains(gem.ID));
                 }
                 if (flag) {
-                    EventInstance instance = Audio.Play(UnlockEventLookup[melody != null && melody.Length > index ? melody[index] : gem.Index], gem.Position);
+                    Audio.Play(UnlockEventLookup[(melody != null && melody.Length > index) ? melody[index] : gem.Index], gem.Position);
                     /*
+                     * TODO: implement this I guess
                     float note = melody[index];
                     double remainder = note - Math.Truncate(note);
                     if (remainder != 0) {
