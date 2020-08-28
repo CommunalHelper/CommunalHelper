@@ -372,7 +372,7 @@ namespace Celeste.Mod.CommunalHelper {
         private static MethodInfo Player_DashCoroutine = typeof(Player).GetMethod("DashCoroutine", BindingFlags.Instance | BindingFlags.NonPublic);
         private static FieldInfo DashCoroutine_Hook_F_This /*, DashCoroutine_Hook_F_SwapCancel */ ;
 
-        private static ILHook Player_DashCoroutine_Hook; // unused
+        private static ILHook Player_DashCoroutine_Hook;
 
         public static void Hook() {
 
@@ -381,7 +381,6 @@ namespace Celeste.Mod.CommunalHelper {
 
             // What would usually be a local variable, but is instead stored in the compiler-generated type
             //DashCoroutine_Hook_F_SwapCancel = Player_DashCoroutine.GetStateMachineTarget().DeclaringType.GetField("<swapCancel>5__2", BindingFlags.NonPublic | BindingFlags.Instance);
-
 
             Player_DashCoroutine_Hook = new ILHook(Player_DashCoroutine.GetStateMachineTarget(), DashCoroutineILHook);
         }

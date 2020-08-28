@@ -1,6 +1,10 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
 using System.Collections;
@@ -46,18 +50,41 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private struct SpaceJamEdge {
-            public SpaceJamEdge(Vector2 startV, Vector2 endV, float wobbleOff, bool flipNorm) {
+            public SpaceJamEdge(Vector2 startV, Vector2 endV, float wobbleOff, bool flipNorm, Edges face) {
                 start = startV;
                 end = endV;
                 wobbleOffset = wobbleOff;
                 flipNormal = flipNorm;
+                facing = face;
             }
             public Vector2 start, end;
             public float wobbleOffset;
             public bool flipNormal;
+            public Edges facing;
         }
 
-        private List<SpaceJamEdge> EdgePool;
+        private struct SpaceJamCorner {
+            public bool
+                upright, upleft, downright, downleft,
+                inupright, inupleft, indownright, indownleft;
+
+            public int x, y;
+
+            public SpaceJamCorner(int x_, int y_, bool ur, bool ul, bool dr, bool dl, bool iur, bool iul, bool idr, bool idl) {
+                x = x_; y = y_;
+                upright = ur;
+                upleft = ul;
+                downright = dr;
+                downleft = dl;
+                inupright = iur;
+                inupleft = iul;
+                indownright = idr;
+                indownleft = idl;
+            }
+        }
+
+        private List<SpaceJamEdge> GroupEdges;
+        private List<SpaceJamCorner> GroupCorners;
 
         enum Edges {
             North,
@@ -138,7 +165,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 GroupBoundsMin = new Point((int) X, (int) Y);
                 GroupBoundsMax = new Point((int) Right, (int) Bottom);
                 group = new List<ConnectedDreamBlock>();
-                EdgePool = new List<SpaceJamEdge>();
+                GroupEdges = new List<SpaceJamEdge>();
+                GroupCorners = new List<SpaceJamCorner>();
                 AddToGroupAndFindChildren(this);
                 SetupParticles();
 
@@ -168,12 +196,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             SpaceJamTile nWest = tiles[x - 1, y];
             SpaceJamTile nSouthEast = tiles[x + 1, y + 1];
             SpaceJamTile nSouthWest = tiles[x - 1, y + 1];
+            SpaceJamTile nNorthEast = tiles[x + 1, y - 1];
+            SpaceJamTile nNorthWest = tiles[x - 1, y - 1];
+
+            #region Corner stuff
+            bool upright = !nNorth.Exist && !nEast.Exist;
+            bool upleft = !nNorth.Exist && !nWest.Exist;
+            bool downright = !nSouth.Exist && !nEast.Exist;
+            bool downleft = !nSouth.Exist && !nWest.Exist;
+            bool inupright = nNorth.Exist && nEast.Exist && !nNorthEast.Exist;
+            bool inupleft = nNorth.Exist && nWest.Exist && !nNorthWest.Exist;
+            bool indownright = nSouth.Exist && nEast.Exist && !nSouthEast.Exist;
+            bool indownleft = nSouth.Exist && nWest.Exist && !nSouthWest.Exist;
+            if(upright || upleft || downright || downleft || inupright || inupleft || indownright || indownleft) {
+                GroupCorners.Add(new SpaceJamCorner(x - 1, y - 1, upright, upleft, downright, downleft, inupright, inupleft, indownright, indownleft));
+            }
+            #endregion
 
             if (!nNorth.Exist) {
                 if (nWest.TryGetEdge(Edges.North, out int idx)) {
-                    SpaceJamEdge edge = EdgePool[idx];
+                    SpaceJamEdge edge = GroupEdges[idx];
                     edge.end.X += 8;
-                    EdgePool[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal);
+                    GroupEdges[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal, edge.facing);
                     self[Edges.North] = idx;
                 } else {
                     SpaceJamEdge newEdge;
@@ -182,16 +226,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     newEdge.end.X += 8;
                     newEdge.wobbleOffset = 0.0f;
                     newEdge.flipNormal = false;
-                    self[Edges.North] = EdgePool.Count();
-                    EdgePool.Add(newEdge);
+                    newEdge.facing = Edges.North;
+                    self[Edges.North] = GroupEdges.Count();
+                    GroupEdges.Add(newEdge);
                 }
             }
 
             if (!nEast.Exist) {
                 if (nNorth.TryGetEdge(Edges.East, out int idx)) {
-                    SpaceJamEdge edge = EdgePool[idx];
+                    SpaceJamEdge edge = GroupEdges[idx];
                     edge.end.Y += (nSouth.Exist && nSouthEast.Exist) ? 9 : 8;
-                    EdgePool[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal);
+                    GroupEdges[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal, edge.facing);
                     self[Edges.East] = idx;
                 } else {
                     SpaceJamEdge newEdge;
@@ -203,16 +248,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                     newEdge.wobbleOffset = 0.7f;
                     newEdge.flipNormal = false;
-                    self[Edges.East] = EdgePool.Count();
-                    EdgePool.Add(newEdge);
+                    newEdge.facing = Edges.East;
+                    self[Edges.East] = GroupEdges.Count();
+                    GroupEdges.Add(newEdge);
                 }
             }
 
             if (!nSouth.Exist) {
                 if (nWest.TryGetEdge(Edges.South, out int idx)) {
-                    SpaceJamEdge edge = EdgePool[idx];
+                    SpaceJamEdge edge = GroupEdges[idx];
                     edge.end.X += 8;
-                    EdgePool[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal);
+                    GroupEdges[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal, edge.facing);
                     self[Edges.South] = idx;
                 } else {
                     SpaceJamEdge newEdge;
@@ -222,16 +268,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     newEdge.end.X += 8;
                     newEdge.wobbleOffset = 1.5f;
                     newEdge.flipNormal = true;
-                    self[Edges.South] = EdgePool.Count();
-                    EdgePool.Add(newEdge);
+                    newEdge.facing = Edges.South;
+                    self[Edges.South] = GroupEdges.Count();
+                    GroupEdges.Add(newEdge);
                 }
             }
 
             if (!nWest.Exist) {
                 if (nNorth.TryGetEdge(Edges.West, out int idx)) {
-                    SpaceJamEdge e = EdgePool[idx];
-                    e.end.Y += (nSouth.Exist && nSouthWest.Exist) ? 9 : 8;
-                    EdgePool[idx] = new SpaceJamEdge(e.start, e.end, e.wobbleOffset, e.flipNormal);
+                    SpaceJamEdge edge = GroupEdges[idx];
+                    edge.end.Y += (nSouth.Exist && nSouthWest.Exist) ? 9 : 8;
+                    GroupEdges[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal, edge.facing);
                     self[Edges.West] = idx;
                 } else {
                     SpaceJamEdge newEdge;
@@ -244,8 +291,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                     newEdge.wobbleOffset = 2.5f;
                     newEdge.flipNormal = true;
-                    self[Edges.West] = EdgePool.Count();
-                    EdgePool.Add(newEdge);
+                    newEdge.facing = Edges.West;
+                    self[Edges.West] = GroupEdges.Count();
+                    GroupEdges.Add(newEdge);
                 }
             }
         }
@@ -351,11 +399,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Render() {
             Camera camera = SceneAs<Level>().Camera;
+            Vector2 GroupPosition = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y);
             Rectangle groupRect = new Rectangle(
                     GroupBoundsMin.X,
                     GroupBoundsMin.Y,
                     GroupBoundsMax.X - GroupBoundsMin.X,
                     GroupBoundsMax.Y - GroupBoundsMin.Y);
+
+            DynData<DreamBlock> data = new DynData<DreamBlock>(this);
+            float whiteFill = data.Get<float>("whiteFill");
+            float whiteHeight = data.Get<float>("whiteHeight");
+            Vector2 shake = data.Get<Vector2>("shake");
 
             if (groupRect.Right < camera.Left || groupRect.Left > camera.Right || groupRect.Bottom < camera.Top || groupRect.Top > camera.Bottom) {
                 return;
@@ -365,13 +419,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Color lineColor = baseData.Get<bool>("playerHasDreamDash") ? activeLineColor : disabledLineColor;
                 Color backColor = Color.Lerp(baseData.Get<bool>("playerHasDreamDash") ? activeBackColor : disabledBackColor, Color.White, colorLerp);
 
+                if (whiteFill > 0f) {
+                    lineColor = Color.Lerp(lineColor, Color.White, whiteFill);
+                    if (whiteHeight == 1f)
+                        backColor = Color.Lerp(backColor, Color.White, whiteFill);
+                }
+
                 #region Background rendering
                 Vector2 cameraPositon = SceneAs<Level>().Camera.Position;
                 foreach (ConnectedDreamBlock e in group) {
                     if (e.Right < camera.Left || e.Left > camera.Right || e.Bottom < camera.Top || e.Top > camera.Bottom) {
                         continue;
                     }
-                    Draw.Rect(e.Collider, backColor);
+                    Draw.Rect(e.Position + shake, e.Width, e.Height, backColor);
                 }
                 #endregion
 
@@ -390,9 +450,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         continue;
 
                     Color color = Color.Lerp(particle.Color, Color.Black, colorLerp);
+                    if (whiteFill > 0f && whiteHeight == 1f)
+                        color = Color.Lerp(color, Color.White, whiteFill);
 
                     if (FeatherMode) {
-                        featherTextures[layer].DrawCentered(position + Shake, color, 1, rotation);
+                        featherTextures[layer].DrawCentered(position + Shake + shake, color, 1, rotation);
                     } else {
                         MTexture particleTexture;
                         switch (layer) {
@@ -410,24 +472,40 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                 particleTexture = particleTextures[2];
                                 break;
                         }
-                        particleTexture.DrawCentered(position + Shake, color);
+                        particleTexture.DrawCentered(position + Shake + shake, color);
                     }
                 }
                 #endregion
 
-                #region Edge Rendering
-                foreach (ConnectedDreamBlock block in group) {
-                    if (block.Right < camera.Left || block.Left > camera.Right || block.Bottom < camera.Top || block.Top > camera.Bottom) {
-                        continue;
+                #region (De)activation Rendering
+                if (whiteFill == 1f && whiteHeight < 1f) {
+                    float whiteFillBottom = groupRect.Y + groupRect.Height * whiteHeight;
+                    foreach (ConnectedDreamBlock block in group) {
+                        if (block.Right < camera.Left || block.Left > camera.Right || block.Bottom < camera.Top || block.Top > camera.Bottom) {
+                            continue;
+                        }
+                        if (block.Top <= whiteFillBottom)
+                            Draw.Rect(block.Position + shake, block.Width, Calc.Clamp(whiteFillBottom - block.Y, 1f, block.Height), Color.White);
                     }
                 }
-                foreach (SpaceJamEdge edge in EdgePool) {
-                    Draw.Line(edge.start, edge.end, lineColor);
-                    Vector2 start, end;
+                #endregion
+
+                #region Edge & Corner Rendering
+
+                if (whiteFill > 0f && whiteHeight < 1f) {
+                    backColor = Color.Lerp(backColor, Color.White, whiteFill);
+                }
+
+                foreach (SpaceJamCorner corner in GroupCorners) {
+                    // Yes.
+                    RenderCorner(GroupPosition + shake, corner, lineColor, backColor);
+                }
+
+                foreach (SpaceJamEdge edge in GroupEdges) {
+                    Vector2 start = edge.start, end = edge.end;
                     if (edge.flipNormal) {
                         start = edge.end;
                         end = edge.start;
-
 
                         if (start.X == end.X) {
                             start.X -= 1;
@@ -437,23 +515,64 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             start.Y += 1;
                             end.Y += 1;
                         }
-                    } else {
-                        start = edge.start;
-                        end = edge.end;
                     }
-                    WobbleLine(start, end, edge.wobbleOffset, lineColor, backColor);
+                    WobbleLine(start + shake, end + shake, edge.wobbleOffset, lineColor, backColor);
                 }
+
                 #endregion
             }
         }
 
+        private void RenderCorner(Vector2 position, SpaceJamCorner corner, Color line, Color back) {
+            int x = (int)(corner.x * 8 + position.X);
+            int y = (int) (corner.y * 8 + position.Y);
+
+            // Simple corners:
+            if (corner.upright)
+                Draw.Rect(x + 6, y, 2, 2, line);
+            if (corner.upleft)
+                Draw.Rect(x, y, 2, 2, line);
+            if (corner.downright)
+                Draw.Rect(x + 6, y + 6, 2, 2, line);
+            if (corner.downleft)
+                Draw.Rect(x, y + 6, 2, 2, line);
+
+            // Inner corners:
+            if (corner.inupright) {
+                Draw.Rect(x + 6, y, 4, 3, back);
+                Draw.Rect(x + 5, y - 1, 3, 3, back);
+                Draw.Line(x + 7, y, x + 10, y, line);
+                Draw.Line(x + 7, y, x + 7, y - 1, line);
+            }
+            if (corner.inupleft) {
+                Draw.Rect(x - 2, y, 4, 3, back);
+                Draw.Rect(x, y - 1, 3, 3, back);
+                Draw.Line(x - 2, y, x, y, line);
+                Draw.Line(x, y + 1, x, y - 1, line);
+            }
+            if (corner.indownright) {
+                Draw.Rect(x + 6, y + 5, 4, 3, back);
+                Draw.Rect(x + 5, y + 6, 3, 3, back);
+                Draw.Line(x + 7, y + 7, x + 10, y + 7, line);
+                Draw.Line(x + 8, y + 8, x + 8, y + 9, line);
+            }
+            if (corner.indownleft) {
+                Draw.Rect(x - 2, y + 5, 4, 3, back);
+                Draw.Rect(x, y + 6, 3, 3, back);
+                Draw.Line(x - 2, y + 7, x + 1, y + 7, line);
+                Draw.Line(x + 1, y + 8, x + 1, y + 9, line);
+            }
+        }
+
         private void WobbleLine(Vector2 from, Vector2 to, float offset, Color line, Color back) {
-            float num = (to - from).Length();
-            Vector2 value = Vector2.Normalize(to - from);
+            Vector2 vec = to - from;
+            float num = vec.Length();
+            Vector2 value = Vector2.Normalize(vec);
             Vector2 vector = new Vector2(value.Y, 0f - value.X);
+
             float scaleFactor = 0f;
             int num2 = 16;
-            for (int i = 2; i < num - 2f; i += num2) {
+            for (int i = 2; i < num - 2; i += num2) {
                 float num3 = MathHelper.Lerp((float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleFrom") + offset, i }), 
                     (float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleTo") + offset, i }), 
                     baseData.Get<float>("wobbleEase"));
@@ -465,7 +584,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Vector2 vector3 = from + value * (i + num4) + vector * num3;
                 Draw.Line(vector2 - vector, vector3 - vector, back);
                 Draw.Line(vector2 - vector * 2f, vector3 - vector * 2f, back);
-                Draw.Line(vector2 - vector * 3f, vector3 - vector * 3f, back);
+                //Draw.Line(vector2 - vector * 3f, vector3 - vector * 3f, back);
                 Draw.Line(vector2, vector3, line);
                 scaleFactor = num3;
             }
@@ -612,12 +731,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
+        private static Type DreamBlock_FastActivate = typeof(DreamBlock).GetNestedType("<FastActivate>d__13", BindingFlags.NonPublic);
+        private static Type DreamBlock_FastDeactivate = typeof(DreamBlock).GetNestedType("<FastDeactivate>d__12", BindingFlags.NonPublic);
+        private static ILHook DreamBlock_FastActivate_Hook, DreamBlock_FastDeactivate_Hook;
+        private static FieldInfo DreamBlock_FastActivate_F_This;
+
         public static void Hook() {
             On.Celeste.Player.DreamDashBegin += Player_DreamDashBegin;
             On.Celeste.Player.DreamDashUpdate += Player_DreamDashUpdate;
             On.Celeste.DreamBlock.Setup += DreamBlock_Setup;
             On.Celeste.DreamBlock.OnPlayerExit += DreamBlock_OnPlayerExit;
             On.Celeste.DreamBlock.FootstepRipple += DreamBlock_FootstepRipple;
+
+            DreamBlock_FastActivate_F_This = DreamBlock_FastActivate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+            DreamBlock_FastActivate_Hook = new ILHook(DreamBlock_FastActivate.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
+            DreamBlock_FastActivate_F_This = DreamBlock_FastDeactivate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+            DreamBlock_FastDeactivate_Hook = new ILHook(DreamBlock_FastDeactivate.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
         }
 
         public static void Unhook() {
@@ -626,11 +755,57 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.DreamBlock.Setup -= DreamBlock_Setup;
             On.Celeste.DreamBlock.OnPlayerExit -= DreamBlock_OnPlayerExit;
             On.Celeste.DreamBlock.FootstepRipple -= DreamBlock_FootstepRipple;
+
+            DreamBlock_FastActivate_Hook.Dispose();
+            DreamBlock_FastDeactivate_Hook.Dispose();
+        }
+
+        private static void DreamBlockFastRoutine(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            cursor.GotoNext(instr => instr.Next.OpCode == OpCodes.Ldfld && ((FieldReference) instr.Next.Operand).Name == "<level>5__2");
+
+            // Load DreamBlock object
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, DreamBlock_FastActivate_F_This);
+
+            // Check is if ConnectedDreamBlock
+            cursor.Emit(OpCodes.Isinst, typeof(ConnectedDreamBlock));
+            // Skip if it isn't
+            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
+
+            // Load ConnectedDreamBlock object
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, DreamBlock_FastActivate_F_This);
+            cursor.Emit(OpCodes.Castclass, typeof(ConnectedDreamBlock));
+
+            cursor.EmitDelegate<Action<ConnectedDreamBlock>>(block => block.SpawnFastRoutineParticles());
+
+            // Skip regular particles
+            cursor.Emit(OpCodes.Br, il.Instrs.Last(instr => instr.Previous?.OpCode == OpCodes.Callvirt && ((MethodReference) instr.Previous?.Operand).Name == "Emit"));
+        }
+
+
+        private void SpawnFastRoutineParticles() {
+            if (MasterOfGroup) {
+                Level level = SceneAs<Level>();
+                foreach (SpaceJamEdge edge in GroupEdges) {
+                    float width = edge.end.X - edge.start.X; float centerH = edge.start.X + width / 2f;
+                    float height = edge.end.Y - edge.start.Y; float centerV = edge.start.Y + height / 2f;
+                    if (edge.facing == Edges.North)
+                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) width, new Vector2(centerH, edge.start.Y), Vector2.UnitX * width / 2f, Color.White, (float) Math.PI);
+                    if (edge.facing == Edges.South)
+                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) width, new Vector2(centerH, edge.end.Y), Vector2.UnitX * width / 2f, Color.White, 0f);
+                    if (edge.facing == Edges.West)
+                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) height, new Vector2(edge.start.X, centerV), Vector2.UnitY * height / 2f, Color.White, 4.712389f);
+                    if (edge.facing == Edges.East)
+                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) height, new Vector2(edge.end.X, centerV), Vector2.UnitY * height / 2f, Color.White, (float) Math.PI / 2f);
+                }
+            }
         }
 
         private static void Player_DreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
             orig(player);
-            var playerData = getPlayerData(player);
+            DynData<Player> playerData = getPlayerData(player);
             DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
             if (dreamBlock is ConnectedDreamBlock && (dreamBlock as ConnectedDreamBlock).FeatherMode) {
                 SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
@@ -641,7 +816,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static int Player_DreamDashUpdate(On.Celeste.Player.orig_DreamDashUpdate orig, Player player) {
-            var playerData = getPlayerData(player);
+            DynData<Player> playerData = getPlayerData(player);
             DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
             if (dreamBlock is ConnectedDreamBlock && (dreamBlock as ConnectedDreamBlock).FeatherMode) {
                 Vector2 input = Input.Aim.Value.SafeNormalize(Vector2.Zero);
