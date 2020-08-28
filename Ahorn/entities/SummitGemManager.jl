@@ -3,7 +3,7 @@ module CommunalHelperCustomSummitGemManager
 using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/CustomSummitGemManager" SummitGemManager(x::Integer, y::Integer, 
-	gemIds::String="", melody::String="", heartOffset::String="", nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[])
+	gemIds::String="", melody::String="", heartOffset::String="0.0,0.0", nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[])
 	
 const placements = Ahorn.PlacementDict(
 	"Summit Gem Manager (Communal Helper)" => Ahorn.EntityPlacement(
@@ -24,24 +24,48 @@ function Ahorn.selection(entity::SummitGemManager)
 
 	res = Ahorn.Rectangle[Ahorn.Rectangle(x - 15, y - 15, 30, 30)]
 	
-	hx, hy = getHeartOffset(entity)
-	if hx + hy != 0
-		push!(res, Ahorn.getSpriteRectangle("collectables/heartGem/ghost00.png", x + hx, y + hy))
-	end
-	
 	for node in nodes
 		nx, ny = node
 		push!(res, Ahorn.getSpriteRectangle(gemSprite, nx, ny))
+	end
+	
+	hx, hy = getHeartOffset(entity)
+	if hx + hy != 0
+		push!(res, Ahorn.getSpriteRectangle("collectables/heartGem/ghost00.png", x + hx, y + hy))
 	end
 
 	return res
 end
 
+# Cruor please don't yell at me
+# todo: pester Cruor into making it possible to do this with `handleDeletion`
+function Ahorn.Selection.applyMovement!(target::SummitGemManager, ox, oy, node=0)
+	if node == 0
+		target.data["x"] += ox
+		target.data["y"] += oy
+	else
+		nodes = get(target.data, "nodes", ())
+
+		if length(nodes) >= node
+			nodes[node] = nodes[node] .+ (ox, oy)
+		elseif node == length(nodes) + 1
+			heartOffset = getHeartOffset(target)
+			(hx, hy) = heartOffset .+ (ox, oy)
+			target.data["heartOffset"] = string(hx, ",", hy)
+		end
+	end
+
+	return true
+end
+
 function getHeartOffset(entity::SummitGemManager)
 	heartOffset = get(entity.data, "heartOffset", "")
 	if length(heartOffset) > 3
-		heartOffset = split(heartOffset, ",")
-		heartOffset = parse.(Float64, heartOffset)
+		heartOffset = (split(heartOffset, ","))
+		heartOffset = tryparse.(Float64, heartOffset)
+		if all(f -> isnothing(f), heartOffset)
+			return (0, 0)
+		end
 		return (heartOffset[1], heartOffset[2])
 	end
 	return (0, 0)
@@ -52,15 +76,15 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::SummitGe
 	
 	nodes = get(entity.data, "nodes", ())
 	
-	hx, hy = getHeartOffset(entity)
-	if hx + hy != 0
-		Ahorn.drawArrow(ctx, x, y, x + hx, y + hy, Ahorn.colors.selection_selected_fc; headLength=6, headTheta=pi/8)
-	end
-	
 	for node in nodes
 		nx, ny = node
 
 		Ahorn.drawLines(ctx, Tuple{Number, Number}[(x, y), (nx, ny)], Ahorn.colors.selection_selected_fc)
+	end
+	
+	hx, hy = getHeartOffset(entity)
+	if hx + hy != 0
+		Ahorn.drawArrow(ctx, x, y, x + hx, y + hy, Ahorn.colors.selection_selected_fc; headLength=6, headTheta=pi/8)
 	end
 end
 

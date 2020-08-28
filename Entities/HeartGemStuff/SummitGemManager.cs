@@ -16,7 +16,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private List<Gem> gems;
         private Vector2? heartOffset;
-        private float[] melody;
+        private int[] melody;
 
         static CustomSummitGemManager() {
             UnlockEventLookup = new string[] {
@@ -32,13 +32,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public CustomSummitGemManager(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
             Depth = -10010;
+
+            // Hopefully this always works
+            string mapId = AreaData.Get((Engine.Scene as Level)?.Session ?? (Engine.Scene as LevelLoader).Level.Session).SID;
+
             // big ol' one liner
             heartOffset = Array.ConvertAll(data.Attr("heartOffset").Split(','), str => float.Parse(str)).ToVector2();
-
+            /*
             if (data.Attr("melody").Contains(','))
                 melody = Array.ConvertAll(data.Attr("melody").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries), str => float.Parse(str));
-            else
-                melody = Array.ConvertAll(data.Attr("melody").ToCharArray(), chr => (float) (chr - '0'));
+            */
+            melody = Array.ConvertAll(data.Attr("melody").ToCharArray(), chr => (chr - '0'));
 
             gems = new List<Gem>();
             string[] ids = data.Attr("gemIds").Split(',');
@@ -46,6 +50,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 throw new IndexOutOfRangeException("The number of supplied SummitGemManager IDs needs to match the number of nodes!");
             int idx = 0;
             foreach (Vector2 position in data.NodesOffset(offset)) {
+                if (ids[idx].Count(s => s == '/') < 2)
+                    ids[idx] = mapId + '/' + ids[idx];
+                Console.WriteLine(ids[idx]);
                 Gem item = new Gem(ids[idx], position);
                 gems.Add(item); 
                 idx++;
@@ -85,10 +92,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     flag |= (CommunalHelperModule.SaveData.SummitGems != null && CommunalHelperModule.SaveData.SummitGems.Contains(gem.ID));
                 }
                 if (flag) {
+                    EventInstance instance = Audio.Play(UnlockEventLookup[melody != null && melody.Length > index ? melody[index] : gem.Index], gem.Position);
+                    /*
                     float note = melody[index];
-
-                    EventInstance instance = Audio.Play(UnlockEventLookup[melody != null && melody.Length > index ? (int) Math.Truncate(note) : gem.Index], gem.Position);
-
                     double remainder = note - Math.Truncate(note);
                     if (remainder != 0) {
                         Logger.Log("CommunalHelper", "Begin logging for experimental summitgem tones...");
@@ -118,7 +124,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Console.WriteLine(channel.setFrequency(freq * (float) Math.Pow(2, remainder * 100f / 1200f)));
                         Logger.Log("CommunalHelper", "End logging for experimental summitgem tones.");
                     }
-
+                    */
                     gem.Sprite.Play("spin");
                     while (gem.Sprite.CurrentAnimationID == "spin") {
                         gem.Bloom.Alpha = Calc.Approach(gem.Bloom.Alpha, 1f, Engine.DeltaTime * 3f);
