@@ -734,7 +734,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static Type DreamBlock_FastActivate = typeof(DreamBlock).GetNestedType("<FastActivate>d__13", BindingFlags.NonPublic);
         private static Type DreamBlock_FastDeactivate = typeof(DreamBlock).GetNestedType("<FastDeactivate>d__12", BindingFlags.NonPublic);
         private static ILHook DreamBlock_FastActivate_Hook, DreamBlock_FastDeactivate_Hook;
-        private static FieldInfo DreamBlock_FastActivate_F_This;
+        private static FieldInfo DreamBlock_Routine_F_This;
 
         public static void Hook() {
             On.Celeste.Player.DreamDashBegin += Player_DreamDashBegin;
@@ -743,9 +743,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.DreamBlock.OnPlayerExit += DreamBlock_OnPlayerExit;
             On.Celeste.DreamBlock.FootstepRipple += DreamBlock_FootstepRipple;
 
-            DreamBlock_FastActivate_F_This = DreamBlock_FastActivate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+            DreamBlock_Routine_F_This = DreamBlock_FastActivate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             DreamBlock_FastActivate_Hook = new ILHook(DreamBlock_FastActivate.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
-            DreamBlock_FastActivate_F_This = DreamBlock_FastDeactivate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+            DreamBlock_Routine_F_This = DreamBlock_FastDeactivate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             DreamBlock_FastDeactivate_Hook = new ILHook(DreamBlock_FastDeactivate.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
         }
 
@@ -762,11 +762,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void DreamBlockFastRoutine(ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            cursor.GotoNext(instr => instr.Next.OpCode == OpCodes.Ldfld && ((FieldReference) instr.Next.Operand).Name == "<level>5__2");
+            cursor.GotoNext(instr => instr.Next.OpCode == OpCodes.Ldfld && ((FieldReference) instr.Next.Operand).Name.Contains("level"));
 
             // Load DreamBlock object
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldfld, DreamBlock_FastActivate_F_This);
+            cursor.Emit(OpCodes.Ldfld, DreamBlock_Routine_F_This);
 
             // Check is if ConnectedDreamBlock
             cursor.Emit(OpCodes.Isinst, typeof(ConnectedDreamBlock));
@@ -775,7 +775,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             // Load ConnectedDreamBlock object
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldfld, DreamBlock_FastActivate_F_This);
+            cursor.Emit(OpCodes.Ldfld, DreamBlock_Routine_F_This);
             cursor.Emit(OpCodes.Castclass, typeof(ConnectedDreamBlock));
 
             cursor.EmitDelegate<Action<ConnectedDreamBlock>>(block => block.SpawnFastRoutineParticles());
