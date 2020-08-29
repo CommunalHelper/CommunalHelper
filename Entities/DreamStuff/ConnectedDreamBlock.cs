@@ -85,6 +85,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private List<SpaceJamEdge> GroupEdges;
         private List<SpaceJamCorner> GroupCorners;
+        private Rectangle GroupRect;
 
         enum Edges {
             North,
@@ -170,6 +171,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 AddToGroupAndFindChildren(this);
                 SetupParticles();
 
+                GroupRect = new Rectangle(
+                        GroupBoundsMin.X,
+                        GroupBoundsMin.Y,
+                        GroupBoundsMax.X - GroupBoundsMin.X,
+                        GroupBoundsMax.Y - GroupBoundsMin.Y);
+
                 /* Setup Edges of the group */
                 int groupTileW = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8.0f);
                 int groupTileH = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8.0f);
@@ -185,6 +192,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             AutoEdge(tiles, x, y);
                     }
                 }
+
             }
         }
 
@@ -400,18 +408,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Render() {
             Camera camera = SceneAs<Level>().Camera;
             Vector2 GroupPosition = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y);
-            Rectangle groupRect = new Rectangle(
-                    GroupBoundsMin.X,
-                    GroupBoundsMin.Y,
-                    GroupBoundsMax.X - GroupBoundsMin.X,
-                    GroupBoundsMax.Y - GroupBoundsMin.Y);
 
             DynData<DreamBlock> data = new DynData<DreamBlock>(this);
             float whiteFill = data.Get<float>("whiteFill");
             float whiteHeight = data.Get<float>("whiteHeight");
             Vector2 shake = data.Get<Vector2>("shake");
 
-            if (groupRect.Right < camera.Left || groupRect.Left > camera.Right || groupRect.Bottom < camera.Top || groupRect.Top > camera.Bottom) {
+            if (GroupRect.Right < camera.Left || GroupRect.Left > camera.Right || GroupRect.Bottom < camera.Top || GroupRect.Top > camera.Bottom) {
                 return;
             }
 
@@ -444,7 +447,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (FeatherMode) {
                         position += Calc.AngleToVector(rotation, 4f);
                     }
-                    position = PutInside(position, groupRect);
+                    position = PutInside(position, GroupRect);
 
                     if (!CheckParticleCollide(position))
                         continue;
@@ -479,7 +482,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 #region (De)activation Rendering
                 if (whiteFill == 1f && whiteHeight < 1f) {
-                    float whiteFillBottom = groupRect.Y + groupRect.Height * whiteHeight;
+                    float whiteFillBottom = GroupRect.Y + GroupRect.Height * whiteHeight;
                     foreach (ConnectedDreamBlock block in group) {
                         if (block.Right < camera.Left || block.Left > camera.Right || block.Bottom < camera.Top || block.Top > camera.Bottom) {
                             continue;
@@ -590,6 +593,49 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        private void SpawnFastRoutineParticles() {
+            if (MasterOfGroup) {
+                Level level = SceneAs<Level>();
+                foreach (SpaceJamEdge edge in GroupEdges) {
+                    float width = edge.end.X - edge.start.X;
+                    float centerH = edge.start.X + width / 2f;
+                    float height = edge.end.Y - edge.start.Y;
+                    float centerV = edge.start.Y + height / 2f;
+                    if (edge.facing == Edges.North)
+                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) width, new Vector2(centerH, edge.start.Y), Vector2.UnitX * width / 2f, Color.White, (float) Math.PI);
+                    if (edge.facing == Edges.South)
+                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) width, new Vector2(centerH, edge.end.Y), Vector2.UnitX * width / 2f, Color.White, 0f);
+                    if (edge.facing == Edges.West)
+                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) height, new Vector2(edge.start.X, centerV), Vector2.UnitY * height / 2f, Color.White, 4.712389f);
+                    if (edge.facing == Edges.East)
+                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) height, new Vector2(edge.end.X, centerV), Vector2.UnitY * height / 2f, Color.White, (float) Math.PI / 2f);
+                }
+            }
+        }
+
+        private void SpawnSlowRoutineParticles() {
+            if(MasterOfGroup) {
+                Level level = SceneAs<Level>();
+                Camera camera = level.Camera;
+
+                float whiteHeight = new DynData<DreamBlock>(this).Get<float>("whiteHeight");
+                float whiteFillBottom = GroupRect.Y + GroupRect.Height * whiteHeight;
+
+                foreach (ConnectedDreamBlock block in group) {
+                    if (block.Right < camera.Left || block.Left > camera.Right || block.Bottom < camera.Top || block.Top > camera.Bottom) {
+                        continue;
+                    }
+
+                    if (block.Top <= whiteFillBottom && block.Bottom >= whiteFillBottom) {
+                        for (int i = 0; i < block.Width; i += 4) {
+                            level.ParticlesFG.Emit(Strawberry.P_WingsBurst, new Vector2(block.X + (float) i, whiteFillBottom + 1f));
+                        }
+                    }
+                }
+            }
+        }
+
+
         private bool CheckParticleCollide(Vector2 position) {
             float offset = 2f;
             foreach (ConnectedDreamBlock block in group) {
@@ -665,17 +711,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Level level = SceneAs<Level>();
                 level.Shake(.65f);
                 Vector2 camera = SceneAs<Level>().Camera.Position;
-                Rectangle groupRect = new Rectangle(
+                Rectangle GroupRect = new Rectangle(
                     GroupBoundsMin.X,
                     GroupBoundsMin.Y,
                     GroupBoundsMax.X - GroupBoundsMin.X,
                     GroupBoundsMax.Y - GroupBoundsMin.Y);
 
-                Vector2 centre = new Vector2(groupRect.Center.X, groupRect.Center.Y);
+                Vector2 centre = new Vector2(GroupRect.Center.X, GroupRect.Center.Y);
                 for (int i = 0; i < particles.Length; i++) {
                     Vector2 position = particles[i].Position;
                     position += camera * (0.3f + 0.25f * particles[i].Layer);
-                    position = PutInside(position, groupRect);
+                    position = PutInside(position, GroupRect);
                     bool inside = false;
                     foreach (ConnectedDreamBlock block in group) {
                         if (block.CollidePoint(position)) {
@@ -734,6 +780,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static Type DreamBlock_FastActivate = typeof(DreamBlock).GetNestedType("<FastActivate>d__13", BindingFlags.NonPublic);
         private static Type DreamBlock_FastDeactivate = typeof(DreamBlock).GetNestedType("<FastDeactivate>d__12", BindingFlags.NonPublic);
         private static ILHook DreamBlock_FastActivate_Hook, DreamBlock_FastDeactivate_Hook;
+
+        private static Type DreamBlock_Activate = typeof(DreamBlock).GetNestedType("<Activate>d__34", BindingFlags.NonPublic);
+        private static Type DreamBlock_Deactivate = typeof(DreamBlock).GetNestedType("<Deactivate>d__11", BindingFlags.NonPublic);
+        private static ILHook DreamBlock_Activate_Hook, DreamBlock_Deactivate_Hook;
+
         private static FieldInfo DreamBlock_Routine_F_This;
 
         public static void Hook() {
@@ -745,8 +796,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             DreamBlock_Routine_F_This = DreamBlock_FastActivate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             DreamBlock_FastActivate_Hook = new ILHook(DreamBlock_FastActivate.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
+            
             DreamBlock_Routine_F_This = DreamBlock_FastDeactivate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             DreamBlock_FastDeactivate_Hook = new ILHook(DreamBlock_FastDeactivate.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
+
+            DreamBlock_Routine_F_This = DreamBlock_Activate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+            DreamBlock_Activate_Hook = new ILHook(DreamBlock_Activate.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockSlowRoutine);
+            
+            DreamBlock_Routine_F_This = DreamBlock_Deactivate.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+            DreamBlock_Deactivate_Hook = new ILHook(DreamBlock_Deactivate.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockSlowRoutine);
         }
 
         public static void Unhook() {
@@ -758,6 +816,34 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             DreamBlock_FastActivate_Hook.Dispose();
             DreamBlock_FastDeactivate_Hook.Dispose();
+            DreamBlock_Activate_Hook.Dispose();
+            DreamBlock_Deactivate_Hook.Dispose();
+        }
+
+        private static void DreamBlockSlowRoutine(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            cursor.GotoNext(instr => instr.OpCode == OpCodes.Ldfld && ((FieldReference) instr.Operand).Name.Contains("level"));
+            cursor.GotoNext(MoveType.After, instr => instr.OpCode.ToShortOp() == OpCodes.Brfalse_S);
+            object breakTarget = cursor.Prev.Operand;
+
+            // Load DreamBlock object
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, DreamBlock_Routine_F_This);
+
+            // Check is if ConnectedDreamBlock
+            cursor.Emit(OpCodes.Isinst, typeof(ConnectedDreamBlock));
+            // Skip if it isn't
+            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
+
+            // Load ConnectedDreamBlock object
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, DreamBlock_Routine_F_This);
+            cursor.Emit(OpCodes.Castclass, typeof(ConnectedDreamBlock));
+
+            cursor.EmitDelegate<Action<ConnectedDreamBlock>>(block => block.SpawnSlowRoutineParticles());
+
+            // Skip regular particles;
+            cursor.Emit(OpCodes.Br, breakTarget);
         }
 
         private static void DreamBlockFastRoutine(ILContext il) {
@@ -782,25 +868,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             // Skip regular particles
             cursor.Emit(OpCodes.Br, il.Instrs.Last(instr => instr.Previous?.OpCode == OpCodes.Callvirt && ((MethodReference) instr.Previous?.Operand).Name == "Emit"));
-        }
-
-
-        private void SpawnFastRoutineParticles() {
-            if (MasterOfGroup) {
-                Level level = SceneAs<Level>();
-                foreach (SpaceJamEdge edge in GroupEdges) {
-                    float width = edge.end.X - edge.start.X; float centerH = edge.start.X + width / 2f;
-                    float height = edge.end.Y - edge.start.Y; float centerV = edge.start.Y + height / 2f;
-                    if (edge.facing == Edges.North)
-                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) width, new Vector2(centerH, edge.start.Y), Vector2.UnitX * width / 2f, Color.White, (float) Math.PI);
-                    if (edge.facing == Edges.South)
-                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) width, new Vector2(centerH, edge.end.Y), Vector2.UnitX * width / 2f, Color.White, 0f);
-                    if (edge.facing == Edges.West)
-                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) height, new Vector2(edge.start.X, centerV), Vector2.UnitY * height / 2f, Color.White, 4.712389f);
-                    if (edge.facing == Edges.East)
-                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) height, new Vector2(edge.end.X, centerV), Vector2.UnitY * height / 2f, Color.White, (float) Math.PI / 2f);
-                }
-            }
         }
 
         private static void Player_DreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
