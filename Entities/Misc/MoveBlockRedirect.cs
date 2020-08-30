@@ -143,7 +143,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Update();
 
             MoveBlock moveBlock = CollideAll<Solid>().FirstOrDefault(e => e is MoveBlock) as MoveBlock;
-            if (moveBlock != null && !(bool) f_MoveBlock_canSteer.GetValue(moveBlock) && Collider.Contains(moveBlock.Collider, 0.001f)) {
+            if (moveBlock != null && !(bool) f_MoveBlock_canSteer.GetValue(moveBlock) && 
+                moveBlock.Width == Width && moveBlock.Height == Height && Collider.Contains(moveBlock.Collider, 0.001f)) {
                 if (FastRedirect)
                     SetBlockData(new DynData<MoveBlock>(moveBlock));
                 else if (currentBlock == null) {
@@ -153,7 +154,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
         }
-
+        
         private void SetBlockData(DynData<MoveBlock> blockData) {
             if (!blockData.Data.ContainsKey(MoveBlock_InitialAngle)) {
                 blockData[MoveBlock_InitialAngle] = blockData["homeAngle"];
