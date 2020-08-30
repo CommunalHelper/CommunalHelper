@@ -95,6 +95,7 @@
     <Compile Include="Entities\HeartGemStuff\MultiDashHeartGem.cs" />
     <Compile Include="Entities\HeartGemStuff\SummitGem.cs" />
     <Compile Include="Entities\HeartGemStuff\SummitGemManager.cs" />
+    <Compile Include="Entities\Misc\MoveBlockRedirect.cs" />
     <Compile Include="Entities\StationBlock\StationBlock.cs" />
     <Compile Include="Entities\StationBlock\StationBlockTrack.cs" />
     <Compile Include="Entities\Misc\AttachedWallBooster.cs" />
