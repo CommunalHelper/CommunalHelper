@@ -25,6 +25,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void Load() {
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
+            Everest.Events.CustomBirdTutorial.OnParseCommand += CustomBirdTutorial_OnParseCommand;
 
             DreamTunnelDash.Load();
             DreamRefill.Load();
@@ -43,8 +44,9 @@ namespace Celeste.Mod.CommunalHelper {
             // External optional dependencies loaded in LoadContent
         }
 
-    public override void Unload() {
+        public override void Unload() {
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
+            Everest.Events.CustomBirdTutorial.OnParseCommand -= CustomBirdTutorial_OnParseCommand;
 
             DreamTunnelDash.Unload();
             DreamRefill.Unload();
@@ -89,6 +91,15 @@ namespace Celeste.Mod.CommunalHelper {
             }
 
             return false;
+        }
+
+        private object CustomBirdTutorial_OnParseCommand(string command) {
+            // Thank you max480.
+            if (command == "CommunalHelperSyncedZipMoverBinding") {
+                return Settings.AllowActivateRebinding ?
+                    Settings.ActivateSyncedZipMovers.Button : Input.Grab;
+            }
+            return null;
         }
     }
 
