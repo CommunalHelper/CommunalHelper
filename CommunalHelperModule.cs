@@ -59,9 +59,6 @@ namespace Celeste.Mod.CommunalHelper {
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
-
-            // We want to keep this stuff as isolated as possible
-            // ExternalDependencyHandler.Unload();
         }
 
 		public override void LoadContent(bool firstLoad) {
