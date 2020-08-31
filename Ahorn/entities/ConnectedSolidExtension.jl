@@ -1,4 +1,4 @@
-﻿module CommunalHelperSolidExtension
+﻿module CommunalHelperConnectedSolidExtension
 using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/SolidExtension" SolidExtension(
@@ -6,7 +6,7 @@ using ..Ahorn, Maple
 			width::Integer=16, height::Integer=16)
 
 const placements = Ahorn.PlacementDict(
-    "Solid Extension (Communal Helper)" => Ahorn.EntityPlacement(
+    "Connected Solid Extension (Communal Helper)" => Ahorn.EntityPlacement(
         SolidExtension,
 		"rectangle"
     )

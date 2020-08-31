@@ -1,15 +1,32 @@
-This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection. You can find us in the [Celeste Discord](https://discord.gg/g8Mw3XH) @Bio and @catapillie.
+This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection. You can find us in the [Celeste Discord](https://discord.gg/g8Mw3XH) @Bio, @catapillie, @Nikko and @coloursofnoise.
+
 
 The current list of included mechanics:
-* Connected Dream Block - Dream blocks that when placed such that they overlap, will form continuous regions. The "feather mode" option allows the player to control their direction of movement while traveling through the block, the "one use" option will cause the dream block to shatter upon exit, and the "double refill" mode will cause the player to gain two dashes as they exit the dream block.
-* Dream Zip Mover, Move Block, Swap Block and Falling Block - As the name suggests, each of these entities take the movement behaviour of a specific solid, and apply it to a dream block. These entities all have access to the same "feather mode" and "one use" options as the Connected Dream Block. The Dream Zip Mover and Swap Block both have access to "no return" modes, and the Dream Move Block has access to the "no collide" mode, which will allow it to pass through any solids other than Dream Blocks while moving.
+
+* Connected Dream Block - Dream blocks that when placed such that they overlap, will form continuous regions. The "feather mode" option allows the player to control their direction of movement while traveling through the block, the "double refill" will give the player two dashes when exiting the dream block, and the "one use" option will cause the dream block to shatter upon exit.
+
+* Dream Zip Mover, Move Block, Swap Block, Falling Block and Switch Gate - As the name suggests, each of these entities take the movement behaviour of a specific solid, and apply it to a dream block. These entities all have access to the same "feather mode", "double refill" and "one use" options as the Connected Dream Block. The Dream Zip Mover and Swap Block both have access to "no return" modes, and the Dream Move Block has access to the "no collide" mode, which will allow it to pass through any solids other than Dream Blocks while moving.
+
 * Dream Refill - A special refill that once collected, allows the player to dash through any solid, except for dream blocks which will kill them.
+
 * Cassette Zip Mover, Move Block, Swap Block and Falling Block - Similar to the dream block types above, each of these entities take the movement behaviour of a specific solid, and apply it to a cassette block. The Cassette Zip Mover and Swap Block both have access to "no return" modes.
-* Station Block and Tracks - A block that sits on a track, and when activated will move along the track to a specific node. The block is activated by dashing into it, and will either move toward the side that was dashed into, or away from it, based on the "behaviour" option. Track segments are either vertical or horizontal, and when placed such that their nodes (ends) overlap, will connect to form full, continuous tracks. The block must be placed directly on top of a track node for it to attach to the track, and when activated can only move in directions that have a track segment leading away from their current node, in that direction.
-* Synced Zip Mover Activation Controller - A controller entity that when placed into a room allows Synced Zip Movers (from the [Adventure Helper](https://gamebanana.com/gamefiles/9807)) of a specific color to activate whenever the player pressed grab.
+
+* Connected Zip Mover, Move Block and Swap Block, Connected Solid Extension - They act like their corresponding vanilla version, but they can have any shape, simply by placing Connected Solid Extensions so that they touch or overlap, and are tiled automatically.
+
+* Station Block and Tracks - A block that sits on a track, and when activated will move along the track to a specific node. The block is activated by dashing into it, and will either move toward the side that was dashed into, or away from it, based on the "behaviour" option. Track segments are either vertical or horizontal, and when placed such that their nodes (ends) overlap, will connect to form full, continuous tracks. The block must be placed directly on top of a track node for it to attach to the track, and when activated can only move in directions that have a track segment leading away from their current node, in that direction. They are also reskinnable.
+
+* Synced Zip Mover Activation Controller - A controller entity that when placed into a room allows Synced Zip Movers (from the [Adventure Helper](https://gamebanana.com/gamefiles/9807)) of a specific color to activate whenever the player pressed grab. If you wish to, you can rebind the key/button of your choice to activate them. For map makers: the Custom Bird Tutorial provided by Everest can now correctly display the binding that is used by players, by adding "CommunalHelperSyncedZipMoverBinding" to "Controls" in Ahorn.
+
 * Attached Wall Booster - A wall booster that can be attached to a moving solid.
+
+* Crystal Heart Shards - A crystal heart which is broken into pieces to can be scattered around a room, requiring the player to dash into each piece individually, in order for the heart to reform at a specified location, and allow proper collection. Also ships with a plugin for a sharded version of the AdventureHelper Custom heart, which requires [Adventure Helper v.1.4.4](https://gamebanana.com/gamefiles/9807) or higher. If you don't have it installed, this plugin will not show up. 
+
+* Summit Gems and Summit Gem Manager - Summit Gems that you can actually use for your map/campaign. The Summit Gem Manager entity is placed in the room where it checks if all the specified gems are collected, and moves the Crystal Heart in the room to its own position, with an optional offset. Two additional custom gem texture/sound options are included, and the manager also works with AdventureHelper hearts.
+
+* Move Block Redirect - An entity that defines an area and a cardinal direction, and if a Move Block enters the said area, will redirect it to move in the specified direction. For a Move block and a Move Block Redirect to properly interact, they must have the same width and height, and redirection will only occur once the block fully overlaps with the area. The Move Block will normally change direction after a short animation, but there is also the option for a "fast redirect", which will cause the block to immediately change direction without an animation.
+
 
 To use this helper as part of your map, put the text below into the Dependencies: section of your everest.yaml:
 
 - Name: CommunalHelper
-  Version: 1.1.0
+  Version: 1.3.0
