@@ -90,6 +90,12 @@ namespace Celeste.Mod.CommunalHelper {
                 return Level.LoadCustomEntity(entityData, level);
             }
 
+            if (entityData.Name == "CommunalHelper/AdventureHelper/CustomCrystalHeart") {
+                entityData.Name = "AdventureHelper/CustomCrystalHeart";
+                entityData.Values[HeartGemShard.HeartGem_HeartGemID] = new EntityID(levelData.Name, entityData.ID);
+                return Level.LoadCustomEntity(entityData, level);
+            }
+
             return false;
         }
 

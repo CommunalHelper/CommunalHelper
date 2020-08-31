@@ -59,7 +59,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (Everest.Content.TryGet<AssetTypeYaml>(GFX.Game.RelativeDataPath + "collectables/summitgems/" + CustomGemSID + "/gem.meta", out ModAsset asset) && 
                 asset.TryDeserialize(out ColorMeta meta)) {
-                Console.WriteLine("Found meta file");
                 particleColor = Calc.HexToColor(meta.Color);
             }
 

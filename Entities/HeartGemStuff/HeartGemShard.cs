@@ -3,6 +3,7 @@ using Monocle;
 using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
+using XNAColor = Microsoft.Xna.Framework.Color;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked]
@@ -22,6 +23,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public HeartGem Heart;
         public bool Collected;
+
+        public XNAColor? Color;
 
         protected DynData<HeartGem> heartData;
         protected int index;
@@ -99,11 +102,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Added(Scene scene) {
             base.Added(scene);
+
             // Hack to determine sprite color without resorting to a switch statement
-            Color color = Heart.IsGhost ? new Color(130, 144, 198) : Heart.Get<VertexLight>().Color;
+            XNAColor color = Color ?? (Heart.IsGhost ? new XNAColor(130, 144, 198) : Heart.Get<VertexLight>().Color);
             sprite.Color = color;
 
             shineParticle = heartData.Get<ParticleType>("shineParticle");
+            if (Color != null)
+                shineParticle.Color = Color.Value;
 
             Add(light = new VertexLight(color, 1f, 32, 64));
             Add(lightTween = light.CreatePulseTween());
@@ -113,7 +119,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Collected = true;
             Collidable = false;
             Depth = Depths.NPCs;
-            sprite.Color = Color.White;
+            sprite.Color = XNAColor.White;
             shaker.On = true;
 
             bool allCollected = true;
@@ -124,7 +130,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             collectSfx.Play(CustomSFX.game_seedCrystalHeart_shard_collect, "shatter", allCollected ? 0f : 1f);
             Celeste.Freeze(.1f);
             level.Shake(.15f);
-            level.Flash(Color.White * .25f);
+            level.Flash(XNAColor.White * .25f);
 
             if (allCollected)
                 Scene.Add(new CSGEN_HeartGemShards(Heart));
@@ -281,13 +287,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (data.Nodes != null && data.Nodes.Length != 0) {
                     List<HeartGemShard> pieces = new List<HeartGemShard>();
                     for (int i = 0; i < data.Nodes.Length; i++) {
-                        pieces.Add(new HeartGemShard(self, offset + data.Nodes[i], i));
+                        HeartGemShard shard = new HeartGemShard(self, offset + data.Nodes[i], i);
+                        // Just blindly use any color attribute, if available
+                        if (data.Has("color"))
+                            shard.Color = Calc.HexToColor(data.Attr("color", "00a81f"));
+                        pieces.Add(shard);
                     }
                     heartData[HeartGem_HeartGemPieces] = pieces;
 
                 } else
                     heartData[HeartGem_HeartGemPieces] = null;
                 heartData[HeartGem_HeartGemID] = entityID;
+
+                
             }
         }
 
