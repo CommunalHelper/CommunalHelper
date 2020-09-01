@@ -41,7 +41,16 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwi
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
 
-    Ahorn.CommunalHelper.renderCustomDreamBlock(ctx, stopX, stopY, width, height, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
+    Ahorn.Cairo.save(ctx)
+
+    Ahorn.set_antialias(ctx, 1)
+    Ahorn.set_line_width(ctx, 1)
+
+    fillColor = get(entity.data, "featherMode", false) ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
+	 lineColor = get(entity.data, "oneUse", false) ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
+    Ahorn.drawRectangle(ctx, stopX, stopY, width, height, fillColor, lineColor)
+
+    Ahorn.restore(ctx)
                 
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
     
@@ -55,7 +64,16 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwitchGate,
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
 
-    Ahorn.CommunalHelper.renderCustomDreamBlock(ctx, x, y, width, height, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
+    Ahorn.Cairo.save(ctx)
+
+    Ahorn.set_antialias(ctx, 1)
+    Ahorn.set_line_width(ctx, 1)
+
+    fillColor = get(entity.data, "featherMode", false) ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
+	 lineColor = get(entity.data, "oneUse", false) ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
+    Ahorn.drawRectangle(ctx, x, y, width, height, fillColor, lineColor)
+
+    Ahorn.restore(ctx)
     
     Ahorn.drawImage(ctx, iconSprite, x + div(width - iconSprite.width, 2), y + div(height - iconSprite.height, 2))
 end

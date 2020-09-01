@@ -59,7 +59,16 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
     Ahorn.Cairo.save(ctx)
 
     # Dream block stuff
-    Ahorn.CommunalHelper.renderCustomDreamBlock(ctx, x, y, width, height, featherMode, oneUse)
+    Ahorn.set_antialias(ctx, 1)
+    Ahorn.set_line_width(ctx, 1)
+    fillColor = featherMode ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
+	 lineColor = oneUse ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
+    Ahorn.drawRectangle(ctx, x, y, width, height, fillColor, lineColor)
+
+    Ahorn.translate(ctx, cx, cy)
+    Ahorn.rotate(ctx, theta)
+
+    Ahorn.setSourceColor(ctx, dreamAesthetic ? (1.0, 1.0, 1.0, 1.0) : ropeColor)
 
     # Offset for rounding errors
     Ahorn.move_to(ctx, 0, 4 + (theta <= 0))

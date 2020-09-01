@@ -36,8 +36,17 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamMoveBlock, roo
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    Ahorn.CommunalHelper.renderCustomDreamBlock(ctx, 0, 0, width, height, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
+	 Ahorn.Cairo.save(ctx)
 
+    Ahorn.set_antialias(ctx, 1)
+    Ahorn.set_line_width(ctx, 1)
+
+    fillColor = get(entity.data, "featherMode", false) ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
+	 lineColor = get(entity.data, "oneUse", false) ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
+    Ahorn.drawRectangle(ctx, 0, 0, width, height, fillColor, lineColor)
+
+    Ahorn.restore(ctx)
+	
     direction = lowercase(get(entity.data, "direction", "up"))
     arrowSprite = Ahorn.getSprite(arrows[lowercase(direction)], "Gameplay")
     Ahorn.drawImage(ctx, arrowSprite, div(width - arrowSprite.width, 2), div(height - arrowSprite.height, 2))
