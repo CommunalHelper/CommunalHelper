@@ -1,9 +1,22 @@
+--1.3.0 (??/08/2020)--
+* Added "double refill" mode to all dream block types.
+* Added Connected Zip Mover, Connected Move Block and Connected Swap Block. 
+* Added Connected Solid Extension.
+* Added Crystal Heart Shards.
+* Added Dream Switch Gate.
+* Added Move Block Redirect.
+* Added Usable Summit Gems and 2 additional custom gem textures.
+* Added Summit Gem Manager.
+* Station Blocks & Station Block Tracks are now reskinnable.
+* The Custom Bird Tutorial provided by Everest can now correctly display a custom binding for the Synced Zip Mover Activation Controller.
+* Fixed Connected Dream Block rendering when playing the Dream Block activation/deactivation cutscene, or using the trigger from Everest.
+
 --1.2.0 (15/08/2020)--
 * Added Dream Falling Block.
 * Added Station Block & Station Block Track.
 * Added Cassette Zip Mover, Move Block, Swap Block and Falling Block.
-* Added the Synced Zip Mover Activation Controller
-* Added the Attached Wall Booster
+* Added the Synced Zip Mover Activation Controller.
+* Added the Attached Wall Booster.
 * Added a mod option that allows you to always possess a dream refill charge.
 * Dream Zip Mover, Move Block, Swap Block and Falling Block now all have access to the "feather mode" and "one use" options.
 * Dream Zip Mover and Swap Block now have access to "no return" modes, and the Dream Move Block now has access to the "no collide" mode, which will allow it to pass through any solids other than Dream Blocks while moving.

@@ -2,14 +2,9 @@ module CommunalHelperDreamZipMover
 
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/DreamZipMover" DreamZipMover(x::Integer, 
-                                                            y::Integer, 
-                                                            width::Integer=Maple.defaultBlockWidth, 
-                                                            height::Integer=Maple.defaultBlockHeight,
-                                                            noReturn::Bool=false,
-                                                            dreamAesthetic::Bool=false,
-                                                            featherMode::Bool=false,
-                                                            oneUse::Bool=false) 
+@mapdef Entity "CommunalHelper/DreamZipMover" DreamZipMover(x::Integer, y::Integer, 
+	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight, 
+	noReturn::Bool=false, dreamAesthetic::Bool=false, featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false) 
 
 const placements = Ahorn.PlacementDict(
     "Dream Zip Mover (Communal Helper)" => Ahorn.EntityPlacement(
@@ -67,7 +62,7 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
     Ahorn.set_antialias(ctx, 1)
     Ahorn.set_line_width(ctx, 1)
     fillColor = featherMode ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
-	lineColor = oneUse ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
+	 lineColor = oneUse ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
     Ahorn.drawRectangle(ctx, x, y, width, height, fillColor, lineColor)
 
     Ahorn.translate(ctx, cx, cy)
@@ -94,7 +89,7 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
     end
 end
 
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover, room::Maple.Room)
+function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover)
     renderDreamZipMover(ctx, entity, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
 end
 

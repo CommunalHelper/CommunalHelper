@@ -2,9 +2,7 @@ module CommunalHelperDreamRefill
 
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/DreamRefill" DreamRefill(x::Integer, 
-                                                        y::Integer,
-                                                        oneUse::Bool=false)
+@mapdef Entity "CommunalHelper/DreamRefill" DreamRefill(x::Integer, y::Integer, oneUse::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Dream Refill (Communal Helper)" => Ahorn.EntityPlacement(
@@ -20,7 +18,7 @@ function Ahorn.selection(entity::DreamRefill)
     return Ahorn.getSpriteRectangle(sprite, x, y)
 end
 
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamRefill, room::Maple.Room)
+function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamRefill)
     sprite = "objects/CommunalHelper/dreamRefill/idle02"
     Ahorn.drawSprite(ctx, sprite, 0, 0)
 end

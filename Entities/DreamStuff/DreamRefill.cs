@@ -1,579 +1,209 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
 using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
-namespace Celeste.Mod.CommunalHelper {
+namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamRefill")]
-    [Tracked]
-    class DreamRefill : Entity {
-        public static ParticleType[] shatterPaticles;
-		private int shatterParticleIndex = 0;
-		public static ParticleType[] regenParticles;
-		private int regenParticleIndex = 0;
-		public static ParticleType[] glowParticles;
-		private int glowParticleIndex = 0;
+    public class DreamRefill : Refill {
 
-        private Sprite sprite;
-		private Sprite flash;
-        private Image outline;
-        private Wiggler wiggler;
-		private BloomPoint bloom;
-		private VertexLight light;
+        public new static ParticleType[] P_Shatter;
+        private int shatterParticleIndex = 0;
+        public new static ParticleType[] P_Regen;
+        private int regenParticleIndex = 0;
+        public new static ParticleType[] P_Glow;
+        private int glowParticleIndex = 0;
 
-		private Level level;
-		private SineWave sine;
+        public static void InitializeParticles() {
 
-		private bool oneUse;
-		private float respawnTimer;
+            P_Shatter = new ParticleType[] { Refill.P_Shatter, null, null, null };
+            P_Regen = new ParticleType[] { Refill.P_Regen, null, null, null };
+            ;
+            P_Glow = new ParticleType[] { Refill.P_Glow, null, null, null };
+            ;
+            ParticleType[][] particles = new ParticleType[][] { P_Shatter, P_Regen, P_Glow };
 
-		static DreamRefill() {
-			shatterPaticles = new ParticleType[] { Refill.P_Shatter, null, null, null };
-			regenParticles = new ParticleType[] { Refill.P_Regen, null, null, null }; ;
-			glowParticles = new ParticleType[] { Refill.P_Glow, null, null, null }; ;
-			ParticleType[][] particles = new ParticleType[][] { shatterPaticles, regenParticles, glowParticles };
+            for (int i = 0; i < 3; ++i) {
+                ParticleType particle = new ParticleType(particles[i][0]);
+                particle.ColorMode = ParticleType.ColorModes.Choose;
 
-			for (int i = 0; i < 3; ++i) {
-				ParticleType particle = new ParticleType(particles[i][0]);
-				particle.ColorMode = ParticleType.ColorModes.Choose;
+                particles[i][0] = new ParticleType(particle) {
+                    Color = Calc.HexToColor("FFEF11"),
+                    Color2 = Calc.HexToColor("FF00D0")
+                };
 
-				particles[i][0] = new ParticleType(particle) {
-					Color = Calc.HexToColor("FFEF11"),
-					Color2 = Calc.HexToColor("FF00D0")
-				};
+                particles[i][1] = new ParticleType(particle) {
+                    Color = Calc.HexToColor("08a310"),
+                    Color2 = Calc.HexToColor("5fcde4")
+                };
 
-				particles[i][1] = new ParticleType(particle) {
-					Color = Calc.HexToColor("08a310"),
-					Color2 = Calc.HexToColor("5fcde4")
-				};
+                particles[i][2] = new ParticleType(particle) {
+                    Color = Calc.HexToColor("7fb25e"),
+                    Color2 = Calc.HexToColor("E0564C")
+                };
 
-				particles[i][2] = new ParticleType(particle) {
-					Color = Calc.HexToColor("7fb25e"),
-					Color2 = Calc.HexToColor("E0564C")
-				};
-
-				particles[i][3] = new ParticleType(particle) {
-					Color = Calc.HexToColor("5b6ee1"),
-					Color2 = Calc.HexToColor("CC3B3B")
-				};
-			}
-		}
-
-		public DreamRefill(Vector2 position, bool oneUse)
-			: base(position) {
-			base.Collider = new Hitbox(16f, 16f, -8f, -8f);
-			Add(new PlayerCollider(OnPlayer));
-			this.oneUse = oneUse;
-            Add(outline = new Image(GFX.Game["objects/refill/outline"]));
-            outline.CenterOrigin();
-            outline.Visible = false;
-            Add(sprite = new Sprite(GFX.Game, "objects/CommunalHelper/dreamRefill/idle"));
-			sprite.AddLoop("idle", "", 0.1f);
-			sprite.Play("idle");
-			sprite.CenterOrigin();
-			Add(flash = new Sprite(GFX.Game, "objects/refill/flash"));
-			flash.Add("flash", "", 0.05f);
-			flash.OnFinish = delegate
-			{
-				flash.Visible = false;
-			};
-			flash.CenterOrigin();
-			Add(wiggler = Wiggler.Create(1f, 4f, delegate (float v) {
-				sprite.Scale = (flash.Scale = Vector2.One * (1f + v * 0.2f));
-			}));
-			Add(new MirrorReflection());
-			Add(bloom = new BloomPoint(0.8f, 16f));
-			Add(light = new VertexLight(Color.White, 1f, 16, 48));
-			Add(sine = new SineWave(0.6f, 0f));
-			sine.Randomize();
-			UpdateY();
-			base.Depth = -100;
-		}
-
-		public DreamRefill(EntityData data, Vector2 offset)
-			: this(data.Position + offset, data.Bool("oneUse")) {
-		}
-
-		public override void Added(Scene scene) {
-			base.Added(scene);
-			level = SceneAs<Level>();
-		}
-
-		public override void Update() {
-			base.Update();
-			if (respawnTimer > 0f) {
-				respawnTimer -= Engine.DeltaTime;
-				if (respawnTimer <= 0f) {
-					Respawn();
-				}
-			} else if (base.Scene.OnInterval(0.1f)) {
-				level.ParticlesFG.Emit(glowParticles[glowParticleIndex], 1, Position, Vector2.One * 5f);
-				++glowParticleIndex;
-				glowParticleIndex %= 4;
-			}
-			UpdateY();
-			light.Alpha = Calc.Approach(light.Alpha, sprite.Visible ? 1f : 0f, 4f * Engine.DeltaTime);
-			bloom.Alpha = light.Alpha * 0.8f;
-			if (base.Scene.OnInterval(2f) && sprite.Visible) {
-				flash.Play("flash", restart: true);
-				flash.Visible = true;
-			}
-		}
-
-		private void Respawn() {
-			if (!Collidable) {
-				Collidable = true;
-				sprite.Visible = true;
-                outline.Visible = false;
-                base.Depth = -100;
-				wiggler.Start();
-				Audio.Play("event:/CommunalHelperEvents/game/dreamRefill/dream_refill_return", Position);
-				for (int i = 0; i < 16; ++i) {
-					level.ParticlesFG.Emit(regenParticles[regenParticleIndex], 1, Position, Vector2.One * 2f);
-					++regenParticleIndex;
-					regenParticleIndex %= 4;
-				}
-			}
-		}
-
-		private void UpdateY() {
-			Sprite obj = flash;
-			Sprite obj2 = sprite;
-			float num2 = bloom.Y = sine.Value * 2f;
-			obj.Y = (obj2.Y = num2);
-		}
-
-		public override void Render() {
-			if (sprite.Visible) {
-				sprite.DrawOutline();
-			}
-			base.Render();
-		}
-
-		private void OnPlayer(Player player) {
-			if (player.Stamina < 20f || !DreamRefillHooks.HasDreamTunnelDash) {
-				player.RefillDash();
-				player.RefillStamina();
-				DreamRefillHooks.HasDreamTunnelDash = true;
-
-				Audio.Play("event:/CommunalHelperEvents/game/dreamRefill/dream_refill_touch", Position);
-				Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
-				Collidable = false;
-				Add(new Coroutine(RefillRoutine(player)));
-				respawnTimer = 2.5f;
-			}
-		}
-
-		private IEnumerator RefillRoutine(Player player) {
-			Celeste.Freeze(0.05f);
-			yield return null;
-			level.Shake();
-			sprite.Visible = (flash.Visible = false);
-			if (!oneUse) {
-                outline.Visible = true;
-            }
-			Depth = 8999;
-			yield return 0.05f;
-			float angle = player.Speed.Angle();
-			for (int i = 0; i < 5; ++i) {
-				level.ParticlesFG.Emit(shatterPaticles[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle - (float)Math.PI / 2f);
-				++shatterParticleIndex;
-				shatterParticleIndex %= 4;
-			}
-			for (int i = 0; i < 5; ++i) {
-				level.ParticlesFG.Emit(shatterPaticles[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle + (float)Math.PI / 2f);
-				++shatterParticleIndex;
-				shatterParticleIndex %= 4;
-			}
-			SlashFx.Burst(Position, angle);
-			if (oneUse) {
-				RemoveSelf();
-			}
-		}
-	}
-
-	class DreamRefillHooks {
-
-		#region Vanilla constants
-		private const float DashSpeed = 240f;
-		private const float ClimbMaxStamina = 110f;
-		private const float DreamDashMinTime = 0.1f;
-		#endregion
-
-		public static int StDreamTunnelDash;
-		private static bool hasDreamTunnelDash = false;
-		public static bool HasDreamTunnelDash {
-			get { return hasDreamTunnelDash || CommunalHelperModule.Settings.AlwaysActiveDreamRefillCharge; }
-			set { hasDreamTunnelDash = value; }
-        }
-		public static bool dreamTunnelDashAttacking = false;
-
-		private static Color[] dreamTrailColors;
-		private static int dreamTrailColorIndex = 0;
-
-		static DreamRefillHooks()
-		{
-			dreamTrailColors = new Color[5];
-			dreamTrailColors[0] = Calc.HexToColor("FFEF11");
-			dreamTrailColors[1] = Calc.HexToColor("08A310");
-			dreamTrailColors[2] = Calc.HexToColor("FF00D0");
-			dreamTrailColors[3] = Calc.HexToColor("5FCDE4");
-			dreamTrailColors[4] = Calc.HexToColor("E0564C");
-		}
-
-		public static void Hook() {
-            On.Celeste.Player.ctor += modPlayerCtor;
-            On.Celeste.Player.DashBegin += modDashBegin;
-            On.Celeste.Player.Update += modUpdate;
-			On.Celeste.Player.CreateTrail += modCreateTrail;
-			On.Celeste.Player.OnCollideH += modOnCollideH;
-            On.Celeste.Player.OnCollideV += modOnCollideV;
-            On.Celeste.Level.EnforceBounds += modLevelEnforceBounds;
-            On.Celeste.Player.Die += modDie;
-            On.Celeste.Player.UpdateSprite += modUpdateSprite;
-			On.Celeste.Player.IsRiding_Solid += modIsRiding;
-			On.Celeste.Player.SceneEnd += modSceneEnd;
-		}
-
-		public static void Unhook() {
-            On.Celeste.Player.ctor -= modPlayerCtor;
-            On.Celeste.Player.DashBegin -= modDashBegin;
-            On.Celeste.Player.Update -= modUpdate;
-			On.Celeste.Player.CreateTrail -= modCreateTrail;
-			On.Celeste.Player.OnCollideH -= modOnCollideH;
-            On.Celeste.Player.OnCollideV -= modOnCollideV;
-            On.Celeste.Level.EnforceBounds -= modLevelEnforceBounds;
-            On.Celeste.Player.Die -= modDie;
-            On.Celeste.Player.UpdateSprite -= modUpdateSprite;
-			On.Celeste.Player.IsRiding_Solid -= modIsRiding;
-			On.Celeste.Player.SceneEnd -= modSceneEnd;
-		}
-
-		// Adds custom dream tunnel dash state
-		private static void modPlayerCtor(On.Celeste.Player.orig_ctor orig, Player player, Vector2 position, PlayerSpriteMode spriteMode) {
-			orig(player, position, spriteMode);
-
-            var update = new Func<int>(DreamTunnelDashUpdate);
-            StDreamTunnelDash = player.StateMachine.AddState(update, null, DreamTunnelDashBegin, DreamTunnelDashEnd);
-        }
-
-		// Dream tunnel dash triggering
-		private static void modDashBegin(On.Celeste.Player.orig_DashBegin orig, Player player) {
-			orig(player);
-			if (HasDreamTunnelDash) {
-				dreamTunnelDashAttacking = true;
-				HasDreamTunnelDash = false;
-
-				// Ensures the player enters the dream tunnel dash state if dashing into a fast moving block
-				var playerData = getPlayerData(player);
-				Vector2 lastAim = playerData.Get<Vector2>("lastAim");
-				int dirX = Math.Sign(lastAim.X);
-				int dirY = Math.Sign(lastAim.Y);
-				Vector2 dir = new Vector2(dirX, dirY);
-				if (player.CollideCheck<Solid, DreamBlock>(player.Position + dir)) {
-					player.Speed = player.DashDir = dir;
-					player.MoveHExact(dirX, playerData.Get<Collision>("onCollideH"));
-					player.MoveVExact(dirY, playerData.Get<Collision>("onCollideV"));
-                }
+                particles[i][3] = new ParticleType(particle) {
+                    Color = Calc.HexToColor("5b6ee1"),
+                    Color2 = Calc.HexToColor("CC3B3B")
+                };
             }
         }
 
-		// Dream trail creation and dreamTunnelDashAttacking updating
-		private static void modUpdate(On.Celeste.Player.orig_Update orig, Player player) {
-			orig(player);
-			
-			Level level = player.Scene as Level;
-			if (HasDreamTunnelDash && level.OnInterval(0.1f))
-			{
-				CreateDreamTrail(player);
-			}
-			if (!player.DashAttacking) {
-				dreamTunnelDashAttacking = false;
-			}
-		}
-		private static void CreateTrail(Player player, Color color) {
-			Vector2 scale = new Vector2(Math.Abs(player.Sprite.Scale.X) * (float)player.Facing, player.Sprite.Scale.Y);
-			TrailManager.Add(player, scale, color);
-		}
-		private static void CreateDreamTrail(Player player) {
-			CreateTrail(player, dreamTrailColors[dreamTrailColorIndex]);
-			++dreamTrailColorIndex;
-			dreamTrailColorIndex %= 5;
-		}
+        private DynData<Refill> baseData;
 
-		// Dream tunnel dash trail recoloring
-		private static void modCreateTrail(On.Celeste.Player.orig_CreateTrail orig, Player player) {
-			if (dreamTunnelDashAttacking) {
-				CreateTrail(player, dreamTrailColors[dreamTrailColorIndex]);
-				++dreamTrailColorIndex;
-				dreamTrailColorIndex %= 5;
-			} else {
-				orig(player);
+        public DreamRefill(EntityData data, Vector2 offset)
+            : base(data.Position + offset, false, data.Bool("oneUse")) {
+            baseData = new DynData<Refill>(this);
+
+            Get<PlayerCollider>().OnCollide = OnPlayer;
+
+            Remove(baseData.Get<Sprite>("sprite"));
+            Sprite sprite = new Sprite(GFX.Game, "objects/CommunalHelper/dreamRefill/idle");
+            sprite.AddLoop("idle", "", 0.1f);
+            sprite.Play("idle");
+            sprite.CenterOrigin();
+            baseData["sprite"] = sprite;
+            Add(sprite);
+
+        }
+
+        private void EmitGlowParticles() {
+            baseData.Get<Level>("level").ParticlesFG.Emit(P_Glow[glowParticleIndex], 1, Position, Vector2.One * 5f);
+            ++glowParticleIndex;
+            glowParticleIndex %= 4;
+        }
+
+        private void EmitShatterParticles(float angle) {
+            for (int i = 0; i < 5; ++i) {
+                baseData.Get<Level>("level").ParticlesFG.Emit(P_Shatter[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle - (float) Math.PI / 2f);
+                ++shatterParticleIndex;
+                shatterParticleIndex %= 4;
+            }
+            for (int i = 0; i < 5; ++i) {
+                baseData.Get<Level>("level").ParticlesFG.Emit(P_Shatter[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle + (float) Math.PI / 2f);
+                ++shatterParticleIndex;
+                shatterParticleIndex %= 4;
             }
         }
 
-		#region State machine extension stuff
-		private static void DreamTunnelDashBegin() {
-			Player player = getPlayer();
-			var playerData = getPlayerData(player);
-
-			SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
-			if (dreamSfxLoop == null) {
-				playerData["dreamSfxLoop"] = dreamSfxLoop = new SoundSource();
-				player.Add(dreamSfxLoop);
-			}
-			player.Speed = player.DashDir * DashSpeed;
-			player.TreatNaive = true;
-
-			// Puts the player inside a fast moving solid to ensure they are carried with it
-			player.Position.X += Math.Sign(player.DashDir.X);
-			player.Position.Y += Math.Sign(player.DashDir.Y);
-
-            player.Depth = Depths.PlayerDreamDashing;
-			player.Stamina = ClimbMaxStamina;
-			playerData["dreamDashCanEndTimer"] = 0.07f; // jank fix, should be 0.1f
-			playerData["dreamJump"] = false;
-
-			player.Play("event:/char/madeline/dreamblock_enter");
-			player.Loop(dreamSfxLoop, "event:/char/madeline/dreamblock_travel");
-		}
-
-		private static void DreamTunnelDashEnd() {
-			Player player = getPlayer();
-			var playerData = getPlayerData(player);
-
-			player.Depth = 0;
-			if (!playerData.Get<bool>("dreamJump")) {
-				player.AutoJump = true;
-				player.AutoJumpTimer = 0f;
-			}
-			if (!player.Inventory.NoRefills) {
-				player.RefillDash();
-			}
-			player.RefillStamina();
-			player.TreatNaive = false;
-
-			if (player.DashDir.X != 0f) {
-				playerData["jumpGraceTimer"] = 0.1f;
-				playerData["dreamJump"] = true;
-			} else {
-				playerData["jumpGraceTimer"] = 0f;
-			}
-
-			Dust.Burst(player.Position, player.Speed.Angle(), 16, null);
-			player.Stop(playerData.Get<SoundSource>("dreamSfxLoop"));
-			player.Play("event:/char/madeline/dreamblock_exit");
-			Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-		}
-
-		private static int DreamTunnelDashUpdate() {
-			Player player = getPlayer();
-			var playerData = getPlayerData(player);
-
-			Input.Rumble(RumbleStrength.Light, RumbleLength.Medium);
-			Vector2 position = player.Position;
-			player.NaiveMove(player.Speed * Engine.DeltaTime);
-
-			float dreamDashCanEndTimer = playerData.Get<float>("dreamDashCanEndTimer");
-			if (dreamDashCanEndTimer > 0f) {
-				dreamDashCanEndTimer -= Engine.DeltaTime;
-				playerData["dreamDashCanEndTimer"] = dreamDashCanEndTimer;
-			}
-			if (player.CollideCheck<Solid, DreamBlock>()) {
-				if (player.Scene.OnInterval(0.1f)) {
-					CreateDreamTrail(player);
-				}
-
-				Level level = playerData.Get<Level>("level");
-				if (level.OnInterval(0.04f)) {
-					level.Displacement.AddBurst(player.Center, 0.3f, 0f, 40f);
-				}
-			} else {
-				if (DreamTunneledIntoDeath(player)) {
-					if (SaveData.Instance.Assists.Invincible) {
-						player.Position = position;
-						player.Speed *= -1f;
-						player.Play("event:/game/general/assist_dreamblockbounce");
-					} else {
-						player.Die(Vector2.Zero);
-					}
-				} else if (dreamDashCanEndTimer <= 0f) {
-					Celeste.Freeze(0.05f);
-					if (Input.Jump.Pressed && player.DashDir.X != 0f) {
-						playerData["dreamJump"] = true;
-						player.Jump();
-					} else if (player.DashDir.Y >= 0f || player.DashDir.X != 0f) {
-						if (player.DashDir.X > 0f && player.CollideCheck<DreamBlock>(player.Position - Vector2.UnitX * 5f)) {
-							player.MoveHExact(-5);
-						} else if (player.DashDir.X < 0f && player.CollideCheck<DreamBlock>(player.Position + Vector2.UnitX * 5f)) {
-							player.MoveHExact(5);
-						}
-
-						int moveX = playerData.Get<int>("moveX");
-						if (Input.Grab.Check && player.ClimbCheck(moveX)) {
-							player.Facing = (Facings)moveX;
-							if (!SaveData.Instance.Assists.NoGrabbing) {
-								return Player.StClimb;
-							}
-							player.ClimbTrigger(moveX);
-							player.Speed.X = 0f;
-						}
-					}
-					return Player.StNormal;
-				}
-			}
-			return StDreamTunnelDash;
-		}
-
-		private static bool DreamTunneledIntoDeath(Player player) {
-			if (player.CollideCheck<DreamBlock>()) {
-				for (int i = 1; i <= 5; i++) {
-					for (int j = -1; j <= 1; j += 2) {
-						for (int k = 1; k <= 5; k++) {
-							for (int l = -1; l <= 1; l += 2) {
-								Vector2 vector = new Vector2(i * j, k * l);
-								if (!player.CollideCheck<DreamBlock>(player.Position + vector)) {
-									player.Position += vector;
-									return false;
-								}
-							}
-						}
-					}
-				}
-				return true;
-			}
-			return false;
-		}
-		#endregion
-
-		// Dream tunnel dash/dashing into dream block detection 
-		private static void modOnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player player, CollisionData data) {
-			if (player.StateMachine.State == StDreamTunnelDash) {
-				return;
-			}
-			if (!dreamTunnelDashCheck(player, new Vector2(Math.Sign(player.Speed.X), 0))) {
-				orig(player, data);
-			}
-		}
-		private static void modOnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player player, CollisionData data) {
-			if (player.StateMachine.State == StDreamTunnelDash) {
-				return;
-			}
-
-			if (!dreamTunnelDashCheck(player, new Vector2(0, Math.Sign(player.Speed.Y)))) {
-                orig(player, data);
+        private void EmitRegenParticles() {
+            for (int i = 0; i < 16; ++i) {
+                baseData.Get<Level>("level").ParticlesFG.Emit(P_Regen[regenParticleIndex], 1, Position, Vector2.One * 2f);
+                ++regenParticleIndex;
+                regenParticleIndex %= 4;
             }
-		}
-		private static bool dreamTunnelDashCheck(Player player, Vector2 direction) {
-			if ((dreamTunnelDashAttacking || player.DashAttacking && HasDreamTunnelDash) && Vector2.Dot(player.DashDir, direction) > 0f) {
-				Vector2 perpendicular = new Vector2(Math.Abs(direction.Y), Math.Abs(direction.X));
-
-				// Dream block checking
-				if (player.CollideCheck<DreamBlock>(player.Position + direction)) {
-					bool decrease = direction.X != 0f ? player.Speed.Y <= 0f : player.Speed.X <= 0f;
-					bool increase = direction.X != 0f ? player.Speed.Y >= 0f : player.Speed.X >= 0f;
-					bool dashedIntoDreamBlock = true;
-					for (int dist = 1; dist <= 4 && dashedIntoDreamBlock; dist++) {
-						for (int dir = -1; dir <= 1; dir += 2) {
-							if (dir == 1 ? increase : decrease) {
-								Vector2 offset = dir * dist * perpendicular;
-								if (!player.CollideCheck<DreamBlock>(player.Position + direction + offset)) {
-									player.Position += offset;
-									dashedIntoDreamBlock = false;
-									break;
-								}
-							}
-						}
-					}
-					if (dashedIntoDreamBlock) {
-						player.Die(-direction);
-						return true;
-                    }
-				}
-
-				// Solid checking
-				if (player.CollideCheck<Solid, DreamBlock>(player.Position + direction)) {
-					bool decrease = direction.X != 0f ? player.Speed.Y <= 0f : player.Speed.X <= 0f;
-					bool increase = direction.X != 0f ? player.Speed.Y >= 0f : player.Speed.X >= 0f;
-					for (int dist = 1; dist <= 4; dist++) {
-						for (int dir = -1; dir <= 1; dir += 2) {
-							if (dir == 1 ? increase : decrease) {
-								Vector2 offset = dir * dist * perpendicular;
-								if (!player.CollideCheck<Solid, DreamBlock>(player.Position + direction + offset)) {
-									// Actual position offset handled by orig collide
-									return false;
-								}
-							}
-						}
-					}
-					player.StateMachine.State = StDreamTunnelDash;
-					dreamTunnelDashAttacking = false;
-
-					var playerData = getPlayerData(player);
-					playerData["dashAttackTimer"] = 0f;
-					playerData["gliderBoostTimer"] = 0f;
-					return true;
-				}
-			}
-			return false;
-		}
-
-		// Kills the player if they dream tunnel dash into the level bounds
-		private static void modLevelEnforceBounds(On.Celeste.Level.orig_EnforceBounds orig, Level level, Player player) {
-			Rectangle bounds = level.Bounds;
-			bool canDie = player.StateMachine.State == StDreamTunnelDash && player.CollideCheck<Solid>();
-			if (canDie && (player.Right > bounds.Right || player.Left < bounds.Left || player.Top < bounds.Top || player.Bottom > bounds.Bottom)) {
-				player.Die(Vector2.Zero);
-			} else {
-				orig(level, player);
-			}
-		}
-
-		// Fixes bug with dreamSfx soundsource not being stopped
-		private static PlayerDeadBody modDie(On.Celeste.Player.orig_Die orig, Player player, Vector2 dir, bool evenIfInvincible = false, bool registerDeathInStats = true) {
-			HasDreamTunnelDash = false;
-			SoundSource dreamSfxLoop = getPlayerData(player).Get<SoundSource>("dreamSfxLoop");
-			if (dreamSfxLoop != null) {
-				dreamSfxLoop.Stop();
-			}
-			return orig(player, dir, evenIfInvincible, registerDeathInStats);
-		}
-
-		// Updates sprite for dream tunnel dash state
-		private static void modUpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player player) {
-			if (StDreamTunnelDash != 0 && player.StateMachine.State == StDreamTunnelDash) {
-				if (player.Sprite.CurrentAnimationID != "dreamDashIn" && player.Sprite.CurrentAnimationID != "dreamDashLoop") {
-					player.Sprite.Play("dreamDashIn");
-				}
-			} else {
-				orig(player);
-			}
         }
 
-		// Ensures that the player is transported by moving solids when dream tunnel dashing through them
-		private static bool modIsRiding(On.Celeste.Player.orig_IsRiding_Solid orig, Player player, Solid solid) {
-			if (player.StateMachine.State == StDreamTunnelDash) {
-				return player.CollideCheck(solid);
+        private void OnPlayer(Player player) {
+            if (player.Stamina < 20f || !DreamTunnelDash.HasDreamTunnelDash) {
+                player.RefillDash();
+                player.RefillStamina();
+                DreamTunnelDash.HasDreamTunnelDash = true;
+                Audio.Play(CustomSFX.game_dreamRefill_dream_refill_touch, Position);
+                Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
+                Collidable = false;
+                Add(new Coroutine((IEnumerator) m_Refill_RefillRoutine.Invoke(this, new object[] { player })));
+                baseData["respawnTimer"] = 2.5f;
             }
-			return orig(player, solid);
         }
 
-		private static void modSceneEnd(On.Celeste.Player.orig_SceneEnd orig, Player player, Scene scene) {
-			orig(player, scene);
-			HasDreamTunnelDash = false;
+        #region Hooks
+
+        private static TypeInfo t_DreamRefill = typeof(DreamRefill).GetTypeInfo();
+        private static MethodInfo m_Refill_RefillRoutine = typeof(Refill).GetMethod("RefillRoutine", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static ILHook hook_Refill_RefillRoutine;
+
+        internal static void Load() {
+            IL.Celeste.Refill.Update += Refill_Update;
+            IL.Celeste.Refill.Respawn += Refill_Respawn;
+            hook_Refill_RefillRoutine = new ILHook(m_Refill_RefillRoutine.GetStateMachineTarget(),
+                Refill_RefillRoutine);
         }
 
-		#region Misc
-		private static Player getPlayer() {
-			return CommunalHelperModule.getPlayer();
-		}
+        internal static void Unload() {
+            IL.Celeste.Refill.Update -= Refill_Update;
+            IL.Celeste.Refill.Respawn -= Refill_Respawn;
+            hook_Refill_RefillRoutine.Dispose();
+        }
 
-		public static DynData<Player> getPlayerData(Player player) {
-			return CommunalHelperModule.getPlayerData(player);
-		}
-		#endregion
-	}
+        private static void Refill_Update(ILContext il) {
+            PatchRefillParticles(il, refill => refill.EmitGlowParticles());
+        }
+
+        private static void Refill_Respawn(ILContext il) {
+            PatchRefillParticles(il, refill => refill.EmitRegenParticles());
+
+            ILCursor cursor = new ILCursor(il);
+
+            cursor.GotoNext(MoveType.After, instr => instr.MatchLdstr(SFX.game_10_pinkdiamond_return));
+            // Cursed, apparently:
+            /*
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<Refill, string, string>>((refill, str) => {
+                if (refill is DreamRefill)
+                    return CustomSFX.game_dreamRefill_dream_refill_return;
+                return str;
+            });
+            */
+            // But this works fine:
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Isinst, t_DreamRefill);
+            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
+            cursor.Emit(OpCodes.Pop);
+            cursor.Emit(OpCodes.Ldstr, CustomSFX.game_dreamRefill_dream_refill_return);
+
+        }
+
+        private static void PatchRefillParticles(ILContext il, Action<DreamRefill> method) {
+            ILCursor cursor = new ILCursor(il);
+
+            cursor.GotoNext(instr => instr.Next.MatchLdfld<Refill>("level"));
+
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Isinst, t_DreamRefill);
+            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
+
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Castclass, t_DreamRefill);
+            cursor.EmitDelegate(method);
+            cursor.Emit(OpCodes.Br_S, il.Instrs.First(instr => instr.MatchCallvirt<ParticleSystem>("Emit")).Next);
+        }
+
+        private static void Refill_RefillRoutine(ILContext il) {
+            FieldInfo f_this = m_Refill_RefillRoutine.GetStateMachineTarget().DeclaringType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+
+            ILCursor cursor = new ILCursor(il);
+            cursor.GotoNext(instr => instr.MatchLdfld<Level>("ParticlesFG"));
+            cursor.GotoPrev(instr => instr.OpCode != OpCodes.Ldfld); // A bit messy but eh
+            Instruction angleLoc = cursor.Prev;
+
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, f_this);
+            cursor.Emit(OpCodes.Isinst, typeof(DreamRefill).GetTypeInfo());
+            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
+
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, f_this);
+            cursor.Emit(OpCodes.Castclass, t_DreamRefill);
+
+            if (angleLoc.OpCode == OpCodes.Stfld) { // Steam FNA has different il code
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldfld, angleLoc.Operand);
+            } else
+                cursor.Emit(OpCodes.Ldloc_2);
+
+            cursor.EmitDelegate<Action<DreamRefill, float>>((refill, angle) => refill.EmitShatterParticles(angle));
+            cursor.Emit(OpCodes.Br_S, il.Instrs.First(instr => instr.MatchCallvirt<ParticleSystem>("Emit")).Next);
+        }
+
+        #endregion
+
+    }
 }

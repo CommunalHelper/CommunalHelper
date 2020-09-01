@@ -2,29 +2,16 @@ module CommunalHelperDreamSwapBlock
 
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/DreamSwapBlock" DreamSwapBlock(x::Integer, 
-                                                              y::Integer, 
-                                                              width::Integer=16, 
-                                                              height::Integer=16,
-                                                              noReturn::Bool=false,
-                                                              featherMode::Bool=false,
-                                                              oneUse::Bool=false) 
-
-function swapFinalizer(entity)
-    x, y = Ahorn.position(entity)
-
-    width = Int(get(entity.data, "width", 8))
-    height = Int(get(entity.data, "height", 8))
-
-    entity.data["nodes"] = [(x + width, y)]
-end
+@mapdef Entity "CommunalHelper/DreamSwapBlock" DreamSwapBlock(x::Integer, y::Integer, 
+	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight, 
+	noReturn::Bool=false, featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false) 
 
 const placements = Ahorn.PlacementDict(
     "Dream Swap Block (Communal Helper)" => Ahorn.EntityPlacement(
         DreamSwapBlock,
         "rectangle",
         Dict{String, Any}(),
-        swapFinalizer
+        Ahorn.SwapBlock.swapFinalizer
     )
 )
 
@@ -45,57 +32,29 @@ function Ahorn.selection(entity::DreamSwapBlock)
     return [Ahorn.Rectangle(x, y, width, height), Ahorn.Rectangle(stopX, stopY, width, height)]
 end
 
-function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number)
-    tilesWidth = div(width, 8)
-    tilesHeight = div(height, 8)
-    trail = "objects/swapblock/target"
+function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock)
+    sprite = get(entity.data, "sprite", "block")
+    startX, startY = Int(entity.data["x"]), Int(entity.data["y"])
+    stopX, stopY = Int.(entity.data["nodes"][1])
 
-    for i in 2:tilesWidth - 1
-        Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + 2, 6, 0, 8, 6)
-        Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + height - 8, 6, 14, 8, 6)
-    end
+    width = Int(get(entity.data, "width", 32))
+    height = Int(get(entity.data, "height", 32))
 
-    for i in 2:tilesHeight - 1
-        Ahorn.drawImage(ctx, trail, x + 2, y + (i - 1) * 8, 0, 6, 6, 8)
-        Ahorn.drawImage(ctx, trail, x + width - 8, y + (i - 1) * 8, 14, 6, 6, 8)
-    end
-
-    for i in 2:tilesWidth - 1, j in 2:tilesHeight - 1
-        Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + (j - 1) * 8, 6, 6, 8, 8)
-    end
-
-    Ahorn.drawImage(ctx, trail, x + width - 8, y + 2, 14, 0, 6, 6)
-    Ahorn.drawImage(ctx, trail, x + width - 8, y + height - 8, 14, 14, 6, 6)
-    Ahorn.drawImage(ctx, trail, x + 2, y + 2, 0, 0, 6, 6)
-    Ahorn.drawImage(ctx, trail, x + 2, y + height - 8, 0, 14, 6, 6)
-end
-
-function renderDreamSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, width::Number, height::Number, featherMode::Bool, oneUse::Bool)
-    Ahorn.Cairo.save(ctx)
+	 Ahorn.Cairo.save(ctx)
 
     Ahorn.set_antialias(ctx, 1)
     Ahorn.set_line_width(ctx, 1)
 
-    fillColor = featherMode ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
-	lineColor = oneUse ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
-    Ahorn.drawRectangle(ctx, x, y, width, height, fillColor, lineColor)
+    fillColor = get(entity.data, "featherMode", false) ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
+	 lineColor = get(entity.data, "oneUse", false) ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
+    Ahorn.drawRectangle(ctx, stopX, stopY, width, height, fillColor, lineColor)
 
     Ahorn.restore(ctx)
-end
-
-function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock, room::Maple.Room)
-    sprite = get(entity.data, "sprite", "block")
-    startX, startY = Int(entity.data["x"]), Int(entity.data["y"])
-    stopX, stopY = Int.(entity.data["nodes"][1])
-
-    width = Int(get(entity.data, "width", 32))
-    height = Int(get(entity.data, "height", 32))
-
-    renderDreamSwapBlock(ctx, stopX, stopY, width, height, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
+	 
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
 end
 
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock, room::Maple.Room)
+function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock)
     sprite = get(entity.data, "sprite", "block")
 
     startX, startY = Int(entity.data["x"]), Int(entity.data["y"])
@@ -104,8 +63,18 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock, 
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
 
-    renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height)
-    renderDreamSwapBlock(ctx, startX, startY, width, height, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
+    Ahorn.SwapBlock.renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height, "objects/swapblock/target")
+	 
+	 Ahorn.Cairo.save(ctx)
+
+    Ahorn.set_antialias(ctx, 1)
+    Ahorn.set_line_width(ctx, 1)
+
+    fillColor = get(entity.data, "featherMode", false) ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
+	 lineColor = get(entity.data, "oneUse", false) ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
+    Ahorn.drawRectangle(ctx, startX, startY, width, height, fillColor, lineColor)
+
+    Ahorn.restore(ctx)
 
     if Bool(get(entity.data, "noReturn", false))
         noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")
