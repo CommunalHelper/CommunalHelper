@@ -281,7 +281,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             orig(self, data, offset);
 
             // If it hasn't been loaded by our mod, don't even bother with it
-            if (data.Values.TryGetValue(HeartGem_HeartGemID, out object entityID)) {
+            if (data.Has(HeartGem_HeartGemID)) {
 
                 DynData<HeartGem> heartData = new DynData<HeartGem>(self);
                 if (data.Nodes != null && data.Nodes.Length != 0) {
@@ -297,7 +297,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 } else
                     heartData[HeartGem_HeartGemPieces] = null;
-                heartData[HeartGem_HeartGemID] = entityID;
+                heartData[HeartGem_HeartGemID] = data.Values[HeartGem_HeartGemID];
 
                 
             }
