@@ -78,7 +78,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             level.Shake(0.3f);
             Celeste.Freeze(0.1f);
-            P_Shatter.Color = particleColor ?? GemColors[GemID];
+            P_Shatter.Color = particleColor ?? GemColors[Calc.Clamp(GemID, 0, 7)];
             float angle = player.Speed.Angle();
             level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle - Calc.QuarterCircle);
             level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle + Calc.QuarterCircle);
