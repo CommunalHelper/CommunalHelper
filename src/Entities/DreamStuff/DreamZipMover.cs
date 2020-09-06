@@ -32,7 +32,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(new Coroutine(Sequence()));
             Add(new LightOcclude());
             Add(sfx = new SoundSource {
-                Position = Center
+                Position = new Vector2(Width / 2f, Height / 2f)
             });
             cross = GFX.Game["objects/CommunalHelper/dreamMoveBlock/x"];
         }
