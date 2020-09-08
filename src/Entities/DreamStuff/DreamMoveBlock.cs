@@ -1,7 +1,11 @@
 ﻿using Celeste.Mod.Entities;
 using FMOD.Studio;
 using Microsoft.Xna.Framework;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
 using System.Collections;
@@ -10,7 +14,6 @@ using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamMoveBlock")]
-    [TrackedAs(typeof(DreamBlock))]
     public class DreamMoveBlock : CustomDreamBlock {
 
         private static MethodInfo m_Pooler_Create = typeof(Pooler).GetMethod("Create").MakeGenericMethod(typeof(MoveBlock).GetNestedType("Debris", BindingFlags.NonPublic));
@@ -32,9 +35,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private const float MoveSpeed = 60f;
         private const float FastMoveSpeed = 75f;
 
-        private const float SteerSpeed = (float) Math.PI * 16f;
-        private const float MaxAngle = (float) Math.PI / 4f;
-        private const float NoSteerTime = 0.2f;
+        // Not steerable
+        // private const float SteerSpeed = (float) Math.PI * 16f;
+        // private const float MaxAngle = (float) Math.PI / 4f;
+        // private const float NoSteerTime = 0.2f;
 
         private const float CrashTime = 0.15f;
         private const float CrashResetTime = 0.1f;
@@ -66,33 +70,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private Coroutine controller;
         private bool noCollide;
 
-        static DreamMoveBlock() {
+        internal static void InitializeParticles() {
             P_Activate = new ParticleType(MoveBlock.P_Activate);
             P_Activate.Color = Color.White;
             P_Break = new ParticleType(MoveBlock.P_Break);
             P_Break.Color = Color.White;
 
-            dreamParticles = new ParticleType[4];
             ParticleType particle = new ParticleType(MoveBlock.P_Move);
             particle.ColorMode = ParticleType.ColorModes.Choose;
-            particle.Color = Calc.HexToColor("FFEF11");
-            particle.Color2 = Calc.HexToColor("FF00D0");
-            dreamParticles[0] = particle;
-
-            particle = new ParticleType(particle);
-            particle.Color = Calc.HexToColor("08a310");
-            particle.Color2 = Calc.HexToColor("5fcde4");
-            dreamParticles[1] = particle;
-
-            particle = new ParticleType(particle);
-            particle.Color = Calc.HexToColor("7fb25e");
-            particle.Color2 = Calc.HexToColor("E0564C");
-            dreamParticles[2] = particle;
-
-            particle = new ParticleType(particle);
-            particle.Color = Calc.HexToColor("5b6ee1");
-            particle.Color2 = Calc.HexToColor("CC3B3B");
-            dreamParticles[3] = particle;
+            dreamParticles = new ParticleType[4];
+            for (int i = 0; i < 4; i++) {
+                dreamParticles[i] = new ParticleType(particle);
+            }
         }
 
         public DreamMoveBlock(EntityData data, Vector2 offset)
@@ -133,7 +122,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
 
 
-                Audio.Play(CustomSFX.game_dreamMoveBlock_dream_move_block_activate, Position);
+                Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_activate : SFX.game_04_arrowblock_activate, Position);
                 state = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
@@ -151,7 +140,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         MoveParticles();
                     }
                     speed = Calc.Approach(speed, targetSpeed, Accel * Engine.DeltaTime);
-                    angle = Calc.Approach(angle, targetAngle, SteerSpeed * Engine.DeltaTime);
+                    // Not steerable
+                    // angle = Calc.Approach(angle, targetAngle, SteerSpeed * Engine.DeltaTime);
                     Vector2 move = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool hit;
                     if (direction == MoveBlock.Directions.Right || direction == MoveBlock.Directions.Left) {
@@ -205,7 +195,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
 
 
-                Audio.Play(CustomSFX.game_dreamMoveBlock_dream_move_block_break, Position);
+                Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_break : SFX.game_04_arrowblock_break, Position);
                 moveSfx.Stop();
                 state = MovementState.Breaking;
                 speed = targetSpeed = 0f;
@@ -222,7 +212,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Vector2 offset = new Vector2(x + 4f, y + 4f);
                         DynamicData d = new DynamicData(m_Pooler_Create.Invoke(Engine.Pooler, null));
                         d.Get<Image>("sprite").Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/debris"));
-                        d.Get<Image>("sprite").Color = baseData.Get<Color>("activeLineColor");
+                        d.Get<Image>("sprite").Color = PlayerHasDreamDash ? activeLineColor : disabledLineColor;
                         d.Invoke("Init", Position + offset, Center, startPosition + offset);
                         debris.Add(d);
                         Scene.Add((Entity) d.Target);
@@ -264,7 +254,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 foreach (DynamicData d in debris) {
                     d.Invoke("RemoveSelf");
                 }
-                Audio.Play(CustomSFX.game_dreamMoveBlock_dream_move_block_reappear, Position);
+                Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_reappear : SFX.game_04_arrowblock_reappear, Position);
                 Visible = true;
                 EnableStaticMovers();
                 speed = targetSpeed = 0f;
@@ -280,8 +270,29 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             moveSfx.Stop();
         }
 
-        protected override bool ShatterCheck() {
-            return base.ShatterCheck() && state != MovementState.Breaking;
+        protected override bool ShatterCheck() => 
+            base.ShatterCheck() && state != MovementState.Breaking;
+
+        public override void SetupCustomParticles(float canvasWidth, float canvasHeight) {
+            base.SetupCustomParticles(canvasWidth, canvasHeight);
+            if (PlayerHasDreamDash) {
+                dreamParticles[0].Color = Calc.HexToColor("FFEF11");
+                dreamParticles[0].Color2 = Calc.HexToColor("FF00D0");
+
+                dreamParticles[1].Color = Calc.HexToColor("08a310");
+                dreamParticles[1].Color2 = Calc.HexToColor("5fcde4");
+
+                dreamParticles[2].Color = Calc.HexToColor("7fb25e");
+                dreamParticles[2].Color2 = Calc.HexToColor("E0564C");
+
+                dreamParticles[3].Color = Calc.HexToColor("5b6ee1");
+                dreamParticles[3].Color2 = Calc.HexToColor("CC3B3B");
+            } else {
+                for (int i = 0; i < 4; i++) {
+                    dreamParticles[i].Color = Color.LightGray * 0.5f;
+                    dreamParticles[i].Color2 = Color.LightGray * 0.75f;
+                }
+            }
         }
 
         private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<DynamicData> debris) {
@@ -310,9 +321,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             flash = Calc.Approach(flash, 0f, Engine.DeltaTime * 5f);
         }
 
-        public override void OnStaticMoverTrigger(StaticMover sm) {
+        public override void OnStaticMoverTrigger(StaticMover sm) => 
             triggered = true;
-        }
 
         public override void MoveHExact(int move) {
             if (noSquish != null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X))) {
@@ -381,7 +391,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Position += Shake;
             base.Render();
 
-            Color color = Color.Lerp(baseData.Get<Color>("activeLineColor"), Color.Black, ColorLerp);
+            Color color = Color.Lerp(activeLineColor, Color.Black, ColorLerp);
             if (state != MovementState.Breaking) {
                 int value = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
                 MTexture arrow = arrows[Calc.Clamp(value, 0, 7)];
@@ -488,7 +498,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (noCollide)
                 return;
 
-            bool collidable = Collidable;
             Collidable = false;
             if (dir.X != 0f) {
                 float x = (!(dir.X > 0f)) ? (Left - 1f) : Right;
@@ -509,6 +518,65 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             Collidable = true;
         }
+
+        #region Hooks
+
+        static FieldInfo f_this;
+        static IDetour hook_DreamBlock_Activate;
+        static IDetour hook_DreamBlock_Deactivate;
+        static IDetour hook_DreamBlock_FastActivate;
+        static IDetour hook_DreamBlock_FastDectivate;
+
+        internal new static void Load() {
+            Type type = typeof(DreamBlock).GetNestedType("<Activate>d__34", BindingFlags.NonPublic);
+            f_this = type.GetField("<>4__this");
+            hook_DreamBlock_Activate = new ILHook(
+                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
+                DreamBlock_ActivationParticles);
+
+            type = typeof(DreamBlock).GetNestedType("<Deactivate>d__11", BindingFlags.NonPublic);
+            f_this = type.GetField("<>4__this");
+            hook_DreamBlock_Deactivate = new ILHook(
+                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
+                DreamBlock_ActivationParticles);
+
+            type = typeof(DreamBlock).GetNestedType("<FastActivate>d__13", BindingFlags.NonPublic);
+            f_this = type.GetField("<>4__this");
+            hook_DreamBlock_FastActivate = new ILHook(
+                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
+                DreamBlock_ActivationParticles);
+
+            type = typeof(DreamBlock).GetNestedType("<FastDeactivate>d__12", BindingFlags.NonPublic);
+            f_this = type.GetField("<>4__this");
+            hook_DreamBlock_FastDectivate = new ILHook(
+                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
+                DreamBlock_ActivationParticles);
+        }
+
+        internal new static void Unload() {
+            hook_DreamBlock_Activate.Dispose();
+            hook_DreamBlock_Deactivate.Dispose();
+            hook_DreamBlock_FastActivate.Dispose();
+            hook_DreamBlock_FastDectivate.Dispose();
+        }
+
+        // Probably a bad idea to leave it like this, but it works
+        private static void DreamBlock_ActivationParticles(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            while (cursor.TryGotoNext(instr => instr.MatchCallvirt<ParticleSystem>("Emit"))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldfld, f_this);
+                cursor.EmitDelegate<Func<DreamBlock, bool>>(block => block is DreamMoveBlock moveBlock && !moveBlock.Visible);
+                cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
+                foreach (var param in ((MethodReference) cursor.Next.Operand).Parameters)
+                    cursor.Emit(OpCodes.Pop);
+                cursor.Emit(OpCodes.Pop);
+                cursor.Emit(OpCodes.Br_S, cursor.Next.Next);
+                cursor.Goto(cursor.Next, MoveType.After);
+            }
+        }
+
+        #endregion
 
     }
 }

@@ -9,8 +9,9 @@ using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
+    [TrackedAs(typeof(DreamBlock), true)]
     public abstract class CustomDreamBlock : DreamBlock {
-        internal struct DreamParticle {
+        internal protected struct DreamParticle {
             public Vector2 Position;
             public int Layer;
             public Color Color;
@@ -29,8 +30,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private DreamParticle[] particles;
         private MTexture[] doubleRefillStarTextures;
 
+        public bool PlayerHasDreamDash => baseData.Get<bool>("playerHasDreamDash");
+
+        protected Color activeLineColor => baseData.Get<Color>("activeLineColor");
+        protected Color disabledLineColor => baseData.Get<Color>("disabledLineColor");
+
         public bool FeatherMode;
-        private bool doubleRefill;
+        protected bool DoubleRefill;
         protected bool shattering = false;
         public float ColorLerp = 0.0f;
 
@@ -43,14 +49,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill)
             : base(position, width, height, null, false, oneUse) {
             baseData = new DynData<DreamBlock>(this);
-            this.doubleRefill = doubleRefill;
+            DoubleRefill = doubleRefill;
 
             FeatherMode = featherMode;
             //if (altLineColor) { Dropped in favour of symbol
             //    activeLineColor = Calc.HexToColor("FF66D9"); 
             //}
             shakeParticle = new ParticleType(SwitchGate.P_Behind) {
-                Color = baseData.Get<Color>("activeLineColor"),
+                Color = activeLineColor,
                 ColorMode = ParticleType.ColorModes.Static,
                 Acceleration = Vector2.Zero,
                 DirectionRange = (float) Math.PI / 2
@@ -83,8 +89,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
                 particles[i].TimeOffset = Calc.Random.NextFloat();
 
-                if (baseData.Get<bool>("playerHasDreamDash")) {
-                    if (doubleRefill) {
+                if (PlayerHasDreamDash) {
+                    if (DoubleRefill) {
                         switch (particles[i].Layer) {
                             case 0:
                                 particles[i].Color = Calc.HexToColor("FFD1F9");
@@ -114,13 +120,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
 
                 #region Feather particle stuff
+
                 if (FeatherMode) {
                     particles[i].Speed = Calc.Random.Range(6f, 16f);
                     particles[i].Spin = Calc.Random.Range(8f, 12f) * 0.2f;
                     particles[i].RotationCounter = Calc.Random.NextAngle();
                     particles[i].MaxRotate = Calc.Random.Range(0.3f, 0.6f) * ((float) Math.PI / 2f);
                 }
+
                 #endregion
+
             }
         }
 
@@ -169,7 +178,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void UpdateParticles() {
-            if (baseData.Get<bool>("playerHasDreamDash")) {
+            if (PlayerHasDreamDash) {
                 for (int i = 0; i < particles.Length; i++) {
                     particles[i].Position.Y += 0.5f * particles[i].Speed * GetLayerScaleFactor(particles[i].Layer) * Engine.DeltaTime;
                     particles[i].RotationCounter += particles[i].Spin * Engine.DeltaTime;
@@ -177,9 +186,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private float GetLayerScaleFactor(int layer) {
-            return 1 / (0.3f + 0.25f * layer);
-        }
+        private float GetLayerScaleFactor(int layer) => 1 / (0.3f + 0.25f * layer);
 
         private void RenderParticles() {
             Vector2 cameraPositon = SceneAs<Level>().Camera.Position;
@@ -200,7 +207,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (FeatherMode) {
                     featherTextures[layer].DrawCentered(position, color, 1, rotation);
                 } else {
-                    MTexture[] particleTextures = doubleRefill ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
+                    MTexture[] particleTextures = DoubleRefill ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
                     MTexture particleTexture;
                     switch (layer) {
                         case 0: {
@@ -227,9 +234,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return position.X >= X + offset && position.Y >= Y + offset && position.X < Right - offset && position.Y < Bottom - offset;
         }
 
-        protected virtual bool ShatterCheck() {
-            return !shattering;
-        }
+        protected virtual bool ShatterCheck() => !shattering;
 
         public virtual void BeginShatter() {
             if (ShatterCheck()) {
@@ -281,7 +286,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         protected virtual void OneUseDestroy() {
-            Collidable = (Visible = false);
+            Collidable = Visible = false;
             DisableStaticMovers();
         }
 
@@ -295,6 +300,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             On.Celeste.Player.DreamDashBegin += Player_DreamDashBegin;
             On.Celeste.Player.DreamDashUpdate += Player_DreamDashUpdate;
+
+            DreamMoveBlock.Load();
         }
 
         internal static void Unload() {
@@ -305,6 +312,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             On.Celeste.Player.DreamDashBegin -= Player_DreamDashBegin;
             On.Celeste.Player.DreamDashUpdate -= Player_DreamDashUpdate;
+
+            DreamMoveBlock.Unload();
         }
 
         private static void DreamBlock_Update(On.Celeste.DreamBlock.orig_Update orig, DreamBlock self) {
@@ -359,7 +368,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (customDreamBlock.baseData.Get<bool>("oneUse") && customDreamBlock.Collidable) {
                     customDreamBlock.BeginShatter();
                 }
-                if (customDreamBlock.doubleRefill) {
+                if (customDreamBlock.DoubleRefill) {
                     player.Dashes = 2;
                 }
             }

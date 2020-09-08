@@ -6,7 +6,6 @@ using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamSwapBlock")]
-    [TrackedAs(typeof(DreamBlock))]
     public class DreamSwapBlock : CustomDreamBlock {
         private class PathRenderer : Entity {
             private DreamSwapBlock block;
@@ -28,7 +27,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public override void Render() {
                 float scale = 0.5f * (0.5f + ((float) Math.Sin(timer) + 1f) * 0.25f);
                 scale = Calc.LerpClamp(scale, 1, block.ColorLerp);
-                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, block.baseData.Get<Color>("activeLineColor") * scale);
+                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, block.activeLineColor * scale);
             }
         }
 
@@ -77,8 +76,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 dreamParticles[i] = new ParticleType(particle);
             }
         }
-
-
 
         public DreamSwapBlock(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode", false), data.Bool("oneUse", false), data.Bool("doubleRefill", false)) {
@@ -141,7 +138,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     speed = MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, relativeLerp / 0.2f);
                 }
                 Audio.Stop(moveSfx);
-                moveSfx = Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move, Center);
+                moveSfx = Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamSwapBlock_dream_swap_block_move : SFX.game_05_swapblock_move, Center);
             } else {
                 Swapping = (lerp < 1f);
                 target = 1;
@@ -155,9 +152,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Audio.Stop(returnSfx);
                 Audio.Stop(moveSfx);
                 if (!Swapping) {
-                    Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move_end, Center);
+                    Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamSwapBlock_dream_swap_block_move_end : SFX.game_05_swapblock_move_end, Center);
                 } else {
-                    moveSfx = Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move, Center);
+                    moveSfx = Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamSwapBlock_dream_swap_block_move : SFX.game_05_swapblock_move, Center);
                 }
             }
         }
@@ -205,7 +202,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         if (Position == start || Position == end) {
                             //Audio.Play("event:/CommunalHelperEvents/game/dreamSwapBlock/dream_swap_block_return_end", base.Center);
                             Audio.Stop(moveSfx);
-                            Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move_end, Center);
+                            Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamSwapBlock_dream_swap_block_move_end : SFX.game_05_swapblock_move_end, Center);
                         }
                     }
                 }
@@ -219,7 +216,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (returnTimer <= 0f) {
                         target = 0;
                         speed = 0f;
-                        returnSfx = Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_return, Center);
+                        returnSfx = Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamSwapBlock_dream_swap_block_return : SFX.game_05_swapblock_return, Center);
                     }
                 }
                 if (target == 1) {
@@ -249,9 +246,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Audio.Position(returnSfx, Center);
                         if (Position == start && target == 0) {
                             Audio.SetParameter(returnSfx, "end", 1f);
-                            Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_return_end, Center);
+                            Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamSwapBlock_dream_swap_block_return_end : SFX.game_05_swapblock_return_end, Center);
                         } else if (Position == end && target == 1) {
-                            Audio.Play(CustomSFX.game_dreamSwapBlock_dream_swap_block_move_end, Center);
+                            Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamSwapBlock_dream_swap_block_move_end : SFX.game_05_swapblock_move_end, Center);
                             Audio.Stop(moveSfx);
                         }
                     }
@@ -272,7 +269,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void SetupCustomParticles(float canvasWidth, float canvasHeight) {
             base.SetupCustomParticles(canvasWidth, canvasHeight);
-            if (baseData.Get<bool>("playerHasDreamDash")) {
+            if (PlayerHasDreamDash) {
                 dreamParticles[0].Color = Calc.HexToColor("FFEF11");
                 dreamParticles[0].Color2 = Calc.HexToColor("FF00D0");
 
@@ -328,23 +325,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void DrawBlockStyle(Vector2 pos, float width, float height, MTexture[,] ninSlice, Sprite middle, Color color) {
-            int num = (int) (width / 8f);
-            int num2 = (int) (height / 8f);
+            int tilesX = (int) (width / 8f);
+            int tilesY = (int) (height / 8f);
             ninSlice[0, 0].Draw(pos + new Vector2(0f, 0f), Vector2.Zero, color);
             ninSlice[2, 0].Draw(pos + new Vector2(width - 8f, 0f), Vector2.Zero, color);
             ninSlice[0, 2].Draw(pos + new Vector2(0f, height - 8f), Vector2.Zero, color);
             ninSlice[2, 2].Draw(pos + new Vector2(width - 8f, height - 8f), Vector2.Zero, color);
-            for (int i = 1; i < num - 1; i++) {
+            for (int i = 1; i < tilesX - 1; i++) {
                 ninSlice[1, 0].Draw(pos + new Vector2(i * 8, 0f), Vector2.Zero, color);
                 ninSlice[1, 2].Draw(pos + new Vector2(i * 8, height - 8f), Vector2.Zero, color);
             }
-            for (int j = 1; j < num2 - 1; j++) {
-                ninSlice[0, 1].Draw(pos + new Vector2(0f, j * 8), Vector2.Zero, color);
-                ninSlice[2, 1].Draw(pos + new Vector2(width - 8f, j * 8), Vector2.Zero, color);
+            for (int i = 1; i < tilesY - 1; i++) {
+                ninSlice[0, 1].Draw(pos + new Vector2(0f, i * 8), Vector2.Zero, color);
+                ninSlice[2, 1].Draw(pos + new Vector2(width - 8f, i * 8), Vector2.Zero, color);
             }
-            for (int k = 1; k < num - 1; k++) {
-                for (int l = 1; l < num2 - 1; l++) {
-                    ninSlice[1, 1].Draw(pos + new Vector2(k, l) * 8f, Vector2.Zero, color);
+            for (int i = 1; i < tilesX - 1; i++) {
+                for (int j = 1; j < tilesY - 1; j++) {
+                    ninSlice[1, 1].Draw(pos + new Vector2(i, j) * 8f, Vector2.Zero, color);
                 }
             }
             if (middle != null) {

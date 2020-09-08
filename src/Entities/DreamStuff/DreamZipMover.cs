@@ -6,10 +6,9 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamZipMover")]
-    [TrackedAs(typeof(DreamBlock))]
     public class DreamZipMover : CustomDreamBlock {
 
-        private DreamZipMoverPathRenderer pathRenderer;
+        private PathRenderer pathRenderer;
 
         private Vector2 start;
         private Vector2 target;
@@ -39,11 +38,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Added(Scene scene) {
             base.Added(scene);
-            scene.Add(pathRenderer = new DreamZipMoverPathRenderer(this, dreamAesthetic));
-        }
-
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
+            scene.Add(pathRenderer = new PathRenderer(this, dreamAesthetic));
         }
 
         public override void Removed(Scene scene) {
@@ -66,51 +61,48 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (!Scene.OnInterval(0.03f)) {
                 return;
             }
-            bool flag = to.Y != ExactPosition.Y;
-            bool flag2 = to.X != ExactPosition.X;
-            if (flag && !flag2) {
-                int num = Math.Sign(to.Y - ExactPosition.Y);
-                Vector2 value = (num != 1) ? TopLeft : BottomLeft;
-                int num2 = 4;
-                if (num == 1) {
-                    num2 = Math.Min((int) Height - 12, 20);
+            bool movingV = to.Y != ExactPosition.Y;
+            bool movingH = to.X != ExactPosition.X;
+            if (movingV && !movingH) {
+                int dir = Math.Sign(to.Y - ExactPosition.Y);
+                Vector2 collisionPoint = (dir != 1) ? TopLeft : BottomLeft;
+                int particleOffset = 4;
+                if (dir == 1) {
+                    particleOffset = Math.Min((int) Height - 12, 20);
                 }
-                int num3 = (int) Height;
-                if (num == -1) {
-                    num3 = Math.Max(16, (int) Height - 16);
+                int particleHeight = (int) Height;
+                if (dir == -1) {
+                    particleHeight = Math.Max(16, (int) Height - 16);
                 }
-                if (Scene.CollideCheck<Solid>(value + new Vector2(-2f, num * -2))) {
-                    for (int i = num2; i < num3; i += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(0f, i + num * 2f), (num == 1) ? (-(float) Math.PI / 4f) : ((float) Math.PI / 4f));
+                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(-2f, dir * -2))) {
+                    for (int i = particleOffset; i < particleHeight; i += 8) {
+                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(0f, i + dir * 2f), (dir == 1) ? (-(float) Math.PI / 4f) : ((float) Math.PI / 4f));
                     }
                 }
-                if (Scene.CollideCheck<Solid>(value + new Vector2(Width + 2f, num * -2))) {
-                    for (int j = num2; j < num3; j += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopRight + new Vector2(-1f, j + num * 2f), (num == 1) ? ((float) Math.PI * -3f / 4f) : ((float) Math.PI * 3f / 4f));
+                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(Width + 2f, dir * -2))) {
+                    for (int i = particleOffset; i < particleHeight; i += 8) {
+                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopRight + new Vector2(-1f, i + dir * 2f), (dir == 1) ? ((float) Math.PI * -3f / 4f) : ((float) Math.PI * 3f / 4f));
                     }
                 }
-            } else {
-                if (!flag2 || flag) {
-                    return;
+            } else if (movingH && !movingV) {
+                int dir = Math.Sign(to.X - ExactPosition.X);
+                Vector2 collisionPoint = (dir != 1) ? TopLeft : TopRight;
+                int particleOffset = 4;
+                if (dir == 1) {
+                    particleOffset = Math.Min((int) Width - 12, 20);
                 }
-                int num4 = Math.Sign(to.X - ExactPosition.X);
-                Vector2 value2 = (num4 != 1) ? TopLeft : TopRight;
-                int num5 = 4;
-                if (num4 == 1) {
-                    num5 = Math.Min((int) Width - 12, 20);
+                int particleWidth = (int) Width;
+                if (dir == -1) {
+                    particleWidth = Math.Max(16, (int) Width - 16);
                 }
-                int num6 = (int) Width;
-                if (num4 == -1) {
-                    num6 = Math.Max(16, (int) Width - 16);
-                }
-                if (Scene.CollideCheck<Solid>(value2 + new Vector2(num4 * -2, -2f))) {
-                    for (int k = num5; k < num6; k += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(k + num4 * 2f, -1f), (num4 == 1) ? ((float) Math.PI * 3f / 4f) : ((float) Math.PI / 4f));
+                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(dir * -2, -2f))) {
+                    for (int i = particleOffset; i < particleWidth; i += 8) {
+                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(i + dir * 2f, -1f), (dir == 1) ? ((float) Math.PI * 3f / 4f) : ((float) Math.PI / 4f));
                     }
                 }
-                if (Scene.CollideCheck<Solid>(value2 + new Vector2(num4 * -2, Height + 2f))) {
-                    for (int l = num5; l < num6; l += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, BottomLeft + new Vector2(l + num4 * 2f, 0f), (num4 == 1) ? ((float) Math.PI * -3f / 4f) : (-(float) Math.PI / 4f));
+                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(dir * -2, Height + 2f))) {
+                    for (int i = particleOffset; i < particleWidth; i += 8) {
+                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, BottomLeft + new Vector2(i + dir * 2f, 0f), (dir == 1) ? ((float) Math.PI * -3f / 4f) : (-(float) Math.PI / 4f));
                     }
                 }
             }
@@ -124,17 +116,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     yield return null;
                     continue;
                 }
-                sfx.Play(CustomSFX.game_dreamZipMover_dream_zip_mover);
+                sfx.Play(PlayerHasDreamDash ? CustomSFX.game_dreamZipMover_dream_zip_mover : SFX.game_01_zipmover);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                 StartShaking(0.1f);
                 yield return 0.1f;
 
                 StopPlayerRunIntoAnimation = false;
-                float at2 = 0f;
-                while (at2 < 1f) {
+                float at = 0f;
+                while (at < 1f) {
                     yield return null;
-                    at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
-                    percent = Ease.SineIn(at2);
+                    at = Calc.Approach(at, 1f, 2f * Engine.DeltaTime);
+                    percent = Ease.SineIn(at);
                     Vector2 to = Vector2.Lerp(start, end, percent);
                     ScrapeParticlesCheck(to);
                     if (Scene.OnInterval(0.1f)) {
@@ -150,7 +142,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 if (!noReturn) {
                     StopPlayerRunIntoAnimation = false;
-                    float at = 0f;
+                    at = 0f;
                     while (at < 1f) {
                         yield return null;
                         at = Calc.Approach(at, 1f, 0.5f * Engine.DeltaTime);
@@ -177,7 +169,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             sfx.Stop();
         }
 
-        private class DreamZipMoverPathRenderer : Entity {
+        private class PathRenderer : Entity {
             public DreamZipMover DreamZipMover;
             private MTexture cog;
             private MTexture cogWhite;
@@ -193,36 +185,43 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             private static readonly Color ropeColor = Calc.HexToColor("663931");
             private static readonly Color ropeLightColor = Calc.HexToColor("9b6157");
-            private static readonly Color dreamRopeColor = Calc.HexToColor("ffffff");
 
-            private Color[] dreamColors = new Color[9];
+            private static Color[] activeDreamColors = new Color[9];
+            private static Color[] disabledDreamColors = new Color[4];
 
             private bool dreamAesthetic;
 
-            public DreamZipMoverPathRenderer(DreamZipMover dreamZipMover, bool dreamAesthetic) {
-                Depth = 5000;
+            static PathRenderer() {
+                activeDreamColors[0] = Calc.HexToColor("FFEF11");
+                activeDreamColors[1] = Calc.HexToColor("FF00D0");
+                activeDreamColors[2] = Calc.HexToColor("08a310");
+                activeDreamColors[3] = Calc.HexToColor("5fcde4");
+                activeDreamColors[4] = Calc.HexToColor("7fb25e");
+                activeDreamColors[5] = Calc.HexToColor("E0564C");
+                activeDreamColors[6] = Calc.HexToColor("5b6ee1");
+                activeDreamColors[7] = Calc.HexToColor("CC3B3B");
+                activeDreamColors[8] = Calc.HexToColor("7daa64");
+
+                disabledDreamColors[0] = Color.LightGray * 0.5f;
+                disabledDreamColors[1] = Color.LightGray * 0.75f;
+                disabledDreamColors[2] = Color.LightGray * 1;
+                disabledDreamColors[3] = Color.LightGray * 0.75f;
+            }
+
+            public PathRenderer(DreamZipMover dreamZipMover, bool dreamAesthetic) {
+                Depth = Depths.SolidsBelow;
                 DreamZipMover = dreamZipMover;
                 this.dreamAesthetic = dreamAesthetic;
                 from = DreamZipMover.start + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
                 to = DreamZipMover.target + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
                 sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
-                float num = (from - to).Angle();
-                sparkDirFromA = num + (float) Math.PI / 8f;
-                sparkDirFromB = num - (float) Math.PI / 8f;
-                sparkDirToA = num + (float) Math.PI - (float) Math.PI / 8f;
-                sparkDirToB = num + (float) Math.PI + (float) Math.PI / 8f;
+                float angle = (from - to).Angle();
+                sparkDirFromA = angle + (float) Math.PI / 8f;
+                sparkDirFromB = angle - (float) Math.PI / 8f;
+                sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
+                sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
                 cog = GFX.Game[dreamAesthetic ? "objects/CommunalHelper/dreamZipMover/cog" : "objects/zipmover/cog"];
                 cogWhite = GFX.Game["objects/CommunalHelper/dreamZipMover/cogWhite"];
-
-                dreamColors[0] = Calc.HexToColor("FFEF11");
-                dreamColors[1] = Calc.HexToColor("FF00D0");
-                dreamColors[2] = Calc.HexToColor("08a310");
-                dreamColors[3] = Calc.HexToColor("5fcde4");
-                dreamColors[4] = Calc.HexToColor("7fb25e");
-                dreamColors[5] = Calc.HexToColor("E0564C");
-                dreamColors[6] = Calc.HexToColor("5b6ee1");
-                dreamColors[7] = Calc.HexToColor("CC3B3B");
-                dreamColors[8] = Calc.HexToColor("7daa64");
             }
 
             public void CreateSparks() {
@@ -239,13 +238,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
                 float colorLerp = DreamZipMover.ColorLerp;
-                Color colorLerpTarget = DreamZipMover.baseData.Get<Color>("activeLineColor");
+                Color colorLerpTarget = DreamZipMover.activeLineColor;
                 Vector2 travelDir = (to - from).SafeNormalize();
                 Vector2 hOffset1 = travelDir.Perpendicular() * 3f;
                 Vector2 hOffset2 = -travelDir.Perpendicular() * 4f;
                 float rotation = -DreamZipMover.percent * (float) Math.PI * 2f;
 
-                Color color = Color.Lerp(dreamAesthetic ? dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
+                Color dreamRopeColor = DreamZipMover.PlayerHasDreamDash ? colorLerpTarget : DreamZipMover.disabledLineColor;
+                Color color = Color.Lerp(dreamAesthetic ?  dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
                 Draw.Line(from + hOffset1 + offset, to + hOffset1 + offset, colorOverride ?? color);
                 Draw.Line(from + hOffset2 + offset, to + hOffset2 + offset, colorOverride ?? color);
                 float dist = (to - from).Length();
@@ -256,7 +256,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                     Color lightColor = ropeLightColor;
                     if (dreamAesthetic) {
-                        lightColor = dreamColors[(int) mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
+                        if (DreamZipMover.PlayerHasDreamDash)
+                            lightColor = activeDreamColors[(int) mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
+                        else
+                            lightColor = disabledDreamColors[(int) mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 4f)];
                     }
                     lightColor = Color.Lerp(lightColor, colorLerpTarget, colorLerp);
                     Draw.Line(value3 + offset, value3 + travelDir * 2f + offset, colorOverride ?? lightColor);
@@ -271,9 +274,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
-            private float mod(float x, float m) {
-                return (x % m + m) % m;
-            }
+            private float mod(float x, float m) =>
+                (x % m + m) % m;
         }
 
     }
