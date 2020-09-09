@@ -11,7 +11,7 @@ using System.Reflection;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(DreamBlock), true)]
     public abstract class CustomDreamBlock : DreamBlock {
-        internal protected struct DreamParticle {
+        protected struct DreamParticle {
             public Vector2 Position;
             public int Layer;
             public Color Color;
@@ -24,16 +24,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public float RotationCounter;
         }
 
-        private static MethodInfo m_DreamBlock_PutInside = typeof(DreamBlock).GetMethod("PutInside", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo m_DreamBlock_PutInside = typeof(DreamBlock).GetMethod("PutInside", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo m_DreamBlock_WobbleLine = typeof(DreamBlock).GetMethod("WobbleLine", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private MTexture[] featherTextures;
-        private DreamParticle[] particles;
-        private MTexture[] doubleRefillStarTextures;
+        protected MTexture[] featherTextures;
+        protected DreamParticle[] particles;
+        protected MTexture[] doubleRefillStarTextures;
 
         public bool PlayerHasDreamDash => baseData.Get<bool>("playerHasDreamDash");
 
         protected Color activeLineColor => baseData.Get<Color>("activeLineColor");
         protected Color disabledLineColor => baseData.Get<Color>("disabledLineColor");
+        protected Color activeBackColor => baseData.Get<Color>("activeBackColor");
+        protected Color disabledBackColor => baseData.Get<Color>("disabledBackColor");
 
         public bool FeatherMode;
         protected bool DoubleRefill;
@@ -136,32 +139,32 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private void ShakeParticles() {
             Vector2 position;
             Vector2 positionRange;
-            float num;
+            float angle;
             float num2;
             for (int i = 0; i < 4; ++i) {
                 switch (i) {
                     case 0:
                         position = CenterLeft + Vector2.UnitX;
                         positionRange = Vector2.UnitY * (Height - 4f);
-                        num = (float) Math.PI;
+                        angle = (float) Math.PI;
                         num2 = Height / 32f;
                         break;
                     case 1:
                         position = CenterRight;
                         positionRange = Vector2.UnitY * (Height - 4f);
-                        num = 0f;
+                        angle = 0f;
                         num2 = Height / 32f;
                         break;
                     case 2:
                         position = TopCenter + Vector2.UnitY;
                         positionRange = Vector2.UnitX * (Width - 4f);
-                        num = -(float) Math.PI / 2f;
+                        angle = -(float) Math.PI / 2f;
                         num2 = Width / 32f;
                         break;
                     default:
                         position = BottomCenter;
                         positionRange = Vector2.UnitX * (Width - 4f);
-                        num = (float) Math.PI / 2f;
+                        angle = (float) Math.PI / 2f;
                         num2 = Width / 32f;
                         break;
                 }
@@ -172,12 +175,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 particleRemainders[i] -= num3;
                 positionRange *= 0.5f;
                 if (num3 > 0f) {
-                    SceneAs<Level>().ParticlesBG.Emit(shakeParticle, num3, position, positionRange, num);
+                    SceneAs<Level>().ParticlesBG.Emit(shakeParticle, num3, position, positionRange, angle);
                 }
             }
         }
 
-        private void UpdateParticles() {
+        protected virtual void UpdateParticles() {
             if (PlayerHasDreamDash) {
                 for (int i = 0; i < particles.Length; i++) {
                     particles[i].Position.Y += 0.5f * particles[i].Speed * GetLayerScaleFactor(particles[i].Layer) * Engine.DeltaTime;
@@ -188,8 +191,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float GetLayerScaleFactor(int layer) => 1 / (0.3f + 0.25f * layer);
 
-        private void RenderParticles() {
-            Vector2 cameraPositon = SceneAs<Level>().Camera.Position;
+        protected void WobbleLine(Vector2 from, Vector2 to, float offset) =>
+            m_DreamBlock_WobbleLine.Invoke(this, new object[] { from, to, offset });
+
+        public override void Render() {
+            Camera camera = SceneAs<Level>().Camera;
+            if (Right < camera.Left || Left > camera.Right || Bottom < camera.Top || Top > camera.Bottom) {
+                return;
+            }
+
+            Vector2 shake = baseData.Get<Vector2>("shake");
+
+            float whiteFill = baseData.Get<float>("whiteFill");
+            float whiteHeight = baseData.Get<float>("whiteHeight");
+
+            Color backColor = Color.Lerp(PlayerHasDreamDash ? activeBackColor : disabledBackColor, Color.White, ColorLerp);
+            Color lineColor = PlayerHasDreamDash ? activeLineColor : disabledLineColor;
+
+            Draw.Rect(shake.X + X, shake.Y + Y, Width, Height, backColor);
+
+            #region Particles
+
+            Vector2 cameraPositon = camera.Position;
             for (int i = 0; i < particles.Length; i++) {
                 DreamParticle particle = particles[i];
                 int layer = particle.Layer;
@@ -227,6 +250,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     particleTexture.DrawCentered(position, color);
                 }
             }
+
+            #endregion
+
+            if (whiteFill > 0f) {
+                Draw.Rect(X + shake.X, Y + shake.Y, Width, Height * whiteHeight, Color.White * whiteFill);
+            }
+
+            WobbleLine(shake + new Vector2(X, Y), shake + new Vector2(X + Width, Y), 0f);
+            WobbleLine(shake + new Vector2(X + Width, Y), shake + new Vector2(X + Width, Y + Height), 0.7f);
+            WobbleLine(shake + new Vector2(X + Width, Y + Height), shake + new Vector2(X, Y + Height), 1.5f);
+            WobbleLine(shake + new Vector2(X, Y + Height), shake + new Vector2(X, Y), 2.5f);
+
+            Draw.Rect(shake + new Vector2(X, Y), 2f, 2f, lineColor);
+            Draw.Rect(shake + new Vector2(X + Width - 2f, Y), 2f, 2f, lineColor);
+            Draw.Rect(shake + new Vector2(X, Y + Height - 2f), 2f, 2f, lineColor);
+            Draw.Rect(shake + new Vector2(X + Width - 2f, Y + Height - 2f), 2f, 2f, lineColor);
         }
 
         protected bool CheckParticleCollide(Vector2 position) {
@@ -255,7 +294,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             Level level = SceneAs<Level>();
             level.Shake(.65f);
-            Vector2 camera = SceneAs<Level>().Camera.Position;
+            Vector2 camera = level.Camera.Position;
 
             for (int i = 0; i < particles.Length; i++) {
                 Vector2 position = particles[i].Position;
@@ -294,9 +333,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void Load() {
             On.Celeste.DreamBlock.Update += DreamBlock_Update;
-            IL.Celeste.DreamBlock.Render += DreamBlock_Render;
             On.Celeste.DreamBlock.Setup += DreamBlock_Setup;
             On.Celeste.DreamBlock.OnPlayerExit += DreamBlock_OnPlayerExit;
+            On.Celeste.DreamBlock.OneUseDestroy += DreamBlock_OneUseDestroy;
 
             On.Celeste.Player.DreamDashBegin += Player_DreamDashBegin;
             On.Celeste.Player.DreamDashUpdate += Player_DreamDashUpdate;
@@ -306,9 +345,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void Unload() {
             On.Celeste.DreamBlock.Update -= DreamBlock_Update;
-            IL.Celeste.DreamBlock.Render -= DreamBlock_Render;
             On.Celeste.DreamBlock.Setup -= DreamBlock_Setup;
             On.Celeste.DreamBlock.OnPlayerExit -= DreamBlock_OnPlayerExit;
+            On.Celeste.DreamBlock.OneUseDestroy -= DreamBlock_OneUseDestroy;
 
             On.Celeste.Player.DreamDashBegin -= Player_DreamDashBegin;
             On.Celeste.Player.DreamDashUpdate -= Player_DreamDashUpdate;
@@ -323,7 +362,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     block.UpdateParticles();
                 }
 
-                if (block.baseData.Get<bool>("oneUse") && block.Scene.OnInterval(0.03f)) {
+                if (block.Visible && block.PlayerHasDreamDash && block.baseData.Get<bool>("oneUse") && block.Scene.OnInterval(0.03f)) {
                     Vector2 shake = block.baseData.Get<Vector2>("shake");
                     if (block.shakeToggle) {
                         shake.X = Calc.Random.Next(-1, 2);
@@ -338,23 +377,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private static void DreamBlock_Render(ILContext il) {
-            TypeInfo t_CustomDreamBlock = typeof(CustomDreamBlock).GetTypeInfo();
-
-            ILCursor cursor = new ILCursor(il);
-            cursor.GotoNext(MoveType.After, instr => instr.MatchCall("Monocle.Draw", "Rect"));
-
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Isinst, t_CustomDreamBlock);
-            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
-
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Castclass, t_CustomDreamBlock);
-            cursor.EmitDelegate<Action<CustomDreamBlock>>(block => block.RenderParticles());
-            cursor.Emit(OpCodes.Br, il.Instrs.First(instr => instr.Next.MatchLdfld<DreamBlock>("whiteFill")));
-
-        }
-
         private static void DreamBlock_Setup(On.Celeste.DreamBlock.orig_Setup orig, DreamBlock self) {
             if (self is CustomDreamBlock block)
                 block.SetupCustomParticles(block.Width, block.Height);
@@ -365,13 +387,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void DreamBlock_OnPlayerExit(On.Celeste.DreamBlock.orig_OnPlayerExit orig, DreamBlock dreamBlock, Player player) {
             orig(dreamBlock, player);
             if (dreamBlock is CustomDreamBlock customDreamBlock) {
-                if (customDreamBlock.baseData.Get<bool>("oneUse") && customDreamBlock.Collidable) {
-                    customDreamBlock.BeginShatter();
-                }
                 if (customDreamBlock.DoubleRefill) {
                     player.Dashes = 2;
                 }
             }
+        }
+
+        private static void DreamBlock_OneUseDestroy(On.Celeste.DreamBlock.orig_OneUseDestroy orig, DreamBlock self) {
+            if (self is CustomDreamBlock customDreamBlock && customDreamBlock.Collidable)
+                customDreamBlock.BeginShatter();
+            else
+                orig(self);
         }
 
         private static void Player_DreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {

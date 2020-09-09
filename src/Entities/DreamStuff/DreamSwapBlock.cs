@@ -91,11 +91,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 OnDash = OnDash
             });
 
-            int num = (int) MathHelper.Min(X, end.X);
-            int num2 = (int) MathHelper.Min(Y, end.Y);
-            int num3 = (int) MathHelper.Max(X + Width, end.X + Width);
-            int num4 = (int) MathHelper.Max(Y + Height, end.Y + Height);
-            moveRect = new Rectangle(num, num2, num3 - num, num4 - num2);
+            int left = (int) MathHelper.Min(X, end.X);
+            int top = (int) MathHelper.Min(Y, end.Y);
+            int right = (int) MathHelper.Max(X + Width, end.X + Width);
+            int bottom = (int) MathHelper.Max(Y + Height, end.Y + Height);
+            moveRect = new Rectangle(left, top, right - left, bottom - top);
 
             MTexture targetTexture = GFX.Game["objects/swapblock/target"];
             nineSliceTarget = new MTexture[3, 3];
