@@ -216,7 +216,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         // Mostly so that StrawberrySeeds don't get reset;
         private delegate bool Player_orig_get_LoseShards(Player self);
         private static bool Player_get_LoseShards(Player_orig_get_LoseShards orig, Player self) {
-            return orig(self) && !(dreamTunnelDashAttacking || self.StateMachine.State == StDreamTunnelDash || self.StateMachine.PreviousState == StDreamTunnelDash);
+            return orig(self) && !(self.StateMachine.State == StDreamTunnelDash || self.GetData().Get<bool>("dreamJump"));
         }
 
         #endregion
