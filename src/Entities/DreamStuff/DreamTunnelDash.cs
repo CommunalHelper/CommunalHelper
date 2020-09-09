@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.RuntimeDetour;
 using System;
 using System.Collections;
 
@@ -25,6 +26,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static Color[] DreamTrailColors;
         public static int DreamTrailColorIndex = 0;
 
+        private static IDetour hook_Player_get_LoseShards;
+
         public static void Load() {
             On.Celeste.Player.ctor += Player_ctor;
             On.Celeste.Player.DashBegin += Player_DashBegin;
@@ -37,6 +40,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.UpdateSprite += Player_UpdateSprite;
             On.Celeste.Player.IsRiding_Solid += Player_IsRiding_Solid;
             On.Celeste.Player.SceneEnd += Player_SceneEnd;
+            hook_Player_get_LoseShards = new Hook(typeof(Player).GetProperty("LoseShards").GetGetMethod(),
+                typeof(DreamTunnelDash).GetMethod("Player_get_LoseShards", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static));
 
             On.Celeste.Level.EnforceBounds += Level_EnforceBounds;
         }
@@ -53,6 +58,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.UpdateSprite -= Player_UpdateSprite;
             On.Celeste.Player.IsRiding_Solid -= Player_IsRiding_Solid;
             On.Celeste.Player.SceneEnd -= Player_SceneEnd;
+            hook_Player_get_LoseShards.Dispose();
 
             On.Celeste.Level.EnforceBounds -= Level_EnforceBounds;
         }
@@ -94,8 +100,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
         }
-
-
 
         // Allows downwards diagonal dream tunnel dashing when on the ground 
         private static IEnumerator Player_DashCoroutine(On.Celeste.Player.orig_DashCoroutine orig, Player player) {
@@ -207,6 +211,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void Player_SceneEnd(On.Celeste.Player.orig_SceneEnd orig, Player player, Scene scene) {
             orig(player, scene);
             HasDreamTunnelDash = false;
+        }
+
+        // Mostly so that StrawberrySeeds don't get reset;
+        private delegate bool Player_orig_get_LoseShards(Player self);
+        private static bool Player_get_LoseShards(Player_orig_get_LoseShards orig, Player self) {
+            return orig(self) && !(dreamTunnelDashAttacking || self.StateMachine.State == StDreamTunnelDash || self.StateMachine.PreviousState == StDreamTunnelDash);
         }
 
         #endregion
