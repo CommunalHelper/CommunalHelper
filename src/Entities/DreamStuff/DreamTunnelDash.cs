@@ -83,6 +83,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static void Unload() {
             On.Celeste.Player.ctor -= Player_ctor;
             On.Celeste.Player.DashBegin -= Player_DashBegin;
+            On.Celeste.Player.CreateTrail -= Player_CreateTrail;
             IL.Celeste.Player.OnCollideH -= Player_OnCollideH;
             IL.Celeste.Player.OnCollideV -= Player_OnCollideV;
             On.Celeste.Player.DreamDashCheck -= Player_DreamDashCheck;
