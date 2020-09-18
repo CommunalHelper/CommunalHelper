@@ -273,7 +273,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return position.X >= X + offset && position.Y >= Y + offset && position.X < Right - offset && position.Y < Bottom - offset;
         }
 
-        protected virtual bool ShatterCheck() => !shattering;
+        protected bool ShatterCheck() => !shattering;
 
         public virtual void BeginShatter() {
             if (ShatterCheck()) {

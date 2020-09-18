@@ -70,6 +70,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private Coroutine controller;
         private bool noCollide;
 
+        private bool oneUseBroken;
+
         internal static void InitializeParticles() {
             P_Activate = new ParticleType(MoveBlock.P_Activate);
             P_Activate.Color = Color.White;
@@ -211,7 +213,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     for (int y = 0; y < Height; y += 8) {
                         Vector2 offset = new Vector2(x + 4f, y + 4f);
                         DynamicData d = new DynamicData(m_Pooler_Create.Invoke(Engine.Pooler, null));
-                        d.Get<Image>("sprite").Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/debris"));
+                        d.Get<Image>("sprite").Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/" + (PlayerHasDreamDash ? "debris" : "disabledDebris")));
                         d.Get<Image>("sprite").Color = PlayerHasDreamDash ? activeLineColor : disabledLineColor;
                         d.Invoke("Init", Position + offset, Center, startPosition + offset);
                         debris.Add(d);
@@ -228,6 +230,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 foreach (DynamicData d in debris) {
                     d.Invoke("StopMoving");
                 }
+
+                if (oneUseBroken) {
+                    OneUseDestroy();
+                    yield break;
+                }
+
                 while (CollideCheck<Actor>() || (noCollide ? CollideCheck<DreamBlock>() : CollideCheck<Solid>())) {
                     yield return null;
                 }
@@ -235,9 +243,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Collidable = true;
                 EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, ((Entity) debris[0].Target).Position);
-                Coroutine component;
-                Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(sound, debris));
-                Add(component);
+                Coroutine soundFollower = new Coroutine(SoundFollowsDebrisCenter(sound, debris));
+                Add(soundFollower);
                 foreach (DynamicData d in debris) {
                     d.Invoke("StartShaking");
                 }
@@ -250,7 +257,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return 0.6f;
 
 
-                routine.RemoveSelf();
+                soundFollower.RemoveSelf();
                 foreach (DynamicData d in debris) {
                     d.Invoke("RemoveSelf");
                 }
@@ -264,14 +271,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        public override void BeginShatter() {
+            if (state != MovementState.Breaking)
+                base.BeginShatter();
+            oneUseBroken = true;
+        }
+
         protected override void OneUseDestroy() {
             base.OneUseDestroy();
             Remove(controller);
             moveSfx.Stop();
         }
 
-        protected override bool ShatterCheck() => 
-            base.ShatterCheck() && state != MovementState.Breaking;
 
         public override void SetupCustomParticles(float canvasWidth, float canvasHeight) {
             base.SetupCustomParticles(canvasWidth, canvasHeight);
@@ -405,7 +416,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void ActivateParticles() {
-            bool flag = direction == MoveBlock.Directions.Down || direction == MoveBlock.Directions.Up;
+            //bool flag = direction == MoveBlock.Directions.Down || direction == MoveBlock.Directions.Up;
             bool flag2 = !CollideCheck<Player>(Position - Vector2.UnitX);
             bool flag3 = !CollideCheck<Player>(Position + Vector2.UnitX);
             bool flag4 = !CollideCheck<Player>(Position - Vector2.UnitY);

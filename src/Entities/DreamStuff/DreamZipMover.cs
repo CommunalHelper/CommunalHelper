@@ -172,6 +172,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private class PathRenderer : Entity {
             public DreamZipMover DreamZipMover;
             private MTexture cog;
+            private MTexture disabledCog;
             private MTexture cogWhite;
 
             private Vector2 from;
@@ -221,6 +222,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
                 sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
                 cog = GFX.Game[dreamAesthetic ? "objects/CommunalHelper/dreamZipMover/cog" : "objects/zipmover/cog"];
+                disabledCog = dreamAesthetic ? GFX.Game["objects/CommunalHelper/dreamZipMover/disabledCog"] : cog; // Kinda iffy, but whatever
                 cogWhite = GFX.Game["objects/CommunalHelper/dreamZipMover/cogWhite"];
             }
 
@@ -237,6 +239,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
+                bool playerHasDreamDash = DreamZipMover.PlayerHasDreamDash;
+
                 float colorLerp = DreamZipMover.ColorLerp;
                 Color colorLerpTarget = DreamZipMover.activeLineColor;
                 Vector2 travelDir = (to - from).SafeNormalize();
@@ -244,7 +248,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Vector2 hOffset2 = -travelDir.Perpendicular() * 4f;
                 float rotation = -DreamZipMover.percent * (float) Math.PI * 2f;
 
-                Color dreamRopeColor = DreamZipMover.PlayerHasDreamDash ? colorLerpTarget : DreamZipMover.disabledLineColor;
+                Color dreamRopeColor = playerHasDreamDash ? colorLerpTarget : DreamZipMover.disabledLineColor;
                 Color color = Color.Lerp(dreamAesthetic ?  dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
                 Draw.Line(from + hOffset1 + offset, to + hOffset1 + offset, colorOverride ?? color);
                 Draw.Line(from + hOffset2 + offset, to + hOffset2 + offset, colorOverride ?? color);
@@ -256,7 +260,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                     Color lightColor = ropeLightColor;
                     if (dreamAesthetic) {
-                        if (DreamZipMover.PlayerHasDreamDash)
+                        if (playerHasDreamDash)
                             lightColor = activeDreamColors[(int) mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
                         else
                             lightColor = disabledDreamColors[(int) mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 4f)];
@@ -265,8 +269,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Draw.Line(value3 + offset, value3 + travelDir * 2f + offset, colorOverride ?? lightColor);
                     Draw.Line(value4 + offset, value4 - travelDir * 2f + offset, colorOverride ?? lightColor);
                 }
-                cog.DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
-                cog.DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
+
+                (playerHasDreamDash ? cog : disabledCog).DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
+                (playerHasDreamDash ? cog : disabledCog).DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
                 if (colorLerp > 0f && !colorOverride.HasValue) {
                     Color tempColor = Color.Lerp(Color.Transparent, colorLerpTarget, colorLerp);
                     cogWhite.DrawCentered(from + offset, tempColor, 1f, rotation);
