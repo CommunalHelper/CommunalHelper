@@ -6,7 +6,6 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
 	[CustomEntity("CommunalHelper/DreamFallingBlock")]
-	[TrackedAs(typeof(DreamBlock))]
 	public class DreamFallingBlock : CustomDreamBlock {
 		public bool Triggered;
 		public float FallDelay;
@@ -18,13 +17,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(new Coroutine(Sequence()));
         }
 
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
-        }
-
-        public override void OnStaticMoverTrigger(StaticMover sm) {
-			Triggered = true;
-		}
+        public override void OnStaticMoverTrigger(StaticMover sm) => Triggered = true;
 
 		private bool PlayerWaitCheck() {
 			if (Triggered) {
@@ -129,12 +122,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 			}
 		}
 
-		private void ShakeSfx() {
+		private void ShakeSfx() =>
 			Audio.Play(SFX.game_gen_fallblock_shake, Center);
-		}
 
-		private void ImpactSfx() {
+		private void ImpactSfx() =>
 			Audio.Play(SFX.game_gen_fallblock_impact, BottomCenter);
-		}
+
 	}
 }
