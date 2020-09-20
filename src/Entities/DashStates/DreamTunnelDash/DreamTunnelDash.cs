@@ -5,6 +5,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
@@ -409,6 +410,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (solid != null) {
                     DynData<Player> playerData = player.GetData();
                     player.StateMachine.State = StDreamTunnelDash;
+                    solid.Components.GetAll<DreamTunnelInteraction>().ToList().ForEach(i => i.OnPlayerEnter(player));
                     playerData[Player_solid] = solid;
                     playerData["dashAttackTimer"] = 0;
                     playerData["gliderBoostTimer"] = 0;
@@ -456,15 +458,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             player.RefillStamina();
             player.TreatNaive = false;
-            if (playerData[Player_solid] != null) {
+            Solid solid = playerData.Get<Solid>(Player_solid);
+            if (solid != null) {
                 if (player.DashDir.X != 0f) {
                     playerData["jumpGraceTimer"] = 0.1f;
                     playerData["dreamJump"] = true;
                 } else {
                     playerData["jumpGraceTimer"] = 0f;
                 }
-                //player.dreamBlock.OnPlayerExit(player);
-                playerData[Player_solid] = null;
+                solid.Components.GetAll<DreamTunnelInteraction>().ToList().ForEach(i => i.OnPlayerExit(player));
+                solid = null;
             }
             player.Stop(playerData.Get<SoundSource>("dreamSfxLoop"));
             player.Play(SFX.char_mad_dreamblock_exit, null, 0f);
