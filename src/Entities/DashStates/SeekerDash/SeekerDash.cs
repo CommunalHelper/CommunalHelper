@@ -33,6 +33,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Seeker.OnAttackPlayer += Seeker_OnAttackPlayer;
         }
 
+        internal static void Unload() {
+            On.Celeste.Player.ctor -= Player_ctor;
+            On.Celeste.Player.DashBegin -= Player_DashBegin;
+            On.Celeste.Player.Update -= Player_Update;
+            On.Celeste.Player.OnCollideH -= Player_OnCollideH;
+            On.Celeste.Player.OnCollideV -= Player_OnCollideV;
+            On.Celeste.Player.GetCurrentTrailColor -= Player_GetCurrentTrailColor;
+
+            On.Celeste.DashBlock.OnDashed -= DashBlock_OnDashed;
+            On.Celeste.TempleCrackedBlock.ctor_EntityID_Vector2_float_float_bool -= TempleCrackedBlock_ctor_EntityID_Vector2_float_float_bool;
+            On.Celeste.SeekerBarrier.ctor_Vector2_float_float -= SeekerBarrier_ctor_Vector2_float_float;
+
+            On.Celeste.Seeker.OnBouncePlayer -= Seeker_OnBouncePlayer;
+            On.Celeste.Seeker.OnAttackPlayer -= Seeker_OnAttackPlayer;
+        }
+
         private static void Seeker_OnBouncePlayer(On.Celeste.Seeker.orig_OnBouncePlayer orig, Seeker self, Player player) {
             orig(self, player);
         }

@@ -27,8 +27,9 @@ namespace Celeste.Mod.CommunalHelper {
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand += CustomBirdTutorial_OnParseCommand;
 
+            DashStateRefill.Load();
             DreamTunnelDash.Load();
-            DreamRefill.Load();
+            SeekerDash.Load();
 
             CustomDreamBlock.Load();
             ConnectedDreamBlock.Hook();
@@ -48,8 +49,9 @@ namespace Celeste.Mod.CommunalHelper {
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand -= CustomBirdTutorial_OnParseCommand;
 
+            DashStateRefill.Unload();
             DreamTunnelDash.Unload();
-            DreamRefill.Unload();
+            SeekerDash.Unload();
 
             CustomDreamBlock.Unload();
             ConnectedDreamBlock.Unhook();
@@ -70,8 +72,9 @@ namespace Celeste.Mod.CommunalHelper {
             StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
 			StationBlock.InitializeParticles();
 
-            DreamTunnelDash.LoadContent();
-            DreamRefill.InitializeParticles();
+            DreamTunnelRefill.InitializeParticles();
+            DreamTunnelDash.InitializeParticles();
+
             DreamMoveBlock.InitializeParticles();
             DreamSwitchGate.InitializeParticles();
             

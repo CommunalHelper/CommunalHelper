@@ -108,7 +108,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IL.Celeste.Solid.Update -= State_DreamDashNotEqual;
         }
 
-        public static void LoadContent() {
+        public static void InitializeParticles() {
             DreamTrailColors = new Color[]{
                 Calc.HexToColor("FFEF11"),
                 Calc.HexToColor("08A310"),
