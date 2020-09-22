@@ -28,141 +28,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 			Breaking
 		}
 
-		[Pooled]
-		private class Debris : Actor {
-			private Image sprite;
-			private CassetteMoveBlock block;
-			private Vector2 home;
-			private Vector2 speed;
-
-			private bool shaking;
-			private bool returning;
-
-			private float returnEase;
-			private float returnDuration;
-			private SimpleCurve returnCurve;
-
-			private bool firstHit;
-			private float alpha;
-
-			private Collision onCollideH;
-			private Collision onCollideV;
-
-			private float spin;
-			private Color color;
-			private Color pressedColor;
-
-			public Debris()
-				: base(Vector2.Zero) {
-                Tag = Tags.TransitionUpdate;
-                Collider = new Hitbox(4f, 4f, -2f, -2f);
-				Add(sprite = new Image(Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/debris"))));
-				sprite.CenterOrigin();
-				sprite.FlipX = Calc.Random.Chance(0.5f);
-				onCollideH = delegate
-				{
-					speed.X = (0f - speed.X) * 0.5f;
-				};
-				onCollideV = delegate
-				{
-					if (firstHit || speed.Y > 50f) {
-						Audio.Play("event:/game/general/debris_stone", Position, "debris_velocity", Calc.ClampedMap(speed.Y, 0f, 600f));
-					}
-					if (speed.Y > 0f && speed.Y < 40f) {
-						speed.Y = 0f;
-					} else {
-						speed.Y = (0f - speed.Y) * 0.25f;
-					}
-					firstHit = false;
-				};
-			}
-
-			protected override void OnSquish(CollisionData data) {
-			}
-
-			public Debris Init(CassetteMoveBlock block, Vector2 position, Vector2 center, Vector2 returnTo, Color color) {
-				Collidable = true;
-				this.block = block;
-				Position = position;
-				speed = (position - center).SafeNormalize(60f + Calc.Random.NextFloat(60f));
-				home = returnTo;
-				sprite.Position = Vector2.Zero;
-				sprite.Rotation = Calc.Random.NextAngle();
-				returning = false;
-				shaking = false;
-				sprite.Scale.X = 1f;
-				sprite.Scale.Y = 1f;
-				this.color = color;
-				pressedColor = color.Mult(Calc.HexToColor("667da5"));
-				sprite.Color = block.Collidable ? color : pressedColor;
-				alpha = 1f;
-				firstHit = false;
-				spin = Calc.Random.Range(3.49065852f, 10.4719753f) * Calc.Random.Choose(1, -1);
-				return this;
-			}
-
-			public override void Update() {
-				base.Update();
-				if (!returning) {
-					if (Collidable) {
-						speed.X = Calc.Approach(speed.X, 0f, Engine.DeltaTime * 100f);
-						if (!OnGround()) {
-							speed.Y += 400f * Engine.DeltaTime;
-						}
-						MoveH(speed.X * Engine.DeltaTime, onCollideH);
-						MoveV(speed.Y * Engine.DeltaTime, onCollideV);
-					}
-					if (shaking && Scene.OnInterval(0.05f)) {
-						sprite.X = -1 + Calc.Random.Next(3);
-						sprite.Y = -1 + Calc.Random.Next(3);
-					}
-				} else {
-					Position = returnCurve.GetPoint(Ease.CubeOut(returnEase));
-					returnEase = Calc.Approach(returnEase, 1f, Engine.DeltaTime / returnDuration);
-					sprite.Scale = Vector2.One * (1f + returnEase * 0.5f);
-				}
-				sprite.Color = block.Activated ? color : pressedColor;
-				if ((Scene as Level).Transitioning) {
-					alpha = Calc.Approach(alpha, 0f, Engine.DeltaTime * 4f);
-					sprite.Color *= alpha;
-				}
-				sprite.Rotation += spin * Calc.ClampedMap(Math.Abs(speed.Y), 50f, 150f) * Engine.DeltaTime;
-				
-			}
-
-			public void StopMoving() {
-				Collidable = false;
-			}
-
-			public void StartShaking() {
-				shaking = true;
-			}
-
-			public void ReturnHome(float duration) {
-				if (Scene != null) {
-					Camera camera = (Scene as Level).Camera;
-					if (X < camera.X) {
-                        X = camera.X - 8f;
-					}
-					if (Y < camera.Y) {
-                        Y = camera.Y - 8f;
-					}
-					if (X > camera.X + 320f) {
-                        X = camera.X + 320f + 8f;
-					}
-					if (Y > camera.Y + 180f) {
-                        Y = camera.Y + 180f + 8f;
-					}
-				}
-				returning = true;
-				returnEase = 0f;
-				returnDuration = duration;
-				Vector2 vector = (home - Position).SafeNormalize();
-				Vector2 control = (Position + home) / 2f + new Vector2(vector.Y, 0f - vector.X) * (Calc.Random.NextFloat(16f) + 16f) * Calc.Random.Facing();
-				returnCurve = new SimpleCurve(Position, home, control);
-			}
-		}
-
 		private const float Accel = 300f;
 		private const float MoveSpeed = 60f;
 		private const float FastMoveSpeed = 75f;
@@ -332,7 +197,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 					}
 					yield return null;
 				}
-				Audio.Play("event:/game/04_cliffside/arrowblock_break", Position);
+				Audio.Play(SFX.game_04_arrowblock_break, Position);
 				moveSfx.Stop();
 				state = MovementState.Breaking;
 				speed = (targetSpeed = 0f);
@@ -341,11 +206,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 				StopPlayerRunIntoAnimation = true;
 				yield return 0.2f;
 				BreakParticles();
-				List<Debris> debris = new List<Debris>();
+				List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
 				for (int x = 0; x < Width; x += 8) {
 					for (int y = 0; y < Height; y += 8) {
 						Vector2 offset = new Vector2(x + 4f, y + 4f);
-						Debris d = Engine.Pooler.Create<Debris>().Init(this, Position + offset, Center, startPosition + offset, color);
+
+                        MoveBlockDebris d = Engine.Pooler.Create<MoveBlockDebris>().Init(Position + offset, Center, startPosition + offset, spr => {
+                            spr.Color = Activated ? color : pressedColor;
+                        });
+                        d.Sprite.Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/debris"));
 						debris.Add(d);
 						Scene.Add(d);
 					}
@@ -356,27 +225,27 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 				Visible = false;
 				UpdatePresent(false);
                 yield return 2.2f;
-				foreach (Debris d2 in debris) {
+				foreach (MoveBlockDebris d2 in debris) {
 					d2.StopMoving();
 				}
 				while (CollideCheck<Actor>() || CollideCheck<Solid>()) {
 					yield return null;
 				}
 				UpdatePresent(true);
-				EventInstance sound = Audio.Play("event:/game/04_cliffside/arrowblock_reform_begin", debris[0].Position);
+				EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
 				Coroutine component;
 				Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(sound, debris));
 				Add(component);
-				foreach (Debris d4 in debris) {
+				foreach (MoveBlockDebris d4 in debris) {
 					d4.StartShaking();
 				}
 				yield return 0.2f;
-				foreach (Debris d5 in debris) {
+				foreach (MoveBlockDebris d5 in debris) {
 					d5.ReturnHome(0.65f);
 				}
 				yield return 0.6f;
 				routine.RemoveSelf();
-				foreach (Debris d3 in debris) {
+				foreach (MoveBlockDebris d3 in debris) {
 					d3.RemoveSelf();
 				}
 				Audio.Play("event:/game/04_cliffside/arrowblock_reappear", Position);
@@ -391,14 +260,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 			}
 		}
 
-		private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<Debris> debris) {
+		private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris) {
 			while (true) {
 				instance.getPlaybackState(out PLAYBACK_STATE state);
 				if (state == PLAYBACK_STATE.STOPPED) {
 					break;
 				}
 				Vector2 center = Vector2.Zero;
-				foreach (Debris d in debris) {
+				foreach (MoveBlockDebris d in debris) {
 					center += d.Position;
 				}
 				center /= debris.Count;

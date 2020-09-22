@@ -208,16 +208,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
 
                 BreakParticles();
-                List<DynamicData> debris = new List<DynamicData>();
+                List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
                 for (int x = 0; x < Width; x += 8) {
                     for (int y = 0; y < Height; y += 8) {
                         Vector2 offset = new Vector2(x + 4f, y + 4f);
-                        DynamicData d = new DynamicData(m_Pooler_Create.Invoke(Engine.Pooler, null));
-                        d.Get<Image>("sprite").Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/" + (PlayerHasDreamDash ? "debris" : "disabledDebris")));
-                        d.Get<Image>("sprite").Color = PlayerHasDreamDash ? activeLineColor : disabledLineColor;
-                        d.Invoke("Init", Position + offset, Center, startPosition + offset);
+                        MTexture texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/debris"));
+                        MTexture altTexture = GFX.Game[texture.AtlasPath.Replace("debris", "disabledDebris")];
+                        MoveBlockDebris d = Engine.Pooler.Create<MoveBlockDebris>()
+                            .Init(Position + offset, Center, startPosition + offset, spr => {
+                            spr.Texture = PlayerHasDreamDash ? texture : altTexture;
+                        });
                         debris.Add(d);
-                        Scene.Add((Entity) d.Target);
+                        Scene.Add(d);
                     }
                 }
                 MoveStaticMovers(startPosition - Position);
@@ -227,10 +229,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return 2.2f;
 
 
-                foreach (DynamicData d in debris) {
-                    d.Invoke("StopMoving");
+                foreach (MoveBlockDebris d in debris) {
+                    d.StopMoving();
                 }
-
                 if (oneUseBroken) {
                     OneUseDestroy();
                     yield break;
@@ -242,24 +243,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
 
                 Collidable = true;
-                EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, ((Entity) debris[0].Target).Position);
+                EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
                 Coroutine soundFollower = new Coroutine(SoundFollowsDebrisCenter(sound, debris));
                 Add(soundFollower);
-                foreach (DynamicData d in debris) {
-                    d.Invoke("StartShaking");
+                foreach (MoveBlockDebris d in debris) {
+                    d.StartShaking();
                 }
                 yield return 0.2f;
 
 
-                foreach (DynamicData d in debris) {
-                    d.Invoke("ReturnHome", 0.65f);
+                foreach (MoveBlockDebris d in debris) {
+                    d.ReturnHome(0.65f);
                 }
                 yield return 0.6f;
 
 
                 soundFollower.RemoveSelf();
-                foreach (DynamicData d in debris) {
-                    d.Invoke("RemoveSelf");
+                foreach (MoveBlockDebris d in debris) {
+                    d.RemoveSelf();
                 }
                 Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_reappear : SFX.game_04_arrowblock_reappear, Position);
                 Visible = true;
@@ -306,15 +307,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<DynamicData> debris) {
+        private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris) {
             while (true) {
                 instance.getPlaybackState(out PLAYBACK_STATE state);
                 if (state == PLAYBACK_STATE.STOPPED) {
                     break;
                 }
                 Vector2 center = Vector2.Zero;
-                foreach (DynamicData d in debris) {
-                    center += d.Get<Vector2>("Position");
+                foreach (MoveBlockDebris d in debris) {
+                    center += d.Position;
                 }
                 center /= debris.Count;
                 Audio.Position(instance, center);

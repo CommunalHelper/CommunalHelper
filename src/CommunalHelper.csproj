@@ -71,6 +71,7 @@
     <Compile Include="CommunalHelperSaveData.cs" />
     <Compile Include="CommunalHelperSession.cs" />
     <Compile Include="CommunalHelperSettings.cs" />
+    <Compile Include="Entities\GenericTypes\MoveBlockDebris.cs" />
     <Compile Include="Entities\HeartGemStuff\CSGEN_HeartGemShards.cs" />
     <Compile Include="Entities\HeartGemStuff\HeartGemShard.cs" />
     <Compile Include="Entities\CassetteStuff\CassetteFallingBlock.cs" />
