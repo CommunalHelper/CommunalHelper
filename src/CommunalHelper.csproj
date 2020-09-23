@@ -1,35 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4B823A36-051A-46CB-BB86-041DCAE8EE76}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Celeste.Mod.CommunalHelper</RootNamespace>
+    <TargetFrameworks>net452</TargetFrameworks>
     <AssemblyName>CommunalHelper</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
+    <RootNamespace>Celeste.Mod.CommunalHelper</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="Celeste">
       <HintPath>..\..\..\Celeste.exe</HintPath>
@@ -66,44 +43,5 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="CommunalHelperModule.cs" />
-    <Compile Include="CommunalHelperSaveData.cs" />
-    <Compile Include="CommunalHelperSession.cs" />
-    <Compile Include="CommunalHelperSettings.cs" />
-    <Compile Include="Entities\HeartGemStuff\CSGEN_HeartGemShards.cs" />
-    <Compile Include="Entities\HeartGemStuff\HeartGemShard.cs" />
-    <Compile Include="Entities\CassetteStuff\CassetteFallingBlock.cs" />
-    <Compile Include="Entities\CassetteStuff\CassetteMoveBlock.cs" />
-    <Compile Include="Entities\CassetteStuff\CassetteSwapBlock.cs" />
-    <Compile Include="Entities\CassetteStuff\CassetteZipMover.cs" />
-    <Compile Include="Entities\CassetteStuff\CustomCassetteBlock.cs" />
-    <Compile Include="Entities\ConnectedStuff\ConnectedMoveBlock.cs" />
-    <Compile Include="Entities\ConnectedStuff\ConnectedSolid.cs" />
-    <Compile Include="Entities\ConnectedStuff\ConnectedSwapBlock.cs" />
-    <Compile Include="Entities\ConnectedStuff\ConnectedZipMover.cs" />
-    <Compile Include="Entities\ConnectedStuff\ConnectedSolidExtension.cs" />
-    <Compile Include="Entities\DreamStuff\DreamFallingBlock.cs" />
-    <Compile Include="Entities\DreamStuff\CustomDreamBlock.cs" />
-    <Compile Include="Entities\DreamStuff\ConnectedDreamBlock.cs" />
-    <Compile Include="Entities\DreamStuff\DreamSwitchGate.cs" />
-    <Compile Include="Entities\DreamStuff\DreamTunnelDash.cs" />
-    <Compile Include="Entities\DreamStuff\DreamMoveBlock.cs" />
-    <Compile Include="Entities\DreamStuff\DreamRefill.cs" />
-    <Compile Include="Entities\DreamStuff\DreamSwapBlock.cs" />
-    <Compile Include="Entities\DreamStuff\DreamZipMover.cs" />
-    <Compile Include="Entities\HeartGemStuff\MultiDashHeartGem.cs" />
-    <Compile Include="Entities\HeartGemStuff\SummitGem.cs" />
-    <Compile Include="Entities\HeartGemStuff\SummitGemManager.cs" />
-    <Compile Include="Entities\Misc\MoveBlockRedirect.cs" />
-    <Compile Include="Entities\StationBlock\StationBlock.cs" />
-    <Compile Include="Entities\StationBlock\StationBlockTrack.cs" />
-    <Compile Include="Entities\Misc\AttachedWallBooster.cs" />
-    <Compile Include="Entities\Misc\SyncedZipMoverActivationController.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sounds.cs" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  
 </Project>
