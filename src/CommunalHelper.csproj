@@ -71,7 +71,6 @@
     <Compile Include="CommunalHelperSaveData.cs" />
     <Compile Include="CommunalHelperSession.cs" />
     <Compile Include="CommunalHelperSettings.cs" />
-    <Compile Include="Entities\GenericTypes\MoveBlockDebris.cs" />
     <Compile Include="Entities\HeartGemStuff\CSGEN_HeartGemShards.cs" />
     <Compile Include="Entities\HeartGemStuff\HeartGemShard.cs" />
     <Compile Include="Entities\CassetteStuff\CassetteFallingBlock.cs" />
@@ -96,6 +95,7 @@
     <Compile Include="Entities\HeartGemStuff\MultiDashHeartGem.cs" />
     <Compile Include="Entities\HeartGemStuff\SummitGem.cs" />
     <Compile Include="Entities\HeartGemStuff\SummitGemManager.cs" />
+    <Compile Include="Entities\Misc\MoveBlockDebris.cs" />
     <Compile Include="Entities\Misc\MoveBlockRedirect.cs" />
     <Compile Include="Entities\StationBlock\StationBlock.cs" />
     <Compile Include="Entities\StationBlock\StationBlockTrack.cs" />
