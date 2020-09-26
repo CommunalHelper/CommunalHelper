@@ -22,7 +22,7 @@ namespace Celeste.Mod.CommunalHelper.Entities
             Add(new Coroutine(Sequence()));
             sfx.Position = new Vector2(width, height) / 2f;
             Add(sfx);
-            target = position + (Vector2.UnitX * 64);
+            target = position + new Vector2(64, -16);
         }
 
         public override void Update()

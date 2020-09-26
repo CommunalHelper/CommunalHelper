@@ -220,7 +220,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public new void MoveTo(Vector2 target) {
-            Move(target - FakePosition);
+            Move(target - FakePosition - platformData.Get<Vector2>("movementCounter"));
         }
 
         public void Move(Vector2 initialMove) {
@@ -250,7 +250,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (vecTransformed.X != 0)
                 X += (int) vecTransformed.X;
-            if (vecTransformed.Y != 0)
+            if (vecTransformed.Y != 0) 
                 Y += (int) vecTransformed.Y;
 
             GenerateNewColliders(vecTransformed);
@@ -259,9 +259,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public void FakeColliderMove() {
+            bool collidable = Collidable; 
+            Collidable = false;
             foreach (SlicedCollider collider in Colliders) {
                 collider.FakeMove(SceneAs<Level>(), collider.Position + Position);
             }
+            Collidable = collidable;
         }
     }
 
@@ -304,7 +307,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public void FakeMove(Scene scene, Vector2 at) {
             Solid mover = new FakeSolid(at - PushMove, Width, Height, true, this);
             mover.Added(scene);
-            mover.MoveTo(at, TransformedLiftSpeed);
+            mover.LiftSpeed = TransformedLiftSpeed;
+            if (PushMove.X != 0)
+                mover.MoveHExact((int) PushMove.X);
+            if (PushMove.Y != 0)
+                mover.MoveVExact((int) PushMove.Y);
         }
 
         private class FakeSolid : Solid {
