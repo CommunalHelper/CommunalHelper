@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
@@ -35,6 +36,42 @@ namespace Celeste.Mod.CommunalHelper {
                 dir.X = Math.Sign(dir.X);
             }
             return dir;
+        }
+
+        private static void PutInside(this Vector2 pos, Rectangle bounds) {
+            while (pos.X < bounds.X) {
+                pos.X += bounds.Width;
+            }
+            while (pos.X > bounds.X + bounds.Width) {
+                pos.X -= bounds.Width;
+            }
+            while (pos.Y < bounds.Y) {
+                pos.Y += bounds.Height;
+            }
+            while (pos.Y > bounds.Y + bounds.Height) {
+                pos.Y -= bounds.Height;
+            }
+        }
+
+        public static List<Type> GetSubClasses(this Type type) {
+            List<Type> list = new List<Type>();
+            foreach (Type type2 in FakeAssembly.GetFakeEntryAssembly().GetTypes()) {
+                if (type != type2 && type.IsAssignableFrom(type2)) {
+                    list.Add(type2);
+                }
+            }
+            return list;
+        }
+
+        public static List<MethodInfo> GetOverrides(this MethodInfo method) {
+            List<MethodInfo> list = new List<MethodInfo>();
+            foreach (Type subType in method.DeclaringType.GetSubClasses()) {
+                MethodInfo overrideMethod = subType.GetMethod(method.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
+                if (overrideMethod != null && overrideMethod.Attributes.HasFlag(MethodAttributes.Virtual) && overrideMethod.GetBaseDefinition() == method)
+                    list.Add(overrideMethod);
+
+            }
+            return list;
         }
 
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs

@@ -40,6 +40,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.Load();
             DreamRefill.Load();
+            DreamTunnelEntry.Load();
 
             CustomDreamBlock.Load();
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
@@ -64,6 +65,9 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.Unload();
             DreamRefill.Unload();
+            DreamTunnelEntry.Unload();
+
+            DreamBlockDummy.Load();
 
             CustomDreamBlock.Unload();
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload

@@ -393,7 +393,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Position += Shake;
             base.Render();
 
-            Color color = Color.Lerp(activeLineColor, Color.Black, ColorLerp);
+            Color color = Color.Lerp(ActiveLineColor, Color.Black, ColorLerp);
             if (State != MovementState.Breaking) {
                 int value = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
                 MTexture arrow = arrows[Calc.Clamp(value, 0, 7)];
