@@ -214,15 +214,19 @@ namespace Celeste.Mod.CommunalHelper.Entities
             {
                 default:
                 case PortalFacings.Right:
+                    collider.CutLeft = true;
                     collider.WorldPosition = Partner.AnchorPoint - new Vector2(0, positionOnPortal);
                     break;
                 case PortalFacings.Down:
+                    collider.CutTop = true;
                     collider.WorldPosition = Partner.AnchorPoint - new Vector2(positionOnPortal, 0);
                     break;
                 case PortalFacings.Left:
+                    collider.CutRight = true;
                     collider.WorldPosition = Partner.AnchorPoint - new Vector2(-1, positionOnPortal) - new Vector2(newWidth, 0);
                     break;
                 case PortalFacings.Up:
+                    collider.CutBottom = true;
                     collider.WorldPosition = Partner.AnchorPoint - new Vector2(positionOnPortal, -1) - new Vector2(0, newHeight);
                     break;
             }
