@@ -1,9 +1,8 @@
 module CommunalHelperResetCrystal
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/ResetStateCrystal" ResetCrystal(
-x::Integer, y::Integer, oneUse::Bool=false
-)
+@mapdef Entity "CommunalHelper/ResetStateCrystal" ResetCrystal(x::Integer, y::Integer, 
+	oneUse::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Reset State Crystal (Communal Helper)" => Ahorn.EntityPlacement(
@@ -20,8 +19,7 @@ function Ahorn.selection(entity::ResetCrystal)
     return Ahorn.getSpriteRectangle(sprite, x, y)
 end
 
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ResetCrystal, room::Maple.Room)
+Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ResetCrystal) =
     Ahorn.drawSprite(ctx, sprite, 0, 0; tint=(.35, .35, .35, 1.0))
-end
 
 end

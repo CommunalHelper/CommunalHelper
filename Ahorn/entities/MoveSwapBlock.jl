@@ -1,26 +1,14 @@
 module CommunalHelperMoveSwapBlock
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/MoveSwapBlock" MoveSwapBlock(x::Integer, y::Integer, width::Integer=16, height::Integer=16,
-    direction::String="Left", canSteer::Bool=false, MoveSpeed::Number=60.0, Accel::Number=300.0,
-    SwapSpeedMult::Number=1.0
-)
+@mapdef Entity "CommunalHelper/MoveSwapBlock" MoveSwapBlock(x::Integer, y::Integer, width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
+	direction::String="Left", canSteer::Bool=false, MoveSpeed::Number=60.0, Accel::Number=300.0, SwapSpeedMult::Number=1.0)
 
-function swapFinalizer(entity)
-    x, y = Ahorn.position(entity)
-
-    width = Int(get(entity.data, "width", 8))
-    height = Int(get(entity.data, "height", 8))
-
-    entity.data["nodes"] = [(x + width, y)]
-end
-const directions = Maple.move_block_directions
 const placements = Ahorn.PlacementDict(
     "Move Swap Block (Communal Helper)" => Ahorn.EntityPlacement(
         MoveSwapBlock,
         "rectangle",
-        Dict{String, Any}(
-        ),
+        Dict{String, Any}(),
         function(entity)
             entity.data["nodes"] = [(Int(entity.data["x"]) + 16, Int(entity.data["y"]))]
         end
@@ -30,6 +18,7 @@ const placements = Ahorn.PlacementDict(
 Ahorn.editingOptions(entity::MoveSwapBlock) = Dict{String, Any}(
     "direction" => Maple.move_block_directions
 )
+
 Ahorn.minimumSize(entity::MoveSwapBlock) = 16, 16
 Ahorn.resizable(entity::MoveSwapBlock) = true, true
 Ahorn.nodeLimits(entity::MoveSwapBlock) = 1, 1

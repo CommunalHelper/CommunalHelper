@@ -15,7 +15,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             baseData = new DynData<Refill>(this);
 
             Remove(baseData.Get<Sprite>("sprite"));
-            Sprite sprite = new Sprite(GFX.Game, "objects/CommunalHelper/resetStateCrystal");
+            Sprite sprite = new Sprite(GFX.Game, "objects/CommunalHelper/resetStateCrystal/");
             sprite.AddLoop("idle", "ghostIdle", 0.1f);
             sprite.Play("idle");
             sprite.CenterOrigin();
@@ -32,22 +32,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
             Collidable = false;
             Add(new Coroutine(RefillRoutine(player)));
-            baseData.Set("respawnTimer", 2.5f);
+            baseData["respawnTimer"] = 2.5f;
         }
 
         public IEnumerator RefillRoutine(Player player) {
             Celeste.Freeze(0.025f);
+
             baseData.Get<Sprite>("sprite").Visible = baseData.Get<Sprite>("flash").Visible = false;
-            if (!baseData.Get<bool>("oneUse")) {
+            bool oneUse = baseData.Get<bool>("oneUse");
+            if (!oneUse) {
                 baseData.Get<Image>("outline").Visible = true;
             }
             yield return 0.05;
+
             player.StateMachine.State = 0;
-            float num = player.Speed.Angle();
-            baseData.Get<Level>("level").ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
-            baseData.Get<Level>("level").ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
-            SlashFx.Burst(Position, num);
-            if (baseData.Get<bool>("oneUse")) {
+            float angle = player.Speed.Angle();
+            Level level = baseData.Get<Level>("level");
+            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle - (float) Math.PI / 2f);
+            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle + (float) Math.PI / 2f);
+            SlashFx.Burst(Position, angle);
+            if (oneUse) {
                 RemoveSelf();
             }
         }

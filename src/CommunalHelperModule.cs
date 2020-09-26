@@ -35,6 +35,8 @@ namespace Celeste.Mod.CommunalHelper {
             ConnectedSwapBlockHooks.Hook();
             CustomCassetteBlockHooks.Hook();
             SyncedZipMoverActivationControllerHooks.Hook();
+
+            MoveSwapBlock.Load();
             MoveBlockRedirect.Load();
             AttachedWallBooster.Hook();
 
@@ -57,6 +59,7 @@ namespace Celeste.Mod.CommunalHelper {
             CustomCassetteBlockHooks.Unhook();
             SyncedZipMoverActivationControllerHooks.Unhook();
 			AttachedWallBooster.Unhook();
+            MoveSwapBlock.Unload();
             MoveBlockRedirect.Unload();
 
             HeartGemShard.Unload();
