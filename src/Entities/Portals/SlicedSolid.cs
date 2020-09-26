@@ -249,92 +249,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             if (vecTransformed.X != 0)
-                MoveHExact((int) vecTransformed.X);
+                X += (int) vecTransformed.X;
             if (vecTransformed.Y != 0)
-                MoveVExact((int) vecTransformed.Y);
+                Y += (int) vecTransformed.Y;
 
             GenerateNewColliders(vecTransformed);
+            FakeColliderMove();
             platformData.Set("movementCounter", movementCounter);
         }
 
-        // ww
-        //public override void MoveHExact(int move) {
-        //    GetRiders();
-        //    float right = base.Right;
-        //    float left = base.Left;
-        //    Player player = base.Scene.Tracker.GetEntity<Player>();
-        //    HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
-        //    if (player != null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + Vector2.UnitX * move - Vector2.UnitY)) {
-        //        player.MoveV(1f);
-        //    }
-        //    base.X += move;
-        //    MoveStaticMovers(Vector2.UnitX * move);
-        //    if (Collidable) {
-        //        foreach (Actor entity in base.Scene.Tracker.GetEntities<Actor>()) {
-        //            if (!entity.AllowPushing) {
-        //                continue;
-        //            }
-        //            bool collidable = entity.Collidable;
-        //            entity.Collidable = true;
-        //            if (!entity.TreatNaive && CollideCheck(entity, Position)) {
-        //                int moveH = (move <= 0) ? (move - (int) (entity.Right - left)) : (move - (int) (entity.Left - right));
-        //                Collidable = false;
-        //                entity.MoveHExact(moveH, entity.SquishCallback, this);
-        //                Console.WriteLine(entity.LiftSpeed = LiftSpeed);
-        //                Collidable = true;
-        //            } else if (riders.Contains(entity) && !(entity.Bottom <= Top && parent.CutTop)) {
-        //                Collidable = false;
-        //                if (entity.TreatNaive) {
-        //                    entity.NaiveMove(Vector2.UnitX * move);
-        //                } else {
-        //                    entity.MoveHExact(move);
-        //                }
-        //                entity.LiftSpeed = LiftSpeed;
-        //                Collidable = true;
-        //            }
-        //            entity.Collidable = collidable;
-        //        }
-        //    }
-        //    riders.Clear();
-        //}
-        //
-        //public override void MoveVExact(int move) {
-        //    GetRiders();
-        //    float bottom = base.Bottom;
-        //    float top = base.Top;
-        //    HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
-        //    base.Y += move;
-        //    MoveStaticMovers(Vector2.UnitY * move);
-        //    if (Collidable) {
-        //        foreach (Actor entity in base.Scene.Tracker.GetEntities<Actor>()) {
-        //            if (!entity.AllowPushing) {
-        //                continue;
-        //            }
-        //            bool collidable = entity.Collidable;
-        //            entity.Collidable = true;
-        //            if (!entity.TreatNaive && CollideCheck(entity, Position)) {
-        //                int moveV = (move <= 0) ? (move - (int) (entity.Bottom - top)) : (move - (int) (entity.Top - bottom));
-        //                Collidable = false;
-        //                entity.MoveVExact(moveV, entity.SquishCallback, this);
-        //                entity.LiftSpeed = LiftSpeed;
-        //                Collidable = true;
-        //            } else if (riders.Contains(entity) &&
-        //                !((entity.Left >= Right && parent.CutRight) || (entity.Right <= Left && parent.CutLeft))) {
-        //
-        //                Collidable = false;
-        //                if (entity.TreatNaive) {
-        //                    entity.NaiveMove(Vector2.UnitY * move);
-        //                } else {
-        //                    entity.MoveVExact(move);
-        //                }
-        //                entity.LiftSpeed = LiftSpeed;
-        //                Collidable = true;
-        //            }
-        //            entity.Collidable = collidable;
-        //        }
-        //    }
-        //    riders.Clear();
-        //}
+        public void FakeColliderMove() {
+            foreach (SlicedCollider collider in Colliders) {
+                collider.FakeMove(SceneAs<Level>(), collider.Position + Position);
+            }
+        }
     }
 
     class SlicedCollider : Hitbox {
@@ -371,6 +299,99 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 return WorldAbsoluteTop < hitbox.AbsoluteBottom;
             }
             return false;
+        }
+
+        public void FakeMove(Scene scene, Vector2 at) {
+            Solid mover = new FakeSolid(at - PushMove, Width, Height, true, this);
+            mover.Added(scene);
+            mover.MoveTo(at, TransformedLiftSpeed);
+        }
+
+        private class FakeSolid : Solid {
+
+            private SlicedCollider parent;
+            public FakeSolid(Vector2 position, float width, float height, bool safe, SlicedCollider parent) 
+                : base(position, width, height, safe) {
+                this.parent = parent;
+            }
+
+            public override void MoveHExact(int move) {
+                GetRiders();
+                float right = base.Right;
+                float left = base.Left;
+                Player player = base.Scene.Tracker.GetEntity<Player>();
+                HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
+                if (player != null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + Vector2.UnitX * move - Vector2.UnitY)) {
+                    player.MoveV(1f);
+                }
+                base.X += move;
+                MoveStaticMovers(Vector2.UnitX * move);
+                if (Collidable) {
+                    foreach (Actor entity in base.Scene.Tracker.GetEntities<Actor>()) {
+                        if (!entity.AllowPushing) {
+                            continue;
+                        }
+                        bool collidable = entity.Collidable;
+                        entity.Collidable = true;
+                        if (!entity.TreatNaive && CollideCheck(entity, Position)) {
+                            int moveH = (move <= 0) ? (move - (int) (entity.Right - left)) : (move - (int) (entity.Left - right));
+                            Collidable = false;
+                            entity.MoveHExact(moveH, entity.SquishCallback, this);
+                            Console.WriteLine(entity.LiftSpeed = LiftSpeed);
+                            Collidable = true;
+                        } else if (riders.Contains(entity) && !(entity.Bottom <= Top && parent.CutTop)) {
+                            Collidable = false;
+                            if (entity.TreatNaive) {
+                                entity.NaiveMove(Vector2.UnitX * move);
+                            } else {
+                                entity.MoveHExact(move);
+                            }
+                            entity.LiftSpeed = LiftSpeed;
+                            Collidable = true;
+                        }
+                        entity.Collidable = collidable;
+                    }
+                }
+                riders.Clear();
+            }
+
+            public override void MoveVExact(int move) {
+                GetRiders();
+                float bottom = base.Bottom;
+                float top = base.Top;
+                HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
+                base.Y += move;
+                MoveStaticMovers(Vector2.UnitY * move);
+                if (Collidable) {
+                    foreach (Actor entity in base.Scene.Tracker.GetEntities<Actor>()) {
+                        if (!entity.AllowPushing) {
+                            continue;
+                        }
+                        bool collidable = entity.Collidable;
+                        entity.Collidable = true;
+                        if (!entity.TreatNaive && CollideCheck(entity, Position)) {
+                            int moveV = (move <= 0) ? (move - (int) (entity.Bottom - top)) : (move - (int) (entity.Top - bottom));
+                            Collidable = false;
+                            entity.MoveVExact(moveV, entity.SquishCallback, this);
+                            entity.LiftSpeed = LiftSpeed;
+                            Collidable = true;
+                        } else if (riders.Contains(entity) &&
+                            !((entity.Left >= Right && parent.CutRight) || (entity.Right <= Left && parent.CutLeft))) {
+
+                            Collidable = false;
+                            if (entity.TreatNaive) {
+                                entity.NaiveMove(Vector2.UnitY * move);
+                            } else {
+                                entity.MoveVExact(move);
+                            }
+                            entity.LiftSpeed = LiftSpeed;
+                            Collidable = true;
+                        }
+                        entity.Collidable = collidable;
+                    }
+                }
+                riders.Clear();
+            }
         }
     }
 }
