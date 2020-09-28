@@ -104,8 +104,9 @@ namespace Celeste.Mod.CommunalHelper.Entities
             return Matrix.Identity;
         }
     }
-    
-    class SinglePortal : Entity
+
+    [Tracked]
+    class SinglePortal : Solid
     {
         public PortalFacings Facing, OppositeFacing;
 
@@ -119,7 +120,7 @@ namespace Celeste.Mod.CommunalHelper.Entities
         public Matrix ToPartnerTransform;
 
         public SinglePortal(Vector2 position, int width, int height, PortalFacings facing, SolidPortal parent)
-            : base(position)
+            : base(position, width, height, false)
         {
             Facing = facing;
             Parent = parent;

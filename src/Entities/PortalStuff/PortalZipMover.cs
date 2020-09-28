@@ -34,11 +34,7 @@ namespace Celeste.Mod.CommunalHelper.Entities
             Vector2 start = Position;
             float percent = 0f;
             while (true) {
-                if (!HasPlayerRider()) {
-                    yield return null;
-                    continue;
-                }
-                sfx.Play("event:/game/01_forsaken_city/zip_mover");
+                yield return .5f;
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                 StartShaking(0.1f);
                 yield return 0.1f;
