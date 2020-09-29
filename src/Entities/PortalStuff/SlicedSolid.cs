@@ -273,7 +273,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<Entity> FindUnaffectedRiders(SlicedCollider collider) {
             List<Entity> result = new List<Entity>();
             foreach(Actor entity in Scene.Tracker.GetEntities<Actor>()) {
-                if ((entity.Bottom <= Top && collider.UnridableTop))
+                bool flag1 = entity.Bottom <= collider.AbsoluteTop && collider.UnridableTop;
+                bool flag2 = entity.Top >= collider.AbsoluteBottom && collider.CutBottom;
+                if (flag1 || flag2)
                     result.Add(entity);
             }
             return result;
@@ -299,7 +301,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     entity.Collidable = true;
                     if (!entity.TreatNaive && CollideCheck(entity, Position)) {
                         int moveH = (move <= 0) ? (move - (int) (entity.Right - left)) : (move - (int) (entity.Left - right));
-                        if(parent.CutLeft || parent.CutRight)
                         Collidable = false;
                         entity.MoveHExact(moveH, entity.SquishCallback, this);
                         entity.LiftSpeed = LiftSpeed;
@@ -332,7 +333,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (Collidable) {
                 foreach (Actor entity in base.Scene.Tracker.GetEntities<Actor>()) {
                     if (!entity.AllowPushing || affectedRiders.Contains(entity) || unaffectedRiders.Contains(entity)) {
-                        Console.WriteLine(entity + ", skipped");
                         continue;
                     }
                     bool collidable = entity.Collidable;
@@ -343,7 +343,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         entity.MoveVExact(moveV, entity.SquishCallback, this);
                         entity.LiftSpeed = LiftSpeed;
                         Collidable = true;
-                        Console.WriteLine(entity + ", " + move + " on y");
                         affectedRiders.Add(entity);
                     } else if (riders.Contains(entity) &&
                         !((entity.Left >= Right && parent.UnridableRight) || (entity.Right <= Left && parent.UnridableLeft))) {
@@ -356,7 +355,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         }
                         entity.LiftSpeed = LiftSpeed;
                         Collidable = true;
-                        Console.WriteLine(entity + ", " + move + " on y");
                         affectedRiders.Add(entity);
                     }
                     entity.Collidable = collidable;
