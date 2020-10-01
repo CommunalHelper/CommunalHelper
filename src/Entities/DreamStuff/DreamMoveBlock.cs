@@ -214,7 +214,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Vector2 offset = new Vector2(x + 4f, y + 4f);
                         DynamicData d = new DynamicData(m_Pooler_Create.Invoke(Engine.Pooler, null));
                         d.Get<Image>("sprite").Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/" + (PlayerHasDreamDash ? "debris" : "disabledDebris")));
-                        d.Get<Image>("sprite").Color = PlayerHasDreamDash ? activeLineColor : disabledLineColor;
+                        d.Get<Image>("sprite").Color = PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
                         d.Invoke("Init", Position + offset, Center, startPosition + offset);
                         debris.Add(d);
                         Scene.Add((Entity) d.Target);
@@ -402,7 +402,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Position += Shake;
             base.Render();
 
-            Color color = Color.Lerp(activeLineColor, Color.Black, ColorLerp);
+            Color color = Color.Lerp(ActiveLineColor, Color.Black, ColorLerp);
             if (state != MovementState.Breaking) {
                 int value = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
                 MTexture arrow = arrows[Calc.Clamp(value, 0, 7)];

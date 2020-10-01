@@ -242,13 +242,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 bool playerHasDreamDash = DreamZipMover.PlayerHasDreamDash;
 
                 float colorLerp = DreamZipMover.ColorLerp;
-                Color colorLerpTarget = DreamZipMover.activeLineColor;
+                Color colorLerpTarget = DreamZipMover.ActiveLineColor;
                 Vector2 travelDir = (to - from).SafeNormalize();
                 Vector2 hOffset1 = travelDir.Perpendicular() * 3f;
                 Vector2 hOffset2 = -travelDir.Perpendicular() * 4f;
                 float rotation = -DreamZipMover.percent * (float) Math.PI * 2f;
 
-                Color dreamRopeColor = playerHasDreamDash ? colorLerpTarget : DreamZipMover.disabledLineColor;
+                Color dreamRopeColor = playerHasDreamDash ? colorLerpTarget : DreamZipMover.DisabledLineColor;
                 Color color = Color.Lerp(dreamAesthetic ?  dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
                 Draw.Line(from + hOffset1 + offset, to + hOffset1 + offset, colorOverride ?? color);
                 Draw.Line(from + hOffset2 + offset, to + hOffset2 + offset, colorOverride ?? color);

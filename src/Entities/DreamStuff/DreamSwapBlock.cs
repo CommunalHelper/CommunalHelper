@@ -27,7 +27,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public override void Render() {
                 float scale = 0.5f * (0.5f + ((float) Math.Sin(timer) + 1f) * 0.25f);
                 scale = Calc.LerpClamp(scale, 1, block.ColorLerp);
-                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, block.activeLineColor * scale);
+                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, ActiveLineColor * scale);
             }
         }
 

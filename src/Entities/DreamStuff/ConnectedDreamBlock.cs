@@ -313,7 +313,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             if (MasterOfGroup) {
-                Color lineColor = PlayerHasDreamDash ? activeLineColor : disabledLineColor;
+                Color lineColor = PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
                 Color backColor = Color.Lerp(PlayerHasDreamDash ? baseData.Get<Color>("activeBackColor") : baseData.Get<Color>("disabledBackColor"), Color.White, ColorLerp);
 
                 if (whiteFill > 0f) {
