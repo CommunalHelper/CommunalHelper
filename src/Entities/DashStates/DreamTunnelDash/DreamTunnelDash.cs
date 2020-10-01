@@ -52,17 +52,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.ctor += Player_ctor;
             On.Celeste.Player.DashBegin += Player_DashBegin;
             On.Celeste.Player.CreateTrail += Player_CreateTrail;
-            IL.Celeste.Player.OnCollideH += Player_OnCollideH;
-            IL.Celeste.Player.OnCollideV += Player_OnCollideV;
+            On.Celeste.Player.OnCollideH += Player_OnCollideH;
+            On.Celeste.Player.OnCollideV += Player_OnCollideV;
             On.Celeste.Player.DreamDashCheck += Player_DreamDashCheck;
             On.Celeste.Player.Update += Player_Update;
             On.Celeste.Player.Die += Player_Die;
-
             hook_Player_DashCoroutine = new ILHook(
                 typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(),
                 Player_DashCoroutine);
+
             IL.Celeste.Player.IsRiding_Solid += State_DreamDashEqual;
-            IL.Celeste.Player.IsRiding_JumpThru += State_DreamDashEqual;
+            IL.Celeste.Player.IsRiding_JumpThru += State_DreamDashEqual_And;
             IL.Celeste.Player.OnCollideH += State_DreamDashEqual;
             IL.Celeste.Player.OnCollideV += State_DreamDashEqual;
             hook_Player_orig_Update = new ILHook(
@@ -85,8 +85,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.ctor -= Player_ctor;
             On.Celeste.Player.DashBegin -= Player_DashBegin;
             On.Celeste.Player.CreateTrail -= Player_CreateTrail;
-            IL.Celeste.Player.OnCollideH -= Player_OnCollideH;
-            IL.Celeste.Player.OnCollideV -= Player_OnCollideV;
+            On.Celeste.Player.OnCollideH -= Player_OnCollideH;
+            On.Celeste.Player.OnCollideV -= Player_OnCollideV;
             On.Celeste.Player.DreamDashCheck -= Player_DreamDashCheck;
             On.Celeste.Player.Update -= Player_Update;
             On.Celeste.Player.Die -= Player_Die;
@@ -105,7 +105,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             IL.Celeste.FakeWall.Update -= State_DreamDashNotEqual;
             IL.Celeste.Spring.OnCollide -= State_DreamDashEqual;
-            IL.Celeste.Solid.Update -= State_DreamDashNotEqual;
+            IL.Celeste.Solid.Update -= State_DreamDashNotEqual_And;
         }
 
         public static void InitializeParticles() {
@@ -137,7 +137,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 // Ensures the player enters the dream tunnel dash state if dashing into a fast moving block
                 // Because of how it works, it removes dashdir leniency :(
                 DynData<Player> playerData = self.GetData();
-                Vector2 lastAim = playerData.Get<Vector2>("lastAim");
+                Vector2 lastAim = Input.GetAimVector(self.Facing);
                 Vector2 dir = lastAim.Sign();
                 if (!self.CollideCheck<Solid, DreamBlock>() && self.CollideCheck<Solid, DreamBlock>(self.Position + dir)) {
                     self.Speed = self.DashDir = lastAim;
@@ -186,6 +186,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 self.CreateDreamTrail();
         }
 
+        // StDreamTunnelDash check handled in IL hook
+        private static void Player_OnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player self, CollisionData data) {
+            if (!self.DreamTunnelDashCheck(Vector2.UnitX * Math.Sign(self.Speed.X)))
+                orig(self, data);
+        }
+
+        // StDreamTunnelDash check handled in IL hook
+        private static void Player_OnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player self, CollisionData data) {
+            if (!self.DreamTunnelDashCheck(Vector2.UnitY * Math.Sign(self.Speed.Y)))
+                orig(self, data);
+        }
+
+        // Unused in favour of original behaviour
+        /*
         private static void Player_OnCollideH(ILContext il) {
             ILCursor cursor = new ILCursor(il);
 
@@ -221,6 +235,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 cursor.Goto(idx, MoveType.After);
             }
         }
+        */
 
         private static bool Player_DreamDashCheck(On.Celeste.Player.orig_DreamDashCheck orig, Player self, Vector2 dir) {
             if (overrideDreamDashCheck)
@@ -239,14 +254,36 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         // Patch any method that checks the player's State
+        /// <summary>
+        /// Use if decompilation says <c>State==9</c> and NOT followed by <c>&amp;&amp;</c>.
+        /// </summary>
         private static readonly ILContext.Manipulator State_DreamDashEqual = il => Check_State_DreamDash(new ILCursor(il), true);
-        private static readonly ILContext.Manipulator State_DreamDashNotEqual = il => Check_State_DreamDash(new ILCursor(il), true);
-        private static void Check_State_DreamDash(ILCursor cursor, bool equal) {
+        /// <summary>
+        /// Use if decompilation says <c>State!=9</c> and NOT followed by <c>&amp;&amp;</c>.
+        /// </summary>
+        private static readonly ILContext.Manipulator State_DreamDashNotEqual = il => Check_State_DreamDash(new ILCursor(il), false);
+        /// <summary>
+        /// Use if decompilation says <c>State==9</c> and IS followed by <c>&amp;&amp;</c>.
+        /// </summary>
+        private static readonly ILContext.Manipulator State_DreamDashEqual_And = il => Check_State_DreamDash(new ILCursor(il), true, true);
+        /// <summary>
+        /// Use if decompilation says <c>State!=9</c> and IS followed by <c>&amp;&amp;</c>.
+        /// </summary>
+        private static readonly ILContext.Manipulator State_DreamDashNotEqual_And = il => Check_State_DreamDash(new ILCursor(il), false, true);
+        /// <summary>
+        /// Patch any method that checks the player's state.
+        /// </summary>
+        /// <remarks>Checks for <c>ldc.i4.s 9</c></remarks>
+        /// <param name="cursor"></param>
+        /// <param name="equal">Whether the decompilation says State == 9</param>
+        /// <param name="and">Whether the check is followed by <c>&amp;&amp;</c></param>
+        private static void Check_State_DreamDash(ILCursor cursor, bool equal, bool and = false) {
             if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash))) {
+                Instruction idx = cursor.Next;
                 // Duplicate the Player State
                 cursor.Emit(OpCodes.Dup);
                 // Check whether the state matches StDreamTunnelDash AND we want them to match
-                cursor.EmitDelegate<Func<int, bool>>(st => (st == StDreamTunnelDash) == equal);
+                cursor.EmitDelegate<Func<int, bool>>(st => (st == StDreamTunnelDash) == equal ^ and);
                 // If not, skip the rest of the emitted instructions
                 cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
 
@@ -263,22 +300,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     cursor.Emit(OpCodes.Br_S, breakInstr.Next);
                 }
                 // If our intended behaviour matches what the break instruction is checking for, break to its target
-                else if ((breakInstr.OpCode == OpCodes.Beq_S) && equal)
+                else if ((breakInstr.OpCode == OpCodes.Beq_S) == equal ^ and)
                     cursor.Emit(OpCodes.Br_S, breakInstr.Operand);
                 // Otherwise, break to after the break instruction (skip it)
                 else
                     cursor.Emit(OpCodes.Br_S, breakInstr.Next);
+                cursor.Goto(idx, MoveType.After);
             }
         }
 
         private static void Player_orig_Update(ILContext il) {
             ILCursor cursor = new ILCursor(il);
             Check_State_DreamDash(cursor, true);
-            Check_State_DreamDash(cursor, false);
-            Check_State_DreamDash(cursor, false);
-            Check_State_DreamDash(cursor, false);
+            Check_State_DreamDash(cursor, false, true);
+            Check_State_DreamDash(cursor, false, true);
+            // Not used because we DO want to enforce Level bounds.
+            //Check_State_DreamDash(cursor, false, true);
         }
 
+        // Kill the player if they attempt to DreamTunnel out of the level
         private static void Level_EnforceBounds(On.Celeste.Level.orig_EnforceBounds orig, Level self, Player player) {
             if (new DynData<Level>(self).Get<Coroutine>("transition") != null)
                 return;
@@ -286,7 +326,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (player.StateMachine.State == StDreamTunnelDash) {
                 Rectangle bounds = self.Bounds;
                 if (player.Right > bounds.Right || player.Left < bounds.Left || player.Top < bounds.Top || player.Bottom > bounds.Bottom) {
-                    player.DreamDashDie();
+                    player.DreamDashDie(player.Position);
                     return;
                 }
                 // Continue here, since it may be caught be player.OnBoundsH/OnBoundsV
@@ -295,18 +335,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             orig(self, player);
         }
 
+        // Handles cases with locked camera
         private static void Player_OnBoundsH(On.Celeste.Player.orig_OnBoundsH orig, Player self) {
             if (self.StateMachine.State == StDreamTunnelDash) {
-                self.DreamDashDie();
+                self.DreamDashDie(self.Position);
                 return;
             }
 
             orig(self);
         }
 
+        // Handles cases with locked camera
         private static void Player_OnBoundsV(On.Celeste.Player.orig_OnBoundsV orig, Player self) {
             if (self.StateMachine.State == StDreamTunnelDash) {
-                self.DreamDashDie();
+                self.DreamDashDie(self.Position);
                 return;
             }
 
@@ -328,8 +370,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             DreamTrailColorIndex %= 5;
         }
 
-        public static bool DreamDashDie(this Player player, bool evenIfInvincible = false) {
+        public static bool DreamDashDie(this Player player, Vector2 previousPos, bool evenIfInvincible = false) {
             if (!evenIfInvincible && SaveData.Instance.Assists.Invincible) {
+                player.Position = previousPos;
                 player.Speed *= -1f;
                 player.Play(SFX.game_assist_dreamblockbounce, null, 0f);
                 return false;
@@ -359,10 +402,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return false;
         }
 
-        #region DreamTunnelState
-
         private static bool DreamTunnelDashCheck(this Player player, Vector2 dir) {
             if (dreamTunnelDashAttacking && player.DashAttacking && (dir.X == Math.Sign(player.DashDir.X) || dir.Y == Math.Sign(player.DashDir.Y))) {
+                Rectangle bounds = player.SceneAs<Level>().Bounds;
+                if (player.Left + dir.X < bounds.Left || player.Right + dir.X > bounds.Right || player.Top + dir.Y < bounds.Top || player.Bottom + dir.Y > bounds.Bottom)
+                    return false;
+
                 Solid solid = null;
 
                 // Check for dream blocks first, then for solids
@@ -420,6 +465,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return false;
         }
 
+        #region DreamTunnelState
+
         private static void DreamTunnelDashBegin(this Player player) {
             DynData<Player> playerData = player.GetData();
 
@@ -428,12 +475,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 player.Add(dreamSfxLoop);
                 playerData["dreamSfxLoop"] = dreamSfxLoop;
             }
-
+            
             // Extra correction for fast moving solids, this does not cause issues with dashdir leniency
             Vector2 dir = player.DashDir.Sign();
             if (!player.CollideCheck<Solid, DreamBlock>() && player.CollideCheck<Solid, DreamBlock>(player.Position + dir)) {
                 player.NaiveMove(dir);
             }
+            
 
             player.Speed = player.DashDir * Player_DashSpeed;
             player.TreatNaive = true;
@@ -487,7 +535,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Solid solid = player.CollideFirst<Solid, DreamBlock>();
             if (solid == null) {
                 if (player.DreamTunneledIntoDeath()) {
-                    player.DreamDashDie();
+                    player.DreamDashDie(position);
                 } else if (playerData.Get<float>(Player_dreamTunnelDashCanEndTimer) <= 0f) {
                     Celeste.Freeze(0.05f);
                     if (Input.Jump.Pressed && player.DashDir.X != 0f) {
@@ -505,13 +553,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         if (Input.Grab.Check && ((moveX == 1 && flag2) || (moveX == -1 && flag))) {
                             player.Facing = (Facings) moveX;
                             if (!SaveData.Instance.Assists.NoGrabbing) {
-                                return 1;
+                                return Player.StClimb;
                             }
                             player.ClimbTrigger(moveX);
                             player.Speed.X = 0f;
                         }
                     }
-                    return 0;
+                    return Player.StNormal;
                 }
             } else {
                 playerData[Player_solid] = solid;

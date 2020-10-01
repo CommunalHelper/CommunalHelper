@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.Entities;
 using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -13,141 +14,6 @@ namespace Celeste.Mod.CommunalHelper {
 
     [CustomEntity("CommunalHelper/ConnectedMoveBlock")]
     class ConnectedMoveBlock : ConnectedSolid {
-
-        [Pooled]
-        private class Debris : Actor {
-            private Image sprite;
-
-            private Vector2 home;
-
-            private Vector2 speed;
-
-            private bool shaking;
-
-            private bool returning;
-
-            private float returnEase;
-
-            private float returnDuration;
-
-            private SimpleCurve returnCurve;
-
-            private bool firstHit;
-
-            private float alpha;
-
-            private Collision onCollideH;
-
-            private Collision onCollideV;
-
-            private float spin;
-
-            public Debris()
-                : base(Vector2.Zero) {
-                base.Tag = Tags.TransitionUpdate;
-                base.Collider = new Hitbox(4f, 4f, -2f, -2f);
-                Add(sprite = new Image(Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/moveblock/debris"))));
-                sprite.CenterOrigin();
-                sprite.FlipX = Calc.Random.Chance(0.5f);
-                onCollideH = delegate
-                {
-                    speed.X = (0f - speed.X) * 0.5f;
-                };
-                onCollideV = delegate
-                {
-                    if (firstHit || speed.Y > 50f) {
-                        Audio.Play("event:/game/general/debris_stone", Position, "debris_velocity", Calc.ClampedMap(speed.Y, 0f, 600f));
-                    }
-                    if (speed.Y > 0f && speed.Y < 40f) {
-                        speed.Y = 0f;
-                    } else {
-                        speed.Y = (0f - speed.Y) * 0.25f;
-                    }
-                    firstHit = false;
-                };
-            }
-
-            protected override void OnSquish(CollisionData data) {
-            }
-
-            public Debris Init(Vector2 position, Vector2 center, Vector2 returnTo) {
-                Collidable = true;
-                Position = position;
-                speed = (position - center).SafeNormalize(60f + Calc.Random.NextFloat(60f));
-                home = returnTo;
-                sprite.Position = Vector2.Zero;
-                sprite.Rotation = Calc.Random.NextAngle();
-                returning = false;
-                shaking = false;
-                sprite.Scale.X = 1f;
-                sprite.Scale.Y = 1f;
-                sprite.Color = Color.White;
-                alpha = 1f;
-                firstHit = false;
-                spin = Calc.Random.Range(3.49065852f, 10.4719753f) * (float) Calc.Random.Choose(1, -1);
-                return this;
-            }
-
-            public override void Update() {
-                base.Update();
-                if (!returning) {
-                    if (Collidable) {
-                        speed.X = Calc.Approach(speed.X, 0f, Engine.DeltaTime * 100f);
-                        if (!OnGround()) {
-                            speed.Y += 400f * Engine.DeltaTime;
-                        }
-                        MoveH(speed.X * Engine.DeltaTime, onCollideH);
-                        MoveV(speed.Y * Engine.DeltaTime, onCollideV);
-                    }
-                    if (shaking && base.Scene.OnInterval(0.05f)) {
-                        sprite.X = -1 + Calc.Random.Next(3);
-                        sprite.Y = -1 + Calc.Random.Next(3);
-                    }
-                } else {
-                    Position = returnCurve.GetPoint(Ease.CubeOut(returnEase));
-                    returnEase = Calc.Approach(returnEase, 1f, Engine.DeltaTime / returnDuration);
-                    sprite.Scale = Vector2.One * (1f + returnEase * 0.5f);
-                }
-                if ((base.Scene as Level).Transitioning) {
-                    alpha = Calc.Approach(alpha, 0f, Engine.DeltaTime * 4f);
-                    sprite.Color = Color.White * alpha;
-                }
-                sprite.Rotation += spin * Calc.ClampedMap(Math.Abs(speed.Y), 50f, 150f) * Engine.DeltaTime;
-            }
-
-            public void StopMoving() {
-                Collidable = false;
-            }
-
-            public void StartShaking() {
-                shaking = true;
-            }
-
-            public void ReturnHome(float duration) {
-                if (base.Scene != null) {
-                    Camera camera = (base.Scene as Level).Camera;
-                    if (base.X < camera.X) {
-                        base.X = camera.X - 8f;
-                    }
-                    if (base.Y < camera.Y) {
-                        base.Y = camera.Y - 8f;
-                    }
-                    if (base.X > camera.X + 320f) {
-                        base.X = camera.X + 320f + 8f;
-                    }
-                    if (base.Y > camera.Y + 180f) {
-                        base.Y = camera.Y + 180f + 8f;
-                    }
-                }
-                returning = true;
-                returnEase = 0f;
-                returnDuration = duration;
-                Vector2 vector = (home - Position).SafeNormalize();
-                Vector2 control = (Position + home) / 2f + new Vector2(vector.Y, 0f - vector.X) * (Calc.Random.NextFloat(16f) + 16f) * Calc.Random.Facing();
-                returnCurve = new SimpleCurve(Position, home, control);
-            }
-        }
-
         // Custom Border Entity
         private class Border : Entity {
             public ConnectedMoveBlock Parent;
@@ -325,13 +191,13 @@ namespace Celeste.Mod.CommunalHelper {
                 StopPlayerRunIntoAnimation = true;
                 yield return 0.2f;
                 BreakParticles();
-                List<Debris> debris = new List<Debris>();
+                List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
                 for (int i = 0; (float) i < Width; i += 8) {
                     for (int j = 0; (float) j < Height; j += 8) {
                         Vector2 value = new Vector2((float) i + 4f, (float) j + 4f);
                         Vector2 pos = value + Position + GroupOffset;
                         if (CollidePoint(pos)) {
-                            Debris debris2 = Engine.Pooler.Create<Debris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
+                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
                             debris.Add(debris2);
                             Scene.Add(debris2);
                         }
@@ -342,7 +208,7 @@ namespace Celeste.Mod.CommunalHelper {
                 Position = startPosition;
                 Visible = (Collidable = false);
                 yield return 2.2f;
-                foreach (Debris item in debris) {
+                foreach (MoveBlockDebris item in debris) {
                     item.StopMoving();
                 }
                 while (CollideCheck<Actor>() || CollideCheck<Solid>()) {
@@ -353,16 +219,16 @@ namespace Celeste.Mod.CommunalHelper {
                 Coroutine component;
                 Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(instance, debris));
                 Add(component);
-                foreach (Debris item2 in debris) {
+                foreach (MoveBlockDebris item2 in debris) {
                     item2.StartShaking();
                 }
                 yield return 0.2f;
-                foreach (Debris item3 in debris) {
+                foreach (MoveBlockDebris item3 in debris) {
                     item3.ReturnHome(0.65f);
                 }
                 yield return 0.6f;
                 routine.RemoveSelf();
-                foreach (Debris item4 in debris) {
+                foreach (MoveBlockDebris item4 in debris) {
                     item4.RemoveSelf();
                 }
                 Audio.Play("event:/game/04_cliffside/arrowblock_reappear", Position);
@@ -377,14 +243,14 @@ namespace Celeste.Mod.CommunalHelper {
             }
         }
 
-        private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<Debris> debris) {
+        private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris) {
             while (true) {
                 instance.getPlaybackState(out PLAYBACK_STATE pLAYBACK_STATE);
                 if (pLAYBACK_STATE == PLAYBACK_STATE.STOPPED) {
                     break;
                 }
                 Vector2 zero = Vector2.Zero;
-                foreach (Debris debri in debris) {
+                foreach (MoveBlockDebris debri in debris) {
                     zero += debri.Position;
                 }
                 zero /= (float) debris.Count;

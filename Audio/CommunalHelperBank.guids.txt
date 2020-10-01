@@ -26,4 +26,7 @@
 {713b4c05-56c3-4d8b-ab46-e5d1f5e08014} event:/CommunalHelperEvents/game/redirectMoveBlock/arrowblock_move
 {f25c9f4e-bda1-44d4-911e-5813f8c94187} event:/CommunalHelperEvents/game/seedCrystalHeart/shard_collect
 {4b292127-06bb-4acb-a927-18571d19ca0d} event:/CommunalHelperEvents/game/seedCrystalHeart/collect_all_main
+{d1f1922a-3775-4a18-9e19-d92581355d3f} event:/CommunalHelperEvents/game/shieldedRefill/diamond_return
+{8f721410-399c-4943-b780-0218ebabea14} event:/CommunalHelperEvents/game/shieldedRefill/diamondbubble_pop
+{065a8ad7-9307-4d5e-9e3a-6c647e721190} event:/CommunalHelperEvents/game/shieldedRefill/pinkdiamond_return
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank
