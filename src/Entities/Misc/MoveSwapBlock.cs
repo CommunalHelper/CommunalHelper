@@ -1,13 +1,20 @@
 ﻿using Celeste.Mod.Entities;
 using FMOD.Studio;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
+/*
+ * TODO: 
+ * Add custom debris textures
+ * Custom Path texture?
+ */
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(SwapBlock))]
     [CustomEntity("CommunalHelper/MoveSwapBlock")]
@@ -18,93 +25,124 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static MethodInfo m_SwapBlock_MoveParticles = typeof(SwapBlock).GetMethod("MoveParticles", BindingFlags.NonPublic | BindingFlags.Instance);
 
         private Vector2 start;
-        private Vector2 difference;
         private Vector2 end;
-        private float lerp;
-        private int target;
-        private Rectangle moveRect;
-        private float speed;
+        private Vector2 difference;
+
+        private bool doesReturn;
+        private bool freezeOnSwap;
+
         private float maxForwardSpeed;
-        //returnTimer removed because of ToggleSwap function
-        private float redAlpha = 1f;
+
+        private readonly Rectangle startingRect;
+
         private Sprite middleGreen;
         private Sprite middleRed;
-        private DisplacementRenderer.Burst burst;
+        private Image middleOrange;
+
+        private Image middleArrow;
+        private MTexture middleCardinal;
+        private MTexture middleDiagonal;
+
+        private Entity path;
 
         #endregion
 
         #region MoveBlock properties
 
-        private enum MovementState {
-            Idling,
-            Moving,
-            Breaking
-        }
-
         private const float Accel = 300f;
         private const float MoveSpeed = 60f;
-        private const float FastMoveSpeed = 75f;
         private const float SteerSpeed = Calc.Circle * 8f;
         private const float MaxAngle = Calc.EighthCircle;
         private const float NoSteerTime = 0.2f;
         private const float CrashTime = 0.15f;
         private const float CrashResetTime = 0.1f;
 
+        public enum MovementState {
+            Idling,
+            Moving,
+            Breaking
+        }
+
+        public bool Triggered { get; set; }
+
+        public MovementState State { get; protected set; }
+        public MoveBlock.Directions MoveDirection { get; protected set; }
+
         private bool canSteer;
-        private MoveBlock.Directions direction;
-        private float homeAngle;
-        private int angleSteerSign;
-        private Vector2 startPosition;
-        private MovementState state;
-        private float moveSpeed;
-        private float targetMoveSpeed;
+
         private float angle;
         private float targetAngle;
+        private float homeAngle;
+        private int angleSteerSign;
+
+        private Vector2 startPosition;
+
+        private float moveSpeed;
+        private float targetMoveSpeed;
+
+        private bool moveSwapPoints;
         private Player noSquish;
+
+        private bool leftPressed;
+        private bool rightPressed;
+        private bool topPressed;
         private List<Image> topButton = new List<Image>();
         private List<Image> leftButton = new List<Image>();
         private List<Image> rightButton = new List<Image>();
-        private List<MTexture> arrows = new List<MTexture>();
-        private MoveBlockBorder border;
-        private Color fillColor = Calc.HexToColor("4baaca");
+
         private SoundSource moveBlockSfx;
-        private bool triggered;
-        private Color idleBgFill = Calc.HexToColor("4baaca");
-        private Color pressedBgFill = Calc.HexToColor("30b335");
-        private Color breakingBgFill = Calc.HexToColor("cc2541");
-        private float particleRemainder_Move;
+
+        private float particleRemainder;
 
         #endregion
 
-        DynData<SwapBlock> swapBlockData;
+        protected DynData<SwapBlock> swapBlockData;
 
-        /* This is my jank workaround for not having to hook another thing in. If we just use SwapBlock but remove all of its functionality that is
-         * public, we can just replace all of the public code with our own, and anything public is accessible to us as well as the player, so we
-         * can just copy the code into this subclass and it should work identically. */
-        public MoveSwapBlock(EntityData data, Vector2 offset) 
-            : base(data, offset) {
+        public MoveSwapBlock(EntityData data, Vector2 offset)
+            : base(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, Themes.Normal) {
             swapBlockData = new DynData<SwapBlock>(this);
+            Theme = Themes.Moon; // base() gets Normal for the block texture, then we set to Moon to remove the path background
 
-            // Store private SwapBlock variables (that should not be modified) locally
-            middleRed = swapBlockData.Get<Sprite>("middleRed");
-            middleGreen = swapBlockData.Get<Sprite>("middleGreen");
+            doesReturn = data.Bool("returns", true);
+            freezeOnSwap = data.Bool("freezeOnSwap", true);
 
-            // Replaces SwapBlock.OnDash with MoveSwapBlock.OnDash
-            Get<DashListener>().OnDash = OnDash;
+            // Replaces SwapBlock.OnDash with MoveSwapBlock.OnDash if this block doesn't return
+            DashListener listener = Get<DashListener>();
+            Action<Vector2> orig_OnDash = listener.OnDash;
+            listener.OnDash = (dir) => { 
+                if (State == MovementState.Breaking) return; 
+                else if (doesReturn) orig_OnDash(dir); 
+                else OnDash(dir); 
+            };
 
-            //Addition of SwapBlock properties.
+            // We use some local variable to temporarily store private SwapBlock fields for less reflection
             start = Position;
             end = data.Nodes[0] + offset;
             difference = end - start;
 
-            moveRect = swapBlockData.Get<Rectangle>("moveRect");
+            // Structs are value types
+            startingRect = swapBlockData.Get<Rectangle>("moveRect");
 
-            maxForwardSpeed = 360f * data.Float("SwapSpeedMult", 1f) / Vector2.Distance(start, end);
+            swapBlockData["maxForwardSpeed"] = maxForwardSpeed = 360f * data.Float("SwapSpeedMult", 1f) / Vector2.Distance(start, end);
             startPosition = Position;
 
-            direction = data.Enum("direction", MoveBlock.Directions.Left);
-            canSteer = data.Bool("canSteer", defaultValue: true);
-            switch (direction) {
+            // Replace/Add SwapBlock textures
+            middleCardinal = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockCardinal"];
+            middleDiagonal = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockDiagonal"];
+            Add(middleArrow = new Image(middleCardinal));
+            middleArrow.CenterOrigin();
+
+            Remove(swapBlockData.Get<Sprite>("middleGreen"), swapBlockData.Get<Sprite>("middleRed"));
+            swapBlockData["middleGreen"] = middleGreen = CommunalHelperModule.SpriteBank.Create("swapBlockLight");
+            swapBlockData["middleRed"] = middleRed = CommunalHelperModule.SpriteBank.Create("swapBlockLightRed");
+            Add(middleGreen, middleRed);
+
+            Add(middleOrange = new Image(GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockOrange"]));
+            middleOrange.CenterOrigin();
+
+            canSteer = data.Bool("canSteer", false);
+            MoveDirection = data.Enum("direction", MoveBlock.Directions.Left);
+            switch (MoveDirection) {
                 default:
                     homeAngle = (targetAngle = (angle = 0f));
                     angleSteerSign = 1;
@@ -125,120 +163,104 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             int tilesX = (int) Width / 8;
             int tilesY = (int) Height / 8;
-            MTexture baseTexture = GFX.Game["objects/moveBlock/base"];
             MTexture buttonTexture = GFX.Game["objects/moveBlock/button"];
-            if (canSteer && (direction == MoveBlock.Directions.Left || direction == MoveBlock.Directions.Right)) {
+            MTexture buttonPressedTexture = GFX.Game["objects/CommunalHelper/moveSwapBlock/buttonPressed"];
+            if (canSteer && (MoveDirection == MoveBlock.Directions.Left || MoveDirection == MoveBlock.Directions.Right)) {
                 for (int x = 0; x < tilesX; x++) {
                     int offsetX = (x != 0) ? ((x < tilesX - 1) ? 1 : 2) : 0;
                     AddImage(buttonTexture.GetSubtexture(offsetX * 8, 0, 8, 8), new Vector2(x * 8, -4f), 0f, new Vector2(1f, 1f), topButton);
+                    AddImage(buttonPressedTexture.GetSubtexture(offsetX * 8, 0, 8, 8), new Vector2(x * 8, -4f), 0f, new Vector2(1f, 1f), topButton);
                 }
-                baseTexture = GFX.Game["objects/moveBlock/base_h"];
-            } else if (canSteer && (direction == MoveBlock.Directions.Up || direction == MoveBlock.Directions.Down)) {
+            } else if (canSteer && (MoveDirection == MoveBlock.Directions.Up || MoveDirection == MoveBlock.Directions.Down)) {
                 for (int y = 0; y < tilesY; y++) {
                     int offsetY = (y != 0) ? ((y < tilesY - 1) ? 1 : 2) : 0;
                     AddImage(buttonTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(-4f, y * 8), (float) Math.PI / 2f, new Vector2(1f, -1f), leftButton);
+                    AddImage(buttonPressedTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(-4f, y * 8), (float) Math.PI / 2f, new Vector2(1f, -1f), leftButton);
                     AddImage(buttonTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2((tilesX - 1) * 8 + 4, y * 8), (float) Math.PI / 2f, new Vector2(1f, 1f), rightButton);
+                    AddImage(buttonPressedTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2((tilesX - 1) * 8 + 4, y * 8), (float) Math.PI / 2f, new Vector2(1f, 1f), rightButton);
                 }
-                baseTexture = GFX.Game["objects/moveBlock/base_v"];
             }
-            arrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/moveSwapBlock/arrow");
+            UpdateColors();
+
             Add(moveBlockSfx = new SoundSource());
             Add(new Coroutine(Controller()));
-
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            scene.Add(border = new MoveBlockBorder(this));
+            path = swapBlockData.Get<Entity>("path");
         }
 
-        public override void Update() {
-            //calls Solid.Update(), we want to completely skip SwapBlock.Update and use our own
-            var ptr = typeof(Solid).GetMethod("Update").MethodHandle.GetFunctionPointer();
-            var baseUpdate = (Action) Activator.CreateInstance(typeof(Action), this, ptr);
-            baseUpdate();
-
-            if (state != MovementState.Breaking) {
-                //Default SwapBlock.Update() code, we need this here as we are modifying the variables to be private in this class.
-                if (burst != null) {
-                    burst.Position = Center;
-                }
-                redAlpha = Calc.Approach(redAlpha, (target != 1) ? 1 : 0, Engine.DeltaTime * 32f);
-                if (target == 0 && lerp == 0f) {
-                    middleRed.SetAnimationFrame(0);
-                    middleGreen.SetAnimationFrame(0);
-                }
-                speed = Calc.Approach(speed, maxForwardSpeed, maxForwardSpeed / 0.2f * Engine.DeltaTime);
-                Direction = difference * (target == 0 && Swapping ? -1 : 1);
-                float num = lerp;
-                lerp = Calc.Approach(lerp, target, speed * Engine.DeltaTime);
-                if (lerp == num) {
-                    start = target == 1 ? Position - difference : Position;
-                    end = target == 0 ? Position + difference : Position;
-                    moveRect.X = (int) Math.Min(start.X, end.X);
-                    moveRect.Y = (int) Math.Min(start.Y, end.Y);
-                } else {
-
-                    Vector2 liftSpeed = difference * maxForwardSpeed;
-                    Vector2 position = Position;
-                    if (lerp < num) {
-                        liftSpeed *= -1f;
-                    }
-                    if (target == 1 && Scene.OnInterval(0.02f)) {
-                        MoveParticles(difference);
-                    }
-
-                    MoveTo(Vector2.Lerp(start, end, lerp), liftSpeed);
-                    if (position != Position) {
-                        Audio.Position(swapBlockData.Get<EventInstance>("moveSfx"), Center);
-                        EventInstance returnSfx = swapBlockData.Get<EventInstance>("returnSfx");
-                        Audio.Position(returnSfx, Center);
-                        if (Position == start && target == 0) {
-                            Audio.SetParameter(returnSfx, "end", 1f);
-                            Audio.Play(SFX.game_05_swapblock_return_end, Center);
-                        } else if (Position == end && target == 1) {
-                            Audio.Play(SFX.game_05_swapblock_move_end, Center);
-                        }
-                    }
-                }
-                if (Swapping && (lerp >= 1f || lerp <= 0f)) {
-                    Swapping = false;
-                }
-                StopPlayerRunIntoAnimation = (lerp <= 0f || lerp >= 1f);
-            } else {
-                target = 0;
-                lerp = 0;
-                Add(new Coroutine(DelayReturnPosition()));
+        // Called via IL Delegate
+        public new void Update() {
+            DisplacementRenderer.Burst burst = swapBlockData.Get<DisplacementRenderer.Burst>("burst");
+            if (burst != null) {
+                burst.Position = Center;
             }
+
+            int target = swapBlockData.Get<int>("target");
+            swapBlockData["redAlpha"] = Calc.Approach(swapBlockData.Get<float>("redAlpha"), (target != 1) ? 1 : 0, Engine.DeltaTime * 32f);
+
+            float lerp = swapBlockData.Get<float>("lerp");
+            if (lerp == 0f || lerp == 1f) {
+                middleRed.SetAnimationFrame(0);
+                middleGreen.SetAnimationFrame(0);
+            }
+
+            swapBlockData["speed"] = Calc.Approach(swapBlockData.Get<float>("speed"), maxForwardSpeed, maxForwardSpeed / 0.2f * Engine.DeltaTime);
+
+            Direction = difference * (target == 0 && Swapping ? -1 : 1);
+
+            float previousLerp = lerp;
+            swapBlockData["lerp"] = lerp = Calc.Approach(lerp, target, swapBlockData.Get<float>("speed") * Engine.DeltaTime);
+            if (lerp != previousLerp) {
+                Vector2 liftSpeed = difference * maxForwardSpeed;
+                Vector2 position = Position;
+                if (lerp < previousLerp) {
+                    liftSpeed *= -1f;
+                }
+                if (Scene.OnInterval(0.02f)) {
+                    MoveParticles(difference);
+                }
+
+                MoveTo(Vector2.Lerp(start, end, lerp), liftSpeed);
+
+                if (position != Position) {
+                    Audio.Position(swapBlockData.Get<EventInstance>("moveSfx"), Center);
+                    EventInstance returnSfx = swapBlockData.Get<EventInstance>("returnSfx");
+                    Audio.Position(returnSfx, Center);
+                    if (Position == start && target == 0) {
+                        Audio.SetParameter(returnSfx, "end", 1f);
+                        Audio.Play(SFX.game_05_swapblock_return_end, Center);
+                    } else if (Position == end && target == 1) {
+                        Audio.Play(SFX.game_05_swapblock_move_end, Center);
+                    }
+                }
+            }
+
+            if (Swapping && (lerp >= 1f || lerp <= 0f)) {
+                Swapping = false;
+            }
+            StopPlayerRunIntoAnimation = (lerp <= 0f || lerp >= 1f);
         }
 
-        private IEnumerator DelayReturnPosition() {
-            yield return 0.25f;
-            start = startPosition;
-            end = startPosition + difference;
-            Position = start;
-        }
-
-        private void OnDash(Vector2 direction) {
+        private void OnDash(Vector2 dir) {
+            float lerp = swapBlockData.Get<float>("lerp");
             Swapping = (lerp <= 1f && lerp >= 0f);
-            target ^= 1;
-            burst = (Scene as Level).Displacement.AddBurst(Center, 0.2f, 0f, 16f);
+            swapBlockData["target"] = swapBlockData.Get<int>("target") ^ 1;
+            swapBlockData["burst"] = (Scene as Level).Displacement.AddBurst(Center, 0.2f, 0f, 16f);
             if (lerp >= 0.2f) {
-                speed = maxForwardSpeed;
+                swapBlockData["speed"] = maxForwardSpeed;
             } else {
-                speed = MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, lerp / 0.2f);
+                swapBlockData["speed"] = MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, lerp / 0.2f);
             }
 
-            EventInstance returnSfx = swapBlockData.Get<EventInstance>("returnSfx");
-            EventInstance moveSfx = swapBlockData.Get<EventInstance>("moveSfx");
-            Audio.Stop(returnSfx);
-            Audio.Stop(moveSfx);
+            Audio.Stop(swapBlockData.Get<EventInstance>("returnSfx"));
+            Audio.Stop(swapBlockData.Get<EventInstance>("moveSfx"));
             if (!Swapping)
                 swapBlockData["returnSfx"] = Audio.Play(SFX.game_05_swapblock_move_end, Center);
             else
                 swapBlockData["moveSfx"] = Audio.Play(SFX.game_05_swapblock_move, Center);
-            
-
         }
 
         private void MoveParticles(Vector2 normal) =>
@@ -247,16 +269,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         #region MoveBlock Methods
 
         private IEnumerator Controller() {
-
             while (true) {
-                triggered = false;
-                state = MovementState.Idling;
-                while (!triggered && !HasPlayerRider()) {
+                // Defined here because reasons
+                Rectangle moveRect;
+
+                Triggered = false;
+                State = MovementState.Idling;
+                while (!Triggered && !HasPlayerRider()) {
                     yield return null;
                 }
 
                 Audio.Play(SFX.game_04_arrowblock_activate, Position);
-                state = MovementState.Moving;
+                State = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
                 yield return 0.2f;
@@ -269,90 +293,106 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float crashResetTimer = CrashResetTime;
                 float noSteerTimer = NoSteerTime;
                 while (true) {
-                    if (canSteer) {
-                        targetAngle = homeAngle;
-                        bool hasPlayer = (direction != MoveBlock.Directions.Right && direction != 0) ? HasPlayerClimbing() : HasPlayerOnTop();
-                        if (hasPlayer && noSteerTimer > 0f) {
-                            noSteerTimer -= Engine.DeltaTime;
+                    if (!Swapping || !freezeOnSwap) {
+                        if (canSteer) {
+                            targetAngle = homeAngle;
+                            bool hasPlayer = (MoveDirection != MoveBlock.Directions.Right && MoveDirection != 0) ? HasPlayerClimbing() : HasPlayerOnTop();
+                            if (hasPlayer && noSteerTimer > 0f) {
+                                noSteerTimer -= Engine.DeltaTime;
+                            }
+                            if (hasPlayer) {
+                                if (noSteerTimer <= 0f) {
+                                    if (MoveDirection == MoveBlock.Directions.Right || MoveDirection == MoveBlock.Directions.Left) {
+                                        targetAngle = homeAngle + MaxAngle * angleSteerSign * Input.MoveY.Value;
+                                    } else {
+                                        targetAngle = homeAngle + MaxAngle * angleSteerSign * Input.MoveX.Value;
+                                    }
+                                }
+                            } else {
+                                noSteerTimer = 0.2f;
+                            }
                         }
-                        if (hasPlayer) {
-                            if (noSteerTimer <= 0f) {
-                                if (direction == MoveBlock.Directions.Right || direction == MoveBlock.Directions.Left) {
-                                    targetAngle = homeAngle + MaxAngle * angleSteerSign * Input.MoveY.Value;
-                                } else {
-                                    targetAngle = homeAngle + MaxAngle * angleSteerSign * Input.MoveX.Value;
+
+                        if (Scene.OnInterval(0.02f)) {
+                            MoveParticles();
+                        }
+
+                        moveSpeed = Calc.Approach(moveSpeed, targetMoveSpeed, Accel * Engine.DeltaTime);
+                        angle = Calc.Approach(angle, targetAngle, SteerSpeed * Engine.DeltaTime);
+
+                        Vector2 vector = Calc.AngleToVector(angle, moveSpeed) * Engine.DeltaTime;
+                        bool shouldBreak;
+                        moveSwapPoints = true; // Tells MoveExact to move start and end points too
+                        if (MoveDirection == MoveBlock.Directions.Right || MoveDirection == MoveBlock.Directions.Left) {
+                            shouldBreak = MoveCheck(vector.XComp());
+
+                            noSquish = Scene.Tracker.GetEntity<Player>();
+                            MoveVCollideSolids(vector.Y, thruDashBlocks: false);
+                            noSquish = null;
+
+                            if (Scene.OnInterval(0.03f)) {
+                                if (vector.Y > 0f) {
+                                    ScrapeParticles(Vector2.UnitY);
+                                } else if (vector.Y < 0f) {
+                                    ScrapeParticles(-Vector2.UnitY);
                                 }
                             }
                         } else {
-                            noSteerTimer = 0.2f;
-                        }
-                    }
+                            shouldBreak = MoveCheck(vector.YComp());
 
-                    if (Scene.OnInterval(0.02f)) {
-                        MoveParticles();
-                    }
+                            noSquish = Scene.Tracker.GetEntity<Player>();
+                            MoveHCollideSolids(vector.X, thruDashBlocks: false);
+                            noSquish = null;
 
-                    moveSpeed = Calc.Approach(moveSpeed, targetMoveSpeed, Accel * Engine.DeltaTime);
-                    angle = Calc.Approach(angle, targetAngle, SteerSpeed * Engine.DeltaTime);
-
-                    Vector2 vector = Calc.AngleToVector(angle, moveSpeed) * Engine.DeltaTime;
-                    bool shouldBreak;
-                    if (direction == MoveBlock.Directions.Right || direction == MoveBlock.Directions.Left) {
-                        shouldBreak = MoveCheck(vector.XComp());
-
-                        noSquish = Scene.Tracker.GetEntity<Player>();
-                        MoveVCollideSolids(vector.Y, thruDashBlocks: false);
-                        noSquish = null;
-                        if (Scene.OnInterval(0.03f)) {
-                            if (vector.Y > 0f) {
-                                ScrapeParticles(Vector2.UnitY);
-                            } else if (vector.Y < 0f) {
-                                ScrapeParticles(-Vector2.UnitY);
+                            if (Scene.OnInterval(0.03f)) {
+                                if (vector.X > 0f) {
+                                    ScrapeParticles(Vector2.UnitX);
+                                } else if (vector.X < 0f) {
+                                    ScrapeParticles(-Vector2.UnitX);
+                                }
+                            }
+                            if (MoveDirection == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
+                                shouldBreak = true;
                             }
                         }
-                    } else {
-                        shouldBreak = MoveCheck(vector.YComp());
-                        noSquish = Scene.Tracker.GetEntity<Player>();
-                        MoveHCollideSolids(vector.X, thruDashBlocks: false);
-                        noSquish = null;
-                        if (Scene.OnInterval(0.03f)) {
-                            if (vector.X > 0f) {
-                                ScrapeParticles(Vector2.UnitX);
-                            } else if (vector.X < 0f) {
-                                ScrapeParticles(-Vector2.UnitX);
+                        moveSwapPoints = false;
+
+                        // Structs are value types, not reference types, so we have to copy it back and forth
+                        moveRect = swapBlockData.Get<Rectangle>("moveRect");
+                        moveRect.X = (int) Math.Min(start.X, end.X);
+                        moveRect.Y = (int) Math.Min(start.Y, end.Y);
+                        swapBlockData["moveRect"] = moveRect;
+
+                        swapBlockData["start"] = start;
+                        swapBlockData["end"] = end;
+
+                        if (shouldBreak) {
+                            moveBlockSfx.Param("arrow_stop", 1f);
+                            crashResetTimer = 0.1f;
+                            if (!(crashTimer > 0f)) {
+                                break;
+                            }
+                            crashTimer -= Engine.DeltaTime;
+                        } else {
+                            moveBlockSfx.Param("arrow_stop", 0f);
+                            if (crashResetTimer > 0f) {
+                                crashResetTimer -= Engine.DeltaTime;
+                            } else {
+                                crashTimer = 0.15f;
                             }
                         }
-                        if (direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
-                            shouldBreak = true;
-                        }
-                    }
 
-                    if (shouldBreak) {
-                        moveBlockSfx.Param("arrow_stop", 1f);
-                        crashResetTimer = 0.1f;
-                        if (!(crashTimer > 0f)) {
+                        Level level = Scene as Level;
+                        if (Left < level.Bounds.Left || Top < level.Bounds.Top || Right > level.Bounds.Right) {
                             break;
                         }
-                        crashTimer -= Engine.DeltaTime;
-                    } else {
-                        moveBlockSfx.Param("arrow_stop", 0f);
-                        if (crashResetTimer > 0f) {
-                            crashResetTimer -= Engine.DeltaTime;
-                        } else {
-                            crashTimer = 0.15f;
-                        }
-                    }
-
-                    Level level = Scene as Level;
-                    if (Left < level.Bounds.Left || Top < level.Bounds.Top || Right > level.Bounds.Right) {
-                        break;
                     }
                     yield return null;
                 }
 
                 Audio.Play(SFX.game_04_arrowblock_break, Position);
                 moveBlockSfx.Stop();
-                state = MovementState.Breaking;
+                State = MovementState.Breaking;
                 moveSpeed = (targetMoveSpeed = 0f);
                 angle = (targetAngle = homeAngle);
 
@@ -374,9 +414,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 MoveStaticMovers(startPosition - Position);
                 DisableStaticMovers();
 
-                moveRect.X = (int) startPosition.X;
-                moveRect.Y = (int) startPosition.Y;
-                Visible = (Collidable = false);
+                // Reset everything
+                swapBlockData["moveRect"] = startingRect;
+
+                swapBlockData["start"] = start = startPosition;
+                swapBlockData["end"] = end = startPosition + difference;
+                Position = startPosition;
+
+                Audio.Stop(swapBlockData.Get<EventInstance>("returnSfx"));
+                Audio.Stop(swapBlockData.Get<EventInstance>("moveSfx"));
+
+                Visible = Collidable = path.Visible = false;
                 yield return 2.2f;
 
                 foreach (MoveBlockDebris debris in debrisList) {
@@ -406,14 +454,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     debris.RemoveSelf();
                 }
 
+                swapBlockData["target"] = 0;
+                swapBlockData["lerp"] = 0f;
+                swapBlockData["returnTimer"] = 0f;
+                swapBlockData["speed"] = 0f;
+                Swapping = false;
+
                 Audio.Play(SFX.game_04_arrowblock_reappear, Position);
-                Visible = true;
+                Visible = path.Visible = true;
                 EnableStaticMovers();
                 moveSpeed = (targetMoveSpeed = 0f);
                 angle = (targetAngle = homeAngle);
                 noSquish = null;
-                fillColor = Calc.HexToColor("4baaca");
-                UpdateColors();
             }
         }
 
@@ -434,26 +486,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        public override void OnStaticMoverTrigger(StaticMover sm) {
-            triggered = true;
-        }
+        public override void OnStaticMoverTrigger(StaticMover sm) =>
+            Triggered = true;
 
         private void UpdateColors() {
-            Color value = Calc.HexToColor("7f92a3");
-            if (state == MovementState.Moving) {
-                value = Calc.HexToColor("7f92a3");
-            } else if (state == MovementState.Breaking) {
-                value = Calc.HexToColor("3c244a");
+            Color color = Calc.HexToColor("6f98a6");
+            if (State == MovementState.Moving) {
+                color = Calc.HexToColor("ff7e12");
+            } else if (State == MovementState.Breaking) {
+                color = Calc.HexToColor("794a94");
             }
-            fillColor = Calc.HexToColor("6f98a6");
             foreach (Image item in topButton) {
-                item.Color = fillColor;
+                item.Color = color;
             }
             foreach (Image item in leftButton) {
-                item.Color = fillColor;
+                item.Color = color;
             }
             foreach (Image item in rightButton) {
-                item.Color = fillColor;
+                item.Color = color;
             }
         }
 
@@ -468,7 +518,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void ActivateParticles() {
-            bool vertical = direction == MoveBlock.Directions.Down || direction == MoveBlock.Directions.Up;
+            bool vertical = MoveDirection == MoveBlock.Directions.Down || MoveDirection == MoveBlock.Directions.Up;
             bool left = (!canSteer || !vertical) && !CollideCheck<Player>(Position - Vector2.UnitX);
             bool right = (!canSteer || !vertical) && !CollideCheck<Player>(Position + Vector2.UnitX);
             bool top = (!canSteer | vertical) && !CollideCheck<Player>(Position - Vector2.UnitY);
@@ -498,39 +548,41 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 position;
             Vector2 positionRange;
             float angle;
-            float num2;
-            if (direction == MoveBlock.Directions.Right) {
+            float particleNum;
+            if (MoveDirection == MoveBlock.Directions.Right) {
                 position = CenterLeft + Vector2.UnitX;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 angle = (float) Math.PI;
-                num2 = Height / 32f;
-            } else if (direction == MoveBlock.Directions.Left) {
+                particleNum = Height / 32f;
+            } else if (MoveDirection == MoveBlock.Directions.Left) {
                 position = CenterRight;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 angle = 0f;
-                num2 = Height / 32f;
-            } else if (direction == MoveBlock.Directions.Down) {
+                particleNum = Height / 32f;
+            } else if (MoveDirection == MoveBlock.Directions.Down) {
                 position = TopCenter + Vector2.UnitY;
                 positionRange = Vector2.UnitX * (Width - 4f);
                 angle = -(float) Math.PI / 2f;
-                num2 = Width / 32f;
+                particleNum = Width / 32f;
             } else {
                 position = BottomCenter;
                 positionRange = Vector2.UnitX * (Width - 4f);
                 angle = (float) Math.PI / 2f;
-                num2 = Width / 32f;
+                particleNum = Width / 32f;
             }
-            particleRemainder_Move += num2;
-            int num3 = (int) particleRemainder_Move;
-            particleRemainder_Move -= num3;
+
+            particleRemainder += particleNum;
+            int particleNumTruncated = (int) particleRemainder;
+            particleRemainder -= particleNumTruncated;
+
             positionRange *= 0.5f;
-            if (num3 > 0) {
-                SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Move, num3, position, positionRange, angle);
+            if (particleNumTruncated > 0) {
+                SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Move, particleNumTruncated, position, positionRange, angle);
             }
         }
 
         private void ScrapeParticles(Vector2 dir) {
-            _ = Collidable;
+            bool collidable = Collidable;
             Collidable = false;
             if (dir.X != 0f) {
                 float x = (!(dir.X > 0f)) ? (Left - 1f) : Right;
@@ -549,7 +601,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
             }
-            Collidable = true;
+            Collidable = collidable;
         }
 
         public override void MoveHExact(int move) {
@@ -558,7 +610,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     move -= Math.Sign(move);
                 }
             }
+
             base.MoveHExact(move);
+
+            if (moveSwapPoints) {
+                start.X += move;
+                end.X += move;
+            }
         }
 
         public override void MoveVExact(int move) {
@@ -567,17 +625,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     move -= Math.Sign(move);
                 }
             }
+
             base.MoveVExact(move);
+
+            if (moveSwapPoints) {
+                start.Y += move;
+                end.Y += move;
+            }
         }
 
         private bool MoveCheck(Vector2 speed) {
             if (speed.X != 0f) {
                 if (MoveHCollideSolids(speed.X, thruDashBlocks: false)) {
-                    for (int i = 1; i <= 3; i++) {
-                        for (int num = 1; num >= -1; num -= 2) {
-                            Vector2 value = new Vector2(Math.Sign(speed.X), i * num);
+                    for (int offsetY = 1; offsetY <= 3; offsetY++) {
+                        for (int sign = 1; sign >= -1; sign -= 2) {
+                            Vector2 value = new Vector2(Math.Sign(speed.X), offsetY * sign);
                             if (!(CollideCheck<Solid>(Position) || CollideCheck<Solid>(Position + value))) {
-                                MoveVExact(i * num);
+                                MoveVExact(offsetY * sign);
                                 MoveHExact(Math.Sign(speed.X));
                                 return false;
 
@@ -588,11 +652,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             } else if (speed.Y != 0f) {
                 if (MoveVCollideSolids(speed.Y, thruDashBlocks: false)) {
-                    for (int j = 1; j <= 3; j++) {
-                        for (int num2 = 1; num2 >= -1; num2 -= 2) {
-                            Vector2 value2 = new Vector2(j * num2, Math.Sign(speed.Y));
+                    for (int offsetX = 1; offsetX <= 3; offsetX++) {
+                        for (int sign = 1; sign >= -1; sign -= 2) {
+                            Vector2 value2 = new Vector2(offsetX * sign, Math.Sign(speed.Y));
                             if (!CollideCheck<Solid>(Position + value2)) {
-                                MoveHExact(j * num2);
+                                MoveHExact(offsetX * sign);
                                 MoveVExact(Math.Sign(speed.Y));
                                 return false;
                             }
@@ -609,33 +673,128 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         #region Hooks
 
         internal static void Load() {
+            IL.Celeste.SwapBlock.Update += SwapBlock_Update;
+            On.Celeste.SwapBlock.Update += SwapBlock_Update;
             On.Celeste.SwapBlock.Render += SwapBlock_Render;
+            On.Celeste.SwapBlock.DrawBlockStyle += SwapBlock_DrawBlockStyle;
         }
 
         internal static void Unload() {
+            IL.Celeste.SwapBlock.Update -= SwapBlock_Update;
+            On.Celeste.SwapBlock.Update -= SwapBlock_Update;
             On.Celeste.SwapBlock.Render -= SwapBlock_Render;
+            On.Celeste.SwapBlock.DrawBlockStyle -= SwapBlock_DrawBlockStyle;
         }
 
-        private static void SwapBlock_Render(On.Celeste.SwapBlock.orig_Render orig, SwapBlock self) {
+        // Call MoveSwapBlock.Update instead of SwapBlock.Update
+        private static void SwapBlock_Update(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+
+            // Move after the base.Update call
+            cursor.GotoNext(MoveType.After, instr => instr.MatchCall<Solid>("Update"));
+
+            // Load "this" onto the stack and emit a delegate that takes it and returns a bool
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<SwapBlock, bool>>(entity => {
+                if (entity is MoveSwapBlock block) {
+                    if (block.State == MovementState.Breaking)
+                        return true;
+
+                    if (!block.doesReturn) {
+                        block.Update();
+                        return true;
+                    }
+                }
+                return false;
+            });
+            // If the boolean is false, skip to the next vanilla instruction
+            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
+            // Else return (stop executing)
+            cursor.Emit(OpCodes.Ret);
+        }
+
+        // For updating the MoveBlock components
+        private static void SwapBlock_Update(On.Celeste.SwapBlock.orig_Update orig, SwapBlock self) {
             orig(self);
 
             if (self is MoveSwapBlock block) {
-                foreach (Image image in block.leftButton) {
-                    image.Render();
-                }
-                foreach (Image image in block.rightButton) {
-                    image.Render();
-                }
-                foreach (Image image in block.topButton) {
-                    image.Render();
-                }
+                if (block.canSteer) {
+                    bool playerLeft = (block.MoveDirection == MoveBlock.Directions.Up || block.MoveDirection == MoveBlock.Directions.Down) && block.CollideCheck<Player>(block.Position + new Vector2(-1f, 0f));
+                    bool playerRight = (block.MoveDirection == MoveBlock.Directions.Up || block.MoveDirection == MoveBlock.Directions.Down) && block.CollideCheck<Player>(block.Position + new Vector2(1f, 0f));
+                    bool playerTop = (block.MoveDirection == MoveBlock.Directions.Left || block.MoveDirection == MoveBlock.Directions.Right) && block.CollideCheck<Player>(block.Position + new Vector2(0f, -1f));
 
-                if (block.state != MovementState.Breaking) {
-                    int value = (int) Math.Floor(block.angle / ((float) Math.PI * 2f) * 8f + 0.5f);
-                    block.arrows[Calc.Clamp(value, 0, 7)].DrawCentered(block.Center + new Vector2(1, 0), new Color(Color.Black, 0.25f));
-                    block.arrows[Calc.Clamp(value, 0, 7)].DrawCentered(block.Center, block.Swapping ? Color.LightGreen : (block.moveSpeed == 0 ? Color.Red : Color.Goldenrod));
+                    if ((playerLeft && !block.leftPressed) || (playerTop && !block.topPressed) || (playerRight && !block.rightPressed)) {
+                        Audio.Play(SFX.game_04_arrowblock_side_depress, block.Position);
+                    }
+                    if ((!playerLeft && block.leftPressed) || (!playerTop && block.topPressed) || (!playerRight && block.rightPressed)) {
+                        Audio.Play(SFX.game_04_arrowblock_side_release, block.Position);
+                    }
+                    block.leftPressed = playerLeft;
+                    block.rightPressed = playerRight;
+                    block.topPressed = playerTop;
+                }
+                block.UpdateColors();
+            }
+        }
+
+        // Other rendering is handled in the SwapBlock_DrawBlockStyle hook
+        private static void SwapBlock_Render(On.Celeste.SwapBlock.orig_Render orig, SwapBlock self) {
+            orig(self);
+            if (self is MoveSwapBlock block) {
+                for (int i = block.leftPressed ? 1 : 0; i < block.leftButton.Count; i += 2) {
+                    block.leftButton[i].Render();
+                }
+                for (int i = block.rightPressed ? 1 : 0; i < block.rightButton.Count; i += 2) {
+                    block.rightButton[i].Render();
+                }
+                for (int i = block.topPressed ? 1 : 0; i < block.topButton.Count; i += 2) {
+                    block.topButton[i].Render();
+                }
+            }
+        }
+
+        // Offsets for the "gem" in the center of the SwapBlock, based on the rotation of the arrow texture
+        private static Vector2[] middleOffsets = new Vector2[] {
+            -Vector2.UnitY,
+            new Vector2(1, -1),
+            Vector2.UnitX,
+            Vector2.One,
+            Vector2.UnitY,
+            new Vector2(-1, 1),
+            -Vector2.UnitX,
+            -Vector2.One,
+        };
+
+        private static void SwapBlock_DrawBlockStyle(On.Celeste.SwapBlock.orig_DrawBlockStyle orig, SwapBlock self, Vector2 pos, float width, float height, MTexture[,] ninSlice, Sprite middle, Color color) {
+            orig(self, pos, width, height, ninSlice, middle, color);
+
+            // DrawBlockStyle is also used by the SwapBlock PathRenderer, which just passes null to the middle argument
+            if (self is MoveSwapBlock block && middle != null) {
+                if (block.State != MovementState.Breaking) {
+                    // This can probably be cleaned up, but I haven't bothered to understand it
+                    int value = Calc.Clamp((int) Math.Floor((block.angle + Calc.QuarterCircle * 5) % Calc.Circle / Calc.Circle * 8f + 0.5f), 0, 7);
+
+                    Image middleImage = middle;
+                    if (block.State == MovementState.Moving && !block.Swapping && (block.Position == block.start || block.Position == block.end))
+                        middleImage = block.middleOrange;
+
+
+                    block.middleArrow.Texture = value % 2 == 0 ? block.middleCardinal : block.middleDiagonal;
+                    block.middleArrow.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
+                    block.middleArrow.Rotation = value / 2 * Calc.QuarterCircle;
+                    block.middleArrow.Render();
+
+                    middleImage.Color = color;
+                    middleImage.RenderPosition = pos + new Vector2(width / 2f, height / 2f) + middleOffsets[value];
+                    middleImage.Render();
                 } else {
-                    GFX.Game["objects/moveBlock/x"].DrawCentered(block.Center);
+                    block.middleArrow.Texture = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockCross"];
+                    block.middleArrow.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
+                    block.middleArrow.Render();
+
+                    middle.Color = Color.Black;
+                    middle.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
+                    middle.Render();
                 }
             }
         }

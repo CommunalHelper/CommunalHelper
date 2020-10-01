@@ -11,7 +11,7 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
-const sprite = "objects/CommunalHelper/entities/ghostIdle00.png"
+const sprite = "objects/CommunalHelper/resetStateCrystal/ghostIdle00.png"
 
 function Ahorn.selection(entity::ResetCrystal)
     x, y = Ahorn.position(entity)
