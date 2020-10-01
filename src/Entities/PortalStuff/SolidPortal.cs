@@ -45,7 +45,6 @@ namespace Celeste.Mod.CommunalHelper.Entities
 
         public bool AllowEntrance(SlicedCollider collider, Vector2 speed, out SinglePortal portal)
         {
-            // TODO: Choose nearest single portal solid is going towards.
             if(Portal1.CheckSolidAccess(collider, speed))
             {
                 portal = Portal1; return true;
@@ -62,51 +61,74 @@ namespace Celeste.Mod.CommunalHelper.Entities
         private static readonly Matrix FlipV = Matrix.CreateScale(1, -1, 0);
         private static readonly Matrix TurnRight = Matrix.CreateRotationZ((float)Math.PI / 2f);
         private static readonly Matrix TurnLeft = Matrix.CreateRotationZ((float)Math.PI / -2f);
+        private static readonly Matrix TurnHalf = Matrix.CreateRotationZ((float)Math.PI);
         private static readonly Matrix TurnRightFlipH = Matrix.Multiply(TurnRight, FlipH);
         private static readonly Matrix TurnLeftFlipV = Matrix.Multiply(TurnLeft, FlipV);
 
         // yeah......
-        public static Matrix GetPortalTransform(SinglePortal a, SinglePortal b)
+        public static void GetPortalTransform(SinglePortal a, SinglePortal b, out Matrix motionTransform, out Matrix graphicsTransform)
         {
-            if(a.Facing == b.OppositeFacing) return Matrix.Identity;
+            motionTransform = Matrix.Identity; graphicsTransform = Matrix.Identity;
+            if (a.Facing == b.OppositeFacing)
+                return;
 
-            if (a.Facing == b.Facing) return a.Horizontal ? FlipV : FlipH;
+            if (a.Facing == b.Facing) {
+                motionTransform = a.Horizontal ? FlipV : FlipH;
+                graphicsTransform = TurnHalf;
+                return;
+            }
 
             if (a.Facing == PortalFacings.Left)
             {
-                if (b.Facing == PortalFacings.Down)
-                    return TurnRightFlipH;
-                if (b.Facing == PortalFacings.Up)
-                    return TurnLeft;
+                if (b.Facing == PortalFacings.Down) {
+                    motionTransform = TurnRightFlipH;
+                    graphicsTransform = TurnRight;
+                }
+                if (b.Facing == PortalFacings.Up) {
+                    motionTransform = graphicsTransform = TurnLeft;
+                }
             }
             if (a.Facing == PortalFacings.Down)
             {
-                if (b.Facing == PortalFacings.Right)
-                    return TurnRight;
-                if (b.Facing == PortalFacings.Left)
-                    return TurnLeftFlipV;
+                if (b.Facing == PortalFacings.Right) {
+                    motionTransform = graphicsTransform = TurnRight;
+                }
+               
+                if (b.Facing == PortalFacings.Left) {
+                    motionTransform = TurnLeftFlipV;
+                    graphicsTransform = TurnLeft;
+                }
+               
             }
             if (a.Facing == PortalFacings.Right)
             {
-                if (b.Facing == PortalFacings.Down)
-                    return TurnLeft;
-                if (b.Facing == PortalFacings.Up)
-                    return TurnRightFlipH;
+                if (b.Facing == PortalFacings.Down) {
+                    motionTransform = graphicsTransform = TurnLeft;
+                }
+                
+                if (b.Facing == PortalFacings.Up) {
+                    motionTransform = TurnRightFlipH;
+                    graphicsTransform = TurnRight;
+                }
+
             }
             if (a.Facing == PortalFacings.Up)
             {
-                if (b.Facing == PortalFacings.Right)
-                    return TurnLeftFlipV;
-                if (b.Facing == PortalFacings.Left)
-                    return TurnRight;
+                if (b.Facing == PortalFacings.Right) {
+                    motionTransform = TurnLeftFlipV;
+                    graphicsTransform = TurnLeft;
+                }
+                if (b.Facing == PortalFacings.Left) {
+                    motionTransform = TurnRight;
+                    graphicsTransform = TurnRight;
+                }
+                
             }
-
-            return Matrix.Identity;
         }
     }
 
     [Tracked]
-    class SinglePortal : Solid
+    class SinglePortal : Entity
     {
         public PortalFacings Facing, OppositeFacing;
 
@@ -117,10 +139,10 @@ namespace Celeste.Mod.CommunalHelper.Entities
         public bool Horizontal = false;
         public int SliceOffset = 0;
 
-        public Matrix ToPartnerTransform;
+        public Matrix ToPartnerTransform, ToPartnerGraphicalTransform;
 
         public SinglePortal(Vector2 position, int width, int height, PortalFacings facing, SolidPortal parent)
-            : base(position, width, height, false)
+            : base(position)
         {
             Facing = facing;
             Parent = parent;
@@ -157,7 +179,9 @@ namespace Celeste.Mod.CommunalHelper.Entities
         public void SetPartner(SinglePortal partner)
         {
             Partner = partner;
-            ToPartnerTransform = SolidPortal.GetPortalTransform(this, partner);
+            SolidPortal.GetPortalTransform(this, partner, out Matrix motionTransform, out Matrix graphicsTransform);
+            ToPartnerTransform = motionTransform;
+            ToPartnerGraphicalTransform = graphicsTransform;
         }
 
         public bool ColliderBehindSelf(SlicedCollider collider, out float offset)
