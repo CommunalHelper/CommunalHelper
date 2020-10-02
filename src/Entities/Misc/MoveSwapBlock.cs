@@ -10,11 +10,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-/*
- * TODO: 
- * Add custom debris textures
- * Custom Path texture?
- */
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(SwapBlock))]
     [CustomEntity("CommunalHelper/MoveSwapBlock")]
@@ -97,6 +92,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         #endregion
 
         protected DynData<SwapBlock> swapBlockData;
+
+        private Chooser<MTexture> debrisTextures;
 
         public MoveSwapBlock(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, Themes.Normal) {
@@ -181,6 +178,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
             UpdateColors();
+
+            debrisTextures = new Chooser<MTexture>();
+            foreach (MTexture debris in GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/moveSwapBlock/debris"))
+                debrisTextures.Add(debris, 1);
+            debrisTextures.Add(GFX.Game["objects/CommunalHelper/moveSwapBlock/debrisRed00"], 0.3f);
+            debrisTextures.Add(GFX.Game["objects/CommunalHelper/moveSwapBlock/debrisGreen00"], 0.05f);
 
             Add(moveBlockSfx = new SoundSource());
             Add(new Coroutine(Controller()));
@@ -406,6 +409,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     for (int j = 0; j < Height; j += 8) {
                         Vector2 value = new Vector2(i + 4f, j + 4f);
                         MoveBlockDebris debris = Engine.Pooler.Create<MoveBlockDebris>().Init(Position + value, Center, startPosition + value);
+                        debris.Sprite.Texture = debrisTextures.Choose();
                         debrisList.Add(debris);
                         Scene.Add(debris);
                     }
