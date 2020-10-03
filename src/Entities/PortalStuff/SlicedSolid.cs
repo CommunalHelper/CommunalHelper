@@ -14,12 +14,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public List<SlicedCollider> Colliders = new List<SlicedCollider>();
         public SlicedCollider OriginalCollider;
 
+        public int OriginalWidth, OriginalHeight;
+
         public Vector2 FakePosition;
         private DynData<Platform> platformData;
         private DynData<Solid> solidData;
 
-        public SlicedSolid(Vector2 position, float width, float height, bool safe)
+        public SlicedSolid(Vector2 position, int width, int height, bool safe)
             : base(position, width, height, safe) {
+            OriginalWidth = width; OriginalHeight = height;
             FakePosition = Position;
             Collider = OriginalCollider = new SlicedCollider(width, height);
             platformData = new DynData<Platform>(this);
@@ -46,7 +49,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (!CurrentPortalStart.CheckSolidAccess(startCollider, MoveSpeed)) {
                     if (CurrentPortalStart.ColliderBehindSelf(startCollider, out float inDist)) {
                         // Exit Portal
-                        CurrentPortalStart.MoveSlicedPartToPartner(startCollider, OriginalCollider);
+                        CurrentPortalStart.MoveSlicedPartToPartner(startCollider, OriginalCollider, Vector2.Zero);
                         OriginalCollider = startCollider.CloneSize();
                         switch (CurrentPortalStart.Partner.Facing) {
                             default:
@@ -116,6 +119,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Update();
         }
 
+        public void MapTextureOnColliders(DynamicTexture dynTex) {
+            foreach (SlicedCollider collider in Colliders) {
+                Vector2 at = Position + collider.Position + collider.TransformedOrigin;
+                Rectangle clipRect = new Rectangle(
+                    (int) at.X,
+                    (int) at.Y,
+                    (int) collider.Width,
+                    (int) collider.Height);
+                dynTex.Render(at, collider.RenderOffset, collider.GraphicalTransform, clipRect);
+            }
+        }
+
         public override void Awake(Scene scene) {
             base.Awake(scene);
             GenerateNewColliders(Vector2.Zero);
@@ -131,17 +146,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void PortalTravel(SlicedCollider unsliced, SinglePortal portal, List<SlicedCollider> colliderList) {
-            int offsetX = 0, offsetY = 0;
+            int offsetX = 0, offsetY = 0, portalDistanceX = 0, portalDistanceY = 0;
             SlicedCollider sliced = portal.Horizontal ?
-                        SliceHorizontally(portal.Y + portal.SliceOffset, portal.Facing, unsliced, out offsetY) :
-                        SliceVertically(portal.X + portal.SliceOffset, portal.Facing, unsliced, out offsetX);
+                        SliceHorizontally(portal.Y + portal.SliceOffset, portal.Facing, unsliced, out offsetY, out portalDistanceY) :
+                        SliceVertically(portal.X + portal.SliceOffset, portal.Facing, unsliced, out offsetX, out portalDistanceX);
             if (sliced != null) {
                 if (CurrentPortalStart == null)
                     CurrentPortalStart = portal;
 
                 sliced.WorldPosition = unsliced.WorldPosition;
                 sliced.GraphicalTransform = Matrix.Multiply(unsliced.GraphicalTransform, portal.ToPartnerGraphicalTransform);
-                portal.MoveSlicedPartToPartner(sliced, OriginalCollider);
+                portal.MoveSlicedPartToPartner(sliced, OriginalCollider, Calc.Round(Vector2.Transform(new Vector2(portalDistanceX, portalDistanceY), portal.ToPartnerGraphicalTransform)));
 
                 // transformation
                 sliced.MoveSpeed = -portal.Partner.RequiredSpeed();
@@ -155,14 +170,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private SlicedCollider SliceHorizontally(float lineY, PortalFacings dir, SlicedCollider unsliced, out int worldYOffset) {
+        private SlicedCollider SliceHorizontally(float lineY, PortalFacings dir, SlicedCollider unsliced, out int worldYOffset, out int portalDistance) {
             worldYOffset = 0;
+            portalDistance = 0;
+            float worldYSlice = lineY;
             lineY -= unsliced.WorldPosition.Y - unsliced.Position.Y;
             if (lineY <= unsliced.Top || lineY >= unsliced.Bottom)
                 return null;
-            
+
+            float colliderOriginY = unsliced.TransformedOrigin.Y + unsliced.WorldPosition.Y;
+            portalDistance = (int) (worldYSlice - colliderOriginY - unsliced.RenderOffset.Y);
+
             SlicedCollider result;
             if (dir == PortalFacings.Up) {
+                if (colliderOriginY > worldYSlice) {
+                    unsliced.RenderOffset.Y += unsliced.Bottom - lineY;
+                    portalDistance = 0;
+                }
                 result = new SlicedCollider(unsliced.Width, unsliced.Bottom - lineY, unsliced.Position.X, lineY - unsliced.Top + unsliced.Position.Y);
                 unsliced.Height = lineY - unsliced.Top;
                 unsliced.CutBottom = true;
@@ -170,6 +194,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             if (dir == PortalFacings.Down) {
                 worldYOffset = (int) (lineY - unsliced.Top);
+                if (colliderOriginY < worldYSlice) {
+                    unsliced.RenderOffset.Y += unsliced.Top - lineY;
+                    portalDistance = 0;
+                }
                 result = new SlicedCollider(unsliced.Width, lineY - unsliced.Top, unsliced.Position.X, unsliced.Position.Y);
                 unsliced.Height = unsliced.Bottom - lineY;
                 unsliced.Position.Y = lineY - unsliced.Top + unsliced.Position.Y;
@@ -180,22 +208,34 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return null;
         }
 
-        private SlicedCollider SliceVertically(float lineX, PortalFacings dir, SlicedCollider unsliced, out int worldXOffset) {
+        private SlicedCollider SliceVertically(float lineX, PortalFacings dir, SlicedCollider unsliced, out int worldXOffset, out int portalDistance) {
             worldXOffset = 0;
+            portalDistance = 0;
+            float worldXSlice = lineX;
             lineX -= unsliced.WorldPosition.X - unsliced.Position.X;
             if (lineX <= unsliced.Left || lineX >= unsliced.Right)
                 return null;
 
+            float colliderOriginX = unsliced.TransformedOrigin.X + unsliced.WorldPosition.X;
+            portalDistance = (int) (worldXSlice - colliderOriginX - unsliced.RenderOffset.X);
+
             SlicedCollider result;
             if (dir == PortalFacings.Left) {
+                if (colliderOriginX > worldXSlice) {
+                    unsliced.RenderOffset.X += unsliced.Right - lineX;
+                    portalDistance = 0;
+                }
                 result = new SlicedCollider(unsliced.Right - lineX, unsliced.Height, lineX - unsliced.Left + unsliced.Position.X, unsliced.Position.Y);
                 unsliced.Width = lineX - unsliced.Left;
                 unsliced.CutRight = true;
-                worldXOffset = 0;
                 return result;
             }
             if (dir == PortalFacings.Right) {
                 worldXOffset = (int) (lineX - unsliced.Left);
+                if (colliderOriginX < worldXSlice) {
+                    unsliced.RenderOffset.X += unsliced.Left - lineX;
+                    portalDistance = 0;
+                }
                 result = new SlicedCollider(lineX - unsliced.Left, unsliced.Height, unsliced.Position.X, unsliced.Position.Y);
                 unsliced.Width = unsliced.Right - lineX;
                 unsliced.Position.X = lineX - unsliced.Left + unsliced.Position.X;
@@ -361,13 +401,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
     class SlicedCollider : Hitbox {
 
+        public Vector2 RenderOffset = Vector2.Zero;
         public Vector2 WorldPosition = Vector2.Zero;
         public Vector2 MoveSpeed = Vector2.Zero;
+
         public Vector2 PushMove;
         public Vector2 TransformedLiftSpeed = Vector2.Zero;
 
-        public Vector2 TransformedOrigin => (Vector2.Transform(new Vector2(-1, -1), GraphicalTransform) + Vector2.One) / 2f * new Vector2(Width, Height);
+        public Vector2 TransformedOrigin => GetTransformedCorner(new Vector2(-1, -1));
         public Matrix GraphicalTransform;
+
+        public Vector2 GetTransformedCorner(Vector2 cornerIndex) => (Calc.Round(Vector2.Transform(cornerIndex, GraphicalTransform)) + Vector2.One) / 2f * new Vector2(Width, Height);
 
         public bool 
             CutTop = false, 

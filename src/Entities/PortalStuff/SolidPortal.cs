@@ -226,7 +226,7 @@ namespace Celeste.Mod.CommunalHelper.Entities
             }
         }
 
-        public void MoveSlicedPartToPartner(SlicedCollider collider, SlicedCollider from)
+        public void MoveSlicedPartToPartner(SlicedCollider collider, SlicedCollider from, Vector2 renderOffset)
         {
             float sizeOnPortal = Horizontal ? collider.Width : collider.Height;
             float sizeFromPortal = Horizontal ? collider.Height : collider.Width;
@@ -235,7 +235,8 @@ namespace Celeste.Mod.CommunalHelper.Entities
             
             float newWidth = Partner.Horizontal ? sizeOnPortal : sizeFromPortal;
             float newHeight = Partner.Horizontal ? sizeFromPortal : sizeOnPortal;
-            switch(Partner.Facing)
+            collider.RenderOffset -= renderOffset;
+            switch (Partner.Facing)
             {
                 default:
                 case PortalFacings.Right:
