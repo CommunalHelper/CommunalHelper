@@ -10,10 +10,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 		public bool Triggered;
 		public float FallDelay;
 
-		public bool HasStartedFalling { get; private set; }
+        private bool noCollide;
 
-		public DreamFallingBlock(EntityData data, Vector2 offset)
+        public bool HasStartedFalling { get; private set; }
+        private bool hasLanded;
+
+        public DreamFallingBlock(EntityData data, Vector2 offset)
 			: base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode", false), data.Bool("oneUse", false), data.Bool("doubleRefill", false)) {
+            noCollide = data.Bool("noCollide", false);
+
             Add(new Coroutine(Sequence()));
         }
 
@@ -61,10 +66,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 				}
 				float speed = 0f;
 				float maxSpeed = 160f;
+                hasLanded = false;
 				while (true) {
 					Level level = SceneAs<Level>();
 					speed = Calc.Approach(speed, maxSpeed, 500f * Engine.DeltaTime);
-					if (MoveVCollideSolids(speed * Engine.DeltaTime, thruDashBlocks: true)) {
+                    MoveV(speed * Engine.DeltaTime);
+					if (hasLanded) {
 						break;
 					}
 
@@ -105,6 +112,41 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 			}
 			Safe = true;
 		}
+
+        // Essentially just a copied/stripped version of MoveVExactCollideSolids
+        public override void MoveVExact(int move) {
+            float y = Y;
+            int dir = Math.Sign(move);
+            int actualMove = 0;
+            Platform platform = null;
+            while (move != 0) {
+                if (!noCollide) {
+                    foreach (Entity entity in Scene.Tracker.GetEntities<DashBlock>()) {
+                        if (CollideCheck(entity, Position + Vector2.UnitY * dir)) {
+                            ((DashBlock) entity).Break(Center, Vector2.UnitY * dir, true, true);
+                            SceneAs<Level>().Shake(0.2f);
+                            Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
+                        }
+                    }
+                }
+                platform = noCollide ? CollideFirst<DreamBlock>(Position + Vector2.UnitY * dir) : CollideFirst<Solid>(Position + Vector2.UnitY * dir);
+                if (platform != null) {
+                    break;
+                }
+                if (!noCollide && move > 0) {
+                    platform = CollideFirstOutside<JumpThru>(Position + Vector2.UnitY * dir);
+                    if (platform != null) {
+                        break;
+                    }
+                }
+                actualMove += dir;
+                move -= dir;
+                Y += dir;
+            }
+            Y = y;
+            base.MoveVExact(actualMove);
+            hasLanded = platform != null;
+        }
 
         public override void Render() {
 			Position += Shake;

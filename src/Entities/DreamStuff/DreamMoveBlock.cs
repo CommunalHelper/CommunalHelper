@@ -16,8 +16,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamMoveBlock")]
     public class DreamMoveBlock : CustomDreamBlock {
 
-        private static MethodInfo m_Pooler_Create = typeof(Pooler).GetMethod("Create").MakeGenericMethod(typeof(MoveBlock).GetNestedType("Debris", BindingFlags.NonPublic));
-
         private enum MovementState {
             Idling,
             Moving,
