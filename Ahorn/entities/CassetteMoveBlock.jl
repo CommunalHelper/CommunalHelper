@@ -1,21 +1,16 @@
 module CommunalHelperCassetteMoveBlock
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/CassetteMoveBlock" CassetteMoveBlock(x::Integer, 
-                                                              y::Integer, 
-                                                              width::Integer=Maple.defaultBlockWidth, 
-                                                              height::Integer=Maple.defaultBlockHeight,
-                                                              direction::String="Right", 
-                                                              fast::Bool=false,
-                                                              index::Integer=0,
-                                                              tempo::Number=1.0) 
+@mapdef Entity "CommunalHelper/CassetteMoveBlock" CassetteMoveBlock(x::Integer, y::Integer,
+	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
+    direction::String="Right", moveSpeed::Number=60.0, index::Integer=0, tempo::Number=1.0)
 
 const colorNames = Dict{String, Int}(
     "Blue" => 0,
     "Rose" => 1,
     "Bright Sun" => 2,
     "Malachite" => 3
-)                                                             
+)
 
 const colors = Dict{Int, Ahorn.colorTupleType}(
     1 => (240, 73, 190, 255) ./ 255,
@@ -35,7 +30,11 @@ const placements = Ahorn.PlacementDict(
 )
 
 Ahorn.editingOptions(entity::CassetteMoveBlock) = Dict{String, Any}(
-    "direction" => Maple.move_block_directions
+    "direction" => Maple.move_block_directions,
+	"moveSpeed" => Dict{String, Number}(
+		"Slow" => 60.0,
+		"Fast" => 75.0
+	)
 )
 Ahorn.minimumSize(entity::CassetteMoveBlock) = 16, 16
 Ahorn.resizable(entity::CassetteMoveBlock) = true, true

@@ -1,12 +1,9 @@
 module CommunalHelperConnectedMoveBlock
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/ConnectedMoveBlock" ConnectedMoveBlock(
-                            x::Integer, y::Integer,
-                            width::Integer = Maple.defaultBlockWidth, 
-                            height::Integer = Maple.defaultBlockWidth,
-                            direction::String="Right", 
-                            fast::Bool=false)
+@mapdef Entity "CommunalHelper/ConnectedMoveBlock" ConnectedMoveBlock(x::Integer, y::Integer,
+	width::Integer = Maple.defaultBlockWidth, height::Integer = Maple.defaultBlockWidth,
+    direction::String="Right", moveSpeed::Number=60.0)
 
 const placements = Ahorn.PlacementDict(
     "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -19,7 +16,11 @@ const placements = Ahorn.PlacementDict(
 )
 
 Ahorn.editingOptions(entity::ConnectedMoveBlock) = Dict{String, Any}(
-    "direction" => Maple.move_block_directions
+    "direction" => Maple.move_block_directions,
+	"moveSpeed" => Dict{String, Number}(
+		"Slow" => 60.0,
+		"Fast" => 75.0
+	)
 )
 Ahorn.minimumSize(entity::ConnectedMoveBlock) = 16, 16
 Ahorn.resizable(entity::ConnectedMoveBlock) = true, true
@@ -51,7 +52,7 @@ function getExtensionRectangles(room::Maple.Room)
             Int(get(e.data, "height", 8))
         ))
     end
-        
+
     return rects
 end
 
@@ -95,7 +96,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock,
 
     for i in 1:tileWidth, j in 1:tileHeight
 		drawX, drawY = (i - 1) * 8, (j - 1) * 8
-		
+
         closedLeft = !notAdjacent(entity, drawX - 8, drawY, rects)
         closedRight = !notAdjacent(entity, drawX + 8, drawY, rects)
         closedUp = !notAdjacent(entity, drawX, drawY - 8, rects)
@@ -103,7 +104,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock,
         completelyClosed = closedLeft && closedRight && closedUp && closedDown
 
         if completelyClosed
-            
+
             if notAdjacent(entity, drawX + 8, drawY - 8, rects)
                 # up right
                 Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 8, 0, 8, 8)
@@ -125,7 +126,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock,
                 Ahorn.drawImage(ctx, block, drawX, drawY, 8, 8, 8, 8)
 
             end
-        else 
+        else
             if closedLeft && closedRight && !closedUp && closedDown
                 Ahorn.drawImage(ctx, block, drawX, drawY, 8, 0, 8, 8)
 
