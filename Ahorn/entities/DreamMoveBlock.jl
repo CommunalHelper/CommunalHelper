@@ -5,7 +5,7 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/DreamMoveBlock" DreamMoveBlock(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
 	direction::String="Right", moveSpeed::Number=60.0, noCollide::Bool=false,
-	featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false)
+	featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false, below::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Dream Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(

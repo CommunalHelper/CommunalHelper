@@ -49,8 +49,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected DynData<DreamBlock> baseData;
 
-        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill)
-            : base(position, width, height, null, false, oneUse) {
+        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill, bool below)
+            : base(position, width, height, null, false, oneUse, below) {
             baseData = new DynData<DreamBlock>(this);
             DoubleRefill = doubleRefill;
 

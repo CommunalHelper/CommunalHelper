@@ -2,9 +2,9 @@ module CommunalHelperDreamZipMover
 
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/DreamZipMover" DreamZipMover(x::Integer, y::Integer, 
-	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight, 
-	noReturn::Bool=false, dreamAesthetic::Bool=false, featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false) 
+@mapdef Entity "CommunalHelper/DreamZipMover" DreamZipMover(x::Integer, y::Integer,
+	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
+	noReturn::Bool=false, dreamAesthetic::Bool=false, featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false, below::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Dream Zip Mover (Communal Helper)" => Ahorn.EntityPlacement(

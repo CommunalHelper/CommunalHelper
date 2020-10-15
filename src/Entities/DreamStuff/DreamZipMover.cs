@@ -21,7 +21,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private MTexture cross;
 
         public DreamZipMover(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false)) {
+            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false), data.Bool("below")) {
             start = Position;
             target = data.Nodes[0] + offset;
 
@@ -210,7 +210,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             public PathRenderer(DreamZipMover dreamZipMover, bool dreamAesthetic) {
-                Depth = Depths.SolidsBelow;
+                Depth = dreamZipMover.Depth + 10;
                 DreamZipMover = dreamZipMover;
                 this.dreamAesthetic = dreamAesthetic;
                 from = DreamZipMover.start + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);

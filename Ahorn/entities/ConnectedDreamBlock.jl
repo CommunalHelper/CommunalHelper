@@ -2,9 +2,9 @@ module CommunalHelperConnectedDreamBlock
 using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/ConnectedDreamBlock" ConnectedDreamBlock( x::Integer, y::Integer,
-	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight, 
-	featherMode::Bool = false, oneUse::Bool = false, doubleRefill::Bool=false)
-			
+	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
+	featherMode::Bool = false, oneUse::Bool = false, doubleRefill::Bool=false, below::Bool=false)
+
 const placements = Ahorn.PlacementDict(
     "Connected Dream Block (Normal) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedDreamBlock,
@@ -42,7 +42,7 @@ function Ahorn.selection(entity::ConnectedDreamBlock)
 
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
-	
+
     return Ahorn.Rectangle(x, y, width, height)
 end
 
