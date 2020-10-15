@@ -25,7 +25,7 @@ namespace Celeste.Mod.CommunalHelper.Entities
             BuildTexture();
             Add(new Coroutine(Sequence()));
             Add(new LightOcclude());
-            target = Position + new Vector2(72, 0);
+            target = Position + new Vector2(0, -80);
         }
 
         private IEnumerator Sequence() {
