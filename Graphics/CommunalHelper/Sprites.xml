@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Sprites>
-
+<Sprites>	
+	
 	<smallStationBlockArrow path="objects/CommunalHelper/stationBlock/arrow/" start="IdleUp">
     <Center/>
 	  
@@ -360,5 +360,14 @@
 	  <Anim id="LeftToUp" path="big" frames="12,13,14,15,0" delay="0.06" goto="IdleUp"/>
 	  <Anim id="LeftToDown" path="big" frames="12,11,10,9,8" delay="0.06" goto="IdleDown"/>
 	</bigAltMoonStationBlockArrow>
+
+	<swapBlockLight path="objects/CommunalHelper/moveSwapBlock/" start="idle">
+		<Justify x="0.5" y="0.5"/>
+		<Loop id="idle" path="midBlock" delay="0.08" frames="0-3"/>
+	</swapBlockLight>
+	<swapBlockLightRed path="objects/CommunalHelper/moveSwapBlock/" start="idle">
+		<Justify x="0.5" y="0.5"/>
+		<Loop id="idle" path="midBlockRed" delay="0.08" frames="0-3"/>
+	</swapBlockLightRed>
 	
 </Sprites>
