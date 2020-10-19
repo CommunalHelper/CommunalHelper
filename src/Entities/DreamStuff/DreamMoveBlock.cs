@@ -16,8 +16,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamMoveBlock")]
     public class DreamMoveBlock : CustomDreamBlock {
 
-        private static MethodInfo m_Pooler_Create = typeof(Pooler).GetMethod("Create").MakeGenericMethod(typeof(MoveBlock).GetNestedType("Debris", BindingFlags.NonPublic));
-
         private enum MovementState {
             Idling,
             Moving,
@@ -44,7 +42,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private const float CrashResetTime = 0.1f;
         private const float RegenTime = 3f;
 
-        private bool fast;
+        private float moveSpeed;
 
         private MoveBlock.Directions direction;
         private float homeAngle;
@@ -87,10 +85,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public DreamMoveBlock(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false)) {
+            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill"), data.Bool("below")) {
             startPosition = Position;
 
-            fast = data.Bool("fast");
+            // Backwards Compatibility
+            moveSpeed = data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", 60f);
             noCollide = data.Bool("noCollide");
 
             direction = data.Enum<MoveBlock.Directions>("direction");
@@ -131,7 +130,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return 0.2f;
 
 
-                targetSpeed = fast ? FastMoveSpeed : MoveSpeed;
+                targetSpeed = moveSpeed;
                 moveSfx.Play(SFX.game_04_arrowblock_move_loop);
                 moveSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;

@@ -106,10 +106,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private ConnectedDreamBlock master;
 
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false)) { }
+            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill"), data.Bool("below")) { }
 
-        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill)
-            : base(position, width, height, featherMode, oneUse, doubleRefill) {
+        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill, bool below)
+            : base(position, width, height, featherMode, oneUse, doubleRefill, below) {
         }
 
         public override void Awake(Scene scene) {

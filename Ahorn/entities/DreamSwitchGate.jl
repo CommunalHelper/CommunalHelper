@@ -1,9 +1,9 @@
 module CommunalHelperDreamSwitchGate
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/DreamSwitchGate" DreamSwitchGate(x::Integer, y::Integer, 
+@mapdef Entity "CommunalHelper/DreamSwitchGate" DreamSwitchGate(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool = false, oneUse::Bool = false, doubleRefill::Bool=false, permanent::Bool = false)
+    featherMode::Bool = false, oneUse::Bool = false, doubleRefill::Bool=false, below::Bool=false, permanent::Bool = false)
 
 
 const placements = Ahorn.PlacementDict(
@@ -51,9 +51,9 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwi
     Ahorn.drawRectangle(ctx, stopX, stopY, width, height, fillColor, lineColor)
 
     Ahorn.restore(ctx)
-                
+
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
-    
+
     Ahorn.drawImage(ctx, iconSprite, stopX + div(width - iconSprite.width, 2), stopY + div(height - iconSprite.height, 2))
 end
 
@@ -74,7 +74,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwitchGate,
     Ahorn.drawRectangle(ctx, x, y, width, height, fillColor, lineColor)
 
     Ahorn.restore(ctx)
-    
+
     Ahorn.drawImage(ctx, iconSprite, x + div(width - iconSprite.width, 2), y + div(height - iconSprite.height, 2))
 end
 

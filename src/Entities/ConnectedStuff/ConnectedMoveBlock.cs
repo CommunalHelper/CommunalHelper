@@ -68,7 +68,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         private List<Hitbox> ArrowsList;
 
-        private bool fast;
+        private float moveSpeed;
         private bool triggered;
 
         private float speed;
@@ -86,15 +86,15 @@ namespace Celeste.Mod.CommunalHelper {
         private SoundSource moveSfx;
 
         public ConnectedMoveBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast")) { }
+            : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f)) { }
 
-        public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, bool fast)
+        public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
             : base(position, width, height, safe: false) {
 
             base.Depth = -1;
             startPosition = position;
             this.direction = direction;
-            this.fast = fast;
+            this.moveSpeed = moveSpeed;
 
             switch (direction) {
                 default:
@@ -129,7 +129,7 @@ namespace Celeste.Mod.CommunalHelper {
                 StartShaking(0.2f);
                 ActivateParticles();
                 yield return 0.2f;
-                targetSpeed = (fast ? 75f : 60f);
+                targetSpeed = moveSpeed;
                 moveSfx.Play("event:/game/04_cliffside/arrowblock_move");
                 moveSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;

@@ -12,8 +12,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Normal, Moon
         }
 
-        public static SpriteBank StationBlockSpriteBank;
-
         private MTexture[,] tileSlices, blockTiles;
         private Sprite arrowSprite;
 
@@ -123,7 +121,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             GenerateTiles();
 
-            arrowSprite = customArrow ?? StationBlockSpriteBank.Create(sprite);
+            arrowSprite = customArrow ?? CommunalHelperModule.SpriteBank.Create(sprite);
             arrowDir = ArrowDir.Up;
             Add(arrowSprite);
 

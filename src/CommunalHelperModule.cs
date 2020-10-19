@@ -18,6 +18,9 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override Type SessionType => typeof(CommunalHelperSession);
         public static CommunalHelperSession Session => (CommunalHelperSession) Instance._Session;
+
+        public static SpriteBank SpriteBank => Instance._SpriteBank;
+        public SpriteBank _SpriteBank;
         
         public CommunalHelperModule() {
             Instance = this;
@@ -35,14 +38,14 @@ namespace Celeste.Mod.CommunalHelper {
             ConnectedDreamBlock.Hook();
             ConnectedSwapBlockHooks.Hook();
             CustomCassetteBlockHooks.Hook();
-            SyncedZipMoverActivationControllerHooks.Hook();
-            MoveBlockRedirect.Load();
+
             AttachedWallBooster.Hook();
+            MoveBlockRedirect.Load();
+            MoveSwapBlock.Load();
+            SyncedZipMoverActivationControllerHooks.Hook();
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
-
-            // External optional dependencies loaded in LoadContent
         }
 
         public override void Unload() {
@@ -57,19 +60,19 @@ namespace Celeste.Mod.CommunalHelper {
             ConnectedDreamBlock.Unhook();
             ConnectedSwapBlockHooks.Unhook();
             CustomCassetteBlockHooks.Unhook();
-            SyncedZipMoverActivationControllerHooks.Unhook();
+
 			AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
+            MoveSwapBlock.Unload();
+            SyncedZipMoverActivationControllerHooks.Unhook();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
         }
 
 		public override void LoadContent(bool firstLoad) {
-            // We want to keep this stuff as isolated as possible
-            // ExternalDependencyHandler.Load();
+            _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
 
-            StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
 			StationBlock.InitializeParticles();
 
             DreamTunnelRefill.InitializeParticles();
