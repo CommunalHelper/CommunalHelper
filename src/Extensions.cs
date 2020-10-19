@@ -63,8 +63,11 @@ namespace Celeste.Mod.CommunalHelper {
             return list;
         }
 
-        public static List<MethodInfo> GetOverrides(this MethodInfo method) {
+        public static List<MethodInfo> GetOverrides(this MethodInfo method, bool returnBase) {
             List<MethodInfo> list = new List<MethodInfo>();
+            if (returnBase)
+                list.Add(method);
+
             foreach (Type subType in method.DeclaringType.GetSubClasses()) {
                 MethodInfo overrideMethod = subType.GetMethod(method.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
                 if (overrideMethod != null && overrideMethod.Attributes.HasFlag(MethodAttributes.Virtual) && overrideMethod.GetBaseDefinition() == method)
