@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
+﻿using Celeste.Mod.CommunalHelper.DashStates;
+using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;

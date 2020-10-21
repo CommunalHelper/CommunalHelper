@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Celeste.Mod.CommunalHelper.Entities {
+namespace Celeste.Mod.CommunalHelper.DashStates {
     public abstract class DashStateTrigger : Trigger {
 
         public enum Modes {

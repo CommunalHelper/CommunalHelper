@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace Celeste.Mod.CommunalHelper.Entities {
+namespace Celeste.Mod.CommunalHelper.DashStates {
     public static class DreamTunnelDash {
 
         #region Vanilla Constants

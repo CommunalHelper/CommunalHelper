@@ -1,7 +1,7 @@
 ﻿using Monocle;
 using System;
 
-namespace Celeste.Mod.CommunalHelper.Entities {
+namespace Celeste.Mod.CommunalHelper.DashStates {
     public class DreamTunnelInteraction : Component {
         public Action<Player> OnPlayerEnter;
         public Action<Player> OnPlayerExit;

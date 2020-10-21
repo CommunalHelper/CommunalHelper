@@ -2,9 +2,9 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
-using static Celeste.Mod.CommunalHelper.Entities.DreamTunnelDash;
+using static Celeste.Mod.CommunalHelper.DashStates.DreamTunnelDash;
 
-namespace Celeste.Mod.CommunalHelper.Entities {
+namespace Celeste.Mod.CommunalHelper.DashStates {
     [CustomEntity("CommunalHelper/DreamRefill", "CommunalHelper/DreamTunnelRefill")]
     public class DreamTunnelRefill : DashStateRefill {
 

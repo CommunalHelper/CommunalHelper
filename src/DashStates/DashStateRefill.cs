@@ -9,7 +9,7 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 
-namespace Celeste.Mod.CommunalHelper.Entities {
+namespace Celeste.Mod.CommunalHelper.DashStates {
     public abstract class DashStateRefill : Refill {
 
         protected string TouchSFX = CustomSFX.game_dreamRefill_dream_refill_touch;
