@@ -1,12 +1,9 @@
 module CommunalHelperShieldedRefill
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/ShieldedRefill" ShieldedRefill(
-                    x::Integer, y::Integer, 
-                    twoDashes::Bool = false, oneUse::Bool = false,
-					bubbleRepell::Bool = true)    
-                
-                    
+@mapdef Entity "CommunalHelper/ShieldedRefill" ShieldedRefill(x::Integer, y::Integer, 
+	twoDashes::Bool = false, oneUse::Bool = false, bubbleRepel::Bool = true)    
+
 const placements = Ahorn.PlacementDict(
     "Shielded Refill (Two Dashes) (Communal Helper)" => Ahorn.EntityPlacement(
         ShieldedRefill,

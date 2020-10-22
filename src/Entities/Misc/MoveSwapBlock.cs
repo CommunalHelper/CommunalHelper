@@ -74,6 +74,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float moveSpeed;
         private float targetMoveSpeed;
+        private float moveAcceleration;
 
         private bool moveSwapPoints;
         private Player noSquish;
@@ -120,7 +121,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // Structs are value types
             startingRect = swapBlockData.Get<Rectangle>("moveRect");
 
-            swapBlockData["maxForwardSpeed"] = maxForwardSpeed = 360f * data.Float("SwapSpeedMult", 1f) / Vector2.Distance(start, end);
+            swapBlockData["maxForwardSpeed"] = maxForwardSpeed = 360f * data.Float("swapSpeedMultiplier", 1f) / Vector2.Distance(start, end);
             startPosition = Position;
 
             // Replace/Add SwapBlock textures
@@ -138,6 +139,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             middleOrange.CenterOrigin();
 
             canSteer = data.Bool("canSteer", false);
+            moveAcceleration = data.Float("moveAcceleration", Accel);
             MoveDirection = data.Enum("direction", MoveBlock.Directions.Left);
             switch (MoveDirection) {
                 default:
@@ -320,7 +322,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             MoveParticles();
                         }
 
-                        moveSpeed = Calc.Approach(moveSpeed, targetMoveSpeed, Accel * Engine.DeltaTime);
+                        moveSpeed = Calc.Approach(moveSpeed, targetMoveSpeed, moveAcceleration * Engine.DeltaTime);
                         angle = Calc.Approach(angle, targetAngle, SteerSpeed * Engine.DeltaTime);
 
                         Vector2 vector = Calc.AngleToVector(angle, moveSpeed) * Engine.DeltaTime;

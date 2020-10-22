@@ -35,7 +35,7 @@ namespace Celeste.Mod.PillieHelper
 		private ParticleType p_glow;
 
 		public ShieldedRefill(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Bool("twoDashes"), data.Bool("oneUse"), data.Bool("bubbleRepell"))
+            : this(data.Position + offset, data.Bool("twoDashes"), data.Bool("oneUse"), data.Bool("bubbleRepel"))
         { }
 
         public ShieldedRefill(Vector2 position, bool twoDashes, bool oneUse, bool repell)

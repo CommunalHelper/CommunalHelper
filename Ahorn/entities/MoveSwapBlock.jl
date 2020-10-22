@@ -1,9 +1,10 @@
 module CommunalHelperMoveSwapBlock
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/MoveSwapBlock" MoveSwapBlock(x::Integer, y::Integer, width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
+@mapdef Entity "CommunalHelper/MoveSwapBlock" MoveSwapBlock(x::Integer, y::Integer, 
+	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
 	direction::String="Left", canSteer::Bool=false, returns::Bool=true, freezeOnSwap::Bool=true,
-	MoveSpeed::Number=60.0, Accel::Number=300.0, SwapSpeedMult::Number=1.0)
+	moveSpeed::Number=60.0, moveAcceleration::Number=300.0, swapSpeedMultiplier::Number=1.0)
 
 const placements = Ahorn.PlacementDict(
 	"Move Swap Block (Communal Helper)" => Ahorn.EntityPlacement(
@@ -15,7 +16,11 @@ const placements = Ahorn.PlacementDict(
 )
 
 Ahorn.editingOptions(entity::MoveSwapBlock) = Dict{String, Any}(
-	"direction" => Maple.move_block_directions
+	"direction" => Maple.move_block_directions,
+	"moveSpeed" => Dict{String, Number}(
+		"Slow" => 60.0,
+		"Fast" => 75.0
+	)
 )
 
 Ahorn.minimumSize(entity::MoveSwapBlock) = 16, 16
