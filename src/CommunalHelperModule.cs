@@ -117,6 +117,19 @@ namespace Celeste.Mod.CommunalHelper {
 		public static void log(string str) {
 			Logger.Log("Communal Helper", str);
 		}
+
+        public static Player GetPlayer() {
+            if(Engine.Scene == null) { return null; }
+            else {
+                return Engine.Scene.Tracker.GetEntity<Player>();
+            }
+        }
+
+        public static Color ColorFix(string str, float alpha = 1f) {
+            PropertyInfo[] prop = typeof(Color).GetProperties();
+            foreach (PropertyInfo p in prop) { if (str == p.Name) { return new Color((Color) p.GetValue(default(Color)), alpha); } }
+            return new Color(Calc.HexToColor(str.Trim('#')), alpha);
+        }
 	}
 
     #region JaThePlayer's state machine extension code
