@@ -1,4 +1,5 @@
 --1.4.0 (??/10/2020)--
+* Added Timed Trigger Spikes
 * Added Move Swap Block
 * Added Reset State Crystal
 * Added Shielded Refill
