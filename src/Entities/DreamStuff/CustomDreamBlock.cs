@@ -180,6 +180,27 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        public override void Update() {
+            base.Update();
+
+            if (FeatherMode) {
+                UpdateParticles();
+            }
+
+            if (Visible && PlayerHasDreamDash && baseData.Get<bool>("oneUse") && Scene.OnInterval(0.03f)) {
+                Vector2 shake = baseData.Get<Vector2>("shake");
+                if (shakeToggle) {
+                    shake.X = Calc.Random.Next(-1, 2);
+                } else {
+                    shake.Y = Calc.Random.Next(-1, 2);
+                }
+                baseData["shake"] = shake;
+                shakeToggle = !shakeToggle;
+                if (!shattering)
+                    ShakeParticles();
+            }
+        }
+
         protected virtual void UpdateParticles() {
             if (PlayerHasDreamDash) {
                 for (int i = 0; i < particles.Length; i++) {
@@ -332,7 +353,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         #region Hooks
 
         internal static void Load() {
-            On.Celeste.DreamBlock.Update += DreamBlock_Update;
             On.Celeste.DreamBlock.Setup += DreamBlock_Setup;
             On.Celeste.DreamBlock.OnPlayerExit += DreamBlock_OnPlayerExit;
             On.Celeste.DreamBlock.OneUseDestroy += DreamBlock_OneUseDestroy;
@@ -344,7 +364,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         internal static void Unload() {
-            On.Celeste.DreamBlock.Update -= DreamBlock_Update;
             On.Celeste.DreamBlock.Setup -= DreamBlock_Setup;
             On.Celeste.DreamBlock.OnPlayerExit -= DreamBlock_OnPlayerExit;
             On.Celeste.DreamBlock.OneUseDestroy -= DreamBlock_OneUseDestroy;
@@ -353,28 +372,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.DreamDashUpdate -= Player_DreamDashUpdate;
 
             DreamMoveBlock.Unload();
-        }
-
-        private static void DreamBlock_Update(On.Celeste.DreamBlock.orig_Update orig, DreamBlock self) {
-            orig(self);
-            if (self is CustomDreamBlock block) {
-                if (block.FeatherMode) {
-                    block.UpdateParticles();
-                }
-
-                if (block.Visible && block.PlayerHasDreamDash && block.baseData.Get<bool>("oneUse") && block.Scene.OnInterval(0.03f)) {
-                    Vector2 shake = block.baseData.Get<Vector2>("shake");
-                    if (block.shakeToggle) {
-                        shake.X = Calc.Random.Next(-1, 2);
-                    } else {
-                        shake.Y = Calc.Random.Next(-1, 2);
-                    }
-                    block.baseData["shake"] = shake;
-                    block.shakeToggle = !block.shakeToggle;
-                    if (!block.shattering)
-                        block.ShakeParticles();
-                }
-            }
         }
 
         private static void DreamBlock_Setup(On.Celeste.DreamBlock.orig_Setup orig, DreamBlock self) {
