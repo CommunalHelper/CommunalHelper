@@ -424,11 +424,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             var playerData = player.GetData();
             DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
             if (dreamBlock is CustomDreamBlock customDreamBlock && customDreamBlock.FeatherMode) {
-                Vector2 input = Input.Aim.Value.SafeNormalize(Vector2.Zero);
+                Vector2 input = Input.Aim.Value.SafeNormalize();
                 if (input != Vector2.Zero) {
-                    Vector2 vector = player.Speed.SafeNormalize(Vector2.Zero);
+                    Vector2 vector = player.Speed.SafeNormalize();
                     if (vector != Vector2.Zero) {
                         vector = Vector2.Dot(input, vector) != -0.8f ? vector.RotateTowards(input.Angle(), 5f * Engine.DeltaTime) : vector;
+                        vector = vector.CorrectJoystickPrecision();
+                        player.DashDir = vector;
                         player.Speed = vector * 240f;
                     }
                 }
