@@ -1,5 +1,7 @@
 module CommunalHelperDreamFallingBlock
+
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamFallingBlock" DreamFallingBlock(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
@@ -25,23 +27,14 @@ function Ahorn.selection(entity::DreamFallingBlock)
     return Ahorn.Rectangle(x, y, width, height)
 end
 
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamFallingBlock, room::Maple.Room)
-    x = Int(get(entity.data, "x", 0))
-    y = Int(get(entity.data, "y", 0))
+function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::FallingBlock)
+    width = Int(get(entity.data, "width", 8))
+    height = Int(get(entity.data, "height", 8))
 
-    width = Int(get(entity.data, "width", 32))
-    height = Int(get(entity.data, "height", 32))
+    featherMode = Bool(get(entity.data, "featherMode", false))
+    oneUse = Bool(get(entity.data, "oneUse", false))
 
-	 Ahorn.Cairo.save(ctx)
-
-    Ahorn.set_antialias(ctx, 1)
-    Ahorn.set_line_width(ctx, 1)
-
-    fillColor = get(entity.data, "featherMode", false) ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
-	 lineColor = get(entity.data, "oneUse", false) ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
-    Ahorn.drawRectangle(ctx, 0, 0, width, height, fillColor, lineColor)
-
-    Ahorn.restore(ctx)
+    renderDreamBlock(ctx, 0, 0, width, height, featherMode, oneUse)
 end
 
 end

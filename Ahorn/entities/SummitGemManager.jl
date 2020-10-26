@@ -38,7 +38,6 @@ function Ahorn.selection(entity::SummitGemManager)
 end
 
 # Cruor please don't yell at me
-# todo: pester Cruor into making it possible to do this with `handleDeletion`
 function Ahorn.Selection.applyMovement!(target::SummitGemManager, ox, oy, node=0)
 	if node == 0
 		target.data["x"] += ox
@@ -56,6 +55,15 @@ function Ahorn.Selection.applyMovement!(target::SummitGemManager, ox, oy, node=0
 	end
 
 	return true
+end
+
+# not currently working
+function Ahorn.deleted(target::SummitGemManager, node::Int64)
+	nodes = get(target.data, "nodes", ())
+
+	if node == length(nodes) + 1
+		target.data["heartOffset"] = "0.0,0.0"
+	end
 end
 
 function getHeartOffset(entity::SummitGemManager)

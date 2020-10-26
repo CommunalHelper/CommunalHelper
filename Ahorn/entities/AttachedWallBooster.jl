@@ -34,7 +34,7 @@ function Ahorn.selection(entity::AttachedWallBooster)
     return Ahorn.Rectangle(x, y, 8, height)
 end
 
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::AttachedWallBooster, room::Maple.Room)
+function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::AttachedWallBooster)
     left = get(entity.data, "left", false)
 
     # Values need to be system specific integer

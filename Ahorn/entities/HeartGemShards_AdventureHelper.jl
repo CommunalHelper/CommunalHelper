@@ -10,8 +10,7 @@ using ..Ahorn, Maple
 function getPlacements() 
 	# Check if there's an adventurehelper folder/zip in the mods folder
 	# This is bad and can easily fail, but whatever
-	if any(s -> occursin("adventurehelper", lowercase(s)), Ahorn.getCelesteModZips()) ||
-		any(s -> occursin("adventurehelper", lowercase(s)), Ahorn.getCelesteModDirs())
+	if Ahorn.CommunalHelper.detectMod("adventurehelper")
 		return Ahorn.PlacementDict(
 			"Crystal Heart (Communal Helper/Adventure Helper)" => Ahorn.EntityPlacement(
 				CustomCrystalHeart,
@@ -32,8 +31,7 @@ function getPlacements()
 		println(msg)
 		# print in error.log
 		@warn msg
-		return Ahorn.PlacementDict(
-		)
+		return Ahorn.PlacementDict()
 	end
 end
 

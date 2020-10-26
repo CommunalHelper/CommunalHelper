@@ -1,10 +1,9 @@
 module CommunalHelperStationBlockTrack
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/StationBlockTrack" StationBlockTrack(
-                    x::Integer, y::Integer,
-                    width::Integer = 24, height::Integer = 24,
-                    horizontal::Bool = false)
+@mapdef Entity "CommunalHelper/StationBlockTrack" StationBlockTrack(x::Integer, y::Integer,
+    width::Integer = 24, height::Integer = 24,
+    horizontal::Bool = false)
 
 const placements = Ahorn.PlacementDict(
     "Station Block Track (Vertical) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -41,7 +40,7 @@ nodeSprite = "objects/CommunalHelper/stationBlock/tracks/track/ball"
 vTrack = "objects/CommunalHelper/stationBlock/tracks/track/pipeV"
 hTrack = "objects/CommunalHelper/stationBlock/tracks/track/pipeH"
 
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlockTrack, room::Maple.Room)
+function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlockTrack)
     x, y = Ahorn.position(entity)
 
     width = Int(get(entity.data, "width", 24))

@@ -1,5 +1,7 @@
 module CommunalHelperConnectedSwapBlock
+
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 function swapFinalizer(entity)
     x, y = Ahorn.position(entity)
@@ -84,37 +86,6 @@ function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number, t
     Ahorn.drawImage(ctx, trail, x + width - 8, y + height - 8, 14, 14, 6, 6)
     Ahorn.drawImage(ctx, trail, x + 2, y + 2, 0, 0, 6, 6)
     Ahorn.drawImage(ctx, trail, x + 2, y + height - 8, 0, 14, 6, 6)
-end
-
-# Gets rectangles from Solid Extensions
-function getExtensionRectangles(room::Maple.Room)
-    entities = filter(e -> e.name == "CommunalHelper/SolidExtension", room.entities)
-    rects = []
-
-    for e in entities
-        push!(rects, Ahorn.Rectangle(
-            Int(get(e.data, "x", 0)),
-            Int(get(e.data, "y", 0)),
-            Int(get(e.data, "width", 8)),
-            Int(get(e.data, "height", 8))
-        ))
-    end
-        
-    return rects
-end
-
-# Checks for collision with an array of rectangles at specified tile position
-function notAdjacent(entity::ConnectedSwapBlock, ox, oy, rects)
-    x, y = Ahorn.position(entity)
-    rect = Ahorn.Rectangle(x + ox + 4, y + oy + 4, 1, 1)
-
-    for r in rects
-        if Ahorn.checkCollision(r, rect)
-            return false
-        end
-    end
-
-    return true
 end
 
 function renderSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, width::Number, height::Number, midResource::String, block::String, innerCorners::String, entity::ConnectedSwapBlock, room::Maple.Room)

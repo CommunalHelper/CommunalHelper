@@ -30,7 +30,7 @@ function getRotation(dir::String)
 		return pi/2
 	elseif dir == "Left"
 		return pi
-	elseif (fAngle = tryparse(Float64, dir)) != nothing
+	elseif (fAngle = tryparse(Float64, dir)) !== nothing
 		return fAngle
 	else 
 		return 0

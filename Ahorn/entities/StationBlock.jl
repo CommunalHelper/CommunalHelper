@@ -38,7 +38,7 @@ function Ahorn.selection(entity::StationBlock)
     return Ahorn.Rectangle(x, y, width, height)
 end
 
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock, room::Maple.Room)
+function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock)
     renderStationBlock(ctx, entity)
 end
 

@@ -1,6 +1,7 @@
 module CommunalHelperDreamZipMover
 
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamZipMover" DreamZipMover(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
@@ -36,9 +37,9 @@ function getTextures(entity::DreamZipMover)
     dreamAesthetic = Bool(get(entity.data, "dreamAesthetic", false))
     return "objects/zipmover/block", "objects/zipmover/light01", (dreamAesthetic ? "objects/CommunalHelper/dreamZipMover/cog" : "objects/zipmover/cog")
 end
-const crossSprite = "objects/CommunalHelper/dreamMoveBlock/x"
 
-ropeColor = (102, 57, 49) ./ 255
+const crossSprite = "objects/CommunalHelper/dreamMoveBlock/x"
+const ropeColor = (102, 57, 49) ./ 255
 
 function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover, featherMode::Bool, oneUse::Bool)
     x, y = Ahorn.position(entity)
@@ -56,14 +57,10 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
     length = sqrt((x - nx)^2 + (y - ny)^2)
     theta = atan(cny - cy, cnx - cx)
 
-    Ahorn.Cairo.save(ctx)
-
     # Dream block stuff
-    Ahorn.set_antialias(ctx, 1)
-    Ahorn.set_line_width(ctx, 1)
-    fillColor = featherMode ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
-	 lineColor = oneUse ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
-    Ahorn.drawRectangle(ctx, x, y, width, height, fillColor, lineColor)
+    renderDreamBlock(ctx, x, y, width, height, featherMode, oneUse)
+    
+    Ahorn.Cairo.save(ctx)
 
     Ahorn.translate(ctx, cx, cy)
     Ahorn.rotate(ctx, theta)
@@ -89,8 +86,7 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
     end
 end
 
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover)
+Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover) =
     renderDreamZipMover(ctx, entity, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
-end
 
 end

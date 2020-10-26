@@ -1,27 +1,11 @@
 module CommunalHelperCassetteZipMover
 
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/CassetteZipMover" CassetteZipMover(x::Integer, 
-                                                                  y::Integer, 
-                                                                  width::Integer=Maple.defaultBlockWidth, 
-                                                                  height::Integer=Maple.defaultBlockHeight,
-                                                                  index::Integer=0,
-                                                                  tempo::Number=1.0,
-                                                                  noReturn::Bool=false) 
-
-const colorNames = Dict{String, Int}(
-    "Blue" => 0,
-    "Rose" => 1,
-    "Bright Sun" => 2,
-    "Malachite" => 3
-)
-
-const colors = Dict{Int, Ahorn.colorTupleType}(
-    1 => (240, 73, 190, 255) ./ 255,
-	2 => (252, 220, 58, 255) ./ 255,
-	3 => (56, 224, 78, 255) ./ 255
-)
+@mapdef Entity "CommunalHelper/CassetteZipMover" CassetteZipMover(x::Integer, y::Integer, 
+    width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
+    index::Integer=0, tempo::Number=1.0, noReturn::Bool=false) 
 
 const ropeColors = Dict{Int, Ahorn.colorTupleType}(
     1 => (194, 116, 171, 255) ./ 255,
@@ -30,7 +14,6 @@ const ropeColors = Dict{Int, Ahorn.colorTupleType}(
 )
 
 const defaultRopeColor = (110, 189, 245, 255) ./ 255
-const defaultColor = (73, 170, 240, 255) ./ 255
 
 const placements = Ahorn.PlacementDict(
     "Cassette Zip Mover ($index - $color) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -42,11 +25,11 @@ const placements = Ahorn.PlacementDict(
         function(entity)
             entity.data["nodes"] = [(Int(entity.data["x"]) + Int(entity.data["width"]) + 8, Int(entity.data["y"]))]
         end
-    ) for (color, index) in colorNames
+    ) for (color, index) in cassetteColorNames
 )
 
 Ahorn.editingOptions(entity::CassetteZipMover) = Dict{String, Any}(
-    "index" => colorNames
+    "index" => cassetteColorNames
 )
 
 Ahorn.nodeLimits(entity::CassetteZipMover) = 1, 1
@@ -64,9 +47,7 @@ function Ahorn.selection(entity::CassetteZipMover)
     return [Ahorn.Rectangle(x, y, width, height), Ahorn.Rectangle(nx + floor(Int, width / 2) - 5, ny + floor(Int, height / 2) - 5, 10, 10)]
 end
 
-function getTextures(entity::CassetteZipMover)
-    return "objects/cassetteblock/solid", "objects/CommunalHelper/cassetteZipMover/cog"
-end
+const textures = "objects/cassetteblock/solid", "objects/CommunalHelper/cassetteZipMover/cog"
 const crossSprite = "objects/CommunalHelper/cassetteMoveBlock/x"
 
 function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZipMover)
@@ -75,13 +56,11 @@ function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZ
 
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
-    tilesWidth = div(width, 8)
-    tilesHeight = div(height, 8)
 
-    block, cog = getTextures(entity)
+    block, cog = textures
 
     index = Int(get(entity.data, "index", 0))
-    color = get(colors, index, defaultColor)
+    color = getCassetteColor(index)
     ropeColor = get(ropeColors, index, defaultRopeColor)
 
     # Node Rendering
@@ -105,12 +84,7 @@ function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZ
     Ahorn.Cairo.restore(ctx)
     Ahorn.drawSprite(ctx, cog, cnx, cny, tint=color)
     
-    for i in 1:tilesWidth, j in 1:tilesHeight
-        tx = (i == 1) ? 0 : ((i == tilesWidth) ? 16 : 8)
-        ty = (j == 1) ? 0 : ((j == tilesHeight) ? 16 : 8)
-
-        Ahorn.drawImage(ctx, block, x + (i - 1) * 8, y + (j - 1) * 8, tx, ty, 8, 8, tint=color)
-    end
+    renderCassetteBlock(ctx, x, y, width, height, index)
 
     if Bool(get(entity.data, "noReturn", false))
         noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")
@@ -118,7 +92,7 @@ function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZ
     end
 end
 
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZipMover, room::Maple.Room)
+function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZipMover)
     renderCassetteZipMover(ctx, entity)
 end
 

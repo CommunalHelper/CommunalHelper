@@ -9,7 +9,7 @@ using ..Ahorn, Maple
 
 const placements = Ahorn.PlacementDict()
 
-TimedTriggerSpikes = Dict{String, Type}(
+const TimedTriggerSpikes = Dict{String, Type}(
     "up" => TimedTriggerSpikesUp,
     "down" => TimedTriggerSpikesDown,
     "left" => TimedTriggerSpikesLeft,
@@ -30,7 +30,7 @@ const triggerSpikeColors = [
     (242, 16, 103, 255) ./ 255
 ]
 
-triggerSpikesUnion = Union{TimedTriggerSpikesUp, TimedTriggerSpikesDown, TimedTriggerSpikesLeft, TimedTriggerSpikesRight}
+const triggerSpikesUnion = Union{TimedTriggerSpikesUp, TimedTriggerSpikesDown, TimedTriggerSpikesLeft, TimedTriggerSpikesRight}
 
 for variant in spikeTypes
     for (dir, entity) in TimedTriggerSpikes
@@ -49,42 +49,42 @@ Ahorn.editingOptions(entity::triggerSpikesUnion) = Dict{String, Any}(
     "type" => spikeTypes
 )
 
-directions = Dict{String, String}(
+const directions = Dict{String, String}(
     "CommunalHelper/TimedTriggerSpikesUp" => "up",
     "CommunalHelper/TimedTriggerSpikesDown" => "down",
     "CommunalHelper/TimedTriggerSpikesLeft" => "left",
     "CommunalHelper/TimedTriggerSpikesRight" => "right",
 )
 
-offsets = Dict{String, Tuple{Integer, Integer}}(
+const offsets = Dict{String, Tuple{Integer, Integer}}(
     "up" => (4, -4),
     "down" => (4, 4),
     "left" => (-4, 4),
     "right" => (4, 4),
 )
 
-triggerSpikesOffsets = Dict{String, Tuple{Integer, Integer}}(
+const triggerSpikesOffsets = Dict{String, Tuple{Integer, Integer}}(
     "up" => (0, 5),
     "down" => (0, -4),
     "left" => (5, 0),
     "right" => (-4, 0),
 )
 
-rotations = Dict{String, Number}(
+const rotations = Dict{String, Number}(
     "up" => 0,
     "right" => pi / 2,
     "down" => pi,
     "left" => 3 * pi / 2
 )
 
-triggerRotationOffsets = Dict{String, Tuple{Number, Number}}(
+const triggerRotationOffsets = Dict{String, Tuple{Number, Number}}(
     "up" => (3, -1),
     "right" => (4, 3),
     "down" => (5, 5),
     "left" => (-1, 4),
 )
 
-resizeDirections = Dict{String, Tuple{Bool, Bool}}(
+const resizeDirections = Dict{String, Tuple{Bool, Bool}}(
     "up" => (true, false),
     "down" => (true, false),
     "left" => (false, true),
@@ -163,6 +163,46 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::triggerSpikesUnion)
                 Ahorn.drawSprite(ctx, "danger/spikes/$(variant)_$(direction)00", drawX, drawY)
             end
         end
+    end
+end
+
+function Ahorn.flipped(entity::TimedTriggerSpikesUp, horizontal::Bool)
+    if !horizontal
+        return TimedTriggerSpikesDown(entity.x, entity.y, entity.width, entity.type)
+    end
+end
+
+function Ahorn.flipped(entity::TimedTriggerSpikesDown, horizontal::Bool)
+    if !horizontal
+        return TimedTriggerSpikesUp(entity.x, entity.y, entity.width, entity.type)
+    end
+end
+
+function Ahorn.flipped(entity::TimedTriggerSpikesLeft, horizontal::Bool)
+    if horizontal
+        return TimedTriggerSpikesRight(entity.x, entity.y, entity.height, entity.type)
+    end
+end
+
+function Ahorn.flipped(entity::TimedTriggerSpikesRight, horizontal::Bool)
+    if horizontal
+        return TimedTriggerSpikesLeft(entity.x, entity.y, entity.height, entity.type)
+    end
+end
+
+const spikes = [TimedTriggerSpikesLeft, TimedTriggerSpikesUp, TimedTriggerSpikesRight, TimedTriggerSpikesDown]
+for i in 1:length(spikes)
+    left, normal, right = getindex(spikes, mod1.(collect(i-1:i+1), 4))
+    size = i % 2 == 0 ? :(entity.width) : :(entity.height)
+    @eval function Ahorn.rotated(entity::$normal, steps::Int)
+        if steps > 0
+            return Ahorn.rotated($right(entity.x, entity.y, $size, entity.type), steps - 1)
+
+        elseif steps < 0
+            return Ahorn.rotated($left(entity.x, entity.y, $size, entity.type), steps + 1)
+        end
+
+        return entity
     end
 end
 

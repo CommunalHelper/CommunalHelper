@@ -24,11 +24,7 @@ const placements = Ahorn.PlacementDict(
 const spriteOneDash = "objects/refill/idle00"
 const spriteTwoDash = "objects/refillTwo/idle00"
 
-function getSprite(entity::ShieldedRefill)
-    twoDash = get(entity.data, "twoDashes", false)
-
-    return twoDash ? spriteTwoDash : spriteOneDash
-end
+getSprite(entity::ShieldedRefill) = get(entity.data, "twoDashes", false) ? spriteTwoDash : spriteOneDash
 
 function Ahorn.selection(entity::ShieldedRefill)
     x, y = Ahorn.position(entity)
@@ -37,7 +33,7 @@ function Ahorn.selection(entity::ShieldedRefill)
     return Ahorn.getSpriteRectangle(sprite, x, y)
 end
 
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ShieldedRefill, room::Maple.Room)
+function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ShieldedRefill)
     Ahorn.Cairo.save(ctx)
     Ahorn.set_antialias(ctx, 1)
     Ahorn.set_line_width(ctx, 1);
