@@ -21,7 +21,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private MTexture cross;
 
         public DreamZipMover(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false), data.Bool("below")) {
+            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) {
             start = Position;
             target = data.Nodes[0] + offset;
 

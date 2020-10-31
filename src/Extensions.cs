@@ -39,6 +39,43 @@ namespace Celeste.Mod.CommunalHelper {
 
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
 
+        public static bool MoreDashelineLoaded;
+        public static MethodInfo MoreDasheline_GetHairColor;
+
+        public static Color GetHairColor(this Player player, int dashCount) {
+            if (MoreDashelineLoaded)
+                return (Color) MoreDasheline_GetHairColor.Invoke(null, new object[] { player, dashCount });
+
+            bool isBadeline = player.Sprite.Mode == PlayerSpriteMode.MadelineAsBadeline;
+            switch (dashCount) {
+                case 0:
+                    return isBadeline ? Player.UsedBadelineHairColor : Player.UsedHairColor;
+                case 1:
+                    return isBadeline ? Player.NormalBadelineHairColor : Player.NormalHairColor;
+                default:
+                    return isBadeline ? Player.TwoDashesBadelineHairColor : Player.TwoDashesHairColor;
+
+            }
+        }
+
+        // Modified version of Everest.Loader.DependencyLoaded
+        public static bool TryGetModule(EverestModuleMetadata meta, out EverestModule module) {
+            foreach (EverestModule other in Everest.Modules) {
+                EverestModuleMetadata otherData = other.Metadata;
+                if (otherData.Name != meta.Name)
+                    continue;
+
+                Version version = otherData.Version;
+                if (Everest.Loader.VersionSatisfiesDependency(meta.Version, version)) {
+                    module = other;
+                    return true;
+                }
+            }
+
+            module = null;
+            return false;
+        }
+
         #region Collider
 
         public static T CollideFirst<T, Exclude>(this Entity from) where T : Entity where Exclude : Entity {

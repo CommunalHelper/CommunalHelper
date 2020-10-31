@@ -39,7 +39,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected Color disabledBackColor => baseData.Get<Color>("disabledBackColor");
 
         public bool FeatherMode;
-        protected bool DoubleRefill;
+        protected int RefillCount;
         protected bool shattering = false;
         public float ColorLerp = 0.0f;
 
@@ -47,12 +47,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private ParticleType shakeParticle;
         private float[] particleRemainders = new float[4];
 
+        private bool delayedSetupParticles;
+        private bool awake;
+
         protected DynData<DreamBlock> baseData;
 
-        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill, bool below)
+        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below)
             : base(position, width, height, null, false, oneUse, below) {
             baseData = new DynData<DreamBlock>(this);
-            DoubleRefill = doubleRefill;
+            RefillCount = refillCount;
 
             FeatherMode = featherMode;
             //if (altLineColor) { Dropped in favour of symbol
@@ -79,30 +82,66 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             };
         }
 
+        protected static int GetRefillCount(EntityData data) =>
+            data.Bool("doubleRefill") ? 2 : data.Int("refillCount", -1);
+
         public override void Removed(Scene scene) {
             base.Removed(scene);
             Glitch.Value = 0f;
         }
 
+        public override void Added(Scene scene) {
+            base.Added(scene);
+            Console.WriteLine("Added");
+        }
+
+        public override void Awake(Scene scene) {
+            base.Awake(scene);
+            awake = true;
+            if (delayedSetupParticles)
+                SetupCustomParticles(Width, Height);
+        }
+
         public virtual void SetupCustomParticles(float canvasWidth, float canvasHeight) {
             float countFactor = FeatherMode ? 0.5f : 0.7f;
             particles = new DreamParticle[(int) (canvasWidth / 8f * (canvasHeight / 8f) * 0.7f * countFactor)];
+
+            Console.WriteLine("Setting up particles");
+
+            if (!awake && RefillCount != -1) {
+                Console.WriteLine("Delaying custom particle load");
+                delayedSetupParticles = true;
+                return;
+            }
+
+            if (delayedSetupParticles && RefillCount != -1)
+                Console.WriteLine("Loading delayed particles");
+
+            Color color1; Color color2; Color color3;
+            if (RefillCount != -1) {
+                color1 = Scene.Tracker.GetEntity<Player>().GetHairColor(RefillCount);
+                color2 = Color.Lerp(color1, Color.White, 0.5f);
+                color3 = Color.Lerp(color2, Color.White, 0.5f);
+            } else {
+                color1 = color2 = color3 = Color.Transparent;
+            }
+
             for (int i = 0; i < particles.Length; i++) {
                 particles[i].Position = new Vector2(Calc.Random.NextFloat(canvasWidth), Calc.Random.NextFloat(canvasHeight));
                 particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
                 particles[i].TimeOffset = Calc.Random.NextFloat();
 
                 if (PlayerHasDreamDash) {
-                    if (DoubleRefill) {
+                    if (RefillCount != -1) {
                         switch (particles[i].Layer) {
                             case 0:
-                                particles[i].Color = Calc.HexToColor("FFD1F9");
+                                particles[i].Color = color1;
                                 break;
                             case 1:
-                                particles[i].Color = Calc.HexToColor("FC99FF");
+                                particles[i].Color = color2;
                                 break;
                             case 2:
-                                particles[i].Color = Calc.HexToColor("E269D2");
+                                particles[i].Color = color3;
                                 break;
                         }
                     } else {
@@ -230,7 +269,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (FeatherMode) {
                     featherTextures[layer].DrawCentered(position, color, 1, rotation);
                 } else {
-                    MTexture[] particleTextures = DoubleRefill ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
+                    MTexture[] particleTextures = RefillCount != -1 ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
                     MTexture particleTexture;
                     switch (layer) {
                         case 0: {
@@ -387,8 +426,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void DreamBlock_OnPlayerExit(On.Celeste.DreamBlock.orig_OnPlayerExit orig, DreamBlock dreamBlock, Player player) {
             orig(dreamBlock, player);
             if (dreamBlock is CustomDreamBlock customDreamBlock) {
-                if (customDreamBlock.DoubleRefill) {
-                    player.Dashes = 2;
+                if (customDreamBlock.RefillCount != -1) {
+                    player.Dashes = customDreamBlock.RefillCount;
                 }
             }
         }

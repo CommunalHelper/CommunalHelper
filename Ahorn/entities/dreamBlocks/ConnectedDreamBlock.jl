@@ -3,9 +3,9 @@ module CommunalHelperConnectedDreamBlock
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/ConnectedDreamBlock" ConnectedDreamBlock( x::Integer, y::Integer,
+@mapdef Entity "CommunalHelper/ConnectedDreamBlock" ConnectedDreamBlock(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	featherMode::Bool = false, oneUse::Bool = false, doubleRefill::Bool=false, below::Bool=false)
+	featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, below::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Connected Dream Block (Normal) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -36,6 +36,12 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
+Ahorn.editingOptions(entity::ConnectedDreamBlock) = Dict{String, Any}(
+    "refillCount" => Dict{String, Int}(
+        "Default" => -1
+    )
+)
+
 Ahorn.minimumSize(entity::ConnectedDreamBlock) = 8, 8
 Ahorn.resizable(entity::ConnectedDreamBlock) = true, true
 
@@ -52,10 +58,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedDreamBlock
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    featherMode = Bool(get(entity.data, "featherMode", false))
-    oneUse = Bool(get(entity.data, "oneUse", false))
-
-    renderDreamBlock(ctx, 0, 0, width, height, featherMode, oneUse)
+    renderDreamBlock(ctx, 0, 0, width, height, entity.data)
 end
 
 end

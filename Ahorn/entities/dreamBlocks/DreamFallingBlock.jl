@@ -5,7 +5,7 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamFallingBlock" DreamFallingBlock(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	featherMode::Bool = false, oneUse::Bool = false, doubleRefill::Bool=false, noCollide::Bool=false, below::Bool=false)
+	featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, noCollide::Bool=false, below::Bool=false)
 
 
 const placements = Ahorn.PlacementDict(
@@ -31,10 +31,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::FallingBlock)
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    featherMode = Bool(get(entity.data, "featherMode", false))
-    oneUse = Bool(get(entity.data, "oneUse", false))
-
-    renderDreamBlock(ctx, 0, 0, width, height, featherMode, oneUse)
+    renderDreamBlock(ctx, 0, 0, width, height, entity.data)
 end
 
 end

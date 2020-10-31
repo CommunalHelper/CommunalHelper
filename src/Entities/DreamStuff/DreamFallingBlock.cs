@@ -16,7 +16,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool hasLanded;
 
         public DreamFallingBlock(EntityData data, Vector2 offset)
-			: base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill"), data.Bool("below")) {
+			: base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) {
             noCollide = data.Bool("noCollide", false);
 
             Add(new Coroutine(Sequence()));

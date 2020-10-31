@@ -5,7 +5,7 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamSwitchGate" DreamSwitchGate(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool = false, oneUse::Bool = false, doubleRefill::Bool=false, below::Bool=false, permanent::Bool = false)
+    featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, below::Bool=false, permanent::Bool = false)
 
 
 const placements = Ahorn.PlacementDict(
@@ -43,9 +43,7 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwi
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
 
-    featherMode = Bool(get(entity.data, "featherMode", false))
-    oneUse = Bool(get(entity.data, "oneUse", false))
-    renderDreamBlock(ctx, stopX, stopY, width, height, featherMode, oneUse)
+    renderDreamBlock(ctx, stopX, stopY, width, height, entity.data)
 
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
 
@@ -58,10 +56,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwitchGate)
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    featherMode = Bool(get(entity.data, "featherMode", false))
-    oneUse = Bool(get(entity.data, "oneUse", false))
-
-    renderDreamBlock(ctx, x, y, width, height, featherMode, oneUse)
+    renderDreamBlock(ctx, x, y, width, height, entity.data)
 
     Ahorn.drawImage(ctx, iconSprite, x + div(width - iconSprite.width, 2), y + div(height - iconSprite.height, 2))
 end

@@ -5,7 +5,7 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamSwapBlock" DreamSwapBlock(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	noReturn::Bool=false, featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false, below::Bool=false)
+	noReturn::Bool=false, featherMode::Bool=false, oneUse::Bool=false, refillCount::Integer=-1, below::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Dream Swap Block (Communal Helper)" => Ahorn.EntityPlacement(
@@ -41,10 +41,7 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwa
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
 
-	featherMode = Bool(get(entity.data, "featherMode", false))
-    oneUse = Bool(get(entity.data, "oneUse", false))
-
-    renderDreamBlock(ctx, stopX, stopY, width, height, featherMode, oneUse)
+    renderDreamBlock(ctx, stopX, stopY, width, height, entity.data)
 
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
 end
@@ -60,10 +57,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock)
 
     Ahorn.SwapBlock.renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height, "objects/swapblock/target")
 
-    featherMode = Bool(get(entity.data, "featherMode", false))
-    oneUse = Bool(get(entity.data, "oneUse", false))
-
-    renderDreamBlock(ctx, startX, startY, width, height, featherMode, oneUse)
+    renderDreamBlock(ctx, startX, startY, width, height, entity.data)
 
     if Bool(get(entity.data, "noReturn", false))
         noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")

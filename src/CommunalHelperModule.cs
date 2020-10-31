@@ -82,6 +82,13 @@ namespace Celeste.Mod.CommunalHelper {
             ConnectedSwapBlock.InitializeTextures();
 
             HeartGemShard.InitializeParticles();
+
+            EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
+            if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule module)) {
+                Extensions.MoreDashelineLoaded = true;
+                Extensions.MoreDasheline_GetHairColor = module.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) });
+                Logger.Log("Communal Helper", "MoreDasheline detected: using MoreDasheline hair colors for CustomDreamBlock particles.");
+            }
         }
 
         // Loading "custom" entities

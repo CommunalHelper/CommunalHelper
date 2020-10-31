@@ -5,7 +5,7 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamZipMover" DreamZipMover(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	noReturn::Bool=false, dreamAesthetic::Bool=false, featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false, below::Bool=false)
+	noReturn::Bool=false, dreamAesthetic::Bool=false, featherMode::Bool=false, oneUse::Bool=false, refillCount::Integer=-1, below::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Dream Zip Mover (Communal Helper)" => Ahorn.EntityPlacement(
@@ -41,7 +41,7 @@ end
 const crossSprite = "objects/CommunalHelper/dreamMoveBlock/x"
 const ropeColor = (102, 57, 49) ./ 255
 
-function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover, featherMode::Bool, oneUse::Bool)
+function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover)
     x, y = Ahorn.position(entity)
     nx, ny = Int.(entity.data["nodes"][1])
 
@@ -58,7 +58,7 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
     theta = atan(cny - cy, cnx - cx)
 
     # Dream block stuff
-    renderDreamBlock(ctx, x, y, width, height, featherMode, oneUse)
+    renderDreamBlock(ctx, x, y, width, height, entity.data)
     
     Ahorn.Cairo.save(ctx)
 
@@ -87,6 +87,6 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
 end
 
 Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover) =
-    renderDreamZipMover(ctx, entity, get(entity.data, "featherMode", false), get(entity.data, "oneUse", false))
+    renderDreamZipMover(ctx, entity)
 
 end
