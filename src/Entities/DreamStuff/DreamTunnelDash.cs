@@ -383,11 +383,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static bool DreamTunneledIntoDeath(this Player player) {
             if (player.CollideCheck<DreamBlock>()) {
-                for (int i = 1; i <= 5; i++) {
-                    for (int j = -1; j <= 1; j += 2) {
-                        for (int k = 1; k <= 5; k++) {
-                            for (int l = -1; l <= 1; l += 2) {
-                                Vector2 value = new Vector2(i * j, k * l);
+                for (int x = 1; x <= 5; x++) {
+                    for (int signX = -1; signX <= 1; signX += 2) {
+                        for (int y = 1; y <= 5; y++) {
+                            for (int signY = -1; signY <= 1; signY += 2) {
+                                Vector2 value = new Vector2(x * signX, y * signY);
                                 if (!player.CollideCheck<DreamBlock>(player.Position + value)) {
                                     player.Position += value;
                                     return false;
@@ -480,7 +480,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 player.NaiveMove(dir);
             }
             
-
             player.Speed = player.DashDir * Player_DashSpeed;
             player.TreatNaive = true;
             player.Depth = Depths.PlayerDreamDashing;
