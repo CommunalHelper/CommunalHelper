@@ -53,7 +53,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void Awake(Scene scene)
         {
-            base.Awake(scene);
+           
 
             List<SolidExtension> extensions = new List<SolidExtension>();
             FindExtensions(this, extensions);
@@ -65,12 +65,14 @@ namespace Celeste.Mod.CommunalHelper {
                 SolidExtension e = extensions[i];
                 Vector2 offset = e.Position - Position;
                 Colliders[i] = new Hitbox(e.Width, e.Height, offset.X, offset.Y);
+                e.RemoveSelf();
+                // You don't want disabled Solids hanging around in the level, so you remove them.
             }
             Colliders[Colliders.Length - 1] = new Hitbox(Collider.Width, Collider.Height);
             base.Collider = new ColliderList(Colliders);
 
-            foreach (SolidExtension e in extensions) e.RemoveSelf();
-            // You don't want disabled Solids hanging around in the level, so you remove them.
+            base.Awake(scene);
+
         }
 
         private void FindExtensions(ConnectedSolid master, List<SolidExtension> list)
