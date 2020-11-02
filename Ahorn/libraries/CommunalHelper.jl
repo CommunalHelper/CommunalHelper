@@ -44,7 +44,7 @@ function renderDreamBlock(ctx::CairoContext, x::Number, y::Number, width::Number
 
 	lineColor = (1.0, 1.0, 1.0, 1.0)
 	if get(data, "doubleRefill", false)
-		lineColor = (1.0, 0.8, 0.8, 1.0)
+		lineColor = (1.0, 0.43, 0.94, 1.0)
 	else
 		refillCount = Int(get(data, "refillCount", -1))
 		if refillCount != -1

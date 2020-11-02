@@ -36,7 +36,7 @@ placements.entities.CommunalHelper/CassetteZipMover.tooltips.noReturn=Whether th
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.below=Determines whether the Connected Dream Block should render in the background or foreground.
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.featherMode=Whether the Connected Dream Block has the Dream Block Feather controls enabled. Connected Dream Blocks only connect with other dream blocks with the same controls.
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.oneUse=Whether THIS Connected Dream Block should make its entire group shatter upon leaving it.
-placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.doubleRefill=Whether this group of Connected Dream Blocks should refill two dashes, instead of one.
+placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.refillCount=Number of dashes this group of Connected Dream Blocks should refill (-1 for default).
 
 # -- Connected Move Block --
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.moveSpeed=The speed at which the block moves (accepts any number).
@@ -55,14 +55,14 @@ placements.entities.CommunalHelper/ConnectedZipMover.tooltips.ticking=Whether th
 # -- Dream Falling Block --
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.featherMode=Whether the Dream Falling Block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.oneUse=Whether the Dream Falling Block should shatter upon exit.
-placements.entities.CommunalHelper/DreamFallingBlock.tooltips.doubleRefill=Whether the Dream Falling Block should refill two dashes, instead of one.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.refillCount=Number of dashes the Dream Falling Block should refill (-1 for default).
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.below=Determines whether the Dream Falling Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.noCollide=Whether the Dream Falling Block should go through everything.
 
 # -- Dream Move Block --
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.direction=The direction in which the Dream Move Block moves.
-placements.entities.CommunalHelper/DreamMoveBlock.tooltips.doubleRefill=Whether the Dream Move Block should refill two dashes, instead of one.
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.refillCount=Number of dashes the Dream Move Block should refill (-1 for default).
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.moveSpeed=The speed at which the Dream Move Block moves (accepts any number).
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.noCollide=Whether the Dream Move Block should go through everything.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
@@ -76,14 +76,14 @@ placements.entities.CommunalHelper/DreamSwapBlock.tooltips.below=Determines whet
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.noReturn=Whether the Dream Swap Block should return to its starting point or not.
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.featherMode=Whether the Dream Swap Block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.oneUse=Whether the Dream Swap Block should shatter upon exit.
-placements.entities.CommunalHelper/DreamSwapBlock.tooltips.doubleRefill=Whether the Dream Swap Block should refill two dashes, instead of one.
+placements.entities.CommunalHelper/DreamSwapBlock.tooltips.refillCount=Number of dashes the Dream Swap Block should refill (-1 for default).
 
 # -- Dream Switch Gate --
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.oneUse=Whether the Dream Switch Gate should shatter upon exit.
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.permanent=Whether the Dream Switch Gate should stay at its node permanently after being activated for the entire level.
-placements.entities.CommunalHelper/DreamSwitchGate.tooltips.doubleRefill=Whether the Dream Switch Gate should refill two dashes, instead of one.
+placements.entities.CommunalHelper/DreamSwitchGate.tooltips.refillCount=Number of dashes the Dream Switch Block should refill (-1 for default).
 
 # -- Dream Zip Mover --
 placements.entities.CommunalHelper/DreamZipMover.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
@@ -91,7 +91,7 @@ placements.entities.CommunalHelper/DreamZipMover.tooltips.noReturn=Whether the D
 placements.entities.CommunalHelper/DreamZipMover.tooltips.dreamAesthetic=Optional look for this entity, mostly unused, but left there.
 placements.entities.CommunalHelper/DreamZipMover.tooltips.featherMode=Whether the Dream Zip Mover has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamZipMover.tooltips.oneUse=Whether the Dream Zip Mover should shatter upon exit.
-placements.entities.CommunalHelper/DreamZipMover.tooltips.doubleRefill=Whether the Dream Zip Mover should refill two dashes, instead of one.
+placements.entities.CommunalHelper/DreamZipMover.tooltips.refillCount=Number of dashes the Dream Zip Block should refill (-1 for default).
 
 
 # -- Move Swap Block --

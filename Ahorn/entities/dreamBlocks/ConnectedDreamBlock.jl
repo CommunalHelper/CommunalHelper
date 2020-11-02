@@ -36,12 +36,6 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
-Ahorn.editingOptions(entity::ConnectedDreamBlock) = Dict{String, Any}(
-    "refillCount" => Dict{String, Int}(
-        "Default" => -1
-    )
-)
-
 Ahorn.minimumSize(entity::ConnectedDreamBlock) = 8, 8
 Ahorn.resizable(entity::ConnectedDreamBlock) = true, true
 
