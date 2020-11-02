@@ -48,7 +48,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float[] particleRemainders = new float[4];
 
         private bool delayedSetupParticles;
-        private bool awake;
+        protected bool awake;
 
         protected DynData<DreamBlock> baseData;
 
@@ -90,11 +90,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Glitch.Value = 0f;
         }
 
-        public override void Added(Scene scene) {
-            base.Added(scene);
-            Console.WriteLine("Added");
-        }
-
         public override void Awake(Scene scene) {
             base.Awake(scene);
             awake = true;
@@ -103,19 +98,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public virtual void SetupCustomParticles(float canvasWidth, float canvasHeight) {
-            float countFactor = FeatherMode ? 0.5f : 0.7f;
+            float countFactor = (FeatherMode ? 0.5f : 0.7f) * RefillCount != -1 ? 1.2f : 1;
             particles = new DreamParticle[(int) (canvasWidth / 8f * (canvasHeight / 8f) * 0.7f * countFactor)];
 
-            Console.WriteLine("Setting up particles");
-
+            // Necessary to get the player's spritemode
             if (!awake && RefillCount != -1) {
-                Console.WriteLine("Delaying custom particle load");
                 delayedSetupParticles = true;
                 return;
             }
-
-            if (delayedSetupParticles && RefillCount != -1)
-                Console.WriteLine("Loading delayed particles");
 
             Color color1; Color color2; Color color3;
             if (RefillCount != -1) {
