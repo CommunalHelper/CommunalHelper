@@ -1,4 +1,5 @@
 --1.4.0 (31/10/2020)--
+* Fixed IL hooks on SteamFNA
 * Static Movers now attach properly to ConnectedSolids
 * Added Timed Trigger Spikes
 * Added Move Swap Block

@@ -1,4 +1,4 @@
-This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection. You can find us in the [Celeste Discord](https://discord.gg/g8Mw3XH) @Bio, @catapillie, @Nikko and @coloursofnoise.
+This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection. You can find us in the [Celeste Discord](https://discord.gg/g8Mw3XH) @catapillie, @Nikko, @coloursofnoise and @Viv.
 
 
 The current list of included mechanics:
@@ -37,4 +37,4 @@ The current list of included mechanics:
 To use this helper as part of your map, put the text below into the Dependencies: section of your everest.yaml:
 
 - Name: CommunalHelper
-  Version: 1.4.0
+  Version: 1.4.1
