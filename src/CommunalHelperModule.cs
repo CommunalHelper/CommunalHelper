@@ -34,8 +34,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamRefill.Load();
 
             CustomDreamBlock.Load();
-            DreamCrumbleWallOnRumble.Load();
-            ConnectedDreamBlock.Hook();
+            // Individual Dream Blocks hooked in CustomDreamBlock.Load
 
             ConnectedSwapBlockHooks.Hook();
             CustomCassetteBlockHooks.Hook();
@@ -57,8 +56,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamRefill.Unload();
 
             CustomDreamBlock.Unload();
-            DreamCrumbleWallOnRumble.Unload();
-            ConnectedDreamBlock.Unhook();
+            // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
             ConnectedSwapBlockHooks.Unhook();
             CustomCassetteBlockHooks.Unhook();

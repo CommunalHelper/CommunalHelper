@@ -360,7 +360,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.DreamDashBegin += Player_DreamDashBegin;
             On.Celeste.Player.DreamDashUpdate += Player_DreamDashUpdate;
 
+            ConnectedDreamBlock.Hook();
             DreamMoveBlock.Load();
+            DreamCrumbleWallOnRumble.Load();
         }
 
         internal static void Unload() {
@@ -371,7 +373,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.DreamDashBegin -= Player_DreamDashBegin;
             On.Celeste.Player.DreamDashUpdate -= Player_DreamDashUpdate;
 
+            ConnectedDreamBlock.Unhook();
             DreamMoveBlock.Unload();
+            DreamCrumbleWallOnRumble.Unload();
         }
 
         private static void DreamBlock_Setup(On.Celeste.DreamBlock.orig_Setup orig, DreamBlock self) {
