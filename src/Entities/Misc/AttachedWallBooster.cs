@@ -3,7 +3,6 @@ using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
-using System;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities
@@ -124,7 +123,6 @@ namespace Celeste.Mod.CommunalHelper.Entities
             if (playerWallBoostTimer > 0) {
                 player.LiftSpeed += Vector2.UnitY * Calc.Max(attachedWallBoosterCurrentSpeed, -80f);
                 attachedWallBoosterCurrentSpeed = playerWallBoostTimer = 0f;
-                Console.WriteLine(player.LiftSpeed);
             }
         }
 

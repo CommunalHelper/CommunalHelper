@@ -1,4 +1,7 @@
---1.4.0 (??/10/2020)--
+--1.4.0 (31/10/2020)--
+* Fixed IL hooks on SteamFNA
+* Static Movers now attach properly to ConnectedSolids
+* Added Timed Trigger Spikes
 * Added Move Swap Block
 * Added Reset State Crystal
 * Added Shielded Refill
@@ -10,7 +13,7 @@
 * DreamTunnelDash now behaves more consistently
 * Fixed StrawberrySeed collection during DreamTunnelDash
 
---1.3.0 (??/08/2020)--
+--1.3.0 (01/09/2020)--
 * Added "double refill" mode to all dream block types.
 * Added Connected Zip Mover, Connected Move Block and Connected Swap Block. 
 * Added Connected Solid Extension.

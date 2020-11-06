@@ -61,7 +61,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Player_DashCoroutine);
 
             IL.Celeste.Player.IsRiding_Solid += State_DreamDashEqual;
-            IL.Celeste.Player.IsRiding_JumpThru += State_DreamDashEqual_And;
+            IL.Celeste.Player.IsRiding_JumpThru += Player_IsRiding_JumpThru;
             IL.Celeste.Player.OnCollideH += State_DreamDashEqual;
             IL.Celeste.Player.OnCollideV += State_DreamDashEqual;
             hook_Player_orig_Update = new ILHook(
@@ -77,7 +77,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             IL.Celeste.FakeWall.Update += State_DreamDashNotEqual;
             IL.Celeste.Spring.OnCollide += State_DreamDashEqual;
-            IL.Celeste.Solid.Update += State_DreamDashNotEqual;
+            IL.Celeste.Solid.Update += State_DreamDashNotEqual_And;
         }
 
         public static void Unload() {
@@ -104,7 +104,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             IL.Celeste.FakeWall.Update -= State_DreamDashNotEqual;
             IL.Celeste.Spring.OnCollide -= State_DreamDashEqual;
-            IL.Celeste.Solid.Update -= State_DreamDashNotEqual_And;
+            IL.Celeste.Solid.Update -= State_DreamDashNotEqual;
         }
 
         public static void LoadContent() {
@@ -252,6 +252,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return orig(self, dir, evenIfInvincible, registerDeathInStats);
         }
 
+        private static void Player_IsRiding_JumpThru(ILContext il) {
+            if (il.Instrs[0].OpCode == OpCodes.Nop)
+                State_DreamDashEqual(il);
+            else
+                State_DreamDashNotEqual_And(il);
+        }
+
         // Patch any method that checks the player's State
         /// <summary>
         /// Use if decompilation says <c>State==9</c> and NOT followed by <c>&amp;&amp;</c>.
@@ -293,9 +300,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 // Retrieve the next break instruction that checks equality
                 Instruction breakInstr = cursor.Clone().GotoNext(instr => instr.Match(OpCodes.Beq_S) || instr.Match(OpCodes.Bne_Un_S) || instr.Match(OpCodes.Ceq)).Next;
 
-                // For SteamFNA, if there is a check for equality just break to after it after pushing true to the stack
+                // For SteamFNA, if there is a check for equality just break to after it after pushing the appropriate value to the stack
                 if (breakInstr.OpCode == OpCodes.Ceq) {
-                    cursor.Emit(OpCodes.Ldc_I4_1);
+                    cursor.Emit(equal ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
                     cursor.Emit(OpCodes.Br_S, breakInstr.Next);
                 }
                 // If our intended behaviour matches what the break instruction is checking for, break to its target
@@ -304,6 +311,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 // Otherwise, break to after the break instruction (skip it)
                 else
                     cursor.Emit(OpCodes.Br_S, breakInstr.Next);
+
                 cursor.Goto(idx, MoveType.After);
             }
         }
@@ -383,11 +391,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static bool DreamTunneledIntoDeath(this Player player) {
             if (player.CollideCheck<DreamBlock>()) {
-                for (int i = 1; i <= 5; i++) {
-                    for (int j = -1; j <= 1; j += 2) {
-                        for (int k = 1; k <= 5; k++) {
-                            for (int l = -1; l <= 1; l += 2) {
-                                Vector2 value = new Vector2(i * j, k * l);
+                for (int x = 1; x <= 5; x++) {
+                    for (int signX = -1; signX <= 1; signX += 2) {
+                        for (int y = 1; y <= 5; y++) {
+                            for (int signY = -1; signY <= 1; signY += 2) {
+                                Vector2 value = new Vector2(x * signX, y * signY);
                                 if (!player.CollideCheck<DreamBlock>(player.Position + value)) {
                                     player.Position += value;
                                     return false;
@@ -480,7 +488,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 player.NaiveMove(dir);
             }
             
-
             player.Speed = player.DashDir * Player_DashSpeed;
             player.TreatNaive = true;
             player.Depth = Depths.PlayerDreamDashing;
