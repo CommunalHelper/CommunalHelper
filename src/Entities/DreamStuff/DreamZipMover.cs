@@ -11,11 +11,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private PathRenderer pathRenderer;
 
         private Vector2 start;
-        private Vector2 target;
         private float percent = 0f;
 
-        private SoundSource sfx;
+        private SoundSource sfx, altSfx = new SoundSource();
 
+        private Vector2[] targets, originalNodes;
+        private bool permanent;
+        private bool waits;
+        private bool ticking;
         private bool dreamAesthetic;
         private bool noReturn;
         private MTexture cross;
@@ -23,10 +26,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public DreamZipMover(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false), data.Bool("below")) {
             start = Position;
-            target = data.Nodes[0] + offset;
+            targets = new Vector2[data.Nodes.Length];
+            originalNodes = data.Nodes;
 
             noReturn = data.Bool("noReturn");
             dreamAesthetic = data.Bool("dreamAesthetic");
+
+            permanent = data.Bool("permanent");
+            waits = data.Bool("waiting");
+            ticking = data.Bool("ticking");
 
             Add(new Coroutine(Sequence()));
             Add(new LightOcclude());
@@ -38,6 +46,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Added(Scene scene) {
             base.Added(scene);
+
+            // Offset the points to their position, relative to the room's position.
+            Rectangle bounds = SceneAs<Level>().Bounds;
+            Vector2 levelOffset = new Vector2(bounds.Left, bounds.Top);
+            for (int i = 0; i < originalNodes.Length; i++) {
+                targets[i] = originalNodes[i] + levelOffset;
+            }
+
             scene.Add(pathRenderer = new PathRenderer(this, dreamAesthetic));
         }
 
@@ -109,55 +125,127 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private IEnumerator Sequence() {
+            // Infinite.
             Vector2 start = Position;
-            Vector2 end = target;
             while (true) {
                 if (!HasPlayerRider()) {
                     yield return null;
                     continue;
                 }
-                sfx.Play(PlayerHasDreamDash ? CustomSFX.game_dreamZipMover_dream_zip_mover : SFX.game_01_zipmover);
-                Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-                StartShaking(0.1f);
-                yield return 0.1f;
 
-                StopPlayerRunIntoAnimation = false;
-                float at = 0f;
-                while (at < 1f) {
-                    yield return null;
-                    at = Calc.Approach(at, 1f, 2f * Engine.DeltaTime);
-                    percent = Ease.SineIn(at);
-                    Vector2 to = Vector2.Lerp(start, end, percent);
-                    ScrapeParticlesCheck(to);
-                    if (Scene.OnInterval(0.1f)) {
-                        pathRenderer.CreateSparks();
-                    }
-                    MoveTo(to);
-                }
-                StartShaking(0.2f);
-                Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
-                SceneAs<Level>().Shake();
-                StopPlayerRunIntoAnimation = true;
-                yield return 0.5f;
+                Vector2 from = start;
+                Vector2 to;
+                float at2;
 
-                if (!noReturn) {
+                // Player is riding.
+                bool shouldCancel = false;
+                int i;
+                for (i = 0; i < targets.Length; i++) {
+                    to = targets[i];
+
+                    // Start shaking.
+                    sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_start");
+                    Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+                    StartShaking(0.1f);
+                    yield return 0.1f;
+
+                    // Start moving towards the target.
+                    //streetlight.SetAnimationFrame(3);
                     StopPlayerRunIntoAnimation = false;
-                    at = 0f;
-                    while (at < 1f) {
+                    at2 = 0f;
+                    while (at2 < 1f) {
                         yield return null;
-                        at = Calc.Approach(at, 1f, 0.5f * Engine.DeltaTime);
-                        percent = 1f - Ease.SineIn(at);
-                        Vector2 to2 = Vector2.Lerp(end, start, Ease.SineIn(at));
-                        MoveTo(to2);
+                        at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
+                        percent = Ease.SineIn(at2);
+                        Vector2 vector = Vector2.Lerp(from, to, percent);
+                        ScrapeParticlesCheck(to);
+                        if (Scene.OnInterval(0.1f)) {
+                            pathRenderer.CreateSparks();
+                        }
+                        MoveTo(vector);
                     }
-                    StopPlayerRunIntoAnimation = true;
+
+                    bool last = (i == targets.Length - 1);
+
+                    // Arrived, will wait for 0.5 secs.
                     StartShaking(0.2f);
+                    //streetlight.SetAnimationFrame(((waits && !last) || (ticking && !last) || (permanent && last)) ? 1 : 2);
+                    Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
+                    SceneAs<Level>().Shake();
+                    StopPlayerRunIntoAnimation = true;
+                    yield return 0.5f;
+
+                    from = targets[i];
+
+                    if (ticking && !last) {
+                        float tickTime = 0.0f;
+                        int tickNum = 0;
+                        while (!HasPlayerRider() && tickNum < 5) {
+                            yield return null;
+                            //streetlight.SetAnimationFrame(1 - (int) Math.Round(tickTime));
+
+
+                            tickTime = Calc.Approach(tickTime, 1f, Engine.DeltaTime);
+                            if (tickTime >= 1.0f) {
+                                tickTime = 0.0f;
+                                tickNum++;
+                                sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_tick");
+                                StartShaking(0.1f);
+                            }
+                        }
+
+                        if (tickNum == 5 && !HasPlayerRider()) {
+                            shouldCancel = true;
+                            break;
+                        }
+                    } else if (waits && !last) {
+                        //streetlight.SetAnimationFrame(1);
+                        while (!HasPlayerRider()) {
+                            yield return null;
+                        }
+                    }
+                }
+
+                if (!permanent) {
+                    for (i -= 2 - (shouldCancel ? 1 : 0); i > -2; i--) {
+                        to = (i == -1) ? start : targets[i];
+
+                        // Goes back to start with a speed that is four times slower.
+                        StopPlayerRunIntoAnimation = false;
+                        //streetlight.SetAnimationFrame(2);
+                        sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_return");
+                        at2 = 0f;
+                        while (at2 < 1f) {
+                            yield return null;
+                            at2 = Calc.Approach(at2, 1f, 0.5f * Engine.DeltaTime);
+                            percent = 1f - Ease.SineIn(at2);
+                            Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
+                            MoveTo(position);
+                        }
+                        if (i != -1) {
+                            from = targets[i];
+                        }
+
+                        StartShaking(0.2f);
+                        altSfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_finish");
+                    }
+
+                    StopPlayerRunIntoAnimation = true;
+
+                    // Done, will not actiavte for 0.5 secs.
+                    //streetlight.SetAnimationFrame(1);
                     yield return 0.5f;
                 } else {
-                    sfx.Stop();
-                    Vector2 temp = start;
-                    start = end;
-                    end = temp;
+
+                    // Done, will never be activated again.
+                    StartShaking(0.3f);
+                    altSfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_finish");
+                    sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_tick");
+                    SceneAs<Level>().Shake(0.15f);
+                    //streetlight.SetAnimationFrame(0);
+                    while (true) {
+                        yield return null;
+                    }
                 }
             }
         }
@@ -210,11 +298,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             public PathRenderer(DreamZipMover dreamZipMover, bool dreamAesthetic) {
-                Depth = dreamZipMover.Depth + 10;
+                Depth = 9000;
                 DreamZipMover = dreamZipMover;
                 this.dreamAesthetic = dreamAesthetic;
                 from = DreamZipMover.start + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
-                to = DreamZipMover.target + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
+                to = DreamZipMover.targets[0] + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
                 sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
                 float angle = (from - to).Angle();
                 sparkDirFromA = angle + (float) Math.PI / 8f;
@@ -227,15 +315,43 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             public void CreateSparks() {
-                SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromA);
-                SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromB);
-                SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
-                SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
+                from = GetNodeFrom(DreamZipMover.start);
+                for (int i = 0; i < DreamZipMover.targets.Length; i++) {
+                    to = GetNodeFrom(DreamZipMover.targets[i]);
+                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromA);
+                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromB);
+                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
+                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
+                    from = GetNodeFrom(DreamZipMover.targets[i]);
+                }
+            }
+
+            private Vector2 GetNodeFrom(Vector2 node) {
+                return node + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
             }
 
             public override void Render() {
-                DrawCogs(Vector2.UnitY, Color.Black);
-                DrawCogs(Vector2.Zero);
+                /* 
+				 * We actually go through two FOR loops. 
+				 * Because otherwise the "shadows" would pass over the
+				 * previously drawn cogs, which would look a bit weird.
+				 */
+
+                // Draw behind, the "shadow", sort of.
+                from = GetNodeFrom(DreamZipMover.start);
+                for (int i = 0; i < DreamZipMover.targets.Length; i++) {
+                    to = GetNodeFrom(DreamZipMover.targets[i]);
+                    DrawCogs(Vector2.UnitY, Color.Black);
+                    from = GetNodeFrom(DreamZipMover.targets[i]);
+                }
+
+                // Draw the actual cogs, coloured, above.
+                from = GetNodeFrom(DreamZipMover.start);
+                for (int i = 0; i < DreamZipMover.targets.Length; i++) {
+                    to = GetNodeFrom(DreamZipMover.targets[i]);
+                    DrawCogs(Vector2.Zero);
+                    from = GetNodeFrom(DreamZipMover.targets[i]);
+                }
             }
 
             private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
