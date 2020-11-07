@@ -173,8 +173,8 @@ namespace Celeste.Mod.CommunalHelper
 			: this(data.Position + offset, data.Width, data.Height, data.Nodes,
 				  data.Enum("theme", Themes.Normal),
 				  data.Bool("permanent"),
-				  data.Bool("waitsForPlayer"),
-				  data.Bool("ticksAndReturns"))
+				  data.Bool("waiting"),
+				  data.Bool("ticking"))
 		{ }
 
 		public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking)
