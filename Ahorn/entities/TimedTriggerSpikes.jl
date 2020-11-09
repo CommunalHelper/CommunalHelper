@@ -1,10 +1,10 @@
 module CommunalHelperTimedTriggerSpikes
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesUp" TimedTriggerSpikesUp(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false)
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesDown" TimedTriggerSpikesDown(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false)
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesLeft" TimedTriggerSpikesLeft(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false)
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesRight" TimedTriggerSpikesRight(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesUp" TimedTriggerSpikesUp(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesDown" TimedTriggerSpikesDown(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesLeft" TimedTriggerSpikesLeft(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesRight" TimedTriggerSpikesRight(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4)
 
 
 const placements = Ahorn.PlacementDict()

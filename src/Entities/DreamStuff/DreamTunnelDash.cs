@@ -61,7 +61,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Player_DashCoroutine);
 
             IL.Celeste.Player.IsRiding_Solid += State_DreamDashEqual;
-            IL.Celeste.Player.IsRiding_JumpThru += State_DreamDashEqual_And;
+            IL.Celeste.Player.IsRiding_JumpThru += Player_IsRiding_JumpThru;
             IL.Celeste.Player.OnCollideH += State_DreamDashEqual;
             IL.Celeste.Player.OnCollideV += State_DreamDashEqual;
             hook_Player_orig_Update = new ILHook(
@@ -77,7 +77,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             IL.Celeste.FakeWall.Update += State_DreamDashNotEqual;
             IL.Celeste.Spring.OnCollide += State_DreamDashEqual;
-            IL.Celeste.Solid.Update += State_DreamDashNotEqual;
+            IL.Celeste.Solid.Update += State_DreamDashNotEqual_And;
         }
 
         public static void Unload() {
@@ -92,7 +92,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             hook_Player_DashCoroutine.Dispose();
             IL.Celeste.Player.IsRiding_Solid -= State_DreamDashEqual;
-            IL.Celeste.Player.IsRiding_JumpThru -= State_DreamDashEqual;
+            IL.Celeste.Player.IsRiding_JumpThru -= Player_IsRiding_JumpThru;
             IL.Celeste.Player.OnCollideH -= State_DreamDashEqual;
             IL.Celeste.Player.OnCollideV -= State_DreamDashEqual;
             hook_Player_orig_Update.Dispose();
@@ -252,6 +252,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return orig(self, dir, evenIfInvincible, registerDeathInStats);
         }
 
+        private static void Player_IsRiding_JumpThru(ILContext il) {
+            if (il.Instrs[0].OpCode == OpCodes.Nop)
+                State_DreamDashEqual(il);
+            else
+                State_DreamDashNotEqual_And(il);
+        }
+
         // Patch any method that checks the player's State
         /// <summary>
         /// Use if decompilation says <c>State==9</c> and NOT followed by <c>&amp;&amp;</c>.
@@ -277,7 +284,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         /// <param name="equal">Whether the decompilation says State == 9</param>
         /// <param name="and">Whether the check is followed by <c>&amp;&amp;</c></param>
         private static void Check_State_DreamDash(ILCursor cursor, bool equal, bool and = false) {
-            if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash))) {
+            if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash) && 
+                instr.Previous != null && instr.Previous.MatchCallvirt<StateMachine>("get_State"))) {
                 Instruction idx = cursor.Next;
                 // Duplicate the Player State
                 cursor.Emit(OpCodes.Dup);
@@ -293,9 +301,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 // Retrieve the next break instruction that checks equality
                 Instruction breakInstr = cursor.Clone().GotoNext(instr => instr.Match(OpCodes.Beq_S) || instr.Match(OpCodes.Bne_Un_S) || instr.Match(OpCodes.Ceq)).Next;
 
-                // For SteamFNA, if there is a check for equality just break to after it after pushing true to the stack
+                // For SteamFNA, if there is a check for equality just break to after it after pushing the appropriate value to the stack
                 if (breakInstr.OpCode == OpCodes.Ceq) {
-                    cursor.Emit(OpCodes.Ldc_I4_1);
+                    cursor.Emit(equal ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
                     cursor.Emit(OpCodes.Br_S, breakInstr.Next);
                 }
                 // If our intended behaviour matches what the break instruction is checking for, break to its target
@@ -304,6 +312,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 // Otherwise, break to after the break instruction (skip it)
                 else
                     cursor.Emit(OpCodes.Br_S, breakInstr.Next);
+
                 cursor.Goto(idx, MoveType.After);
             }
         }

@@ -5,7 +5,8 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/CassetteZipMover" CassetteZipMover(x::Integer, y::Integer, 
     width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    index::Integer=0, tempo::Number=1.0, noReturn::Bool=false) 
+    index::Integer=0, tempo::Number=1.0, permanent::Bool=false,
+    waiting::Bool=false, ticking::Bool=false, noReturn::Bool=false) 
 
 const ropeColors = Dict{Int, Ahorn.colorTupleType}(
     1 => (194, 116, 171, 255) ./ 255,
@@ -32,19 +33,26 @@ Ahorn.editingOptions(entity::CassetteZipMover) = Dict{String, Any}(
     "index" => cassetteColorNames
 )
 
-Ahorn.nodeLimits(entity::CassetteZipMover) = 1, 1
+Ahorn.nodeLimits(entity::CassetteZipMover) = 1, -1
 
 Ahorn.minimumSize(entity::CassetteZipMover) = 16, 16
 Ahorn.resizable(entity::CassetteZipMover) = true, true
 
 function Ahorn.selection(entity::CassetteZipMover)
     x, y = Ahorn.position(entity)
-    nx, ny = Int.(entity.data["nodes"][1])
 
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    return [Ahorn.Rectangle(x, y, width, height), Ahorn.Rectangle(nx + floor(Int, width / 2) - 5, ny + floor(Int, height / 2) - 5, 10, 10)]
+    res = [Ahorn.Rectangle(x, y, width, height)]
+	
+	for node in get(entity.data, "nodes", ())
+        nx, ny = Int.(node)
+		
+		push!(res, Ahorn.Rectangle(nx + floor(Int, width / 2) - 5, ny + floor(Int, height / 2) - 5, 10, 10))
+	end
+	
+	return res
 end
 
 const textures = "objects/cassetteblock/solid", "objects/CommunalHelper/cassetteZipMover/cog"
@@ -52,7 +60,7 @@ const crossSprite = "objects/CommunalHelper/cassetteMoveBlock/x"
 
 function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZipMover)
     x, y = Ahorn.position(entity)
-    nx, ny = Int.(entity.data["nodes"][1])
+    px, py = x, y
 
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
@@ -63,26 +71,39 @@ function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZ
     color = getCassetteColor(index)
     ropeColor = get(ropeColors, index, defaultRopeColor)
 
-    # Node Rendering
-    cx, cy = x + width / 2, y + height / 2
-    cnx, cny = nx + width / 2, ny + height / 2
-    length = sqrt((x - nx)^2 + (y - ny)^2)
-    theta = atan(cny - cy, cnx - cx)
+    # Iteration through all the nodes
+	for node in get(entity.data, "nodes", ())
+        nx, ny = Int.(node)
+		cx, cy = px + width / 2, py + height / 2
+		cnx, cny = nx + width / 2, ny + height / 2
 
-    Ahorn.Cairo.save(ctx)
-    Ahorn.set_antialias(ctx, 1)
-    Ahorn.set_line_width(ctx, 1)
-    Ahorn.translate(ctx, cx, cy)
-    Ahorn.rotate(ctx, theta)
-    Ahorn.setSourceColor(ctx, ropeColor)
-    # Offset for rounding errors
-    Ahorn.move_to(ctx, 0, 4 + (theta <= 0))
-    Ahorn.line_to(ctx, length, 4 + (theta <= 0))
-    Ahorn.move_to(ctx, 0, -4 - (theta > 0))
-    Ahorn.line_to(ctx, length, -4 - (theta > 0))
-    Ahorn.stroke(ctx)
-    Ahorn.Cairo.restore(ctx)
-    Ahorn.drawSprite(ctx, cog, cnx, cny, tint=color)
+		length = sqrt((px - nx)^2 + (py - ny)^2)
+		theta = atan(cny - cy, cnx - cx)
+
+		Ahorn.Cairo.save(ctx)
+
+		Ahorn.translate(ctx, cx, cy)
+		Ahorn.rotate(ctx, theta)
+
+		Ahorn.setSourceColor(ctx, ropeColor)
+		Ahorn.set_antialias(ctx, 1)
+		Ahorn.set_line_width(ctx, 1);
+
+		# Offset for rounding errors
+		Ahorn.move_to(ctx, 0, 4 + (theta <= 0))
+		Ahorn.line_to(ctx, length, 4 + (theta <= 0))
+
+		Ahorn.move_to(ctx, 0, -4 - (theta > 0))
+		Ahorn.line_to(ctx, length, -4 - (theta > 0))
+
+		Ahorn.stroke(ctx)
+
+		Ahorn.Cairo.restore(ctx)
+		
+		Ahorn.drawSprite(ctx, cog, cnx, cny, tint=color)
+		
+		px, py = nx, ny
+	end
     
     renderCassetteBlock(ctx, x, y, width, height, index)
 

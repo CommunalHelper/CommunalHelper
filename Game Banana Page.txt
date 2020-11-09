@@ -1,11 +1,11 @@
-This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection. You can find us in the [Celeste Discord](https://discord.gg/g8Mw3XH) @Bio, @catapillie, @Nikko and @coloursofnoise.
+This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection. You can find us in the [Celeste Discord](https://discord.gg/g8Mw3XH) @catapillie, @Nikko, @coloursofnoise and @Viv.
 
 
 The current list of included mechanics:
 
 * Connected Dream Block - Dream blocks that when placed such that they overlap, will form continuous regions. The "feather mode" option allows the player to control their direction of movement while traveling through the block, the "double refill" will give the player two dashes when exiting the dream block, and the "one use" option will cause the dream block to shatter upon exit.
 
-* Dream Zip Mover, Move Block, Swap Block, Falling Block and Switch Gate - As the name suggests, each of these entities take the movement behaviour of a specific solid, and apply it to a dream block. These entities all have access to the same "feather mode", "double refill" and "one use" options as the Connected Dream Block. The Dream Zip Mover and Swap Block both have access to "no return" modes, and the Dream Move Block has access to the "no collide" mode, which will allow it to pass through any solids other than Dream Blocks while moving.
+* Dream Zip Mover, Move Block, Swap Block, Falling Block and Switch Gate - As the name suggests, each of these entities take the movement behaviour of a specific solid, and apply it to a dream block. These entities all have access to the same "feather mode", "double refill" and "one use" options as the Connected Dream Block. The Dream Zip Mover and Swap Block both have access to "no return" modes, and the Dream Move Block & Falling Block have access to the "no collide" mode, which will allow them to pass through any solids other than Dream Blocks while moving.
 
 * Dream Refill - A special refill that once collected, allows the player to dash through any solid, except for dream blocks which will kill them.
 
@@ -25,8 +25,16 @@ The current list of included mechanics:
 
 * Move Block Redirect - An entity that defines an area and a cardinal direction, and if a Move Block enters the said area, will redirect it to move in the specified direction. For a Move block and a Move Block Redirect to properly interact, they must have the same width and height, and redirection will only occur once the block fully overlaps with the area. The Move Block will normally change direction after a short animation, but there is also the option for a "fast redirect", which will cause the block to immediately change direction without an animation.
 
+* Timed Trigger Spikes - Basically the same as regular Trigger Spikes, but coming off withing a specified amount of time.
+
+* Move Swap Block - You get it ; A Swap Block that'll travel in a specified direction when interacted with. It can swap positions even when it's travelling, and steering can be enabled. Basically Move Block × Swap Block!
+
+* Reset State Crystal - This refill entity will put you back in the default player state when you collect it, essentially getting kicked out of your previous state. For example, collecting it while being in the feather state will just turn you back to the simple player state.
+
+* Shielded Refill - Simple green and pink refills that need to be dashed into to be collected, since they're in a bubble. Not dashing will bounce you off, without regiving you any dash. You can untick the "bubble repell" mode, and instead of getting bounced off, you'll just go through the bubble, without collecting anything.
+
 
 To use this helper as part of your map, put the text below into the Dependencies: section of your everest.yaml:
 
 - Name: CommunalHelper
-  Version: 1.3.0
+  Version: 1.4.1

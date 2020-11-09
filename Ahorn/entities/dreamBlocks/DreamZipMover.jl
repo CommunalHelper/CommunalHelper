@@ -5,7 +5,9 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamZipMover" DreamZipMover(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	noReturn::Bool=false, dreamAesthetic::Bool=false, featherMode::Bool=false, oneUse::Bool=false, refillCount::Integer=-1, below::Bool=false)
+    noReturn::Bool=false, dreamAesthetic::Bool=false, featherMode::Bool=false, oneUse::Bool=false, refillCount::Integer=-1, below::Bool=false,
+    nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[],
+    permanent::Bool=false, waiting::Bool=false, ticking::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Dream Zip Mover (Communal Helper)" => Ahorn.EntityPlacement(
@@ -18,19 +20,26 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
-Ahorn.nodeLimits(entity::DreamZipMover) = 1, 1
+Ahorn.nodeLimits(entity::DreamZipMover) = 1, -1
 
 Ahorn.minimumSize(entity::DreamZipMover) = 16, 16
 Ahorn.resizable(entity::DreamZipMover) = true, true
 
 function Ahorn.selection(entity::DreamZipMover)
     x, y = Ahorn.position(entity)
-    nx, ny = Int.(entity.data["nodes"][1])
 
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    return [Ahorn.Rectangle(x, y, width, height), Ahorn.Rectangle(nx + floor(Int, width / 2) - 5, ny + floor(Int, height / 2) - 5, 10, 10)]
+    res = [Ahorn.Rectangle(x, y, width, height)]
+	
+	for node in get(entity.data, "nodes", ())
+        nx, ny = Int.(node)
+		
+		push!(res, Ahorn.Rectangle(nx + floor(Int, width / 2) - 5, ny + floor(Int, height / 2) - 5, 10, 10))
+	end
+	
+	return res
 end
 
 function getTextures(entity::DreamZipMover)
@@ -43,7 +52,7 @@ const ropeColor = (102, 57, 49) ./ 255
 
 function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMover)
     x, y = Ahorn.position(entity)
-    nx, ny = Int.(entity.data["nodes"][1])
+    px, py = x, y
 
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
@@ -51,34 +60,43 @@ function renderDreamZipMover(ctx::Ahorn.Cairo.CairoContext, entity::DreamZipMove
 
     block, light, cog = getTextures(entity)
 
-    cx, cy = x + width / 2, y + height / 2
-    cnx, cny = nx + width / 2, ny + height / 2
-
-    length = sqrt((x - nx)^2 + (y - ny)^2)
-    theta = atan(cny - cy, cnx - cx)
-
     # Dream block stuff
     renderDreamBlock(ctx, x, y, width, height, entity.data)
-    
-    Ahorn.Cairo.save(ctx)
 
-    Ahorn.translate(ctx, cx, cy)
-    Ahorn.rotate(ctx, theta)
+    # Iteration through all the nodes
+	for node in get(entity.data, "nodes", ())
+        nx, ny = Int.(node)
+		cx, cy = px + width / 2, py + height / 2
+		cnx, cny = nx + width / 2, ny + height / 2
 
-    Ahorn.setSourceColor(ctx, dreamAesthetic ? (1.0, 1.0, 1.0, 1.0) : ropeColor)
+		length = sqrt((px - nx)^2 + (py - ny)^2)
+		theta = atan(cny - cy, cnx - cx)
 
-    # Offset for rounding errors
-    Ahorn.move_to(ctx, 0, 4 + (theta <= 0))
-    Ahorn.line_to(ctx, length, 4 + (theta <= 0))
+		Ahorn.Cairo.save(ctx)
 
-    Ahorn.move_to(ctx, 0, -4 - (theta > 0))
-    Ahorn.line_to(ctx, length, -4 - (theta > 0))
+		Ahorn.translate(ctx, cx, cy)
+		Ahorn.rotate(ctx, theta)
 
-    Ahorn.stroke(ctx)
+		Ahorn.setSourceColor(ctx, dreamAesthetic ? (0.9, 0.9, 0.9, 1.0) : ropeColor)
+		Ahorn.set_antialias(ctx, 1)
+		Ahorn.set_line_width(ctx, 1);
 
-    Ahorn.Cairo.restore(ctx)
+		# Offset for rounding errors
+		Ahorn.move_to(ctx, 0, 4 + (theta <= 0))
+		Ahorn.line_to(ctx, length, 4 + (theta <= 0))
 
-    Ahorn.drawSprite(ctx, cog, cnx, cny)
+		Ahorn.move_to(ctx, 0, -4 - (theta > 0))
+		Ahorn.line_to(ctx, length, -4 - (theta > 0))
+
+		Ahorn.stroke(ctx)
+
+		Ahorn.Cairo.restore(ctx)
+		
+		Ahorn.drawSprite(ctx, cog, cnx, cny)
+		
+		px, py = nx, ny
+	
+	end
 
     if Bool(get(entity.data, "noReturn", false))
         noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")
