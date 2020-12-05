@@ -1,3 +1,9 @@
+--1.4.5 (03/12/2020)-- 
+SILENT UPDATE
+* Added Multi-Node support for ZipMover types
+* Added DreamCrumbleWallOnRumble, DreamFloatySpaceBlock
+* Fixed rare crash involving IL hook interactions
+
 --1.4.0 (31/10/2020)--
 * Fixed IL hooks on SteamFNA
 * Static Movers now attach properly to ConnectedSolids

@@ -92,7 +92,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             hook_Player_DashCoroutine.Dispose();
             IL.Celeste.Player.IsRiding_Solid -= State_DreamDashEqual;
-            IL.Celeste.Player.IsRiding_JumpThru -= State_DreamDashEqual;
+            IL.Celeste.Player.IsRiding_JumpThru -= Player_IsRiding_JumpThru;
             IL.Celeste.Player.OnCollideH -= State_DreamDashEqual;
             IL.Celeste.Player.OnCollideV -= State_DreamDashEqual;
             hook_Player_orig_Update.Dispose();
@@ -104,7 +104,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             IL.Celeste.FakeWall.Update -= State_DreamDashNotEqual;
             IL.Celeste.Spring.OnCollide -= State_DreamDashEqual;
-            IL.Celeste.Solid.Update -= State_DreamDashNotEqual;
+            IL.Celeste.Solid.Update -= State_DreamDashNotEqual_And;
         }
 
         public static void LoadContent() {
@@ -284,7 +284,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         /// <param name="equal">Whether the decompilation says State == 9</param>
         /// <param name="and">Whether the check is followed by <c>&amp;&amp;</c></param>
         private static void Check_State_DreamDash(ILCursor cursor, bool equal, bool and = false) {
-            if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash))) {
+            if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash) && 
+                instr.Previous != null && instr.Previous.MatchCallvirt<StateMachine>("get_State"))) {
                 Instruction idx = cursor.Next;
                 // Duplicate the Player State
                 cursor.Emit(OpCodes.Dup);
