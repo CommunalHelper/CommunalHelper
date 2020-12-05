@@ -15,7 +15,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private SoundSource sfx, altSfx = new SoundSource();
 
-        private Vector2[] targets, originalNodes;
+        private Vector2[] targets, points, originalNodes;
         private bool permanent;
         private bool waits;
         private bool ticking;
@@ -27,6 +27,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false), data.Bool("below")) {
             start = Position;
             targets = new Vector2[data.Nodes.Length];
+            points = new Vector2[data.Nodes.Length + 1];
+            points[0] = Position;
+
             originalNodes = data.Nodes;
 
             noReturn = data.Bool("noReturn");
@@ -52,6 +55,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 levelOffset = new Vector2(bounds.Left, bounds.Top);
             for (int i = 0; i < originalNodes.Length; i++) {
                 targets[i] = originalNodes[i] + levelOffset;
+                points[i + 1] = targets[i];
             }
 
             scene.Add(pathRenderer = new PathRenderer(this, dreamAesthetic));
@@ -207,29 +211,35 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
 
                 if (!permanent) {
-                    for (i -= 2 - (shouldCancel ? 1 : 0); i > -2; i--) {
-                        to = (i == -1) ? start : targets[i];
 
-                        // Goes back to start with a speed that is four times slower.
-                        StopPlayerRunIntoAnimation = false;
-                        //streetlight.SetAnimationFrame(2);
-                        sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_return");
-                        at2 = 0f;
-                        while (at2 < 1f) {
-                            yield return null;
-                            at2 = Calc.Approach(at2, 1f, 0.5f * Engine.DeltaTime);
-                            percent = 1f - Ease.SineIn(at2);
-                            Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
-                            MoveTo(position);
-                        }
-                        if (i != -1) {
-                            from = targets[i];
-                        }
+                    if (noReturn) {
+                        ReverseNodes(out Vector2 newStart);
+                        start = this.start = newStart;
+                    } else {
 
-                        StartShaking(0.2f);
-                        altSfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_finish");
+                        for (i -= 2 - (shouldCancel ? 1 : 0); i > -2; i--) {
+                            to = (i == -1) ? start : targets[i];
+
+                            // Goes back to start with a speed that is four times slower.
+                            StopPlayerRunIntoAnimation = false;
+                            //streetlight.SetAnimationFrame(2);
+                            sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_return");
+                            at2 = 0f;
+                            while (at2 < 1f) {
+                                yield return null;
+                                at2 = Calc.Approach(at2, 1f, 0.5f * Engine.DeltaTime);
+                                percent = 1f - Ease.SineIn(at2);
+                                Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
+                                MoveTo(position);
+                            }
+                            if (i != -1) {
+                                from = targets[i];
+                            }
+
+                            StartShaking(0.2f);
+                            altSfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_finish");
+                        }
                     }
-
                     StopPlayerRunIntoAnimation = true;
 
                     // Done, will not actiavte for 0.5 secs.
@@ -248,6 +258,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
             }
+        }
+
+        private void ReverseNodes(out Vector2 newStart) {
+            Array.Reverse(points);
+            for(int i = 0; i < points.Length - 1; i++) {
+                targets[i] = points[i + 1];
+            }
+            newStart = points[0];
         }
 
         protected override void OneUseDestroy() {
