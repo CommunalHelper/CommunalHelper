@@ -52,9 +52,6 @@ Ahorn.editingOptions(entity::CassetteZipMover) = Dict{String, Any}(
     "index" => colorNames
 )
 
-Ahorn.editingIgnored(entity::CassetteZipMover, multiple::Bool) =
-    [multiple ? String["x", "y", "width", "height", "nodes"] : String[]; ["permanent", "waiting", "ticking"]]
-
 Ahorn.nodeLimits(entity::CassetteZipMover) = 1, -1
 
 Ahorn.minimumSize(entity::CassetteZipMover) = 16, 16

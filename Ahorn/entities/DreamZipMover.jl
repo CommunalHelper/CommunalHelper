@@ -21,9 +21,6 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
-Ahorn.editingIgnored(entity::DreamZipMover, multiple::Bool) =
-    [multiple ? String["x", "y", "width", "height", "nodes"] : String[]; ["permanent", "waiting", "ticking"]]
-
 Ahorn.nodeLimits(entity::DreamZipMover) = 1, -1
 
 Ahorn.minimumSize(entity::DreamZipMover) = 16, 16
