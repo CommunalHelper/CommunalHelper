@@ -1,10 +1,10 @@
 module CommunalHelperTimedTriggerSpikes
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesUp" TimedTriggerSpikesUp(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4)
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesDown" TimedTriggerSpikesDown(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4)
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesLeft" TimedTriggerSpikesLeft(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4)
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesRight" TimedTriggerSpikesRight(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesUp" TimedTriggerSpikesUp(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesDown" TimedTriggerSpikesDown(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesLeft" TimedTriggerSpikesLeft(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesRight" TimedTriggerSpikesRight(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false)
 
 
 const placements = Ahorn.PlacementDict()
@@ -46,7 +46,11 @@ for variant in spikeTypes
 end
 
 Ahorn.editingOptions(entity::triggerSpikesUnion) = Dict{String, Any}(
-    "type" => spikeTypes
+    "type" => spikeTypes,
+    "Grouped" => Dict{String, Bool}(
+        "Individual" => false,
+        "Grouped (Requires Max's Helping Hand)" => true
+    )
 )
 
 directions = Dict{String, String}(
