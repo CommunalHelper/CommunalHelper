@@ -118,30 +118,18 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
         protected bool Triggered = false;
 
         public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            if (entityData.Bool("Grouped", false) && !CommunalHelperModule.maxHelpingHandLoaded) {
-                throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
-            }
             return new TimedTriggerSpikes(entityData, offset, Directions.Up);
         }
 
         public static Entity LoadDown(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            if (entityData.Bool("Grouped", false) && !CommunalHelperModule.maxHelpingHandLoaded) {
-                throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
-            }
             return new TimedTriggerSpikes(entityData, offset, Directions.Down);
         }
 
         public static Entity LoadLeft(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            if (entityData.Bool("Grouped", false) && !CommunalHelperModule.maxHelpingHandLoaded) {
-                throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
-            }
             return new TimedTriggerSpikes(entityData, offset, Directions.Left);
         }
 
         public static Entity LoadRight(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            if (entityData.Bool("Grouped", false) && !CommunalHelperModule.maxHelpingHandLoaded) {
-                throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
-            }
             return new TimedTriggerSpikes(entityData, offset, Directions.Right);
         }
 
@@ -151,6 +139,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
 
         public TimedTriggerSpikes(Vector2 position, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped)
             : base(position) {
+            if (grouped && !CommunalHelperModule.maxHelpingHandLoaded) {
+                throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
+            }
             this.size = size;
             this.direction = direction;
             this.overrideType = overrideType;
