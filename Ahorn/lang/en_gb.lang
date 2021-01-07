@@ -1,10 +1,10 @@
-# -- Entity and Trigger Tooltips -- 
+# -- Entity and Trigger Tooltips --
 #    placements.entities.entityName.tooltips.attr=Tooltip
 #    placements.triggers.triggerName.tooltips.attr=Tooltip
 
 
 
-# -- Entities -- 
+# -- Entities --
 
 # -- Attached Wall Booster --
 placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the Wall Booster should attach to the left sides of solids.
@@ -49,7 +49,7 @@ placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.direction=The dir
 placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearance of the Connected Swap Block.
 
 # -- Connected Zip Mover --
-placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=The appearance of the Connected Zip Mover. The Cliffside theme is a custom theme. 
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=The appearance of the Connected Zip Mover. The Cliffside theme is a custom theme.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.permanent=Whether the Connected Zip Mover should stay completely static after stopping.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.waiting=Whether the Connected Zip Mover should wait for the player at each node. Only useful if has more than one node.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.ticking=Whether the Connected Zip Mover should be ticking at each node, forcing the player to reactivate it within a limited amount of time. Will return to initial position if the player doesn't reactivate it, or locks in place completely if "permanent" is on. Only useful if has more than one node.
@@ -168,4 +168,28 @@ placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.z
 placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.colorCode=Target color code.
 
 
-
+# -- Timed Trigger Spikes --
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.names.Grouped=Grouping
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.names.Grouped=Grouping
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.names.Grouped=Grouping
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.names.Grouped=Grouping
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.names.type=Texture
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.names.type=Texture
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.names.type=Texture
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.names.type=Texture
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
