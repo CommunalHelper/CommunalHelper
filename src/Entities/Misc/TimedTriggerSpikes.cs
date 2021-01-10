@@ -25,7 +25,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
             Right
         }
 
-        private struct SpikeInfo {
+        protected struct SpikeInfo {
             public TimedTriggerSpikes Parent;
 
             public int Index;
@@ -43,7 +43,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
             public float Lerp;
 
             public void Update() {
-                if (Triggered) {
+                if (Parent.Grouped ? Parent.Triggered : Triggered) {
                     if (DelayTimer > 0f) {
                         DelayTimer -= Engine.DeltaTime;
                         if (DelayTimer <= 0f) {
@@ -69,10 +69,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
             }
 
             public bool OnPlayer(Player player, Vector2 outwards) {
-                if (!Triggered) {
+                if (Parent.Grouped ? !Parent.Triggered : !Triggered) {
                     Audio.Play("event:/game/03_resort/fluff_tendril_touch", Parent.Position + Position);
-                    Triggered = true;
-                    DelayTimer = Parent.Delay;
+                    if (Parent.Grouped) { Parent.Triggered = true; } else { Triggered = true; }
                     RetractTimer = 6f;
                     return false;
                 }
@@ -108,6 +107,16 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
 
         private List<MTexture> spikeTextures;
 
+        
+
+        private bool grouped = false;
+        protected bool Grouped {
+            get {
+                return grouped && CommunalHelperModule.maxHelpingHandLoaded;
+            }
+        }
+        protected bool Triggered = false;
+
         public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
             return new TimedTriggerSpikes(entityData, offset, Directions.Up);
         }
@@ -125,11 +134,14 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
         }
 
         public TimedTriggerSpikes(EntityData data, Vector2 offset, Directions dir)
-            : this(data.Position + offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false)) {
+            : this(data.Position + offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false)) {
         }
 
-        public TimedTriggerSpikes(Vector2 position, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer)
+        public TimedTriggerSpikes(Vector2 position, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped)
             : base(position) {
+            if (grouped && !CommunalHelperModule.maxHelpingHandLoaded) {
+                throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
+            }
             this.size = size;
             this.direction = direction;
             this.overrideType = overrideType;
@@ -166,6 +178,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
                 JumpThruChecker = IsRiding
             });
             base.Depth = -50;
+            this.grouped = grouped;
         }
 
         public override void Added(Scene scene) {
@@ -198,6 +211,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
                         spikes[i].Position = Vector2.UnitY * ((float) i + 0.5f) * 8f - Vector2.UnitX;
                         break;
                 }
+                spikes[i].DelayTimer = Delay;
             }
         }
 

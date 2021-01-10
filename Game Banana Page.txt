@@ -5,11 +5,11 @@ The current list of included mechanics:
 
 * Connected Dream Block - Dream blocks that when placed such that they overlap, will form continuous regions. The "feather mode" option allows the player to control their direction of movement while traveling through the block, the "double refill" will give the player two dashes when exiting the dream block, and the "one use" option will cause the dream block to shatter upon exit.
 
-* Dream Zip Mover, Move Block, Swap Block, Falling Block and Switch Gate - As the name suggests, each of these entities take the movement behaviour of a specific solid, and apply it to a dream block. These entities all have access to the same "feather mode", "double refill" and "one use" options as the Connected Dream Block. The Dream Zip Mover and Swap Block both have access to "no return" modes, and the Dream Move Block & Falling Block have access to the "no collide" mode, which will allow them to pass through any solids other than Dream Blocks while moving.
+* Dream Zip Mover, Move Block, Swap Block, Falling Block, Switch Gate, Crumble Block and Floaty Space Block - As the name suggests, each of these entities take the movement behaviour of a specific solid, and apply it to a dream block. These entities all have access to the same "feather mode", "double refill" and "one use" options as the Connected Dream Block. The Dream Zip Mover and Swap Block both have access to "no return" modes with the Zip Mover having additional "ticking", "permanent" and "waiting" modes, and the Dream Move Block & Falling Block have access to the "no collide" mode, which will allow them to pass through any solids other than Dream Blocks while moving.
 
 * Dream Refill - A special refill that once collected, allows the player to dash through any solid, except for dream blocks which will kill them.
 
-* Cassette Zip Mover, Move Block, Swap Block and Falling Block - Similar to the dream block types above, each of these entities take the movement behaviour of a specific solid, and apply it to a cassette block. The Cassette Zip Mover and Swap Block both have access to "no return" modes.
+* Cassette Zip Mover, Move Block, Swap Block and Falling Block - Similar to the dream block types above, each of these entities take the movement behaviour of a specific solid, and apply it to a cassette block. The Cassette Zip Mover and Swap Block both have access to "no return" modes with the Zip Mover having additional "ticking", "permanent" and "waiting" modes.
 
 * Connected Zip Mover, Move Block and Swap Block, Connected Solid Extension - They act like their corresponding vanilla version, but they can have any shape, simply by placing Connected Solid Extensions so that they touch or overlap, and are tiled automatically.
 
@@ -37,4 +37,4 @@ The current list of included mechanics:
 To use this helper as part of your map, put the text below into the Dependencies: section of your everest.yaml:
 
 - Name: CommunalHelper
-  Version: 1.4.1
+  Version: 1.5.0
