@@ -109,6 +109,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             Color color1; Color color2; Color color3;
             if (RefillCount != -1) {
+                Console.WriteLine(RefillCount);
                 color1 = Scene.Tracker.GetEntity<Player>().GetHairColor(RefillCount);
                 color2 = Color.Lerp(color1, Color.White, 0.5f);
                 color3 = Color.Lerp(color2, Color.White, 0.5f);
@@ -388,6 +389,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             On.Celeste.Player.DreamDashBegin += Player_DreamDashBegin;
             On.Celeste.Player.DreamDashUpdate += Player_DreamDashUpdate;
+            IL.Celeste.Player.DreamDashEnd += Player_DreamDashEnd;
 
             ConnectedDreamBlock.Hook();
             DreamMoveBlock.Load();
@@ -401,6 +403,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             On.Celeste.Player.DreamDashBegin -= Player_DreamDashBegin;
             On.Celeste.Player.DreamDashUpdate -= Player_DreamDashUpdate;
+            IL.Celeste.Player.DreamDashEnd -= Player_DreamDashEnd;
 
             ConnectedDreamBlock.Unhook();
             DreamMoveBlock.Unload();
@@ -417,8 +420,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void DreamBlock_OnPlayerExit(On.Celeste.DreamBlock.orig_OnPlayerExit orig, DreamBlock dreamBlock, Player player) {
             orig(dreamBlock, player);
             if (dreamBlock is CustomDreamBlock customDreamBlock) {
-                if (customDreamBlock.RefillCount != -1) {
+                if (customDreamBlock.RefillCount > 0) {
                     player.Dashes = customDreamBlock.RefillCount;
+                    Color color = player.GetHairColor(customDreamBlock.RefillCount);
+                    ParticleType shatter = new ParticleType(Refill.P_ShatterTwo) {
+                        Friction = 2f,
+                        LifeMin = 0.4f,
+                        LifeMax = 0.6f,
+                        Color = Color.Lerp(color, Color.White, 0.5f),
+                        Color2 = color,
+                        ColorMode = ParticleType.ColorModes.Choose
+                    };
+                    player.SceneAs<Level>().ParticlesFG.Emit(shatter, 5, player.Position, Vector2.Zero, player.DashDir.Angle());
+                    Audio.Play(SFX.game_10_pinkdiamond_touch, player.Position);
                 }
             }
         }
@@ -439,7 +453,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
                     player.Stop(dreamSfxLoop);
                     player.Loop(dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
-                }
+                }                    
 
                 // Ensures the player always properly enters a dream block even when it's moving fast
                 if (customDreamBlock is DreamZipMover || customDreamBlock is DreamSwapBlock) {
@@ -466,6 +480,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
             return orig(player);
+        }
+
+        // Currently secret/unimplemented, setting RefillCount to -2 will not refill dash
+        private static void Player_DreamDashEnd(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            cursor.TryGotoNext(instr => instr.MatchCallvirt<Player>("RefillDash"));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<Player, bool>>(player => player.GetData()["dreamBlock"] is CustomDreamBlock block && block.RefillCount != -2);
+            cursor.Emit(OpCodes.Brtrue_S, cursor.Next.Next);
         }
 
         #endregion

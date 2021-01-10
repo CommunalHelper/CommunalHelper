@@ -32,17 +32,15 @@ const triggerSpikeColors = [
 
 const triggerSpikesUnion = Union{TimedTriggerSpikesUp, TimedTriggerSpikesDown, TimedTriggerSpikesLeft, TimedTriggerSpikesRight}
 
-for variant in spikeTypes
-    for (dir, entity) in TimedTriggerSpikes
-        key = "Timed Trigger Spikes ($(uppercasefirst(dir)), $(uppercasefirst(variant))) (Communal Helper)"
-        placements[key] = Ahorn.EntityPlacement(
-            entity,
-            "rectangle",
-            Dict{String, Any}(
-                "type" => variant
-            )
+for variant in spikeTypes, (dir, entity) in TimedTriggerSpikes
+    key = "Timed Trigger Spikes ($(uppercasefirst(dir)), $(uppercasefirst(variant))) (Communal Helper)"
+    placements[key] = Ahorn.EntityPlacement(
+        entity,
+        "rectangle",
+        Dict{String, Any}(
+            "type" => variant
         )
-    end
+    )
 end
 
 Ahorn.editingOptions(entity::triggerSpikesUnion) = Dict{String, Any}(

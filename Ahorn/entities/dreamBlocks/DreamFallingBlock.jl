@@ -18,16 +18,9 @@ const placements = Ahorn.PlacementDict(
 Ahorn.minimumSize(entity::DreamFallingBlock) = 8, 8
 Ahorn.resizable(entity::DreamFallingBlock) = true, true
 
-function Ahorn.selection(entity::DreamFallingBlock)
-    x, y = Ahorn.position(entity)
+Ahorn.selection(entity::DreamFallingBlock) = Ahorn.getEntityRectangle(entity)
 
-    width = Int(get(entity.data, "width", 8))
-    height = Int(get(entity.data, "height", 8))
-
-    return Ahorn.Rectangle(x, y, width, height)
-end
-
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::FallingBlock)
+function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamFallingBlock)
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 

@@ -108,7 +108,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public List<JumpThru> JumpThrus;
         protected ConnectedDreamBlock master;
 
-        protected bool IncludeJumpThrus = true;
+        protected bool IncludeJumpThrus = false;
 
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) { }

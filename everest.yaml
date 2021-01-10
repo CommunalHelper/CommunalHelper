@@ -3,4 +3,9 @@
   DLL: src/bin/Debug/net452/CommunalHelper.dll
   Dependencies:
     - Name: Everest
-      Version: 1.1992.0
+      Version: 1.2330.0
+  OptionalDependencies:
+    - Name: MaxHelpingHand
+      Version: 1.0.0
+    - Name: MoreDasheline
+      Version: 1.0.0

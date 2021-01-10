@@ -112,7 +112,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
         private bool grouped = false;
         protected bool Grouped {
             get {
-                return grouped && CommunalHelperModule.maxHelpingHandLoaded;
+                return grouped && CommunalHelperModule.MaxHelpingHandLoaded;
             }
         }
         protected bool Triggered = false;
@@ -139,7 +139,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
 
         public TimedTriggerSpikes(Vector2 position, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped)
             : base(position) {
-            if (grouped && !CommunalHelperModule.maxHelpingHandLoaded) {
+            if (grouped && !CommunalHelperModule.MaxHelpingHandLoaded) {
                 throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
             }
             this.size = size;

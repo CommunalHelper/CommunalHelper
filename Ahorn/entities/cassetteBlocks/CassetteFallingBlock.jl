@@ -29,14 +29,7 @@ Ahorn.nodeLimits(entity::CassetteFallingBlock) = 1, 1
 Ahorn.minimumSize(entity::CassetteFallingBlock) = 16, 16
 Ahorn.resizable(entity::CassetteFallingBlock) = true, true
 
-function Ahorn.selection(entity::CassetteFallingBlock)
-    x, y = Ahorn.position(entity)
-
-    width = Int(get(entity.data, "width", 8))
-    height = Int(get(entity.data, "height", 8))
-
-    return Ahorn.Rectangle(x, y, width, height)
-end
+Ahorn.selection(entity::CassetteFallingBlock) = Ahorn.getEntityRectangle(entity)
 
 const block = "objects/cassetteblock/solid"
 

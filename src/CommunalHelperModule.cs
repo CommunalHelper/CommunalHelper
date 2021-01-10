@@ -22,7 +22,7 @@ namespace Celeste.Mod.CommunalHelper {
         public static SpriteBank SpriteBank => Instance._SpriteBank;
         public SpriteBank _SpriteBank;
 
-        public static bool maxHelpingHandLoaded { get; private set; }
+        public static bool MaxHelpingHandLoaded { get; private set; }
         
         public CommunalHelperModule() {
             Instance = this;
@@ -87,16 +87,14 @@ namespace Celeste.Mod.CommunalHelper {
 
             HeartGemShard.InitializeParticles();
 
-<<<<<<< HEAD
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
             if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule module)) {
                 Extensions.MoreDashelineLoaded = true;
                 Extensions.MoreDasheline_GetHairColor = module.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) });
                 Logger.Log("Communal Helper", "MoreDasheline detected: using MoreDasheline hair colors for CustomDreamBlock particles.");
             }
-=======
-            maxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
->>>>>>> 4016f45759ab011241428d24c4485195ff672250
+
+            MaxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
         }
 
         // Loading "custom" entities
