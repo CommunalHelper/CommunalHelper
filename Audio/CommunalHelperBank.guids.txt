@@ -21,6 +21,7 @@
 {64aa835a-801b-4057-87b3-dc886fe49e07} event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_return
 {12a297f7-6b0c-435f-b8b9-90b4b3ad6118} event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_finish
 {df422bf6-af85-43cf-b5f6-3380534654de} event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_tick
+{030abc75-4f88-42ff-a184-6672c0c5d189} event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_arrived
 {713b4c05-56c3-4d8b-ab46-e5d1f5e08014} event:/CommunalHelperEvents/game/redirectMoveBlock/arrowblock_move
 {4b292127-06bb-4acb-a927-18571d19ca0d} event:/CommunalHelperEvents/game/seedCrystalHeart/collect_all_main
 {f25c9f4e-bda1-44d4-911e-5813f8c94187} event:/CommunalHelperEvents/game/seedCrystalHeart/shard_collect
