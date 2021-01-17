@@ -8,7 +8,8 @@ const behaviors = ["Pulling", "Pushing"]
 			x::Integer, y::Integer,
 			width::Integer=16, height::Integer=16,
             theme::String="Normal", behavior::String="Pulling",
-            customBlockPath::String="", customArrowPath::String="", customTrackPath::String="")
+            customBlockPath::String="", customArrowPath::String="", customTrackPath::String="",
+            speedFactor::Number=1)
 
 const placements = Ahorn.PlacementDict(
     "Station Block ($theme, $behavior) (Communal Helper)" => Ahorn.EntityPlacement(

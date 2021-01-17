@@ -146,6 +146,7 @@ placements.entities.CommunalHelper/ResetStateCrystal.tooltips.oneUse=Whether the
 
 
 # -- Station Block --
+placements.entities.CommunalHelper/StationBlock.tooltips.speedFactor=The factor by which the speed of the Station Block is multiplied. This value will be clamped from to 0.1 to 10.0.
 placements.entities.CommunalHelper/StationBlock.tooltips.theme=Aspect theme of the Station Block.
 placements.entities.CommunalHelper/StationBlock.tooltips.behavior=Behavior of the Station Block. Pulling will make it move towards you, and Pushing does the opposite. This changes slightly the appearance of the block, depending on the behavior.
 placements.entities.CommunalHelper/StationBlock.tooltips.customBlockPath=This is the path you should specify if you're using a custom texture for the block, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>. The block should be a 24x24 texture, that preferably gets tiled correctly. Example: "catapillie/customStationBlock/custom_block", where the texture is located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/custom_block.png. DON'T add the ".png".

@@ -42,6 +42,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private SoundSource Sfx;
         public Theme theme = Theme.Moon;
 
+        private float speedFactor = 1f;
+
         public bool IsAttachedToTrack = false;
         private StationBlockTrack.Node CurrentNode = null;
 
@@ -51,6 +53,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(new LightOcclude());
 
             this.offset = new Vector2(Width, Height) / 2f;
+
+            speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 10f);
 
             int minSize = (int) Calc.Min(Width, Height);
             string size;
@@ -372,7 +376,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Vector2 start = CurrentNode.Center - offset;
                     Vector2 target = nextNode.Center - offset;
                     while (t < 1f) {
-                        t = Calc.Approach(t, 1f, 2f * Engine.DeltaTime);
+                        t = Calc.Approach(t, 1f, speedFactor * 2f * Engine.DeltaTime);
 
                         percent = Ease.SineIn(t);
                         currentTrack.trackOffset = f * percent * 16;
