@@ -177,7 +177,7 @@ function notAdjacent(x, y, ox, oy, rects)
 
 	return true
 end
-notAdjacent(entity::Entity, ox, oy, rects) = notAdjacent(Ahorn.getEntityPosition(entity)..., ox, oy, rects)
+notAdjacent(entity::Entity, ox, oy, rects) = notAdjacent(Ahorn.position(entity)..., ox, oy, rects)
 
 function detectMod(mod)
 	any(s -> occursin(mod, lowercase(s)), Ahorn.getCelesteModZips()) ||
