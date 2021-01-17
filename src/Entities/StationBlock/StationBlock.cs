@@ -127,6 +127,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             arrowSprite = customArrow ?? CommunalHelperModule.SpriteBank.Create(sprite);
             arrowDir = ArrowDir.Up;
+            arrowSprite.Position = new Vector2(Width / 2, Height / 2);
             Add(arrowSprite);
 
             SurfaceSoundIndex = SurfaceIndex.Girder;
@@ -236,10 +237,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 arrowDir = ArrowDir.Down;
 
             arrowSprite.Play("Idle" + Enum.GetName(typeof(ArrowDir), arrowDir), true);
-        }
-
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
         }
 
         private DashCollisionResults OnDashed(Player player, Vector2 dir) {
@@ -392,6 +389,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         yield return null;
                     }
                     StartShaking(0.2f);
+                    Sfx.Param(theme == Theme.Moon ? "end_moon" : "end", 1);
                     Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                     SceneAs<Level>().Shake(0.2f);
                     StopPlayerRunIntoAnimation = true;
