@@ -9,7 +9,8 @@ const behaviors = ["Pulling", "Pushing"]
 			width::Integer=16, height::Integer=16,
             theme::String="Normal", behavior::String="Pulling",
             customBlockPath::String="", customArrowPath::String="", customTrackPath::String="",
-            speedFactor::Number=1)
+            speedFactor::Number=1.0,
+            buttonMode::Bool = false)
 
 const placements = Ahorn.PlacementDict(
     "Station Block ($theme, $behavior) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -53,10 +54,9 @@ function getSprites(blockSize::Integer, entity::StationBlock)
 					   ((behavior == "pulling") ? ("moonArrow/", "/moon_block") : ("altMoonArrow/", "/alt_moon_block"))
 	
     arrow = (blockSize <= 16) ? "small00" : ((blockSize <= 24) ? "med00" : "big00")
+    button = (Bool(get(entity.data, "buttonMode", false)) ? "_button" : "")
     
-    return (path * arrowDirectory * arrow), (path * "blocks" * block)
-	
-	return
+    return (path * arrowDirectory * arrow), (path * "blocks" * block * button)
 end
 
 function renderStationBlock(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock)

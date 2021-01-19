@@ -1,6 +1,6 @@
 --1.6.0 (??/??/2021)--
 * Re-added and fixed DreamZipMover's custom sound.
-* Added speedFactor attribute to StationBlocks
+* Added speedFactor, trackSwitchMode attributes to StationBlocks
 * Added grouping attribute to TimedTriggerSpikes (requires Max's Helping Hand).
 
 --1.5.0 (05/12/2020)--

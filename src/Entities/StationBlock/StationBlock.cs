@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections;
+using static Celeste.Mod.CommunalHelper.Entities.StationBlockTrack;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/StationBlock")]
@@ -10,6 +11,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     class StationBlock : Solid {
         public enum Theme {
             Normal, Moon
+        }
+        public enum Mode {
+            Dash, Button
         }
 
         private MTexture[,] tileSlices, blockTiles;
@@ -41,6 +45,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private Vector2 hitOffset;
         private SoundSource Sfx;
         public Theme theme = Theme.Moon;
+        public Mode mode = Mode.Dash;
 
         private float speedFactor = 1f;
 
@@ -53,8 +58,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(new LightOcclude());
 
             this.offset = new Vector2(Width, Height) / 2f;
-
-            speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 10f);
+            mode = data.Bool("buttonMode", false) ? Mode.Button : Mode.Dash;
+            speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 3f);
 
             int minSize = (int) Calc.Min(Width, Height);
             string size;
@@ -97,6 +102,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                     break;
             }
+
+            if (mode == Mode.Button)
+                block += "_button";
 
             MTexture customBlock = null;
             Sprite customArrow = null;
@@ -244,6 +252,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (player.StateMachine.State == 5)
                 player.StateMachine.State = 0;
 
+            SwitchTracks(Scene);
+
             if (IsMoving || !IsAttachedToTrack || (player.CollideCheck<Spikes>() && !SaveData.Instance.Assists.Invincible)) {
                 return DashCollisionResults.NormalCollision;
             } else {
@@ -338,7 +348,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 StartShaking(0.2f);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 
-                StationBlockTrack.Node nextNode = null;
+                Node nextNode = null;
                 StationBlockTrack currentTrack = null;
                 float f = 1f;
                 if (MoveDir == -Vector2.UnitY && CurrentNode.nodeUp != null) {
@@ -360,8 +370,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     currentTrack = CurrentNode.trackRight;
                 }
 
-                Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (theme == Theme.Normal ? "station" : "moon") + "_block_seq", "travel", nextNode == null ? 0f : 1f);
-                if (nextNode != null) {
+                bool travel = nextNode != null && currentTrack.switchState != TrackSwitchState.Off;
+                Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (theme == Theme.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
+                if (travel) {
                     Safe = false;
 
                     arrowSprite.Play(GetTurnAnim(arrowDir, MoveDir), true);

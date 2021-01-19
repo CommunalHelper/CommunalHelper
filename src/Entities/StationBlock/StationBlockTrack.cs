@@ -21,6 +21,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public float percent = 0f;
         }
 
+        public enum TrackSwitchState {
+            None, On, Off
+        }
+        public TrackSwitchState switchState;
+
         public bool HasGroup { get; private set; }
         public bool MasterOfGroup { get; private set; }
         public StationBlockTrack master;
@@ -30,7 +35,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private List<Node> Track;
         private List<StationBlockTrack> Group;
-        private MTexture trackSprite;
+
+        private MTexture trackSprite, disabledTrackSprite;
         private List<MTexture> nodeSprite;
 
         private float sparkDirFromA, sparkDirFromB, sparkDirToA, sparkDirToB, length;
@@ -47,6 +53,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             : base(data.Position + offset) {
             Depth = Depths.SolidsBelow;
 
+            switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
             horizontal = data.Bool("horizontal");
             Collider = new Hitbox(horizontal ? data.Width : 8, horizontal ? 8 : data.Height);
             
@@ -153,6 +160,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 foreach (StationBlockTrack track in Group) {
                     track.trackConstantLooping = constantLooping;
                     track.trackSprite = GFX.Game[TracksPath + (track.horizontal ? trackH : trackV)];
+                    track.disabledTrackSprite = GFX.Game[TracksPath + "outline/" + (track.horizontal ? "h" : "v")];
                     track.nodeSprite = GFX.Game.GetAtlasSubtextures(TracksPath + node);
                 }
             } else {
@@ -278,8 +286,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void DrawPipe() {
-            for (int i = (int) mod(trackConstantLooping ? Scene.TimeActive * 14 : trackOffset, 8); i <= length; i += 8) {
-                trackSprite.Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i));
+            bool on = !(switchState == TrackSwitchState.Off);
+            for (int i = (int) (on ? mod(trackConstantLooping ? Scene.TimeActive * 14 : trackOffset, 8) : 0); i <= length; i += 8) {
+                (on ? trackSprite : disabledTrackSprite).Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i));
             }
         }
 
@@ -289,8 +298,34 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             SceneAs<Level>().ParticlesBG.Emit(p, position + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
             SceneAs<Level>().ParticlesBG.Emit(p, position - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
         }
+
         private static float mod(float x, float m) {
             return (x % m + m) % m;
+        }
+
+        public static void SwitchTracks(Scene scene) {
+            foreach (StationBlockTrack t in scene.Tracker.GetEntities<StationBlockTrack>()) {
+                if(t.MasterOfGroup) {
+                    foreach(StationBlockTrack t2 in t.Group) {
+                        t2.Switch();
+                    }
+                }
+            }
+        }
+
+        private void Switch() {
+            switch (switchState) {
+                default:
+                    break;
+
+                case TrackSwitchState.On:
+                    switchState = TrackSwitchState.Off;
+                    break;
+
+                case TrackSwitchState.Off:
+                    switchState = TrackSwitchState.On;
+                    break;
+            }
         }
     }
 }

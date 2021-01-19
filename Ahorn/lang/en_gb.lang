@@ -155,7 +155,7 @@ placements.entities.CommunalHelper/StationBlock.tooltips.customTrackPath=This is
 
 # -- Station Block Track --
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.horizontal=Whether the track should be handled as a horizontal one.
-
+placements.entities.CommunalHelper/StationBlockTrack.tooltips.trackSwitchState=The starting state of the track. "None" will make it unswitchable. "On" will make it turned on by defaul, and "Off" will make it turned off.
 
 # -- Summit Gem --
 placements.entities.CommunalHelper/CustomSummitGem.tooltips.index=Determines the texture and sound used for this gem (clamped within 0 and 7). Must be unique within a room. To use a custom texture, put it at Graphics/Atlases/Gameplay/collectables/summitgems/$mapSID/$roomName/$index.
