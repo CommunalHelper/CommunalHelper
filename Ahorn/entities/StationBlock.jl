@@ -10,7 +10,7 @@ const behaviors = ["Pulling", "Pushing"]
             theme::String="Normal", behavior::String="Pulling",
             customBlockPath::String="", customArrowPath::String="", customTrackPath::String="",
             speedFactor::Number=1.0,
-            buttonMode::Bool = false)
+            allowWavedash::Bool = false)
 
 const placements = Ahorn.PlacementDict(
     "Station Block ($theme, $behavior) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -54,9 +54,9 @@ function getSprites(blockSize::Integer, entity::StationBlock)
 					   ((behavior == "pulling") ? ("moonArrow/", "/moon_block") : ("altMoonArrow/", "/alt_moon_block"))
 	
     arrow = (blockSize <= 16) ? "small00" : ((blockSize <= 24) ? "med00" : "big00")
-    button = (Bool(get(entity.data, "buttonMode", false)) ? "_button" : "")
+    button = (Bool(get(entity.data, "allowWavedash", false)) ? "_button" : "")
     
-    return (path * arrowDirectory * arrow), (path * "blocks" * block * button)
+    return (path * arrowDirectory * arrow), (path * "blocks" * block * button), (path * "button"), (path * "button_outline")
 end
 
 function renderStationBlock(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock)
@@ -65,12 +65,23 @@ function renderStationBlock(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock)
     width = Int(get(entity.data, "width", 16))
     height = Int(get(entity.data, "height", 16))
 	
-	arrow, block = getSprites(Integer(min(width, height)), entity)
+	arrow, block, button, buttonOutline = getSprites(Integer(min(width, height)), entity)
 	arrowSprite = Ahorn.getSprite(arrow, "Gameplay")
 	
     tilesWidth = div(width, 8)
     tilesHeight = div(height, 8)
-	
+    
+    # Button
+    if Bool(get(entity.data, "allowWavedash", false))
+        for i in 1:tilesWidth
+            tx = (i == 1) ? 0 : ((i == tilesWidth) ? 16 : 8)
+
+            Ahorn.drawImage(ctx, buttonOutline, x + (i - 1) * 8, y - 4, tx, 0, 8, 8)
+            Ahorn.drawImage(ctx, button, x + (i - 1) * 8, y - 4, tx, 0, 8, 8)
+        end
+    end
+
+    # Block
     for i in 1:tilesWidth, j in 1:tilesHeight
         tx = (i == 1) ? 0 : ((i == tilesWidth) ? 16 : 8)
         ty = (j == 1) ? 0 : ((j == tilesHeight) ? 16 : 8)
