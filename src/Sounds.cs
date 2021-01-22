@@ -20,6 +20,8 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_stationBlock_station_block_seq = "event:/CommunalHelperEvents/game/stationBlock/station_block_seq";
         public const string game_stationBlock_moon_block_seq = "event:/CommunalHelperEvents/game/stationBlock/moon_block_seq";
 
+        public const string game_trackSwitchBox_smash = "event:/CommunalHelperEvents/game/trackSwitchBox/smash";
+
         public const string game_connectedZipMover_moon_zip_mover_finish = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_finish";
         public const string game_connectedZipMover_moon_zip_mover_return = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_return";
         public const string game_connectedZipMover_moon_zip_mover_start = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_start";

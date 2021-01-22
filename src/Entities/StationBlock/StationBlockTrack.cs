@@ -54,6 +54,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Depth = Depths.SolidsBelow;
 
             switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
+            if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off)
+                Switch();
+
             horizontal = data.Bool("horizontal");
             Collider = new Hitbox(horizontal ? data.Width : 8, horizontal ? 8 : data.Height);
             
