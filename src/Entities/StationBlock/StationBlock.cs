@@ -61,7 +61,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             this.offset = new Vector2(Width, Height) / 2f;
             allowWavedash = data.Bool("allowWavedash", false);
-            speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 3f);
+            speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 2f);
 
             int minSize = (int) Calc.Min(Width, Height);
             string size;

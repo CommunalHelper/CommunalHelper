@@ -13,6 +13,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public static ParticleType P_Smash;
 
+        private float circleRadius = 0f, circleOpacity = 0f;
+
         private Sprite sprite;
         private SineWave sine;
         private Vector2 start;
@@ -31,10 +33,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private SoundSource Sfx;
 
-        private static TrackSwitchState LocalTrackSwitchState;
+        public static TrackSwitchState LocalTrackSwitchState;
 
-        private static readonly Color OnColor = Calc.HexToColor("318eeb");
-        private static readonly Color OffColor = Calc.HexToColor("e03a69");
+        public static readonly Color OnColor = Calc.HexToColor("318eeb");
+        public static readonly Color OffColor = Calc.HexToColor("e03a69");
         private float colorLerp;
 
         private bool global = false;
@@ -73,7 +75,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public TrackSwitchBox(EntityData e, Vector2 levelOffset)
-            : this(e.Position + levelOffset, e.Bool("global")) { }
+            : this(e.Position + levelOffset, e.Bool("globalSwitch")) { }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
@@ -101,7 +103,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (canSwitch) {
 
                 SwitchTracks(Scene);
-                Sfx.Play(CustomSFX.game_trackSwitchBox_smash);
+                Sfx.Play(CustomSFX.game_trackSwitchBox_smash, "global_switch", global ? 1f : 0f);
                 (base.Scene as Level).DirectionalShake(dir);
                 sprite.Scale = new Vector2(1f + Math.Abs(dir.Y) * 0.4f - Math.Abs(dir.X) * 0.4f, 1f + Math.Abs(dir.X) * 0.4f - Math.Abs(dir.Y) * 0.4f);
                 shakeCounter = 0.2f;
@@ -158,6 +160,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             colorLerp = Calc.Approach(colorLerp, LocalTrackSwitchState == TrackSwitchState.On ? 0f : 1f, Engine.DeltaTime);
+            circleOpacity = Calc.Approach(circleOpacity, 0f, Engine.DeltaTime);
+            circleRadius += (64 - circleRadius) / 4 * Engine.DeltaTime * 20f;
 
             if (shakeCounter > 0f) {
                 shakeCounter -= Engine.DeltaTime;
@@ -188,6 +192,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Render() {
+            Draw.Circle(Center, circleRadius, Color.White * circleOpacity, 10);
             Vector2 position = sprite.Position;
             sprite.Position += shaker.Value;
 
@@ -223,6 +228,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             yield return 0.8f;
             SceneAs<Level>().DirectionalShake(Vector2.UnitX, 0.2f);
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+            if(global) {
+                circleRadius = 0f; circleOpacity = .5f;
+            }
         }
 
         public static void InitializeParticles() {

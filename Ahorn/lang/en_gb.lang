@@ -142,11 +142,9 @@ placements.entities.CommunalHelper/ShieldedRefill.tooltips.oneUse=Whether the re
 placements.entities.CommunalHelper/ResetStateCrystal.tooltips.oneUse=Whether the crystal should reappear after being collected.
 
 
-# -- Solid Extension --
-
-
 # -- Station Block --
-placements.entities.CommunalHelper/StationBlock.tooltips.speedFactor=The factor by which the speed of the Station Block is multiplied. This value can only be between 0 (exclusive) and 3 (inclusive).
+placements.entities.CommunalHelper/StationBlock.tooltips.allowWavedash=Whether Wavedashing on top of the Station Block is allowed or not even while it's not moving (doesn't bounce you upwards).
+placements.entities.CommunalHelper/StationBlock.tooltips.speedFactor=The factor by which the speed of the Station Block is multiplied. This value can only be between 0.1 and 2.
 placements.entities.CommunalHelper/StationBlock.tooltips.theme=Aspect theme of the Station Block.
 placements.entities.CommunalHelper/StationBlock.tooltips.behavior=Behavior of the Station Block. Pulling will make it move towards you, and Pushing does the opposite. This changes slightly the appearance of the block, depending on the behavior.
 placements.entities.CommunalHelper/StationBlock.tooltips.customBlockPath=This is the path you should specify if you're using a custom texture for the block, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>. The block should be a 24x24 texture, that preferably gets tiled correctly. Example: "catapillie/customStationBlock/custom_block", where the texture is located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/custom_block.png. DON'T add the ".png".
@@ -157,6 +155,10 @@ placements.entities.CommunalHelper/StationBlock.tooltips.customTrackPath=This is
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.horizontal=Whether the track should be handled as a horizontal one.
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.trackSwitchState=The starting state of the track. "None" will make it unswitchable. "On" will make it turned on by defaul, and "Off" will make it turned off.
 
+# -- Track Switch Box --
+placements.entities.CommunalHelper/TrackSwitchBox.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+
+
 # -- Summit Gem --
 placements.entities.CommunalHelper/CustomSummitGem.tooltips.index=Determines the texture and sound used for this gem (clamped within 0 and 7). Must be unique within a room. To use a custom texture, put it at Graphics/Atlases/Gameplay/collectables/summitgems/$mapSID/$roomName/$index.
 
@@ -164,6 +166,7 @@ placements.entities.CommunalHelper/CustomSummitGem.tooltips.index=Determines the
 placements.entities.CommunalHelper/CustomSummitGemManager.tooltips.gemIds=Comma separated list of gemIDs. ID format is $mapSID/$roomName/$index. If no mapSID is provided, the current map will be used.
 placements.entities.CommunalHelper/CustomSummitGemManager.tooltips.melody=NOT Comma separated list of numbers from 0-7 for a custom melody during collection. Defaults to the gem index if not provided.
 placements.entities.CommunalHelper/CustomSummitGemManager.tooltips.heartOffset=Determines where the crystal heart will move to relative to this summit gem manager once all gems are collected.
+
 
 # -- Synced Zip Mover Activation Controller --
 placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.zipMoverSpeedMultiplier=Speed Multiplier for the controlled Zip Movers.

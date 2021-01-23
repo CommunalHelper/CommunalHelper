@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
@@ -46,6 +47,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool horizontal;
         private bool trackConstantLooping = false;
         public float trackOffset = 0f;
+        private float trackStatePercent;
 
         private static readonly string TracksPath = "objects/CommunalHelper/stationBlock/tracks/";
 
@@ -56,6 +58,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
             if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off)
                 Switch();
+
+            trackStatePercent = switchState == TrackSwitchState.On || switchState == TrackSwitchState.None ? 0f : 1f;
 
             horizontal = data.Bool("horizontal");
             Collider = new Hitbox(horizontal ? data.Width : 8, horizontal ? 8 : data.Height);
@@ -273,6 +277,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        public override void Update() {
+            base.Update();
+            //trackStatePercent = Calc.Approach(trackStatePercent, switchState == TrackSwitchState.On ? 1f : 0f, Engine.DeltaTime);
+            trackStatePercent += ((switchState == TrackSwitchState.On || switchState == TrackSwitchState.None ? 0f : 1f) - trackStatePercent) / 4 * Engine.DeltaTime * 25;
+        }
+
         public override void Render() {
             base.Render();
 
@@ -289,10 +299,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void DrawPipe() {
-            bool on = !(switchState == TrackSwitchState.Off);
-            for (int i = (int) (on ? mod(trackConstantLooping ? Scene.TimeActive * 14 : trackOffset, 8) : 0); i <= length; i += 8) {
-                (on ? trackSprite : disabledTrackSprite).Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i));
+            if (switchState != TrackSwitchState.None)
+                for (int i = 0; i <= length; i += 8) {
+                    disabledTrackSprite.Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i), Vector2.Zero, Color.White * trackStatePercent);
+                }
+
+            int trackpercent = (int) (trackStatePercent * (length + 2));
+
+            for (int i = (int) mod(trackConstantLooping ? Scene.TimeActive * 14 : trackOffset, 8) + trackpercent; i <= length; i += 8) {
+                trackSprite.Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i));
             }
+
         }
 
         public void CreateSparks(Vector2 position, ParticleType p) {
