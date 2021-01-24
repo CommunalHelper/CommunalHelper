@@ -11,6 +11,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Vector2 Offset = Vector2.Zero;
             public Color Color = Color.White;
             public bool Centered = false;
+
+            // sprite
+            public Sprite Sprite;
+            public bool IsSprite => Sprite != null;
         }
 
         private List<TextureData> textures = new List<TextureData>();
@@ -23,6 +27,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Centered = drawCentered
             });
 
+        public void AddSprite(Sprite sprite, Vector2 offset)
+            => textures.Add(new TextureData() {
+                Sprite = sprite,
+                Offset = offset
+            });
+
         public void Render(Vector2 at, Vector2 offset, Matrix transform, Rectangle clipRect) {
             Matrix invertedTransform = Matrix.Invert(transform);
 
@@ -31,9 +41,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Rectangle identityClipRect = new Rectangle((int) (clipRect.X + identityOffset.X), (int)(clipRect.Y + identityOffset.Y), (int) vec.X, (int) vec.Y);
 
             foreach (TextureData data in textures) {
-                Vector2 centeredOffset = data.Centered ? new Vector2(data.Texture.Width, data.Texture.Height) / -2 : Vector2.Zero;
+                MTexture tex = data.IsSprite ? data.Sprite.GetFrame(data.Sprite.CurrentAnimationID, data.Sprite.CurrentAnimationFrame) : data.Texture;
+                Vector2 centeredOffset = data.Centered ? new Vector2(tex.Width, tex.Height) / -2 : Vector2.Zero;
                 Vector2 position = at + data.Offset + centeredOffset;
-                Rectangle rect = new Rectangle((int)position.X, (int)position.Y, data.Texture.Width, data.Texture.Height);
+                Rectangle rect = new Rectangle((int)position.X, (int)position.Y, tex.Width, tex.Height);
                 if (!identityClipRect.Intersects(rect))
                     continue;
 
@@ -44,7 +55,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Vector2 transformedOffset = Vector2.Transform(data.Offset + centeredOffset + new Vector2(rect.X, rect.Y) , transform);
                 float rotation = Vector2.Transform(Vector2.UnitX, transform).Angle();
 
-                MTexture mTexture = data.Texture.GetSubtexture(rect);
+                MTexture mTexture = tex.GetSubtexture(rect);
                 mTexture.Draw(at + transformedOffset + offset, Vector2.Zero, data.Color, 1f, rotation);
             }
         }

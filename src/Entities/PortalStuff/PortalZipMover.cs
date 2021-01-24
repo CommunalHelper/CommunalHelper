@@ -4,32 +4,63 @@ using Monocle;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using static Celeste.ZipMover;
 
 namespace Celeste.Mod.CommunalHelper.Entities
 {
     [CustomEntity("CommunalHelper/PortalZipMover")]
     class PortalZipMover : SlicedSolid {
 
+        private Themes theme;
+
         private DynamicTexture dynEdges = new DynamicTexture();
         private List<MTexture> innerCogs;
         private float percent = 0;
-        private Vector2 target;
+        private Vector2 target, start;
+        private Sprite streetlight;
+        private bool drawBlackBorder;
 
-        public PortalZipMover(EntityData data, Vector2 offset) 
-            : this(data.Position + offset, data.Width, data.Height)
+        public PortalZipMover(EntityData data, Vector2 offset)
+            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Enum("theme", Themes.Normal))
         { }
 
-        public PortalZipMover(Vector2 position, int width, int height)
+        public PortalZipMover(Vector2 position, int width, int height, Vector2 node, Themes theme)
             : base(position, width, height, safe: false)
         {
-            BuildTexture();
+            this.theme = theme;
+
+            string path;
+            string id;
+            string key;
+
+            if (theme == Themes.Moon) {
+                path = "objects/zipmover/moon/light";
+                id = "objects/zipmover/moon/block";
+                key = "objects/zipmover/moon/innercog";
+                drawBlackBorder = false;
+            } else {
+                path = "objects/zipmover/light";
+                id = "objects/zipmover/block";
+                key = "objects/zipmover/innercog";
+                drawBlackBorder = true;
+            }
+
+            innerCogs = GFX.Game.GetAtlasSubtextures(key);
+            streetlight = new Sprite(GFX.Game, path);
+            streetlight.Add("frames", "", 1f);
+            streetlight.Play("frames");
+            streetlight.Active = false;
+            streetlight.SetAnimationFrame(1);
+            streetlight.Position = new Vector2(base.Width / 2f - streetlight.Width / 2f, 0f);
+
+            BuildTexture(id, streetlight);
             Add(new Coroutine(Sequence()));
             Add(new LightOcclude());
-            target = Position + new Vector2(0, -80);
+            target = node;
+            start = position;
         }
 
         private IEnumerator Sequence() {
-            Vector2 start = Position;
             while (true) {
                 if (!HasPlayerRider()) {
                     yield return null;
@@ -39,6 +70,7 @@ namespace Celeste.Mod.CommunalHelper.Entities
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                 StartShaking(0.1f);
                 yield return 0.1f;
+                streetlight.SetAnimationFrame(3);
                 StopPlayerRunIntoAnimation = false;
                 float at2 = 0f;
                 while (at2 < 1f) {
@@ -54,6 +86,7 @@ namespace Celeste.Mod.CommunalHelper.Entities
                 StopPlayerRunIntoAnimation = true;
                 yield return 0.5f;
                 StopPlayerRunIntoAnimation = false;
+                streetlight.SetAnimationFrame(2);
                 at2 = 0f;
                 while (at2 < 1f) {
                     yield return null;
@@ -64,17 +97,17 @@ namespace Celeste.Mod.CommunalHelper.Entities
                 }
                 StopPlayerRunIntoAnimation = true;
                 StartShaking(0.2f);
+                streetlight.SetAnimationFrame(1);
                 yield return 0.5f;
             }
         }
 
-        private void BuildTexture() {
+        private void BuildTexture(string blockid, Sprite streetlight) {
             MTexture[,] edges = new MTexture[3, 3];
-            innerCogs = GFX.Game.GetAtlasSubtextures("objects/zipmover/moon/innercog");
 
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    edges[i, j] = GFX.Game["objects/zipmover/moon/block"].GetSubtexture(i * 8, j * 8, 8, 8);
+                    edges[i, j] = GFX.Game[blockid].GetSubtexture(i * 8, j * 8, 8, 8);
                 }
             }
             for (int i = 0; i < Width / 8f; i++) {
@@ -88,12 +121,13 @@ namespace Celeste.Mod.CommunalHelper.Entities
                 }
             }
 
-            MTexture streetlight = GFX.Game["objects/zipmover/moon/light01"];
-            dynEdges.AddTexture(streetlight, new Vector2(OriginalWidth / 2f - streetlight.Width / 2f, 0f), Color.White);
+            dynEdges.AddSprite(streetlight, new Vector2(OriginalWidth / 2f - streetlight.Width / 2f, 0f));
         }
 
         public override void Render() {
             base.Render();
+
+            //Draw.Line(start, target, Color.Red);
 
             DynamicTexture dynCogs = new DynamicTexture();
             int num = 1;
