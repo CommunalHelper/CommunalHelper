@@ -5,29 +5,76 @@ using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
 using System.Collections;
-using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(DreamBlock), true)]
     public abstract class CustomDreamBlock : DreamBlock {
         protected struct DreamParticle {
-            public Vector2 Position;
-            public int Layer;
-            public Color Color;
-            public float TimeOffset;
+            internal static Type t_DreamParticle = typeof(DreamBlock).GetNestedType("DreamParticle", BindingFlags.NonPublic);
+            private static FieldInfo f_Position = t_DreamParticle.GetField("Position");
+            private static FieldInfo f_Layer = t_DreamParticle.GetField("Layer");
+            private static FieldInfo f_Color = t_DreamParticle.GetField("Color");
+            private static FieldInfo f_TimeOffset = t_DreamParticle.GetField("TimeOffset");
+
+            private Array array;
+            private int idx;
+
+            private object baseParticle { get => array.GetValue(idx); set => array.SetValue(value, idx); }
+            public Vector2 Position { get => (Vector2) f_Position.GetValue(baseParticle); 
+                set {
+                    object p = baseParticle;
+                    f_Position.SetValue(p, value);
+                    baseParticle = p;
+                }
+            }
+            public int Layer { get => (int) f_Layer.GetValue(baseParticle); 
+                set {
+                    object p = baseParticle;
+                    f_Layer.SetValue(p, value);
+                    baseParticle = p;
+                }
+            }
+            public Color Color { get => (Color) f_Color.GetValue(baseParticle); 
+                set {
+                    object p = baseParticle;
+                    f_Color.SetValue(p, value);
+                    baseParticle = p;
+                }
+            }
+            public float TimeOffset { get => (float) f_TimeOffset.GetValue(baseParticle); 
+                set {
+                    object p = baseParticle;
+                    f_TimeOffset.SetValue(p, value);
+                    baseParticle = p;
+                }
+            }
 
             // Feather particle stuff
             public float Speed;
             public float Spin;
             public float MaxRotate;
             public float RotationCounter;
+
+            public static DreamParticle Create(Array array, int idx, Vector2 position, int layer, Color color, float timeOffset) {
+                object baseParticle = Activator.CreateInstance(t_DreamParticle);
+                f_Position.SetValue(baseParticle, position);
+                f_Layer.SetValue(baseParticle, layer);
+                f_Color.SetValue(baseParticle, color);
+                f_TimeOffset.SetValue(baseParticle, timeOffset);
+                array.SetValue(baseParticle, idx);
+                return new DreamParticle {
+                    array = array,
+                    idx = idx,
+                };
+            }
         }
 
         private static readonly MethodInfo m_DreamBlock_PutInside = typeof(DreamBlock).GetMethod("PutInside", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo m_DreamBlock_WobbleLine = typeof(DreamBlock).GetMethod("WobbleLine", BindingFlags.NonPublic | BindingFlags.Instance);
 
         protected MTexture[] featherTextures;
+        protected Array baseParticles;
         protected DreamParticle[] particles;
         protected MTexture[] doubleRefillStarTextures;
 
@@ -100,6 +147,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public virtual void SetupCustomParticles(float canvasWidth, float canvasHeight) {
             float countFactor = (FeatherMode ? 0.5f : 0.7f) * RefillCount != -1 ? 1.2f : 1;
             particles = new DreamParticle[(int) (canvasWidth / 8f * (canvasHeight / 8f) * 0.7f * countFactor)];
+            baseData["particles"] = Activator.CreateInstance(DreamParticle.t_DreamParticle.MakeArrayType(), particles.Length);
+            baseParticles = (Array) baseData["particles"];
 
             // Necessary to get the player's spritemode
             if (!awake && RefillCount != -1) {
@@ -107,50 +156,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 return;
             }
 
-            Color color1; Color color2; Color color3;
+            Color[] dashColors = new Color[3];
             if (RefillCount != -1) {
-                Console.WriteLine(RefillCount);
-                color1 = Scene.Tracker.GetEntity<Player>().GetHairColor(RefillCount);
-                color2 = Color.Lerp(color1, Color.White, 0.5f);
-                color3 = Color.Lerp(color2, Color.White, 0.5f);
-            } else {
-                color1 = color2 = color3 = Color.Transparent;
+                dashColors[0] = Scene.Tracker.GetEntity<Player>().GetHairColor(RefillCount);
+                dashColors[1] = Color.Lerp(dashColors[0], Color.White, 0.5f);
+                dashColors[2] = Color.Lerp(dashColors[1], Color.White, 0.5f);
             }
 
             for (int i = 0; i < particles.Length; i++) {
-                particles[i].Position = new Vector2(Calc.Random.NextFloat(canvasWidth), Calc.Random.NextFloat(canvasHeight));
-                particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
-                particles[i].TimeOffset = Calc.Random.NextFloat();
-
-                if (PlayerHasDreamDash) {
-                    if (RefillCount != -1) {
-                        switch (particles[i].Layer) {
-                            case 0:
-                                particles[i].Color = color1;
-                                break;
-                            case 1:
-                                particles[i].Color = color2;
-                                break;
-                            case 2:
-                                particles[i].Color = color3;
-                                break;
-                        }
-                    } else {
-                        switch (particles[i].Layer) {
-                            case 0:
-                                particles[i].Color = Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310"));
-                                break;
-                            case 1:
-                                particles[i].Color = Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C"));
-                                break;
-                            case 2:
-                                particles[i].Color = Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64"));
-                                break;
-                        }
-                    }
-                } else {
-                    particles[i].Color = Color.LightGray * (0.5f + particles[i].Layer / 2f * 0.5f);
-                }
+                int layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
+                particles[i] = DreamParticle.Create(
+                    baseParticles, i,
+                    new Vector2(Calc.Random.NextFloat(canvasWidth), Calc.Random.NextFloat(canvasHeight)),
+                    layer,
+                    GetParticleColor(layer, dashColors),
+                    Calc.Random.NextFloat()
+                );
 
                 #region Feather particle stuff
 
@@ -164,6 +185,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 #endregion
 
             }
+        }
+
+        private Color GetParticleColor(int layer, Color[] dashColors) {
+            Console.WriteLine(layer);
+            if (PlayerHasDreamDash) {
+                if (RefillCount != -1) {
+                    return dashColors[layer];
+                } else {
+                    switch (layer) {
+                        case 0:
+                            return Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310"));
+                        case 1:
+                            return Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C"));
+                        case 2:
+                            return Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64"));
+                    }
+                }
+            }
+            return Color.LightGray * (0.5f + layer / 2f * 0.5f);
         }
 
         private void ShakeParticles() {
@@ -234,7 +274,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected virtual void UpdateParticles() {
             if (PlayerHasDreamDash) {
                 for (int i = 0; i < particles.Length; i++) {
-                    particles[i].Position.Y += 0.5f * particles[i].Speed * GetLayerScaleFactor(particles[i].Layer) * Engine.DeltaTime;
+                    Vector2 pos = particles[i].Position;
+                    pos.Y += 0.5f * particles[i].Speed * GetLayerScaleFactor(particles[i].Layer) * Engine.DeltaTime;
+                    particles[i].Position = pos;
                     particles[i].RotationCounter += particles[i].Spin * Engine.DeltaTime;
                 }
             }
@@ -264,6 +306,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             #region Particles
 
             Vector2 cameraPositon = camera.Position;
+            Console.WriteLine($"Rendering DreamBlock with {particles.Length} particles");
             for (int i = 0; i < particles.Length; i++) {
                 DreamParticle particle = particles[i];
                 int layer = particle.Layer;
@@ -277,6 +320,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     continue;
 
                 Color color = Color.Lerp(particle.Color, Color.Black, ColorLerp);
+                Console.WriteLine(color);
 
                 if (FeatherMode) {
                     featherTextures[layer].DrawCentered(position, color, 1, rotation);
