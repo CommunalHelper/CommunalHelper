@@ -2,52 +2,50 @@
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(DreamBlock), true)]
     public abstract class CustomDreamBlock : DreamBlock {
+
+        /*
+         * We want to tie the Custom DreamParticles to the vanilla DreamParticles, but since DreamBlock.DreamParticle is private it would require a lot of reflection.
+         * Instead we just IL hook stuff and ignore accessibility modifiers entirely. It's fine.
+         */
         protected struct DreamParticle {
             internal static Type t_DreamParticle = typeof(DreamBlock).GetNestedType("DreamParticle", BindingFlags.NonPublic);
-            private static FieldInfo f_Position = t_DreamParticle.GetField("Position");
-            private static FieldInfo f_Layer = t_DreamParticle.GetField("Layer");
-            private static FieldInfo f_Color = t_DreamParticle.GetField("Color");
-            private static FieldInfo f_TimeOffset = t_DreamParticle.GetField("TimeOffset");
 
-            private Array array;
+#pragma warning disable IDE0052, CS0414, CS0649 // Remove unread private members; Field is assigned to but never read; Field is never assigned to
+            // Used in IL hooks
+            private DreamBlock dreamBlock;
             private int idx;
+            private static Vector2 tempVec2;
+#pragma warning restore IDE0052, CS0414, CS0649
 
-            private object baseParticle { get => array.GetValue(idx); set => array.SetValue(value, idx); }
-            public Vector2 Position { get => (Vector2) f_Position.GetValue(baseParticle); 
-                set {
-                    object p = baseParticle;
-                    f_Position.SetValue(p, value);
-                    baseParticle = p;
-                }
+            public Vector2 Position {
+                get { UpdatePos(); return tempVec2; }
+                [MethodImpl(256)] set { }
             }
-            public int Layer { get => (int) f_Layer.GetValue(baseParticle); 
-                set {
-                    object p = baseParticle;
-                    f_Layer.SetValue(p, value);
-                    baseParticle = p;
-                }
+            [MethodImpl(256)]
+            private void UpdatePos() { }
+
+            public int Layer {
+                [MethodImpl(256)] get { return default; }
+                [MethodImpl(256)] set { }
             }
-            public Color Color { get => (Color) f_Color.GetValue(baseParticle); 
-                set {
-                    object p = baseParticle;
-                    f_Color.SetValue(p, value);
-                    baseParticle = p;
-                }
+            public Color Color {
+                [MethodImpl(256)] get { return default; }
+                [MethodImpl(256)] set { }
             }
-            public float TimeOffset { get => (float) f_TimeOffset.GetValue(baseParticle); 
-                set {
-                    object p = baseParticle;
-                    f_TimeOffset.SetValue(p, value);
-                    baseParticle = p;
-                }
+            public float TimeOffset {
+                [MethodImpl(256)] get { return default; }
+                [MethodImpl(256)] set { }
             }
 
             // Feather particle stuff
@@ -56,17 +54,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public float MaxRotate;
             public float RotationCounter;
 
-            public static DreamParticle Create(Array array, int idx, Vector2 position, int layer, Color color, float timeOffset) {
-                object baseParticle = Activator.CreateInstance(t_DreamParticle);
-                f_Position.SetValue(baseParticle, position);
-                f_Layer.SetValue(baseParticle, layer);
-                f_Color.SetValue(baseParticle, color);
-                f_TimeOffset.SetValue(baseParticle, timeOffset);
-                array.SetValue(baseParticle, idx);
-                return new DreamParticle {
-                    array = array,
-                    idx = idx,
-                };
+            public DreamParticle(DreamBlock block, int idx) 
+                : this() {
+                dreamBlock = block;
+                this.idx = idx;
             }
         }
 
@@ -74,7 +65,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static readonly MethodInfo m_DreamBlock_WobbleLine = typeof(DreamBlock).GetMethod("WobbleLine", BindingFlags.NonPublic | BindingFlags.Instance);
 
         protected MTexture[] featherTextures;
-        protected Array baseParticles;
         protected DreamParticle[] particles;
         protected MTexture[] doubleRefillStarTextures;
 
@@ -147,8 +137,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public virtual void SetupCustomParticles(float canvasWidth, float canvasHeight) {
             float countFactor = (FeatherMode ? 0.5f : 0.7f) * RefillCount != -1 ? 1.2f : 1;
             particles = new DreamParticle[(int) (canvasWidth / 8f * (canvasHeight / 8f) * 0.7f * countFactor)];
-            baseData["particles"] = Activator.CreateInstance(DreamParticle.t_DreamParticle.MakeArrayType(), particles.Length);
-            baseParticles = (Array) baseData["particles"];
+            baseData["particles"] = Array.CreateInstance(DreamParticle.t_DreamParticle, particles.Length);
 
             // Necessary to get the player's spritemode
             if (!awake && RefillCount != -1) {
@@ -165,13 +154,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             for (int i = 0; i < particles.Length; i++) {
                 int layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
-                particles[i] = DreamParticle.Create(
-                    baseParticles, i,
-                    new Vector2(Calc.Random.NextFloat(canvasWidth), Calc.Random.NextFloat(canvasHeight)),
-                    layer,
-                    GetParticleColor(layer, dashColors),
-                    Calc.Random.NextFloat()
-                );
+                particles[i] = new DreamParticle(this, i) {
+                    Position = new Vector2(Calc.Random.NextFloat(canvasWidth), Calc.Random.NextFloat(canvasHeight)),
+                    Layer = layer,
+                    Color = GetParticleColor(layer, dashColors),
+                    TimeOffset = Calc.Random.NextFloat()
+                };
 
                 #region Feather particle stuff
 
@@ -188,7 +176,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private Color GetParticleColor(int layer, Color[] dashColors) {
-            Console.WriteLine(layer);
             if (PlayerHasDreamDash) {
                 if (RefillCount != -1) {
                     return dashColors[layer];
@@ -306,7 +293,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             #region Particles
 
             Vector2 cameraPositon = camera.Position;
-            Console.WriteLine($"Rendering DreamBlock with {particles.Length} particles");
             for (int i = 0; i < particles.Length; i++) {
                 DreamParticle particle = particles[i];
                 int layer = particle.Layer;
@@ -320,7 +306,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     continue;
 
                 Color color = Color.Lerp(particle.Color, Color.Black, ColorLerp);
-                Console.WriteLine(color);
 
                 if (FeatherMode) {
                     featherTextures[layer].DrawCentered(position, color, 1, rotation);
@@ -426,6 +411,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
+        private static List<IDetour> hooks_DreamParticle_Properties = new List<IDetour>();
+
         internal static void Load() {
             On.Celeste.DreamBlock.Setup += DreamBlock_Setup;
             On.Celeste.DreamBlock.OnPlayerExit += DreamBlock_OnPlayerExit;
@@ -438,6 +425,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             ConnectedDreamBlock.Hook();
             DreamMoveBlock.Load();
             DreamCrumbleWallOnRumble.Load();
+
+            foreach (PropertyInfo prop in typeof(DreamParticle).GetProperties()) {
+                FieldInfo targetField = DreamParticle.t_DreamParticle.GetField(prop.Name);
+                if (targetField != null) {
+                    // Special case for position Get method
+                    if (prop.Name == "Position") {
+                        hooks_DreamParticle_Properties.Add(new ILHook(
+                            typeof(DreamParticle).GetMethod("UpdatePos", BindingFlags.NonPublic | BindingFlags.Instance),
+                            ctx => DreamParticle_UpdatePos(ctx, targetField)));
+                    } else {
+                        hooks_DreamParticle_Properties.Add(new ILHook(prop.GetGetMethod(), ctx => DreamParticle_get_Prop(ctx, targetField)));
+                    }
+                    hooks_DreamParticle_Properties.Add(new ILHook(prop.GetSetMethod(), ctx => DreamParticle_set_Prop(ctx, targetField)));
+                }
+            }
         }
 
         internal static void Unload() {
@@ -452,6 +454,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             ConnectedDreamBlock.Unhook();
             DreamMoveBlock.Unload();
             DreamCrumbleWallOnRumble.Unload();
+
+            foreach (IDetour detour in hooks_DreamParticle_Properties)
+                detour.Dispose();
         }
 
         private static void DreamBlock_Setup(On.Celeste.DreamBlock.orig_Setup orig, DreamBlock self) {
@@ -464,7 +469,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void DreamBlock_OnPlayerExit(On.Celeste.DreamBlock.orig_OnPlayerExit orig, DreamBlock dreamBlock, Player player) {
             orig(dreamBlock, player);
             if (dreamBlock is CustomDreamBlock customDreamBlock) {
-                if (customDreamBlock.RefillCount > 0) {
+                if (customDreamBlock.RefillCount > -1) {
                     player.Dashes = customDreamBlock.RefillCount;
                     Color color = player.GetHairColor(customDreamBlock.RefillCount);
                     ParticleType shatter = new ParticleType(Refill.P_ShatterTwo) {
@@ -529,11 +534,75 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         // Currently secret/unimplemented, setting RefillCount to -2 will not refill dash
         private static void Player_DreamDashEnd(ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            cursor.TryGotoNext(instr => instr.MatchCallvirt<Player>("RefillDash"));
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Func<Player, bool>>(player => player.GetData()["dreamBlock"] is CustomDreamBlock block && block.RefillCount != -2);
-            cursor.Emit(OpCodes.Brtrue_S, cursor.Next.Next);
+            if (cursor.TryGotoNext(instr => instr.MatchCallvirt<Player>("RefillDash"))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Func<Player, bool>>(player => player.GetData()["dreamBlock"] is CustomDreamBlock block && block.RefillCount == -2);
+                cursor.Emit(OpCodes.Brtrue_S, cursor.Next.Next);
+            }
         }
+
+        #region Cursed
+
+        private static FieldInfo f_CustomDreamParticle_dreamBlock = typeof(DreamParticle).GetField("dreamBlock", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static FieldInfo f_DreamBlock_particles = typeof(DreamBlock).GetField("particles", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static FieldInfo f_CustomDreamParticle_idx = typeof(DreamParticle).GetField("idx", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /*
+         * Position needs some extra care because of issues with methods that return Structs.
+         * We use a static field (not threadsafe!) to temporarily store the variable, then return it normally in the property accessor.
+         */
+        private static void DreamParticle_UpdatePos(ILContext context, FieldInfo targetField) {
+            FieldInfo f_DreamParticle_tempVec2 = typeof(DreamParticle).GetField("tempVec2", BindingFlags.NonPublic | BindingFlags.Static);
+            context.Instrs.Clear();
+
+            ILCursor cursor = new ILCursor(context);
+            // this.dreamBlock.particles
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, f_CustomDreamParticle_dreamBlock);
+            cursor.Emit(OpCodes.Ldfld, f_DreamBlock_particles);
+            // [this.idx].Position
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, f_CustomDreamParticle_idx);
+            cursor.Emit(OpCodes.Ldelema, DreamParticle.t_DreamParticle);
+            cursor.Emit(OpCodes.Ldfld, targetField);
+            // -> DreamParticle.tempVec2
+            cursor.Emit(OpCodes.Stsfld, f_DreamParticle_tempVec2);
+            cursor.Emit(OpCodes.Ret);
+        }
+
+        private static void DreamParticle_set_Prop(ILContext context, FieldInfo targetField) {
+            context.Instrs.Clear();
+
+            ILCursor cursor = new ILCursor(context);
+            // this.dreamBlock.particles[this.idx].{targetField} = value
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, f_CustomDreamParticle_dreamBlock);
+            cursor.Emit(OpCodes.Ldfld, f_DreamBlock_particles);
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, f_CustomDreamParticle_idx);
+            cursor.Emit(OpCodes.Ldelema, DreamParticle.t_DreamParticle);
+            cursor.Emit(OpCodes.Ldarg_1);
+            cursor.Emit(OpCodes.Stfld, targetField);
+            // return
+            cursor.Emit(OpCodes.Ret);
+        }
+
+        private static void DreamParticle_get_Prop(ILContext context, FieldInfo targetField) {
+            context.Instrs.Clear();
+
+            ILCursor cursor = new ILCursor(context);
+            // return this.dreamBlock.particles[this.idx].{targetField}
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, f_CustomDreamParticle_dreamBlock);
+            cursor.Emit(OpCodes.Ldfld, f_DreamBlock_particles);
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, f_CustomDreamParticle_idx);
+            cursor.Emit(OpCodes.Ldelema, DreamParticle.t_DreamParticle);
+            cursor.Emit(OpCodes.Ldfld, targetField);
+            cursor.Emit(OpCodes.Ret);
+        }
+
+        #endregion
 
         #endregion
 
