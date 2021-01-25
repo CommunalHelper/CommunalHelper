@@ -369,5 +369,11 @@
 		<Justify x="0.5" y="0.5"/>
 		<Loop id="idle" path="midBlockRed" delay="0.08" frames="0-3"/>
 	</swapBlockLightRed>
+
+	<trackSwitchBox path="objects/CommunalHelper/trackSwitchBox/" start="idle">
+		<Justify x="0.5" y="0.5"/>
+		<Loop id="idle" path="idle" delay="0.08" frames="0"/>
+	  	<Anim id="switch" path="switch" frames="0-11" delay="0.06" goto="idle"/>
+	</trackSwitchBox>
 	
 </Sprites>
