@@ -20,6 +20,8 @@ namespace Celeste.Mod.CommunalHelper.Entities
         private Sprite streetlight;
         private bool drawBlackBorder;
 
+        private Segment originalPath;
+
         public PortalZipMover(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Enum("theme", Themes.Normal))
         { }
@@ -52,12 +54,19 @@ namespace Celeste.Mod.CommunalHelper.Entities
             streetlight.Active = false;
             streetlight.SetAnimationFrame(1);
             streetlight.Position = new Vector2(base.Width / 2f - streetlight.Width / 2f, 0f);
-
+            
             BuildTexture(id, streetlight);
             Add(new Coroutine(Sequence()));
             Add(new LightOcclude());
             target = node;
             start = position;
+            SurfaceSoundIndex = 7;
+
+            originalPath = new Segment(start, target, new Vector2(OriginalWidth, OriginalHeight) / 2);
+        }
+
+        public override void Awake(Scene scene) {
+            base.Awake(scene);
         }
 
         private IEnumerator Sequence() {
@@ -121,13 +130,11 @@ namespace Celeste.Mod.CommunalHelper.Entities
                 }
             }
 
-            dynEdges.AddSprite(streetlight, new Vector2(OriginalWidth / 2f - streetlight.Width / 2f, 0f));
+            dynEdges.AddSprite(streetlight, Vector2.Zero);
         }
 
         public override void Render() {
             base.Render();
-
-            //Draw.Line(start, target, Color.Red);
 
             DynamicTexture dynCogs = new DynamicTexture();
             int num = 1;
@@ -177,6 +184,9 @@ namespace Celeste.Mod.CommunalHelper.Entities
             MapTextureOnColliders(dynCogs);
             MapTextureOnColliders(dynEdges);
             Position = pos;
+
+
+            originalPath.DebugDraw();
         }
         
         private float mod(float x, float m) {

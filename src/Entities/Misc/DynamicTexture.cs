@@ -30,7 +30,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public void AddSprite(Sprite sprite, Vector2 offset)
             => textures.Add(new TextureData() {
                 Sprite = sprite,
-                Offset = offset
+                Offset = offset + sprite.Position
             });
 
         public void Render(Vector2 at, Vector2 offset, Matrix transform, Rectangle clipRect) {

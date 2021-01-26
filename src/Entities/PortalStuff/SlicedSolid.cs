@@ -27,6 +27,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Collider = OriginalCollider = new SlicedCollider(width, height);
             platformData = new DynData<Platform>(this);
             solidData = new DynData<Solid>(this);
+            //AllowStaticMovers = false; // please 
         }
 
         private void GenerateNewColliders(Vector2 pushVector, Vector2? overrideSpeed = null, 
