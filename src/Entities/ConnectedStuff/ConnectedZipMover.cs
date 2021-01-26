@@ -169,15 +169,16 @@ namespace Celeste.Mod.CommunalHelper
 		private string themePath;
 		private Color backgroundColor;
 
-		public ConnectedZipMover(EntityData data, Vector2 offset)
-			: this(data.Position + offset, data.Width, data.Height, data.Nodes,
-				  data.Enum("theme", Themes.Normal),
-				  data.Bool("permanent"),
-				  data.Bool("waiting"),
-				  data.Bool("ticking"))
+        public ConnectedZipMover(EntityData data, Vector2 offset)
+            : this(data.Position + offset, data.Width, data.Height, data.Nodes,
+                  data.Enum("theme", Themes.Normal),
+                  data.Bool("permanent"),
+                  data.Bool("waiting"),
+                  data.Bool("ticking"),
+                  data.Attr("customBlockTexture").Trim())
 		{ }
 
-		public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking)
+		public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking, string customBlockPath)
 			: base(position, width, height, safe: false)
 		{
 			base.Depth = -9999;
@@ -244,21 +245,22 @@ namespace Celeste.Mod.CommunalHelper
 			Add(bloom = new BloomPoint(1f, 6f));
 			bloom.Position = new Vector2(base.Width / 2f, 4f);
 
-			for (int i = 0; i < 3; i++)
-			{
-				for (int j = 0; j < 3; j++)
-				{
-					edges[i, j] = GFX.Game[id].GetSubtexture(i * 8, j * 8, 8, 8);
-				}
-			}
+            if (customBlockPath != "") {
+                Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(customBlockPath);
+                edges = customTiles.Item1; innerCorners = customTiles.Item2;
+            } else {
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        edges[i, j] = GFX.Game[id].GetSubtexture(i * 8, j * 8, 8, 8);
+                    }
+                }
 
-			for (int i = 0; i < 2; i++)
-			{
-				for (int j = 0; j < 2; j++)
-				{
-					innerCorners[i, j] = GFX.Game[corners].GetSubtexture(i * 8, j * 8, 8, 8);
-				}
-			}
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        innerCorners[i, j] = GFX.Game[corners].GetSubtexture(i * 8, j * 8, 8, 8);
+                    }
+                }
+            }
 
 			sfx.Position = new Vector2(base.Width, base.Height) / 2f;
 			Add(sfx);

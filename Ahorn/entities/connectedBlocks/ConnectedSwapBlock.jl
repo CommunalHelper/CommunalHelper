@@ -16,7 +16,8 @@ end
                             x::Integer, y::Integer,
                             width::Integer = Maple.defaultBlockWidth, 
                             height::Integer = Maple.defaultBlockWidth,
-                            theme::String = "Normal")
+                            theme::String = "Normal",
+                            customGreenBlockTexture::String = "", customRedBlockTexture::String = "")
 
 const placements = Ahorn.PlacementDict(
     "Connected Swap Block ($theme) (Communal Helper)" => Ahorn.EntityPlacement(

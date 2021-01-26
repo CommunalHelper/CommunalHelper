@@ -1,6 +1,5 @@
 ﻿using Celeste.Mod.Entities;
 using FMOD.Studio;
-using IL.Celeste.Mod.UI;
 using Microsoft.Xna.Framework;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -9,12 +8,8 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.CommunalHelper {
 
@@ -77,6 +72,11 @@ namespace Celeste.Mod.CommunalHelper {
             MoonRedEdgeTiles, MoonRedInnerCornerTiles,
             TargetTiles, MoonTargetTiles;
 
+        private MTexture[,]
+            customGreenEdgeTiles, customGreenInnerCornerTiles,
+            customRedEdgeTiles, customRedInnerCornerTiles;
+        private bool customRedTextures = false, customGreenTextures = false;
+
         private Vector2 start, end, offset;
         private float lerp;
         private int target;
@@ -102,7 +102,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         private float particlesRemainder;
 
-        public ConnectedSwapBlock(Vector2 position, int width, int height, Vector2 node, SwapBlock.Themes theme)
+        public ConnectedSwapBlock(Vector2 position, int width, int height, Vector2 node, SwapBlock.Themes theme, string greenCustomBlockPath, string redCustomBlockPath)
             : base(position, width, height, safe: false) {
             Theme = theme;
             start = Position;
@@ -123,6 +123,19 @@ namespace Celeste.Mod.CommunalHelper {
                 mTexture = GFX.Game["objects/swapblock/target"];
             }
 
+            if(redCustomBlockPath != "") {
+                Tuple<MTexture[,], MTexture[,]> customRedTiles = SetupCustomTileset(redCustomBlockPath);
+                customRedEdgeTiles = customRedTiles.Item1;
+                customRedInnerCornerTiles = customRedTiles.Item2;
+                customRedTextures = true;
+            }
+            if (greenCustomBlockPath != "") {
+                Tuple<MTexture[,], MTexture[,]> customGreenTiles = SetupCustomTileset(greenCustomBlockPath);
+                customGreenEdgeTiles = customGreenTiles.Item1;
+                customGreenInnerCornerTiles = customGreenTiles.Item2;
+                customGreenTextures = true;
+            }
+
             if (Theme == SwapBlock.Themes.Normal) {
                 middleGreen = GFX.SpriteBank.Create("swapBlockLight");
                 middleRed = GFX.SpriteBank.Create("swapBlockLightRed");
@@ -140,7 +153,8 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public ConnectedSwapBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Enum("theme", SwapBlock.Themes.Normal)) {
+            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Enum("theme", SwapBlock.Themes.Normal), 
+                  data.Attr("customGreenBlockTexture").Trim(), data.Attr("customRedBlockTexture").Trim()) {
         }
 
         public override void Awake(Scene scene) {
@@ -153,11 +167,11 @@ namespace Celeste.Mod.CommunalHelper {
 
             base.Awake(scene);
             if(Theme == SwapBlock.Themes.Normal) {
-                greenTiles = AutoTile(GreenEdgeTiles, GreenInnerCornerTiles, false, false);
-                redTiles = AutoTile(RedEdgeTiles, RedInnerCornerTiles, false, false);
+                greenTiles = AutoTile(customGreenTextures ? customGreenEdgeTiles : GreenEdgeTiles, customGreenTextures ? customGreenInnerCornerTiles : GreenInnerCornerTiles, false, false);
+                redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : RedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : RedInnerCornerTiles, false, false);
             } else {
-                greenTiles = AutoTile(MoonGreenEdgeTiles, MoonGreenInnerCornerTiles, false, false);
-                redTiles = AutoTile(MoonRedEdgeTiles, MoonRedInnerCornerTiles, false, false);
+                greenTiles = AutoTile(customGreenTextures ? customGreenEdgeTiles : MoonGreenEdgeTiles, customGreenTextures ? customGreenInnerCornerTiles : MoonGreenInnerCornerTiles, false, false);
+                redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : MoonRedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : MoonRedInnerCornerTiles, false, false);
             }
 
             Add(middleRed); Add(middleGreen);

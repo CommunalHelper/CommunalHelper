@@ -5,7 +5,8 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/ConnectedMoveBlock" ConnectedMoveBlock(x::Integer, y::Integer,
 	width::Integer = Maple.defaultBlockWidth, height::Integer = Maple.defaultBlockWidth,
-    direction::String="Right", moveSpeed::Number=60.0)
+    direction::String="Right", moveSpeed::Number=60.0,
+    customBlockTexture::String = "")
 
 const placements = Ahorn.PlacementDict(
     "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(

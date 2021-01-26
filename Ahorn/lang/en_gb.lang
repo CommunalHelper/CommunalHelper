@@ -46,9 +46,12 @@ placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.moveSpeed=The spe
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.
 
 # -- Connected Swap Block --
+placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customGreenBlockTexture=The path to the custom green variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
+placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customRedBlockTexture=The path to the custom red variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
 placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearance of the Connected Swap Block.
 
 # -- Connected Zip Mover --
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=The appearance of the Connected Zip Mover. The Cliffside theme is a custom theme.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.permanent=Whether the Connected Zip Mover should stay completely static after stopping.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.waiting=Whether the Connected Zip Mover should wait for the player at each node. Only useful if has more than one node.

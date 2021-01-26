@@ -12,7 +12,8 @@ const theme_options = String["Normal", "Moon", "Cliffside"]
 			permanent::Bool=false,
 			waiting::Bool=false,
 			ticking::Bool=false,
-			nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[])
+			nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[],
+            customBlockTexture::String = "")
 
 const placements = Ahorn.PlacementDict(
     "Connected Zip Mover ($(uppercasefirst(theme))) (Communal Helper)" => Ahorn.EntityPlacement(
