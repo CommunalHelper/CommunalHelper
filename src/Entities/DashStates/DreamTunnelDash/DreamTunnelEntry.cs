@@ -231,10 +231,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             level = scene as Level;
             PlayerHasDreamDash = level.Session.Inventory.DreamDash;
 
-            DreamBlockDummy block = DreamBlockDummy.Create(scene).Initialize(
-                Activate, FastActivate, ActivateNoRoutine,
-                Deactivate, FastDeactivate, DeactivateNoRoutine,
-                Setup);
+            scene.Add(new DreamBlockDummy() {
+                OnActivate = Activate,
+                OnFastActivate = FastActivate,
+                OnActivateNoRoutine = ActivateNoRoutine,
+                OnDeactivate = Deactivate,
+                OnFastDeactivate = FastDeactivate,
+                OnDeactivateNoRoutine = DeactivateNoRoutine,
+                OnSetup = Setup
+            });
 
             Setup();
         }

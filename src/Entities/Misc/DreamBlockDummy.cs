@@ -20,36 +20,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DynData<DreamBlock> Data;
 
-        private DreamBlockDummy() 
+        public DreamBlockDummy() 
             : base(Vector2.Zero, 0, 0, null, false, false) {
             Collidable = Active = Visible = false;
 
             Data = new DynData<DreamBlock>(this);
-        }
-
-        public static DreamBlockDummy Create(Scene scene) {
-            DreamBlockDummy block = scene.Tracker.GetEntity<DreamBlockDummy>();
-            if (block is null)
-                scene.Add(block = new DreamBlockDummy());
-            return block;
-        }
-
-        public DreamBlockDummy Initialize(
-            Func<IEnumerator> activate = null,
-            Func<IEnumerator> fastActivate = null,
-            Action activateNoRoutine = null,
-            Func<IEnumerator> deactivate = null,
-            Func<IEnumerator> fastDeactivate = null,
-            Action deactivateNoRoutine = null,
-            Action setup = null) {
-            OnActivate = activate;
-            OnFastActivate = fastActivate;
-            OnActivateNoRoutine = activateNoRoutine;
-            OnDeactivate = deactivate;
-            OnFastDeactivate = fastDeactivate;
-            OnDeactivateNoRoutine = deactivateNoRoutine;
-            OnSetup = setup;
-            return this;
         }
 
         public override void Added(Scene scene) { }
