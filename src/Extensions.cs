@@ -154,6 +154,13 @@ namespace Celeste.Mod.CommunalHelper {
             return false;
         }
 
+        // Sort of the inverse of CollideCheckOutside
+        public static bool CollideCheckOutsideInside(this Entity self, Entity other, Vector2 at) {
+            if (Collide.Check(self, other))
+                return !Collide.Check(self, other, at);
+            return false;
+        }
+
         #endregion
 
         #region WallBoosters

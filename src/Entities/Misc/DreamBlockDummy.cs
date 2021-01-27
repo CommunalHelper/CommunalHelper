@@ -1,6 +1,4 @@
-﻿#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
-
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
 using System;
@@ -8,7 +6,8 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(DreamBlock))]
-    class DreamBlockDummy : DreamBlock {
+    [Tracked]
+    public class DreamBlockDummy : DreamBlock {
         public Func<IEnumerator> OnActivate;
         public Func<IEnumerator> OnFastActivate;
         public Action OnActivateNoRoutine;
@@ -21,11 +20,36 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DynData<DreamBlock> Data;
 
-        public DreamBlockDummy() 
+        private DreamBlockDummy() 
             : base(Vector2.Zero, 0, 0, null, false, false) {
             Collidable = Active = Visible = false;
 
             Data = new DynData<DreamBlock>(this);
+        }
+
+        public static DreamBlockDummy Create(Scene scene) {
+            DreamBlockDummy block = scene.Tracker.GetEntity<DreamBlockDummy>();
+            if (block is null)
+                scene.Add(block = new DreamBlockDummy());
+            return block;
+        }
+
+        public DreamBlockDummy Initialize(
+            Func<IEnumerator> activate = null,
+            Func<IEnumerator> fastActivate = null,
+            Action activateNoRoutine = null,
+            Func<IEnumerator> deactivate = null,
+            Func<IEnumerator> fastDeactivate = null,
+            Action deactivateNoRoutine = null,
+            Action setup = null) {
+            OnActivate = activate;
+            OnFastActivate = fastActivate;
+            OnActivateNoRoutine = activateNoRoutine;
+            OnDeactivate = deactivate;
+            OnFastDeactivate = fastDeactivate;
+            OnDeactivateNoRoutine = deactivateNoRoutine;
+            OnSetup = setup;
+            return this;
         }
 
         public override void Added(Scene scene) { }

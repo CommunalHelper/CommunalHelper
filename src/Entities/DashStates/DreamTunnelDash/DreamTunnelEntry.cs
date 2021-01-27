@@ -195,8 +195,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
-            if (changeState)
+            if (changeState) {
                 player.StateMachine.State = StDreamTunnelDash;
+            }
 
             return true;
         }
@@ -211,10 +212,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         // Make sure at least one side aligns, and the rest are contained within the solid
         private bool IsRiding(Solid solid) {
-            if (Left == solid.Left || Right == solid.Right || Top == solid.Top || Bottom == solid.Bottom) {
-                return Left >= solid.Left && Right <= solid.Right && Top >= solid.Top && Bottom <= solid.Bottom;
+            switch (Orientation) {
+                case Spikes.Directions.Up:
+                    return this.CollideCheckOutsideInside(solid, TopCenter - Vector2.UnitY * Height);
+                case Spikes.Directions.Down:
+                    return this.CollideCheckOutsideInside(solid, BottomCenter + Vector2.UnitY);
+                case Spikes.Directions.Left:
+                    return this.CollideCheckOutsideInside(solid, CenterLeft - Vector2.UnitX * Width);
+                case Spikes.Directions.Right:
+                    return this.CollideCheckOutsideInside(solid, CenterRight + Vector2.UnitX);
+                default:
+                    return false;
             }
-            return false;
         }
 
         public override void Added(Scene scene) {
@@ -222,15 +231,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             level = scene as Level;
             PlayerHasDreamDash = level.Session.Inventory.DreamDash;
 
-            scene.Add(new DreamBlockDummy {
-                OnActivate = Activate,
-                OnFastActivate = FastActivate,
-                OnActivateNoRoutine = ActivateNoRoutine,
-                OnDeactivate = Deactivate,
-                OnFastDeactivate = FastDeactivate,
-                OnDeactivateNoRoutine = DeactivateNoRoutine,
-                OnSetup = Setup
-            });
+            DreamBlockDummy block = DreamBlockDummy.Create(scene).Initialize(
+                Activate, FastActivate, ActivateNoRoutine,
+                Deactivate, FastDeactivate, DeactivateNoRoutine,
+                Setup);
 
             Setup();
         }
@@ -272,8 +276,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Removed(Scene scene) {
-            if (staticMover.Platform != null && (staticMover.Platform.TagCheck(Tags.Global)|| staticMover.Platform.TagCheck(Tags.Persistent))) {
+            if (staticMover.Platform != null && (staticMover.Platform.TagCheck(Tags.Global) || staticMover.Platform.TagCheck(Tags.Persistent))) {
                 List<StaticMover> movers = new DynData<Platform>(staticMover.Platform).Get<List<StaticMover>>("staticMovers");
+                // Iterate backwards so we can remove stuff
                 for (int i = movers.Count - 1; i >= 0; i--) {
                     if (movers[i].Entity is DreamTunnelEntry entry) {
                         movers[i].Platform.OnDashCollide = entry.platformDashCollide;
@@ -294,9 +299,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Render() {
             Camera camera = SceneAs<Level>().Camera;
-            if (Right < camera.Left || Left > camera.Right || Bottom < camera.Top || Top > camera.Bottom) {
+            if (Right < camera.Left || Left > camera.Right || Bottom < camera.Top || Top > camera.Bottom)
                 return;
-            }
 
             Color activeBackColor = CustomDreamBlock.ActiveBackColor;
             Color disabledBackColor = CustomDreamBlock.DisabledBackColor;
@@ -306,10 +310,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 position = camera.Position;
             for (int i = 0; i < particles.Length; i++) {
                 int layer = particles[i].Layer;
-                Vector2 vector = particles[i].Position;
-                vector += position * (0.3f + 0.25f * layer);
-                vector = PutInside(vector);
-                Color color = particles[i].Color;
+                Vector2 drawPos = particles[i].Position;
+                drawPos += position * (0.3f + 0.25f * layer);
+                drawPos = PutInside(drawPos);
                 MTexture mtexture;
                 if (layer == 0) {
                     int num = (int) ((particles[i].TimeOffset * 4f + animTimer) % 4f);
@@ -320,8 +323,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 } else {
                     mtexture = particleTextures[2];
                 }
-                if (vector.X >= X + 2f && vector.Y >= Y + 2f && vector.X < Right - 2f && vector.Y < Bottom - 2f) {
-                    mtexture.DrawCentered(vector + shake, color);
+                if (drawPos.X >= X + 2f && drawPos.Y >= Y + 2f && drawPos.X < Right - 2f && drawPos.Y < Bottom - 2f) {
+                    mtexture.DrawCentered(drawPos + shake, particles[i].Color);
                 }
             }
             
