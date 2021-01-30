@@ -61,10 +61,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private int surfaceSoundIndex;
 
         private Shaker shaker;
-        private Vector2 shake;
+        public Vector2 shake;
+        public Vector2 start => new Vector2(
+                X + (Orientation == Spikes.Directions.Right || Orientation == Spikes.Directions.Down ? Width : 0),
+                Y + (Orientation == Spikes.Directions.Left || Orientation == Spikes.Directions.Down ? Height : 0));
+        public Vector2 end => new Vector2(
+                X + (Orientation == Spikes.Directions.Up || Orientation == Spikes.Directions.Right ? Width : 0),
+                Y + (Orientation == Spikes.Directions.Right || Orientation == Spikes.Directions.Down ? Height : 0));
         private Vector2 platformShake;
-        private float whiteFill;
-        private float whiteHeight;
+        public float whiteFill;
+        public float whiteHeight;
 
         private float animTimer;
         private float wobbleEase;
@@ -254,6 +260,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
             }
+
+            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Track(this);
         }
 
         private void OneUseDestroy() {
@@ -292,6 +300,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
             base.Removed(scene);
+
+            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this);
         }
 
         public void FootstepRipple(Vector2 position) {
@@ -306,12 +316,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Camera camera = SceneAs<Level>().Camera;
             if (Right < camera.Left || Left > camera.Right || Bottom < camera.Top || Top > camera.Bottom)
                 return;
-
-            Color activeBackColor = CustomDreamBlock.ActiveBackColor;
-            Color disabledBackColor = CustomDreamBlock.DisabledBackColor;
-
-            Draw.Rect(shake.X + X, shake.Y + Y, Width, Height, PlayerHasDreamDash ? activeBackColor : disabledBackColor);
-            
             Vector2 position = camera.Position;
             for (int i = 0; i < particles.Length; i++) {
                 int layer = particles[i].Layer;
@@ -332,20 +336,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     mtexture.DrawCentered(drawPos + shake, particles[i].Color);
                 }
             }
-            
-            if (whiteFill > 0f) {
-                Draw.Rect(X + shake.X, Y + shake.Y, Width, Height * whiteHeight, Color.White * whiteFill);
-            }
-            Vector2 start = new Vector2(
-                X + (Orientation == Spikes.Directions.Right || Orientation == Spikes.Directions.Down ? Width : 0), 
-                Y + (Orientation == Spikes.Directions.Left || Orientation == Spikes.Directions.Down ? Height : 0));
-            Vector2 end = new Vector2(
-                X + (Orientation == Spikes.Directions.Up || Orientation == Spikes.Directions.Right ? Width : 0),
-                Y + (Orientation == Spikes.Directions.Right || Orientation == Spikes.Directions.Down ? Height : 0));
-            WobbleLine(shake + start, shake + end, 0f);
         }
 
-        private void WobbleLine(Vector2 from, Vector2 to, float offset) {
+        // is custom, edited a few things.
+        public void WobbleLine(Vector2 from, Vector2 to, float offset, bool line, bool back) {
             float length = (to - from).Length();
             Vector2 vector = Vector2.Normalize(to - from);
             Vector2 vector2 = new Vector2(vector.Y, -vector.X);
@@ -365,9 +359,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float num5 = Math.Min(interval, length - i);
                 Vector2 vector3 = from + vector * i + vector2 * scaleFactor;
                 Vector2 vector4 = from + vector * (i + num5) + vector2 * lerp;
-                Draw.Line(vector3 - vector2, vector4 - vector2, backColor);
-                Draw.Line(vector3 - vector2 * 2f, vector4 - vector2 * 2f, backColor);
-                Draw.Line(vector3, vector4, lineColor);
+                if (back) {
+                    Draw.Line(vector3 - vector2, vector4 - vector2, backColor);
+                    Draw.Line(vector3 - vector2 * 2f, vector4 - vector2 * 2f, backColor);
+                    Draw.Line(vector3 - vector2 * 8f, vector4 - vector2 * 8f, backColor * 0.95f);
+                    Draw.Line(vector3 - vector2 * 9f, vector4 - vector2 * 9f, backColor * 0.7f);
+                    Draw.Line(vector3 - vector2 * 10f, vector4 - vector2 * 10f, backColor * 0.4f);
+                    Draw.Line(vector3 - vector2 * 11f, vector4 - vector2 * 11f, backColor * 0.2f);
+                }
+                if(line)
+                    Draw.Line(vector3, vector4, lineColor);
                 scaleFactor = lerp;
             }
         }
@@ -393,7 +394,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public void Setup() {
-            particles = new CustomDreamBlock.DreamParticle[(int) ((Width / 4f) * (Height / 4f))];
+            particles = new CustomDreamBlock.DreamParticle[(int) ((Width / 4f) * (Height / 4f) * 0.5f)];
             for (int i = 0; i < particles.Length; i++) {
                 particles[i].Position = new Vector2(Calc.Random.NextFloat(Width), Calc.Random.NextFloat(Height));
                 particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);

@@ -53,6 +53,7 @@ namespace Celeste.Mod.CommunalHelper {
             AbstractController.Load();
             // Controller-specific hooks loaded from AbstractController.Load
             // TimedTriggerSpikes hooked in Initialize
+            DreamTunnelEntryHooks.Hook();
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
@@ -79,6 +80,7 @@ namespace Celeste.Mod.CommunalHelper {
             MoveSwapBlock.Unload();
             AbstractController.Unload();
             TimedTriggerSpikes.Unload();
+            DreamTunnelEntryHooks.Unhook();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
