@@ -60,6 +60,8 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
+Ahorn.editingIgnored(entity::StationBlockTrack, multiple::Bool=false) = multiple ? String["x", "y", "width", "height", "nodes", "offrampNode1", "offrampNode2"] : String["offrampNode1", "offrampNode2"]
+
 Ahorn.minimumSize(entity::StationBlockTrack) = 24, 24
 
 Ahorn.resizable(entity::StationBlockTrack) = Bool(get(entity.data, "horizontal", false)), !(Bool(get(entity.data, "horizontal", false)))
