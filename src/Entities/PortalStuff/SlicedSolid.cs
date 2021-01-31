@@ -9,12 +9,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public Vector2 MoveSpeed;
         public SinglePortal CurrentPortalStart;
 
-        private Matrix MoveTransform = Matrix.Identity, GraphicalTransform = Matrix.Identity;
+        private Matrix MoveTransform = Matrix.Identity;
 
         public List<SlicedCollider> Colliders = new List<SlicedCollider>();
         public SlicedCollider OriginalCollider;
 
         public int OriginalWidth, OriginalHeight;
+        public bool FitPortalCondition = true;
 
         public Vector2 FakePosition;
         private DynData<Platform> platformData;
@@ -47,7 +48,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bool checkWithInitSpeed;
             if (checkWithInitSpeed = CurrentPortalStart != null) {
                 MoveSpeed = CurrentPortalStart.RequiredSpeed();
-                if (!CurrentPortalStart.CheckSolidAccess(startCollider, MoveSpeed)) {
+                if (!CurrentPortalStart.CheckSolidAccess(startCollider, MoveSpeed, FitPortalCondition)) {
                     if (CurrentPortalStart.ColliderBehindSelf(startCollider, out float inDist)) {
                         // Exit Portal
                         CurrentPortalStart.MoveSlicedPartToPartner(startCollider, OriginalCollider, Vector2.Zero);
@@ -74,7 +75,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                         Position = startCollider.WorldPosition;
                         MoveTransform = Matrix.Multiply(MoveTransform, CurrentPortalStart.ToPartnerTransform);
-                        GraphicalTransform = Matrix.Multiply(GraphicalTransform, CurrentPortalStart.ToPartnerGraphicalTransform);
                         LiftSpeed = Vector2.Transform(LiftSpeed, CurrentPortalStart.ToPartnerTransform);
                         pushVector = Vector2.Transform(pushVector, CurrentPortalStart.ToPartnerTransform);
                     }
@@ -84,7 +84,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             startCollider.MoveSpeed = MoveSpeed;
             startCollider.TransformedLiftSpeed = LiftSpeed;
-            startCollider.GraphicalTransform = GraphicalTransform;
+            startCollider.Transform = MoveTransform;
             startCollider.PushMove = pushVector;
             startCollider.CutTop = cutTop;
             startCollider.CutBottom = cutBottom;
@@ -100,7 +100,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             PortalIteration(startCollider, Colliders);
 
 
-            if (checkWithInitSpeed) {
+            if (checkWithInitSpeed && !FitPortalCondition) {
                 startCollider.MoveSpeed = -MoveSpeed;
                 PortalIteration(startCollider, Colliders);
             }
@@ -128,7 +128,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     (int) at.Y,
                     (int) collider.Width,
                     (int) collider.Height);
-                dynTex.Render(at, collider.RenderOffset, collider.GraphicalTransform, clipRect);
+                dynTex.Render(at, collider.RenderOffset, collider.Transform, clipRect);
             }
         }
 
@@ -139,7 +139,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private void PortalIteration(SlicedCollider collider, List<SlicedCollider> colliderList) {
             foreach (SolidPortal portal in SceneAs<Level>().Tracker.GetEntities<SolidPortal>()) {
-                if (portal.AllowEntrance(collider, collider.MoveSpeed, out SinglePortal enteredPortal)) {
+                if (portal.AllowEntrance(collider, collider.MoveSpeed, FitPortalCondition, out SinglePortal enteredPortal)) {
                     PortalTravel(collider, enteredPortal, colliderList);
                     break;
                 }
@@ -156,8 +156,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     CurrentPortalStart = portal;
 
                 sliced.WorldPosition = unsliced.WorldPosition;
-                sliced.GraphicalTransform = Matrix.Multiply(unsliced.GraphicalTransform, portal.ToPartnerGraphicalTransform);
-                portal.MoveSlicedPartToPartner(sliced, OriginalCollider, Calc.Round(Vector2.Transform(new Vector2(portalDistanceX, portalDistanceY), portal.ToPartnerGraphicalTransform)));
+                sliced.Transform = Matrix.Multiply(unsliced.Transform, portal.ToPartnerTransform);
+                portal.MoveSlicedPartToPartner(sliced, OriginalCollider, Calc.Round(Vector2.Transform(new Vector2(portalDistanceX, portalDistanceY), portal.ToPartnerTransform)));
 
                 // transformation
                 sliced.MoveSpeed = -portal.Partner.RequiredSpeed();
@@ -410,9 +410,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public Vector2 TransformedLiftSpeed = Vector2.Zero;
 
         public Vector2 TransformedOrigin => GetTransformedCorner(new Vector2(-1, -1));
-        public Matrix GraphicalTransform;
+        public Matrix Transform;
 
-        public Vector2 GetTransformedCorner(Vector2 cornerIndex) => (Calc.Round(Vector2.Transform(cornerIndex, GraphicalTransform)) + Vector2.One) / 2f * new Vector2(Width, Height);
+        public Vector2 GetTransformedCorner(Vector2 cornerIndex) => (Calc.Round(Vector2.Transform(cornerIndex, Transform)) + Vector2.One) / 2f * new Vector2(Width, Height);
 
         public bool 
             CutTop = false, 

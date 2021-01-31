@@ -11,6 +11,85 @@ namespace Celeste.Mod.CommunalHelper.Entities
     [CustomEntity("CommunalHelper/PortalZipMover")]
     class PortalZipMover : SlicedSolid {
 
+        private class ZipMoverPathRenderer : Entity {
+            public PortalZipMover block;
+
+            private MTexture cog;
+            private Vector2 from, to;
+            private Vector2 sparkAdd;
+
+            private float sparkDirFromA;
+            private float sparkDirFromB;
+            private float sparkDirToA;
+            private float sparkDirToB;
+
+            public Rectangle RenderZone;
+
+            private static readonly Color ropeColor = Calc.HexToColor("663931");
+            private static readonly Color ropeLightColor = Calc.HexToColor("9b6157");
+
+            public ZipMoverPathRenderer(PortalZipMover zipMover) {
+                base.Depth = 5000;
+                block = zipMover;
+                from = block.start + new Vector2(block.OriginalWidth / 2f, block.OriginalHeight / 2f);
+                to = block.target + new Vector2(block.OriginalWidth / 2f, block.OriginalHeight / 2f);
+                sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
+                float num = (from - to).Angle();
+                sparkDirFromA = num + (float) Math.PI / 8f;
+                sparkDirFromB = num - (float) Math.PI / 8f;
+                sparkDirToA = num + (float) Math.PI - (float) Math.PI / 8f;
+                sparkDirToB = num + (float) Math.PI + (float) Math.PI / 8f;
+                if (zipMover.theme == Themes.Moon) {
+                    cog = GFX.Game["objects/zipmover/moon/cog"];
+                } else {
+                    cog = GFX.Game["objects/zipmover/cog"];
+                }
+
+                Point a = new Point((int) Math.Min(from.X, to.X), (int) Math.Min(from.Y, to.Y));
+                Point b = new Point((int) Math.Max(from.X, to.X), (int) Math.Max(from.Y, to.Y));
+                RenderZone = new Rectangle(a.X, a.Y, b.X - a.X, b.Y - a.Y);
+                RenderZone.Inflate(8, 8);
+            }
+
+            public void CreateSparks() {
+                SceneAs<Level>().ParticlesBG.Emit(P_Sparks, from + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromA);
+                SceneAs<Level>().ParticlesBG.Emit(P_Sparks, from - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromB);
+                SceneAs<Level>().ParticlesBG.Emit(P_Sparks, to + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
+                SceneAs<Level>().ParticlesBG.Emit(P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
+            }
+
+            private DynamicTexture GetDynamicTexture() {
+                DynamicTexture res = new DynamicTexture();
+                DrawCogs(res, Vector2.UnitY, Color.Black);
+                DrawCogs(res, Vector2.Zero);
+                return res;
+            }
+
+            public override void Render() {
+                base.Render();
+                block.renderSolid.MapTextureOnColliders(GetDynamicTexture());
+            }
+
+            private void DrawCogs(DynamicTexture tex, Vector2 offset, Color? colorOverride = null) {
+                Vector2 vector = (to - from).SafeNormalize();
+                Vector2 value = vector.Perpendicular() * 3f;
+                Vector2 value2 = -vector.Perpendicular() * 4f;
+                float rotation = block.percent * (float) Math.PI * 2f;
+                Draw.Line(from + value + offset, to + value + offset, colorOverride ?? ropeColor);
+                Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? ropeColor);
+                for (float num = 4f - block.percent * (float) Math.PI * 8f % 4f; num < (to - from).Length(); num += 4f) {
+                    Vector2 value3 = from + value + vector.Perpendicular() + vector * num;
+                    Vector2 value4 = to + value2 - vector * num;
+                    //Draw.Line(value3 + offset, value3 + vector * 2f + offset, colorOverride ?? ropeLightColor);
+                    //Draw.Line(value4 + offset, value4 - vector * 2f + offset, colorOverride ?? ropeLightColor);
+                }
+                //cog.DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
+                tex.AddTexture(cog, from + offset - new Vector2(RenderZone.X, RenderZone.Y), colorOverride ?? Color.White, true);
+                //cog.DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
+                tex.AddTexture(cog, to + offset - new Vector2(RenderZone.X, RenderZone.Y), colorOverride ?? Color.White, true);
+            }
+        }
+
         private Themes theme;
 
         private DynamicTexture dynEdges = new DynamicTexture();
@@ -18,9 +97,9 @@ namespace Celeste.Mod.CommunalHelper.Entities
         private float percent = 0;
         private Vector2 target, start;
         private Sprite streetlight;
-        private bool drawBlackBorder;
 
-        private Segment originalPath;
+        private ZipMoverPathRenderer pathRenderer;
+        private SlicedSolid renderSolid;
 
         public PortalZipMover(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Enum("theme", Themes.Normal))
@@ -39,12 +118,10 @@ namespace Celeste.Mod.CommunalHelper.Entities
                 path = "objects/zipmover/moon/light";
                 id = "objects/zipmover/moon/block";
                 key = "objects/zipmover/moon/innercog";
-                drawBlackBorder = false;
             } else {
                 path = "objects/zipmover/light";
                 id = "objects/zipmover/block";
                 key = "objects/zipmover/innercog";
-                drawBlackBorder = true;
             }
 
             innerCogs = GFX.Game.GetAtlasSubtextures(key);
@@ -61,13 +138,29 @@ namespace Celeste.Mod.CommunalHelper.Entities
             target = node;
             start = position;
             SurfaceSoundIndex = 7;
-
-            originalPath = new Segment(start, target, new Vector2(OriginalWidth, OriginalHeight) / 2);
         }
 
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
+        public override void Added(Scene scene) {
+            base.Added(scene);
+            scene.Add(pathRenderer = new ZipMoverPathRenderer(this));
+
+            if (start != target) {
+                Vector2 dir = Vector2.Normalize(target - start);
+                Rectangle rect = pathRenderer.RenderZone;
+                scene.Add(renderSolid = new SlicedSolid(new Vector2(rect.X, rect.Y) - dir * 2, rect.Width, rect.Height, false));
+                renderSolid.FitPortalCondition = false;
+                renderSolid.Collidable = false;
+                renderSolid.Added(scene);
+                renderSolid.Move(dir * 2);
+            }
         }
+
+        public override void Removed(Scene scene) {
+            scene.Remove(pathRenderer);
+            pathRenderer = null;
+            base.Removed(scene);
+        }
+
 
         private IEnumerator Sequence() {
             while (true) {
@@ -185,8 +278,7 @@ namespace Celeste.Mod.CommunalHelper.Entities
             MapTextureOnColliders(dynEdges);
             Position = pos;
 
-
-            originalPath.DebugDraw();
+            //Draw.HollowRect(pathRenderer.RenderZone, Color.Blue);
         }
         
         private float mod(float x, float m) {

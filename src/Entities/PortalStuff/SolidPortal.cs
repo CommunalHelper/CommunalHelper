@@ -43,13 +43,13 @@ namespace Celeste.Mod.CommunalHelper.Entities
             Portal2.RemoveSelf();
         }
 
-        public bool AllowEntrance(SlicedCollider collider, Vector2 speed, out SinglePortal portal)
+        public bool AllowEntrance(SlicedCollider collider, Vector2 speed, bool fitPortal, out SinglePortal portal)
         {
-            if(Portal1.CheckSolidAccess(collider, speed))
+            if(Portal1.CheckSolidAccess(collider, speed, fitPortal))
             {
                 portal = Portal1; return true;
             }
-            if (Portal2.CheckSolidAccess(collider, speed))
+            if (Portal2.CheckSolidAccess(collider, speed, fitPortal))
             {
                 portal = Portal2; return true;
             }
@@ -66,61 +66,55 @@ namespace Celeste.Mod.CommunalHelper.Entities
         private static readonly Matrix TurnLeftFlipV = Matrix.Multiply(TurnLeft, FlipV);
 
         // yeah......
-        public static void GetPortalTransform(SinglePortal a, SinglePortal b, out Matrix motionTransform, out Matrix graphicsTransform)
+        public static void GetPortalTransform(SinglePortal a, SinglePortal b, out Matrix motionTransform)
         {
-            motionTransform = Matrix.Identity; graphicsTransform = Matrix.Identity;
+            motionTransform = Matrix.Identity;
             if (a.Facing == b.OppositeFacing)
                 return;
 
             if (a.Facing == b.Facing) {
-                motionTransform = a.Horizontal ? FlipV : FlipH;
-                graphicsTransform = TurnHalf;
+                motionTransform = TurnHalf;
                 return;
             }
 
             if (a.Facing == PortalFacings.Left)
             {
                 if (b.Facing == PortalFacings.Down) {
-                    motionTransform = TurnRightFlipH;
-                    graphicsTransform = TurnRight;
+                    motionTransform = TurnRight;
                 }
                 if (b.Facing == PortalFacings.Up) {
-                    motionTransform = graphicsTransform = TurnLeft;
+                    motionTransform = TurnLeft;
                 }
             }
             if (a.Facing == PortalFacings.Down)
             {
                 if (b.Facing == PortalFacings.Right) {
-                    motionTransform = graphicsTransform = TurnRight;
+                    motionTransform = TurnRight;
                 }
                
                 if (b.Facing == PortalFacings.Left) {
-                    motionTransform = TurnLeftFlipV;
-                    graphicsTransform = TurnLeft;
+                    motionTransform = TurnLeft;
                 }
                
             }
             if (a.Facing == PortalFacings.Right)
             {
                 if (b.Facing == PortalFacings.Down) {
-                    motionTransform = graphicsTransform = TurnLeft;
+                    motionTransform = TurnLeft;
                 }
                 
                 if (b.Facing == PortalFacings.Up) {
-                    motionTransform = TurnRightFlipH;
-                    graphicsTransform = TurnRight;
+                    motionTransform = TurnRight;
                 }
 
             }
             if (a.Facing == PortalFacings.Up)
             {
                 if (b.Facing == PortalFacings.Right) {
-                    motionTransform = TurnLeftFlipV;
-                    graphicsTransform = TurnLeft;
+                    motionTransform = TurnLeft;
                 }
                 if (b.Facing == PortalFacings.Left) {
                     motionTransform = TurnRight;
-                    graphicsTransform = TurnRight;
                 }
                 
             }
@@ -139,7 +133,7 @@ namespace Celeste.Mod.CommunalHelper.Entities
         public bool Horizontal = false;
         public int SliceOffset = 0;
 
-        public Matrix ToPartnerTransform, ToPartnerGraphicalTransform;
+        public Matrix ToPartnerTransform;
 
         public SinglePortal(Vector2 position, int width, int height, PortalFacings facing, SolidPortal parent)
             : base(position)
@@ -179,9 +173,8 @@ namespace Celeste.Mod.CommunalHelper.Entities
         public void SetPartner(SinglePortal partner)
         {
             Partner = partner;
-            SolidPortal.GetPortalTransform(this, partner, out Matrix motionTransform, out Matrix graphicsTransform);
+            SolidPortal.GetPortalTransform(this, partner, out Matrix motionTransform);
             ToPartnerTransform = motionTransform;
-            ToPartnerGraphicalTransform = graphicsTransform;
         }
 
         public bool ColliderBehindSelf(SlicedCollider collider, out float offset)
@@ -204,26 +197,27 @@ namespace Celeste.Mod.CommunalHelper.Entities
             }
         }
 
-        public bool CheckSolidAccess(SlicedCollider hitbox, Vector2 speed)
+        public bool CheckSolidAccess(SlicedCollider hitbox, Vector2 speed, bool fitPortal)
         {
             
             if (!hitbox.FakeIntersects((Hitbox)Collider)) return false;
-            switch(Facing)
-            {
-                default:
-                case PortalFacings.Up:
-                    return hitbox.WorldAbsoluteLeft >= Left && hitbox.WorldAbsoluteRight <= Right && speed.Y > 0;
+            if (fitPortal) {
+                switch (Facing) {
+                    default:
+                    case PortalFacings.Up:
+                        return hitbox.WorldAbsoluteLeft >= Left && hitbox.WorldAbsoluteRight <= Right && speed.Y > 0;
 
-                case PortalFacings.Down:
-                    return hitbox.WorldAbsoluteLeft >= Left && hitbox.WorldAbsoluteRight <= Right && speed.Y < 0;
+                    case PortalFacings.Down:
+                        return hitbox.WorldAbsoluteLeft >= Left && hitbox.WorldAbsoluteRight <= Right && speed.Y < 0;
 
-                case PortalFacings.Left:
-                    return hitbox.WorldAbsoluteTop >= Top && hitbox.WorldAbsoluteBottom <= Bottom && speed.X > 0;
+                    case PortalFacings.Left:
+                        return hitbox.WorldAbsoluteTop >= Top && hitbox.WorldAbsoluteBottom <= Bottom && speed.X > 0;
 
-                case PortalFacings.Right:
-                    return hitbox.WorldAbsoluteTop >= Top && hitbox.WorldAbsoluteBottom <= Bottom && speed.X < 0;
-
+                    case PortalFacings.Right:
+                        return hitbox.WorldAbsoluteTop >= Top && hitbox.WorldAbsoluteBottom <= Bottom && speed.X < 0;
+                }
             }
+            return true;
         }
 
         public void MoveSlicedPartToPartner(SlicedCollider collider, SlicedCollider from, Vector2 renderOffset)
@@ -236,26 +230,54 @@ namespace Celeste.Mod.CommunalHelper.Entities
             float newWidth = Partner.Horizontal ? sizeOnPortal : sizeFromPortal;
             float newHeight = Partner.Horizontal ? sizeFromPortal : sizeOnPortal;
             collider.RenderOffset -= renderOffset;
+
+            // there are so many cases to cover, this is hell on earth.
             switch (Partner.Facing)
             {
                 default:
                 case PortalFacings.Right:
                     collider.CutLeft = true;
-                    collider.WorldPosition = Partner.AnchorPoint - new Vector2(0, positionOnPortal);
+                    if (Facing == PortalFacings.Right) {
+                        collider.WorldPosition = Partner.AnchorPoint - new Vector2(0, -Height - positionOnPortal) - new Vector2(0, newHeight);
+                    } else if (Facing == PortalFacings.Up) {
+                        collider.WorldPosition = Partner.AnchorPoint + new Vector2(0, positionOnPortal) + new Vector2(0, Partner.Height - newHeight);
+                    } else {
+                        collider.WorldPosition = Partner.AnchorPoint - new Vector2(0, positionOnPortal);
+                    }
                     break;
                 case PortalFacings.Down:
                     collider.CutTop = true;
-                    collider.WorldPosition = Partner.AnchorPoint - new Vector2(positionOnPortal, 0);
+                    if (Facing == PortalFacings.Left) {
+                        collider.WorldPosition = Partner.AnchorPoint + new Vector2(positionOnPortal, 0) - new Vector2(newWidth - Partner.Width, 0);
+                    } else if (Facing == PortalFacings.Down) {
+                        collider.WorldPosition = Partner.AnchorPoint + new Vector2(positionOnPortal, 0) + new Vector2(Width - newWidth, 0);
+                    } else {
+                        collider.WorldPosition = Partner.AnchorPoint - new Vector2(positionOnPortal, 0);
+                    }
                     break;
                 case PortalFacings.Left:
                     collider.CutRight = true;
-                    collider.WorldPosition = Partner.AnchorPoint - new Vector2(-1, positionOnPortal) - new Vector2(newWidth, 0);
+                    if (Facing == PortalFacings.Down) {
+                        collider.WorldPosition = Partner.AnchorPoint - new Vector2(-1, -Width - positionOnPortal) - new Vector2(newWidth, newHeight);
+                    } else if (Facing == PortalFacings.Left) {
+                        collider.WorldPosition = Partner.AnchorPoint - new Vector2(-1, -Height - positionOnPortal) - new Vector2(newWidth, newHeight);
+                    } else {
+                        collider.WorldPosition = Partner.AnchorPoint - new Vector2(-1, positionOnPortal) - new Vector2(newWidth, 0);
+                    }
                     break;
                 case PortalFacings.Up:
                     collider.CutBottom = true;
-                    collider.WorldPosition = Partner.AnchorPoint - new Vector2(positionOnPortal, -1) - new Vector2(0, newHeight);
+                    if (Facing == PortalFacings.Right) {
+                        collider.WorldPosition = Partner.AnchorPoint + new Vector2(positionOnPortal, 1) - new Vector2(newWidth - Partner.Width, newHeight);
+                    } else if (Facing == PortalFacings.Up) {
+                        collider.WorldPosition = Partner.AnchorPoint + new Vector2(positionOnPortal, 1) + new Vector2(Width - newWidth, -newHeight);
+                    } else {
+                        collider.WorldPosition = Partner.AnchorPoint - new Vector2(positionOnPortal, -1) - new Vector2(0, newHeight);
+                    }
                     break;
             }
+
+
             collider.Width = newWidth; collider.Height = newHeight;
             collider.Position = collider.WorldPosition - from.WorldPosition;
         }
@@ -303,6 +325,9 @@ namespace Celeste.Mod.CommunalHelper.Entities
                     Draw.Rect(Position.X, Position.Y + Height - 2, 8, 2, Color.Green);
                     break;
             }
+
+            Draw.Point(AnchorPoint, Color.Purple);
+
         }
     }
 }
