@@ -376,7 +376,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
             for (int i = 0; i < spikes.Length; i++) {
                 MTexture mTexture = spikeTextures[spikes[i].TextureIndex];
                 Vector2 position = Position + shakeOffset + spikes[i].Position + outwards * (-4f + spikes[i].Lerp * 4f);
-                mTexture.DrawJustified(position, justify);
+                mTexture.DrawJustified(position, justify, spikes[i].color);
             }
         }
 
