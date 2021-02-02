@@ -7,6 +7,7 @@ using Celeste;
 using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
+using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities.Misc {
 
@@ -42,6 +43,12 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
 
             public float Lerp;
 
+            public Color color;
+
+            public void SetColor() {
+                color = (crystalSpinner == null ? Color.White : (Color) getHue.Invoke(crystalSpinner, new object[] { Parent.Position + Position }));
+            }
+
             public void Update() {
                 if (Parent.Grouped ? Parent.Triggered : Triggered) {
                     if (DelayTimer > 0f) {
@@ -53,15 +60,17 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
                                 Audio.Play("event:/game/03_resort/fluff_tendril_emerge", Parent.Position + Position);
                             }
                         }
-                    } else {
+                    }
+                    else {
                         Lerp = Calc.Approach(Lerp, 1f, 8f * Engine.DeltaTime);
                     }
                 } else {
                     Lerp = Calc.Approach(Lerp, 0f, 4f * Engine.DeltaTime);
                     if (Lerp <= 0f) {
-                        Triggered = false;
+                        if (Parent.Grouped) { Parent.Triggered = false; } else { Triggered = false; }
                     }
                 }
+                if (Parent.rainbow && crystalSpinner != null) SetColor();
             }
 
             public bool PlayerCheck() {
@@ -101,13 +110,19 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
 
         private Vector2 shakeOffset;
 
+        private Vector2 offset;
+
         private string spikeType;
 
         private SpikeInfo[] spikes;
 
         private List<MTexture> spikeTextures;
 
-        
+        private static MethodInfo getHue = typeof(CrystalStaticSpinner).GetMethod("GetHue", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        public static CrystalStaticSpinner crystalSpinner; //Required for no real reason, this should ideally be changed but it is what it is.
+
+
 
         private bool grouped = false;
         protected bool Grouped {
@@ -115,6 +130,13 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
                 return grouped && CommunalHelperModule.maxHelpingHandLoaded;
             }
         }
+
+        private bool rainbow = false;
+
+        protected bool Rainbow { get {
+                return rainbow && CommunalHelperModule.vivHelperLoaded;
+            } }
+
         protected bool Triggered = false;
 
         public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
@@ -134,13 +156,16 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
         }
 
         public TimedTriggerSpikes(EntityData data, Vector2 offset, Directions dir)
-            : this(data.Position + offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false)) {
+            : this(data.Position + offset, offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false), data.Bool("Rainbow", false)) {
         }
 
-        public TimedTriggerSpikes(Vector2 position, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped)
+        public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow)
             : base(position) {
             if (grouped && !CommunalHelperModule.maxHelpingHandLoaded) {
                 throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
+            }
+            if(rainbow && !CommunalHelperModule.vivHelperLoaded) {
+                throw new Exception("Rainbow Timed Trigger Spikes attempted to load without Viv's Helper as a dependency.");
             }
             this.size = size;
             this.direction = direction;
@@ -179,6 +204,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
             });
             base.Depth = -50;
             this.grouped = grouped;
+            this.rainbow = rainbow;
+            this.offset = offset;
+            if(rainbow) crystalSpinner = new CrystalStaticSpinner(Vector2.One * -1000 + offset, false, CrystalColor.Rainbow);
         }
 
         public override void Added(Scene scene) {
@@ -213,6 +241,11 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
                 }
                 spikes[i].DelayTimer = Delay;
             }
+        }
+
+        public override void Awake(Scene scene) {
+            base.Awake(scene);
+            if (rainbow) scene.Add(crystalSpinner);
         }
 
         private void OnShake(Vector2 amount) {
@@ -312,6 +345,11 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
         }
 
         public override void Update() {
+            if (rainbow) {
+                if (crystalSpinner == null) { crystalSpinner = new CrystalStaticSpinner(Vector2.One * -1000 + offset, false, CrystalColor.Rainbow); }
+                if (Scene == null) { return; }
+                if (!Scene.Tracker.GetEntities<CrystalStaticSpinner>().Contains(crystalSpinner)) { Scene.Add(crystalSpinner); }
+            }
             base.Update();
             for (int i = 0; i < spikes.Length; i++) {
                 spikes[i].Update();

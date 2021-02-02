@@ -23,6 +23,7 @@ namespace Celeste.Mod.CommunalHelper {
         public SpriteBank _SpriteBank;
 
         public static bool maxHelpingHandLoaded { get; private set; }
+        public static bool vivHelperLoaded { get; private set; }
         
         public CommunalHelperModule() {
             Instance = this;
@@ -88,6 +89,8 @@ namespace Celeste.Mod.CommunalHelper {
             HeartGemShard.InitializeParticles();
 
             maxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
+            vivHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "VivHelper", VersionString = "1.0.28" });
+
         }
 
         // Loading "custom" entities
