@@ -60,8 +60,8 @@ namespace Celeste.Mod.CommunalHelper.Entities
 
             private DynamicTexture GetDynamicTexture() {
                 DynamicTexture res = new DynamicTexture();
-                DrawCogs(res, Vector2.UnitY, Color.Black);
-                DrawCogs(res, Vector2.Zero);
+                DrawCogsOnTexture(res, Vector2.UnitY, Color.Black);
+                DrawCogsOnTexture(res, Vector2.Zero);
                 return res;
             }
 
@@ -70,23 +70,28 @@ namespace Celeste.Mod.CommunalHelper.Entities
                 block.renderSolid.MapTextureOnColliders(GetDynamicTexture());
             }
 
-            private void DrawCogs(DynamicTexture tex, Vector2 offset, Color? colorOverride = null) {
+            private void DrawCogsOnTexture(DynamicTexture tex, Vector2 offset, Color? colorOverride = null) {
+                Vector2 renderPos = new Vector2(RenderZone.X, RenderZone.Y);
                 Vector2 vector = (to - from).SafeNormalize();
                 Vector2 value = vector.Perpendicular() * 3f;
                 Vector2 value2 = -vector.Perpendicular() * 4f;
                 float rotation = block.percent * (float) Math.PI * 2f;
-                Draw.Line(from + value + offset, to + value + offset, colorOverride ?? ropeColor);
-                Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? ropeColor);
+                //Draw.Line(from + value + offset, to + value + offset, colorOverride ?? ropeColor);
+                tex.AddLine(from + value + offset - renderPos, to + value + offset - renderPos, colorOverride ?? ropeColor);
+                //Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? ropeColor);
+                tex.AddLine(from + value2 + offset - renderPos, to + value2 + offset - renderPos, colorOverride ?? ropeColor);
                 for (float num = 4f - block.percent * (float) Math.PI * 8f % 4f; num < (to - from).Length(); num += 4f) {
                     Vector2 value3 = from + value + vector.Perpendicular() + vector * num;
                     Vector2 value4 = to + value2 - vector * num;
                     //Draw.Line(value3 + offset, value3 + vector * 2f + offset, colorOverride ?? ropeLightColor);
+                    tex.AddLine(value3 + offset - renderPos, value3 + vector * 2f + offset - renderPos, colorOverride ?? ropeLightColor);
                     //Draw.Line(value4 + offset, value4 - vector * 2f + offset, colorOverride ?? ropeLightColor);
+                    tex.AddLine(value4 + offset - renderPos, value4 - vector * 2f + offset - renderPos, colorOverride ?? ropeLightColor);
                 }
                 //cog.DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
-                tex.AddTexture(cog, from + offset - new Vector2(RenderZone.X, RenderZone.Y), colorOverride ?? Color.White, true);
+                tex.AddTexture(cog, from + offset - renderPos, colorOverride ?? Color.White, Vector2.One, rotation, true);
                 //cog.DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
-                tex.AddTexture(cog, to + offset - new Vector2(RenderZone.X, RenderZone.Y), colorOverride ?? Color.White, true);
+                tex.AddTexture(cog, to + offset - renderPos, colorOverride ?? Color.White, Vector2.One, rotation, true);
             }
         }
 
@@ -149,9 +154,9 @@ namespace Celeste.Mod.CommunalHelper.Entities
                 Rectangle rect = pathRenderer.RenderZone;
                 scene.Add(renderSolid = new SlicedSolid(new Vector2(rect.X, rect.Y) - dir * 2, rect.Width, rect.Height, false));
                 renderSolid.FitPortalCondition = false;
-                renderSolid.Collidable = false;
                 renderSolid.Added(scene);
                 renderSolid.Move(dir * 2);
+                renderSolid.Collidable = false;
             }
         }
 

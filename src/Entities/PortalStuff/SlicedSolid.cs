@@ -100,7 +100,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             PortalIteration(startCollider, Colliders);
 
 
-            if (checkWithInitSpeed && !FitPortalCondition) {
+            if (checkWithInitSpeed) {
                 startCollider.MoveSpeed = -MoveSpeed;
                 PortalIteration(startCollider, Colliders);
             }
