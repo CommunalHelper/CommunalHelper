@@ -407,7 +407,7 @@ namespace Celeste.Mod.CommunalHelper {
             ILCursor cursor = new ILCursor(il);
 
             // There's only one Input.Grab check in the method, so go there, then to the next Brfalse_S opcode (right before swapcheck block)
-            cursor.GotoNext(instr => instr.MatchLdsfld("Celeste.Input", "Grab"));
+            cursor.GotoNext(instr => instr.MatchLdsfld("Celeste.Input", "Grab") || instr.MatchCall("Celeste.Input", "get_GrabCheck");
             cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Brfalse_S);
 
             // Load the actual "this" (the instance of the coroutine)
