@@ -26,6 +26,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             None, On, Off
         }
         public TrackSwitchState switchState;
+        private TrackSwitchState initialSwitchState;
 
         public bool HasGroup { get; private set; }
         public bool MasterOfGroup { get; private set; }
@@ -55,9 +56,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             : base(data.Position + offset) {
             Depth = Depths.SolidsBelow;
 
-            switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
+            initialSwitchState = switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
             if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off)
-                Switch();
+                Switch(TrackSwitchState.Off);
 
             trackStatePercent = switchState == TrackSwitchState.On || switchState == TrackSwitchState.None ? 0f : 1f;
 
@@ -323,29 +324,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return (x % m + m) % m;
         }
 
-        public static void SwitchTracks(Scene scene) {
+        public static void SwitchTracks(Scene scene, TrackSwitchState state) {
             foreach (StationBlockTrack t in scene.Tracker.GetEntities<StationBlockTrack>()) {
                 if(t.MasterOfGroup) {
                     foreach(StationBlockTrack t2 in t.Group) {
-                        t2.Switch();
+                        t2.Switch(state);
                     }
                 }
             }
         }
 
-        private void Switch() {
-            switch (switchState) {
-                default:
-                    break;
-
-                case TrackSwitchState.On:
-                    switchState = TrackSwitchState.Off;
-                    break;
-
-                case TrackSwitchState.Off:
-                    switchState = TrackSwitchState.On;
-                    break;
-            }
+        private void Switch(TrackSwitchState state) {
+            switchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
         }
     }
 }

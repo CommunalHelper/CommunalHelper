@@ -101,8 +101,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
             if (canSwitch) {
-
-                SwitchTracks(Scene);
                 Sfx.Play(CustomSFX.game_trackSwitchBox_smash, "global_switch", global ? 1f : 0f);
                 (base.Scene as Level).DirectionalShake(dir);
                 sprite.Scale = new Vector2(1f + Math.Abs(dir.Y) * 0.4f - Math.Abs(dir.X) * 0.4f, 1f + Math.Abs(dir.X) * 0.4f - Math.Abs(dir.Y) * 0.4f);
@@ -115,12 +113,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Add(new Coroutine(SwitchSequence()));
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 canSwitch = false;
-                LocalTrackSwitchState = LocalTrackSwitchState == TrackSwitchState.On ? TrackSwitchState.Off : TrackSwitchState.On;
-                if (global)
-                    CommunalHelperModule.Session.TrackInitialState = LocalTrackSwitchState;
+                Switch(Scene, LocalTrackSwitchState == TrackSwitchState.On ? TrackSwitchState.Off : TrackSwitchState.On, global);
                 return DashCollisionResults.Rebound;
             } else
                 return DashCollisionResults.NormalCollision;
+        }
+
+        public static bool Switch(Scene scene, TrackSwitchState state, bool global = false) {
+            if (state == LocalTrackSwitchState)
+                return false;
+            LocalTrackSwitchState = state;
+            SwitchTracks(scene, state);
+            if (global)
+                CommunalHelperModule.Session.TrackInitialState = state;
+            return true;
         }
 
         private void SmashParticles(Vector2 dir) {
@@ -196,7 +202,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 position = sprite.Position;
             sprite.Position += shaker.Value;
 
-            // !!!
             Rectangle rect = new Rectangle(
                 (int) (Center.X + (X - Center.X) * sprite.Scale.X),
                 (int) (Center.Y + (Y - Center.Y) * sprite.Scale.Y),

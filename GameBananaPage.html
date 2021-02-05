@@ -1,25 +1,25 @@
 This helper is designed to be a collection of new mechanics based on suggestions from the community, as well as a place to put any random ideas that we have. 
-If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection.</br> 
+If you have any ideas for new mechanics/entities that you want to see implemented, let us know, and if it sounds cool/doable we'll add it to the collection.<br> 
 You can find us in the <a href="https://discord.gg/celeste" target="_blank">Celeste Discord</a> 
-<b>@catapillie</b>, <b>@Nikko</b>, <b>@coloursofnoise </b>and <b>@Viv</b>.
+<b>@catapillie</b>, <b>@Nikko</b>,&nbsp;<b>@coloursofnoise&nbsp;</b>and <b>@Viv</b>.
 <br><br>
 The current list of included mechanics:
 <br>
 <ul>
 	<li>
-		<b>Connected Dream Block</b> -
+		<b>Connected Dream Block</b>&nbsp;-
 			Dream blocks that when placed such that they overlap, will form continuous regions. 
 			The <i>"feather mode"</i> option allows the player to control their direction of movement while traveling through the block, 
 			the <i>"refill"</i> will determine the number of dashes to give the player when exiting the dream block, 
 			and the <i>"one use"</i> option will cause the dream block to shatter upon exit.
 	</li>
 	<li>
-		<b>Dream Zip Mover</b>, <b>Move Block</b>, <b>Swap Block</b>, <b>Falling Block,</b> <b>Switch Gate</b>, <b>Crumble Block</b> and <b>Floaty Space Block</b> - 
+		<b>Dream Zip Mover</b>, <b>Move Block</b>, <b>Swap Block</b>, <b>Falling Block,</b>&nbsp;<b>Switch Gate</b>, <b>Crumble Block</b> and <b>Floaty Space Block</b>&nbsp;- 
 		As the name suggests, each of these entities take the movement behaviour of a specific solid, and apply it to a dream block. 
 		These entities all have access to the same <i>"feather mode"</i>, <i>"refill count"</i> and <i>"one use"</i> options as the <b>Connected Dream Block</b>. 
 		<b>Dream Zip Mover</b> and <b>Swap Block</b> both have access to <i>"no return"</i> mode. 
 		<b>Dream Zip Mover</b> has additional <i>"ticking"</i>, <i>"permanent"</i> and <i>"waiting"</i> modes. 
-		<b>Dream Move Block</b> and <b>Falling Block</b> have access to the <i>"no collide"</i> mode, which will allow them to pass through any solids other than Dream Blocks while moving.
+		<b>Dream Move Block</b>&nbsp;and <b>Falling Block</b> have access to the <i>"no collide"</i> mode, which will allow them to pass through any solids other than Dream Blocks while moving.
 	</li>
 	<li>
 		<b>Dream Refill</b> - 
@@ -40,14 +40,13 @@ The current list of included mechanics:
 		A block that sits on a track, and when activated will move along the track to a specific node. 
 		The block is activated by dashing into it, and will either move toward the side that was dashed into, or away from it, based on the <i>"behaviour"</i> option. 
 		Track segments are either vertical or horizontal, and when placed such that their nodes (ends) overlap, will connect to form full, continuous tracks. 
-		The block must be placed directly on top of a track node for it to attach to the track, and when activated can only move in directions that have a track segment leading away from their current node, in that direction. 
-		They are also reskinnable.
-	</li>
+		The block must be placed directly on top of a track node for it to attach to the track, and when activated can only move in directions that have a track segment leading away from their current node, in that direction.&nbsp;
+		They are also reskinnable. Since 1.6.0, <b>StationBlockTracks </b>can now be set to be "ON" or "OFF" using the <i>"trackSwitchState"</i> attribute, which will enable / disable them depending on the current state in the level. A track set to "NONE" will always be active, and is not affected in any way.</li><li><b>Track Switch Box </b>(and <b>Switch Track Trigger</b>) - A block, similar to the Lightning Breaker Box entity that, when dashed into, switches the track state in the current level (used for <b>Station Block Tracks</b>). If the level is reloaded (player death, etc...), the state is set back to its default value. You can disble this behaviour by ticking on the <i>"globalSwitch"</i> attribute in Ahorn. The&nbsp;<b>Switch Track Trigger </b>is basically the trigger equivalent of this entity, except you can specify the state it switches to, or if it just alternates between the two.</li>
 	<li>
 		<b>Synced Zip Mover Activation Controller</b> - 
 		A controller entity that, when placed into a room, allows <b>Synced Zip Movers</b> (from the <a href="https://gamebanana.com/gamefiles/9807">Adventure Helper</a>) of a specific color to activate whenever the player pressed grab. 
 		If you wish to, you can rebind the key/button of your choice to activate them. 
-		(<u>For map makers</u>: the <b>Custom Bird Tutorial</b> provided by Everest can now correctly display the binding that is used by players, by adding <i>"CommunalHelperSyncedZipMoverBinding"</i> to <i>"Controls"</i> in Ahorn).
+		(<u>For map makers</u>: the <b>Custom Bird Tutorial</b> provided by Everest can now correctly display the binding that is used by players, by adding&nbsp;<i>"CommunalHelperSyncedZipMoverBinding"</i> to <i>"Controls"</i> in Ahorn).
 	</li>
 	<li>
 		<b>Attached Wall Booster</b> - 
@@ -56,8 +55,8 @@ The current list of included mechanics:
 	<li>
 		<b>Crystal Heart Shards</b> - 
 		A crystal heart which is broken into pieces to can be scattered around a room, requiring the player to dash into each piece individually, in order for the heart to reform at a specified location, and allow proper collection. 
-		Also ships with a plugin for a sharded version of the <b>AdventureHelper Custom Heart</b>, which requires <a href="https://gamebanana.com/gamefiles/9807">Adventure Helper v.1.4.4</a> or higher. 
-		If you don't have it installed, this plugin will not show up. 
+		Also ships with a plugin for a sharded version of the <b>AdventureHelper Custom Heart</b>, which requires <a href="https://gamebanana.com/gamefiles/9807">Adventure Helper v.1.4.4</a>&nbsp;or higher. 
+		If you don't have it installed, this plugin will not show up.&nbsp;
 	</li>
 	<li>
 		<b>Summit Gems</b> and <b>Summit Gem Manager</b> - 
@@ -98,8 +97,7 @@ The current list of included mechanics:
 <br><br>
 To use this helper as part of your map, put the text below into the <code>Dependencies:</code> section of your everest.yaml:
 <br>
-<pre>
-- Name: CommunalHelper
+<pre>- Name: CommunalHelper
   Version: 1.6.0
 </pre>
 <br><br>
