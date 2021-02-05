@@ -39,8 +39,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
 
-        public static bool MoreDashelineLoaded;
-        public static MethodInfo MoreDasheline_GetHairColor;
+        internal static bool MoreDashelineLoaded;
+        internal static MethodInfo MoreDasheline_GetHairColor;
 
         public static Color GetHairColor(this Player player, int dashCount) {
             if (MoreDashelineLoaded)
@@ -56,6 +56,21 @@ namespace Celeste.Mod.CommunalHelper {
                     return isBadeline ? Player.TwoDashesBadelineHairColor : Player.TwoDashesHairColor;
 
             }
+        }
+
+        internal static bool CollabUtilsLoaded;
+        private static Type t_CollabUtils_MiniHeart;
+        internal static Type CollabUtils_MiniHeart {
+            get => t_CollabUtils_MiniHeart;
+            set {
+                t_CollabUtils_MiniHeart = value;
+                m_FindFirst_MiniHeart = typeof(EntityList).GetMethod("FindFirst").MakeGenericMethod(t_CollabUtils_MiniHeart);
+            }
+        }
+        private static MethodInfo m_FindFirst_MiniHeart;
+
+        public static Entity FindFirst_MiniHeart(this EntityList list) {
+            return CollabUtilsLoaded ? (Entity) m_FindFirst_MiniHeart.Invoke(list, new object[] { }) : null;
         }
 
         // Modified version of Everest.Loader.DependencyLoaded

@@ -10,55 +10,15 @@ const switchStates = ["None", "On", "Off"]
     offrampNode1::Bool = false, offrampNode2::Bool = false)
 
 const placements = Ahorn.PlacementDict(
-    "Station Block Track (Vertical, No Switching) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Station Block Track ($orientation, $stateLabel) (Communal Helper)" => Ahorn.EntityPlacement(
         StationBlockTrack,
         "rectangle",
         Dict{String, Any}(
-            "horizontal" => false,
-            "trackSwitchState" => "None",
+            "horizontal" => orientation == "Horizontal",
+            "trackSwitchState" => state,
         )
-    ),
-    "Station Block Track (Horizontal, No Switching) (Communal Helper)" => Ahorn.EntityPlacement(
-        StationBlockTrack,
-        "rectangle",
-        Dict{String, Any}(
-            "horizontal" => true,
-            "trackSwitchState" => "None",
-        )
-    ),
-    "Station Block Track (Vertical, Switch On) (Communal Helper)" => Ahorn.EntityPlacement(
-        StationBlockTrack,
-        "rectangle",
-        Dict{String, Any}(
-            "horizontal" => false,
-            "trackSwitchState" => "On",
-        )
-    ),
-    "Station Block Track (Horizontal, Switch On) (Communal Helper)" => Ahorn.EntityPlacement(
-        StationBlockTrack,
-        "rectangle",
-        Dict{String, Any}(
-            "horizontal" => true,
-            "trackSwitchState" => "On",
-        )
-    ),
-    "Station Block Track (Vertical, Switch Off) (Communal Helper)" => Ahorn.EntityPlacement(
-        StationBlockTrack,
-        "rectangle",
-        Dict{String, Any}(
-            "horizontal" => false,
-            "trackSwitchState" => "Off",
-        )
-    ),
-    "Station Block Track (Horizontal, Switch Off) (Communal Helper)" => Ahorn.EntityPlacement(
-        StationBlockTrack,
-        "rectangle",
-        Dict{String, Any}(
-            "horizontal" => true,
-            "trackSwitchState" => "Off",
-        )
-    )
-)
+    ) for orientation in ["Vertical", "Horizontal"], (state, stateLabel) in zip(switchStates, ["No Switching", "Switch On", "Switch Off"])
+) 
 
 Ahorn.editingIgnored(entity::StationBlockTrack, multiple::Bool=false) = multiple ? String["x", "y", "width", "height", "nodes", "offrampNode1", "offrampNode2"] : String["offrampNode1", "offrampNode2"]
 

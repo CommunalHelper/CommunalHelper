@@ -154,7 +154,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (broken < index)
                 yield break;
 
-            HeartGem heart = Scene.Entities.FindFirst<HeartGem>();
+            Entity heart = Scene.Entities.FindFirst<HeartGem>() ?? Scene.Entities.FindFirst_MiniHeart();
             if (heart != null) {
                 Audio.Play(SFX.game_07_gem_unlock_complete, heart.Position);
                 yield return 0.1f;

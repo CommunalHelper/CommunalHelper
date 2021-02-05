@@ -20,11 +20,11 @@ const placements = Ahorn.PlacementDict(
 			"theme" => theme,
 			"behavior" => behavior,
 		)
-    ) for theme in themes for behavior in behaviors
+    ) for theme in themes, behavior in behaviors
 )
 
 Ahorn.editingOptions(entity::StationBlock) = Dict{String, Any}(
-    "theme" => themes,
+   "theme" => themes,
 	"behavior" => behaviors
 )
 
@@ -40,9 +40,7 @@ function Ahorn.selection(entity::StationBlock)
     return Ahorn.Rectangle(x, y, width, height)
 end
 
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock)
-    renderStationBlock(ctx, entity)
-end
+Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock) = renderStationBlock(ctx, entity)
 
 function getSprites(blockSize::Integer, entity::StationBlock)
 	theme = lowercase(get(entity, "theme", "normal"))

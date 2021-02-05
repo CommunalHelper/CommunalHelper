@@ -89,10 +89,15 @@ namespace Celeste.Mod.CommunalHelper {
             HeartGemShard.InitializeParticles();
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
-            if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule module)) {
+            if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule dashelineModule)) {
                 Extensions.MoreDashelineLoaded = true;
-                Extensions.MoreDasheline_GetHairColor = module.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) });
+                Extensions.MoreDasheline_GetHairColor = dashelineModule.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) });
                 Logger.Log("Communal Helper", "MoreDasheline detected: using MoreDasheline hair colors for CustomDreamBlock particles.");
+            }
+            EverestModuleMetadata collabUtilsMeta = new EverestModuleMetadata { Name = "CollabUtils2", VersionString = "1.3.8.1" };
+            if (Extensions.TryGetModule(collabUtilsMeta, out EverestModule collabModule)) {
+                Extensions.CollabUtilsLoaded = true;
+                Extensions.CollabUtils_MiniHeart = collabModule.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart");
             }
 
             MaxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });

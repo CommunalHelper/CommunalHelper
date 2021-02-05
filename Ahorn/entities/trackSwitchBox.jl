@@ -17,11 +17,10 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
-sprite = "objects/CommunalHelper/trackSwitchBox/idle00"
+const sprite = "objects/CommunalHelper/trackSwitchBox/idle00"
 
 function Ahorn.selection(entity::TrackSwitchBox)
     x, y = Ahorn.position(entity)
-
     return Ahorn.Rectangle(x, y, 32, 32)
 end
 
