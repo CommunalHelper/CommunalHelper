@@ -70,6 +70,13 @@ Ahorn.editingOptions(entity::StationBlockTrack) = Dict{String, Any}(
     "trackSwitchState" => switchStates
 )
 
+# very weird rotation
+function Ahorn.rotated(entity::StationBlockTrack, steps::Int) 
+    horiz = Bool(get(entity.data, "horizontal", false))
+    trackSwitchState = get(entity.data, "trackSwitchState", "None")
+    return StationBlockTrack(entity.x, entity.y, entity.height, entity.width, !horiz, trackSwitchState)
+end
+
 function Ahorn.selection(entity::StationBlockTrack)
     x, y = Ahorn.position(entity)
 

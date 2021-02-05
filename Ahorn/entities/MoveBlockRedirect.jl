@@ -21,6 +21,38 @@ Ahorn.resizable(entity::MoveBlockRedirect) = true, true
 
 Ahorn.selection(entity::MoveBlockRedirect) = Ahorn.getEntityRectangle(entity)
 
+function Ahorn.rotated(entity::MoveBlockRedirect, steps::Int)
+	if steps == 0
+		return entity
+	end
+
+	dir = get(entity.data, "direction", "Up")
+	
+	if steps > 0
+		if dir == "Up"
+			dir = "Right"
+		elseif dir == "Right"
+			dir = "Down"
+		elseif dir == "Down"
+			dir = "Left"
+		elseif dir == "Left"
+			dir = "Up"
+		end
+	elseif steps < 0
+		if dir == "Up"
+			dir = "Left"
+		elseif dir == "Right"
+			dir = "Up"
+		elseif dir == "Down"
+			dir = "Right"
+		elseif dir == "Left"
+			dir = "Down"
+		end
+	end
+
+	return MoveBlockRedirect(entity.x, entity.y, entity.width, entity.height, dir, get(entity.data, "fastRedirect", "Up"))
+end
+
 function getRotation(dir::String)
 	if dir == "Up"
 		return pi * 1.5
