@@ -11,16 +11,13 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
+const sprite = "objects/CommunalHelper/dreamRefill/idle02"
+
 function Ahorn.selection(entity::DreamRefill)
     x, y = Ahorn.position(entity)
-
-    sprite = "objects/CommunalHelper/dreamRefill/idle02"
     return Ahorn.getSpriteRectangle(sprite, x, y)
 end
 
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamRefill)
-    sprite = "objects/CommunalHelper/dreamRefill/idle02"
-    Ahorn.drawSprite(ctx, sprite, 0, 0)
-end
+Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamRefill) = Ahorn.drawSprite(ctx, sprite, 0, 0)
 
 end
