@@ -24,10 +24,10 @@ namespace Celeste.Mod.CommunalHelper {
         private SoundSource openSfx;
 
         public DreamSwitchGate(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("oneUse"), data.Bool("featherMode"), data.Bool("doubleRefill"), data.Bool("below"), data.Bool("permanent")) { }
+            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("oneUse"), data.Bool("featherMode"), GetRefillCount(data), data.Bool("below"), data.Bool("permanent")) { }
 
-        public DreamSwitchGate(Vector2 position, int width, int height, Vector2 node, bool oneUse, bool featherMode, bool doubleRefill, bool below, bool permanent)
-            : base(position, width, height, featherMode, oneUse, doubleRefill, below) {
+        public DreamSwitchGate(Vector2 position, int width, int height, Vector2 node, bool oneUse, bool featherMode, int refillCount, bool below, bool permanent)
+            : base(position, width, height, featherMode, oneUse, refillCount, below) {
 
             this.permanent = permanent;
             this.node = node;

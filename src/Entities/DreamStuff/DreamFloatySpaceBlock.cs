@@ -10,8 +10,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamFloatySpaceBlock")]
     public class DreamFloatySpaceBlock : ConnectedDreamBlock {
 
-        private bool awake;
-
         private Vector2 dashDirection;
         private float dashEase;
 
@@ -28,7 +26,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            awake = true;
             TryToInitPosition();
         }
 

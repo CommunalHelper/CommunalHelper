@@ -1,5 +1,7 @@
 ﻿module CommunalHelperConnectedSolidExtension
+
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/SolidExtension" SolidExtension(
 			x::Integer, y::Integer,
@@ -27,14 +29,14 @@ end
 const block = "objects/CommunalHelper/connectedZipMover/extension_outline"
 
 const connectTo = [
-                  "CommunalHelper/SolidExtension", 
-                  "CommunalHelper/ConnectedZipMover",
-                  "CommunalHelper/ConnectedSwapBlock",
-                  "CommunalHelper/ConnectedMoveBlock"
-                  ]
+    "CommunalHelper/SolidExtension", 
+    "CommunalHelper/ConnectedZipMover",
+    "CommunalHelper/ConnectedSwapBlock",
+    "CommunalHelper/ConnectedMoveBlock"
+]
 
-# Gets rectangles from Zip Mover Extensions & Zip Movers
-function getZipMoverRectangles(room::Maple.Room)
+# Gets rectangles from Solid Extensions & Connected Solids
+function getSolidRectangles(room::Maple.Room)
     entities = filter(e -> e.name in connectTo, room.entities)
     rects = []
 
@@ -50,22 +52,8 @@ function getZipMoverRectangles(room::Maple.Room)
     return rects
 end
 
-# Checks for collision with an array of rectangles at specified tile position
-function notAdjacent(entity::SolidExtension, ox, oy, rects)
-    x, y = Ahorn.position(entity)
-    rect = Ahorn.Rectangle(x + ox + 4, y + oy + 4, 1, 1)
-
-    for r in rects
-        if Ahorn.checkCollision(r, rect)
-            return false
-        end
-    end
-
-    return true
-end
-
 function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::SolidExtension, room::Maple.Room)
-    rects = getZipMoverRectangles(room)
+    rects = getSolidRectangles(room)
 
     x, y = Ahorn.position(entity)
 
@@ -83,26 +71,26 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::SolidExtension, 
     for i in 1:tileWidth, j in 1:tileHeight
         drawX, drawY = (i - 1) * 8, (j - 1) * 8
 
-        closedLeft = !notAdjacent(entity, drawX - 8, drawY, rects)
-        closedRight = !notAdjacent(entity, drawX + 8, drawY, rects)
-        closedUp = !notAdjacent(entity, drawX, drawY - 8, rects)
-        closedDown = !notAdjacent(entity, drawX, drawY + 8, rects)
+        closedLeft = !notAdjacent(x, y, drawX - 8, drawY, rects)
+        closedRight = !notAdjacent(x, y, drawX + 8, drawY, rects)
+        closedUp = !notAdjacent(x, y, drawX, drawY - 8, rects)
+        closedDown = !notAdjacent(x, y, drawX, drawY + 8, rects)
         completelyClosed = closedLeft && closedRight && closedUp && closedDown
         
         if completelyClosed
-            if notAdjacent(entity, drawX + 8, drawY + 8, rects)
+            if notAdjacent(x, y, drawX + 8, drawY + 8, rects)
                 # down right
                 Ahorn.drawImage(ctx, block, x + drawX + 7, y + drawY + 7, 0, 0, 8, 8)
 
-            elseif notAdjacent(entity, drawX - 8, drawY + 8, rects)
+            elseif notAdjacent(x, y, drawX - 8, drawY + 8, rects)
                 # down left
                 Ahorn.drawImage(ctx, block, x + drawX - 7, y + drawY + 7, 16, 0, 8, 8)
 
-            elseif notAdjacent(entity, drawX + 8, drawY - 8, rects)
+            elseif notAdjacent(x, y, drawX + 8, drawY - 8, rects)
                 # up right
                 Ahorn.drawImage(ctx, block, x + drawX + 7, y + drawY - 7, 0, 16, 8, 8)
 
-            elseif notAdjacent(entity, drawX - 8, drawY - 8, rects)
+            elseif notAdjacent(x, y, drawX - 8, drawY - 8, rects)
                 # up left
                 Ahorn.drawImage(ctx, block, x + drawX - 7, y + drawY - 7, 16, 16, 8, 8)
                 

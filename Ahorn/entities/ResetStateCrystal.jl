@@ -21,5 +21,4 @@ end
 
 Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ResetCrystal) =
     Ahorn.drawSprite(ctx, sprite, 0, 0; tint=(.35, .35, .35, 1.0))
-
 end

@@ -1,11 +1,12 @@
 module CommunalHelperDreamMoveBlock
 
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamMoveBlock" DreamMoveBlock(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
 	direction::String="Right", moveSpeed::Number=60.0, noCollide::Bool=false,
-	featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false, below::Bool=false)
+	featherMode::Bool=false, oneUse::Bool=false, refillCount::Integer=-1, below::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Dream Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -36,23 +37,14 @@ const arrows = Dict{String, String}(
     "down" => "objects/CommunalHelper/dreamMoveBlock/arrow06",
 )
 
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamMoveBlock, room::Maple.Room)
+function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamMoveBlock)
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-	 Ahorn.Cairo.save(ctx)
-
-    Ahorn.set_antialias(ctx, 1)
-    Ahorn.set_line_width(ctx, 1)
-
-    fillColor = get(entity.data, "featherMode", false) ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
-	 lineColor = get(entity.data, "oneUse", false) ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
-    Ahorn.drawRectangle(ctx, 0, 0, width, height, fillColor, lineColor)
-
-    Ahorn.restore(ctx)
+    renderDreamBlock(ctx, 0, 0, width, height, entity.data)
 
     direction = lowercase(get(entity.data, "direction", "up"))
-    arrowSprite = Ahorn.getSprite(arrows[lowercase(direction)], "Gameplay")
+    arrowSprite = Ahorn.getSprite(arrows[direction], "Gameplay")
     Ahorn.drawImage(ctx, arrowSprite, div(width - arrowSprite.width, 2), div(height - arrowSprite.height, 2))
 end
 

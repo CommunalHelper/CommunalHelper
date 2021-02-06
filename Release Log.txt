@@ -1,23 +1,35 @@
+--1.6.0 (06/02/2021)--
+* Fixed crash on Celeste beta (1.3.3.17)
+* Re-added and fixed DreamZipMover's custom sound.
+* Added speedFactor, trackSwitchMode ("ON/OFF" tracks) attributes to StationBlocks.
+* Added Track Switch Box.
+* Added Switch Track Trigger.
+* Deprecated doubleRefill attribute on CustomDreamBlocks.
+* Added refillCount attribute to CustomDreamBlocks.
+* Added grouping attribute to TimedTriggerSpikes (requires Max's Helping Hand).
+* Added rainbow attribute to TimedTriggerSpikes (requires Viv's Helper).
+* Support CollabUtils MiniHeart in SummitGemManager.
+
 --1.5.0 (05/12/2020)--
-* Fixed rare crash involving IL hook interactions
-* Added DreamCrumbleWallOnRumble, DreamFloatySpaceBlock
-* Added Multi-Node support for ZipMover types
-* Added permanent, waiting, ticking attributes to all ZipMover types
+* Fixed rare crash involving IL hook interactions.
+* Added DreamCrumbleWallOnRumble, DreamFloatySpaceBlock.
+* Added Multi-Node support for ZipMover types.
+* Added permanent, waiting, ticking attributes to all ZipMover types.
 
 --1.4.0 (31/10/2020)--
-* Fixed IL hooks on SteamFNA
-* Static Movers now attach properly to ConnectedSolids
-* Added Timed Trigger Spikes
-* Added Move Swap Block
-* Added Reset State Crystal
-* Added Shielded Refill
-* Added variable move speed to all MoveBlock types
-* Added below attribute to all DreamBlock types
-* Added noCollide attribute to DreamFallingBlock
-* Moved Custom SpriteBank file
-* CustomDreamBlocks now activate and deactivate properly
-* DreamTunnelDash now behaves more consistently
-* Fixed StrawberrySeed collection during DreamTunnelDash
+* Fixed IL hooks on SteamFNA.
+* Static Movers now attach properly to ConnectedSolids.
+* Added Timed Trigger Spikes.
+* Added Move Swap Block.
+* Added Reset State Crystal.
+* Added Shielded Refill.
+* Added variable move speed to all MoveBlock types.
+* Added below attribute to all DreamBlock types.
+* Added noCollide attribute to DreamFallingBlock.
+* Moved Custom SpriteBank file.
+* CustomDreamBlocks now activate and deactivate properly.
+* DreamTunnelDash now behaves more consistently.
+* Fixed StrawberrySeed collection during DreamTunnelDash.
 
 --1.3.0 (01/09/2020)--
 * Added "double refill" mode to all dream block types.

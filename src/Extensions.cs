@@ -39,6 +39,58 @@ namespace Celeste.Mod.CommunalHelper {
 
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
 
+        internal static bool MoreDashelineLoaded;
+        internal static MethodInfo MoreDasheline_GetHairColor;
+
+        public static Color GetHairColor(this Player player, int dashCount) {
+            if (MoreDashelineLoaded)
+                return (Color) MoreDasheline_GetHairColor.Invoke(null, new object[] { player, dashCount });
+
+            bool isBadeline = player.Sprite.Mode == PlayerSpriteMode.MadelineAsBadeline;
+            switch (dashCount) {
+                case 0:
+                    return isBadeline ? Player.UsedBadelineHairColor : Player.UsedHairColor;
+                case 1:
+                    return isBadeline ? Player.NormalBadelineHairColor : Player.NormalHairColor;
+                default:
+                    return isBadeline ? Player.TwoDashesBadelineHairColor : Player.TwoDashesHairColor;
+
+            }
+        }
+
+        internal static bool CollabUtilsLoaded;
+        private static Type t_CollabUtils_MiniHeart;
+        internal static Type CollabUtils_MiniHeart {
+            get => t_CollabUtils_MiniHeart;
+            set {
+                t_CollabUtils_MiniHeart = value;
+                m_FindFirst_MiniHeart = typeof(EntityList).GetMethod("FindFirst").MakeGenericMethod(t_CollabUtils_MiniHeart);
+            }
+        }
+        private static MethodInfo m_FindFirst_MiniHeart;
+
+        public static Entity FindFirst_MiniHeart(this EntityList list) {
+            return CollabUtilsLoaded ? (Entity) m_FindFirst_MiniHeart.Invoke(list, new object[] { }) : null;
+        }
+
+        // Modified version of Everest.Loader.DependencyLoaded
+        public static bool TryGetModule(EverestModuleMetadata meta, out EverestModule module) {
+            foreach (EverestModule other in Everest.Modules) {
+                EverestModuleMetadata otherData = other.Metadata;
+                if (otherData.Name != meta.Name)
+                    continue;
+
+                Version version = otherData.Version;
+                if (Everest.Loader.VersionSatisfiesDependency(meta.Version, version)) {
+                    module = other;
+                    return true;
+                }
+            }
+
+            module = null;
+            return false;
+        }
+
         #region Collider
 
         public static T CollideFirst<T, Exclude>(this Entity from) where T : Entity where Exclude : Entity {

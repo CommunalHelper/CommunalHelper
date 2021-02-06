@@ -1,10 +1,11 @@
 module CommunalHelperDreamSwapBlock
 
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamSwapBlock" DreamSwapBlock(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	noReturn::Bool=false, featherMode::Bool=false, oneUse::Bool=false, doubleRefill::Bool=false, below::Bool=false)
+	noReturn::Bool=false, featherMode::Bool=false, oneUse::Bool=false, refillCount::Integer=-1, below::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Dream Swap Block (Communal Helper)" => Ahorn.EntityPlacement(
@@ -40,16 +41,7 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwa
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
 
-	 Ahorn.Cairo.save(ctx)
-
-    Ahorn.set_antialias(ctx, 1)
-    Ahorn.set_line_width(ctx, 1)
-
-    fillColor = get(entity.data, "featherMode", false) ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
-	 lineColor = get(entity.data, "oneUse", false) ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
-    Ahorn.drawRectangle(ctx, stopX, stopY, width, height, fillColor, lineColor)
-
-    Ahorn.restore(ctx)
+    renderDreamBlock(ctx, stopX, stopY, width, height, entity.data)
 
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
 end
@@ -65,16 +57,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock)
 
     Ahorn.SwapBlock.renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height, "objects/swapblock/target")
 
-	 Ahorn.Cairo.save(ctx)
-
-    Ahorn.set_antialias(ctx, 1)
-    Ahorn.set_line_width(ctx, 1)
-
-    fillColor = get(entity.data, "featherMode", false) ? (0.31, 0.69, 1.0, 0.4) : (0.0, 0.0, 0.0, 0.4)
-	 lineColor = get(entity.data, "oneUse", false) ? (1.0, 0.0, 0.0, 1.0) : (1.0, 1.0, 1.0, 1.0)
-    Ahorn.drawRectangle(ctx, startX, startY, width, height, fillColor, lineColor)
-
-    Ahorn.restore(ctx)
+    renderDreamBlock(ctx, startX, startY, width, height, entity.data)
 
     if Bool(get(entity.data, "noReturn", false))
         noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")

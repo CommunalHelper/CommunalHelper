@@ -108,13 +108,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public List<JumpThru> JumpThrus;
         protected ConnectedDreamBlock master;
 
-        protected bool IncludeJumpThrus = true;
+        protected bool IncludeJumpThrus = false;
 
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill"), data.Bool("below")) { }
+            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) { }
 
-        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill, bool below)
-            : base(position, width, height, featherMode, oneUse, doubleRefill, below) {
+        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below)
+            : base(position, width, height, featherMode, oneUse, refillCount, below) {
         }
 
         public override void Awake(Scene scene) {
@@ -413,7 +413,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (FeatherMode) {
                         featherTextures[layer].DrawCentered(position + Shake + shake, color, 1, rotation);
                     } else {
-                        MTexture[] particleTextures = DoubleRefill ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
+                        MTexture[] particleTextures = RefillCount != -1 ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
                         MTexture particleTexture;
                         switch (layer) {
                             case 0: {

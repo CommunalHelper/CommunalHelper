@@ -1,6 +1,7 @@
 module CommunalHelperAdventureHelper
 
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 # Stolen from AdventureHelper
 @mapdef Entity "CommunalHelper/AdventureHelper/CustomCrystalHeart" CustomCrystalHeart(x::Integer, y::Integer, 
@@ -10,8 +11,7 @@ using ..Ahorn, Maple
 function getPlacements() 
 	# Check if there's an adventurehelper folder/zip in the mods folder
 	# This is bad and can easily fail, but whatever
-	if any(s -> occursin("adventurehelper", lowercase(s)), Ahorn.getCelesteModZips()) ||
-		any(s -> occursin("adventurehelper", lowercase(s)), Ahorn.getCelesteModDirs())
+	if CommunalHelper.detectMod("adventurehelper")
 		return Ahorn.PlacementDict(
 			"Crystal Heart (Communal Helper/Adventure Helper)" => Ahorn.EntityPlacement(
 				CustomCrystalHeart,
@@ -27,13 +27,8 @@ function getPlacements()
 			)
 		)
 	else
-		msg = "AdventureHelper not detected: CommunalHelper+AdventureHelper plugins not loaded."
-		# print in console
-		println(msg)
-		# print in error.log
-		@warn msg
-		return Ahorn.PlacementDict(
-		)
+		@warn "AdventureHelper not detected: CommunalHelper+AdventureHelper plugins not loaded."
+		return Ahorn.PlacementDict()
 	end
 end
 
@@ -78,8 +73,7 @@ end
 function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::CustomCrystalHeart, room::Maple.Room)
 	x, y = Ahorn.position(entity)
 	path = get(entity.data, "path", "")
-	tint = Ahorn.argb32ToRGBATuple(parse(Int, get(entity.data, "color", "663931"), base=16))[1:3] ./ 255
-	tint = (tint[1], tint[2], tint[3], 1.0)
+	tint = CommunalHelper.hexToRGBA(get(entity.data, "color", "663931"))
 	sprite = String
 	
 	if path == "heartgem0"
@@ -92,8 +86,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::CustomCrystalHea
 		sprite = "collectables/heartGem/3/00.png"
 	elseif path == ""
 		sprite = "collectables/AdventureHelper/RecolorHeart_Outline/00.png"
-		tint = Ahorn.argb32ToRGBATuple(parse(Int, get(entity.data, "color", "663931"), base=16))[1:3] ./ 255
-		tint = (tint[1], tint[2], tint[3], 1.0)
+		tint = CommunalHelper.hexToRGBA(get(entity.data, "color", "663931"))
 		Ahorn.drawSprite(ctx, "collectables/AdventureHelper/RecolorHeart/00.png", x, y, tint=tint)
 	else
 		sprite = "collectables/heartGem/3/00.png"

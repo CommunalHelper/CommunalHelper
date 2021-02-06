@@ -30,7 +30,6 @@ namespace Celeste.Mod.CommunalHelper {
             public TileType type;
         }
 
-
         public Vector2 GroupOffset;
 
         public int MasterWidth, MasterHeight;
@@ -73,6 +72,22 @@ namespace Celeste.Mod.CommunalHelper {
 
             base.Awake(scene);
 
+        }
+
+        public static Tuple<MTexture[,], MTexture[,]> SetupCustomTileset(string path) {
+            MTexture tileset = GFX.Game["objects/" + path];
+
+            MTexture[,] overrideEdgeTiles = new MTexture[3, 3];
+            MTexture[,] overrideInCornersTiles = new MTexture[2, 2];
+
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    overrideEdgeTiles[i, j] = tileset.GetSubtexture(i * 8, j * 8, 8, 8);
+                    if(i < 2 && j < 2)
+                        overrideInCornersTiles[i, j] = tileset.GetSubtexture(i * 8 + 24, j * 8, 8, 8);
+                }
+            }
+            return new Tuple<MTexture[,], MTexture[,]>(overrideEdgeTiles, overrideInCornersTiles);
         }
 
         private void FindExtensions(ConnectedSolid master, List<SolidExtension> list)

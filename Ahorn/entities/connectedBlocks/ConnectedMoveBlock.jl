@@ -1,9 +1,12 @@
 module CommunalHelperConnectedMoveBlock
+
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/ConnectedMoveBlock" ConnectedMoveBlock(x::Integer, y::Integer,
 	width::Integer = Maple.defaultBlockWidth, height::Integer = Maple.defaultBlockWidth,
-    direction::String="Right", moveSpeed::Number=60.0)
+    direction::String="Right", moveSpeed::Number=60.0,
+    customBlockTexture::String = "")
 
 const placements = Ahorn.PlacementDict(
     "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -38,37 +41,6 @@ const button = "objects/moveBlock/button"
 
 const midColor = (4, 3, 23, 255) ./ 255
 const highlightColor = (59, 50, 101, 255) ./ 255
-
-# Gets rectangles from Solid Extensions
-function getExtensionRectangles(room::Maple.Room)
-    entities = filter(e -> e.name == "CommunalHelper/SolidExtension", room.entities)
-    rects = []
-
-    for e in entities
-        push!(rects, Ahorn.Rectangle(
-            Int(get(e.data, "x", 0)),
-            Int(get(e.data, "y", 0)),
-            Int(get(e.data, "width", 8)),
-            Int(get(e.data, "height", 8))
-        ))
-    end
-
-    return rects
-end
-
-# Checks for collision with an array of rectangles at specified tile position
-function notAdjacent(entity::ConnectedMoveBlock, ox, oy, rects)
-    x, y = Ahorn.position(entity)
-    rect = Ahorn.Rectangle(x + ox + 4, y + oy + 4, 1, 1)
-
-    for r in rects
-        if Ahorn.checkCollision(r, rect)
-            return false
-        end
-    end
-
-    return true
-end
 
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock, room::Maple.Room)
     x = Int(get(entity.data, "x", 0))

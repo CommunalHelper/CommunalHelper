@@ -22,9 +22,10 @@ namespace Celeste.Mod.CommunalHelper {
         public static SpriteBank SpriteBank => Instance._SpriteBank;
         public SpriteBank _SpriteBank;
 
-        public static bool maxHelpingHandLoaded { get; private set; }
-        public static bool vivHelperLoaded { get; private set; }
-        
+
+        public static bool MaxHelpingHandLoaded { get; private set; }
+        public static bool VivHelperLoaded { get; private set; }
+
         public CommunalHelperModule() {
             Instance = this;
         }
@@ -85,6 +86,7 @@ namespace Celeste.Mod.CommunalHelper {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
 
 			StationBlock.InitializeParticles();
+            TrackSwitchBox.InitializeParticles();
 
             DreamTunnelDash.LoadContent();
             DreamRefill.InitializeParticles();
@@ -96,9 +98,21 @@ namespace Celeste.Mod.CommunalHelper {
 
             HeartGemShard.InitializeParticles();
 
-            maxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
-            vivHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "VivHelper", VersionString = "1.0.28" });
 
+            EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
+            if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule dashelineModule)) {
+                Extensions.MoreDashelineLoaded = true;
+                Extensions.MoreDasheline_GetHairColor = dashelineModule.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) });
+                Logger.Log("Communal Helper", "MoreDasheline detected: using MoreDasheline hair colors for CustomDreamBlock particles.");
+            }
+            EverestModuleMetadata collabUtilsMeta = new EverestModuleMetadata { Name = "CollabUtils2", VersionString = "1.3.8.1" };
+            if (Extensions.TryGetModule(collabUtilsMeta, out EverestModule collabModule)) {
+                Extensions.CollabUtilsLoaded = true;
+                Extensions.CollabUtils_MiniHeart = collabModule.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart");
+            }
+
+            MaxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
+            VivHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "VivHelper", VersionString = "1.0.28" });
         }
 
         // Loading "custom" entities

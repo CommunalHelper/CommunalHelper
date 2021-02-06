@@ -140,17 +140,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private SpikeInfo[] spikes;
         private List<MTexture> spikeTextures;
 
+
         public TimedTriggerSpikes(EntityData data, Vector2 offset, Directions dir)
             : this(data.Position, offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false), data.Bool("Rainbow", false)) {
         }
 
         public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow)
-            : base(position + offset) {
-            if (grouped && !CommunalHelperModule.maxHelpingHandLoaded) {
+            : base(position + offset)  {
+            if (grouped && !CommunalHelperModule.MaxHelpingHandLoaded) {
                 throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
             }
 
-            if(rainbow && !CommunalHelperModule.vivHelperLoaded) {
+            if(rainbow && !CommunalHelperModule.VivHelperLoaded) {
                 throw new Exception("Rainbow Timed Trigger Spikes attempted to load without Viv's Helper as a dependency.");
             }
 

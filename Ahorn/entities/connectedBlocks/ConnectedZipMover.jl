@@ -1,8 +1,9 @@
 module CommunalHelperConnectedZipMover
 
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
-theme_options = String["Normal", "Moon", "Cliffside"]
+const theme_options = String["Normal", "Moon", "Cliffside"]
 
 @mapdef Entity "CommunalHelper/ConnectedZipMover" ConnectedZipMover(
 			x::Integer, y::Integer,
@@ -11,7 +12,8 @@ theme_options = String["Normal", "Moon", "Cliffside"]
 			permanent::Bool=false,
 			waiting::Bool=false,
 			ticking::Bool=false,
-			nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[])
+			nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[],
+            customBlockTexture::String = "")
 
 const placements = Ahorn.PlacementDict(
     "Connected Zip Mover ($(uppercasefirst(theme))) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -25,8 +27,6 @@ const placements = Ahorn.PlacementDict(
         end
     ) for theme in theme_options
 )
-
-
 
 Ahorn.editingOptions(entity::ConnectedZipMover) = Dict{String, Any}(
     "theme" => theme_options
@@ -77,38 +77,7 @@ function getTextures(entity::ConnectedZipMover)
            "objects/CommunalHelper/connectedZipMover/innerCorners"
 end
 
-ropeColor = (102, 57, 49) ./ 255
-
-# Gets rectangles from Solid Extensions
-function getExtensionRectangles(room::Maple.Room)
-    entities = filter(e -> e.name == "CommunalHelper/SolidExtension", room.entities)
-    rects = []
-
-    for e in entities
-        push!(rects, Ahorn.Rectangle(
-            Int(get(e.data, "x", 0)),
-            Int(get(e.data, "y", 0)),
-            Int(get(e.data, "width", 8)),
-            Int(get(e.data, "height", 8))
-        ))
-    end
-        
-    return rects
-end
-
-# Checks for collision with an array of rectangles at specified tile position
-function notAdjacent(entity::ConnectedZipMover, ox, oy, rects)
-    x, y = Ahorn.position(entity)
-    rect = Ahorn.Rectangle(x + ox + 4, y + oy + 4, 1, 1)
-
-    for r in rects
-        if Ahorn.checkCollision(r, rect)
-            return false
-        end
-    end
-
-    return true
-end
+const ropeColor = (102, 57, 49) ./ 255
 
 function renderZipMover(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedZipMover, room::Maple.Room)
 	rects = getExtensionRectangles(room)
@@ -230,8 +199,7 @@ function renderZipMover(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedZipMover
     Ahorn.drawImage(ctx, lightSprite, x + floor(Int, (width - lightSprite.width) / 2), y)
 end
 
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedZipMover, room::Maple.Room)
+Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedZipMover, room::Maple.Room) =
     renderZipMover(ctx, entity, room)
-end
 
 end
