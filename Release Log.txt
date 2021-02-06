@@ -1,4 +1,4 @@
---1.6.0 (05/12/2021)--
+--1.6.0 (06/02/2021)--
 * Fixed crash on Celeste beta (1.3.3.17)
 * Re-added and fixed DreamZipMover's custom sound.
 * Added speedFactor, trackSwitchMode ("ON/OFF" tracks) attributes to StationBlocks.
