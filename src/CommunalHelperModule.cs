@@ -68,12 +68,20 @@ namespace Celeste.Mod.CommunalHelper {
             MoveBlockRedirect.Unload();
             MoveSwapBlock.Unload();
             SyncedZipMoverActivationControllerHooks.Unhook();
+            TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
         }
 
-		public override void LoadContent(bool firstLoad) {
+        public override void Initialize() {
+            // Because of `Celeste.Tags.Initialize` of all things
+            // We create a static CrystalStaticSpinner which needs to access Tags.TransitionUpdate
+            // Which wouldn't be loaded in time for EverestModule.Load
+            TimedTriggerSpikes.Load();
+        }
+
+        public override void LoadContent(bool firstLoad) {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
 
 			StationBlock.InitializeParticles();
