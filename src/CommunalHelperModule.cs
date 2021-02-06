@@ -22,8 +22,10 @@ namespace Celeste.Mod.CommunalHelper {
         public static SpriteBank SpriteBank => Instance._SpriteBank;
         public SpriteBank _SpriteBank;
 
+
         public static bool MaxHelpingHandLoaded { get; private set; }
-        
+        public static bool VivHelperLoaded { get; private set; }
+
         public CommunalHelperModule() {
             Instance = this;
         }
@@ -67,12 +69,20 @@ namespace Celeste.Mod.CommunalHelper {
             MoveBlockRedirect.Unload();
             MoveSwapBlock.Unload();
             SyncedZipMoverActivationControllerHooks.Unhook();
+            TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
         }
 
-		public override void LoadContent(bool firstLoad) {
+        public override void Initialize() {
+            // Because of `Celeste.Tags.Initialize` of all things
+            // We create a static CrystalStaticSpinner which needs to access Tags.TransitionUpdate
+            // Which wouldn't be loaded in time for EverestModule.Load
+            TimedTriggerSpikes.Load();
+        }
+
+        public override void LoadContent(bool firstLoad) {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
 
 			StationBlock.InitializeParticles();
@@ -88,6 +98,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             HeartGemShard.InitializeParticles();
 
+
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
             if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule dashelineModule)) {
                 Extensions.MoreDashelineLoaded = true;
@@ -101,6 +112,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
 
             MaxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
+            VivHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "VivHelper", VersionString = "1.0.28" });
         }
 
         // Loading "custom" entities

@@ -1,11 +1,10 @@
 module CommunalHelperTimedTriggerSpikes
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesUp" TimedTriggerSpikesUp(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false)
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesDown" TimedTriggerSpikesDown(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false)
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesLeft" TimedTriggerSpikesLeft(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false)
-@mapdef Entity "CommunalHelper/TimedTriggerSpikesRight" TimedTriggerSpikesRight(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false)
-
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesUp" TimedTriggerSpikesUp(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false, Rainbow::Bool=false)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesDown" TimedTriggerSpikesDown(x::Integer, y::Integer, width::Integer=Maple.defaultSpikeWidth, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false, Rainbow::Bool=false)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesLeft" TimedTriggerSpikesLeft(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false, Rainbow::Bool=false)
+@mapdef Entity "CommunalHelper/TimedTriggerSpikesRight" TimedTriggerSpikesRight(x::Integer, y::Integer, height::Integer=Maple.defaultSpikeHeight, type::String="default", Delay::Number=0.4, WaitForPlayer::Bool=false, Grouped::Bool=false, Rainbow::Bool=false)
 
 const placements = Ahorn.PlacementDict()
 
@@ -46,8 +45,12 @@ end
 Ahorn.editingOptions(entity::triggerSpikesUnion) = Dict{String, Any}(
     "type" => spikeTypes,
     "Grouped" => Dict{String, Bool}(
-        "Individual" => false,
-        "Grouped (Requires Max's Helping Hand)" => true
+	"Not Grouped" => false,
+	"Grouped (Require's Max's Helping Hand)" => true
+    ),
+    "Rainbow" => Dict{String, Bool}(
+	"Default" => false,
+	"Rainbow (Require's Viv's Helper)" => true
     )
 )
 
