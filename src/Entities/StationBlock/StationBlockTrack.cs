@@ -57,7 +57,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Depth = Depths.SolidsBelow;
 
             initialSwitchState = switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
-            if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off)
+            if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off && initialSwitchState != TrackSwitchState.None)
                 Switch(TrackSwitchState.Off);
 
             trackStatePercent = switchState == TrackSwitchState.On || switchState == TrackSwitchState.None ? 0f : 1f;
@@ -335,6 +335,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void Switch(TrackSwitchState state) {
+            if (initialSwitchState == TrackSwitchState.None)
+                return;
             switchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
         }
     }
