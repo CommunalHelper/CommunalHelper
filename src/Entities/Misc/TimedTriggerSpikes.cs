@@ -50,7 +50,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
             }
 
             public void Update() {
-                if (Parent.Grouped ? Parent.Triggered : Triggered) {
+                if (Parent.grouped ? Parent.Triggered : Triggered) {
                     if (DelayTimer > 0f) {
                         DelayTimer -= Engine.DeltaTime;
                         if (DelayTimer <= 0f) {
@@ -67,7 +67,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
                 } else {
                     Lerp = Calc.Approach(Lerp, 0f, 4f * Engine.DeltaTime);
                     if (Lerp <= 0f) {
-                        if (Parent.Grouped) { Parent.Triggered = false; } else { Triggered = false; }
+                        if (Parent.grouped) { Parent.Triggered = false; } else { Triggered = false; }
                     }
                 }
                 if (Parent.rainbow && crystalSpinner != null) SetColor();
@@ -78,9 +78,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
             }
 
             public bool OnPlayer(Player player, Vector2 outwards) {
-                if (Parent.Grouped ? !Parent.Triggered : !Triggered) {
+                if (Parent.grouped ? !Parent.Triggered : !Triggered) {
                     Audio.Play("event:/game/03_resort/fluff_tendril_touch", Parent.Position + Position);
-                    if (Parent.Grouped) { Parent.Triggered = true; } else { Triggered = true; }
+                    if (Parent.grouped) { Parent.Triggered = true; } else { Triggered = true; }
                     RetractTimer = 6f;
                     return false;
                 }
@@ -125,17 +125,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
 
 
         private bool grouped = false;
-        protected bool Grouped {
-            get {
-                return grouped && CommunalHelperModule.maxHelpingHandLoaded;
-            }
-        }
 
         private bool rainbow = false;
-
-        protected bool Rainbow { get {
-                return rainbow && CommunalHelperModule.vivHelperLoaded;
-            } }
 
         protected bool Triggered = false;
 
@@ -156,11 +147,11 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
         }
 
         public TimedTriggerSpikes(EntityData data, Vector2 offset, Directions dir)
-            : this(data.Position + offset, offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false), data.Bool("Rainbow", false)) {
+            : this(data.Position, offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false), data.Bool("Rainbow", false)) {
         }
 
         public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow)
-            : base(position) {
+            : base(position + offset) {
             if (grouped && !CommunalHelperModule.maxHelpingHandLoaded) {
                 throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
             }
@@ -175,23 +166,23 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
             switch (direction) {
                 case Directions.Up:
                     outwards = new Vector2(0f, -1f);
-                    base.Collider = new Hitbox(size, 3f, 0f, -3f);
+                    Collider = new Hitbox(size, 3f, 0f, -3f);
                     Add(new SafeGroundBlocker());
                     Add(new LedgeBlocker(UpSafeBlockCheck));
                     break;
                 case Directions.Down:
                     outwards = new Vector2(0f, 1f);
-                    base.Collider = new Hitbox(size, 3f);
+                    Collider = new Hitbox(size, 3f);
                     break;
                 case Directions.Left:
                     outwards = new Vector2(-1f, 0f);
-                    base.Collider = new Hitbox(3f, size, -3f);
+                    Collider = new Hitbox(3f, size, -3f);
                     Add(new SafeGroundBlocker());
                     Add(new LedgeBlocker(SideSafeBlockCheck));
                     break;
                 case Directions.Right:
                     outwards = new Vector2(1f, 0f);
-                    base.Collider = new Hitbox(3f, size);
+                    Collider = new Hitbox(3f, size);
                     Add(new SafeGroundBlocker());
                     Add(new LedgeBlocker(SideSafeBlockCheck));
                     break;
@@ -202,11 +193,12 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
                 SolidChecker = IsRiding,
                 JumpThruChecker = IsRiding
             });
-            base.Depth = -50;
+            Depth = Depths.Dust;
             this.grouped = grouped;
             this.rainbow = rainbow;
             this.offset = offset;
-            if(rainbow) crystalSpinner = new CrystalStaticSpinner(Vector2.One * -1000 + offset, false, CrystalColor.Rainbow);
+            if(rainbow) crystalSpinner = new CrystalStaticSpinner(offset, false, CrystalColor.Rainbow);
+            crystalSpinner.Visible = crystalSpinner.Collidable = false;
         }
 
         public override void Added(Scene scene) {
@@ -241,11 +233,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
                 }
                 spikes[i].DelayTimer = Delay;
             }
-        }
-
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
-            if (rainbow) scene.Add(crystalSpinner);
+            if (rainbow)
+                scene.Add(crystalSpinner);
         }
 
         private void OnShake(Vector2 amount) {
@@ -254,8 +243,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
 
         private bool UpSafeBlockCheck(Player player) {
             int num = 8 * (int) player.Facing;
-            int num2 = (int) ((player.Left + (float) num - base.Left) / 4f);
-            int num3 = (int) ((player.Right + (float) num - base.Left) / 4f);
+            int num2 = (int) ((player.Left + (float) num - Left) / 4f);
+            int num3 = (int) ((player.Right + (float) num - Left) / 4f);
             if (num3 < 0 || num2 >= spikes.Length) {
                 return false;
             }
@@ -270,8 +259,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
         }
 
         private bool SideSafeBlockCheck(Player player) {
-            int num = (int) ((player.Top - base.Top) / 4f);
-            int num2 = (int) ((player.Bottom - base.Top) / 4f);
+            int num = (int) ((player.Top - Top) / 4f);
+            int num2 = (int) ((player.Bottom - Top) / 4f);
             if (num2 < 0 || num >= spikes.Length) {
                 return false;
             }
@@ -300,26 +289,26 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
             switch (direction) {
                 case Directions.Up:
                     if (player.Speed.Y >= 0f) {
-                        minIndex = (int) ((player.Left - base.Left) / 8f);
-                        maxIndex = (int) ((player.Right - base.Left) / 8f);
+                        minIndex = (int) ((player.Left - Left) / 8f);
+                        maxIndex = (int) ((player.Right - Left) / 8f);
                     }
                     break;
                 case Directions.Down:
                     if (player.Speed.Y <= 0f) {
-                        minIndex = (int) ((player.Left - base.Left) / 8f);
-                        maxIndex = (int) ((player.Right - base.Left) / 8f);
+                        minIndex = (int) ((player.Left - Left) / 8f);
+                        maxIndex = (int) ((player.Right - Left) / 8f);
                     }
                     break;
                 case Directions.Left:
                     if (player.Speed.X >= 0f) {
-                        minIndex = (int) ((player.Top - base.Top) / 8f);
-                        maxIndex = (int) ((player.Bottom - base.Top) / 8f);
+                        minIndex = (int) ((player.Top - Top) / 8f);
+                        maxIndex = (int) ((player.Bottom - Top) / 8f);
                     }
                     break;
                 case Directions.Right:
                     if (player.Speed.X <= 0f) {
-                        minIndex = (int) ((player.Top - base.Top) / 8f);
-                        maxIndex = (int) ((player.Bottom - base.Top) / 8f);
+                        minIndex = (int) ((player.Top - Top) / 8f);
+                        maxIndex = (int) ((player.Bottom - Top) / 8f);
                     }
                     break;
             }
@@ -346,9 +335,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc {
 
         public override void Update() {
             if (rainbow) {
-                if (crystalSpinner == null) { crystalSpinner = new CrystalStaticSpinner(Vector2.One * -1000 + offset, false, CrystalColor.Rainbow); }
-                if (Scene == null) { return; }
-                if (!Scene.Tracker.GetEntities<CrystalStaticSpinner>().Contains(crystalSpinner)) { Scene.Add(crystalSpinner); }
+                if (crystalSpinner?.Scene != Scene)
+                    Scene.Add(crystalSpinner);
             }
             base.Update();
             for (int i = 0; i < spikes.Length; i++) {
