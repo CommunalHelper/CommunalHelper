@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
-using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [Pooled]

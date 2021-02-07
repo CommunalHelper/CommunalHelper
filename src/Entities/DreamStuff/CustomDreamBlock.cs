@@ -30,22 +30,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             public Vector2 Position {
                 get { UpdatePos(); return tempVec2; }
-                [MethodImpl(256)] set { }
+                [MethodImpl(MethodImplOptions.NoInlining)] set { }
             }
-            [MethodImpl(256)]
+            [MethodImpl(MethodImplOptions.NoInlining)]
             private void UpdatePos() { }
 
             public int Layer {
-                [MethodImpl(256)] get { return default; }
-                [MethodImpl(256)] set { }
+                [MethodImpl(MethodImplOptions.NoInlining)] get => default;
+                [MethodImpl(MethodImplOptions.NoInlining)] set { }
             }
             public Color Color {
-                [MethodImpl(256)] get { return default; }
-                [MethodImpl(256)] set { }
+                [MethodImpl(MethodImplOptions.NoInlining)] get => default;
+                [MethodImpl(MethodImplOptions.NoInlining)] set { }
             }
             public float TimeOffset {
-                [MethodImpl(256)] get { return default; }
-                [MethodImpl(256)] set { }
+                [MethodImpl(MethodImplOptions.NoInlining)] get => default;
+                [MethodImpl(MethodImplOptions.NoInlining)] set { }
             }
 
             // Feather particle stuff
@@ -180,14 +180,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (RefillCount != -1) {
                     return dashColors[layer];
                 } else {
-                    switch (layer) {
-                        case 0:
-                            return Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310"));
-                        case 1:
-                            return Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C"));
-                        case 2:
-                            return Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64"));
-                    }
+                    return layer switch {
+                        0 => Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310")),
+                        1 => Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C")),
+                        2 => Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64")),
+                        _ => throw new NotImplementedException()
+                    };
                 }
             }
             return Color.LightGray * (0.5f + layer / 2f * 0.5f);
@@ -228,11 +226,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 num2 *= 0.25f;
                 particleRemainders[i] += num2;
-                int num3 = (int) particleRemainders[i];
-                particleRemainders[i] -= num3;
+                int amount = (int) particleRemainders[i];
+                particleRemainders[i] -= amount;
                 positionRange *= 0.5f;
-                if (num3 > 0f) {
-                    SceneAs<Level>().ParticlesBG.Emit(shakeParticle, num3, position, positionRange, angle);
+                if (amount > 0f) {
+                    SceneAs<Level>().ParticlesBG.Emit(shakeParticle, amount, position, positionRange, angle);
                 }
             }
         }
@@ -495,7 +493,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void Player_DreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player) {
             orig(player);
-            var playerData = player.GetData();
+            DynData<Player> playerData = player.GetData();
             DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
             if (dreamBlock is CustomDreamBlock customDreamBlock) { 
                 if (customDreamBlock.FeatherMode) {
@@ -505,7 +503,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }                    
 
                 // Ensures the player always properly enters a dream block even when it's moving fast
-                if (customDreamBlock is DreamZipMover || customDreamBlock is DreamSwapBlock) {
+                if (customDreamBlock is DreamZipMover or DreamSwapBlock) {
                     player.Position.X += Math.Sign(player.DashDir.X);
                     player.Position.Y += Math.Sign(player.DashDir.Y);
                 }
@@ -514,7 +512,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static int Player_DreamDashUpdate(On.Celeste.Player.orig_DreamDashUpdate orig, Player player) {
-            var playerData = player.GetData();
+            DynData<Player> playerData = player.GetData();
             DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
             if (dreamBlock is CustomDreamBlock customDreamBlock && customDreamBlock.FeatherMode) {
                 Vector2 input = Input.Aim.Value.SafeNormalize();

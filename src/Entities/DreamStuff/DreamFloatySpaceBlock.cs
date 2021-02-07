@@ -32,7 +32,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private void TryToInitPosition() {
             if (MasterOfGroup) {
                 foreach (ConnectedDreamBlock block in Group) {
-                    if (!(block is DreamFloatySpaceBlock floatyBlock) || !floatyBlock.awake) {
+                    if (block is not DreamFloatySpaceBlock floatyBlock || !floatyBlock.awake) {
                         return;
                     }
                 }

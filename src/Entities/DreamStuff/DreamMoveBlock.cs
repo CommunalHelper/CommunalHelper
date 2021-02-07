@@ -89,24 +89,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             startPosition = Position;
 
             // Backwards Compatibility
-            moveSpeed = data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", 60f);
+            moveSpeed = data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed);
             noCollide = data.Bool("noCollide");
 
             direction = data.Enum<MoveBlock.Directions>("direction");
-            switch (direction) {
-                default:
-                    homeAngle = targetAngle = angle = 0f;
-                    break;
-                case MoveBlock.Directions.Left:
-                    homeAngle = targetAngle = angle = (float) Math.PI;
-                    break;
-                case MoveBlock.Directions.Up:
-                    homeAngle = targetAngle = angle = -(float) Math.PI / 2f;
-                    break;
-                case MoveBlock.Directions.Down:
-                    homeAngle = targetAngle = angle = (float) Math.PI / 2f;
-                    break;
-            }
+            homeAngle = targetAngle = angle = direction switch {
+                MoveBlock.Directions.Left => (float) Math.PI,
+                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
+                MoveBlock.Directions.Down => (float) Math.PI / 2f,
+                _ => 0f,
+            };
 
             arrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/arrow");
             Add(moveSfx = new SoundSource());
@@ -145,7 +137,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     // angle = Calc.Approach(angle, targetAngle, SteerSpeed * Engine.DeltaTime);
                     Vector2 move = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool hit;
-                    if (direction == MoveBlock.Directions.Right || direction == MoveBlock.Directions.Left) {
+                    if (direction is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
                         hit = MoveCheck(move.XComp());
                         noSquish = Scene.Tracker.GetEntity<Player>();
                         MoveVCollideSolids(move.Y, thruDashBlocks: false);
@@ -417,10 +409,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private void ActivateParticles() {
             //bool flag = direction == MoveBlock.Directions.Down || direction == MoveBlock.Directions.Up;
-            bool flag2 = !CollideCheck<Player>(Position - Vector2.UnitX);
-            bool flag3 = !CollideCheck<Player>(Position + Vector2.UnitX);
-            bool flag4 = !CollideCheck<Player>(Position - Vector2.UnitY);
-            if (flag2) {
+            bool left = !CollideCheck<Player>(Position - Vector2.UnitX);
+            bool right = !CollideCheck<Player>(Position + Vector2.UnitX);
+            bool top = !CollideCheck<Player>(Position - Vector2.UnitY);
+            if (left) {
                 for (int i = 1; i < Height / 2 - 1; ++i) {
                     ParticleType particle = dreamParticles[activateParticleIndex];
                     Vector2 position = TopLeft + Vector2.UnitY * i * 2;
@@ -429,7 +421,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     activateParticleIndex %= 4;
                 }
             }
-            if (flag3) {
+            if (right) {
                 for (int i = 1; i < Height / 2 - 1; ++i) {
                     ParticleType particle = dreamParticles[activateParticleIndex];
                     Vector2 position = TopRight + Vector2.UnitY * i * 2;
@@ -438,7 +430,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     activateParticleIndex %= 4;
                 }
             }
-            if (flag4) {
+            if (top) {
                 for (int i = 1; i < Width / 2 - 1; ++i) {
                     ParticleType particle = dreamParticles[activateParticleIndex];
                     Vector2 position = TopLeft + Vector2.UnitX * i * 2;
@@ -471,35 +463,36 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private void MoveParticles() {
             Vector2 position;
             Vector2 positionRange;
-            float num;
+            float dir;
             float num2;
             if (direction == MoveBlock.Directions.Right) {
                 position = CenterLeft + Vector2.UnitX;
                 positionRange = Vector2.UnitY * (Height - 4f);
-                num = (float) Math.PI;
+                dir = (float) Math.PI;
                 num2 = Height / 32f;
             } else if (direction == MoveBlock.Directions.Left) {
                 position = CenterRight;
                 positionRange = Vector2.UnitY * (Height - 4f);
-                num = 0f;
+                dir = 0f;
                 num2 = Height / 32f;
             } else if (direction == MoveBlock.Directions.Down) {
                 position = TopCenter + Vector2.UnitY;
                 positionRange = Vector2.UnitX * (Width - 4f);
-                num = -(float) Math.PI / 2f;
+                dir = -(float) Math.PI / 2f;
                 num2 = Width / 32f;
             } else {
                 position = BottomCenter;
                 positionRange = Vector2.UnitX * (Width - 4f);
-                num = (float) Math.PI / 2f;
+                dir = (float) Math.PI / 2f;
                 num2 = Width / 32f;
             }
+
             particleRemainder += num2;
-            int num3 = (int) particleRemainder;
-            particleRemainder -= num3;
+            int amount = (int) particleRemainder;
+            particleRemainder -= amount;
             positionRange *= 0.5f;
-            if (num3 > 0) {
-                SceneAs<Level>().ParticlesBG.Emit(dreamParticles[moveParticleIndex], num3, position, positionRange, num);
+            if (amount > 0) {
+                SceneAs<Level>().ParticlesBG.Emit(dreamParticles[moveParticleIndex], amount, position, positionRange, dir);
                 ++moveParticleIndex;
                 moveParticleIndex %= 4;
             }
@@ -579,7 +572,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 cursor.Emit(OpCodes.Ldfld, f_this);
                 cursor.EmitDelegate<Func<DreamBlock, bool>>(block => block is DreamMoveBlock moveBlock && !moveBlock.Visible);
                 cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
-                foreach (var param in ((MethodReference) cursor.Next.Operand).Parameters)
+                foreach (ParameterDefinition param in ((MethodReference) cursor.Next.Operand).Parameters)
                     cursor.Emit(OpCodes.Pop);
                 cursor.Emit(OpCodes.Pop);
                 cursor.Emit(OpCodes.Br_S, cursor.Next.Next);

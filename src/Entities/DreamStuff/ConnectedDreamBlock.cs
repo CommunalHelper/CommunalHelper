@@ -43,8 +43,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             public int this[Edges edge] {
-                get { return Edges[(int) edge]; }
-                set { Edges[(int) edge] = value; }
+                get => Edges[(int) edge];
+                set => Edges[(int) edge] = value;
             }
 
         }

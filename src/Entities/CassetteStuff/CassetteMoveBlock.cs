@@ -65,11 +65,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 			this.direction = direction;
             this.moveSpeed = moveSpeed;
 
-            homeAngle = direction switch {
-                MoveBlock.Directions.Left => targetAngle = angle = (float) Math.PI,
-                MoveBlock.Directions.Up => targetAngle = angle = -(float) Math.PI / 2f,
-                MoveBlock.Directions.Down => targetAngle = angle = (float) Math.PI / 2f,
-                _ => homeAngle = targetAngle = angle = 0f
+            homeAngle = targetAngle = angle = direction switch {
+                MoveBlock.Directions.Left => (float) Math.PI,
+                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
+                MoveBlock.Directions.Down => (float) Math.PI / 2f,
+                _ => 0f
             };
 
 			Add(moveSfx = new SoundSource());

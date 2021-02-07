@@ -80,9 +80,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void ScrapeParticlesCheck(Vector2 to) {
-            if (!Scene.OnInterval(0.03f)) {
+            if (!Scene.OnInterval(0.03f))
                 return;
-            }
+
             bool movingV = to.Y != ExactPosition.Y;
             bool movingH = to.X != ExactPosition.X;
             if (movingV && !movingH) {
@@ -326,7 +326,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             public PathRenderer(DreamZipMover dreamZipMover, bool dreamAesthetic) {
-                Depth = 9000;
+                Depth = Depths.BGDecals;
                 DreamZipMover = dreamZipMover;
                 this.dreamAesthetic = dreamAesthetic;
                 from = DreamZipMover.start + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
