@@ -6,15 +6,11 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CassetteFallingBlock")]
-    [TrackedAs(typeof(CassetteBlock))]
     class CassetteFallingBlock : CustomCassetteBlock {
 		public bool Triggered;
 		public float FallDelay;
 
-		public bool HasStartedFalling {
-			get;
-			private set;
-		}
+		public bool HasStartedFalling { get; private set; }
 
 		public CassetteFallingBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo)
 			: base(position, id, width, height, index, 3, tempo, dynamicHitbox: true) {
@@ -43,21 +39,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 			while (!Triggered && !HasPlayerRider()) {
 				yield return null;
 			}
+
 			while (FallDelay > 0f) {
 				FallDelay -= Engine.DeltaTime;
 				yield return null;
 			}
+
 			HasStartedFalling = true;
 			while (true) {
 				ShakeSfx();
 				StartShaking();
 				Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
 				yield return 0.2f;
+
 				float timer = 0.4f;
 				while (timer > 0f && PlayerWaitCheck()) {
 					yield return null;
 					timer -= Engine.DeltaTime;
 				}
+
 				StopShaking();
 				for (int i = 2; i < Width; i += 4) {
 					if (Scene.CollideCheck<Solid>(TopLeft + new Vector2(i, -2f))) {
@@ -73,30 +73,37 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 					if (MoveVCollideSolids(speed * Engine.DeltaTime, thruDashBlocks: true)) {
 						break;
 					}
+
 					if (Top > level.Bounds.Bottom + 16 || (Top > level.Bounds.Bottom - 1 && CollideCheck<Solid>(Position + new Vector2(0f, 1f)))) {
 						Collidable = (Visible = false);
 						yield return 0.2f;
+
 						if (level.Session.MapData.CanTransitionTo(level, new Vector2(Center.X, Bottom + 12f))) {
 							yield return 0.2f;
 							SceneAs<Level>().Shake();
 							Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
 						}
+
 						RemoveSelf();
 						DestroyStaticMovers();
 						yield break;
 					}
+
 					yield return null;
 				}
+
 				ImpactSfx();
 				Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
 				SceneAs<Level>().DirectionalShake(Vector2.UnitY, 0.3f);
 				StartShaking();
 				LandParticles();
 				yield return 0.2f;
+
 				StopShaking();
 				if (CollideCheck<SolidTiles>(Position + new Vector2(0f, 1f))) {
 					break;
 				}
+
 				while (CollideCheck<Platform>(Position + new Vector2(0f, 1f))) {
 					yield return 0.1f;
 				}
@@ -121,11 +128,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 		}
 
 		private void ShakeSfx() {
-			Audio.Play("event:/game/general/fallblock_shake", Center);
+			Audio.Play(SFX.game_gen_fallblock_shake, Center);
 		}
 
 		private void ImpactSfx() {
-			Audio.Play("event:/game/general/fallblock_impact", BottomCenter);
+			Audio.Play(SFX.game_gen_fallblock_impact, BottomCenter);
 		}
 	}
 }

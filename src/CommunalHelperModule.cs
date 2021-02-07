@@ -41,7 +41,7 @@ namespace Celeste.Mod.CommunalHelper {
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
 
             ConnectedSwapBlockHooks.Hook();
-            CustomCassetteBlockHooks.Hook();
+            CustomCassetteBlock.Hook();
 
             AttachedWallBooster.Hook();
             MoveBlockRedirect.Load();
@@ -63,7 +63,7 @@ namespace Celeste.Mod.CommunalHelper {
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
             ConnectedSwapBlockHooks.Unhook();
-            CustomCassetteBlockHooks.Unhook();
+            CustomCassetteBlock.Unhook();
 
 			AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
