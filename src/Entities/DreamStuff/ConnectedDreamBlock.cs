@@ -16,10 +16,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ConnectedDreamBlock")]
     [Tracked(true)]
     public class ConnectedDreamBlock : CustomDreamBlock {
-        private struct SpaceJamTile {
-            public int X, Y;
-            public int[] Edges;
-            public bool Exist;
+        private readonly struct SpaceJamTile {
+            public readonly int X, Y;
+            public readonly int[] Edges;
+            public readonly bool Exist;
 
             public SpaceJamTile(int x, int y, bool exist) {
                 X = x;
@@ -63,12 +63,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Edges facing;
         }
 
-        private struct SpaceJamCorner {
-            public bool
+        private readonly struct SpaceJamCorner {
+            public readonly bool
                 upright, upleft, downright, downleft,
                 inupright, inupleft, indownright, indownleft;
 
-            public int x, y;
+            public readonly int x, y;
 
             public SpaceJamCorner(int x_, int y_, bool ur, bool ul, bool dr, bool dl, bool iur, bool iul, bool idr, bool idl) {
                 x = x_;

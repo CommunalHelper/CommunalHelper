@@ -163,6 +163,16 @@ namespace Celeste.Mod.CommunalHelper {
             }
             return new Color(Calc.HexToColor(str.Trim('#')), alpha);
         }
+
+        public static int ToInt(bool b) => b ? 1 : 0;
+
+        public static int ToBitFlag(params bool[] b) {
+            int ret = 0;
+            for (int i = 0; i < b.Length; i ++)
+                ret |= ToInt(b[i]) << i;
+            return ret;
+        }
+
     }
 
 }

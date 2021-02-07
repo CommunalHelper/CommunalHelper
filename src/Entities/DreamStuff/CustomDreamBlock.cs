@@ -23,8 +23,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
 #pragma warning disable IDE0052, CS0414, CS0649 // Remove unread private members; Field is assigned to but never read; Field is never assigned to
             // Used in IL hooks
-            private DreamBlock dreamBlock;
-            private int idx;
+            private readonly DreamBlock dreamBlock;
+            private readonly int idx;
             private static Vector2 tempVec2;
 #pragma warning restore IDE0052, CS0414, CS0649
 

@@ -215,20 +215,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             for (int i = 0; i < spikes.Length; i++) {
                 spikes[i].Parent = this;
                 spikes[i].Index = i;
-                switch (direction) {
-                    case Directions.Up:
-                        spikes[i].Position = Vector2.UnitX * (i + 0.5f) * 8f + Vector2.UnitY;
-                        break;
-                    case Directions.Down:
-                        spikes[i].Position = Vector2.UnitX * (i + 0.5f) * 8f - Vector2.UnitY;
-                        break;
-                    case Directions.Left:
-                        spikes[i].Position = Vector2.UnitY * (i + 0.5f) * 8f + Vector2.UnitX;
-                        break;
-                    case Directions.Right:
-                        spikes[i].Position = Vector2.UnitY * (i + 0.5f) * 8f - Vector2.UnitX;
-                        break;
-                }
+                spikes[i].Position = direction switch {
+                    Directions.Up => Vector2.UnitX * (i + 0.5f) * 8f + Vector2.UnitY,
+                    Directions.Down => Vector2.UnitX * (i + 0.5f) * 8f - Vector2.UnitY,
+                    Directions.Left => Vector2.UnitY * (i + 0.5f) * 8f + Vector2.UnitX,
+                    Directions.Right => Vector2.UnitY * (i + 0.5f) * 8f - Vector2.UnitX,
+                    _ => throw new NotImplementedException(),
+                };
                 spikes[i].DelayTimer = Delay;
             }
         }
@@ -337,21 +330,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Render() {
             base.Render();
-            Vector2 justify = Vector2.One * 0.5f;
-            switch (direction) {
-                case Directions.Up:
-                    justify = new Vector2(0.5f, 1f);
-                    break;
-                case Directions.Down:
-                    justify = new Vector2(0.5f, 0f);
-                    break;
-                case Directions.Left:
-                    justify = new Vector2(1f, 0.5f);
-                    break;
-                case Directions.Right:
-                    justify = new Vector2(0f, 0.5f);
-                    break;
-            }
+            Vector2 justify = direction switch {
+                Directions.Up => new Vector2(0.5f, 1f),
+                Directions.Down => new Vector2(0.5f, 0f),
+                Directions.Left => new Vector2(1f, 0.5f),
+                Directions.Right => new Vector2(0f, 0.5f),
+                _ => Vector2.One * 0.5f,
+            };
             for (int i = 0; i < spikes.Length; i++) {
                 MTexture mTexture = spikeTextures[spikes[i].TextureIndex];
                 Vector2 position = Position + shakeOffset + spikes[i].Position + outwards * (-4f + spikes[i].Lerp * 4f);

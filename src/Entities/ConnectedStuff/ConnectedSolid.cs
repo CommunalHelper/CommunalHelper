@@ -19,14 +19,14 @@ namespace Celeste.Mod.CommunalHelper {
         private enum TileType {
             Edge, Corner, InnerCorner, Filler
         }
-        private struct AutoTileData {
+        private readonly struct AutoTileData {
             public AutoTileData(int x_, int y_, TileType type_) {
                 x = x_;
                 y = y_;
                 type = type_;
             }
-            public int x, y;
-            public TileType type;
+            public readonly int x, y;
+            public readonly TileType type;
         }
 
         public Vector2 GroupOffset;
@@ -187,10 +187,9 @@ namespace Celeste.Mod.CommunalHelper {
                 bool downright = tiles[x + 1, y + 1];
 
                 image = AutoTileTexture(
-                    up, down, left, right,
-                    upleft, upright, downleft, downright,
-                    edges, innerCorners,
-                    out tileData);
+                    (Sides) Util.ToBitFlag(up, down, left, right),
+                    (Corners) Util.ToBitFlag(upleft, upright, downleft, downright),
+                    edges, innerCorners, out tileData);
                 autoTileData[(int) tilePos.X, (int) tilePos.Y] = tileData;
 
             } else {
@@ -206,7 +205,6 @@ namespace Celeste.Mod.CommunalHelper {
             if (storeTiles) {
                 Tiles.Add(image);
                 switch (tileData.type) {
-
                     default:
                     case TileType.Filler:
                         FillerTiles.Add(image);
@@ -220,28 +218,50 @@ namespace Celeste.Mod.CommunalHelper {
                     case TileType.InnerCorner:
                         InnerCornerTiles.Add(image);
                         break;
-
                 }
             }
             return image;
         }
 
-        private Image AutoTileTexture(
-            bool up, bool down, bool left, bool right,
-            bool upleft, bool upright, bool downleft, bool downright,
-            MTexture[,] edges, MTexture[,] innerCorners,
-            out AutoTileData data) {
-            bool completelyClosed = up && down && left && right;
+        [Flags]
+        private enum Sides {
+            Up = 1, 
+            Down = 2, 
+            Left = 4, 
+            Right = 8,
+            All = Up | Down | Left | Right
+        }
 
-            data = new AutoTileData(1, 1, TileType.Filler);
-            if (!(completelyClosed && upright && upleft && downright && downleft)) {
-                if (completelyClosed) {
+        [Flags]
+        private enum Corners {
+            UpLeft = 1,
+            UpRight = 2,
+            DownLeft = 4,
+            DownRight = 8,
+            All = UpLeft | UpRight | DownLeft | DownRight
+        }
 
-                    if (!upleft) { data.x = 0; data.y = 0; data.type = TileType.InnerCorner; } else if (!upright) { data.x = 1; data.y = 0; data.type = TileType.InnerCorner; } else if (!downleft) { data.x = 0; data.y = 1; data.type = TileType.InnerCorner; } else if (!downright) { data.x = 1; data.y = 1; data.type = TileType.InnerCorner; }
-                } else {
-
-                    if (!up && down && left && right) { data.x = 1; data.y = 0; data.type = TileType.Edge; } else if (up && !down && left && right) { data.x = 1; data.y = 2; data.type = TileType.Edge; } else if (up && down && !left && right) { data.x = 0; data.y = 1; data.type = TileType.Edge; } else if (up && down && left && !right) { data.x = 2; data.y = 1; data.type = TileType.Edge; } else if (!up && down && !left && right) { data.x = 0; data.y = 0; data.type = TileType.Corner; } else if (!up && down && left && !right) { data.x = 2; data.y = 0; data.type = TileType.Corner; } else if (up && !down && !left && right) { data.x = 0; data.y = 2; data.type = TileType.Corner; } else if (up && !down && left && !right) { data.x = 2; data.y = 2; data.type = TileType.Corner; }
-                }
+        private Image AutoTileTexture(Sides sides, Corners corners, MTexture[,] edges, MTexture[,] innerCorners, out AutoTileData data) {
+            if (sides == Sides.All) {
+                data = corners switch {
+                    Corners.All ^ Corners.UpLeft => new AutoTileData(0, 0, TileType.InnerCorner),
+                    Corners.All ^ Corners.UpRight => new AutoTileData(1, 0, TileType.InnerCorner),
+                    Corners.All ^ Corners.DownLeft => new AutoTileData(0, 1, TileType.InnerCorner),
+                    Corners.All ^ Corners.DownRight => new AutoTileData(1, 1, TileType.InnerCorner),
+                    _ => new AutoTileData(1, 1, TileType.Filler)
+                };
+            } else {
+                data = sides switch {
+                    Sides.All ^ Sides.Up => new AutoTileData(1, 0, TileType.Edge),
+                    Sides.All ^ Sides.Down => new AutoTileData(1, 2, TileType.Edge),
+                    Sides.All ^ Sides.Left => new AutoTileData(0, 1, TileType.Edge),
+                    Sides.All ^ Sides.Right => new AutoTileData(2, 1, TileType.Edge),
+                    Sides.Down | Sides.Right => new AutoTileData(0, 0, TileType.Corner),
+                    Sides.Down | Sides.Left => new AutoTileData(2, 0, TileType.Corner),
+                    Sides.Up | Sides.Right => new AutoTileData(0, 2, TileType.Corner),
+                    Sides.Up | Sides.Left => new AutoTileData(2, 2, TileType.Corner),
+                    _ => new AutoTileData(1, 1, TileType.Filler)
+                };
             }
 
             return new Image(
