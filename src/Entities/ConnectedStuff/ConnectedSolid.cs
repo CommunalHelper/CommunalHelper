@@ -305,7 +305,7 @@ namespace Celeste.Mod.CommunalHelper {
                                     int moveH = (move <= 0) ? (int) (left - entity.Right) : (int) (right - entity.Left);
 
                                     Collidable = false;
-                                    entity.MoveHExact(moveH, null, this);
+                                    entity.MoveHExact(moveH, entity.SquishCallback, this);
                                     entity.LiftSpeed = LiftSpeed;
                                     Collidable = true;
                                 }
