@@ -113,7 +113,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         // Used to maintain compatibility with Max's Helping Hand RainbowSpinnerColorController
         private static CrystalStaticSpinner crystalSpinner = new CrystalStaticSpinner(Vector2.Zero, false, CrystalColor.Rainbow);
-        [MethodImpl(256)] // No in-lining, method implemented by IL hook
+        [MethodImpl(MethodImplOptions.NoInlining)] // No in-lining, method implemented by IL hook
         public static Color GetHue(Scene scene, Vector2 position) => default;
 
         private const float RetractTime = 6f;
@@ -361,18 +361,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private bool IsRiding(Solid solid) {
-            switch (direction) {
-                case Directions.Up:
-                    return CollideCheckOutside(solid, Position + Vector2.UnitY);
-                case Directions.Down:
-                    return CollideCheckOutside(solid, Position - Vector2.UnitY);
-                case Directions.Left:
-                    return CollideCheckOutside(solid, Position + Vector2.UnitX);
-                case Directions.Right:
-                    return CollideCheckOutside(solid, Position - Vector2.UnitX);
-                default:
-                    return false;
-            }
+            return direction switch {
+                Directions.Up => CollideCheckOutside(solid, Position + Vector2.UnitY),
+                Directions.Down => CollideCheckOutside(solid, Position - Vector2.UnitY),
+                Directions.Left => CollideCheckOutside(solid, Position + Vector2.UnitX),
+                Directions.Right => CollideCheckOutside(solid, Position - Vector2.UnitX),
+                _ => false,
+            };
         }
 
         private bool IsRiding(JumpThru jumpThru) {

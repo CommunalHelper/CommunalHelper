@@ -52,16 +52,11 @@ namespace Celeste.Mod.CommunalHelper.Entities
 
 		private bool IsRiding(Solid solid)
 		{
-			switch (Facing)
-			{
-				case Facings.Right:
-					return CollideCheckOutside(solid, Position + Vector2.UnitX);
-				case Facings.Left:
-					return CollideCheckOutside(solid, Position - Vector2.UnitX);
-
-				default:
-					return false;
-			}
+            return Facing switch {
+                Facings.Right => CollideCheckOutside(solid, Position + Vector2.UnitX),
+                Facings.Left => CollideCheckOutside(solid, Position - Vector2.UnitX),
+                _ => false,
+            };
 		}
 
 		private void OnShake(Vector2 amount)

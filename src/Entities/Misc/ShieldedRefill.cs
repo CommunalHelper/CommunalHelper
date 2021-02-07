@@ -226,7 +226,7 @@ namespace Celeste.Mod.PillieHelper
 				player.RefillDash(); player.RefillStamina();
 			}
 			Vector2 value = (player.Center - from).SafeNormalize();
-			if (value.Y > -0.2f && value.Y <= 0.4f)
+			if (value.Y is > (-0.2f) and <= 0.4f)
 			{
 				value.Y = -0.2f;
 			}

@@ -53,7 +53,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             P_Burst = new ParticleType {
                 Source = GFX.Game["particles/shard"],
                 Size = 0.5f,
-                Color = new Color(0.8f, 1f, 1f),
+                Color = new XNAColor(0.8f, 1f, 1f),
 
                 FadeMode = ParticleType.FadeModes.Late,
                 LifeMin = 0.3f,

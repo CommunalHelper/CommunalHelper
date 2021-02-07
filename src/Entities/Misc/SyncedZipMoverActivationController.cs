@@ -12,13 +12,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 		private string colorCode; 
 		private float resetTimer = 0f;
 		private float resetTime;
-		public static bool ActivatePressed {
-			get {
-				return CommunalHelperModule.Settings.AllowActivateRebinding ? 
-					CommunalHelperModule.Settings.ActivateSyncedZipMovers.Pressed : 
-					Input.Grab.Pressed;
-			}
-        } 
+        public static bool ActivatePressed => 
+            CommunalHelperModule.Settings.AllowActivateRebinding ?
+                CommunalHelperModule.Settings.ActivateSyncedZipMovers.Pressed :
+                Input.Grab.Pressed;
 
         public SyncedZipMoverActivationController(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
@@ -66,7 +63,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 			orig(engine, gameTime);
             if (Engine.FreezeTimer > 0f && SyncedZipMoverActivationController.ActivatePressed) {
                 var engineData = new DynData<Engine>(engine);
-                foreach (var controller in engineData.Get<Scene>("scene").Tracker.GetEntities<SyncedZipMoverActivationController>()) {
+                foreach (Entity controller in engineData.Get<Scene>("scene").Tracker.GetEntities<SyncedZipMoverActivationController>()) {
                     (controller as SyncedZipMoverActivationController).Activate();
                 }
             }

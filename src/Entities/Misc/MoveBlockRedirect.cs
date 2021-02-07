@@ -43,20 +43,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 angle = fAngle;
             else {
                 Direction = data.Enum<MoveBlock.Directions>("direction");
-                switch (Direction) {
-                    case MoveBlock.Directions.Left:
-                        angle = Calc.HalfCircle;
-                        break;
-                    default:
-                        angle = 0f;
-                        break;
-                    case MoveBlock.Directions.Up:
-                        angle = -Calc.QuarterCircle;
-                        break;
-                    case MoveBlock.Directions.Down:
-                        angle = Calc.QuarterCircle;
-                        break;
-                }
+                angle = Direction switch {
+                    MoveBlock.Directions.Left => Calc.HalfCircle,
+                    MoveBlock.Directions.Up => -Calc.QuarterCircle,
+                    MoveBlock.Directions.Down => Calc.QuarterCircle,
+                    _ => 0f,
+                };
             }
 
             AddTextures();
@@ -71,20 +63,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             {
                 Image image = new Image(GFX.Game["objects/CommunalHelper/moveBlockRedirect/corner"]);
                 image.Rotation = Calc.QuarterCircle * i;
-                switch (i)
-                {
-                    case 0:
-                        break;
-                    case 1:
-                        image.Position = Vector2.UnitX * Width;
-                        break;
-                    case 2:
-                        image.Position = new Vector2(Width, Height);
-                        break;
-                    case 3:
-                        image.Position = Vector2.UnitY * Height;
-                        break;
-                }
+                image.Position = i switch {
+                    0 => image.Position,
+                    1 => Vector2.UnitX * Width,
+                    2 => new Vector2(Width, Height),
+                    3 => Vector2.UnitY * Height,
+                    _ => throw new NotImplementedException()
+                };
                 image.CenterOrigin();
                 borders.Add(image);
                 Add(image);
