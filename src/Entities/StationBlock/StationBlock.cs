@@ -3,7 +3,8 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections;
-using static Celeste.Mod.CommunalHelper.Entities.StationBlockTrack;
+using Node = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.Node;
+using TrackSwitchState = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.TrackSwitchState;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/StationBlock")]

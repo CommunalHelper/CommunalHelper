@@ -47,15 +47,11 @@ namespace Celeste.Mod.CommunalHelper {
                 return (Color) MoreDasheline_GetHairColor.Invoke(null, new object[] { player, dashCount });
 
             bool isBadeline = player.Sprite.Mode == PlayerSpriteMode.MadelineAsBadeline;
-            switch (dashCount) {
-                case 0:
-                    return isBadeline ? Player.UsedBadelineHairColor : Player.UsedHairColor;
-                case 1:
-                    return isBadeline ? Player.NormalBadelineHairColor : Player.NormalHairColor;
-                default:
-                    return isBadeline ? Player.TwoDashesBadelineHairColor : Player.TwoDashesHairColor;
-
-            }
+            return dashCount switch {
+                0 => isBadeline ? Player.UsedBadelineHairColor : Player.UsedHairColor,
+                1 => isBadeline ? Player.NormalBadelineHairColor : Player.NormalHairColor,
+                _ => isBadeline ? Player.TwoDashesBadelineHairColor : Player.TwoDashesHairColor,
+            };
         }
 
         internal static bool CollabUtilsLoaded;
@@ -162,6 +158,14 @@ namespace Celeste.Mod.CommunalHelper {
                 vector.Y = -0.2f;
             }
             holdable.Release(vector);
+        }
+
+        public static StationBlockTrack.TrackSwitchState Invert(this StationBlockTrack.TrackSwitchState state) {
+            return state switch {
+                StationBlockTrack.TrackSwitchState.On => StationBlockTrack.TrackSwitchState.Off,
+                StationBlockTrack.TrackSwitchState.Off => StationBlockTrack.TrackSwitchState.On,
+                _ => throw new NotImplementedException(),
+            };
         }
 
 

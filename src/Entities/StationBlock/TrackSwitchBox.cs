@@ -53,20 +53,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             SurfaceSoundIndex = 9;
             start = Position;
             sprite = CommunalHelperModule.SpriteBank.Create("trackSwitchBox");
-            sprite.Position = new Vector2(base.Width, base.Height) / 2f;
-            sprite.OnLastFrame = (Action<string>) Delegate.Combine(sprite.OnLastFrame, (Action<string>) delegate (string anim)
+            sprite.Position = new Vector2(Width, Height) / 2f;
+            sprite.OnLastFrame = anim =>
             {
                 if (anim == "switch")
                     canSwitch = true;
-            });
+            };
 
             Add(Sfx = new SoundSource() {
                 Position = new Vector2(Width / 2, Height / 2)
             });
 
             Add(sprite);
-            sine = new SineWave(0.5f, 0f);
-            Add(sine);
+            Add(sine = new SineWave(0.5f, 0f));
             bounce = Wiggler.Create(1f, 0.5f);
             bounce.StartZero = false;
             Add(bounce);
@@ -100,9 +99,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     return DashCollisionResults.NormalCollision;
                 }
             }
+
             if (canSwitch) {
                 Sfx.Play(CustomSFX.game_trackSwitchBox_smash, "global_switch", global ? 1f : 0f);
-                (base.Scene as Level).DirectionalShake(dir);
+                (Scene as Level).DirectionalShake(dir);
                 sprite.Scale = new Vector2(1f + Math.Abs(dir.Y) * 0.4f - Math.Abs(dir.X) * 0.4f, 1f + Math.Abs(dir.X) * 0.4f - Math.Abs(dir.Y) * 0.4f);
                 shakeCounter = 0.2f;
                 shaker.On = true;
@@ -113,10 +113,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Add(new Coroutine(SwitchSequence()));
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 canSwitch = false;
-                Switch(Scene, LocalTrackSwitchState == TrackSwitchState.On ? TrackSwitchState.Off : TrackSwitchState.On, global);
+                Switch(Scene, LocalTrackSwitchState.Invert(), global);
                 return DashCollisionResults.Rebound;
-            } else
-                return DashCollisionResults.NormalCollision;
+            }
+            
+            return DashCollisionResults.NormalCollision;
         }
 
         public static bool Switch(Scene scene, TrackSwitchState state, bool global = false) {
@@ -136,24 +137,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int num;
             if (dir == Vector2.UnitX) {
                 direction = 0f;
-                position = base.CenterRight - Vector2.UnitX * 12f;
-                positionRange = Vector2.UnitY * (base.Height - 6f) * 0.5f;
-                num = (int) (base.Height / 8f) * 4;
+                position = CenterRight - Vector2.UnitX * 12f;
+                positionRange = Vector2.UnitY * (Height - 6f) * 0.5f;
+                num = (int) (Height / 8f) * 4;
             } else if (dir == -Vector2.UnitX) {
                 direction = (float) Math.PI;
-                position = base.CenterLeft + Vector2.UnitX * 12f;
-                positionRange = Vector2.UnitY * (base.Height - 6f) * 0.5f;
-                num = (int) (base.Height / 8f) * 4;
+                position = CenterLeft + Vector2.UnitX * 12f;
+                positionRange = Vector2.UnitY * (Height - 6f) * 0.5f;
+                num = (int) (Height / 8f) * 4;
             } else if (dir == Vector2.UnitY) {
                 direction = (float) Math.PI / 2f;
-                position = base.BottomCenter - Vector2.UnitY * 12f;
-                positionRange = Vector2.UnitX * (base.Width - 6f) * 0.5f;
-                num = (int) (base.Width / 8f) * 4;
+                position = BottomCenter - Vector2.UnitY * 12f;
+                positionRange = Vector2.UnitX * (Width - 6f) * 0.5f;
+                num = (int) (Width / 8f) * 4;
             } else {
                 direction = -(float) Math.PI / 2f;
-                position = base.TopCenter + Vector2.UnitY * 12f;
-                positionRange = Vector2.UnitX * (base.Width - 6f) * 0.5f;
-                num = (int) (base.Width / 8f) * 4;
+                position = TopCenter + Vector2.UnitY * 12f;
+                positionRange = Vector2.UnitX * (Width - 6f) * 0.5f;
+                num = (int) (Width / 8f) * 4;
             }
             num += 2;
             SceneAs<Level>().Particles.Emit(P_Smash, num, position, positionRange, direction);
@@ -161,7 +162,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Update() {
             base.Update();
-            if (base.Scene.OnInterval(0.1f)) {
+            if (Scene.OnInterval(0.1f)) {
                 Seed++;
             }
 
@@ -214,7 +215,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Draw.Rect(rect, Color.Lerp(OnColor, OffColor, colorLerp));
 
             for (int i = rect.Y; (float) i < rect.Bottom; i += 2) {
-                float scale = 0.05f + (1f + (float) Math.Sin((float) i / 16f + base.Scene.TimeActive * 2f)) / 2f * 0.2f;
+                float scale = 0.05f + (1f + (float) Math.Sin((float) i / 16f + Scene.TimeActive * 2f)) / 2f * 0.2f;
                 Draw.Line(rect.X, i, rect.X + rect.Width, i, Color.White * 0.55f * scale);
             }
             

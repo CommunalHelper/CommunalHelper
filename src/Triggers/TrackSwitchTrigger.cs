@@ -2,7 +2,7 @@
 using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System;
+using TrackSwitchState = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.TrackSwitchState;
 
 namespace Celeste.Mod.CommunalHelper.Triggers {
     [CustomEntity("CommunalHelper/TrackSwitchTrigger")]
@@ -30,26 +30,12 @@ namespace Celeste.Mod.CommunalHelper.Triggers {
 
             if (oneUse)
                 Collidable = false;
-            StationBlockTrack.TrackSwitchState state;
 
-            switch (mode) {
-
-                default:
-                case Modes.Alternate:
-                    state = TrackSwitchBox.LocalTrackSwitchState == StationBlockTrack.TrackSwitchState.On ?
-                        StationBlockTrack.TrackSwitchState.Off :
-                        StationBlockTrack.TrackSwitchState.On;
-                    break;
-
-                case Modes.On:
-                    state = StationBlockTrack.TrackSwitchState.On;
-                    break;
-
-                case Modes.Off:
-                    state = StationBlockTrack.TrackSwitchState.Off;
-                    break;
-                    
-            }
+            TrackSwitchState state = mode switch {
+                Modes.On => TrackSwitchState.On,
+                Modes.Off => TrackSwitchState.Off,
+                _ => TrackSwitchBox.LocalTrackSwitchState.Invert()
+            };
             // switches
             bool switched = TrackSwitchBox.Switch(Scene, state, global);
 

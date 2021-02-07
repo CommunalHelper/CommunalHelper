@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
@@ -60,7 +59,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off && initialSwitchState != TrackSwitchState.None)
                 Switch(TrackSwitchState.Off);
 
-            trackStatePercent = switchState == TrackSwitchState.On || switchState == TrackSwitchState.None ? 0f : 1f;
+            trackStatePercent = switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f;
 
             horizontal = data.Bool("horizontal");
             Collider = new Hitbox(horizontal ? data.Width : 8, horizontal ? 8 : data.Height);
@@ -281,7 +280,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
             //trackStatePercent = Calc.Approach(trackStatePercent, switchState == TrackSwitchState.On ? 1f : 0f, Engine.DeltaTime);
-            trackStatePercent += ((switchState == TrackSwitchState.On || switchState == TrackSwitchState.None ? 0f : 1f) - trackStatePercent) / 4 * Engine.DeltaTime * 25;
+            trackStatePercent += ((switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f) - trackStatePercent) / 4 * Engine.DeltaTime * 25;
         }
 
         public override void Render() {
@@ -325,10 +324,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public static void SwitchTracks(Scene scene, TrackSwitchState state) {
-            foreach (StationBlockTrack t in scene.Tracker.GetEntities<StationBlockTrack>()) {
-                if(t.MasterOfGroup) {
-                    foreach(StationBlockTrack t2 in t.Group) {
-                        t2.Switch(state);
+            foreach (StationBlockTrack track in scene.Tracker.GetEntities<StationBlockTrack>()) {
+                if(track.MasterOfGroup) {
+                    foreach(StationBlockTrack child in track.Group) {
+                        child.Switch(state);
                     }
                 }
             }
