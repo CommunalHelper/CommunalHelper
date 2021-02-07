@@ -47,7 +47,7 @@ namespace Celeste.Mod.CommunalHelper {
             GroupBoundsMin = new Vector2(X, Y);
             GroupBoundsMax = new Vector2(Right, Bottom);
             MasterWidth = width; MasterHeight = height;
-            MasterCollider = base.Collider;
+            MasterCollider = Collider;
         }
 
         public override void Awake(Scene scene)
@@ -57,7 +57,7 @@ namespace Celeste.Mod.CommunalHelper {
             List<SolidExtension> extensions = new List<SolidExtension>();
             FindExtensions(this, extensions);
 
-            GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - base.Position;
+            GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - Position;
             Colliders = new Hitbox[extensions.Count + 1];
             for (int i = 0; i < extensions.Count; i++)
             {
@@ -68,7 +68,7 @@ namespace Celeste.Mod.CommunalHelper {
                 // You don't want disabled Solids hanging around in the level, so you remove them.
             }
             Colliders[Colliders.Length - 1] = new Hitbox(Collider.Width, Collider.Height);
-            base.Collider = new ColliderList(Colliders);
+            Collider = new ColliderList(Colliders);
 
             base.Awake(scene);
 
@@ -92,11 +92,11 @@ namespace Celeste.Mod.CommunalHelper {
 
         private void FindExtensions(ConnectedSolid master, List<SolidExtension> list)
         {
-            foreach (SolidExtension extension in base.Scene.Tracker.GetEntities<SolidExtension>())
+            foreach (SolidExtension extension in Scene.Tracker.GetEntities<SolidExtension>())
             {
                 if (!extension.HasGroup &&
-                    (base.Scene.CollideCheck(new Rectangle((int)X - 1, (int)Y, (int)Width + 2, (int)master.Height), extension) ||
-                    base.Scene.CollideCheck(new Rectangle((int)X, (int)Y - 1, (int)Width, (int)Height + 2), extension)))
+                    (Scene.CollideCheck(new Rectangle((int)X - 1, (int)Y, (int)Width + 2, (int)master.Height), extension) ||
+                    Scene.CollideCheck(new Rectangle((int)X, (int)Y - 1, (int)Width, (int)Height + 2), extension)))
                 {
                     extension.AddToGroupAndFindChildren(extension, master, list);
                 }
@@ -269,7 +269,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         private bool TileCollideWithGroup(int x, int y)
         {
-            return base.CollideRect(new Rectangle((int)GroupBoundsMin.X + x * 8, (int)GroupBoundsMin.Y + y * 8, 8, 8));
+            return CollideRect(new Rectangle((int)GroupBoundsMin.X + x * 8, (int)GroupBoundsMin.Y + y * 8, 8, 8));
         }
 
         /* 
@@ -280,7 +280,7 @@ namespace Celeste.Mod.CommunalHelper {
         {
             //base.MoveHExact(move);
             GetRiders();
-            Player player = base.Scene.Tracker.GetEntity<Player>();
+            Player player = Scene.Tracker.GetEntity<Player>();
 
             HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
 
@@ -288,11 +288,11 @@ namespace Celeste.Mod.CommunalHelper {
             {
                 player.MoveV(1f);
             }
-            base.X += move;
+            X += move;
             MoveStaticMovers(Vector2.UnitX * move);
             if (Collidable)
             {
-                foreach (Actor entity in base.Scene.Tracker.GetEntities<Actor>())
+                foreach (Actor entity in Scene.Tracker.GetEntities<Actor>())
                 {
                     if (entity.AllowPushing)
                     {
@@ -344,12 +344,12 @@ namespace Celeste.Mod.CommunalHelper {
             GetRiders();
 
             HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
-        
-            base.Y += move;
+
+            Y += move;
             MoveStaticMovers(Vector2.UnitY * move);
             if (Collidable)
             {
-                foreach (Actor entity in base.Scene.Tracker.GetEntities<Actor>())
+                foreach (Actor entity in Scene.Tracker.GetEntities<Actor>())
                 {
                     if (entity.AllowPushing)
                     {

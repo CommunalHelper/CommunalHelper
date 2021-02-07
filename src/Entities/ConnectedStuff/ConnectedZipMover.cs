@@ -34,27 +34,20 @@ namespace Celeste.Mod.CommunalHelper
 
 			public ConnectedZipMoverPathRenderer(ConnectedZipMover advancedZipMover)
 			{
-				base.Depth = 5000;
+                Depth = Depths.SolidsBelow;
 				ConnectedZipMover = advancedZipMover;
 				from = GetNodeFrom(ConnectedZipMover.start);
 				sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
-				float num = (from - to).Angle();
-				sparkDirFromA = num + (float)Math.PI / 8f;
-				sparkDirFromB = num - (float)Math.PI / 8f;
-				sparkDirToA = num + (float)Math.PI - (float)Math.PI / 8f;
-				sparkDirToB = num + (float)Math.PI + (float)Math.PI / 8f;
-				if (advancedZipMover.theme == Themes.Moon)
-				{
-					cog = GFX.Game["objects/zipmover/moon/cog"];
-				}
-				else if (advancedZipMover.theme == Themes.Cliffside)
-				{
-					cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
-				}
-				else
-				{
-					cog = GFX.Game["objects/zipmover/cog"];
-				}
+				float angle = (from - to).Angle();
+				sparkDirFromA = angle + (float)Math.PI / 8f;
+				sparkDirFromB = angle - (float)Math.PI / 8f;
+				sparkDirToA = angle + (float)Math.PI - (float)Math.PI / 8f;
+				sparkDirToB = angle + (float)Math.PI + (float)Math.PI / 8f;
+                cog = advancedZipMover.theme switch {
+                    Themes.Moon => GFX.Game["objects/zipmover/moon/cog"],
+                    Themes.Cliffside => GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"],
+                    _ => cog = GFX.Game["objects/zipmover/cog"],
+                };
 			}
 
 			public void CreateSparks()
@@ -150,7 +143,7 @@ namespace Celeste.Mod.CommunalHelper
 		private Vector2[] targets, originalNodes;
 
 		// Sounds
-		private SoundSource sfx = new SoundSource(), altSfx = new SoundSource();
+		private SoundSource sfx, altSfx;
 
 		// Lightning.
 		private BloomPoint bloom;
@@ -181,7 +174,7 @@ namespace Celeste.Mod.CommunalHelper
 		public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking, string customBlockPath)
 			: base(position, width, height, safe: false)
 		{
-			base.Depth = -9999;
+            Depth = -9999;
 
 			start = Position;
 			targets = new Vector2[nodes.Length];
@@ -199,7 +192,7 @@ namespace Celeste.Mod.CommunalHelper
 			string key;
 			string corners;
 
-			SurfaceSoundIndex = 7;
+			SurfaceSoundIndex = SurfaceIndex.Girder;
 
 			switch (theme)
 			{
@@ -241,9 +234,10 @@ namespace Celeste.Mod.CommunalHelper
 			streetlight.Play("frames");
 			streetlight.Active = false;
 			streetlight.SetAnimationFrame(1);
-			streetlight.Position = new Vector2(base.Width / 2f - streetlight.Width / 2f, 0f);
-			Add(bloom = new BloomPoint(1f, 6f));
-			bloom.Position = new Vector2(base.Width / 2f, 4f);
+			streetlight.Position = new Vector2(Width / 2f - streetlight.Width / 2f, 0f);
+			Add(bloom = new BloomPoint(1f, 6f) {
+                Position = new Vector2(Width / 2f, 4f)
+            });
 
             if (customBlockPath != "") {
                 Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(customBlockPath);
@@ -262,16 +256,18 @@ namespace Celeste.Mod.CommunalHelper
                 }
             }
 
-			sfx.Position = new Vector2(base.Width, base.Height) / 2f;
-			Add(sfx);
-			altSfx.Position = sfx.Position;
-			Add(altSfx);
+			Add(sfx = new SoundSource() {
+                Position = new Vector2(Width, Height) / 2f
+            });
+			Add(altSfx = new SoundSource() {
+                Position = sfx.Position
+            });
 		}
 
 		public override void Awake(Scene scene)
 		{
 			base.Awake(scene);
-			base.AutoTile(edges, innerCorners);
+            AutoTile(edges, innerCorners);
 
 			Add(streetlight);
 		}
@@ -310,7 +306,7 @@ namespace Celeste.Mod.CommunalHelper
 		public override void Render()
 		{
 			Vector2 originalPosition = Position;
-			Position += base.Shake;
+			Position += Shake;
 
 			foreach (Hitbox extension in Colliders)
 			{
@@ -318,7 +314,7 @@ namespace Celeste.Mod.CommunalHelper
 				{
 					Draw.Rect(extension.Left + 2f + X, extension.Top + Y, extension.Width - 4f, extension.Height, backgroundColor);
 					Draw.Rect(extension.Left + X, extension.Top + 2f + Y, extension.Width, extension.Height - 4f, backgroundColor);
-					foreach(Image t in base.InnerCornerTiles)
+					foreach(Image t in InnerCornerTiles)
 					{
 						Draw.Rect(t.X + X, t.Y + Y, 8, 8, backgroundColor);
 					}
@@ -336,12 +332,12 @@ namespace Celeste.Mod.CommunalHelper
 			float h = GroupBoundsMax.Y - GroupBoundsMin.Y;
 			Vector2 offset = new Vector2(-8, -8) + GroupOffset;
 
-			for (int i = 4; (float)i <= h + 4; i += 8)
+			for (int i = 4; i <= h + 4; i += 8)
 			{
 				int num3 = num;
-				for (int j = 4; (float)j <= w + 4; j += 8)
+				for (int j = 4; j <= w + 4; j += 8)
 				{
-					int index = (int)(mod((num2 + (float)num * percent * (float)Math.PI * 4f) / ((float)Math.PI / 2f), 1f) * (float)count);
+					int index = (int)(mod((num2 + num * percent * (float)Math.PI * 4f) / ((float)Math.PI / 2f), 1f) * count);
 					MTexture mTexture = innerCogs[index];
 					Rectangle rectangle = new Rectangle(0, 0, mTexture.Width, mTexture.Height);
 					Vector2 zero = Vector2.Zero;
@@ -438,7 +434,7 @@ namespace Celeste.Mod.CommunalHelper
 						MoveTo(vector);
 
                         if (Scene.OnInterval(0.03f))
-                            base.SpawnScrapeParticles();
+                            SpawnScrapeParticles();
                     }
 
 					bool last = (i == targets.Length - 1);

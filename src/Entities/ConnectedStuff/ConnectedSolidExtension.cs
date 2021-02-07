@@ -9,11 +9,7 @@ namespace Celeste.Mod.CommunalHelper
     [Tracked(false)]
     class SolidExtension : Solid
     {
-        public bool HasGroup
-        {
-            get;
-            private set;
-        }
+        public bool HasGroup { get; private set; }
 
         public SolidExtension(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height) { }
@@ -44,13 +40,13 @@ namespace Celeste.Mod.CommunalHelper
                 master.GroupBoundsMax.Y = (int)from.Bottom;
             }
 
-            foreach (SolidExtension extention in base.Scene.Tracker.GetEntities<SolidExtension>())
+            foreach (SolidExtension extention in Scene.Tracker.GetEntities<SolidExtension>())
             {
                 if (!extention.HasGroup &&
-                    (base.Scene.CollideCheck(new Rectangle((int)from.X - 1, (int)from.Y, (int)from.Width + 2, (int)from.Height), extention) ||
-                    base.Scene.CollideCheck(new Rectangle((int)from.X, (int)from.Y - 1, (int)from.Width, (int)from.Height + 2), extention) ||
-                    base.Scene.CollideCheck(new Rectangle((int)master.X - 1, (int)master.Y, (int)master.Width + 2, (int)master.Height), extention) ||
-                    base.Scene.CollideCheck(new Rectangle((int)master.X, (int)master.Y - 1, (int)master.Width, (int)master.Height + 2), extention)))
+                    (Scene.CollideCheck(new Rectangle((int)from.X - 1, (int)from.Y, (int)from.Width + 2, (int)from.Height), extention) ||
+                    Scene.CollideCheck(new Rectangle((int)from.X, (int)from.Y - 1, (int)from.Width, (int)from.Height + 2), extention) ||
+                    Scene.CollideCheck(new Rectangle((int)master.X - 1, (int)master.Y, (int)master.Width + 2, (int)master.Height), extention) ||
+                    Scene.CollideCheck(new Rectangle((int)master.X, (int)master.Y - 1, (int)master.Width, (int)master.Height + 2), extention)))
                 {
                     AddToGroupAndFindChildren(extention, master, extensions);
                 }

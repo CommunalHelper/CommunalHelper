@@ -6,9 +6,6 @@ using Monocle;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.CommunalHelper {
 
@@ -21,11 +18,11 @@ namespace Celeste.Mod.CommunalHelper {
 
             public Border(ConnectedMoveBlock parent) {
                 Parent = parent;
-                base.Depth = 1;
+                Depth = 1;
             }
 
             public override void Update() {
-                if (Parent.Scene != base.Scene) {
+                if (Parent.Scene != Scene) {
                     RemoveSelf();
                 }
                 base.Update();
@@ -42,7 +39,6 @@ namespace Celeste.Mod.CommunalHelper {
                 }
             }
         }
-
 
         private enum MovementState {
             Idling,
@@ -91,26 +87,17 @@ namespace Celeste.Mod.CommunalHelper {
         public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
             : base(position, width, height, safe: false) {
 
-            base.Depth = -1;
+            Depth = -1;
             startPosition = position;
             this.direction = direction;
             this.moveSpeed = moveSpeed;
 
-            switch (direction) {
-                default:
-                    homeAngle = (targetAngle = (angle = 0f));
-                    break;
-                case MoveBlock.Directions.Left:
-                    homeAngle = (targetAngle = (angle = (float) Math.PI));
-                    break;
-                case MoveBlock.Directions.Up:
-                    homeAngle = (targetAngle = (angle = -(float) Math.PI / 2f));
-                    break;
-                case MoveBlock.Directions.Down:
-                    homeAngle = (targetAngle = (angle = (float) Math.PI / 2f));
-                    break;
-            }
-
+            homeAngle = targetAngle = angle = direction switch {
+                MoveBlock.Directions.Left => (float) Math.PI,
+                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
+                MoveBlock.Directions.Down => (float) Math.PI / 2f,
+                _ => 0f,
+            };
             Add(moveSfx = new SoundSource());
             Add(new Coroutine(Controller()));
             UpdateColors();
@@ -124,13 +111,15 @@ namespace Celeste.Mod.CommunalHelper {
                 while (!triggered && !HasPlayerRider()) {
                     yield return null;
                 }
-                Audio.Play("event:/game/04_cliffside/arrowblock_activate", Position);
+
+                Audio.Play(SFX.game_04_arrowblock_activate, Position);
                 state = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
                 yield return 0.2f;
+
                 targetSpeed = moveSpeed;
-                moveSfx.Play("event:/game/04_cliffside/arrowblock_move");
+                moveSfx.Play(SFX.game_04_arrowblock_move_loop);
                 moveSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;
                 float crashTimer = 0.15f;
@@ -144,7 +133,7 @@ namespace Celeste.Mod.CommunalHelper {
                     Vector2 vec = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool flag2;
                     Vector2 start = Position;
-                    if (direction == MoveBlock.Directions.Right || direction == MoveBlock.Directions.Left) {
+                    if (direction is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
                         flag2 = MoveCheck(vec.XComp());
                         noSquish = Scene.Tracker.GetEntity<Player>();
                         MoveVCollideSolids(vec.Y, thruDashBlocks: false);
@@ -154,12 +143,12 @@ namespace Celeste.Mod.CommunalHelper {
                         noSquish = Scene.Tracker.GetEntity<Player>();
                         MoveHCollideSolids(vec.X, thruDashBlocks: false);
                         noSquish = null;
-                        if (direction == MoveBlock.Directions.Down && Top > (float) (SceneAs<Level>().Bounds.Bottom + 32)) {
+                        if (direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
                             flag2 = true;
                         }
                     }
                     Vector2 move = Position - start;
-                    base.SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
+                    SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
 
                     if (flag2) {
                         moveSfx.Param("arrow_stop", 1f);
@@ -177,24 +166,26 @@ namespace Celeste.Mod.CommunalHelper {
                         }
                     }
                     Level level = Scene as Level;
-                    if (Left < (float) level.Bounds.Left || Top < (float) level.Bounds.Top || Right > (float) level.Bounds.Right) {
+                    if (Left < level.Bounds.Left || Top < level.Bounds.Top || Right > level.Bounds.Right) {
                         break;
                     }
                     yield return null;
                 }
-                Audio.Play("event:/game/04_cliffside/arrowblock_break", Position);
+
+                Audio.Play(SFX.game_04_arrowblock_break, Position);
                 moveSfx.Stop();
                 state = MovementState.Breaking;
-                speed = (targetSpeed = 0f);
-                angle = (targetAngle = homeAngle);
+                speed = targetSpeed = 0f;
+                angle = targetAngle = homeAngle;
                 StartShaking(0.2f);
                 StopPlayerRunIntoAnimation = true;
                 yield return 0.2f;
+
                 BreakParticles();
                 List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
-                for (int i = 0; (float) i < Width; i += 8) {
-                    for (int j = 0; (float) j < Height; j += 8) {
-                        Vector2 value = new Vector2((float) i + 4f, (float) j + 4f);
+                for (int i = 0; i < Width; i += 8) {
+                    for (int j = 0; j < Height; j += 8) {
+                        Vector2 value = new Vector2(i + 4f, j + 4f);
                         Vector2 pos = value + Position + GroupOffset;
                         if (CollidePoint(pos)) {
                             MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
@@ -206,16 +197,18 @@ namespace Celeste.Mod.CommunalHelper {
                 MoveStaticMovers(startPosition - Position);
                 DisableStaticMovers();
                 Position = startPosition;
-                Visible = (Collidable = false);
+                Visible = Collidable = false;
                 yield return 2.2f;
+
                 foreach (MoveBlockDebris item in debris) {
                     item.StopMoving();
                 }
                 while (CollideCheck<Actor>() || CollideCheck<Solid>()) {
                     yield return null;
                 }
+
                 Collidable = true;
-                EventInstance instance = Audio.Play("event:/game/04_cliffside/arrowblock_reform_begin", debris[0].Position);
+                EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
                 Coroutine component;
                 Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(instance, debris));
                 Add(component);
@@ -223,19 +216,21 @@ namespace Celeste.Mod.CommunalHelper {
                     item2.StartShaking();
                 }
                 yield return 0.2f;
+
                 foreach (MoveBlockDebris item3 in debris) {
                     item3.ReturnHome(0.65f);
                 }
                 yield return 0.6f;
+
                 routine.RemoveSelf();
                 foreach (MoveBlockDebris item4 in debris) {
                     item4.RemoveSelf();
                 }
-                Audio.Play("event:/game/04_cliffside/arrowblock_reappear", Position);
+                Audio.Play(SFX.game_04_arrowblock_reappear, Position);
                 Visible = true;
                 EnableStaticMovers();
-                speed = (targetSpeed = 0f);
-                angle = (targetAngle = homeAngle);
+                speed = targetSpeed = 0f;
+                angle = targetAngle = homeAngle;
                 noSquish = null;
                 fillColor = idleBgFill;
                 UpdateColors();
@@ -253,24 +248,23 @@ namespace Celeste.Mod.CommunalHelper {
                 foreach (MoveBlockDebris debri in debris) {
                     zero += debri.Position;
                 }
-                zero /= (float) debris.Count;
+                zero /= debris.Count;
                 Audio.Position(instance, zero);
                 yield return null;
             }
         }
 
         private void UpdateColors() {
-            Color value = idleBgFill;
-            if (state == MovementState.Moving) {
-                value = pressedBgFill;
-            } else if (state == MovementState.Breaking) {
-                value = breakingBgFill;
-            }
+            Color value = state switch {
+                MovementState.Moving => pressedBgFill,
+                MovementState.Breaking => breakingBgFill,
+                _ => idleBgFill,
+            };
             fillColor = Color.Lerp(fillColor, value, 10f * Engine.DeltaTime);
         }
 
         public override void MoveHExact(int move) {
-            if (noSquish != null && ((move < 0 && noSquish.X < base.X) || (move > 0 && noSquish.X > base.X))) {
+            if (noSquish != null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X))) {
                 while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + Vector2.UnitX * move)) {
                     move -= Math.Sign(move);
                 }
@@ -279,7 +273,7 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public override void MoveVExact(int move) {
-            if (noSquish != null && move < 0 && noSquish.Y <= base.Y) {
+            if (noSquish != null && move < 0 && noSquish.Y <= Y) {
                 while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + Vector2.UnitY * move)) {
                     move -= Math.Sign(move);
                 }
@@ -325,17 +319,17 @@ namespace Celeste.Mod.CommunalHelper {
 
         private void ActivateParticles() {
             foreach (Hitbox hitbox in Colliders) {
-                bool flag1 = !CollideCheck<Player>(Position - Vector2.UnitX);
-                bool flag2 = !CollideCheck<Player>(Position + Vector2.UnitX);
-                bool flag3 = !CollideCheck<Player>(Position - Vector2.UnitY);
+                bool left = !CollideCheck<Player>(Position - Vector2.UnitX);
+                bool right = !CollideCheck<Player>(Position + Vector2.UnitX);
+                bool top = !CollideCheck<Player>(Position - Vector2.UnitY);
 
-                if (flag1) {
+                if (left) {
                     SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (hitbox.Height / 2f), Position + hitbox.CenterLeft, Vector2.UnitY * (hitbox.Height - 4f) * 0.5f, (float) Math.PI);
                 }
-                if (flag2) {
+                if (right) {
                     SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (hitbox.Height / 2f), Position + hitbox.CenterRight, Vector2.UnitY * (hitbox.Height - 4f) * 0.5f, 0f);
                 }
-                if (flag3) {
+                if (top) {
                     SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (hitbox.Width / 2f), Position + hitbox.TopCenter, Vector2.UnitX * (hitbox.Width - 4f) * 0.5f, -(float) Math.PI / 2f);
                 }
                 SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (hitbox.Width / 2f), Position + hitbox.BottomCenter, Vector2.UnitX * (hitbox.Width - 4f) * 0.5f, (float) Math.PI / 2f);
@@ -346,8 +340,8 @@ namespace Celeste.Mod.CommunalHelper {
             foreach (Hitbox hitbox in Colliders) {
 
                 Vector2 center = Position + hitbox.Center;
-                for (int i = 0; (float) i < hitbox.Width; i += 4) {
-                    for (int j = 0; (float) j < hitbox.Height; j += 4) {
+                for (int i = 0; i < hitbox.Width; i += 4) {
+                    for (int j = 0; j < hitbox.Height; j += 4) {
                         Vector2 vector = Position + hitbox.Position + new Vector2(2 + i, 2 + j);
                         SceneAs<Level>().Particles.Emit(MoveBlock.P_Break, 1, vector, Vector2.One * 2f, (vector - center).Angle());
                     }
@@ -397,7 +391,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            base.AutoTile(edges, innerCorners);
+            AutoTile(edges, innerCorners);
             scene.Add(border = new Border(this));
 
             // Get all the colliders that can have an arrow drawn on.
@@ -422,7 +416,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void Render() {
             Vector2 position = Position;
-            Position += base.Shake;
+            Position += Shake;
 
             foreach (Hitbox hitbox in Colliders) {
                 Draw.Rect(hitbox.Position.X + Position.X, hitbox.Position.Y + Position.Y, hitbox.Width, hitbox.Height, fillColor);
