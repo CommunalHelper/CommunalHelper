@@ -30,7 +30,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static bool hasDreamTunnelDash;
         public static bool HasDreamTunnelDash {
             get { return hasDreamTunnelDash || CommunalHelperModule.Settings.AlwaysActiveDreamRefillCharge; }
-            set { 
+            set {
                 hasDreamTunnelDash = value;
             }
         }
@@ -127,7 +127,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static void Player_DashBegin(On.Celeste.Player.orig_DashBegin orig, Player self) {
-            orig(self);            
+            orig(self);
 
             if (HasDreamTunnelDash) {
                 dreamTunnelDashAttacking = true;
@@ -284,7 +284,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         /// <param name="equal">Whether the decompilation says State == 9</param>
         /// <param name="and">Whether the check is followed by <c>&amp;&amp;</c></param>
         private static void Check_State_DreamDash(ILCursor cursor, bool equal, bool and = false) {
-            if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash) && 
+            if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash) &&
                 instr.Previous != null && instr.Previous.MatchCallvirt<StateMachine>("get_State"))) {
                 Instruction idx = cursor.Next;
                 // Duplicate the Player State
@@ -459,7 +459,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
 
-                solid = solid ?? player.CollideFirst<Solid, DreamBlock>(player.Position + dir);
+                solid ??= player.CollideFirst<Solid, DreamBlock>(player.Position + dir);
                 if (solid != null) {
                     DynData<Player> playerData = player.GetData();
                     player.StateMachine.State = StDreamTunnelDash;
@@ -482,13 +482,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 player.Add(dreamSfxLoop);
                 playerData["dreamSfxLoop"] = dreamSfxLoop;
             }
-            
+
             // Extra correction for fast moving solids, this does not cause issues with dashdir leniency
             Vector2 dir = player.DashDir.Sign();
             if (!player.CollideCheck<Solid, DreamBlock>() && player.CollideCheck<Solid, DreamBlock>(player.Position + dir)) {
                 player.NaiveMove(dir);
             }
-            
+
             player.Speed = player.DashDir * Player_DashSpeed;
             player.TreatNaive = true;
             player.Depth = Depths.PlayerDreamDashing;

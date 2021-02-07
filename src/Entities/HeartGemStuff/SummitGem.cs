@@ -25,8 +25,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             GemColors[6] = Calc.HexToColor("57FFCD");
             GemColors[7] = Calc.HexToColor("E00047");
         }
-        
-        public CustomSummitGem(EntityData data, Vector2 offset, EntityID gid) 
+
+        public CustomSummitGem(EntityData data, Vector2 offset, EntityID gid)
             : base(data, offset, gid) {
             baseData = new DynData<SummitGem>(this);
 
@@ -34,7 +34,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             // Hopefully this always works
             string mapId = AreaData.Get((Engine.Scene as Level)?.Session ?? (Engine.Scene as LevelLoader).Level.Session).SID;
-            
+
             CustomGemSID = $"{mapId}/{data.Level.Name}/{GemID}";
 
             Sprite sprite = baseData.Get<Sprite>("sprite");
@@ -57,7 +57,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 sprite.Color = Color.White * 0.5f;
             }
 
-            if (Everest.Content.TryGet<AssetTypeYaml>(GFX.Game.RelativeDataPath + "collectables/summitgems/" + CustomGemSID + "/gem.meta", out ModAsset asset) && 
+            if (Everest.Content.TryGet<AssetTypeYaml>(GFX.Game.RelativeDataPath + "collectables/summitgems/" + CustomGemSID + "/gem.meta", out ModAsset asset) &&
                 asset.TryDeserialize(out ColorMeta meta)) {
                 particleColor = Calc.HexToColor(meta.Color);
             }
@@ -119,7 +119,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             ILCursor cursor = new ILCursor(il);
 
             cursor.GotoNext(MoveType.Before, instr => instr.MatchCallvirt<SummitGem>("SmashRoutine"));
-                
+
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.Emit(OpCodes.Isinst, typeof(CustomSummitGem).GetTypeInfo());
             cursor.Emit(OpCodes.Brfalse_S, cursor.Next);

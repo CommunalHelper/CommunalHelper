@@ -107,10 +107,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // Replaces SwapBlock.OnDash with MoveSwapBlock.OnDash if this block doesn't return
             DashListener listener = Get<DashListener>();
             Action<Vector2> orig_OnDash = listener.OnDash;
-            listener.OnDash = (dir) => { 
-                if (State == MovementState.Breaking) return; 
-                else if (doesReturn) orig_OnDash(dir); 
-                else OnDash(dir); 
+            listener.OnDash = (dir) => {
+                if (State == MovementState.Breaking)
+                    return;
+                else if (doesReturn)
+                    orig_OnDash(dir);
+                else
+                    OnDash(dir);
             };
 
             // We use some local variable to temporarily store private SwapBlock fields for less reflection
@@ -207,7 +210,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             swapBlockData["redAlpha"] = Calc.Approach(swapBlockData.Get<float>("redAlpha"), (target != 1) ? 1 : 0, Engine.DeltaTime * 32f);
 
             float lerp = swapBlockData.Get<float>("lerp");
-            if (lerp == 0f || lerp == 1f) {
+            if (lerp is 0f or 1f) {
                 middleRed.SetAnimationFrame(0);
                 middleGreen.SetAnimationFrame(0);
             }
@@ -246,12 +249,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (Swapping && (lerp >= 1f || lerp <= 0f)) {
                 Swapping = false;
             }
-            StopPlayerRunIntoAnimation = (lerp <= 0f || lerp >= 1f);
+            StopPlayerRunIntoAnimation = (lerp is <= 0f or >= 1f);
         }
 
         private void OnDash(Vector2 dir) {
             float lerp = swapBlockData.Get<float>("lerp");
-            Swapping = (lerp <= 1f && lerp >= 0f);
+            Swapping = (lerp is <= 1f and >= 0f);
             swapBlockData["target"] = swapBlockData.Get<int>("target") ^ 1;
             swapBlockData["burst"] = (Scene as Level).Displacement.AddBurst(Center, 0.2f, 0f, 16f);
             if (lerp >= 0.2f) {
@@ -301,13 +304,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (!Swapping || !freezeOnSwap) {
                         if (canSteer) {
                             targetAngle = homeAngle;
-                            bool hasPlayer = (MoveDirection != MoveBlock.Directions.Right && MoveDirection != 0) ? HasPlayerClimbing() : HasPlayerOnTop();
+                            bool hasPlayer = (MoveDirection is not MoveBlock.Directions.Right and not 0) ? HasPlayerClimbing() : HasPlayerOnTop();
                             if (hasPlayer && noSteerTimer > 0f) {
                                 noSteerTimer -= Engine.DeltaTime;
                             }
                             if (hasPlayer) {
                                 if (noSteerTimer <= 0f) {
-                                    if (MoveDirection == MoveBlock.Directions.Right || MoveDirection == MoveBlock.Directions.Left) {
+                                    if (MoveDirection is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
                                         targetAngle = homeAngle + MaxAngle * angleSteerSign * Input.MoveY.Value;
                                     } else {
                                         targetAngle = homeAngle + MaxAngle * angleSteerSign * Input.MoveX.Value;
@@ -328,7 +331,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Vector2 vector = Calc.AngleToVector(angle, moveSpeed) * Engine.DeltaTime;
                         bool shouldBreak;
                         moveSwapPoints = true; // Tells MoveExact to move start and end points too
-                        if (MoveDirection == MoveBlock.Directions.Right || MoveDirection == MoveBlock.Directions.Left) {
+                        if (MoveDirection is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
                             shouldBreak = MoveCheck(vector.XComp());
 
                             noSquish = Scene.Tracker.GetEntity<Player>();
@@ -524,7 +527,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void ActivateParticles() {
-            bool vertical = MoveDirection == MoveBlock.Directions.Down || MoveDirection == MoveBlock.Directions.Up;
+            bool vertical = MoveDirection is MoveBlock.Directions.Down or MoveBlock.Directions.Up;
             bool left = (!canSteer || !vertical) && !CollideCheck<Player>(Position - Vector2.UnitX);
             bool right = (!canSteer || !vertical) && !CollideCheck<Player>(Position + Vector2.UnitX);
             bool top = (!canSteer | vertical) && !CollideCheck<Player>(Position - Vector2.UnitY);

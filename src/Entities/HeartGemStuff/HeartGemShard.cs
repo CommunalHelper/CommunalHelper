@@ -53,7 +53,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             P_Burst = new ParticleType {
                 Source = GFX.Game["particles/shard"],
                 Size = 0.5f,
-                Color = new Color(0.8f, 1f, 1f),
+                Color = new XNAColor(0.8f, 1f, 1f),
 
                 FadeMode = ParticleType.FadeModes.Late,
                 LifeMin = 0.3f,
@@ -252,7 +252,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region HeartGem Extensions
 
-        protected static string GotShardFlag(DynData<HeartGem> heartData) => 
+        protected static string GotShardFlag(DynData<HeartGem> heartData) =>
             "collected_shards_of_" + heartData[HeartGem_HeartGemID].ToString();
 
         public static void CollectedPieces(DynData<HeartGem> heartData) {
@@ -299,7 +299,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     heartData[HeartGem_HeartGemPieces] = null;
                 heartData[HeartGem_HeartGemID] = data.Values[HeartGem_HeartGemID];
 
-                
+
             }
         }
 

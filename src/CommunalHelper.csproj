@@ -3,91 +3,20 @@
     <TargetFrameworks>net452</TargetFrameworks>
     <AssemblyName>CommunalHelper</AssemblyName>
     <RootNamespace>Celeste.Mod.CommunalHelper</RootNamespace>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Celeste">
-      <HintPath>..\..\..\Celeste.exe</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="FNA">
-      <HintPath>..\..\..\FNA.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="MMHOOK_Celeste">
-      <HintPath>..\..\..\MMHOOK_Celeste.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\..\..\Mono.Cecil.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="MonoMod">
-      <HintPath>..\..\..\MonoMod.exe</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\..\..\MonoMod.RuntimeDetour.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="MonoMod.Utils">
-      <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System">
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Xml">
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="YamlDotNet">
-      <HintPath>..\..\..\YamlDotNet.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
+	<PackageReference Include="MonoMod.RuntimeDetour" Version="21.01.11.01" PrivateAssets="all" ExcludeAssets="runtime">
+	  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
   </ItemGroup>
-
+	
   <ItemGroup>
-    <Reference Update="System.Core">
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Data">
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Drawing">
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.IO.Compression.FileSystem">
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Numerics">
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Runtime.Serialization">
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Xml.Linq">
-      <Private>false</Private>
-    </Reference>
+	<Reference Include="Celeste" HintPath="..\..\..\Celeste.exe" Private="false" />
+	<Reference Include="MMHOOK_Celeste" HintPath="..\..\..\MMHOOK_Celeste.dll" Private="false" />
+	  <Reference Include="FNA" HintPath="..\..\..\FNA.dll" Private="false" />
+	<Reference Include="YamlDotNet" HintPath="..\..\..\YamlDotNet.dll" Private="false" />
   </ItemGroup>
   
 </Project>

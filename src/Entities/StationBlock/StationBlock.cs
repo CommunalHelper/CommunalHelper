@@ -3,7 +3,8 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections;
-using static Celeste.Mod.CommunalHelper.Entities.StationBlockTrack;
+using Node = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.Node;
+using TrackSwitchState = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.TrackSwitchState;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/StationBlock")]
@@ -444,7 +445,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     vec.Y = Center.Y + (vec.Y - Center.Y) * scale.Y;
 
                     // Button rendering
-                    if(j == 0 && allowWavedash) {
+                    if (j == 0 && allowWavedash) {
                         int tx = i == 0 ? 0 : (i == tileWidth - 1 ? 2 : 1);
                         Vector2 vec2 = new Vector2(X + i * 8, Y - 4 + (HasPlayerOnTop() ? 1 : 0)) + (Vector2.One * 4f) + hitOffset;
                         vec2.X = Center.X + (vec2.X - Center.X) * scale.X;

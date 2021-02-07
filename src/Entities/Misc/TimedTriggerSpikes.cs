@@ -64,8 +64,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                 Audio.Play(SFX.game_03_fluff_tendril_emerge, Parent.Position + Position);
                             }
                         }
-                    }
-                    else {
+                    } else {
                         Lerp = Calc.Approach(Lerp, 1f, 8f * Engine.DeltaTime);
                     }
                 } else {
@@ -74,7 +73,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Triggered = false;
                     }
                 }
-                if (Parent.rainbow) 
+                if (Parent.rainbow)
                     color = GetHue(Parent.Scene, Parent.Position + Position);
             }
 
@@ -113,7 +112,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         // Used to maintain compatibility with Max's Helping Hand RainbowSpinnerColorController
         private static CrystalStaticSpinner crystalSpinner = new CrystalStaticSpinner(Vector2.Zero, false, CrystalColor.Rainbow);
-        [MethodImpl(256)] // No in-lining, method implemented by IL hook
+        [MethodImpl(MethodImplOptions.NoInlining)] // No in-lining, method implemented by IL hook
         public static Color GetHue(Scene scene, Vector2 position) => default;
 
         private const float RetractTime = 6f;
@@ -146,12 +145,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow)
-            : base(position + offset)  {
+            : base(position + offset) {
             if (grouped && !CommunalHelperModule.MaxHelpingHandLoaded) {
                 throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
             }
 
-            if(rainbow && !CommunalHelperModule.VivHelperLoaded) {
+            if (rainbow && !CommunalHelperModule.VivHelperLoaded) {
                 throw new Exception("Rainbow Timed Trigger Spikes attempted to load without Viv's Helper as a dependency.");
             }
 
@@ -216,20 +215,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             for (int i = 0; i < spikes.Length; i++) {
                 spikes[i].Parent = this;
                 spikes[i].Index = i;
-                switch (direction) {
-                    case Directions.Up:
-                        spikes[i].Position = Vector2.UnitX * (i + 0.5f) * 8f + Vector2.UnitY;
-                        break;
-                    case Directions.Down:
-                        spikes[i].Position = Vector2.UnitX * (i + 0.5f) * 8f - Vector2.UnitY;
-                        break;
-                    case Directions.Left:
-                        spikes[i].Position = Vector2.UnitY * (i + 0.5f) * 8f + Vector2.UnitX;
-                        break;
-                    case Directions.Right:
-                        spikes[i].Position = Vector2.UnitY * (i + 0.5f) * 8f - Vector2.UnitX;
-                        break;
-                }
+                spikes[i].Position = direction switch {
+                    Directions.Up => Vector2.UnitX * (i + 0.5f) * 8f + Vector2.UnitY,
+                    Directions.Down => Vector2.UnitX * (i + 0.5f) * 8f - Vector2.UnitY,
+                    Directions.Left => Vector2.UnitY * (i + 0.5f) * 8f + Vector2.UnitX,
+                    Directions.Right => Vector2.UnitY * (i + 0.5f) * 8f - Vector2.UnitX,
+                    _ => throw new NotImplementedException(),
+                };
                 spikes[i].DelayTimer = Delay;
             }
         }
@@ -338,21 +330,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Render() {
             base.Render();
-            Vector2 justify = Vector2.One * 0.5f;
-            switch (direction) {
-                case Directions.Up:
-                    justify = new Vector2(0.5f, 1f);
-                    break;
-                case Directions.Down:
-                    justify = new Vector2(0.5f, 0f);
-                    break;
-                case Directions.Left:
-                    justify = new Vector2(1f, 0.5f);
-                    break;
-                case Directions.Right:
-                    justify = new Vector2(0f, 0.5f);
-                    break;
-            }
+            Vector2 justify = direction switch {
+                Directions.Up => new Vector2(0.5f, 1f),
+                Directions.Down => new Vector2(0.5f, 0f),
+                Directions.Left => new Vector2(1f, 0.5f),
+                Directions.Right => new Vector2(0f, 0.5f),
+                _ => Vector2.One * 0.5f,
+            };
             for (int i = 0; i < spikes.Length; i++) {
                 MTexture mTexture = spikeTextures[spikes[i].TextureIndex];
                 Vector2 position = Position + shakeOffset + spikes[i].Position + outwards * (-4f + spikes[i].Lerp * 4f);
@@ -361,18 +345,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private bool IsRiding(Solid solid) {
-            switch (direction) {
-                case Directions.Up:
-                    return CollideCheckOutside(solid, Position + Vector2.UnitY);
-                case Directions.Down:
-                    return CollideCheckOutside(solid, Position - Vector2.UnitY);
-                case Directions.Left:
-                    return CollideCheckOutside(solid, Position + Vector2.UnitX);
-                case Directions.Right:
-                    return CollideCheckOutside(solid, Position - Vector2.UnitX);
-                default:
-                    return false;
-            }
+            return direction switch {
+                Directions.Up => CollideCheckOutside(solid, Position + Vector2.UnitY),
+                Directions.Down => CollideCheckOutside(solid, Position - Vector2.UnitY),
+                Directions.Left => CollideCheckOutside(solid, Position + Vector2.UnitX),
+                Directions.Right => CollideCheckOutside(solid, Position - Vector2.UnitX),
+                _ => false,
+            };
         }
 
         private bool IsRiding(JumpThru jumpThru) {

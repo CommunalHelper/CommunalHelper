@@ -80,9 +80,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void ScrapeParticlesCheck(Vector2 to) {
-            if (!Scene.OnInterval(0.03f)) {
+            if (!Scene.OnInterval(0.03f))
                 return;
-            }
+
             bool movingV = to.Y != ExactPosition.Y;
             bool movingH = to.X != ExactPosition.X;
             if (movingV && !movingH) {
@@ -236,7 +236,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             while (at2 < 1f) {
                                 yield return null;
                                 at2 = Calc.Approach(at2, 1f, 0.5f * Engine.DeltaTime);
-                                if(at2 > impactSoundOffset && !playedFinishSound) {
+                                if (at2 > impactSoundOffset && !playedFinishSound) {
                                     playedFinishSound = true;
                                     Audio.Play(CustomSFX.game_connectedZipMover_dream_zip_mover_finish, Center);
                                 }
@@ -272,7 +272,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private void ReverseNodes(out Vector2 newStart) {
             Array.Reverse(points);
-            for(int i = 0; i < points.Length - 1; i++) {
+            for (int i = 0; i < points.Length - 1; i++) {
                 targets[i] = points[i + 1];
             }
             newStart = points[0];
@@ -326,7 +326,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             public PathRenderer(DreamZipMover dreamZipMover, bool dreamAesthetic) {
-                Depth = 9000;
+                Depth = Depths.BGDecals;
                 DreamZipMover = dreamZipMover;
                 this.dreamAesthetic = dreamAesthetic;
                 from = DreamZipMover.start + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
@@ -393,7 +393,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float rotation = -DreamZipMover.percent * (float) Math.PI * 2f;
 
                 Color dreamRopeColor = playerHasDreamDash ? colorLerpTarget : DreamZipMover.disabledLineColor;
-                Color color = Color.Lerp(dreamAesthetic ?  dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
+                Color color = Color.Lerp(dreamAesthetic ? dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
                 Draw.Line(from + hOffset1 + offset, to + hOffset1 + offset, colorOverride ?? color);
                 Draw.Line(from + hOffset2 + offset, to + hOffset2 + offset, colorOverride ?? color);
                 float dist = (to - from).Length();
