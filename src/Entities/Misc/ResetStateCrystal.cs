@@ -10,7 +10,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     public class ResetStateCrystal : Refill {
         DynData<Refill> baseData;
 
-        public ResetStateCrystal(EntityData data, Vector2 offset) 
+        public ResetStateCrystal(EntityData data, Vector2 offset)
             : base(data, offset) {
             baseData = new DynData<Refill>(this);
 

@@ -6,7 +6,6 @@ using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using MonoMod.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -207,8 +206,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         MTexture altTexture = GFX.Game[texture.AtlasPath.Replace("debris", "disabledDebris")];
                         MoveBlockDebris d = Engine.Pooler.Create<MoveBlockDebris>()
                             .Init(Position + offset, Center, startPosition + offset, spr => {
-                            spr.Texture = PlayerHasDreamDash ? texture : altTexture;
-                        });
+                                spr.Texture = PlayerHasDreamDash ? texture : altTexture;
+                            });
                         debris.Add(d);
                         Scene.Add(d);
                     }
@@ -324,7 +323,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             flash = Calc.Approach(flash, 0f, Engine.DeltaTime * 5f);
         }
 
-        public override void OnStaticMoverTrigger(StaticMover sm) => 
+        public override void OnStaticMoverTrigger(StaticMover sm) =>
             triggered = true;
 
         public override void MoveHExact(int move) {

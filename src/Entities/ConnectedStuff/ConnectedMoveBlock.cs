@@ -395,9 +395,9 @@ namespace Celeste.Mod.CommunalHelper {
             scene.Add(border = new Border(this));
 
             // Get all the colliders that can have an arrow drawn on.
-            ArrowsList = new List<Hitbox> { (Hitbox)MasterCollider };
+            ArrowsList = new List<Hitbox> { (Hitbox) MasterCollider };
             foreach (Hitbox hitbox in Colliders) {
-                if(Math.Min(hitbox.Width, hitbox.Height) >= 24) {
+                if (Math.Min(hitbox.Width, hitbox.Height) >= 24) {
                     ArrowsList.Add(hitbox);
                 }
             }
@@ -461,4 +461,3 @@ namespace Celeste.Mod.CommunalHelper {
         }
     }
 }
- 

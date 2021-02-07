@@ -158,7 +158,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public CassetteZipMover(EntityData data, Vector2 offset, EntityID id)
-            : this(data.Position + offset, id, data.Width, data.Height, data.Nodes, data.Int("index"), data.Float("tempo", 1f), 
+            : this(data.Position + offset, id, data.Width, data.Height, data.Nodes, data.Int("index"), data.Float("tempo", 1f),
                   data.Bool("noReturn", false),
                   data.Bool("permanent"),
                   data.Bool("waiting"),

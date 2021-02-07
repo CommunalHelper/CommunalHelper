@@ -30,22 +30,29 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             public Vector2 Position {
                 get { UpdatePos(); return tempVec2; }
-                [MethodImpl(MethodImplOptions.NoInlining)] set { }
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                set { }
             }
             [MethodImpl(MethodImplOptions.NoInlining)]
             private void UpdatePos() { }
 
             public int Layer {
-                [MethodImpl(MethodImplOptions.NoInlining)] get => default;
-                [MethodImpl(MethodImplOptions.NoInlining)] set { }
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                get => default;
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                set { }
             }
             public Color Color {
-                [MethodImpl(MethodImplOptions.NoInlining)] get => default;
-                [MethodImpl(MethodImplOptions.NoInlining)] set { }
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                get => default;
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                set { }
             }
             public float TimeOffset {
-                [MethodImpl(MethodImplOptions.NoInlining)] get => default;
-                [MethodImpl(MethodImplOptions.NoInlining)] set { }
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                get => default;
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                set { }
             }
 
             // Feather particle stuff
@@ -54,7 +61,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public float MaxRotate;
             public float RotationCounter;
 
-            public DreamParticle(DreamBlock block, int idx) 
+            public DreamParticle(DreamBlock block, int idx)
                 : this() {
                 dreamBlock = block;
                 this.idx = idx;
@@ -495,12 +502,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             orig(player);
             DynData<Player> playerData = player.GetData();
             DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
-            if (dreamBlock is CustomDreamBlock customDreamBlock) { 
+            if (dreamBlock is CustomDreamBlock customDreamBlock) {
                 if (customDreamBlock.FeatherMode) {
                     SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
                     player.Stop(dreamSfxLoop);
                     player.Loop(dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
-                }                    
+                }
 
                 // Ensures the player always properly enters a dream block even when it's moving fast
                 if (customDreamBlock is DreamZipMover or DreamSwapBlock) {

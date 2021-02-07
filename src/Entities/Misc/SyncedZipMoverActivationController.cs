@@ -9,10 +9,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     class SyncedZipMoverActivationController : Entity {
         private Level level;
 
-		private string colorCode; 
-		private float resetTimer = 0f;
-		private float resetTime;
-        public static bool ActivatePressed => 
+        private string colorCode;
+        private float resetTimer = 0f;
+        private float resetTime;
+        public static bool ActivatePressed =>
             CommunalHelperModule.Settings.AllowActivateRebinding ?
                 CommunalHelperModule.Settings.ActivateSyncedZipMovers.Pressed :
                 Input.Grab.Pressed;
@@ -59,8 +59,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Monocle.Engine.Update -= modEngineUpdate;
         }
 
-		private static void modEngineUpdate(On.Monocle.Engine.orig_Update orig, Engine engine, GameTime gameTime) {
-			orig(engine, gameTime);
+        private static void modEngineUpdate(On.Monocle.Engine.orig_Update orig, Engine engine, GameTime gameTime) {
+            orig(engine, gameTime);
             if (Engine.FreezeTimer > 0f && SyncedZipMoverActivationController.ActivatePressed) {
                 var engineData = new DynData<Engine>(engine);
                 foreach (Entity controller in engineData.Get<Scene>("scene").Tracker.GetEntities<SyncedZipMoverActivationController>()) {

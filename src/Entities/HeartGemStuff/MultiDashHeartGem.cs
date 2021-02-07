@@ -1,6 +1,6 @@
 ﻿using Celeste.Mod.Entities;
-using Monocle;
 using Microsoft.Xna.Framework;
+using Monocle;
 using MonoMod.Utils;
 using System;
 using System.Reflection;

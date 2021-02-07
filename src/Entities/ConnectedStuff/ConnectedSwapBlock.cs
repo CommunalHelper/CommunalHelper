@@ -123,7 +123,7 @@ namespace Celeste.Mod.CommunalHelper {
                 mTexture = GFX.Game["objects/swapblock/target"];
             }
 
-            if(redCustomBlockPath != "") {
+            if (redCustomBlockPath != "") {
                 Tuple<MTexture[,], MTexture[,]> customRedTiles = SetupCustomTileset(redCustomBlockPath);
                 customRedEdgeTiles = customRedTiles.Item1;
                 customRedInnerCornerTiles = customRedTiles.Item2;
@@ -153,7 +153,7 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public ConnectedSwapBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Enum("theme", SwapBlock.Themes.Normal), 
+            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Enum("theme", SwapBlock.Themes.Normal),
                   data.Attr("customGreenBlockTexture").Trim(), data.Attr("customRedBlockTexture").Trim()) {
         }
 
@@ -166,7 +166,7 @@ namespace Celeste.Mod.CommunalHelper {
             scene.Add(new PathRenderer(this));
 
             base.Awake(scene);
-            if(Theme == SwapBlock.Themes.Normal) {
+            if (Theme == SwapBlock.Themes.Normal) {
                 greenTiles = AutoTile(customGreenTextures ? customGreenEdgeTiles : GreenEdgeTiles, customGreenTextures ? customGreenInnerCornerTiles : GreenInnerCornerTiles, false, false);
                 redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : RedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : RedInnerCornerTiles, false, false);
             } else {
@@ -174,7 +174,8 @@ namespace Celeste.Mod.CommunalHelper {
                 redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : MoonRedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : MoonRedInnerCornerTiles, false, false);
             }
 
-            Add(middleRed); Add(middleGreen);
+            Add(middleRed);
+            Add(middleGreen);
 
             // Making the track rectangle always contain the connected swap block, entirely.
             int x1 = (int) MathHelper.Min(GroupBoundsMin.X, offset.X + GroupBoundsMin.X);
@@ -280,7 +281,7 @@ namespace Celeste.Mod.CommunalHelper {
                 float num = speed / maxForwardSpeed;
                 float num2 = 16f * num;
                 for (int i = 2; i < num2; i += 2) {
-                    DrawBlock(vector + value * i,  greenTiles, middleGreen, Color.White * (1f - i / num2));
+                    DrawBlock(vector + value * i, greenTiles, middleGreen, Color.White * (1f - i / num2));
                 }
             }
             if (redAlpha < 1f) {
@@ -341,18 +342,28 @@ namespace Celeste.Mod.CommunalHelper {
 
         public static void InitializeTextures() {
             // normal theme
-            GreenEdgeTiles = new MTexture[3, 3]; MTexture greenEdges = GFX.Game["objects/swapblock/block"];
-            RedEdgeTiles = new MTexture[3, 3]; MTexture redEdges = GFX.Game["objects/swapblock/blockRed"];
-            GreenInnerCornerTiles = new MTexture[2, 2]; MTexture greenInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/innerCornersGreen"];
-            RedInnerCornerTiles = new MTexture[2, 2]; MTexture redInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/innerCornersRed"];
-            TargetTiles = new MTexture[3, 3]; MTexture targetTiles = GFX.Game["objects/swapblock/target"];
+            GreenEdgeTiles = new MTexture[3, 3];
+            MTexture greenEdges = GFX.Game["objects/swapblock/block"];
+            RedEdgeTiles = new MTexture[3, 3];
+            MTexture redEdges = GFX.Game["objects/swapblock/blockRed"];
+            GreenInnerCornerTiles = new MTexture[2, 2];
+            MTexture greenInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/innerCornersGreen"];
+            RedInnerCornerTiles = new MTexture[2, 2];
+            MTexture redInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/innerCornersRed"];
+            TargetTiles = new MTexture[3, 3];
+            MTexture targetTiles = GFX.Game["objects/swapblock/target"];
 
             // moon theme
-            MoonGreenEdgeTiles = new MTexture[3, 3]; MTexture moonGreenEdges = GFX.Game["objects/swapblock/moon/block"];
-            MoonRedEdgeTiles = new MTexture[3, 3]; MTexture moonRedEdges = GFX.Game["objects/swapblock/moon/blockRed"];
-            MoonGreenInnerCornerTiles = new MTexture[2, 2]; MTexture moonGreenInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/moon/innerCornersGreen"];
-            MoonRedInnerCornerTiles = new MTexture[2, 2]; MTexture moonRedInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/moon/innerCornersRed"];
-            MoonTargetTiles = new MTexture[3, 3]; MTexture moonTargetTiles = GFX.Game["objects/swapblock/moon/target"];
+            MoonGreenEdgeTiles = new MTexture[3, 3];
+            MTexture moonGreenEdges = GFX.Game["objects/swapblock/moon/block"];
+            MoonRedEdgeTiles = new MTexture[3, 3];
+            MTexture moonRedEdges = GFX.Game["objects/swapblock/moon/blockRed"];
+            MoonGreenInnerCornerTiles = new MTexture[2, 2];
+            MTexture moonGreenInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/moon/innerCornersGreen"];
+            MoonRedInnerCornerTiles = new MTexture[2, 2];
+            MTexture moonRedInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/moon/innerCornersRed"];
+            MoonTargetTiles = new MTexture[3, 3];
+            MTexture moonTargetTiles = GFX.Game["objects/swapblock/moon/target"];
 
             // edges
             for (int i = 0; i < 3; i++) {
@@ -401,7 +412,7 @@ namespace Celeste.Mod.CommunalHelper {
         public static void Unhook() {
             Player_DashCoroutine_Hook.Dispose();
         }
-        
+
         private static void DashCoroutineILHook(ILContext il) {
             // Used to emit new instructions into the method
             ILCursor cursor = new ILCursor(il);
@@ -415,7 +426,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             // And then load the Player object
             cursor.Emit(OpCodes.Ldfld, DashCoroutine_Hook_F_This);
-            
+
             // Emit a call to a function that takes in the player object, and returns a boolean
             cursor.EmitDelegate<Func<Player, bool>>(Player_ClimbConnectedSwapBlockCheck);
 
@@ -425,7 +436,7 @@ namespace Celeste.Mod.CommunalHelper {
             // Perform the equivalent of "yield break"
             cursor.Emit(OpCodes.Ldc_I4_0);
             cursor.Emit(OpCodes.Ret);
-            
+
             // Next bit to modify
             cursor.GotoNext(MoveType.Before, instr => instr.OpCode == OpCodes.Stfld && ((FieldReference) instr.Operand).Name.Contains("swapCancel"));
 

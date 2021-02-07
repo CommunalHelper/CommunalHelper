@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
-using System.Collections;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper {
@@ -12,7 +11,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override Type SettingsType => typeof(CommunalHelperSettings);
         public static CommunalHelperSettings Settings => (CommunalHelperSettings) Instance._Settings;
-        
+
         public override Type SaveDataType => typeof(CommunalHelperSaveData);
         public static CommunalHelperSaveData SaveData => (CommunalHelperSaveData) Instance._SaveData;
 
@@ -65,7 +64,7 @@ namespace Celeste.Mod.CommunalHelper {
             ConnectedSwapBlockHooks.Unhook();
             CustomCassetteBlock.Unhook();
 
-			AttachedWallBooster.Unhook();
+            AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
             MoveSwapBlock.Unload();
             SyncedZipMoverActivationControllerHooks.Unhook();
@@ -85,14 +84,14 @@ namespace Celeste.Mod.CommunalHelper {
         public override void LoadContent(bool firstLoad) {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
 
-			StationBlock.InitializeParticles();
+            StationBlock.InitializeParticles();
             TrackSwitchBox.InitializeParticles();
 
             DreamTunnelDash.LoadContent();
             DreamRefill.InitializeParticles();
             DreamMoveBlock.InitializeParticles();
             DreamSwitchGate.InitializeParticles();
-            
+
             ConnectedMoveBlock.InitializeTextures();
             ConnectedSwapBlock.InitializeTextures();
 
@@ -144,10 +143,10 @@ namespace Celeste.Mod.CommunalHelper {
         }
     }
 
-	public static class Util {
-		public static void Log(string str) {
-			Logger.Log("Communal Helper", str);
-		}
+    public static class Util {
+        public static void Log(string str) {
+            Logger.Log("Communal Helper", str);
+        }
 
         public static bool TryGetPlayer(out Player player) {
             player = Engine.Scene?.Tracker?.GetEntity<Player>();
@@ -157,13 +156,13 @@ namespace Celeste.Mod.CommunalHelper {
         private static PropertyInfo[] namedColors = typeof(Color).GetProperties();
 
         public static Color TryParseColor(string str, float alpha = 1f) {
-            foreach (PropertyInfo prop in namedColors) { 
-                if (str.Equals(prop.Name)) { 
-                    return new Color((Color) prop.GetValue(null), alpha); 
-                } 
+            foreach (PropertyInfo prop in namedColors) {
+                if (str.Equals(prop.Name)) {
+                    return new Color((Color) prop.GetValue(null), alpha);
+                }
             }
             return new Color(Calc.HexToColor(str.Trim('#')), alpha);
         }
-	}
+    }
 
 }

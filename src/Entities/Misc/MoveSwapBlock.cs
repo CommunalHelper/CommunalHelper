@@ -107,10 +107,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // Replaces SwapBlock.OnDash with MoveSwapBlock.OnDash if this block doesn't return
             DashListener listener = Get<DashListener>();
             Action<Vector2> orig_OnDash = listener.OnDash;
-            listener.OnDash = (dir) => { 
-                if (State == MovementState.Breaking) return; 
-                else if (doesReturn) orig_OnDash(dir); 
-                else OnDash(dir); 
+            listener.OnDash = (dir) => {
+                if (State == MovementState.Breaking)
+                    return;
+                else if (doesReturn)
+                    orig_OnDash(dir);
+                else
+                    OnDash(dir);
             };
 
             // We use some local variable to temporarily store private SwapBlock fields for less reflection

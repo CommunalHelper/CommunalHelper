@@ -51,7 +51,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (ids[idx].Count(s => s == '/') < 2)
                     ids[idx] = mapId + '/' + ids[idx];
                 Gem item = new Gem(ids[idx], position);
-                gems.Add(item); 
+                gems.Add(item);
                 idx++;
             }
             Add(new Coroutine(Routine(), true));
@@ -187,7 +187,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Image Bg;
             public BloomPoint Bloom;
 
-            public Gem(string id, Vector2 position) 
+            public Gem(string id, Vector2 position)
                 : base(position) {
                 ID = id;
                 Index = Calc.Clamp(int.Parse(id.Substring(id.LastIndexOf('/') + 1)), 0, 7);

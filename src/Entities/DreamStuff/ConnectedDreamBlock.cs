@@ -71,7 +71,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public int x, y;
 
             public SpaceJamCorner(int x_, int y_, bool ur, bool ul, bool dr, bool dl, bool iur, bool iul, bool idr, bool idl) {
-                x = x_; y = y_;
+                x = x_;
+                y = y_;
                 upright = ur;
                 upleft = ul;
                 downright = dr;
@@ -163,7 +164,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Vector2 groupCenter = new Vector2(groupW / 2, groupH / 2);
                 for (int i = 0; i < GroupEdges.Count; i++) {
                     SpaceJamEdge edge = GroupEdges[i];
-                    float angle =  Calc.Angle(groupCenter, Vector2.Lerp(edge.start, edge.end, 0.5f)) + Calc.HalfCircle;
+                    float angle = Calc.Angle(groupCenter, Vector2.Lerp(edge.start, edge.end, 0.5f)) + Calc.HalfCircle;
                     GroupEdges[i] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset + angle, edge.flipNormal, edge.facing);
                 }
             }
@@ -199,7 +200,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bool inupleft = nNorth.Exist && nWest.Exist && !nNorthWest.Exist;
             bool indownright = nSouth.Exist && nEast.Exist && !nSouthEast.Exist;
             bool indownleft = nSouth.Exist && nWest.Exist && !nSouthWest.Exist;
-            if(upright || upleft || downright || downleft || inupright || inupleft || indownright || indownleft) {
+            if (upright || upleft || downright || downleft || inupright || inupleft || indownright || indownleft) {
                 GroupCorners.Add(new SpaceJamCorner(x - 1, y - 1, upright, upleft, downright, downleft, inupright, inupleft, indownright, indownleft));
             }
             #endregion
@@ -324,7 +325,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             foreach (Entity entity in Scene.Tracker.GetEntities<ConnectedDreamBlock>()) {
                 ConnectedDreamBlock connectedBlock = (ConnectedDreamBlock) entity;
-                if (!connectedBlock.HasGroup && connectedBlock.FeatherMode == from.FeatherMode && 
+                if (!connectedBlock.HasGroup && connectedBlock.FeatherMode == from.FeatherMode &&
                     Scene.CollideCheck(new Rectangle((int) from.X, (int) from.Y, (int) from.Width, (int) from.Height), connectedBlock)) {
                     AddToGroupAndFindChildren(connectedBlock);
                 }
@@ -337,14 +338,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Moves.Add(jp, jp.Position);
             foreach (Entity entity in Scene.Tracker.GetEntities<ConnectedDreamBlock>()) {
                 ConnectedDreamBlock connectedBlock = (ConnectedDreamBlock) entity;
-                if (!connectedBlock.HasGroup && connectedBlock.FeatherMode == FeatherMode && 
+                if (!connectedBlock.HasGroup && connectedBlock.FeatherMode == FeatherMode &&
                     Scene.CollideCheck(new Rectangle((int) jp.X - 1, (int) jp.Y, (int) jp.Width + 2, (int) jp.Height), connectedBlock)) {
                     AddToGroupAndFindChildren(connectedBlock);
                 }
             }
         }
 
-        protected virtual DashCollisionResults OnDash(Player player, Vector2 dir) 
+        protected virtual DashCollisionResults OnDash(Player player, Vector2 dir)
             => DashCollisionResults.NormalCollision;
 
         protected virtual DashCollisionResults OnDashJumpThru(Player player, Vector2 dir)
@@ -485,7 +486,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void RenderCorner(Vector2 position, SpaceJamCorner corner, Color line, Color back) {
-            int x = (int)(corner.x * 8 + position.X);
+            int x = (int) (corner.x * 8 + position.X);
             int y = (int) (corner.y * 8 + position.Y);
 
             // Simple corners:
@@ -534,8 +535,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             float scaleFactor = 0f;
             int increment = 16;
             for (int i = 2; i < length - 2; i += increment) {
-                float scale = MathHelper.Lerp((float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleFrom") + offset, i }), 
-                    (float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleTo") + offset, i }), 
+                float scale = MathHelper.Lerp((float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleFrom") + offset, i }),
+                    (float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleTo") + offset, i }),
                     baseData.Get<float>("wobbleEase"));
                 if (i + increment >= length) {
                     scale = 0f;
@@ -584,7 +585,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void SpawnSlowRoutineParticles() {
-            if(MasterOfGroup) {
+            if (MasterOfGroup) {
                 Level level = SceneAs<Level>();
                 Camera camera = level.Camera;
 
@@ -752,7 +753,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Type nestedType = typeof(DreamBlock).GetNestedType("<FastActivate>d__13", BindingFlags.NonPublic);
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_FastActivate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
-            
+
             nestedType = typeof(DreamBlock).GetNestedType("<FastDeactivate>d__12", BindingFlags.NonPublic);
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_FastDeactivate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
@@ -760,7 +761,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             nestedType = typeof(DreamBlock).GetNestedType("<Activate>d__34", BindingFlags.NonPublic);
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_Activate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockSlowRoutine);
-            
+
             nestedType = typeof(DreamBlock).GetNestedType("<Deactivate>d__11", BindingFlags.NonPublic);
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_Deactivate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockSlowRoutine);

@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper {
-    class ConnectedSolid : Solid
-    {
+    class ConnectedSolid : Solid {
         public Vector2 GroupBoundsMin, GroupBoundsMax;
         public Vector2 GroupCenter => Position + GroupOffset + (GroupBoundsMax - GroupBoundsMin) / 2f;
-             
+
         public Hitbox[] Colliders;
         public Collider MasterCollider;
 
@@ -37,30 +36,28 @@ namespace Celeste.Mod.CommunalHelper {
 
         public List<Image> Tiles = new List<Image>();
         public List<Image> EdgeTiles = new List<Image>();
-        public List<Image> CornerTiles = new List<Image>();        
+        public List<Image> CornerTiles = new List<Image>();
         public List<Image> InnerCornerTiles = new List<Image>();
         public List<Image> FillerTiles = new List<Image>();
 
         public ConnectedSolid(Vector2 position, int width, int height, bool safe)
-            : base(position, width, height, safe)
-        {
+            : base(position, width, height, safe) {
             GroupBoundsMin = new Vector2(X, Y);
             GroupBoundsMax = new Vector2(Right, Bottom);
-            MasterWidth = width; MasterHeight = height;
+            MasterWidth = width;
+            MasterHeight = height;
             MasterCollider = Collider;
         }
 
-        public override void Awake(Scene scene)
-        {
-           
+        public override void Awake(Scene scene) {
+
 
             List<SolidExtension> extensions = new List<SolidExtension>();
             FindExtensions(this, extensions);
 
             GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - Position;
             Colliders = new Hitbox[extensions.Count + 1];
-            for (int i = 0; i < extensions.Count; i++)
-            {
+            for (int i = 0; i < extensions.Count; i++) {
                 SolidExtension e = extensions[i];
                 Vector2 offset = e.Position - Position;
                 Colliders[i] = new Hitbox(e.Width, e.Height, offset.X, offset.Y);
@@ -83,21 +80,18 @@ namespace Celeste.Mod.CommunalHelper {
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     overrideEdgeTiles[i, j] = tileset.GetSubtexture(i * 8, j * 8, 8, 8);
-                    if(i < 2 && j < 2)
+                    if (i < 2 && j < 2)
                         overrideInCornersTiles[i, j] = tileset.GetSubtexture(i * 8 + 24, j * 8, 8, 8);
                 }
             }
             return new Tuple<MTexture[,], MTexture[,]>(overrideEdgeTiles, overrideInCornersTiles);
         }
 
-        private void FindExtensions(ConnectedSolid master, List<SolidExtension> list)
-        {
-            foreach (SolidExtension extension in Scene.Tracker.GetEntities<SolidExtension>())
-            {
+        private void FindExtensions(ConnectedSolid master, List<SolidExtension> list) {
+            foreach (SolidExtension extension in Scene.Tracker.GetEntities<SolidExtension>()) {
                 if (!extension.HasGroup &&
-                    (Scene.CollideCheck(new Rectangle((int)X - 1, (int)Y, (int)Width + 2, (int)master.Height), extension) ||
-                    Scene.CollideCheck(new Rectangle((int)X, (int)Y - 1, (int)Width, (int)Height + 2), extension)))
-                {
+                    (Scene.CollideCheck(new Rectangle((int) X - 1, (int) Y, (int) Width + 2, (int) master.Height), extension) ||
+                    Scene.CollideCheck(new Rectangle((int) X, (int) Y - 1, (int) Width, (int) Height + 2), extension))) {
                     extension.AddToGroupAndFindChildren(extension, master, list);
                 }
             }
@@ -226,7 +220,7 @@ namespace Celeste.Mod.CommunalHelper {
                     case TileType.InnerCorner:
                         InnerCornerTiles.Add(image);
                         break;
-                        
+
                 }
             }
             return image;
@@ -243,72 +237,52 @@ namespace Celeste.Mod.CommunalHelper {
             if (!(completelyClosed && upright && upleft && downright && downleft)) {
                 if (completelyClosed) {
 
-                    if (!upleft) { data.x = 0; data.y = 0; data.type = TileType.InnerCorner; }
-                    else if (!upright) { data.x = 1; data.y = 0; data.type = TileType.InnerCorner; }
-                    else if (!downleft) { data.x = 0; data.y = 1; data.type = TileType.InnerCorner; }
-                    else if (!downright) { data.x = 1; data.y = 1; data.type = TileType.InnerCorner; }
+                    if (!upleft) { data.x = 0; data.y = 0; data.type = TileType.InnerCorner; } else if (!upright) { data.x = 1; data.y = 0; data.type = TileType.InnerCorner; } else if (!downleft) { data.x = 0; data.y = 1; data.type = TileType.InnerCorner; } else if (!downright) { data.x = 1; data.y = 1; data.type = TileType.InnerCorner; }
                 } else {
 
-                    if (!up && down && left && right) { data.x = 1; data.y = 0; data.type = TileType.Edge; }
-                    else if (up && !down && left && right) { data.x = 1; data.y = 2; data.type = TileType.Edge; }
-                    else if (up && down && !left && right) { data.x = 0; data.y = 1; data.type = TileType.Edge; }
-                    else if (up && down && left && !right) { data.x = 2; data.y = 1; data.type = TileType.Edge; }
-
-                    else if (!up && down && !left && right) { data.x = 0; data.y = 0; data.type = TileType.Corner; }
-                    else if (!up && down && left && !right) { data.x = 2; data.y = 0; data.type = TileType.Corner; }
-                    else if (up && !down && !left && right) { data.x = 0; data.y = 2; data.type = TileType.Corner; }
-                    else if (up && !down && left && !right) { data.x = 2; data.y = 2; data.type = TileType.Corner; }
+                    if (!up && down && left && right) { data.x = 1; data.y = 0; data.type = TileType.Edge; } else if (up && !down && left && right) { data.x = 1; data.y = 2; data.type = TileType.Edge; } else if (up && down && !left && right) { data.x = 0; data.y = 1; data.type = TileType.Edge; } else if (up && down && left && !right) { data.x = 2; data.y = 1; data.type = TileType.Edge; } else if (!up && down && !left && right) { data.x = 0; data.y = 0; data.type = TileType.Corner; } else if (!up && down && left && !right) { data.x = 2; data.y = 0; data.type = TileType.Corner; } else if (up && !down && !left && right) { data.x = 0; data.y = 2; data.type = TileType.Corner; } else if (up && !down && left && !right) { data.x = 2; data.y = 2; data.type = TileType.Corner; }
                 }
             }
 
             return new Image(
-                data.type == TileType.InnerCorner ? 
-                innerCorners[data.x, data.y] : 
+                data.type == TileType.InnerCorner ?
+                innerCorners[data.x, data.y] :
                 edges[data.x, data.y]);
         }
 
-        private bool TileCollideWithGroup(int x, int y)
-        {
-            return CollideRect(new Rectangle((int)GroupBoundsMin.X + x * 8, (int)GroupBoundsMin.Y + y * 8, 8, 8));
+        private bool TileCollideWithGroup(int x, int y) {
+            return CollideRect(new Rectangle((int) GroupBoundsMin.X + x * 8, (int) GroupBoundsMin.Y + y * 8, 8, 8));
         }
 
         /* 
          * Check for every Hitbox in base.Colliders, so that 
          * the player & other entities don't get sent to the ends of the group.
          */
-        public override void MoveHExact(int move)
-        {
+        public override void MoveHExact(int move) {
             //base.MoveHExact(move);
             GetRiders();
             Player player = Scene.Tracker.GetEntity<Player>();
 
             HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
 
-            if (player != null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + Vector2.UnitX * move - Vector2.UnitY))
-            {
+            if (player != null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + Vector2.UnitX * move - Vector2.UnitY)) {
                 player.MoveV(1f);
             }
             X += move;
             MoveStaticMovers(Vector2.UnitX * move);
-            if (Collidable)
-            {
-                foreach (Actor entity in Scene.Tracker.GetEntities<Actor>())
-                {
-                    if (entity.AllowPushing)
-                    {
+            if (Collidable) {
+                foreach (Actor entity in Scene.Tracker.GetEntities<Actor>()) {
+                    if (entity.AllowPushing) {
                         bool collidable = entity.Collidable;
                         entity.Collidable = true;
 
-                        if (!entity.TreatNaive && CollideCheck(entity, Position))
-                        {
-                            foreach(Hitbox hitbox in Colliders)
-                            {
-                                if (hitbox.Collide(entity))
-                                {
+                        if (!entity.TreatNaive && CollideCheck(entity, Position)) {
+                            foreach (Hitbox hitbox in Colliders) {
+                                if (hitbox.Collide(entity)) {
                                     float left = X + hitbox.Left;
                                     float right = X + hitbox.Right;
 
-                                    int moveH = (move <= 0) ? (int)(left - entity.Right) : (int)(right - entity.Left);
+                                    int moveH = (move <= 0) ? (int) (left - entity.Right) : (int) (right - entity.Left);
 
                                     Collidable = false;
                                     entity.MoveHExact(moveH, null, this);
@@ -316,16 +290,11 @@ namespace Celeste.Mod.CommunalHelper {
                                     Collidable = true;
                                 }
                             }
-                        }
-                        else if (riders.Contains(entity))
-                        {
+                        } else if (riders.Contains(entity)) {
                             Collidable = false;
-                            if (entity.TreatNaive)
-                            {
+                            if (entity.TreatNaive) {
                                 entity.NaiveMove(Vector2.UnitX * move);
-                            }
-                            else
-                            {
+                            } else {
                                 entity.MoveHExact(move);
                             }
                             entity.LiftSpeed = LiftSpeed;
@@ -338,8 +307,7 @@ namespace Celeste.Mod.CommunalHelper {
             riders.Clear();
         }
 
-        public override void MoveVExact(int move)
-        {
+        public override void MoveVExact(int move) {
             //base.MoveVExact(move);
             GetRiders();
 
@@ -347,41 +315,30 @@ namespace Celeste.Mod.CommunalHelper {
 
             Y += move;
             MoveStaticMovers(Vector2.UnitY * move);
-            if (Collidable)
-            {
-                foreach (Actor entity in Scene.Tracker.GetEntities<Actor>())
-                {
-                    if (entity.AllowPushing)
-                    {
+            if (Collidable) {
+                foreach (Actor entity in Scene.Tracker.GetEntities<Actor>()) {
+                    if (entity.AllowPushing) {
                         bool collidable = entity.Collidable;
                         entity.Collidable = true;
-                        if (!entity.TreatNaive && CollideCheck(entity, Position))
-                        {
-                            foreach (Hitbox hitbox in Colliders)
-                            {
-        
-                                if (hitbox.Collide(entity))
-                                {
+                        if (!entity.TreatNaive && CollideCheck(entity, Position)) {
+                            foreach (Hitbox hitbox in Colliders) {
+
+                                if (hitbox.Collide(entity)) {
                                     float top = Y + hitbox.Top;
                                     float bottom = Y + hitbox.Bottom;
-        
-                                    int moveV = (move <= 0) ? (int)(top - entity.Bottom) : (int)(bottom - entity.Top);
+
+                                    int moveV = (move <= 0) ? (int) (top - entity.Bottom) : (int) (bottom - entity.Top);
                                     Collidable = false;
                                     entity.MoveVExact(moveV, entity.SquishCallback, this);
                                     entity.LiftSpeed = LiftSpeed;
                                     Collidable = true;
                                 }
                             }
-                        }
-                        else if (riders.Contains(entity))
-                        {
+                        } else if (riders.Contains(entity)) {
                             Collidable = false;
-                            if (entity.TreatNaive)
-                            {
+                            if (entity.TreatNaive) {
                                 entity.NaiveMove(Vector2.UnitY * move);
-                            }
-                            else
-                            {
+                            } else {
                                 entity.MoveVExact(move);
                             }
                             entity.LiftSpeed = LiftSpeed;

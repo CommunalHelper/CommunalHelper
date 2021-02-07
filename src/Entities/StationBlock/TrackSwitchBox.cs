@@ -54,8 +54,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             start = Position;
             sprite = CommunalHelperModule.SpriteBank.Create("trackSwitchBox");
             sprite.Position = new Vector2(Width, Height) / 2f;
-            sprite.OnLastFrame = anim =>
-            {
+            sprite.OnLastFrame = anim => {
                 if (anim == "switch")
                     canSwitch = true;
             };
@@ -116,7 +115,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Switch(Scene, LocalTrackSwitchState.Invert(), global);
                 return DashCollisionResults.Rebound;
             }
-            
+
             return DashCollisionResults.NormalCollision;
         }
 
@@ -218,7 +217,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float scale = 0.05f + (1f + (float) Math.Sin((float) i / 16f + Scene.TimeActive * 2f)) / 2f * 0.2f;
                 Draw.Line(rect.X, i, rect.X + rect.Width, i, Color.White * 0.55f * scale);
             }
-            
+
             PlaybackBillboard.DrawNoise(rect, ref seed, Color.White * 0.1f);
 
             base.Render();
@@ -234,8 +233,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             yield return 0.8f;
             SceneAs<Level>().DirectionalShake(Vector2.UnitX, 0.2f);
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-            if(global) {
-                circleRadius = 0f; circleOpacity = .5f;
+            if (global) {
+                circleRadius = 0f;
+                circleOpacity = .5f;
             }
         }
 

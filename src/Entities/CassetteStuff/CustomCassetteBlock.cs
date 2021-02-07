@@ -7,28 +7,28 @@ using System.Collections.Generic;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(CassetteBlock), true)]
     abstract class CustomCassetteBlock : CassetteBlock {
-		static int[] typeCounts = new int[4];
+        static int[] typeCounts = new int[4];
 
-		protected Color[] colorOptions = new Color[] {
-			Calc.HexToColor("49aaf0"),
-			Calc.HexToColor("f049be"),
-			Calc.HexToColor("fcdc3a"),
-			Calc.HexToColor("38e04e")
-		};
-		protected Color color;
-		protected Color pressedColor;
+        protected Color[] colorOptions = new Color[] {
+            Calc.HexToColor("49aaf0"),
+            Calc.HexToColor("f049be"),
+            Calc.HexToColor("fcdc3a"),
+            Calc.HexToColor("38e04e")
+        };
+        protected Color color;
+        protected Color pressedColor;
 
-		private int beforeIndex;
+        private int beforeIndex;
 
-		public int blockHeight = 2;
-		protected Vector2 blockOffset = Vector2.Zero;
-		private bool dynamicHitbox;
-		private Hitbox[] hitboxes;
+        public int blockHeight = 2;
+        protected Vector2 blockOffset = Vector2.Zero;
+        private bool dynamicHitbox;
+        private Hitbox[] hitboxes;
 
-		public bool present = true;
-		public bool virtualCollidable = true;
+        public bool present = true;
+        public bool virtualCollidable = true;
 
-		public DynData<CassetteBlock> blockData;
+        public DynData<CassetteBlock> blockData;
 
         public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, int typeIndex, float tempo, bool dynamicHitbox = false)
             : base(position, id, width, height, index, tempo) {
@@ -53,14 +53,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Update() {
-			if (!present) {
-				Collidable = virtualCollidable;
+            if (!present) {
+                Collidable = virtualCollidable;
             }
-			base.Update();
-			virtualCollidable = Collidable;
-			if (!present) {
-				Collidable = false;
-				DisableStaticMovers();
+            base.Update();
+            virtualCollidable = Collidable;
+            if (!present) {
+                Collidable = false;
+                DisableStaticMovers();
             }
         }
 
@@ -90,24 +90,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             all.Add(pressed);
         }
 
-		public void HandleShiftSize(int amount) {
-			blockHeight -= amount;
-			blockOffset = (2 - blockHeight) * Vector2.UnitY;
-			if (dynamicHitbox) {
-				Collider = hitboxes[blockHeight];
+        public void HandleShiftSize(int amount) {
+            blockHeight -= amount;
+            blockOffset = (2 - blockHeight) * Vector2.UnitY;
+            if (dynamicHitbox) {
+                Collider = hitboxes[blockHeight];
             }
-		}
+        }
 
-		public virtual void HandleUpdateVisualState() {
-			blockData.Get<Entity>("side").Visible &= Visible;
-			foreach (StaticMover staticMover in staticMovers) {
-				staticMover.Visible = Visible;
-			}
-		}
+        public virtual void HandleUpdateVisualState() {
+            blockData.Get<Entity>("side").Visible &= Visible;
+            foreach (StaticMover staticMover in staticMovers) {
+                staticMover.Visible = Visible;
+            }
+        }
 
-		protected void UpdatePresent(bool present) {
-			this.present = present;
-			Collidable = present && virtualCollidable;
+        protected void UpdatePresent(bool present) {
+            this.present = present;
+            Collidable = present && virtualCollidable;
         }
 
         #region Hooks

@@ -280,7 +280,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 dreamParticles[3].Color = Calc.HexToColor("5b6ee1");
                 dreamParticles[3].Color2 = Calc.HexToColor("CC3B3B");
             } else {
-                for(int i = 0; i < 4; i++) {
+                for (int i = 0; i < 4; i++) {
                     dreamParticles[i].Color = Color.LightGray * 0.5f;
                     dreamParticles[i].Color2 = Color.LightGray * 0.75f;
                 }

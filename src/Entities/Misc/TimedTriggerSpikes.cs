@@ -64,8 +64,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                 Audio.Play(SFX.game_03_fluff_tendril_emerge, Parent.Position + Position);
                             }
                         }
-                    }
-                    else {
+                    } else {
                         Lerp = Calc.Approach(Lerp, 1f, 8f * Engine.DeltaTime);
                     }
                 } else {
@@ -74,7 +73,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Triggered = false;
                     }
                 }
-                if (Parent.rainbow) 
+                if (Parent.rainbow)
                     color = GetHue(Parent.Scene, Parent.Position + Position);
             }
 
@@ -146,12 +145,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow)
-            : base(position + offset)  {
+            : base(position + offset) {
             if (grouped && !CommunalHelperModule.MaxHelpingHandLoaded) {
                 throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
             }
 
-            if(rainbow && !CommunalHelperModule.VivHelperLoaded) {
+            if (rainbow && !CommunalHelperModule.VivHelperLoaded) {
                 throw new Exception("Rainbow Timed Trigger Spikes attempted to load without Viv's Helper as a dependency.");
             }
 

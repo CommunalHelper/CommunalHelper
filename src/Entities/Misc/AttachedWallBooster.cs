@@ -5,72 +5,61 @@ using Monocle;
 using MonoMod.Utils;
 using System.Collections.Generic;
 
-namespace Celeste.Mod.CommunalHelper.Entities
-{
-	[CustomEntity("CommunalHelper/AttachedWallBooster")]
-	[Tracked(false)]
-    class AttachedWallBooster : WallBooster
-    {
-		private Vector2 Shake = Vector2.Zero;
+namespace Celeste.Mod.CommunalHelper.Entities {
+    [CustomEntity("CommunalHelper/AttachedWallBooster")]
+    [Tracked(false)]
+    class AttachedWallBooster : WallBooster {
+        private Vector2 Shake = Vector2.Zero;
 
         DynData<WallBooster> baseData;
 
-		public AttachedWallBooster(EntityData data, Vector2 offset)
-			: base(data.Position + offset, data.Height, data.Bool("left"), data.Bool("notCoreMode"))
-		{
+        public AttachedWallBooster(EntityData data, Vector2 offset)
+            : base(data.Position + offset, data.Height, data.Bool("left"), data.Bool("notCoreMode")) {
             baseData = new DynData<WallBooster>(this);
 
             Remove(Get<StaticMover>());
-			Add(new StaticMover
-			{
-				OnShake = OnShake,
-				SolidChecker = IsRiding,
-				OnEnable = OnEnable,
-				OnDisable = OnDisable
-			});
-		}
+            Add(new StaticMover {
+                OnShake = OnShake,
+                SolidChecker = IsRiding,
+                OnEnable = OnEnable,
+                OnDisable = OnDisable
+            });
+        }
 
-		private void SetColor(Color color)
-		{
-			foreach(Image img in baseData.Get<List<Sprite>>("tiles"))
-			{
-				img.Color = color;
-			}
-		}
+        private void SetColor(Color color) {
+            foreach (Image img in baseData.Get<List<Sprite>>("tiles")) {
+                img.Color = color;
+            }
+        }
 
-		private void OnDisable()
-		{
-			SetColor(Color.Gray);
-			Collidable = false;
-		}
+        private void OnDisable() {
+            SetColor(Color.Gray);
+            Collidable = false;
+        }
 
-		private void OnEnable()
-		{
-			SetColor(Color.White);
-			Collidable = true;
-		}
+        private void OnEnable() {
+            SetColor(Color.White);
+            Collidable = true;
+        }
 
-		private bool IsRiding(Solid solid)
-		{
+        private bool IsRiding(Solid solid) {
             return Facing switch {
                 Facings.Right => CollideCheckOutside(solid, Position + Vector2.UnitX),
                 Facings.Left => CollideCheckOutside(solid, Position - Vector2.UnitX),
                 _ => false,
             };
-		}
+        }
 
-		private void OnShake(Vector2 amount)
-		{
-			Shake += amount;
-		}
+        private void OnShake(Vector2 amount) {
+            Shake += amount;
+        }
 
-		public override void Render()
-		{
-			Vector2 p = Position;
-			Position += Shake;
-			base.Render();
-			Position = p;
-		}
+        public override void Render() {
+            Vector2 p = Position;
+            Position += Shake;
+            base.Render();
+            Position = p;
+        }
 
         #region Hooks
 

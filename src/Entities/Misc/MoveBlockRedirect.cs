@@ -32,7 +32,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float maskAlpha;
         private List<Image> borders;
 
-        public MoveBlockRedirect(EntityData data, Vector2 offset) 
+        public MoveBlockRedirect(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
             Depth = Depths.Above;
             Collider = new Hitbox(data.Width, data.Height);
@@ -54,13 +54,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             AddTextures();
         }
 
-        private void AddTextures()
-        {
+        private void AddTextures() {
             borders = new List<Image>();
 
             // Add Corners
-            for (int i = 0; i < 4; i++)
-            {
+            for (int i = 0; i < 4; i++) {
                 Image image = new Image(GFX.Game["objects/CommunalHelper/moveBlockRedirect/corner"]);
                 image.Rotation = Calc.QuarterCircle * i;
                 image.Position = i switch {
@@ -80,8 +78,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], Vector2.UnitX * i, Calc.QuarterCircle, borders);
                 AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], Vector2.UnitX * (Width - i), Calc.QuarterCircle, borders);
 
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], new Vector2(i, Height), - Calc.QuarterCircle, borders);
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], new Vector2(Width - i, Height), - Calc.QuarterCircle, borders);
+                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], new Vector2(i, Height), -Calc.QuarterCircle, borders);
+                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], new Vector2(Width - i, Height), -Calc.QuarterCircle, borders);
             }
 
             // Left / Right
@@ -123,12 +121,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Added(scene);
             scene.Add(new Arrow(Center, angle));
         }
-        
+
         public override void Update() {
             base.Update();
 
             MoveBlock moveBlock = CollideAll<Solid>().FirstOrDefault(e => e is MoveBlock) as MoveBlock;
-            if (moveBlock != null && !(bool) f_MoveBlock_canSteer.GetValue(moveBlock) && 
+            if (moveBlock != null && !(bool) f_MoveBlock_canSteer.GetValue(moveBlock) &&
                 moveBlock.Width == Width && moveBlock.Height == Height && Collider.Contains(moveBlock.Collider, 0.001f)) {
                 if (FastRedirect)
                     SetBlockData(new DynData<MoveBlock>(moveBlock));
@@ -139,7 +137,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
         }
-        
+
         private void SetBlockData(DynData<MoveBlock> blockData) {
             if (!blockData.Data.ContainsKey(MoveBlock_InitialAngle)) {
                 blockData[MoveBlock_InitialAngle] = blockData["homeAngle"];
@@ -196,7 +194,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IEnumerator controller;
             block.Add(new Coroutine(controller = (IEnumerator) Activator.CreateInstance(t_MoveBlock_Controller, 3)));
             f_MoveBlock_Controller_this.SetValue(controller, block);
-            
+
             // Wait for the moveblock to continue before resetting
             yield return null;
             currentBlock = null;
@@ -210,7 +208,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private class Arrow : Entity {
             public Image Sprite;
-            public Arrow(Vector2 position, float rotation) 
+            public Arrow(Vector2 position, float rotation)
                 : base(position) {
                 Depth = Depths.Below;
                 Add(Sprite = new Image(GFX.Game["objects/CommunalHelper/moveBlockRedirect/bigarrow"]));
@@ -228,7 +226,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 MoveBlock_Controller);
             On.Celeste.MoveBlock.BreakParticles += MoveBlock_BreakParticles;
         }
-        
+
         internal static void Unload() {
             hook_MoveBlock_Controller.Dispose();
             On.Celeste.MoveBlock.BreakParticles -= MoveBlock_BreakParticles;

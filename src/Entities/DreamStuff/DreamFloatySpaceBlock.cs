@@ -19,7 +19,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private Vector2 shake;
 
-        public DreamFloatySpaceBlock(EntityData data, Vector2 offset) 
+        public DreamFloatySpaceBlock(EntityData data, Vector2 offset)
             : base(data, offset) {
             IncludeJumpThrus = true;
         }

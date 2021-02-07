@@ -53,7 +53,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float maxBackwardSpeed;
         private float returnTimer;
 
-		private MTexture[,] nineSliceTarget;
+        private MTexture[,] nineSliceTarget;
 
         private EventInstance moveSfx;
         private EventInstance returnSfx;

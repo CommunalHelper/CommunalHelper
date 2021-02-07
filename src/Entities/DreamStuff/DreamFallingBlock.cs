@@ -5,10 +5,10 @@ using System;
 using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-	[CustomEntity("CommunalHelper/DreamFallingBlock")]
-	public class DreamFallingBlock : CustomDreamBlock {
-		public bool Triggered;
-		public float FallDelay;
+    [CustomEntity("CommunalHelper/DreamFallingBlock")]
+    public class DreamFallingBlock : CustomDreamBlock {
+        public bool Triggered;
+        public float FallDelay;
 
         private bool noCollide;
 
@@ -16,7 +16,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool hasLanded;
 
         public DreamFallingBlock(EntityData data, Vector2 offset)
-			: base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) {
+            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) {
             noCollide = data.Bool("noCollide", false);
 
             Add(new Coroutine(Sequence()));
@@ -24,94 +24,94 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void OnStaticMoverTrigger(StaticMover sm) => Triggered = true;
 
-		private bool PlayerWaitCheck() {
-			if (Triggered) {
-				return true;
-			}
-			if (HasPlayerRider()) {
-				return true;
-			}
-			return CollideCheck<Player>(Position - Vector2.UnitX) || CollideCheck<Player>(Position + Vector2.UnitX);
-		}
+        private bool PlayerWaitCheck() {
+            if (Triggered) {
+                return true;
+            }
+            if (HasPlayerRider()) {
+                return true;
+            }
+            return CollideCheck<Player>(Position - Vector2.UnitX) || CollideCheck<Player>(Position + Vector2.UnitX);
+        }
 
-		private IEnumerator Sequence() {
-			while (!Triggered && !HasPlayerRider()) {
-				yield return null;
-			}
+        private IEnumerator Sequence() {
+            while (!Triggered && !HasPlayerRider()) {
+                yield return null;
+            }
 
-			while (FallDelay > 0f) {
-				FallDelay -= Engine.DeltaTime;
-				yield return null;
-			}
+            while (FallDelay > 0f) {
+                FallDelay -= Engine.DeltaTime;
+                yield return null;
+            }
 
-			HasStartedFalling = true;
-			while (true) {
-				ShakeSfx();
-				StartShaking();
-				Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
-				yield return 0.2f;
+            HasStartedFalling = true;
+            while (true) {
+                ShakeSfx();
+                StartShaking();
+                Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
+                yield return 0.2f;
 
-				float timer = 0.4f;
-				while (timer > 0f && PlayerWaitCheck()) {
-					yield return null;
-					timer -= Engine.DeltaTime;
-				}
+                float timer = 0.4f;
+                while (timer > 0f && PlayerWaitCheck()) {
+                    yield return null;
+                    timer -= Engine.DeltaTime;
+                }
 
-				StopShaking();
-				for (int i = 2; i < Width; i += 4) {
-					if (Scene.CollideCheck<Solid>(TopLeft + new Vector2(i, -2f))) {
-						SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + i, Y), Vector2.One * 4f, (float)Math.PI / 2f);
-					}
-					SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + i, Y), Vector2.One * 4f);
-				}
-				float speed = 0f;
-				float maxSpeed = 160f;
+                StopShaking();
+                for (int i = 2; i < Width; i += 4) {
+                    if (Scene.CollideCheck<Solid>(TopLeft + new Vector2(i, -2f))) {
+                        SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + i, Y), Vector2.One * 4f, (float) Math.PI / 2f);
+                    }
+                    SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + i, Y), Vector2.One * 4f);
+                }
+                float speed = 0f;
+                float maxSpeed = 160f;
                 hasLanded = false;
-				while (true) {
-					Level level = SceneAs<Level>();
-					speed = Calc.Approach(speed, maxSpeed, 500f * Engine.DeltaTime);
+                while (true) {
+                    Level level = SceneAs<Level>();
+                    speed = Calc.Approach(speed, maxSpeed, 500f * Engine.DeltaTime);
                     MoveV(speed * Engine.DeltaTime);
-					if (hasLanded) {
-						break;
-					}
+                    if (hasLanded) {
+                        break;
+                    }
 
-					if (Top > level.Bounds.Bottom + 16 || (Top > level.Bounds.Bottom - 1 && CollideCheck<Solid>(Position + new Vector2(0f, 1f)))) {
-						Collidable = (Visible = false);
-						yield return 0.2f;
+                    if (Top > level.Bounds.Bottom + 16 || (Top > level.Bounds.Bottom - 1 && CollideCheck<Solid>(Position + new Vector2(0f, 1f)))) {
+                        Collidable = (Visible = false);
+                        yield return 0.2f;
 
-						if (level.Session.MapData.CanTransitionTo(level, new Vector2(Center.X, Bottom + 12f))) {
-							yield return 0.2f;
+                        if (level.Session.MapData.CanTransitionTo(level, new Vector2(Center.X, Bottom + 12f))) {
+                            yield return 0.2f;
 
-							SceneAs<Level>().Shake();
-							Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
-						}
-						RemoveSelf();
-						DestroyStaticMovers();
-						yield break;
+                            SceneAs<Level>().Shake();
+                            Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
+                        }
+                        RemoveSelf();
+                        DestroyStaticMovers();
+                        yield break;
 
-					}
-					yield return null;
-				}
+                    }
+                    yield return null;
+                }
 
-				ImpactSfx();
-				Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
-				SceneAs<Level>().DirectionalShake(Vector2.UnitY, 0.3f);
-				StartShaking();
-				LandParticles();
-				yield return 0.2f;
+                ImpactSfx();
+                Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
+                SceneAs<Level>().DirectionalShake(Vector2.UnitY, 0.3f);
+                StartShaking();
+                LandParticles();
+                yield return 0.2f;
 
-				StopShaking();
-				if (CollideCheck<SolidTiles>(Position + new Vector2(0f, 1f))) {
-					break;
-				}
+                StopShaking();
+                if (CollideCheck<SolidTiles>(Position + new Vector2(0f, 1f))) {
+                    break;
+                }
 
-				while (CollideCheck<Platform>(Position + new Vector2(0f, 1f))) {
-					yield return 0.1f;
-				}
+                while (CollideCheck<Platform>(Position + new Vector2(0f, 1f))) {
+                    yield return 0.1f;
+                }
 
-			}
-			Safe = true;
-		}
+            }
+            Safe = true;
+        }
 
         // Essentially just a copied/stripped version of MoveVExactCollideSolids
         public override void MoveVExact(int move) {
@@ -149,26 +149,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Render() {
-			Position += Shake;
+            Position += Shake;
             base.Render();
-			Position -= Shake;
+            Position -= Shake;
         }
 
         private void LandParticles() {
-			for (int i = 2; i <= Width; i += 4) {
-				if (Scene.CollideCheck<Solid>(BottomLeft + new Vector2(i, 3f))) {
-					SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, -(float)Math.PI / 2f);
-					float direction = (!(i < Width / 2f)) ? 0f : ((float)Math.PI);
-					SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_LandDust, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, direction);
-				}
-			}
-		}
+            for (int i = 2; i <= Width; i += 4) {
+                if (Scene.CollideCheck<Solid>(BottomLeft + new Vector2(i, 3f))) {
+                    SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, -(float) Math.PI / 2f);
+                    float direction = (!(i < Width / 2f)) ? 0f : ((float) Math.PI);
+                    SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_LandDust, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, direction);
+                }
+            }
+        }
 
-		private void ShakeSfx() =>
-			Audio.Play(SFX.game_gen_fallblock_shake, Center);
+        private void ShakeSfx() =>
+            Audio.Play(SFX.game_gen_fallblock_shake, Center);
 
-		private void ImpactSfx() =>
-			Audio.Play(SFX.game_gen_fallblock_impact, BottomCenter);
+        private void ImpactSfx() =>
+            Audio.Play(SFX.game_gen_fallblock_impact, BottomCenter);
 
-	}
+    }
 }

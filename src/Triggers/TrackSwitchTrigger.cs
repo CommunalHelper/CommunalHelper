@@ -17,8 +17,8 @@ namespace Celeste.Mod.CommunalHelper.Triggers {
         private bool global = false;
         private Modes mode;
 
-        public TrackSwitchTrigger(EntityData data, Vector2 offset) 
-            : base(data,offset) {
+        public TrackSwitchTrigger(EntityData data, Vector2 offset)
+            : base(data, offset) {
             oneUse = data.Bool("oneUse", true);
             flash = data.Bool("flash", false);
             global = data.Bool("globalSwitch", false);

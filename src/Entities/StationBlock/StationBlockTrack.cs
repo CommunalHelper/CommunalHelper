@@ -63,7 +63,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             horizontal = data.Bool("horizontal");
             Collider = new Hitbox(horizontal ? data.Width : 8, horizontal ? 8 : data.Height);
-            
+
             nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
             nodeRect2 = new Rectangle((int) (X + Width - 8), (int) (Y + Height - 8), 8, 8);
 
@@ -325,8 +325,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public static void SwitchTracks(Scene scene, TrackSwitchState state) {
             foreach (StationBlockTrack track in scene.Tracker.GetEntities<StationBlockTrack>()) {
-                if(track.MasterOfGroup) {
-                    foreach(StationBlockTrack child in track.Group) {
+                if (track.MasterOfGroup) {
+                    foreach (StationBlockTrack child in track.Group) {
                         child.Switch(state);
                     }
                 }
