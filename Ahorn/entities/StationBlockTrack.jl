@@ -7,7 +7,7 @@ const switchStates = ["None", "On", "Off"]
     width::Integer = 24, height::Integer = 24,
     horizontal::Bool = false,
     trackSwitchState::String = "None",
-    offrampNode1::Bool = false, offrampNode2::Bool = false)
+    offrampNode1::Bool = false, offrampNode2::Bool = false, multiBlockTrack::Bool = false)
 
 const placements = Ahorn.PlacementDict(
     "Station Block Track ($orientation, $stateLabel) (Communal Helper)" => Ahorn.EntityPlacement(
