@@ -132,7 +132,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (exit)
                         break;
                 }
-                Console.WriteLine(toAttach.Count);
+                
                 if (toAttach.Count == 0) {
                     SetTrackTheme(StationBlock.Theme.Normal, false);
                 } else {
