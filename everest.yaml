@@ -1,5 +1,5 @@
 - Name: CommunalHelper
-  Version: 1.6.0
+  Version: 1.6.1
   DLL: src/bin/Debug/net452/CommunalHelper.dll
   Dependencies:
     - Name: Everest
