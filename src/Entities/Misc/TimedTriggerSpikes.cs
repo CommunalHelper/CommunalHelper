@@ -231,6 +231,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         break;
                 }
                 spikes[i].DelayTimer = Delay;
+                spikes[i].color = Color.White;
             }
         }
 
