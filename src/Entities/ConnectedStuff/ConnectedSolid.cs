@@ -225,9 +225,9 @@ namespace Celeste.Mod.CommunalHelper {
 
         [Flags]
         private enum Sides {
-            Up = 1, 
-            Down = 2, 
-            Left = 4, 
+            Up = 1,
+            Down = 2,
+            Left = 4,
             Right = 8,
             All = Up | Down | Left | Right
         }

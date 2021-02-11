@@ -107,7 +107,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 AddToGroupAndFindChildren(this);
 
                 bool multiBlock = false;
-                foreach(StationBlockTrack t in Group) {
+                foreach (StationBlockTrack t in Group) {
                     if (t.multiBlockTrack) {
                         multiBlock = true;
                         break;
@@ -131,7 +131,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (exit)
                         break;
                 }
-                
+
                 if (toAttach.Count == 0) {
                     SetTrackTheme(StationBlock.Theme.Normal, false);
                 } else {
