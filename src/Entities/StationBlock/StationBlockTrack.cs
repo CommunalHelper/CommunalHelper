@@ -36,6 +36,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private List<Node> Track;
         private List<StationBlockTrack> Group;
+        private bool multiBlockTrack = false;
 
         private MTexture trackSprite, disabledTrackSprite;
         private List<MTexture> nodeSprite;
@@ -62,6 +63,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             trackStatePercent = switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f;
 
             horizontal = data.Bool("horizontal");
+            multiBlockTrack = data.Bool("multiBlockTrack", false);
             Collider = new Hitbox(horizontal ? data.Width : 8, horizontal ? 8 : data.Height);
 
             nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
@@ -104,30 +106,49 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Group = new List<StationBlockTrack>();
                 AddToGroupAndFindChildren(this);
 
-                StationBlock block = null;
+                bool multiBlock = false;
+                foreach(StationBlockTrack t in Group) {
+                    if (t.multiBlockTrack) {
+                        multiBlock = true;
+                        break;
+                    }
+                }
+
+                List<Tuple<StationBlock, Node>> toAttach = new List<Tuple<StationBlock, Node>>();
+                bool exit = false;
                 foreach (Node node in Track) {
                     foreach (StationBlock entity in Scene.Tracker.GetEntities<StationBlock>()) {
                         if (!entity.IsAttachedToTrack &&
                             Math.Abs(node.Center.X - entity.Center.X) <= 4 &&
                             Math.Abs(node.Center.Y - entity.Center.Y) <= 4) {
-                            block = entity;
-                            break;
+                            toAttach.Add(new Tuple<StationBlock, Node>(entity, node));
+                            if (!multiBlock) {
+                                exit = true;
+                                break;
+                            }
                         }
                     }
-
-                    if (block == null)
-                        continue;
-
-                    // Found block to attach.
-                    block.Attach(node);
-                    OffsetTrack(block.Center - node.Center);
-                    break;
+                    if (exit)
+                        break;
                 }
-
-                if (block == null) {
+                
+                if (toAttach.Count == 0) {
                     SetTrackTheme(StationBlock.Theme.Normal, false);
                 } else {
-                    SetTrackTheme(block.theme, block.reverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
+                    bool setTheme = false;
+                    foreach (Tuple<StationBlock, Node> tuple in toAttach) {
+                        // Found block(s) to attach.
+                        Node node = tuple.Item2;
+                        StationBlock block = tuple.Item1;
+
+                        block.Attach(node);
+                        if (!setTheme) {
+                            OffsetTrack(block.Center - node.Center);
+                            SetTrackTheme(block.theme, block.reverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
+                            setTheme = true;
+                        }
+                        block.Position += node.Center - block.Center;
+                    }
                 }
             }
         }
