@@ -223,6 +223,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     _ => throw new NotImplementedException(),
                 };
                 spikes[i].DelayTimer = Delay;
+                spikes[i].color = Color.White;
             }
         }
 
