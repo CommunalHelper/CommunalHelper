@@ -1,4 +1,4 @@
---1.6.2 (??/02/2021)--
+--1.6.2 (12/02/2021)--
 * Fixed ConnectedSolids not killing Madeline when crushed horizontally.
 * Fixed Timed Trigger Spikes invisible glitch.
 * Massive code cleanup and update to C# 9.
