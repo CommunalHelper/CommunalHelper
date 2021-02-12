@@ -112,14 +112,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return DashCollisionResults.Rebound;
         }
 
-        private string GetAnimFromDirection(Vector2 dir) {
+        private string GetAnimFromDirection(string prefix, Vector2 dir) {
             if (dir.Y == 1)
-                return "targetDown";
+                return prefix + "Down";
             if (dir.Y == -1)
-                return "targetUp";
+                return prefix + "Up";
             if (dir.X == -1)
-                return "targetLeft";
-            return "targetRight";
+                return prefix + "Left";
+            return prefix + "Right";
         }
 
         private IEnumerator Sequence() {
@@ -128,12 +128,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     yield return null;
                 }
 
-                yield return .5f;
+                yield return .4f;
 
-                eye.Play(GetAnimFromDirection(crushDir), true);
+                eye.Play(GetAnimFromDirection("target", crushDir), true);
                 yield return 2f;
 
-                eye.Play("idle");
+                eye.Play(GetAnimFromDirection("targetReverse", crushDir), true);
                 triggered = false;
             }
         }
