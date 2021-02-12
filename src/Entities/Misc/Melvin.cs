@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using static Celeste.CrushBlock;
 
@@ -10,7 +11,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/Melvin")]
     class Melvin : Solid {
 
+        private static readonly Color fill = Calc.HexToColor("62222b");
+
         private Axes axis;
+        private Vector2 crushDir;
+        private bool triggered = false;
+
+        private Sprite eye;
 
         private List<Image> activeTopTiles = new List<Image>();
         private List<Image> activeBottomTiles = new List<Image>();
@@ -56,6 +63,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                     Image image = new Image((edge ? block : inside).GetSubtexture(tx * 8, ty * 8, 8, 8));
                     image.Position = new Vector2(i * 8, j * 8);
+                    if (!edge)
+                        image.Position += new Vector2(Calc.Random.Choose(-1, 1), Calc.Random.Choose(-1, 1)); // randomness looks cool!
                     Add(image);
 
                     if (edge) {
@@ -80,15 +89,53 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
             }
+
+            eye = CommunalHelperModule.SpriteBank.Create("melvinEye");
+            eye.Position = new Vector2(width / 2, height / 2);
+            Add(eye);
+
             OnDashCollide = OnDashed;
             Add(new LightOcclude(0.2f));
             //Add(new BloomPoint(new Vector2(width / 2, height / 2), .5f, (width + height) / 2)); // experimental bloom
+
+            Add(new Coroutine(Sequence()));
         }
 
         public DashCollisionResults OnDashed(Player player, Vector2 dir) {
-            ActivateTiles(dir.Y == 1, dir.Y == -1, dir.X == 1, dir.X == -1);
-            Audio.Play("event:/game/06_reflection/crushblock_activate", base.Center);
-            return DashCollisionResults.Bounce;
+            if (!triggered) {
+                ActivateTiles(dir.Y == 1, dir.Y == -1, dir.X == 1, dir.X == -1);
+                Audio.Play("event:/game/06_reflection/crushblock_activate", base.Center);
+                eye.Play("target", true);
+                triggered = true;
+                crushDir = -dir;
+            }
+            return DashCollisionResults.Rebound;
+        }
+
+        private string GetAnimFromDirection(Vector2 dir) {
+            if (dir.Y == 1)
+                return "targetDown";
+            if (dir.Y == -1)
+                return "targetUp";
+            if (dir.X == -1)
+                return "targetLeft";
+            return "targetRight";
+        }
+
+        private IEnumerator Sequence() {
+            while(true) {
+                while(!triggered) {
+                    yield return null;
+                }
+
+                yield return .5f;
+
+                eye.Play(GetAnimFromDirection(crushDir), true);
+                yield return 2f;
+
+                eye.Play("idle");
+                triggered = false;
+            }
         }
 
         private void ActivateTiles(bool up, bool down, bool left, bool right) {
@@ -130,7 +177,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Render() {
             Vector2 position = Position;
             Position += Shake;
-
+            Draw.Rect(base.X + 2f, base.Y + 2f, base.Width - 4f, base.Height - 4f, fill);
             base.Render();
 
             Position = position;

@@ -34,6 +34,8 @@ const edges = Dict{String, String}(
 const insideTiles = "objects/CommunalHelper/melvin/inside"
 const eye = "objects/CommunalHelper/melvin/eye/idle_small00"
 
+const kevinColor = (98, 34, 43) ./ 255
+
 function getBlockTextures(axes::String)
     return insideTiles, edges[axes]
 end
@@ -53,6 +55,8 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Melvin, room::Maple
 
     tileWidth = ceil(Int, width / 8)
     tileHeight = ceil(Int, height / 8)
+
+    Ahorn.drawRectangle(ctx, 2, 2, width - 4, height - 4, kevinColor)
 
     for i in 1:tileWidth, j in 1:tileHeight
         tx = (i == 1) ? 0 : ((i == tileWidth) ? 24 : 8)
