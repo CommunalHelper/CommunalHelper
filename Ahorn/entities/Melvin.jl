@@ -7,9 +7,35 @@ using ..Ahorn, Maple
             weakTop::Bool = false, weakRight::Bool = false, weakBottom::Bool = false, weakLeft::Bool = false)
            
 const placements = Ahorn.PlacementDict(
-    "Melvin (Strong) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Melvin (All Strong) (Communal Helper)" => Ahorn.EntityPlacement(
         Melvin,
         "rectangle"
+    ),
+    "Melvin (All Weak) (Communal Helper)" => Ahorn.EntityPlacement(
+        Melvin,
+        "rectangle",
+        Dict{String, Any}(
+            "weakTop" => true,
+            "weakRight" => true,
+            "weakBottom" => true,
+            "weakLeft" => true
+        )
+    ),
+    "Melvin (Horizontally Weak) (Communal Helper)" => Ahorn.EntityPlacement(
+        Melvin,
+        "rectangle",
+        Dict{String, Any}(
+            "weakRight" => true,
+            "weakLeft" => true
+        )
+    ),
+    "Melvin (Vertically Weak) (Communal Helper)" => Ahorn.EntityPlacement(
+        Melvin,
+        "rectangle",
+        Dict{String, Any}(
+            "weakTop" => true,
+            "weakBottom" => true
+        )
     )
 )
 
