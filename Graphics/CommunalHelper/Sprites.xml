@@ -383,12 +383,12 @@
 	<melvinEye path="objects/CommunalHelper/melvin/eye/" start="idle">
 		<Justify x="0.5" y="0.5"/>
 		<Loop id="idle" path="idle_small" delay="0.08" frames="0"/>
-		<Anim id="target" path="target_small" delay="0.08" frames="0-4"/>
+		<Anim id="target" path="target_small" delay="0.05" frames="0-4"/>
 
-		<Anim id="targetUp" path="targetUp_small" delay="0.08" frames="0-2"/>
-		<Anim id="targetDown" path="targetDown_small" delay="0.08" frames="0-2"/>
-		<Anim id="targetLeft" path="targetLeft_small" delay="0.08" frames="0-2"/>
-		<Anim id="targetRight" path="targetRight_small" delay="0.08" frames="0-2"/>
+		<Anim id="targetUp" path="targetUp_small" delay="0.06" frames="0-2"/>
+		<Anim id="targetDown" path="targetDown_small" delay="0.06" frames="0-2"/>
+		<Anim id="targetLeft" path="targetLeft_small" delay="0.06" frames="0-2"/>
+		<Anim id="targetRight" path="targetRight_small" delay="0.06" frames="0-2"/>
 
 		<Anim id="targetReverseUp" path="targetUp_small" delay="0.08" frames="2,1,0" goto="idle"/>
 		<Anim id="targetReverseDown" path="targetDown_small" delay="0.08" frames="2,1,0" goto="idle"/>
