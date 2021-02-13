@@ -41,14 +41,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private List<MoveState> returnStack = new List<MoveState>();
+        private List<MoveState> returnStack;
 
         private Level level;
 
         private Vector2 crushDir;
         private ArrowDir dir;
         private bool triggered = false;
-
+        private Vector2 squishScale = Vector2.One;
         private bool weakTop, weakBottom, weakLeft, weakRight;
 
         private Sprite eye;
@@ -57,8 +57,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<Image> activeBottomTiles = new List<Image>();
         private List<Image> activeRightTiles = new List<Image>();
         private List<Image> activeLeftTiles = new List<Image>();
-        private List<Image> blockTiles = new List<Image>();
+        private List<Image> tiles = new List<Image>();
         private float topTilesAlpha, bottomTilesAlpha, leftTilesAlpha, rightTilesAlpha;
+
+        private Coroutine attackCoroutine;
 
         public Melvin(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height,
@@ -67,6 +69,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public Melvin(Vector2 position, int width, int height, bool up, bool down, bool left, bool right)
             : base(position, width, height, safe: false) {
+            returnStack = new List<MoveState>();
 
             weakTop = up;
             weakBottom = down;
@@ -79,9 +82,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             eye.Position = new Vector2(width / 2, height / 2);
             Add(eye);
 
-            Add(new LightOcclude(0.2f));
+            OnDashCollide = OnDashed;
 
-            Add(new Coroutine(Sequence()));
+            Add(new LightOcclude(0.2f));
+            Add(attackCoroutine = new Coroutine(false));
         }
 
         public override void Awake(Scene scene) {
@@ -111,8 +115,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         // middle
                         Image tile = new Image(insideBlock[rx, ry]);
                         tile.Position = pos + new Vector2(Calc.Random.Range(-1, 2), Calc.Random.Range(-1, 2));
-                        Add(tile);
-                        blockTiles.Add(tile);
+                        //Add(tile);
+                        tiles.Add(tile);
                     } else if(!corner) {
                         // edges
                         Image edgeTile = null, litEdgeTile = null;
@@ -135,8 +139,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                         if (edgeTile != null) {
                             edgeTile.Position = pos;
-                            Add(edgeTile);
-                            blockTiles.Add(edgeTile);
+                            //Add(edgeTile);
+                            tiles.Add(edgeTile);
                         }
                         if (litEdgeTile != null) {
                             litEdgeTile.Position = pos;
@@ -146,7 +150,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             if (left) activeLeftTiles.Add(litEdgeTile);
                             if (bottom) activeBottomTiles.Add(litEdgeTile);
                             if (top) activeTopTiles.Add(litEdgeTile);
-                            Add(litEdgeTile);
+                            tiles.Add(litEdgeTile);
+                            //Add(litEdgeTile);
                         }
                     } else {
                         // corners
@@ -214,17 +219,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                         if (cornerTile != null) {
                             cornerTile.Position = pos;
-                            Add(cornerTile);
+                            tiles.Add(cornerTile);
+                            //Add(cornerTile);
                         }
                         if (litCornerTile1 != null) {
                             litCornerTile1.Position = pos;
                             litCornerTile1.Color = Color.Transparent;
-                            Add(litCornerTile1);
+                            tiles.Add(litCornerTile1);
+                            //Add(litCornerTile1);
                         }
                         if (litCornerTile2 != null) {
                             litCornerTile2.Position = pos;
                             litCornerTile2.Color = Color.Transparent;
-                            Add(litCornerTile2);
+                            tiles.Add(litCornerTile2);
+                            //Add(litCornerTile2);
                         }
                     }
                 }
@@ -244,144 +252,176 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private IEnumerator Sequence() {
-            while(true) {
-                while(!triggered) {
-                    yield return null;
-                }
-                CreateMoveState();
-                string animDir = Enum.GetName(typeof(ArrowDir), dir);
-
-                ActivateTiles(dir);
-                ActivateParticles();
-                Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
-                StartShaking(0.4f);
-
-                Audio.Play("event:/game/06_reflection/crushblock_activate", base.Center);
-                eye.Play("target", true);
-                yield return .4f;
-
-                eye.Play("target" + animDir, true);
-
-                StopPlayerRunIntoAnimation = false;
-                float speed = 0f;
-                while (true) {
-                    speed = Calc.Approach(speed, 240f, 500f * Engine.DeltaTime);
-
-                    bool flag = ((crushDir.X == 0f) ? MoveVCheck(speed * crushDir.Y * Engine.DeltaTime) : MoveHCheck(speed * crushDir.X * Engine.DeltaTime));
-                    if (Top >= (float) (level.Bounds.Bottom + 32)) {
-                        RemoveSelf();
-                        yield break;
-                    }
-                    if (flag) {
-                        break;
-                    }
-                    if (Scene.OnInterval(0.02f)) {
-                        Vector2 position;
-                        float direction;
-                        if (crushDir == Vector2.UnitX) {
-                            position = new Vector2(Left + 1f, Calc.Random.Range(Top + 3f, Bottom - 3f));
-                            direction = (float) Math.PI;
-                        } else if (crushDir == -Vector2.UnitX) {
-                            position = new Vector2(Right - 1f, Calc.Random.Range(Top + 3f, Bottom - 3f));
-                            direction = 0f;
-                        } else if (crushDir == Vector2.UnitY) {
-                            position = new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Top + 1f);
-                            direction = -(float) Math.PI / 2f;
-                        } else {
-                            position = new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Bottom - 1f);
-                            direction = (float) Math.PI / 2f;
-                        }
-                        level.Particles.Emit(SwitchGate.P_Behind, position, direction);
-                    }
-                    yield return null;
-                }
-
-                FallingBlock fallingBlock = CollideFirst<FallingBlock>(Position + crushDir);
-                if (fallingBlock != null) {
-                    fallingBlock.Triggered = true;
-                }
-                if (crushDir == -Vector2.UnitX) {
-                    Vector2 value = new Vector2(0f, 2f);
-                    for (int i = 0; (float) i < Height / 8f; i++) {
-                        Vector2 vector = new Vector2(Left - 1f, Top + 4f + (float) (i * 8));
-                        if (!Scene.CollideCheck<Water>(vector) && Scene.CollideCheck<Solid>(vector)) {
-                            SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector + value, 0f);
-                            SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector - value, 0f);
-                        }
-                    }
-                } else if (crushDir == Vector2.UnitX) {
-                    Vector2 value2 = new Vector2(0f, 2f);
-                    for (int j = 0; (float) j < Height / 8f; j++) {
-                        Vector2 vector2 = new Vector2(Right + 1f, Top + 4f + (float) (j * 8));
-                        if (!Scene.CollideCheck<Water>(vector2) && Scene.CollideCheck<Solid>(vector2)) {
-                            SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector2 + value2, (float) Math.PI);
-                            SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector2 - value2, (float) Math.PI);
-                        }
-                    }
-                } else if (crushDir == -Vector2.UnitY) {
-                    Vector2 value3 = new Vector2(2f, 0f);
-                    for (int k = 0; (float) k < Width / 8f; k++) {
-                        Vector2 vector3 = new Vector2(Left + 4f + (float) (k * 8), Top - 1f);
-                        if (!Scene.CollideCheck<Water>(vector3) && Scene.CollideCheck<Solid>(vector3)) {
-                            SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector3 + value3, (float) Math.PI / 2f);
-                            SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector3 - value3, (float) Math.PI / 2f);
-                        }
-                    }
-                } else if (crushDir == Vector2.UnitY) {
-                    Vector2 value4 = new Vector2(2f, 0f);
-                    for (int l = 0; (float) l < Width / 8f; l++) {
-                        Vector2 vector4 = new Vector2(Left + 4f + (float) (l * 8), Bottom + 1f);
-                        if (!Scene.CollideCheck<Water>(vector4) && Scene.CollideCheck<Solid>(vector4)) {
-                            SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector4 + value4, -(float) Math.PI / 2f);
-                            SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector4 - value4, -(float) Math.PI / 2f);
-                        }
-                    }
-                }
-
-                Audio.Play("event:/game/06_reflection/crushblock_impact", Center);
-                level.DirectionalShake(crushDir);
-                Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
-                StartShaking(0.4f);
-                StopPlayerRunIntoAnimation = true;
-                eye.Play("targetReverse" + animDir, true);
-                crushDir = Vector2.Zero;
-                yield return .4f;
-
-                speed = 0f;
-                float waypointSfxDelay = 0f;
-                while (returnStack.Count > 0) {
-                    yield return null;
-                    StopPlayerRunIntoAnimation = false;
-                    MoveState moveState = returnStack[returnStack.Count - 1];
-                    speed = Calc.Approach(speed, 60f, 160f * Engine.DeltaTime);
-                    waypointSfxDelay -= Engine.DeltaTime;
-                    if (moveState.Direction.X != 0f) {
-                        MoveTowardsX(moveState.From.X, speed * Engine.DeltaTime);
-                    }
-                    if (moveState.Direction.Y != 0f) {
-                        MoveTowardsY(moveState.From.Y, speed * Engine.DeltaTime);
-                    }
-                    if ((moveState.Direction.X != 0f && ExactPosition.X != moveState.From.X) || (moveState.Direction.Y != 0f && ExactPosition.Y != moveState.From.Y)) {
-                        continue;
-                    }
-                    speed = 0f;
-                    returnStack.RemoveAt(returnStack.Count - 1);
-                    StopPlayerRunIntoAnimation = true;
-                    if (returnStack.Count <= 0) {
-                        if (waypointSfxDelay <= 0f) {
-                            Audio.Play("event:/game/06_reflection/crushblock_rest", Center);
-                        }
-                    } else if (waypointSfxDelay <= 0f) {
-                        Audio.Play("event:/game/06_reflection/crushblock_rest_waypoint", Center);
-                    }
-                    waypointSfxDelay = 0.1f;
-                    StartShaking(0.2f);
-                    yield return 0.2f;
-                }
-
-                triggered = false;
+        private DashCollisionResults OnDashed(Player player, Vector2 direction) {
+            bool playerAttacked = false;
+            if (direction == Vector2.UnitX && weakLeft) {
+                // left side
+                playerAttacked = true;
+                dir = ArrowDir.Right;
+            } else
+            if (direction == -Vector2.UnitX && weakRight) {
+                // right side
+                playerAttacked = true;
+                dir = ArrowDir.Left;
+            } else
+            if (direction == Vector2.UnitY && weakTop) {
+                // top side
+                playerAttacked = true;
+                dir = ArrowDir.Down;
+            } else
+            if (direction == -Vector2.UnitY && weakBottom) {
+                // bottom side
+                playerAttacked = true;
+                dir = ArrowDir.Up;
             }
+
+            if (playerAttacked) {
+                squishScale = new Vector2(1f + Math.Abs(direction.Y) * 0.4f - Math.Abs(direction.X) * 0.4f, 1f + Math.Abs(direction.X) * 0.4f - Math.Abs(direction.Y) * 0.4f);
+                crushDir = direction;
+                Attack();
+                return DashCollisionResults.Rebound;
+            }
+            return DashCollisionResults.NormalCollision;
+        }
+
+        private void Attack() {
+            triggered = true;
+            attackCoroutine.Replace(AttackSequence());
+        }
+
+        private IEnumerator AttackSequence() {
+            CreateMoveState();
+            string animDir = Enum.GetName(typeof(ArrowDir), dir);
+
+            ActivateTiles(dir);
+            ActivateParticles();
+            Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
+            StartShaking(0.4f);
+
+            Audio.Play("event:/game/06_reflection/crushblock_activate", base.Center);
+            eye.Play("target", true);
+            yield return .4f;
+
+            eye.Play("target" + animDir, true);
+
+            StopPlayerRunIntoAnimation = false;
+            float speed = 0f;
+            while (true) {
+                speed = Calc.Approach(speed, 240f, 500f * Engine.DeltaTime);
+
+                bool flag = ((crushDir.X == 0f) ? MoveVCheck(speed * crushDir.Y * Engine.DeltaTime) : MoveHCheck(speed * crushDir.X * Engine.DeltaTime));
+                if (Top >= (float) (level.Bounds.Bottom + 32)) {
+                    RemoveSelf();
+                    yield break;
+                }
+                if (flag) {
+                    break;
+                }
+                if (Scene.OnInterval(0.02f)) {
+                    Vector2 position;
+                    float direction;
+                    if (crushDir == Vector2.UnitX) {
+                        position = new Vector2(Left + 1f, Calc.Random.Range(Top + 3f, Bottom - 3f));
+                        direction = (float) Math.PI;
+                    } else if (crushDir == -Vector2.UnitX) {
+                        position = new Vector2(Right - 1f, Calc.Random.Range(Top + 3f, Bottom - 3f));
+                        direction = 0f;
+                    } else if (crushDir == Vector2.UnitY) {
+                        position = new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Top + 1f);
+                        direction = -(float) Math.PI / 2f;
+                    } else {
+                        position = new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Bottom - 1f);
+                        direction = (float) Math.PI / 2f;
+                    }
+                    level.Particles.Emit(SwitchGate.P_Behind, position, direction);
+                }
+                yield return null;
+            }
+
+            FallingBlock fallingBlock = CollideFirst<FallingBlock>(Position + crushDir);
+            if (fallingBlock != null) {
+                fallingBlock.Triggered = true;
+            }
+            if (crushDir == -Vector2.UnitX) {
+                Vector2 value = new Vector2(0f, 2f);
+                for (int i = 0; (float) i < Height / 8f; i++) {
+                    Vector2 vector = new Vector2(Left - 1f, Top + 4f + (float) (i * 8));
+                    if (!Scene.CollideCheck<Water>(vector) && Scene.CollideCheck<Solid>(vector)) {
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector + value, 0f);
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector - value, 0f);
+                    }
+                }
+            } else if (crushDir == Vector2.UnitX) {
+                Vector2 value2 = new Vector2(0f, 2f);
+                for (int j = 0; (float) j < Height / 8f; j++) {
+                    Vector2 vector2 = new Vector2(Right + 1f, Top + 4f + (float) (j * 8));
+                    if (!Scene.CollideCheck<Water>(vector2) && Scene.CollideCheck<Solid>(vector2)) {
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector2 + value2, (float) Math.PI);
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector2 - value2, (float) Math.PI);
+                    }
+                }
+            } else if (crushDir == -Vector2.UnitY) {
+                Vector2 value3 = new Vector2(2f, 0f);
+                for (int k = 0; (float) k < Width / 8f; k++) {
+                    Vector2 vector3 = new Vector2(Left + 4f + (float) (k * 8), Top - 1f);
+                    if (!Scene.CollideCheck<Water>(vector3) && Scene.CollideCheck<Solid>(vector3)) {
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector3 + value3, (float) Math.PI / 2f);
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector3 - value3, (float) Math.PI / 2f);
+                    }
+                }
+            } else if (crushDir == Vector2.UnitY) {
+                Vector2 value4 = new Vector2(2f, 0f);
+                for (int l = 0; (float) l < Width / 8f; l++) {
+                    Vector2 vector4 = new Vector2(Left + 4f + (float) (l * 8), Bottom + 1f);
+                    if (!Scene.CollideCheck<Water>(vector4) && Scene.CollideCheck<Solid>(vector4)) {
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector4 + value4, -(float) Math.PI / 2f);
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector4 - value4, -(float) Math.PI / 2f);
+                    }
+                }
+            }
+
+            Audio.Play("event:/game/06_reflection/crushblock_impact", Center);
+            level.DirectionalShake(crushDir);
+            Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
+            StartShaking(0.4f);
+            StopPlayerRunIntoAnimation = true;
+            eye.Play("targetReverse" + animDir, true);
+            crushDir = Vector2.Zero;
+            yield return .4f;
+
+            speed = 0f;
+            float waypointSfxDelay = 0f;
+            while (returnStack.Count > 0) {
+                yield return null;
+                StopPlayerRunIntoAnimation = false;
+                MoveState moveState = returnStack[returnStack.Count - 1];
+                speed = Calc.Approach(speed, 60f, 160f * Engine.DeltaTime);
+                waypointSfxDelay -= Engine.DeltaTime;
+                if (moveState.Direction.X != 0f) {
+                    MoveTowardsX(moveState.From.X, speed * Engine.DeltaTime);
+                }
+                if (moveState.Direction.Y != 0f) {
+                    MoveTowardsY(moveState.From.Y, speed * Engine.DeltaTime);
+                }
+                if ((moveState.Direction.X != 0f && ExactPosition.X != moveState.From.X) || (moveState.Direction.Y != 0f && ExactPosition.Y != moveState.From.Y)) {
+                    continue;
+                }
+                speed = 0f;
+                returnStack.RemoveAt(returnStack.Count - 1);
+                StopPlayerRunIntoAnimation = true;
+                if (returnStack.Count <= 0) {
+                    if (waypointSfxDelay <= 0f) {
+                        Audio.Play("event:/game/06_reflection/crushblock_rest", Center);
+                    }
+                } else if (waypointSfxDelay <= 0f) {
+                    Audio.Play("event:/game/06_reflection/crushblock_rest_waypoint", Center);
+                }
+                waypointSfxDelay = 0.1f;
+                StartShaking(0.2f);
+                yield return 0.2f;
+            }
+
+            triggered = false;
         }
 
         private bool MoveHCheck(float amount) {
@@ -518,6 +558,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
 
+            eye.Scale = squishScale;
+            squishScale = Calc.Approach(squishScale, Vector2.One, Engine.DeltaTime * 4f);
+
             if (!triggered && Util.TryGetPlayer(out Player player)) {
                 bool detectedPlayer = false;
                 Rectangle toPlayerRect = new Rectangle();
@@ -558,7 +601,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
                 if (detectedPlayer && IsPlayerSeen(toPlayerRect, dir)) {
-                    triggered = true;
+                    Attack();
                 }
             }
 
@@ -569,6 +612,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 position = Position;
             Position += Shake * (triggered ? crushDir : Vector2.One);
             Draw.Rect(base.X + 2f, base.Y + 2f, base.Width - 4f, base.Height - 4f, fill);
+
+            foreach(Image img in tiles) {
+                Vector2 pos = Position + img.Position + new Vector2(4, 4);
+                pos = Center + (pos - base.Center) * squishScale;
+                img.Texture.DrawCentered(pos, img.Color, squishScale);
+            }
+
             base.Render();
             Position = position;
         }
