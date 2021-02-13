@@ -4,6 +4,7 @@ using Monocle;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using static Celeste.Mod.CommunalHelper.Entities.StationBlock;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
 
@@ -27,6 +28,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static readonly MTexture[,] litVCornersCut = new MTexture[2, 2];
 
         private Vector2 crushDir;
+        private ArrowDir dir;
         private bool triggered = false;
 
         private bool weakTop, weakBottom, weakLeft, weakRight;
@@ -37,6 +39,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<Image> activeBottomTiles = new List<Image>();
         private List<Image> activeRightTiles = new List<Image>();
         private List<Image> activeLeftTiles = new List<Image>();
+        private List<Image> blockTiles = new List<Image>();
         private float topTilesAlpha, bottomTilesAlpha, leftTilesAlpha, rightTilesAlpha;
 
         public Melvin(EntityData data, Vector2 offset)
@@ -46,9 +49,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public Melvin(Vector2 position, int width, int height, bool up, bool down, bool left, bool right)
             : base(position, width, height, safe: false) {
-
-            int w = (int) (base.Width / 8f);
-            int h = (int) (base.Height / 8f);
 
             weakTop = up;
             weakBottom = down;
@@ -61,7 +61,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             eye.Position = new Vector2(width / 2, height / 2);
             Add(eye);
 
-            OnDashCollide = OnDashed;
             Add(new LightOcclude(0.2f));
 
             Add(new Coroutine(Sequence()));
@@ -90,6 +89,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Image tile = new Image(insideBlock[rx, ry]);
                         tile.Position = pos + new Vector2(Calc.Random.Range(-1, 2), Calc.Random.Range(-1, 2));
                         Add(tile);
+                        blockTiles.Add(tile);
                     } else if(!corner) {
                         // edges
                         Image edgeTile = null, litEdgeTile = null;
@@ -113,6 +113,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         if (edgeTile != null) {
                             edgeTile.Position = pos;
                             Add(edgeTile);
+                            blockTiles.Add(edgeTile);
                         }
                         if (litEdgeTile != null) {
                             litEdgeTile.Position = pos;
@@ -207,52 +208,43 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        public DashCollisionResults OnDashed(Player player, Vector2 dir) {
-            if (!triggered) {
-                ActivateTiles(dir.Y == 1, dir.Y == -1, dir.X == 1, dir.X == -1);
-                Audio.Play("event:/game/06_reflection/crushblock_activate", base.Center);
-                eye.Play("target", true);
-                triggered = true;
-                crushDir = -dir;
-            }
-            return DashCollisionResults.Rebound;
-        }
-
-        private string GetAnimFromDirection(string prefix, Vector2 dir) {
-            if (dir.Y == 1)
-                return prefix + "Down";
-            if (dir.Y == -1)
-                return prefix + "Up";
-            if (dir.X == -1)
-                return prefix + "Left";
-            return prefix + "Right";
-        }
-
         private IEnumerator Sequence() {
             while(true) {
                 while(!triggered) {
                     yield return null;
                 }
-
+                string animDir = Enum.GetName(typeof(ArrowDir), dir);
+                eye.Play("target", true);
                 yield return .4f;
 
-                eye.Play(GetAnimFromDirection("target", crushDir), true);
+                eye.Play("target" + animDir, true);
                 yield return 2f;
 
-                eye.Play(GetAnimFromDirection("targetReverse", crushDir), true);
+                eye.Play("targetReverse" + animDir, true);
+                yield return .5f;
+
                 triggered = false;
             }
         }
 
-        private void ActivateTiles(bool up, bool down, bool left, bool right) {
-            if (up)
-                topTilesAlpha = 1f;
-            if (down)
-                bottomTilesAlpha = 1f;
-            if (left)
-                leftTilesAlpha = 1f;
-            if (right)
-                rightTilesAlpha = 1f;
+        private void ActivateTiles(ArrowDir dir) {
+            switch (dir) {
+                case ArrowDir.Up:
+                    topTilesAlpha = 1f;
+                    break;
+                case ArrowDir.Down:
+                    bottomTilesAlpha = 1f;
+                    break;
+                case ArrowDir.Left:
+                    leftTilesAlpha = 1f;
+                    break;
+                case ArrowDir.Right:
+                    rightTilesAlpha = 1f;
+                    break;
+
+                default:
+                    break;
+            }
         }
              
         private void UpdateActiveTiles() {
@@ -275,8 +267,74 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        private bool IsPlayerSeen(Rectangle rect, ArrowDir dir) {
+            if(dir == ArrowDir.Up || dir == ArrowDir.Down) {
+                for (int i = 0; i < rect.Width; i++) {
+                    Rectangle lineRect = new Rectangle(rect.X + i, rect.Y, 1, rect.Height);
+                    if (!Scene.CollideCheck<Solid>(lineRect))
+                        return true;
+                }
+                return false;
+            } else {
+                for(int i = 0; i < rect.Height; i++) {
+                    Rectangle lineRect = new Rectangle(rect.X, rect.Y + i, rect.Width, 1);
+                    if (!Scene.CollideCheck<Solid>(lineRect))
+                        return true;
+                }
+                return false;
+            }
+        }
+
         public override void Update() {
             base.Update();
+
+
+            if (Util.TryGetPlayer(out Player player) && !triggered) {
+                bool detectedPlayer = false;
+                Rectangle toPlayerRect = new Rectangle();
+                if (player.Center.Y > Y && player.Center.Y < Y + Height) {
+                    int y1 = (int) Math.Max(player.Top, Top);
+                    int y2 = (int) Math.Min(player.Bottom, Bottom);
+                    if (player.Center.X > X + Width) {
+                        // right
+                        detectedPlayer = true;
+                        crushDir = Vector2.UnitX;
+                        dir = ArrowDir.Right;
+                        toPlayerRect = new Rectangle((int) (X + Width), y1, (int) (player.Left - X - Width), y2 - y1);
+                    }
+                    if (player.Center.X < X) {
+                        // left
+                        detectedPlayer = true;
+                        crushDir = -Vector2.UnitX;
+                        dir = ArrowDir.Left;
+                        toPlayerRect = new Rectangle((int) (player.Right), y1, (int) (X - player.Right), y2 - y1);
+                    }
+                }
+                if (player.Center.X > X && player.Center.X < X + Width) {
+                    int x1 = (int) Math.Max(player.Left, Left);
+                    int x2 = (int) Math.Min(player.Right, Right);
+                    if (player.Center.Y < Y) {
+                        // top
+                        detectedPlayer = true;
+                        crushDir = -Vector2.UnitY;
+                        dir = ArrowDir.Up;
+                        toPlayerRect = new Rectangle(x1, (int) (player.Bottom), x2 - x1, (int) (Y - player.Bottom));
+                    }
+                    if (player.Center.Y > Y + Width) {
+                        // bottom
+                        detectedPlayer = true;
+                        crushDir = Vector2.UnitY;
+                        dir = ArrowDir.Down;
+                        toPlayerRect = new Rectangle(x1, (int) (Y + Height), x2 - x1, (int) (player.Top - Y - Height));
+                    }
+                }
+                if (detectedPlayer && IsPlayerSeen(toPlayerRect, dir)) {
+                    triggered = true;
+                    ActivateTiles(dir);
+                    Audio.Play("event:/game/06_reflection/crushblock_impact", Center);
+                }
+            }
+
             UpdateActiveTiles();
         }
 
@@ -285,7 +343,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Position += Shake;
             Draw.Rect(base.X + 2f, base.Y + 2f, base.Width - 4f, base.Height - 4f, fill);
             base.Render();
-
             Position = position;
         }
 
