@@ -645,7 +645,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Render() {
             Vector2 position = Position;
-            Position += Shake * (crushDir != Vector2.Zero ? crushDir : Vector2.One);
+            Position += Shake;
 
             Rectangle rect = new Rectangle(
                 (int) (Center.X + (X + 2 - Center.X) * squishScale.X),
