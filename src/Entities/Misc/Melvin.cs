@@ -45,6 +45,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private Level level;
 
+        private SoundSource currentMoveLoopSfx;
+        private SoundSource returnLoopSfx;
+
         private Vector2 crushDir;
         private ArrowDir dir;
         private bool triggered = false;
@@ -59,6 +62,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<Image> activeLeftTiles = new List<Image>();
         private List<Image> tiles = new List<Image>();
         private float topTilesAlpha, bottomTilesAlpha, leftTilesAlpha, rightTilesAlpha;
+
+        private bool Submerged => base.Scene.CollideCheck<Water>(new Rectangle((int) (base.Center.X - 4f), (int) base.Center.Y, 8, 4));
 
         private Coroutine attackCoroutine;
 
@@ -85,6 +90,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             OnDashCollide = OnDashed;
 
             Add(new LightOcclude(0.2f));
+            Add(returnLoopSfx = new SoundSource());
             Add(attackCoroutine = new Coroutine(false));
         }
 
@@ -278,18 +284,30 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (playerAttacked) {
                 squishScale = new Vector2(1f + Math.Abs(direction.Y) * 0.4f - Math.Abs(direction.X) * 0.4f, 1f + Math.Abs(direction.X) * 0.4f - Math.Abs(direction.Y) * 0.4f);
                 crushDir = direction;
-                Attack();
+                Attack(true);
                 return DashCollisionResults.Rebound;
             }
             return DashCollisionResults.NormalCollision;
         }
 
-        private void Attack() {
+        private void Attack(bool hurt) {
             triggered = true;
-            attackCoroutine.Replace(AttackSequence());
+
+            if (currentMoveLoopSfx != null) {
+                currentMoveLoopSfx.Param("end", 1f);
+                SoundSource sfx = currentMoveLoopSfx;
+                Alarm.Set(this, 0.5f, delegate
+                {
+                    sfx.RemoveSelf();
+                });
+            }
+            Add(currentMoveLoopSfx = new SoundSource());
+            currentMoveLoopSfx.Position = new Vector2(base.Width, base.Height) / 2f;
+
+            attackCoroutine.Replace(AttackSequence(hurt));
         }
 
-        private IEnumerator AttackSequence() {
+        private IEnumerator AttackSequence(bool hurt) {
             CreateMoveState();
             string animDir = Enum.GetName(typeof(ArrowDir), dir);
 
@@ -298,9 +316,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             StartShaking(0.4f);
 
-            Audio.Play("event:/game/06_reflection/crushblock_activate", base.Center);
+            Audio.Play(CustomSFX.game_melvin_seen_player, Center, "hurt", Util.ToInt(hurt));
             eye.Play("target", true);
-            yield return .4f;
+            yield return .3f;
+            currentMoveLoopSfx.Play(CustomSFX.game_melvin_move_loop);
+            yield return .3f;
 
             eye.Play("target" + animDir, true);
 
@@ -380,13 +400,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
-            Audio.Play("event:/game/06_reflection/crushblock_impact", Center);
+            Audio.Play(CustomSFX.game_melvin_impact, Center);
             level.DirectionalShake(crushDir);
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
             StartShaking(0.4f);
             StopPlayerRunIntoAnimation = true;
+
+            SoundSource sfx = currentMoveLoopSfx;
+            currentMoveLoopSfx.Param("end", 1f);
+            currentMoveLoopSfx = null;
+            Alarm.Set(this, 0.5f, delegate
+            {
+                sfx.RemoveSelf();
+            });
+
             eye.Play("targetReverse" + animDir, true);
             crushDir = Vector2.Zero;
+            returnLoopSfx.Play("event:/game/06_reflection/crushblock_return_loop");
             yield return .4f;
 
             speed = 0f;
@@ -411,6 +441,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 StopPlayerRunIntoAnimation = true;
                 if (returnStack.Count <= 0) {
                     if (waypointSfxDelay <= 0f) {
+                        returnLoopSfx.Stop();
                         Audio.Play("event:/game/06_reflection/crushblock_rest", Center);
                     }
                 } else if (waypointSfxDelay <= 0f) {
@@ -601,19 +632,33 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
                 if (detectedPlayer && IsPlayerSeen(toPlayerRect, dir)) {
-                    Attack();
+                    Attack(false);
                 }
             }
 
             UpdateActiveTiles();
+
+            if (currentMoveLoopSfx != null) {
+                currentMoveLoopSfx.Param("submerged", Submerged ? 1 : 0);
+            }
+            if (returnLoopSfx != null) {
+                returnLoopSfx.Param("submerged", Submerged ? 1 : 0);
+            }
         }
 
         public override void Render() {
             Vector2 position = Position;
-            Position += Shake * (triggered ? crushDir : Vector2.One);
-            Draw.Rect(base.X + 2f, base.Y + 2f, base.Width - 4f, base.Height - 4f, fill);
+            Position += Shake * (crushDir != Vector2.Zero ? crushDir : Vector2.One);
 
-            foreach(Image img in tiles) {
+            Rectangle rect = new Rectangle(
+                (int) (Center.X + (X + 2 - Center.X) * squishScale.X),
+                (int) (Center.Y + (Y + 2 - Center.Y) * squishScale.Y),
+                (int) ((Width - 4) * squishScale.X),
+                (int) ((Height - 4) * squishScale.Y));
+
+            Draw.Rect(rect, fill);
+
+            foreach (Image img in tiles) {
                 Vector2 pos = Position + img.Position + new Vector2(4, 4);
                 pos = Center + (pos - base.Center) * squishScale;
                 img.Texture.DrawCentered(pos, img.Color, squishScale);
@@ -665,7 +710,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static void InitializeParticles() {
             P_Activate = new ParticleType(CrushBlock.P_Activate) {
                 Color = Calc.HexToColor("e45f7c")
-        };
+            };
         }
     }
 }
