@@ -97,6 +97,9 @@ namespace Celeste.Mod.CommunalHelper {
 
             HeartGemShard.InitializeParticles();
 
+            Melvin.InitializeTextures();
+            Melvin.InitializeParticles();
+
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
             if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule dashelineModule)) {

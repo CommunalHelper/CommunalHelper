@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Sprites>	
-	
+
+	<!--StationBlocks-->
 	<smallStationBlockArrow path="objects/CommunalHelper/stationBlock/arrow/" start="IdleUp">
     <Center/>
 	  
@@ -361,6 +362,7 @@
 	  <Anim id="LeftToDown" path="big" frames="12,11,10,9,8" delay="0.06" goto="IdleDown"/>
 	</bigAltMoonStationBlockArrow>
 
+	<!--MoveSwapBlocks-->
 	<swapBlockLight path="objects/CommunalHelper/moveSwapBlock/" start="idle">
 		<Justify x="0.5" y="0.5"/>
 		<Loop id="idle" path="midBlock" delay="0.08" frames="0-3"/>
@@ -370,10 +372,28 @@
 		<Loop id="idle" path="midBlockRed" delay="0.08" frames="0-3"/>
 	</swapBlockLightRed>
 
+	<!--TrackSwitchBoxes-->
 	<trackSwitchBox path="objects/CommunalHelper/trackSwitchBox/" start="idle">
 		<Justify x="0.5" y="0.5"/>
 		<Loop id="idle" path="idle" delay="0.08" frames="0"/>
 	  	<Anim id="switch" path="switch" frames="0-11" delay="0.06" goto="idle"/>
 	</trackSwitchBox>
+
+	<!--Melvins-->
+	<melvinEye path="objects/CommunalHelper/melvin/eye/" start="idle">
+		<Justify x="0.5" y="0.5"/>
+		<Loop id="idle" path="idle_small" delay="0.08" frames="0"/>
+		<Anim id="target" path="target_small" delay="0.1" frames="0-4"/>
+
+		<Anim id="targetUp" path="targetUp_small" delay="0.06" frames="0-2"/>
+		<Anim id="targetDown" path="targetDown_small" delay="0.06" frames="0-2"/>
+		<Anim id="targetLeft" path="targetLeft_small" delay="0.06" frames="0-2"/>
+		<Anim id="targetRight" path="targetRight_small" delay="0.06" frames="0-2"/>
+
+		<Anim id="targetReverseUp" path="targetUp_small" delay="0.25" frames="2,1,0" goto="idle"/>
+		<Anim id="targetReverseDown" path="targetDown_small" delay="0.25" frames="2,1,0" goto="idle"/>
+		<Anim id="targetReverseLeft" path="targetLeft_small" delay="0.25" frames="2,1,0" goto="idle"/>
+		<Anim id="targetReverseRight" path="targetRight_small" delay="0.25" frames="2,1,0" goto="idle"/>
+	</melvinEye>
 	
 </Sprites>

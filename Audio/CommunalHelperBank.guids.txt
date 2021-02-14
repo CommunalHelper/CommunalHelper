@@ -34,4 +34,7 @@
 {9629bd2f-74d2-4daf-b1cc-653e42508bb4} event:/CommunalHelperEvents/game/usableSummitGems/gem_unlock_la
 {94444ec5-a6cd-4cce-94a9-97177bc9129a} event:/CommunalHelperEvents/game/usableSummitGems/gem_unlock_ti
 {48703669-7393-4511-b12f-eeb0b2e3f123} event:/CommunalHelperEvents/game/trackSwitchBox/smash
+{35d74d83-f18c-4ef4-9cce-f53ff4937ef5} event:/CommunalHelperEvents/game/melvin/seen_player
+{d3d7beec-1007-4593-aec7-dbdcb301f51e} event:/CommunalHelperEvents/game/melvin/impact
+{4d266002-ab1d-4af8-aa80-f42faaf925fe} event:/CommunalHelperEvents/game/melvin/move_loop
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank

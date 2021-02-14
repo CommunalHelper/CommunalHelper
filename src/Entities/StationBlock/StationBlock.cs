@@ -28,7 +28,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private ArrowDir arrowDir;
         private float percent = 0f;
 
-        private enum ArrowDir {
+        public enum ArrowDir {
             Up,
             Right,
             Down,

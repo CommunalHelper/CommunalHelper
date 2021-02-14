@@ -50,6 +50,10 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_shieldedRefill_diamond_return = "event:/CommunalHelperEvents/game/shieldedRefill/diamond_return";
         public const string game_shieldedRefill_pinkdiamond_return = "event:/CommunalHelperEvents/game/shieldedRefill/pinkdiamond_return";
         public const string game_shieldedRefill_diamondbubble_pop = "event:/CommunalHelperEvents/game/shieldedRefill/diamondbubble_pop";
+
+        public const string game_melvin_seen_player = "event:/CommunalHelperEvents/game/melvin/seen_player";
+        public const string game_melvin_impact = "event:/CommunalHelperEvents/game/melvin/impact";
+        public const string game_melvin_move_loop = "event:/CommunalHelperEvents/game/melvin/move_loop";
     }
 
     public static class CustomBanks {
