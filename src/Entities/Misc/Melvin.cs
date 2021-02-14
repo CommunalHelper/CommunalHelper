@@ -123,7 +123,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         tile.Position = pos + new Vector2(Calc.Random.Range(-1, 2), Calc.Random.Range(-1, 2));
                         //Add(tile);
                         tiles.Add(tile);
-                    } else if(!corner) {
+                    } else if (!corner) {
                         // edges
                         Image edgeTile = null, litEdgeTile = null;
                         if (right) {
@@ -264,18 +264,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 // left side
                 playerAttacked = true;
                 dir = ArrowDir.Right;
-            } else
-            if (direction == -Vector2.UnitX && weakRight) {
+            } else if (direction == -Vector2.UnitX && weakRight) {
                 // right side
                 playerAttacked = true;
                 dir = ArrowDir.Left;
-            } else
-            if (direction == Vector2.UnitY && weakTop) {
+            } else if (direction == Vector2.UnitY && weakTop) {
                 // top side
                 playerAttacked = true;
                 dir = ArrowDir.Down;
-            } else
-            if (direction == -Vector2.UnitY && weakBottom) {
+            } else if (direction == -Vector2.UnitY && weakBottom) {
                 // bottom side
                 playerAttacked = true;
                 dir = ArrowDir.Up;
