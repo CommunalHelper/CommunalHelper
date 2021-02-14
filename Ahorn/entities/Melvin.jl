@@ -46,10 +46,8 @@ Ahorn.selection(entity::Melvin) = Ahorn.getEntityRectangle(entity)
 
 const strongTiles = "objects/CommunalHelper/melvin/block_strong"
 const weakTiles = "objects/CommunalHelper/melvin/block_weak"
-const strongCornersTiles = "objects/CommunalHelper/melvin/corners_strong"
 const weakCornersHTiles = "objects/CommunalHelper/melvin/corners_weak_h"
 const weakCornersVTiles = "objects/CommunalHelper/melvin/corners_weak_v"
-const weakCornersTiles = "objects/CommunalHelper/melvin/corners_weak"
 
 const insideTiles = "objects/CommunalHelper/melvin/inside"
 const eye = "objects/CommunalHelper/melvin/eye/idle_small00"
@@ -117,14 +115,14 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Melvin, room::Maple
         end
     end
 
-    topleft = strongCornersTiles
-    topright = strongCornersTiles
-    bottomleft = strongCornersTiles
-    bottomright = strongCornersTiles
+    topleft = strongTiles
+    topright = strongTiles
+    bottomleft = strongTiles
+    bottomright = strongTiles
 
     # topleft corner
     if weakLeft && weakTop
-        topleft = weakCornersTiles
+        topleft = weakTiles
     elseif weakLeft && !weakTop
         topleft = weakCornersHTiles
     elseif !weakLeft && weakTop
@@ -132,7 +130,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Melvin, room::Maple
     end
     # topright corner
     if weakRight && weakTop
-        topright = weakCornersTiles
+        topright = weakTiles
     elseif weakRight && !weakTop
         topright = weakCornersHTiles
     elseif !weakRight && weakTop
@@ -140,7 +138,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Melvin, room::Maple
     end
     # bottomleft corner
     if weakLeft && weakBottom
-        bottomleft = weakCornersTiles
+        bottomleft = weakTiles
     elseif weakLeft && !weakBottom
         bottomleft = weakCornersHTiles
     elseif !weakLeft && weakBottom
@@ -148,7 +146,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Melvin, room::Maple
     end
     # bottomright corner
     if weakRight && weakBottom
-        bottomright = weakCornersTiles
+        bottomright = weakTiles
     elseif weakRight && !weakBottom
         bottomright = weakCornersHTiles
     elseif !weakRight && weakBottom
@@ -156,9 +154,9 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Melvin, room::Maple
     end
 
     Ahorn.drawImage(ctx, topleft, 0, 0, 0, 0, 8, 8)
-    Ahorn.drawImage(ctx, topright, width - 8, 0, 8, 0, 8, 8)
-    Ahorn.drawImage(ctx, bottomleft, 0, height - 8, 0, 8, 8, 8)
-    Ahorn.drawImage(ctx, bottomright, width - 8, height - 8, 8, 8, 8, 8)
+    Ahorn.drawImage(ctx, topright, width - 8, 0, 24, 0, 8, 8)
+    Ahorn.drawImage(ctx, bottomleft, 0, height - 8, 0, 24, 8, 8)
+    Ahorn.drawImage(ctx, bottomright, width - 8, height - 8, 24, 24, 8, 8)
 
     Ahorn.drawImage(ctx, eyeSprite, div(width - eyeSprite.width, 2), div(height - eyeSprite.height, 2))
 end

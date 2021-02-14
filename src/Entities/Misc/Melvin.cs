@@ -661,7 +661,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             foreach (Image img in tiles) {
                 Vector2 pos = Position + img.Position + new Vector2(4, 4);
                 pos = Center + (pos - base.Center) * squishScale;
-                img.Texture.DrawCentered(pos, img.Color, squishScale);
+                if(img.Texture != null) img.Texture.DrawCentered(pos, img.Color, squishScale);
             }
 
             base.Render();
@@ -674,10 +674,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             MTexture strongBlockTexture = GFX.Game["objects/CommunalHelper/melvin/block_strong"];
             MTexture weakBlockTexture = GFX.Game["objects/CommunalHelper/melvin/block_weak"];
             MTexture litEdgesTexture = GFX.Game["objects/CommunalHelper/melvin/lit_edges"];
-            MTexture strongCornersTexture = GFX.Game["objects/CommunalHelper/melvin/corners_strong"];
             MTexture weakHCornersTexture = GFX.Game["objects/CommunalHelper/melvin/corners_weak_h"];
             MTexture weakVCornersTexture = GFX.Game["objects/CommunalHelper/melvin/corners_weak_v"];
-            MTexture weakCornerTextures = GFX.Game["objects/CommunalHelper/melvin/corners_weak"];
             MTexture insideBlockTexture = GFX.Game["objects/CommunalHelper/melvin/inside"];
             MTexture litHCornersFullTexture = GFX.Game["objects/CommunalHelper/melvin/lit_corners_h_full"];
             MTexture litHCornersCutTexture = GFX.Game["objects/CommunalHelper/melvin/lit_corners_h_cut"];
@@ -693,15 +691,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     weakBlock[i, j] = weakBlockTexture.GetSubtexture(tx, ty, 8, 8);
                     litEdges[i, j] = litEdgesTexture.GetSubtexture(tx, ty, 8, 8);
                     if (i < 2 && j < 2) {
+                        int tx3 = 3 * tx;
+                        int ty3 = 3 * ty;
                         insideBlock[i, j] = insideBlockTexture.GetSubtexture(tx, ty, 8, 8);
-                        strongCorners[i, j] = strongCornersTexture.GetSubtexture(tx, ty, 8, 8);
-                        weakCorners[i, j] = weakCornerTextures.GetSubtexture(tx, ty, 8, 8);
-                        weakHCorners[i, j] = weakHCornersTexture.GetSubtexture(tx, ty, 8, 8);
-                        weakVCorners[i, j] = weakVCornersTexture.GetSubtexture(tx, ty, 8, 8);
-                        litHCornersFull[i, j] = litHCornersFullTexture.GetSubtexture(tx, ty, 8, 8);
-                        litHCornersCut[i, j] = litHCornersCutTexture.GetSubtexture(tx, ty, 8, 8);
-                        litVCornersFull[i, j] = litVCornersFullTexture.GetSubtexture(tx, ty, 8, 8);
-                        litVCornersCut[i, j] = litVCornersCutTexture.GetSubtexture(tx, ty, 8, 8);
+                        weakHCorners[i, j] = weakHCornersTexture.GetSubtexture(tx3, ty3, 8, 8);
+                        weakVCorners[i, j] = weakVCornersTexture.GetSubtexture(tx3, ty3, 8, 8);
+                        litHCornersFull[i, j] = litHCornersFullTexture.GetSubtexture(tx3, ty3, 8, 8);
+                        litHCornersCut[i, j] = litHCornersCutTexture.GetSubtexture(tx3, ty3, 8, 8);
+                        litVCornersFull[i, j] = litVCornersFullTexture.GetSubtexture(tx3, ty3, 8, 8);
+                        litVCornersCut[i, j] = litVCornersCutTexture.GetSubtexture(tx3, ty3, 8, 8);
+                    }
+                    if((i == 0 || i == 3) && (j == 0 || j == 3)) {
+                        int i_ = i == 0 ? 0 : 1;
+                        int j_ = j == 0 ? 0 : 1;
+                        strongCorners[i_, j_] = strongBlock[i, j];
+                        weakCorners[i_, j_] = weakBlock[i, j];
                     }
                 }
             }
