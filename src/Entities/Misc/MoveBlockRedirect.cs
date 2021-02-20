@@ -32,6 +32,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float maskAlpha;
         private List<Image> borders;
 
+        private MoveBlock lastMoveBlock;
+
         public MoveBlockRedirect(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
             Depth = Depths.Above;
@@ -122,14 +124,56 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             scene.Add(new Arrow(Center, angle));
         }
 
+        private static Vector2 MoveBlockDirectionToVector(MoveBlock.Directions dir, float factor = 1f) {
+            Vector2 result = dir switch {
+                MoveBlock.Directions.Up => -Vector2.UnitY,
+                MoveBlock.Directions.Down => Vector2.UnitY,
+                MoveBlock.Directions.Left => -Vector2.UnitX,
+                _ => Vector2.UnitX
+            };
+
+            return result * factor;
+        }
+
         public override void Update() {
             base.Update();
 
             MoveBlock moveBlock = CollideAll<Solid>().FirstOrDefault(e => e is MoveBlock) as MoveBlock;
+
+            if (lastMoveBlock != null && !CollideCheck(lastMoveBlock)) {
+                lastMoveBlock = null;
+            } else {
+                if (moveBlock == lastMoveBlock)
+                    return;
+            }
+
             if (moveBlock != null && !(bool) f_MoveBlock_canSteer.GetValue(moveBlock) &&
-                moveBlock.Width == Width && moveBlock.Height == Height && Collider.Contains(moveBlock.Collider, 0.001f)) {
+                moveBlock.Width == Width && moveBlock.Height == Height) {
+
+                DynData<MoveBlock> blockData = new DynData<MoveBlock>(moveBlock);
+                if (!Collider.Contains(moveBlock.Collider, 0.001f)) {
+                    MoveBlock.Directions dir = blockData.Get<MoveBlock.Directions>("direction");
+                    Vector2 prevPosOffset = -MoveBlockDirectionToVector(dir, blockData.Get<float>("speed"));
+
+                    float edgeMin;
+                    float edgeMax;
+                    bool wentThrough = false;
+                    if (dir == MoveBlock.Directions.Down || dir == MoveBlock.Directions.Up) {
+                        edgeMin = Math.Min(moveBlock.Top, moveBlock.Top + prevPosOffset.Y);
+                        edgeMax = Math.Max(moveBlock.Bottom, moveBlock.Bottom + prevPosOffset.Y);
+                        wentThrough = X == moveBlock.X && edgeMin <= Top && edgeMax >= Bottom;
+                    } else {
+                        edgeMin = Math.Min(moveBlock.Left, moveBlock.Left + prevPosOffset.X);
+                        edgeMax = Math.Max(moveBlock.Right, moveBlock.Right + prevPosOffset.X);
+                        wentThrough = Y == moveBlock.Y && edgeMin <= Left && edgeMax >= Right;
+                    }
+
+                    if (!wentThrough) return;
+                }
+
+
                 if (FastRedirect)
-                    SetBlockData(new DynData<MoveBlock>(moveBlock));
+                    SetBlockData(moveBlock, blockData);
                 else if (currentBlock == null) {
                     currentBlock = moveBlock;
                     moveBlock.Remove(moveBlock.Get<Coroutine>());
@@ -138,7 +182,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private void SetBlockData(DynData<MoveBlock> blockData) {
+        private void SetBlockData(MoveBlock block, DynData<MoveBlock> blockData) {
             if (!blockData.Data.ContainsKey(MoveBlock_InitialAngle)) {
                 blockData[MoveBlock_InitialAngle] = blockData["homeAngle"];
                 blockData[MoveBlock_InitialDirection] = blockData["direction"];
@@ -147,11 +191,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             blockData["direction"] = Direction;
             blockData.Target.X = X;
             blockData.Target.Y = Y;
+            lastMoveBlock = block;
         }
 
         private IEnumerator RedirectRoutine(MoveBlock block) {
             DynData<MoveBlock> blockData = new DynData<MoveBlock>(block);
             float duration = 1f;
+
+            block.MoveTo(Position);
 
             SoundSource moveSfx = blockData.Get<SoundSource>("moveSfx");
             moveSfx.Param("redirect_slowdown", 1f);
@@ -168,7 +215,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return null;
             }
 
-            SetBlockData(blockData);
+            SetBlockData(block, blockData);
 
             while (timer > 0.2f) {
                 timer -= Engine.DeltaTime;
