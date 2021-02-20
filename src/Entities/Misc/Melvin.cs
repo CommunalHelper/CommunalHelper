@@ -499,10 +499,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return false;
         }
 
-        private void SetSeekerBarriersCollidable(bool collidable) {
+        public override void MoveVExact(int move) {
+            bool before = SetSeekerBarriersCollidable(false);
+            base.MoveVExact(move);
+            SetSeekerBarriersCollidable(before);
+        }
+
+        public override void MoveHExact(int move) {
+            bool before = SetSeekerBarriersCollidable(false);
+            base.MoveHExact(move);
+            SetSeekerBarriersCollidable(before);
+        }
+        
+        // returns collidable field before calling this function
+        private bool SetSeekerBarriersCollidable(bool collidable) {
+            bool before = !collidable;
             foreach(SeekerBarrier entity in Scene.Tracker.GetEntities<SeekerBarrier>()) {
+                before = entity.Collidable;
                 entity.Collidable = collidable;
             }
+            return before;
         }
 
         private void ActivateParticles() {
