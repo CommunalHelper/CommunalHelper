@@ -1,3 +1,9 @@
+--1.7.0 (??/??/2021)--
+* Added Melvin.
+* Made Summit Gems work across maps.
+* Fixed Move Blocks going through Move Block Redirects.
+* Fixed Dream Refills not refilling Player's dashes when turning on Always Active Dream Refill Charge.
+
 --1.6.2 (12/02/2021)--
 * Fixed ConnectedSolids not killing Madeline when crushed horizontally.
 * Fixed Timed Trigger Spikes invisible glitch.

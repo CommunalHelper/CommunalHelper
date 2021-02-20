@@ -46,7 +46,8 @@ The current list of included mechanics:
 	</li>
 	<li>
 		<b>Track Switch Box </b>(and <b>Switch Track Trigger</b>) - 
-		A block, similar to the Lightning Breaker Box entity that, when dashed into, switches the track state in the current level (used for <b>Station Block Tracks</b>). If the level is reloaded (player death, etc...), the state is set back to its default value. You can disble this behaviour by ticking on the <i>"globalSwitch"</i> attribute in Ahorn. The <b>Switch Track Trigger </b>is basically the trigger equivalent of this entity, except you can specify the state it switches to, or if it just alternates between the two.</li>
+		A block, similar to the Lightning Breaker Box entity that, when dashed into, switches the track state in the current level (used for <b>Station Block Tracks</b>). If the level is reloaded (player death, etc...), the state is set back to its default value. You can disble this behaviour by ticking on the <i>"globalSwitch"</i> attribute in Ahorn. The <b>Switch Track Trigger </b>is basically the trigger equivalent of this entity, except you can specify the state it switches to, or if it just alternates between the two.
+	</li>
 	<li>
 		<b>Synced Zip Mover Activation Controller</b> - 
 		A controller entity that, when placed into a room, allows <b>Synced Zip Movers</b> (from the <a href="https://gamebanana.com/gamefiles/9807">Adventure Helper</a>) of a specific color to activate whenever the player pressed grab. 
@@ -98,12 +99,18 @@ The current list of included mechanics:
 		Not dashing will bounce you off, without regiving you any dash. 
 		You can untick the <i>"bubble repell"</i> mode, and instead of getting bounced off, you'll just go through the bubble, without collecting anything.
 	</li>
+	<li>
+		<b>Melvin</b> - 
+		It's a Kevin-like entity, but it wants to kill you. It's completely static, but looks for you on all four sides, until it finds you, no matter how far away you are. When it sees you, it'll basically "dash-attack" towards you, like a Kevin does. Don't worry, it can't see you if you're behind tiles or basically anything that's solid.
+		Seeker Barriers can act as a spot to hide for you, but on top of that, Melvins can't go through them. Use it to your advantage! 
+		You can dash into it like a Kevin, but only on its "weak" sides, which appear red-open. You can select which sides are weak using the <i>"weakTop"</i>, <i>"weakBottom"</i>, <i>"weakLeft"</i> and <i>"weakRight"</i> attributes.
+	</li>
 </ul>
 <br/><br/>
 To use this helper as part of your map, put the text below into the <code>Dependencies:</code> section of your everest.yaml:
 <br/>
 <pre>
 - Name: CommunalHelper
-  Version: 1.6.2
+  Version: 1.7.0
 </pre>
 <br/><br/>
