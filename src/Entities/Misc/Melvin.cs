@@ -449,8 +449,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             triggered = false;
         }
 
+        private void OnCollideSolid(Vector2 vec1, Vector2 vec2, Platform platform) {
+            if (platform is SeekerBarrier seekerBarrier) {
+                seekerBarrier.OnReflectSeeker();
+                Audio.Play("event:/game/05_mirror_temple/seeker_hit_lightwall", Center);
+            }
+        }
+
         private bool MoveHCheck(float amount) {
-            if (MoveHCollideSolidsAndBounds(level, amount, thruDashBlocks: true)) {
+            if (MoveHCollideSolidsAndBounds(level, amount, thruDashBlocks: true, OnCollideSolid)) {
                 if (amount < 0f && Left <= level.Bounds.Left) {
                     return true;
                 }
@@ -473,7 +480,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private bool MoveVCheck(float amount) {
-            if (MoveVCollideSolidsAndBounds(level, amount, thruDashBlocks: true, null, checkBottom: false)) {
+            if (MoveVCollideSolidsAndBounds(level, amount, thruDashBlocks: true, OnCollideSolid, checkBottom: false)) {
                 if (amount < 0f && Top <= level.Bounds.Top) {
                     return true;
                 }
@@ -490,6 +497,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 return true;
             }
             return false;
+        }
+
+        private void SetSeekerBarriersCollidable(bool collidable) {
+            foreach(SeekerBarrier entity in Scene.Tracker.GetEntities<SeekerBarrier>()) {
+                entity.Collidable = collidable;
+            }
         }
 
         private void ActivateParticles() {
@@ -581,6 +594,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Update() {
+            SetSeekerBarriersCollidable(true);
             base.Update();
 
             eye.Scale = squishScale;
@@ -629,6 +643,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Attack(false);
                 }
             }
+            SetSeekerBarriersCollidable(false);
 
             UpdateActiveTiles();
 
