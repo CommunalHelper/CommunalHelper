@@ -9,8 +9,18 @@ using System.Collections;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
+    /*
+    Behaviour options:
+    - Vanilla: first collect retrieved from SaveData, subsequent from Session
+    - Permanent: All collects retrieved from SaveData
+    - One-Use: All collects retrieved from SaveData, *but* gems are removed from SaveData once collected (should only happen on heart collect)
+    - (Current) Improved Vanilla: Session for gems in current map, SaveData for gems outside (combination of Vanilla and Permanent) 
+    Currently there is no clean way to do this on a per-gem basis, although it could still easily be done through Ahorn
+    */
     [CustomEntity("CommunalHelper/CustomSummitGem")]
     public class CustomSummitGem : SummitGem {
+
+        private static Type t_BgFlash = typeof(SummitGem).GetNestedType("BgFlash", BindingFlags.NonPublic);
 
         public new static readonly Color[] GemColors;
 
@@ -88,7 +98,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Scene.Add(new AbsorbOrb(Position, player, null));
             }
             level.Flash(Color.White, true);
-            Scene.Add((Entity) Activator.CreateInstance(typeof(SummitGem).GetNestedType("BgFlash", BindingFlags.NonPublic)));
+            Scene.Add((Entity) Activator.CreateInstance(t_BgFlash));
 
             Engine.TimeRate = 0.5f;
             while (Engine.TimeRate < 1f) {

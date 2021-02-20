@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CustomSummitGemManager")]
+    [Tracked]
     public class CustomSummitGemManager : Entity {
 
         public static readonly string[] UnlockEventLookup;
@@ -85,7 +86,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int index = 0;
             foreach (Gem gem in gems) {
                 bool flag = CommunalHelperModule.Session.SummitGems.Contains(gem.ID);
-                if (!alreadyHasHeart) {
+                if (!alreadyHasHeart || IsExternal(gem)) {
                     flag |= (CommunalHelperModule.SaveData.SummitGems != null && CommunalHelperModule.SaveData.SummitGems.Contains(gem.ID));
                 }
                 if (flag) {
@@ -170,6 +171,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 p += Engine.DeltaTime;
             }
+        }
+
+        private bool IsExternal(Gem gem) {
+            string[] arr = gem.ID.Split('/');
+            Array.Resize(ref arr, arr.Length - 2); // Drop room name and gem index
+            string SID = string.Join("/", arr);
+            return SID != AreaData.Get(SceneAs<Level>().Session).SID;
         }
 
         public override void DebugRender(Camera camera) {
