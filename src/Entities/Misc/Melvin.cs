@@ -31,9 +31,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static readonly MTexture[,] litVCornersCut = new MTexture[2, 2];
         #endregion
 
-        private struct MoveState {
-            public Vector2 From;
-            public Vector2 Direction;
+        private readonly struct MoveState {
+            public readonly Vector2 From;
+            public readonly Vector2 Direction;
 
             public MoveState(Vector2 from, Vector2 direction) {
                 From = from;
@@ -63,14 +63,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<Image> tiles = new List<Image>();
         private float topTilesAlpha, bottomTilesAlpha, leftTilesAlpha, rightTilesAlpha;
 
-        private bool Submerged => base.Scene.CollideCheck<Water>(new Rectangle((int) (base.Center.X - 4f), (int) base.Center.Y, 8, 4));
+        private bool Submerged => Scene.CollideCheck<Water>(new Rectangle((int) (Center.X - 4f), (int) Center.Y, 8, 4));
 
         private Coroutine attackCoroutine;
 
         public Melvin(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height,
-                  data.Bool("weakTop", false), data.Bool("weakBottom", false), data.Bool("weakLeft", false), data.Bool("weakRight", false)) 
-            { }
+                  data.Bool("weakTop", false), data.Bool("weakBottom", false), data.Bool("weakLeft", false), data.Bool("weakRight", false)) { }
 
         public Melvin(Vector2 position, int width, int height, bool up, bool down, bool left, bool right)
             : base(position, width, height, safe: false) {
@@ -83,9 +82,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             SetupTiles();
 
-            eye = CommunalHelperModule.SpriteBank.Create("melvinEye");
+            Add(eye = CommunalHelperModule.SpriteBank.Create("melvinEye"));
             eye.Position = new Vector2(width / 2, height / 2);
-            Add(eye);
 
             OnDashCollide = OnDashed;
 
@@ -104,8 +102,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int h = (int) (Height / 8);
 
             // middle & edges
-            for(int i = 0; i < w; i++) {
-                for(int j = 0; j < h; j++) {
+            for (int i = 0; i < w; i++) {
+                for (int j = 0; j < h; j++) {
                     bool left = i == 0;
                     bool right = i == w - 1;
                     bool top = j == 0;
@@ -115,7 +113,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                     int rx = Calc.Random.Choose(0, 1);
                     int ry = Calc.Random.Choose(0, 1);
-                    Vector2 pos = new Vector2(i * 8, j * 8); 
+                    Vector2 pos = new Vector2(i * 8, j * 8);
 
                     if (!edge) {
                         // middle
@@ -152,10 +150,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             litEdgeTile.Position = pos;
                             litEdgeTile.Color = Color.Transparent;
 
-                            if (right) activeRightTiles.Add(litEdgeTile);
-                            if (left) activeLeftTiles.Add(litEdgeTile);
-                            if (bottom) activeBottomTiles.Add(litEdgeTile);
-                            if (top) activeTopTiles.Add(litEdgeTile);
+                            if (right)
+                                activeRightTiles.Add(litEdgeTile);
+                            if (left)
+                                activeLeftTiles.Add(litEdgeTile);
+                            if (bottom)
+                                activeBottomTiles.Add(litEdgeTile);
+                            if (top)
+                                activeTopTiles.Add(litEdgeTile);
                             tiles.Add(litEdgeTile);
                             //Add(litEdgeTile);
                         }
@@ -163,11 +165,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         // corners
                         Image cornerTile = null, litCornerTile1 = null, litCornerTile2 = null;
                         if (left && top) {
-                            if(weakTop && weakLeft) {
+                            if (weakTop && weakLeft) {
                                 cornerTile = new Image(weakCorners[0, 0]);
                                 activeLeftTiles.Add(litCornerTile1 = new Image(litHCornersFull[0, 0]));
                                 activeTopTiles.Add(litCornerTile2 = new Image(litVCornersFull[0, 0]));
-                            } else if(!weakTop && weakLeft) {
+                            } else if (!weakTop && weakLeft) {
                                 cornerTile = new Image(weakHCorners[0, 0]);
                                 activeLeftTiles.Add(litCornerTile1 = new Image(litHCornersCut[0, 0]));
                             } else if (weakTop && !weakLeft) {
@@ -293,13 +295,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (currentMoveLoopSfx != null) {
                 currentMoveLoopSfx.Param("end", 1f);
                 SoundSource sfx = currentMoveLoopSfx;
-                Alarm.Set(this, 0.5f, delegate
-                {
-                    sfx.RemoveSelf();
-                });
+                Alarm.Set(this, 0.5f, () => sfx.RemoveSelf());
             }
             Add(currentMoveLoopSfx = new SoundSource());
-            currentMoveLoopSfx.Position = new Vector2(base.Width, base.Height) / 2f;
+            currentMoveLoopSfx.Position = new Vector2(Width, Height) / 2f;
 
             attackCoroutine.Replace(AttackSequence(hurt));
         }
@@ -327,7 +326,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 speed = Calc.Approach(speed, 240f, 500f * Engine.DeltaTime);
 
                 bool flag = ((crushDir.X == 0f) ? MoveVCheck(speed * crushDir.Y * Engine.DeltaTime) : MoveHCheck(speed * crushDir.X * Engine.DeltaTime));
-                if (Top >= (float) (level.Bounds.Bottom + 32)) {
+                if (Top >= (level.Bounds.Bottom + 32)) {
                     RemoveSelf();
                     yield break;
                 }
@@ -360,39 +359,39 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 fallingBlock.Triggered = true;
             }
             if (crushDir == -Vector2.UnitX) {
-                Vector2 value = new Vector2(0f, 2f);
-                for (int i = 0; (float) i < Height / 8f; i++) {
-                    Vector2 vector = new Vector2(Left - 1f, Top + 4f + (float) (i * 8));
-                    if (!Scene.CollideCheck<Water>(vector) && Scene.CollideCheck<Solid>(vector)) {
-                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector + value, 0f);
-                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector - value, 0f);
+                Vector2 offset = new Vector2(0f, 2f);
+                for (int y = 0; y < Height / 8f; y++) {
+                    Vector2 pos = new Vector2(Left - 1f, Top + 4f + (y * 8));
+                    if (!Scene.CollideCheck<Water>(pos) && Scene.CollideCheck<Solid>(pos)) {
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, 0f);
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, 0f);
                     }
                 }
             } else if (crushDir == Vector2.UnitX) {
-                Vector2 value2 = new Vector2(0f, 2f);
-                for (int j = 0; (float) j < Height / 8f; j++) {
-                    Vector2 vector2 = new Vector2(Right + 1f, Top + 4f + (float) (j * 8));
-                    if (!Scene.CollideCheck<Water>(vector2) && Scene.CollideCheck<Solid>(vector2)) {
-                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector2 + value2, (float) Math.PI);
-                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector2 - value2, (float) Math.PI);
+                Vector2 offset = new Vector2(0f, 2f);
+                for (int y = 0; y < Height / 8f; y++) {
+                    Vector2 pos = new Vector2(Right + 1f, Top + 4f + y * 8);
+                    if (!Scene.CollideCheck<Water>(pos) && Scene.CollideCheck<Solid>(pos)) {
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, (float) Math.PI);
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, (float) Math.PI);
                     }
                 }
             } else if (crushDir == -Vector2.UnitY) {
-                Vector2 value3 = new Vector2(2f, 0f);
-                for (int k = 0; (float) k < Width / 8f; k++) {
-                    Vector2 vector3 = new Vector2(Left + 4f + (float) (k * 8), Top - 1f);
-                    if (!Scene.CollideCheck<Water>(vector3) && Scene.CollideCheck<Solid>(vector3)) {
-                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector3 + value3, (float) Math.PI / 2f);
-                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector3 - value3, (float) Math.PI / 2f);
+                Vector2 offset = new Vector2(2f, 0f);
+                for (int x = 0; x < Width / 8f; x++) {
+                    Vector2 pos = new Vector2(Left + 4f + x * 8, Top - 1f);
+                    if (!Scene.CollideCheck<Water>(pos) && Scene.CollideCheck<Solid>(pos)) {
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, (float) Math.PI / 2f);
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, (float) Math.PI / 2f);
                     }
                 }
             } else if (crushDir == Vector2.UnitY) {
-                Vector2 value4 = new Vector2(2f, 0f);
-                for (int l = 0; (float) l < Width / 8f; l++) {
-                    Vector2 vector4 = new Vector2(Left + 4f + (float) (l * 8), Bottom + 1f);
-                    if (!Scene.CollideCheck<Water>(vector4) && Scene.CollideCheck<Solid>(vector4)) {
-                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector4 + value4, -(float) Math.PI / 2f);
-                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, vector4 - value4, -(float) Math.PI / 2f);
+                Vector2 offset = new Vector2(2f, 0f);
+                for (int x = 0; x < Width / 8f; x++) {
+                    Vector2 pos = new Vector2(Left + 4f + x * 8, Bottom + 1f);
+                    if (!Scene.CollideCheck<Water>(pos) && Scene.CollideCheck<Solid>(pos)) {
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, -(float) Math.PI / 2f);
+                        SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, -(float) Math.PI / 2f);
                     }
                 }
             }
@@ -406,14 +405,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             SoundSource sfx = currentMoveLoopSfx;
             currentMoveLoopSfx.Param("end", 1f);
             currentMoveLoopSfx = null;
-            Alarm.Set(this, 0.5f, delegate
-            {
-                sfx.RemoveSelf();
-            });
+            Alarm.Set(this, 0.5f, () => sfx.RemoveSelf());
 
             eye.Play("targetReverse" + animDir, true);
             crushDir = Vector2.Zero;
-            returnLoopSfx.Play("event:/game/06_reflection/crushblock_return_loop");
+            returnLoopSfx.Play(SFX.game_06_crushblock_return_loop);
             yield return .4f;
 
             speed = 0f;
@@ -433,16 +429,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if ((moveState.Direction.X != 0f && ExactPosition.X != moveState.From.X) || (moveState.Direction.Y != 0f && ExactPosition.Y != moveState.From.Y)) {
                     continue;
                 }
+
                 speed = 0f;
                 returnStack.RemoveAt(returnStack.Count - 1);
                 StopPlayerRunIntoAnimation = true;
                 if (returnStack.Count <= 0) {
                     if (waypointSfxDelay <= 0f) {
                         returnLoopSfx.Stop();
-                        Audio.Play("event:/game/06_reflection/crushblock_rest", Center);
+                        Audio.Play(SFX.game_06_crushblock_rest, Center);
                     }
                 } else if (waypointSfxDelay <= 0f) {
-                    Audio.Play("event:/game/06_reflection/crushblock_rest_waypoint", Center);
+                    Audio.Play(SFX.game_06_crushblock_rest_waypoint, Center);
                 }
                 waypointSfxDelay = 0.1f;
                 StartShaking(0.2f);
@@ -454,10 +451,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool MoveHCheck(float amount) {
             if (MoveHCollideSolidsAndBounds(level, amount, thruDashBlocks: true)) {
-                if (amount < 0f && base.Left <= (float) level.Bounds.Left) {
+                if (amount < 0f && Left <= level.Bounds.Left) {
                     return true;
                 }
-                if (amount > 0f && base.Right >= (float) level.Bounds.Right) {
+                if (amount > 0f && Right >= level.Bounds.Right) {
                     return true;
                 }
                 for (int i = 1; i <= 4; i++) {
@@ -477,7 +474,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool MoveVCheck(float amount) {
             if (MoveVCollideSolidsAndBounds(level, amount, thruDashBlocks: true, null, checkBottom: false)) {
-                if (amount < 0f && base.Top <= (float) level.Bounds.Top) {
+                if (amount < 0f && Top <= level.Bounds.Top) {
                     return true;
                 }
                 for (int i = 1; i <= 4; i++) {
@@ -499,30 +496,30 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             float direction;
             Vector2 position;
             Vector2 positionRange;
-            int num;
+            int amount;
             if (dir == ArrowDir.Right) {
                 direction = 0f;
-                position = base.CenterRight - Vector2.UnitX;
-                positionRange = Vector2.UnitY * (base.Height - 2f) * 0.5f;
-                num = (int) (base.Height / 8f) * 4;
+                position = CenterRight - Vector2.UnitX;
+                positionRange = Vector2.UnitY * (Height - 2f) * 0.5f;
+                amount = (int) (Height / 8f) * 4;
             } else if (dir == ArrowDir.Left) {
                 direction = (float) Math.PI;
-                position = base.CenterLeft + Vector2.UnitX;
-                positionRange = Vector2.UnitY * (base.Height - 2f) * 0.5f;
-                num = (int) (base.Height / 8f) * 4;
+                position = CenterLeft + Vector2.UnitX;
+                positionRange = Vector2.UnitY * (Height - 2f) * 0.5f;
+                amount = (int) (Height / 8f) * 4;
             } else if (dir == ArrowDir.Down) {
                 direction = (float) Math.PI / 2f;
-                position = base.BottomCenter - Vector2.UnitY;
-                positionRange = Vector2.UnitX * (base.Width - 2f) * 0.5f;
-                num = (int) (base.Width / 8f) * 4;
+                position = BottomCenter - Vector2.UnitY;
+                positionRange = Vector2.UnitX * (Width - 2f) * 0.5f;
+                amount = (int) (Width / 8f) * 4;
             } else {
                 direction = -(float) Math.PI / 2f;
-                position = base.TopCenter + Vector2.UnitY;
-                positionRange = Vector2.UnitX * (base.Width - 2f) * 0.5f;
-                num = (int) (base.Width / 8f) * 4;
+                position = TopCenter + Vector2.UnitY;
+                positionRange = Vector2.UnitX * (Width - 2f) * 0.5f;
+                amount = (int) (Width / 8f) * 4;
             }
-            num += 2;
-            level.Particles.Emit(P_Activate, num, position, positionRange, direction);
+            amount += 2;
+            level.Particles.Emit(P_Activate, amount, position, positionRange, direction);
         }
 
         private void ActivateTiles(ArrowDir dir) {
@@ -544,7 +541,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     break;
             }
         }
-             
+
         private void UpdateActiveTiles() {
             topTilesAlpha = Calc.Approach(topTilesAlpha, triggered && dir == ArrowDir.Up && crushDir != Vector2.Zero ? 1f : 0f, Engine.DeltaTime * 2f);
             bottomTilesAlpha = Calc.Approach(bottomTilesAlpha, triggered && dir == ArrowDir.Down && crushDir != Vector2.Zero ? 1f : 0f, Engine.DeltaTime * 2f);
@@ -566,7 +563,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private bool IsPlayerSeen(Rectangle rect, ArrowDir dir) {
-            if(dir == ArrowDir.Up || dir == ArrowDir.Down) {
+            if (dir == ArrowDir.Up || dir == ArrowDir.Down) {
                 for (int i = 0; i < rect.Width; i++) {
                     Rectangle lineRect = new Rectangle(rect.X + i, rect.Y, 1, rect.Height);
                     if (!Scene.CollideCheck<Solid>(lineRect))
@@ -574,7 +571,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
                 return false;
             } else {
-                for(int i = 0; i < rect.Height; i++) {
+                for (int i = 0; i < rect.Height; i++) {
                     Rectangle lineRect = new Rectangle(rect.X, rect.Y + i, rect.Width, 1);
                     if (!Scene.CollideCheck<Solid>(lineRect))
                         return true;
@@ -657,8 +654,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             foreach (Image img in tiles) {
                 Vector2 pos = Position + img.Position + new Vector2(4, 4);
-                pos = Center + (pos - base.Center) * squishScale;
-                if(img.Texture != null) img.Texture.DrawCentered(pos, img.Color, squishScale);
+                pos = Center + (pos - Center) * squishScale;
+                if (img.Texture != null)
+                    img.Texture.DrawCentered(pos, img.Color, squishScale);
             }
 
             base.Render();
@@ -680,7 +678,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             MTexture litVCornersCutTexture = GFX.Game["objects/CommunalHelper/melvin/lit_corners_v_cut"];
 
             for (int i = 0; i < 4; i++) {
-                for(int j = 0; j < 4; j++) {
+                for (int j = 0; j < 4; j++) {
                     int tx = i * 8;
                     int ty = j * 8;
 
@@ -698,7 +696,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         litVCornersFull[i, j] = litVCornersFullTexture.GetSubtexture(tx3, ty3, 8, 8);
                         litVCornersCut[i, j] = litVCornersCutTexture.GetSubtexture(tx3, ty3, 8, 8);
                     }
-                    if((i == 0 || i == 3) && (j == 0 || j == 3)) {
+                    if ((i == 0 || i == 3) && (j == 0 || j == 3)) {
                         int i_ = i == 0 ? 0 : 1;
                         int j_ = j == 0 ? 0 : 1;
                         strongCorners[i_, j_] = strongBlock[i, j];

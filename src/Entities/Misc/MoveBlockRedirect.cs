@@ -168,12 +168,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         wentThrough = Y == moveBlock.Y && edgeMin <= Left && edgeMax >= Right;
                     }
 
-                    if (!wentThrough) return;
+                    if (!wentThrough)
+                        return;
                 }
 
 
                 if (FastRedirect)
-                    SetBlockData(moveBlock, blockData);
+                    SetBlockData(blockData);
                 else if (currentBlock == null) {
                     currentBlock = moveBlock;
                     moveBlock.Remove(moveBlock.Get<Coroutine>());
@@ -182,7 +183,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private void SetBlockData(MoveBlock block, DynData<MoveBlock> blockData) {
+        private void SetBlockData(DynData<MoveBlock> blockData) {
             if (!blockData.Data.ContainsKey(MoveBlock_InitialAngle)) {
                 blockData[MoveBlock_InitialAngle] = blockData["homeAngle"];
                 blockData[MoveBlock_InitialDirection] = blockData["direction"];
@@ -191,7 +192,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             blockData["direction"] = Direction;
             blockData.Target.X = X;
             blockData.Target.Y = Y;
-            lastMoveBlock = block;
+            lastMoveBlock = blockData.Target;
         }
 
         private IEnumerator RedirectRoutine(MoveBlock block) {
@@ -215,7 +216,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return null;
             }
 
-            SetBlockData(block, blockData);
+            SetBlockData(blockData);
 
             while (timer > 0.2f) {
                 timer -= Engine.DeltaTime;

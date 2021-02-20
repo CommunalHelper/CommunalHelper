@@ -171,7 +171,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public static int ToBitFlag(params bool[] b) {
             int ret = 0;
-            for (int i = 0; i < b.Length; i ++)
+            for (int i = 0; i < b.Length; i++)
                 ret |= ToInt(b[i]) << i;
             return ret;
         }
