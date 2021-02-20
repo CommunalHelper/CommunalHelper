@@ -102,8 +102,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void OnPlayer(Player player) {
-            if (player.Stamina < 20f || !DreamTunnelDash.HasDreamTunnelDash) {
-                player.RefillDash();
+            if (player.RefillDash() || player.Stamina < 20f || !DreamTunnelDash.HasDreamTunnelDash) {
                 player.RefillStamina();
                 DreamTunnelDash.HasDreamTunnelDash = true;
                 Audio.Play(CustomSFX.game_dreamRefill_dream_refill_touch, Position);
