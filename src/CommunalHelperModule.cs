@@ -133,6 +133,11 @@ namespace Celeste.Mod.CommunalHelper {
                 return Level.LoadCustomEntity(entityData, level);
             }
 
+            if (entityData.Name == "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate") {
+                entityData.Name = "CommunalHelper/DreamSwitchGate";
+                return Level.LoadCustomEntity(entityData, level);
+            }
+
             return false;
         }
 

@@ -13,7 +13,7 @@ function getPlacements()
 	# This is bad and can easily fail, but whatever
 	if CommunalHelper.detectMod("adventurehelper")
 		return Ahorn.PlacementDict(
-			"Crystal Heart (Communal Helper/Adventure Helper)" => Ahorn.EntityPlacement(
+			"Crystal Heart (Communal Helper, Adventure Helper)" => Ahorn.EntityPlacement(
 				CustomCrystalHeart,
 				"point",
 				Dict{String, Any}(),
