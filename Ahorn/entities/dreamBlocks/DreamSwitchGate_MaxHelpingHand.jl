@@ -14,7 +14,7 @@ using Ahorn.CommunalHelper
 function getPlacements() 
 	if CommunalHelper.detectMod("maxhelpinghand")
 		return Ahorn.PlacementDict(
-			"Dream Flag Switch Gate (Communal Helper)" => Ahorn.EntityPlacement(
+			"Dream Flag Switch Gate (Communal Helper, max480's Helping Hand)" => Ahorn.EntityPlacement(
                 DreamFlagSwitchGate,
                 "rectangle",
                 Dict{String, Any}(),
