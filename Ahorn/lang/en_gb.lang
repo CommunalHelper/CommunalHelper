@@ -91,6 +91,24 @@ placements.entities.CommunalHelper/DreamSwitchGate.tooltips.oneUse=Whether the D
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.permanent=Whether the Dream Switch Gate should stay at its node permanently after being activated for the entire level.
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.refillCount=Number of dashes the Dream Switch Block should refill (-1 for default).
 
+# -- Dream Flag Switch Gate --
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.flag=The session flag this switch gate reacts to. Give the same to multiple touch switches and switch gates to group them.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.icon=The name of the icon for the switch gate (relative to objects/MaxHelpingHand/flagSwitchGate), or "vanilla" for the default one.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.permanent=If enabled, the switch gate will stay open when the player dies or changes rooms.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.inactiveColor=The gate icon colour when not triggered yet.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.activeColor=The gate icon colour when triggered, but the group is not complete yet.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.finishColor=The gate icon colour when the group is complete.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.shakeTime=The time (in seconds) the block spends shaking before starting to move. Vanilla value is 0.5 seconds.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.moveTime=The time (in seconds) the block takes to move to its destination after shaking. Vanilla value is 1.8 seconds.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.moveEased=Whether the block should slow down before reaching its final position. If unchecked, the block will move at constant speed.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.allowReturn=Whether the block should return to its original position if the flag is turned off. Only works if the gate is persistent.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.moveSound=The sound played by the gate when it starts moving.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.finishedSound=The sound played by the gate when it is done moving.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.oneUse=Whether the Dream Switch Gate should shatter upon exit.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.refillCount=Number of dashes the Dream Switch Block should refill (-1 for default).
+
 # -- Dream Zip Mover --
 placements.entities.CommunalHelper/DreamZipMover.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamZipMover.tooltips.noReturn=Whether the Dream Zip Mover should return to its starting point or not.
@@ -175,6 +193,13 @@ placements.entities.CommunalHelper/CustomSummitGemManager.tooltips.heartOffset=D
 # -- Synced Zip Mover Activation Controller --
 placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.zipMoverSpeedMultiplier=Speed Multiplier for the controlled Zip Movers.
 placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.colorCode=Target color code.
+
+
+# -- Melvin -- 
+placements.entities.CommunalHelper/Melvin.tooltips.weakTop=Whether this Melvin can be dashed into from above.
+placements.entities.CommunalHelper/Melvin.tooltips.weakBottom=Whether this Melvin can be dashed into from below.
+placements.entities.CommunalHelper/Melvin.tooltips.weakLeft=Whether this Melvin can be dashed into from the left.
+placements.entities.CommunalHelper/Melvin.tooltips.weakRight=Whether this Melvin can be dashed into from the right.
 
 
 # -- Timed Trigger Spikes --

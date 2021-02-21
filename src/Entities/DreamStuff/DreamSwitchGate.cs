@@ -74,7 +74,7 @@ namespace Celeste.Mod.CommunalHelper {
             moveSound = data.Attr("moveSound", "event:/game/general/touchswitch_gate_open");
             finishedSound = data.Attr("finishedSound", "event:/game/general/touchswitch_gate_finish");
 
-            allowReturn = data.Bool("allowReturn", false);
+            allowReturn = data.Bool("allowReturn");
 
             P_RecoloredFire = new ParticleType(TouchSwitch.P_Fire) {
                 Color = finishColor
