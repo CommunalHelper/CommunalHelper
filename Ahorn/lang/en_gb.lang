@@ -94,7 +94,7 @@ placements.entities.CommunalHelper/DreamSwitchGate.tooltips.refillCount=Number o
 # -- Dream Flag Switch Gate --
 placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.flag=The session flag this switch gate reacts to. Give the same to multiple touch switches and switch gates to group them.
 placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.icon=The name of the icon for the switch gate (relative to objects/MaxHelpingHand/flagSwitchGate), or "vanilla" for the default one.
-placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.permanent=If enabled, the switch gate will stay open when the player dies or changes rooms.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.persistent=If enabled, the switch gate will stay open when the player dies or changes rooms.
 placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.inactiveColor=The gate icon colour when not triggered yet.
 placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.activeColor=The gate icon colour when triggered, but the group is not complete yet.
 placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.finishColor=The gate icon colour when the group is complete.

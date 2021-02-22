@@ -5,7 +5,7 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate" DreamFlagSwitchGate(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, below::Bool=false, permanent::Bool = false,
+    featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, below::Bool=false, persistent::Bool = false,
     flag::String="flag_touch_switch", icon::String="vanilla",
     inactiveColor::String="5FCDE4", activeColor::String="FFFFFF", finishColor::String="F141DF",
     shakeTime::Number=0.5, moveTime::Number=1.8, moveEased::Bool=true, allowReturn::Bool=false,
