@@ -4,22 +4,38 @@ using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/MoveBlockRedirect" MoveBlockRedirect(x::Integer, y::Integer, 
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight, 
-	direction::String="Up", fastRedirect::Bool=false)
+	direction::String="Up", fastRedirect::Bool=false, deleteBlock::Bool=false, oneUse::Bool=false,
+	modifier::Number=0.0, operation::String="Add")
 
 const placements = Ahorn.PlacementDict(
 	"Move Block Redirect (Communal Helper)" => Ahorn.EntityPlacement(
 		MoveBlockRedirect,
 		"rectangle"
+	),
+	"Move Block Redirect (One Use) (Communal Helper)" => Ahorn.EntityPlacement(
+		MoveBlockRedirect,
+		"rectangle",
+		Dict{String, Any}(
+			"oneUse" => true
+		)
 	)
 )
 
+const opTypes = ["Add", "Subtract", "Multiply"]
+
 Ahorn.editingOptions(entity::MoveBlockRedirect) = Dict{String, Any}(
-    "direction" => Maple.move_block_directions
+    "direction" => Maple.move_block_directions,
+	"operation" => opTypes
 )
 Ahorn.minimumSize(entity::MoveBlockRedirect) = Maple.defaultBlockWidth, Maple.defaultBlockHeight 
 Ahorn.resizable(entity::MoveBlockRedirect) = true, true
 
 Ahorn.selection(entity::MoveBlockRedirect) = Ahorn.getEntityRectangle(entity)
+
+const defaultColor = (251, 206, 54, 255) ./ 255
+const deleteColor = (204, 37, 65, 255) ./ 255
+const fastColor = (41, 195, 47, 255) ./ 255
+const slowColor = (28, 91, 179, 255) ./ 255
 
 function Ahorn.rotated(entity::MoveBlockRedirect, steps::Int)
 	if steps == 0
@@ -50,7 +66,7 @@ function Ahorn.rotated(entity::MoveBlockRedirect, steps::Int)
 		end
 	end
 
-	return MoveBlockRedirect(entity.x, entity.y, entity.width, entity.height, dir, get(entity.data, "fastRedirect", "Up"))
+	return MoveBlockRedirect(entity.x, entity.y, entity.width, entity.height, dir, get(entity.data, "fastRedirect", false))
 end
 
 function getRotation(dir::String)
@@ -69,22 +85,57 @@ function getRotation(dir::String)
 	end
 end
 
+function getIconTextureAndColor(entity::MoveBlockRedirect)
+	path = "objects/CommunalHelper/moveBlockRedirect/"
+	deleteBlock = Bool(get(entity.data, "deleteBlock", false))
+	if deleteBlock
+		return path * "x", deleteColor
+	end
+
+	operation = String(get(entity.data, "operation", "Add"))
+	modifier = abs(get(entity.data, "modifier", 0.0))
+	if operation == "Add"
+		if modifier == 0.0
+			return path * "arrow", defaultColor
+		end
+		return path * "fast", fastColor
+	elseif operation == "Subtract"
+		if modifier == 0.0
+			return path * "arrow", defaultColor
+		end
+		return path * "slow", slowColor
+	elseif operation == "Multiply"
+		if modifier == 0.0
+			return path * "x", deleteColor
+		elseif modifier > 1.0
+			return path * "fast", fastColor
+		elseif modifier < 1.0
+			return path * "slow", slowColor
+		end
+	end
+
+	return path * "arrow", defaultColor
+end
+
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::MoveBlockRedirect) 
 	width = Int(get(entity.data, "width", 32))
-   height = Int(get(entity.data, "height", 32))
+   	height = Int(get(entity.data, "height", 32))
 	
 	direction = String(get(entity.data, "direction", "Up"))
+	sprite, color = getIconTextureAndColor(entity)
 	 
-	Ahorn.drawRectangle(ctx, 0, 0, width, height, (0.0,0.0,0.0,0.0), (1.0, 0.82, 0.0, 0.75))
-	
-	sprite = Ahorn.getSprite("objects/CommunalHelper/moveBlockRedirect/bigarrow", "Gameplay")
+	Ahorn.Cairo.save(ctx)
+	Ahorn.Cairo.set_dash(ctx, [0.6, 0.2])
+	Ahorn.Cairo.set_antialias(ctx, 1)
+	Ahorn.drawRectangle(ctx, 0, 0, width, height, (0.0, 0.0, 0.0, 0.0), color)
+	Ahorn.Cairo.restore(ctx)
 	
 	# finicky
 	Ahorn.Cairo.save(ctx)
 	Ahorn.Cairo.translate(ctx, width/2, height/2)
 	Ahorn.Cairo.rotate(ctx, getRotation(direction))
-	Ahorn.Cairo.translate(ctx, -sprite.width/2, -sprite.height/2)
-	Ahorn.drawImage(ctx, sprite, 0, 0, alpha=0.75)
+	Ahorn.Cairo.translate(ctx, -8, -8) # sprite always has a 16 x 16 size
+	Ahorn.drawImage(ctx, sprite, 0, 0, tint=color)
 	Ahorn.Cairo.restore(ctx)
 end
 

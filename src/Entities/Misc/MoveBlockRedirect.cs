@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.Entities;
+using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -15,17 +16,33 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/MoveBlockRedirect")]
     public class MoveBlockRedirect : Entity {
 
+        public enum Operation {
+            Add, Subtract, Multiply
+        }
+        private Operation operation;
+        private float modifier;
+
         internal const string MoveBlock_InitialAngle = "communalHelperInitialAngle";
         internal const string MoveBlock_InitialDirection = "communalHelperInitialDirection";
 
         public static readonly Color Mask = new Color(200, 180, 190);
+        public static readonly Color UsedColor = Calc.HexToColor("474070"); // From MoveBlock
+        public static readonly Color DeleteColor = Calc.HexToColor("cc2541");
+        public static readonly Color DefaultColor = Calc.HexToColor("fbce36");
+        public static readonly Color FasterColor = Calc.HexToColor("29c32f");
+        public static readonly Color SlowerColor = Calc.HexToColor("1c5bb3");
 
         private static readonly FieldInfo f_MoveBlock_canSteer = typeof(MoveBlock).GetField("canSteer", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly Type t_MoveBlock_Controller = typeof(MoveBlock).GetNestedType("<Controller>d__45", BindingFlags.NonPublic);
         private static readonly FieldInfo f_MoveBlock_Controller_this = t_MoveBlock_Controller.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo m_MoveBlock_BreakParticles = typeof(MoveBlock).GetMethod("BreakParticles", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo m_MoveBlock_UpdateColors = typeof(MoveBlock).GetMethod("UpdateColors", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private Color startColor;
 
         public MoveBlock.Directions Direction;
         public bool FastRedirect;
+        private bool oneUse, deleteBlock;
 
         private float angle;
         private MoveBlock currentBlock;
@@ -34,12 +51,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private MoveBlock lastMoveBlock;
 
+        private Icon icon;
+
         public MoveBlockRedirect(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
             Depth = Depths.Above;
             Collider = new Hitbox(data.Width, data.Height);
 
             FastRedirect = data.Bool("fastRedirect");
+            oneUse = data.Bool("oneUse");
+            deleteBlock = data.Bool("deleteBlock") || (operation == Operation.Multiply && modifier == 0f);
+
+            operation = data.Enum("operation", Operation.Add);
+            modifier = Math.Abs(data.Float("modifier"));
 
             if (float.TryParse(data.Attr("direction"), out float fAngle))
                 angle = fAngle;
@@ -121,7 +145,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Added(Scene scene) {
             base.Added(scene);
-            scene.Add(new Arrow(Center, angle));
+            string iconTexture = "arrow";
+            startColor = DefaultColor;
+
+            if (deleteBlock) {
+                iconTexture = "x";
+                startColor = DeleteColor;
+            } else {
+                if ((operation == Operation.Add && modifier != 0f) || (operation == Operation.Multiply && modifier > 1f)) {
+                    iconTexture = "fast";
+                    startColor = FasterColor;
+                } else if ((operation == Operation.Subtract && modifier != 0f) || (operation == Operation.Multiply && modifier < 1f)) {
+                    iconTexture = "slow";
+                    startColor = SlowerColor;
+                }
+            }
+            scene.Add(icon = new Icon(Center, angle, iconTexture));
+            UpdateColors();
         }
 
         private static Vector2 MoveBlockDirectionToVector(MoveBlock.Directions dir, float factor = 1f) {
@@ -135,9 +175,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return result * factor;
         }
 
+        private void UpdateColors() {
+            Color currentColor = Color.Lerp(startColor, UsedColor, maskAlpha);
+            icon.Sprite.Color = currentColor;
+            foreach(Image image in borders) {
+                image.Color = currentColor;
+            }
+        }
+
         public override void Update() {
             base.Update();
-
+            UpdateColors();
             MoveBlock moveBlock = CollideAll<Solid>().FirstOrDefault(e => e is MoveBlock) as MoveBlock;
 
             if (lastMoveBlock != null && !CollideCheck(lastMoveBlock)) {
@@ -172,7 +220,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         return;
                 }
 
-
                 if (FastRedirect)
                     SetBlockData(blockData);
                 else if (currentBlock == null) {
@@ -183,16 +230,126 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            icon.RemoveSelf();
+        }
+
         private void SetBlockData(DynData<MoveBlock> blockData) {
             if (!blockData.Data.ContainsKey(MoveBlock_InitialAngle)) {
                 blockData[MoveBlock_InitialAngle] = blockData["homeAngle"];
                 blockData[MoveBlock_InitialDirection] = blockData["direction"];
             }
-            blockData["angle"] = blockData["targetAngle"] = blockData["homeAngle"] = angle;
-            blockData["direction"] = Direction;
-            blockData.Target.X = X;
-            blockData.Target.Y = Y;
-            lastMoveBlock = blockData.Target;
+
+            MoveBlock block = blockData.Target; 
+            if(deleteBlock) {
+                block.Remove(block.Get<Coroutine>());
+                block.Add(new Coroutine(BreakBlock(block, blockData)));
+            } else {
+                blockData["angle"] = blockData["targetAngle"] = blockData["homeAngle"] = angle;
+                blockData["direction"] = Direction;
+
+                float newSpeed = blockData.Get<float>("targetSpeed");
+                newSpeed = operation switch {
+                    Operation.Add => newSpeed + modifier,
+                    Operation.Subtract => newSpeed - modifier,
+                    Operation.Multiply => newSpeed * modifier,
+                    _ => newSpeed
+                };
+
+                blockData["targetSpeed"] = newSpeed;
+                lastMoveBlock = block;
+            }
+            block.X = X;
+            block.Y = Y;
+        }
+
+        private IEnumerator BreakBlock(MoveBlock self, DynData<MoveBlock> blockData) {
+            Audio.Play("event:/game/04_cliffside/arrowblock_break", self.Position);
+            blockData.Get<SoundSource>("moveSfx").Stop();
+
+            //state = MovementState.Breaking;
+            blockData["speed"] = blockData["targetSpeed"] = 0f;
+            blockData["angle"] = blockData["targetAngle"] = blockData.Get<float>("homeAngle");
+
+            self.StartShaking(0.2f);
+            self.StopPlayerRunIntoAnimation = true;
+            yield return 0.2f;
+
+            m_MoveBlock_BreakParticles.Invoke(self, new object[] { });
+            Vector2 startPosition = blockData.Get<Vector2>("startPosition");
+            List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
+            for (int i = 0; i < Width; i += 8) {
+                for (int j = 0; j < Height; j += 8) {
+                    Vector2 value = new Vector2(i + 4f, j + 4f);
+                    MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(Position + value, self.Center, startPosition + value);
+                    debris.Add(debris2);
+                    Scene.Add(debris2);
+                }
+            }
+
+            self.MoveStaticMovers(startPosition - self.Position);
+            self.DisableStaticMovers();
+            self.Position = startPosition;
+            self.Visible = (self.Collidable = false);
+            currentBlock = null;
+            yield return 2.2f;
+            foreach (MoveBlockDebris item in debris) {
+                item.StopMoving();
+            }
+            while (self.CollideCheck<Actor>() || self.CollideCheck<Solid>()) {
+                yield return null;
+            }
+            self.Collidable = true;
+
+            EventInstance instance = Audio.Play("event:/game/04_cliffside/arrowblock_reform_begin", debris[0].Position);
+            Coroutine routine = new Coroutine(SoundFollowsDebrisCenter(instance, debris));
+            
+            self.Add(routine);
+            foreach (MoveBlockDebris item2 in debris) {
+                item2.StartShaking();
+            }
+            yield return 0.2f;
+            foreach (MoveBlockDebris item3 in debris) {
+                item3.ReturnHome(0.65f);
+            }
+            yield return 0.6f;
+            routine.RemoveSelf();
+            foreach (MoveBlockDebris item4 in debris) {
+                item4.RemoveSelf();
+            }
+
+            Audio.Play("event:/game/04_cliffside/arrowblock_reappear", Position);
+            self.Visible = true;
+            self.EnableStaticMovers();
+            blockData["speed"] = blockData["targetSpeed"] = 0f;
+            blockData["angle"] = blockData["targetAngle"] = blockData.Get<float>("homeAngle");
+            blockData["noSquish"] = null;
+            blockData["fillColor"] = UsedColor; // same color, yes i know
+            m_MoveBlock_UpdateColors.Invoke(self, new object[] { });
+            blockData["flash"] = 1f;
+            blockData["triggered"] = false;
+
+            // "jump" back at the beginning of the Controller coroutine, cursed
+            IEnumerator controller;
+            self.Add(new Coroutine(controller = (IEnumerator) Activator.CreateInstance(t_MoveBlock_Controller, 0)));
+            f_MoveBlock_Controller_this.SetValue(controller, self);
+        }
+
+        private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris) {
+            while (true) {
+                instance.getPlaybackState(out PLAYBACK_STATE pLAYBACK_STATE);
+                if (pLAYBACK_STATE == PLAYBACK_STATE.STOPPED) {
+                    break;
+                }
+                Vector2 zero = Vector2.Zero;
+                foreach (MoveBlockDebris debri in debris) {
+                    zero += debri.Position;
+                }
+                zero /= debris.Count;
+                Audio.Position(instance, zero);
+                yield return null;
+            }
         }
 
         private IEnumerator RedirectRoutine(MoveBlock block) {
@@ -203,9 +360,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             SoundSource moveSfx = blockData.Get<SoundSource>("moveSfx");
             moveSfx.Param("redirect_slowdown", 1f);
-
-            foreach (Image img in borders)
-                img.Texture = GFX.Game[img.Texture.AtlasPath + "_active"];
 
             block.StartShaking(0.2f);
 
@@ -220,7 +374,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             while (timer > 0.2f) {
                 timer -= Engine.DeltaTime;
-                maskAlpha = Ease.BounceIn(timer / duration);
+                float percent = timer / duration;
+                maskAlpha = Ease.BounceIn(percent);
                 yield return null;
             }
 
@@ -233,11 +388,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return null;
             }
 
-            foreach (Image img in borders) {
-                string path = img.Texture.AtlasPath;
-                img.Texture = GFX.Game[path.Substring(0, path.Length - 7)];
-            }
-
             // Absolutely cursed, starts the Controller routine after a certain number of yields
             IEnumerator controller;
             block.Add(new Coroutine(controller = (IEnumerator) Activator.CreateInstance(t_MoveBlock_Controller, 3)));
@@ -246,6 +396,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // Wait for the moveblock to continue before resetting
             yield return null;
             currentBlock = null;
+            if (oneUse)
+                RemoveSelf();
         }
 
         public override void Render() {
@@ -254,12 +406,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         }
 
-        private class Arrow : Entity {
+        private class Icon : Entity {
             public Image Sprite;
-            public Arrow(Vector2 position, float rotation)
+            public Icon(Vector2 position, float rotation, string icon)
                 : base(position) {
                 Depth = Depths.Below;
-                Add(Sprite = new Image(GFX.Game["objects/CommunalHelper/moveBlockRedirect/bigarrow"]));
+                Add(Sprite = new Image(GFX.Game["objects/CommunalHelper/moveBlockRedirect/" + icon]));
                 Sprite.CenterOrigin();
                 Sprite.Rotation = rotation;
             }
