@@ -18,6 +18,13 @@ const placements = Ahorn.PlacementDict(
 		Dict{String, Any}(
 			"oneUse" => true
 		)
+	),
+	"Move Block Redirect (Delete Block) (Communal Helper)" => Ahorn.EntityPlacement(
+		MoveBlockRedirect,
+		"rectangle",
+		Dict{String, Any}(
+			"deleteBlock" => true
+		)
 	)
 )
 
