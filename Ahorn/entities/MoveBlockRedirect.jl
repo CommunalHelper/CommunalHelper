@@ -44,6 +44,8 @@ const deleteColor = (204, 37, 65, 255) ./ 255
 const fastColor = (41, 195, 47, 255) ./ 255
 const slowColor = (28, 91, 179, 255) ./ 255
 
+const block = "objects/CommunalHelper/moveBlockRedirect/block"
+
 function Ahorn.rotated(entity::MoveBlockRedirect, steps::Int)
 	if steps == 0
 		return entity
@@ -130,12 +132,17 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::MoveBlockRedirect)
 	
 	direction = String(get(entity.data, "direction", "Up"))
 	sprite, color = getIconTextureAndColor(entity)
-	 
-	Ahorn.Cairo.save(ctx)
-	Ahorn.Cairo.set_dash(ctx, [0.6, 0.2])
-	Ahorn.Cairo.set_antialias(ctx, 1)
-	Ahorn.drawRectangle(ctx, 0, 0, width, height, (0.0, 0.0, 0.0, 0.0), color)
-	Ahorn.Cairo.restore(ctx)
+
+    tileWidth = ceil(Int, width / 8)
+    tileHeight = ceil(Int, height / 8)
+
+	for i in -1 : tileWidth, j in -1 : tileHeight
+        tx = (i == -1) ? 0 : ((i == tileWidth) ? 16 : 8)
+        ty = (j == -1) ? 0 : ((j == tileHeight) ? 16 : 8)
+		if i == -1 || i == tileWidth || j == -1 || j == tileHeight
+			Ahorn.drawImage(ctx, block, i * 8, j * 8, tx, ty, 8, 8, tint=color)
+		end
+	end
 	
 	# finicky
 	Ahorn.Cairo.save(ctx)

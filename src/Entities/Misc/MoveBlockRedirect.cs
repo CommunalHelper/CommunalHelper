@@ -83,37 +83,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private void AddTextures() {
             borders = new List<Image>();
 
-            // Add Corners
-            for (int i = 0; i < 4; i++) {
-                Image image = new Image(GFX.Game["objects/CommunalHelper/moveBlockRedirect/corner"]);
-                image.Rotation = Calc.QuarterCircle * i;
-                image.Position = i switch {
-                    0 => image.Position,
-                    1 => Vector2.UnitX * Width,
-                    2 => new Vector2(Width, Height),
-                    3 => Vector2.UnitY * Height,
-                    _ => throw new NotImplementedException()
-                };
-                image.CenterOrigin();
-                borders.Add(image);
-                Add(image);
-            }
+            MTexture block = GFX.Game["objects/CommunalHelper/moveBlockRedirect/block"];
 
-            // Top / Bottom
-            for (int i = 16; i <= Width / 2; i += 16) {
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], Vector2.UnitX * i, Calc.QuarterCircle, borders);
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], Vector2.UnitX * (Width - i), Calc.QuarterCircle, borders);
-
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], new Vector2(i, Height), -Calc.QuarterCircle, borders);
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], new Vector2(Width - i, Height), -Calc.QuarterCircle, borders);
-            }
-
-            // Left / Right
-            for (int i = 16; i <= Height / 2; i += 16) {
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], Vector2.UnitY * i, 0f, borders);
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], Vector2.UnitY * (Height - i), 0f, borders);
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], new Vector2(Width, i), Calc.HalfCircle, borders);
-                AddImage(GFX.Game["objects/CommunalHelper/moveBlockRedirect/side"], new Vector2(Width, Height - i), Calc.HalfCircle, borders);
+            int w = (int) (Width / 8f);
+            int h = (int) (Height / 8f);
+            for (int i = -1; i <= w; i++) {
+                for (int j = -1; j <= h; j++) {
+                    int tx = (i == -1) ? 0 : ((i == w) ? 16 : 8);
+                    int ty = (j == -1) ? 0 : ((j == h) ? 16 : 8);
+                    AddImage(block.GetSubtexture(tx, ty, 8, 8), new Vector2(i, j) * 8, borders);
+                }
             }
 
             // Unused in favor of large arrow
@@ -134,11 +113,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         }
 
-        private void AddImage(MTexture texture, Vector2 position, float rotation, List<Image> addTo) {
+        private void AddImage(MTexture texture, Vector2 position, List<Image> addTo) {
             Image image = new Image(texture);
-            image.Rotation = rotation;
             image.Position = position;
-            image.CenterOrigin();
             Add(image);
             addTo?.Add(image);
         }
