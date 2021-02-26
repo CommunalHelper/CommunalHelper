@@ -197,9 +197,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         return;
                 }
 
-                if (FastRedirect)
+                if (FastRedirect) {
+                    if (deleteBlock && currentBlock == moveBlock)
+                        return;
+                    currentBlock = moveBlock;
                     SetBlockData(blockData);
-                else if (currentBlock == null) {
+                } else if (currentBlock == null) {
                     currentBlock = moveBlock;
                     moveBlock.Remove(moveBlock.Get<Coroutine>());
                     Add(new Coroutine(RedirectRoutine(moveBlock)));
@@ -292,6 +295,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             yield return 0.6f;
             routine.RemoveSelf();
+
             foreach (MoveBlockDebris item4 in debris) {
                 item4.RemoveSelf();
             }
@@ -309,6 +313,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             // "jump" back at the beginning of the Controller coroutine, cursed
             IEnumerator controller;
+            foreach (Component c in self.Components) {
+                if (c is Coroutine) {
+                    self.Remove(c);
+                }
+            }
             self.Add(new Coroutine(controller = (IEnumerator) Activator.CreateInstance(t_MoveBlock_Controller, 0)));
             f_MoveBlock_Controller_this.SetValue(controller, self);
         }
