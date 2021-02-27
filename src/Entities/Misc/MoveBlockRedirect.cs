@@ -23,6 +23,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private Operation operation;
         private float modifier;
 
+        private ParticleType p_Used;
+
         internal const string MoveBlock_InitialAngle = "communalHelperInitialAngle";
         internal const string MoveBlock_InitialDirection = "communalHelperInitialDirection";
 
@@ -46,7 +48,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool OneUse, DeleteBlock;
 
         private float angle;
-        private float maskAlpha;
+        private float maskAlpha, alpha = 1f;
         private List<Image> borders;
 
         private MoveBlock lastMoveBlock;
@@ -138,7 +140,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
             scene.Add(icon = new Icon(Center, angle, iconTexture));
-            UpdateColors();
+            UpdateAppearance();
+            p_Used = new ParticleType(SwitchGate.P_Behind) {
+                Color = icon.Sprite.Color,
+                Color2 = Color.Lerp(icon.Sprite.Color, Color.White, .2f),
+                DirectionRange = (float) Math.PI * 0.5f,
+                SpeedMax = 20f
+            };
         }
 
         private static Vector2 MoveBlockDirectionToVector(Directions dir, float factor = 1f) {
@@ -152,24 +160,27 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return result * factor;
         }
 
-        private void UpdateColors() {
-            Color currentColor = Color.Lerp(startColor, UsedColor, maskAlpha);
+        private void UpdateAppearance() {
+            Color currentColor = Color.Lerp(startColor, UsedColor, maskAlpha) * alpha;
             icon.Sprite.Color = currentColor;
             foreach(Image image in borders) {
-                image.Color = currentColor;
+                image.Color = currentColor * alpha;
             }
         }
 
         public override void Update() {
             base.Update();
-            UpdateColors();
+            UpdateAppearance();
 
             if (lastMoveBlock != null && !CollideCheck(lastMoveBlock))
                 lastMoveBlock = null;
+            else if ((lastMoveBlock == null || FastRedirect) && maskAlpha != 0f) {
+                maskAlpha = Calc.Approach(maskAlpha, 0f, (FastRedirect && !DeleteBlock ? 2.5f : 4f) * Engine.DeltaTime);
+            }
 
             MoveBlock moveBlock = CollideAll<Solid>().FirstOrDefault(e => e is MoveBlock) as MoveBlock;
 
-            if (moveBlock != null && moveBlock != lastMoveBlock && !(bool) f_MoveBlock_canSteer.GetValue(moveBlock) &&
+            if (Collidable && moveBlock != null && moveBlock != lastMoveBlock && !(bool) f_MoveBlock_canSteer.GetValue(moveBlock) &&
                 moveBlock.Width == Width && moveBlock.Height == Height) {
 
                 DynData<MoveBlock> blockData = new DynData<MoveBlock>(moveBlock);
@@ -199,10 +210,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (DeleteBlock) {
                     Coroutine routine = moveBlock.Get<Coroutine>();
                     moveBlock.Remove(routine);
-                    moveBlock.Add(new Coroutine(BreakBlock(blockData, routine, FastRedirect)));
+                    moveBlock.Add(new Coroutine(BreakBlock(blockData, routine, FastRedirect, OneUse)));
                 } else {
                     if (FastRedirect) {
                         SetBlockData(blockData);
+                        maskAlpha = 1f;
+                        if (OneUse)
+                            Disappear();
                     } else {
                         Coroutine routine = moveBlock.Get<Coroutine>();
                         moveBlock.Remove(routine);
@@ -235,15 +249,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 _ => newSpeed
             };
 
-            blockData["targetSpeed"] = newSpeed;
+            blockData["targetSpeed"] = Math.Max(10f, newSpeed); // could go into negative speeds, yuck
             lastMoveBlock = block;
             block.X = X;
             block.Y = Y;
+
+            UsedParticles();
         }
 
-        private IEnumerator BreakBlock(DynData<MoveBlock> blockData, Coroutine orig, bool fast) {
-            string breakSFX = fast ? CustomSFX.game_redirectMoveBlock_arrowblock_break_fast : SFX.game_04_arrowblock_break;
-            Audio.Play(breakSFX, blockData.Target.Position);
+        private IEnumerator BreakBlock(DynData<MoveBlock> blockData, Coroutine orig, bool fast, bool oneUse) {
             blockData.Get<SoundSource>("moveSfx").Stop();
 
             //state = MovementState.Breaking;
@@ -253,13 +267,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             blockData.Target.StartShaking(0.2f);
             blockData.Target.StopPlayerRunIntoAnimation = true;
 
-            float duration = fast ? 0f : 0.2f;
-            float timer = 0f;
-            while (timer < duration) {
-                timer += Engine.DeltaTime;
-                maskAlpha = Ease.BounceIn(timer / duration);
-                yield return null;
+            if (fast) {
+                maskAlpha = 1f;
+                Audio.Play(CustomSFX.game_redirectMoveBlock_arrowblock_break_fast, blockData.Target.Position);
+            } else {
+                float duration = 0.15f;
+                float timer = 0f;
+                yield return .2f;
+                Audio.Play(SFX.game_04_arrowblock_break, blockData.Target.Position);
+                while (timer < duration) {
+                    timer += Engine.DeltaTime;
+                    maskAlpha = Ease.SineIn(timer / duration);
+                    yield return null;
+                }
             }
+
+            UsedParticles();
 
             // Absolutely cursed beyond belief
             IEnumerator controller;
@@ -268,7 +291,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             blockData.Target.Add(orig);
 
             yield return null;
-            maskAlpha = 0;
+
+            if (oneUse)
+                Disappear();
         }
 
         private IEnumerator RedirectRoutine(MoveBlock block, Coroutine orig) {
@@ -315,7 +340,35 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             // Wait for the moveblock to continue before resetting
             if (OneUse)
-                RemoveSelf();
+                Disappear();
+        }
+
+        private void Disappear() {
+            Collidable = false;
+            Add(new Coroutine(DisappearRoutine()));
+        }
+
+        private IEnumerator DisappearRoutine() {
+            float timer = 1f;
+            while (timer > 0f) {
+                timer -= Engine.DeltaTime * 2f;
+                alpha = timer;
+                yield return null;
+            }
+            RemoveSelf();
+        }
+
+        private void UsedParticles() {
+            Level level = SceneAs<Level>();
+
+            for (int i = 0; i < Height / 8; i++) {
+                level.Particles.Emit(p_Used, new Vector2(Left + 1f, Calc.Random.Range(Top + 3f, Bottom - 3f)), (float) Math.PI);
+                level.Particles.Emit(p_Used, new Vector2(Right - 1f, Calc.Random.Range(Top + 3f, Bottom - 3f)), 0f);
+            }
+            for (int i = 0; i < Width / 8; i++) {
+                level.Particles.Emit(p_Used, new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Top + 1f), -(float) Math.PI / 2f);
+                level.Particles.Emit(p_Used, new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Bottom - 1f), (float) Math.PI / 2f);
+            }
         }
 
         public override void Render() {
