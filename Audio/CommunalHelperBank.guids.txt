@@ -23,6 +23,7 @@
 {df422bf6-af85-43cf-b5f6-3380534654de} event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_tick
 {030abc75-4f88-42ff-a184-6672c0c5d189} event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_arrived
 {713b4c05-56c3-4d8b-ab46-e5d1f5e08014} event:/CommunalHelperEvents/game/redirectMoveBlock/arrowblock_move
+{10e2cd04-6cde-41f5-b30c-4ac8613f3e64} event:/CommunalHelperEvents/game/redirectMoveBlock/arrowblock_break
 {4b292127-06bb-4acb-a927-18571d19ca0d} event:/CommunalHelperEvents/game/seedCrystalHeart/collect_all_main
 {f25c9f4e-bda1-44d4-911e-5813f8c94187} event:/CommunalHelperEvents/game/seedCrystalHeart/shard_collect
 {a2bc8729-8243-400b-85bf-7aee35017dae} event:/CommunalHelperEvents/game/seedCrystalHeart/shards_reform
