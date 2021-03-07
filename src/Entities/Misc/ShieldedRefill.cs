@@ -1,11 +1,10 @@
-﻿using Celeste.Mod.CommunalHelper;
-using Celeste.Mod.Entities;
+﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections;
 
-namespace Celeste.Mod.PillieHelper {
+namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ShieldedRefill")]
     class ShieldedRefill : Entity {
         private Sprite sprite;
