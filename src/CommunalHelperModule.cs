@@ -1,7 +1,12 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.Entities;
+using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper {
@@ -46,6 +51,8 @@ namespace Celeste.Mod.CommunalHelper {
             MoveBlockRedirect.Load();
             MoveSwapBlock.Load();
             SyncedZipMoverActivationControllerHooks.Hook();
+            ManualCassetteController.Load();
+            // TimedTriggerSpikes hooked in Initialize
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
@@ -68,6 +75,7 @@ namespace Celeste.Mod.CommunalHelper {
             MoveBlockRedirect.Unload();
             MoveSwapBlock.Unload();
             SyncedZipMoverActivationControllerHooks.Unhook();
+            ManualCassetteController.Unload();
             TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();
@@ -79,6 +87,9 @@ namespace Celeste.Mod.CommunalHelper {
             // We create a static CrystalStaticSpinner which needs to access Tags.TransitionUpdate
             // Which wouldn't be loaded in time for EverestModule.Load
             TimedTriggerSpikes.Load();
+
+            // Register CustomCassetteBlock types
+            CustomCassetteBlock.Initialize();
         }
 
         public override void LoadContent(bool firstLoad) {
@@ -139,6 +150,10 @@ namespace Celeste.Mod.CommunalHelper {
                 return Level.LoadCustomEntity(entityData, level);
             }
 
+            // Will be handled later
+            if (entityData.Name == "CommunalHelper/ManualCassetteController")
+                return true;
+
             return false;
         }
 
@@ -148,6 +163,10 @@ namespace Celeste.Mod.CommunalHelper {
                 return Settings.AllowActivateRebinding ?
                     Settings.ActivateSyncedZipMovers.Button : Input.Grab;
             }
+
+            if (command == "CommunalHelperCycleCassetteBlocksBinding")
+                return Settings.CycleCassetteBlocks.Button;
+
             return null;
         }
     }

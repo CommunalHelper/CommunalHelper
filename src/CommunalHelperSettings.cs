@@ -8,5 +8,7 @@ namespace Celeste.Mod.CommunalHelper {
         [DefaultButtonBinding(Buttons.RightShoulder, Keys.Z)]
         public ButtonBinding ActivateSyncedZipMovers { get; set; }
         public bool AllowActivateRebinding { get; set; }
+
+        public ButtonBinding CycleCassetteBlocks { get; set; }
     }
 }
