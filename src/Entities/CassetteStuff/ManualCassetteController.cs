@@ -24,7 +24,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 currentIndex++;
                 currentIndex %= roomBeats;
                 SetActiveIndex(currentIndex);
-                Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+                Audio.Play("event:/game/general/cassette_block_switch_" + ((currentIndex % 2) + 1));
+                Input.Rumble(RumbleStrength.Medium, RumbleLength.Short); 
             }
 
         }
