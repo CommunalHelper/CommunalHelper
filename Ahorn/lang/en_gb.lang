@@ -150,8 +150,12 @@ placements.entities.CommunalHelper/CrystalHeart.tooltips.removeCameraTriggers=Wh
 
 
 # -- Move Block Redirect --
-placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.direction=Determines the direction the move block moves after being redirected.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.direction=Determines the direction the Move Block moves after being redirected.
 placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.fastRedirect=Skips the redirect animation.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.deleteBlock=Breaks the Move Block that goes through.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.operation=The type of operation to apply to the current Move Block speed.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.modifier=The number which with the operation is applied to the Move Block speed.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.oneUse=Whether this Move Block Redirect can only be used once or not.
 
 
 # -- Shielded Refill --
