@@ -2,13 +2,21 @@
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-    [Tracked]
     public class ManualCassetteController : Entity {
+
+        private int startIndex;
 
         private int roomBeats;
         private int currentIndex;
+
+        public ManualCassetteController(EntityData data) {
+            startIndex = data.Int("startIndex", 0);
+
+            Visible = Collidable = false;
+        }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
@@ -16,6 +24,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 throw new Exception("CassetteBlockManager detected in same room as ManualCassetteController");
 
             roomBeats = SceneAs<Level>().CassetteBlockBeats;
+
+            if (!(startIndex >= 0 && startIndex < roomBeats))
+                throw new IndexOutOfRangeException("ManualCassetteController startIndex is outside of the number of CassetteBlock indices present");
+            currentIndex = startIndex;
+
+            SetActiveIndex(currentIndex);
         }
 
         public override void Update() {
@@ -59,9 +73,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // Just gonna borrow the level object for a bit
             cursor.EmitDelegate<Func<Level, Level>>(level => {
                 // This could be checked for as part of `Everest.Events.Level.OnLoadEntity` but meh
-                if (level.Session.LevelData.Entities.Exists(entityData => entityData.Name == "CommunalHelper/ManualCassetteController")) {
+                EntityData data = level.Session.LevelData.Entities.FirstOrDefault(entityData => entityData.Name == "CommunalHelper/ManualCassetteController");
+                if (data != null) {
                     level.Tracker.GetEntity<CassetteBlockManager>()?.RemoveSelf();
-                    level.Add(new ManualCassetteController());
+                    level.Add(new ManualCassetteController(data));
                     // Lists were just updated so there's no harm in doing it again (hopefully)
                     level.Entities.UpdateLists(); 
                 }

@@ -2,17 +2,16 @@ module CommunalHelperManualCassetteController
 
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/ManualCassetteController" ManualCassetteController(x::Integer, y::Integer) 
+@mapdef Entity "CommunalHelper/ManualCassetteController" ManualCassetteController(x::Integer, y::Integer, startIndex::Int=0) 
 
 const placements = Ahorn.PlacementDict(
     "Manual Cassette Controller (Communal Helper)" => Ahorn.EntityPlacement(
-        ManualCassetteController,
-        "point",
-        Dict{String, Any}(),
+        ManualCassetteController
     )
 )
 
-const sprite = "objects/CommunalHelper/manualCassetteController/icon.png"
+const alt = rand(1:100) == 42
+const sprite = "objects/CommunalHelper/manualCassetteController/icon$(alt ? "_wacked" : "")"
 
 function Ahorn.selection(entity::ManualCassetteController)
     x, y = Ahorn.position(entity)
@@ -20,7 +19,7 @@ function Ahorn.selection(entity::ManualCassetteController)
 end
 
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ManualCassetteController)
-	Ahorn.drawSprite(ctx, sprite, 0, 0)
+    Ahorn.drawSprite(ctx, sprite, 0, 0)
 end
 
 end
