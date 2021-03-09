@@ -5,34 +5,26 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate" DreamFlagSwitchGate(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, below::Bool=false, persistent::Bool = false,
+    featherMode::Bool=false, oneUse::Bool=false, refillCount::Integer=-1, below::Bool=false, persistent::Bool=false,
     flag::String="flag_touch_switch", icon::String="vanilla",
     inactiveColor::String="5FCDE4", activeColor::String="FFFFFF", finishColor::String="F141DF",
     shakeTime::Number=0.5, moveTime::Number=1.8, moveEased::Bool=true, allowReturn::Bool=false,
     moveSound::String="event:/game/general/touchswitch_gate_open", finishedSound::String="event:/game/general/touchswitch_gate_finish")
 
-function getPlacements() 
-	if CommunalHelper.detectMod("maxhelpinghand")
-		return Ahorn.PlacementDict(
-			"Dream Flag Switch Gate (Communal Helper, max480's Helping Hand)" => Ahorn.EntityPlacement(
-                DreamFlagSwitchGate,
-                "rectangle",
-                Dict{String, Any}(),
-		        function(entity)
-                    entity.data["nodes"] = [(Int(entity.data["x"]) + Int(entity.data["width"]), Int(entity.data["y"]))]
-                end
-            )
-		)
-	else
-		@warn "Max480's Helping Hand not detected: CommunalHelper+MaxHelpingHand plugins not loaded."
-		return Ahorn.PlacementDict()
-	end
+const placements = Ahorn.PlacementDict()
+
+if isdefined(Ahorn, :MaxHelpingHand)
+    placements["Dream Flag Switch Gate (Communal Helper, max480's Helping Hand)"] = Ahorn.EntityPlacement(
+        DreamFlagSwitchGate,
+        "rectangle",
+        Dict{String, Any}(),
+        function (entity)
+            entity.data["nodes"] = [(Int(entity.data["x"]) + Int(entity.data["width"]), Int(entity.data["y"]))]
+        end
+    )
+else
+    @warn "Max480's Helping Hand not detected: CommunalHelper+MaxHelpingHand plugins not loaded."
 end
-
-const placements = getPlacements()
-
-const textures = String["block", "mirror", "temple", "stars"]
-const bundledIcons = String["vanilla", "tall", "triangle", "circle"]
 
 function getIconSprite(entity::DreamFlagSwitchGate)
     icon = get(entity.data, "icon", "vanilla")
@@ -53,8 +45,7 @@ Ahorn.resizable(entity::DreamFlagSwitchGate) = true, true
 Ahorn.editingOrder(entity::DreamFlagSwitchGate) = String["x", "y", "width", "height", "flag", "inactiveColor", "activeColor", "finishColor", "hitSound", "moveSound", "finishedSound", "shakeTime", "moveTime"]
 
 Ahorn.editingOptions(entity::DreamFlagSwitchGate) = Dict{String, Any}(
-    "sprite" => textures,
-    "icon" => bundledIcons
+    "icon" => Ahorn.MaxHelpingHandFlagSwitchGate.bundledIcons
 )
 
 function Ahorn.selection(entity::DreamFlagSwitchGate)
