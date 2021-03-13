@@ -11,6 +11,8 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
+Ahorn.nodeLimits(entity::DreamBooster) = 1, 1
+
 function Ahorn.selection(entity::DreamBooster)
     x, y = Ahorn.position(entity)
     endX, endY = Int.(entity.data["nodes"][1])

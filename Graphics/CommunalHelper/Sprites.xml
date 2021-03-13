@@ -402,7 +402,7 @@
 		<Loop id="loop" path="idle" delay="0.1"/>
 		<Loop id="inside" path="inside" delay="0.1"/>
 		<Loop id="spin" path="roll" delay="0.06"/>
-		<Anim id="pop" path="pop" delay="0.05"/>
+		<Anim id="pop" path="pop" delay="0.07"/>
   	</dreamBooster>
 	
 </Sprites>

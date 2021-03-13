@@ -49,6 +49,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
+
+            CustomBooster.Hook();
         }
 
         public override void Unload() {
@@ -72,6 +74,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
+
+            CustomBooster.Unhook();
         }
 
         public override void Initialize() {
