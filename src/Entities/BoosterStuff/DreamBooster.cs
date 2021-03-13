@@ -12,6 +12,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public float Length;
         public Vector2 Start, Target, Dir;
 
+        public static readonly Color BurstColor = Calc.HexToColor("19233b");
+        public static readonly Color AppearColor = Calc.HexToColor("4d5f6e");
+
         public DreamBooster(EntityData data, Vector2 offset) 
             : this(data.Position + offset, data.Nodes[0] + offset) { }
 
@@ -24,6 +27,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Start = position;
 
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
+            SetParticleColors(BurstColor, AppearColor);
         }
 
         public override void Render() {
