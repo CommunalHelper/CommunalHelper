@@ -2,12 +2,19 @@ module CommunalHelperDreamBooster
 
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/DreamBooster" DreamBooster(x::Integer, y::Integer)
+@mapdef Entity "CommunalHelper/DreamBooster" DreamBooster(x::Integer, y::Integer, hidePath::Bool = false)
 
 const placements = Ahorn.PlacementDict(
     "Dream Booster (Communal Helper)" => Ahorn.EntityPlacement(
         DreamBooster,
         "line"
+    ),
+    "Dream Booster (Hidden Path) (Communal Helper)" => Ahorn.EntityPlacement(
+        DreamBooster,
+        "line",
+        Dict{String, Any}(
+            "hidePath" => true
+        )
     )
 )
 

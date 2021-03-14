@@ -55,6 +55,10 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_melvin_seen_player = "event:/CommunalHelperEvents/game/melvin/seen_player";
         public const string game_melvin_impact = "event:/CommunalHelperEvents/game/melvin/impact";
         public const string game_melvin_move_loop = "event:/CommunalHelperEvents/game/melvin/move_loop";
+
+        public const string game_customBoosters_dreamBooster_dreambooster_enter = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter";
+        public const string game_customBoosters_dreamBooster_dreambooster_enter_cue = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter_cue";
+        public const string game_customBoosters_dreamBooster_dreambooster_move = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_move";
     }
 
     public static class CustomBanks {

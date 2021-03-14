@@ -50,7 +50,7 @@ namespace Celeste.Mod.CommunalHelper {
             HeartGemShard.Load();
             CustomSummitGem.Load();
 
-            CustomBooster.Hook();
+            CustomBooster.Load();
         }
 
         public override void Unload() {
@@ -75,7 +75,7 @@ namespace Celeste.Mod.CommunalHelper {
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
 
-            CustomBooster.Unhook();
+            CustomBooster.Unload();
         }
 
         public override void Initialize() {
@@ -103,6 +103,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             Melvin.InitializeTextures();
             Melvin.InitializeParticles();
+
+            DreamBooster.InitializeParticles();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
