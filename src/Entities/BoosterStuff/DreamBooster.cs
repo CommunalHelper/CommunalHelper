@@ -9,6 +9,41 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamBooster")]
     public class DreamBooster : CustomBooster {
 
+        public class DreamBoosterPathRenderer : Entity {
+            private DreamBooster dreamBooster;
+
+            public float Alpha;
+
+            public DreamBoosterPathRenderer(DreamBooster booster, float alpha) {
+                Depth = Depths.SolidsBelow;
+                dreamBooster = booster;
+
+                Alpha = alpha;
+            }
+
+            public override void Render() {
+                base.Render();
+                if (Alpha <= 0f)
+                    return;
+
+                Vector2 perp = dreamBooster.Dir.Perpendicular();
+                for (float f = 0f; f < dreamBooster.Length; f += 6f) {
+                    Vector2 pos = dreamBooster.Start + dreamBooster.Dir * f;
+
+                    float highlight = Util.TryGetPlayer(out Player player) ? Calc.ClampedMap(Vector2.Distance(player.Center, pos), 0, 80) : 1f;
+                    float lineHighlight = (1 - highlight) * 3 + 0.75f;
+                    float alphaHighlight = 1 - Calc.Clamp(highlight, 0.01f, 0.8f);
+                    Color color = Color.White * alphaHighlight;
+
+                    Draw.Line(pos + perp * lineHighlight, pos - perp * lineHighlight, color * Alpha);
+
+                }
+            }
+        }
+
+        private DreamBoosterPathRenderer pathRenderer;
+        private bool showPath = true;
+
         public float Length;
         public Vector2 Start, Target, Dir;
 
@@ -28,6 +63,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Length = Vector2.Distance(position, Target);
             Start = position;
 
+            this.showPath = showPath;
+
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
             SetParticleColors(BurstColor, AppearColor);
             SetSoundEvent(
@@ -36,9 +73,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 true);
         }
 
+        public override void Added(Scene scene) {
+            base.Added(scene);
+            scene.Add(pathRenderer = new DreamBoosterPathRenderer(this, Util.ToInt(showPath)));
+        }
+
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            scene.Remove(pathRenderer);
+            pathRenderer = null;
+            base.Removed(scene);
+        }
+
+        protected override void OnPlayerEnter(Player player) {
+            base.OnPlayerEnter(player);
+            // TODO: path reacts to player entering in some way, cool effects :))
+        }
+
         public override void Render() {
             base.Render();
-            //Draw.Line(Position, Target, Color.White);
         }
 
         public static void InitializeParticles() {
@@ -67,6 +120,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             while (origEnum.MoveNext())
                 yield return origEnum.Current;
 
+            // could have done this in Booster.PlayerReleased, but it doesn't pass the player object
             if (self is DreamBooster booster) {
                 float angle = booster.Dir.Angle() - 0.5f;
                 for (int i = 0; i < 20; i++) {

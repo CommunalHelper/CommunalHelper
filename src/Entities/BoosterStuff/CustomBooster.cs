@@ -44,6 +44,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             hasCustomSounds = true;
         }
 
+        protected virtual void OnPlayerEnter(Player player) { }
+
         #region Hooks
 
         public static void Unload() {
@@ -60,6 +62,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Booster.AppearParticles += Booster_AppearParticles;
             On.Celeste.Booster.OnPlayer += Booster_OnPlayer;
             On.Celeste.Booster.PlayerBoosted += Booster_PlayerBoosted;
+            On.Celeste.Booster.PlayerReleased += Booster_PlayerReleased;
+        }
+
+        private static void Booster_PlayerReleased(On.Celeste.Booster.orig_PlayerReleased orig, Booster self) {
+            orig(self);
+            if (self is CustomBooster booster && booster.RedBoost && booster.hasCustomSounds && booster.playMoveEventEnd) {
+                booster.BoosterData.Get<SoundSource>("loopingSfx").Play(booster.moveSoundEvent, "end", 1f);
+            }
         }
 
         private static void Booster_PlayerBoosted(On.Celeste.Booster.orig_PlayerBoosted orig, Booster self, Player player, Vector2 direction) {
@@ -70,20 +80,27 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static void Booster_OnPlayer(On.Celeste.Booster.orig_OnPlayer orig, Booster self, Player player) {
-            if (self is CustomBooster booster && booster.hasCustomSounds) {
-                if (booster.BoosterData.Get<float>("respawnTimer") <= 0f && booster.BoosterData.Get<float>("cannotUseTimer") <= 0f && !self.BoostingPlayer) {
-                    booster.BoosterData["cannotUseTimer"] = 0.45f;
-                    if (booster.RedBoost) {
-                        player.RedBoost(self);
-                    } else {
-                        player.Boost(self);
+            if (self is CustomBooster booster) {
+                bool justEntered = booster.BoosterData.Get<float>("respawnTimer") <= 0f && booster.BoosterData.Get<float>("cannotUseTimer") <= 0f && !self.BoostingPlayer;
+                if (booster.hasCustomSounds) {
+                    if (justEntered) {
+                        booster.BoosterData["cannotUseTimer"] = 0.45f;
+                        if (booster.RedBoost) {
+                            player.RedBoost(self);
+                        } else {
+                            player.Boost(self);
+                        }
+                        Audio.Play(booster.enterSoundEvent, self.Position);
+                        booster.BoosterData.Get<Wiggler>("wiggler").Start();
+                        Sprite sprite = booster.BoosterData.Get<Sprite>("sprite");
+                        sprite.Play("inside");
+                        sprite.FlipX = player.Facing == Facings.Left;
                     }
-                    Audio.Play(booster.enterSoundEvent, self.Position);
-                    booster.BoosterData.Get<Wiggler>("wiggler").Start();
-                    Sprite sprite = booster.BoosterData.Get<Sprite>("sprite");
-                    sprite.Play("inside");
-                    sprite.FlipX = player.Facing == Facings.Left;
+                } else {
+                    orig(self, player);
                 }
+                if (justEntered)
+                    booster.OnPlayerEnter(player);
             } else {
                 orig(self, player);
             }
