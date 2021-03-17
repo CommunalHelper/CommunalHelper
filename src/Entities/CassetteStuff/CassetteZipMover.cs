@@ -137,7 +137,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool noReturn;
 
         public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] targets, int index, float tempo, bool noReturn, bool perm, bool waits, bool ticking)
-            : base(position, id, width, height, index, 0, tempo) {
+            : base(position, id, width, height, index, tempo) {
             start = Position;
             this.noReturn = noReturn;
             permanent = perm;

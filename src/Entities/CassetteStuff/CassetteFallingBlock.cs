@@ -13,7 +13,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool HasStartedFalling { get; private set; }
 
         public CassetteFallingBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo)
-            : base(position, id, width, height, index, 3, tempo, dynamicHitbox: true) {
+            : base(position, id, width, height, index, tempo, dynamicHitbox: true) {
             Add(new Coroutine(Sequence()));
         }
 

@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
+    [Tracked]
     public class ManualCassetteController : Entity {
 
         private int startIndex;
@@ -20,7 +21,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            if (scene.Tracker.GetEntity<CassetteBlockManager>() != null)
+
+            if (Scene.Tracker.GetEntity<CassetteBlockManager>() != null)
                 throw new Exception("CassetteBlockManager detected in same room as ManualCassetteController");
 
             roomBeats = SceneAs<Level>().CassetteBlockBeats;
@@ -33,15 +35,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Update() {
+
             base.Update();
             if (CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed) {
-                currentIndex++;
-                currentIndex %= roomBeats;
-                SetActiveIndex(currentIndex);
-                Audio.Play("event:/game/general/cassette_block_switch_" + ((currentIndex % 2) + 1));
-                Input.Rumble(RumbleStrength.Medium, RumbleLength.Short); 
+                Tick();
             }
 
+        }
+
+        public void Tick() {
+            currentIndex++;
+            currentIndex %= roomBeats;
+            SetActiveIndex(currentIndex);
+            Audio.Play("event:/game/general/cassette_block_switch_" + ((currentIndex % 2) + 1));
+            Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
         }
 
         public void SetActiveIndex(int index) {
@@ -53,10 +60,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static IDetour hook_Level_orig_LoadLevel;
         public static void Load() {
             hook_Level_orig_LoadLevel = new ILHook(typeof(Level).GetMethod("orig_LoadLevel"), Level_orig_LoadLevel);
+
+            On.Monocle.Engine.Update += Engine_Update;
         }
 
         public static void Unload() {
             hook_Level_orig_LoadLevel.Dispose();
+
+            On.Monocle.Engine.Update -= Engine_Update;
         }
 
         private static void Level_orig_LoadLevel(ILContext il) {
@@ -82,6 +93,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
                 return level;
             });
+        }
+
+        private static void Engine_Update(On.Monocle.Engine.orig_Update orig, Engine self, Microsoft.Xna.Framework.GameTime gameTime) {
+            orig(self, gameTime);
+            if (Engine.FreezeTimer > 0f && CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed) {
+                ManualCassetteController controller = Engine.Scene.Tracker.GetEntity<ManualCassetteController>();
+                controller?.Tick();
+            }
         }
     }
 }

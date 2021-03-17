@@ -168,6 +168,35 @@ namespace Celeste.Mod.CommunalHelper {
             };
         }
 
+        private static MethodInfo m_TagLists_EntityAdded = typeof(TagLists).GetMethod("EntityAdded", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static MethodInfo m_Tracker_EntityAdded = typeof(Tracker).GetMethod("EntityAdded", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static void ForceAdd(this EntityList list, params Entity[] entities) {
+            DynData<EntityList> listData = new DynData<EntityList>(list);
+            HashSet<Entity> current = listData.Get<HashSet<Entity>>("current");
+            List<Entity> listEntities = listData.Get<List<Entity>>("entities");
+            Scene scene = list.Scene;
+
+            foreach (Entity entity in entities) {
+                if (!current.Contains(entity)) {
+                    current.Add(entity);
+                    listEntities.Add(entity);
+                    if (scene != null) {
+                        m_TagLists_EntityAdded.Invoke(scene.TagLists, new object[] { entity });
+                        m_Tracker_EntityAdded.Invoke(scene.Tracker, new object[] { entity });
+                        entity.Added(scene);
+                    }
+                }
+            }
+
+            listEntities.Sort(EntityList.CompareDepth);
+
+            foreach (Entity entity in entities) {
+                if (entity.Scene == scene)
+                    entity.Awake(scene);
+            }
+        }
+
 
         #region JaThePlayer's state machine extension code
 

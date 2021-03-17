@@ -50,7 +50,7 @@ namespace Celeste.Mod.CommunalHelper {
             AttachedWallBooster.Hook();
             MoveBlockRedirect.Load();
             MoveSwapBlock.Load();
-            SyncedZipMoverActivationControllerHooks.Hook();
+            SyncedZipMoverActivationController.Hook();
             ManualCassetteController.Load();
             // TimedTriggerSpikes hooked in Initialize
 
@@ -74,7 +74,7 @@ namespace Celeste.Mod.CommunalHelper {
             AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
             MoveSwapBlock.Unload();
-            SyncedZipMoverActivationControllerHooks.Unhook();
+            SyncedZipMoverActivationController.Unhook();
             ManualCassetteController.Unload();
             TimedTriggerSpikes.Unload();
 
