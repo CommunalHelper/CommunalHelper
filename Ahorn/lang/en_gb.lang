@@ -34,6 +34,9 @@ placements.entities.CommunalHelper/CassetteZipMover.tooltips.permanent=Whether t
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.waitforplayer=Whether this block requires the player to trigger it each node in the path.
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
 
+# -- Manual Cassette Controller --
+placements.entities.CommunalHelper/ManualCassetteController.tooltips.startIndex=The color of Cassette Block that should start activated.
+
 
 # -- Connected Dream Block --
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.below=Determines whether the Connected Dream Block should render in the background or foreground.

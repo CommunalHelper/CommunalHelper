@@ -1,6 +1,7 @@
 module CommunalHelperManualCassetteController
 
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/ManualCassetteController" ManualCassetteController(x::Integer, y::Integer, startIndex::Int=0) 
 
@@ -8,6 +9,10 @@ const placements = Ahorn.PlacementDict(
     "Manual Cassette Controller (Communal Helper)" => Ahorn.EntityPlacement(
         ManualCassetteController
     )
+)
+
+Ahorn.editingOptions(entity::ManualCassetteController) = Dict{String, Any}(
+    "startIndex" => cassetteColorNames
 )
 
 const alt = rand(1:100) == 42
