@@ -32,10 +32,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public static Entity LoadDreamTunnelEntry(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
             Spikes.Directions orientation = entityData.Enum<Spikes.Directions>("orientation");
-            return new DreamTunnelEntry(entityData.Position + offset, 
-                GetSize(entityData, orientation), 
-                orientation, 
-                entityData.Bool("overrideAllowStaticMovers"), 
+            return new DreamTunnelEntry(entityData.Position + offset,
+                GetSize(entityData, orientation),
+                orientation,
+                entityData.Bool("overrideAllowStaticMovers"),
                 entityData.Bool("below"),
                 entityData.Bool("featherMode"));
         }
@@ -110,8 +110,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             surfaceSoundIndex = SurfaceIndex.DreamBlockInactive;
 
-            particleTextures = new MTexture[]
-            {
+            particleTextures = new MTexture[] {
                 GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7, null),
                 GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7, null),
                 GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7, null),
@@ -180,7 +179,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     else
                         return false;
                 }
-            } else if (Orientation is Spikes.Directions.Up or Spikes.Directions.Down) { 
+            } else if (Orientation is Spikes.Directions.Up or Spikes.Directions.Down) {
                 if (player.Left < Left) {
                     // Sorry for my jank
                     if (!(player.OnGround() && !player.CollideCheck<Solid>(new Vector2(Left - player.Width / 2, at.Y)))) {
@@ -378,7 +377,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Draw.Line(vector3 - vector2 * 10f, vector4 - vector2 * 10f, backColor * 0.4f);
                     Draw.Line(vector3 - vector2 * 11f, vector4 - vector2 * 11f, backColor * 0.2f);
                 }
-                if(line)
+                if (line)
                     Draw.Line(vector3, vector4, lineColor);
                 scaleFactor = lerp;
             }
@@ -664,7 +663,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static int Platform_GetLandOrStepSoundIndex(Func<Platform, Entity, int> orig, Platform self, Entity entity) {
             foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers")) {
-                if (sm.Entity is DreamTunnelEntry entry && entry.Orientation == Spikes.Directions.Up && entity.CollideCheck(entry, entity.Position + Vector2.UnitY)) { 
+                if (sm.Entity is DreamTunnelEntry entry && entry.Orientation == Spikes.Directions.Up && entity.CollideCheck(entry, entity.Position + Vector2.UnitY)) {
                     return entry.surfaceSoundIndex;
                 }
             }
@@ -675,10 +674,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers")) {
                 if (sm.Entity is DreamTunnelEntry entry) {
                     if (side == (int) Facings.Left && entry.Orientation == Spikes.Directions.Right && player.CollideCheck(entry, player.Position - Vector2.UnitX)) {
-                            return entry.surfaceSoundIndex;
-                    } 
-                    if (side == (int) Facings.Right && entry.Orientation == Spikes.Directions.Left && player.CollideCheck(entry, player.Position + Vector2.UnitX)) { 
-                            return entry.surfaceSoundIndex;
+                        return entry.surfaceSoundIndex;
+                    }
+                    if (side == (int) Facings.Right && entry.Orientation == Spikes.Directions.Left && player.CollideCheck(entry, player.Position + Vector2.UnitX)) {
+                        return entry.surfaceSoundIndex;
                     }
                 }
             }
@@ -696,7 +695,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
              */
             ILCursor cursor = new ILCursor(il);
             // oof
-            cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Callvirt && 
+            cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Callvirt &&
                 ((MethodReference) instr.Operand).FullName == "System.Boolean Monocle.Entity::CollideCheck<Celeste.DreamBlock>(Microsoft.Xna.Framework.Vector2)");
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.Emit(OpCodes.Ldfld, typeof(Player).GetNestedType("<DashCoroutine>d__423", BindingFlags.NonPublic).GetField("<>4__this"));
@@ -715,8 +714,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.EmitDelegate<Func<Platform, Player, Platform>>((platform, player) => {
                 foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers")) {
                     Vector2 origin = player.Position + new Vector2((float) player.Facing * 3, -4f);
-                    if (sm.Entity is DreamTunnelEntry entry 
-                        && (entry.Orientation == Spikes.Directions.Left || entry.Orientation == Spikes.Directions.Right) 
+                    if (sm.Entity is DreamTunnelEntry entry
+                        && (entry.Orientation == Spikes.Directions.Left || entry.Orientation == Spikes.Directions.Right)
                         && entry.CollidePoint(origin + Vector2.UnitX * (float) player.Facing)) {
                         entry.FootstepRipple(origin);
                     }
@@ -732,7 +731,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate<Func<Platform, Player, Platform>>((platform, player) => {
                 foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers")) {
-                    if (sm.Entity is DreamTunnelEntry entry && entry.Orientation == Spikes.Directions.Up 
+                    if (sm.Entity is DreamTunnelEntry entry && entry.Orientation == Spikes.Directions.Up
                         && player.CollideCheck(entry, player.Position + Vector2.UnitY)) {
                         entry.FootstepRipple(player.Position);
                     }

@@ -23,7 +23,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public void Untrack(DreamTunnelEntry entity) => list.Remove(entity);
 
         public override void Render() {
-            foreach(DreamTunnelEntry e in list) {
+            foreach (DreamTunnelEntry e in list) {
                 Vector2 shake = e.shake + e.platformShake;
 
                 Vector2 start = shake + e.start;
@@ -41,6 +41,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 e.WobbleLine(shake + e.start, shake + e.end, 0f, true, false);
             }
         }
-           
+
     }
 }
