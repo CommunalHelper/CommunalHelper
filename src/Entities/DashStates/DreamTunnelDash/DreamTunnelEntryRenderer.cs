@@ -24,21 +24,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Render() {
             foreach (DreamTunnelEntry e in list) {
-                Vector2 shake = e.shake + e.platformShake;
+                Vector2 shake = e.Shake;
 
-                Vector2 start = shake + e.start;
-                Vector2 end = shake + e.end;
+                Vector2 start = shake + e.Start;
+                Vector2 end = shake + e.End;
 
                 Draw.Rect(shake.X + e.X, shake.Y + e.Y, e.Width, e.Height, e.PlayerHasDreamDash ? CustomDreamBlock.ActiveBackColor : CustomDreamBlock.DisabledBackColor * e.Alpha);
-                if (e.whiteFill > 0f) {
-                    Draw.Rect(e.X + shake.X, e.Y + shake.Y, e.Width, e.Height * e.whiteHeight, Color.White * e.whiteFill * e.Alpha);
+                if (e.Whitefill > 0f) {
+                    Draw.Rect(e.X + shake.X, e.Y + shake.Y, e.Width, e.Height * e.WhiteHeight, Color.White * e.Whitefill * e.Alpha);
                 }
                 e.WobbleLine(start, end, 0f, false, true);
             }
 
             foreach (DreamTunnelEntry e in list) {
-                Vector2 shake = e.shake + e.platformShake;
-                e.WobbleLine(shake + e.start, shake + e.end, 0f, true, false);
+                e.WobbleLine(e.Shake + e.Start, e.Shake + e.End, 0f, true, false);
             }
         }
 

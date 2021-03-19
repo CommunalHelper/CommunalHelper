@@ -41,6 +41,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamTunnelDash.Load();
             DreamRefill.Load();
             // DreamTunnelEntry loaded late in LoadContent
+            DreamBlockDummy.Load();
 
             CustomDreamBlock.Load();
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
@@ -66,8 +67,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamTunnelDash.Unload();
             DreamRefill.Unload();
             DreamTunnelEntry.Unload();
-
-            DreamBlockDummy.Load();
+            DreamBlockDummy.Unload();
 
             CustomDreamBlock.Unload();
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload

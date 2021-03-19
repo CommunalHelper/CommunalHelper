@@ -18,9 +18,12 @@ using DreamParticle = Celeste.Mod.CommunalHelper.Entities.CustomDreamBlock.Dream
 * Fast routine: Particles spray outwards + diagonally from the ends
 * Try to keep the timing on these the same as for DreamBlocks
 * 
-* Fix dash correction
-*   Figure out dashing into corner
-* Improve texture
+* Todo:
+* Add Feather particles/functionality
+* Add Dreamblock activate/deactivate routines
+* Two modes, one uses deactivated texture and blocks dashcollides, other fades away and does not block
+* Add support for PandorasBox DreamDash controller
+* Add OneUse mode
 */
 
 namespace Celeste.Mod.CommunalHelper.Entities {
@@ -36,8 +39,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 GetSize(entityData, orientation),
                 orientation,
                 entityData.Bool("overrideAllowStaticMovers"),
-                entityData.Bool("below"),
-                entityData.Bool("featherMode"));
+                false,
+                false,
+                false);
         }
 
         private static int GetSize(EntityData data, Spikes.Directions dir) {
@@ -61,17 +65,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private DashCollision platformDashCollide;
         private int surfaceSoundIndex;
 
-        private Shaker shaker;
-        public Vector2 shake;
-        public Vector2 start => new Vector2(
+        public Vector2 Start => new Vector2(
                 X + (Orientation is Spikes.Directions.Right or Spikes.Directions.Down ? Width : 0),
                 Y + (Orientation is Spikes.Directions.Left or Spikes.Directions.Down ? Height : 0));
-        public Vector2 end => new Vector2(
+        public Vector2 End => new Vector2(
                 X + (Orientation is Spikes.Directions.Up or Spikes.Directions.Right ? Width : 0),
                 Y + (Orientation is Spikes.Directions.Right or Spikes.Directions.Down ? Height : 0));
-        public Vector2 platformShake;
-        public float whiteFill;
-        public float whiteHeight;
+
+        public Vector2 Shake => shake + platformShake;
+        private Vector2 shake; // For use in Activation/Deactivation routines
+        private Vector2 platformShake;
+
+        public float Whitefill;
+        public float WhiteHeight;
 
         private float animTimer;
         private float wobbleEase;
@@ -86,9 +92,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private Level level;
 
-        public DreamTunnelEntry(Vector2 position, float size, Spikes.Directions orientation, bool overrideAllowStaticMovers, bool below, bool featherMode)
+        public DreamTunnelEntry(Vector2 position, float size, Spikes.Directions orientation, bool overrideAllowStaticMovers, bool below, bool featherMode, bool oneUse)
             : base(position) {
-            Depth = (below ? Depths.Solids : Depths.FakeWalls) - 10;
+            Depth = Depths.FakeWalls - 10;
             Orientation = orientation;
             this.overrideAllowStaticMovers = overrideAllowStaticMovers;
 
@@ -149,6 +155,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         }
                         break;
                 }
+            } else {
+                switch (Orientation) {
+                    case Spikes.Directions.Up when dir.Y > 0:
+                    case Spikes.Directions.Down when dir.Y < 0:
+                        if (player.Left > Left - 4 || !Scene.CollideCheck<Solid>(CenterLeft - Vector2.UnitX) ||
+                            player.Right < Right + 4 || !Scene.CollideCheck<Solid>(CenterRight + Vector2.UnitX))
+                            return DashCollisionResults.NormalCollision;
+                        break;
+                    case Spikes.Directions.Left when dir.X > 0:
+                    case Spikes.Directions.Right when dir.X < 0:
+                        if (player.Top > Top - 4 || !Scene.CollideCheck<Solid>(TopCenter - Vector2.UnitY) && 
+                            player.Bottom < Bottom + 4 || !Scene.CollideCheck<Solid>(BottomCenter + Vector2.UnitY))
+                            return DashCollisionResults.NormalCollision;
+                        break;
+                }
             }
             return platformDashCollide?.Invoke(player, dir) ?? DashCollisionResults.NormalCollision;
         }
@@ -187,7 +208,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             player.Left = Left;
                         else if (dir.X == 0 && TryCorrectPlayerPosition(player, new Vector2(Left - player.Width / 2, at.Y)))
                             changeState = false;
-                        else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(CenterLeft - Vector2.UnitX))
+                        else if (dir.X != 0 && !Scene.CollideCheck<Solid>(CenterLeft - Vector2.UnitX))
                             ; // Messy
                         else
                             return false;
@@ -198,7 +219,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             player.Right = Right;
                         else if (dir.X == 0 && TryCorrectPlayerPosition(player, new Vector2(Right + player.Width / 2, at.Y)))
                             changeState = false;
-                        else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(CenterRight + Vector2.UnitX))
+                        else if (dir.X != 0 && !Scene.CollideCheck<Solid>(CenterRight + Vector2.UnitX))
                             ; // Messy
                         else
                             return false;
@@ -237,7 +258,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             level = scene as Level;
             PlayerHasDreamDash = level.Session.Inventory.DreamDash;
 
-            scene.Add(new DreamBlockDummy() {
+            scene.Add(new DreamBlockDummy(this) {
                 OnActivate = Activate,
                 OnFastActivate = FastActivate,
                 OnActivateNoRoutine = ActivateNoRoutine,
@@ -264,14 +285,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Track(this);
         }
 
-        private void OneUseDestroy() {
-            Collidable = Visible = false;
-            RemoveSelf();
-        }
-
         private void Destroy() {
             Collidable = false;
+            // Stop rendering the block/outline
             Scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this);
+            // "Lock the Camera" to keep dreamblock particles in place
             lockedCamera = SceneAs<Level>().Camera.Position;
             Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.Linear, 1, true);
             tween.OnUpdate = t => Alpha = 1 - t.Percent;
@@ -355,9 +373,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 vector2 = new Vector2(vector.Y, -vector.X);
             Color lineColor = PlayerHasDreamDash ? CustomDreamBlock.ActiveLineColor : CustomDreamBlock.DisabledLineColor;
             Color backColor = PlayerHasDreamDash ? CustomDreamBlock.ActiveBackColor : CustomDreamBlock.DisabledBackColor;
-            if (whiteFill > 0f) {
-                lineColor = Color.Lerp(lineColor, Color.White, whiteFill);
-                backColor = Color.Lerp(backColor, Color.White, whiteFill);
+            if (Whitefill > 0f) {
+                lineColor = Color.Lerp(lineColor, Color.White, Whitefill) * Alpha;
+                backColor = Color.Lerp(backColor, Color.White, Whitefill) * Alpha;
             }
             float scaleFactor = 0f;
             int interval = 8;
@@ -412,56 +430,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Activation
 
-        public IEnumerator Activate() {
-            Level level = SceneAs<Level>();
-            yield return 1f;
-            Input.Rumble(RumbleStrength.Light, RumbleLength.Long);
-            Add(shaker = new Shaker(true, delegate (Vector2 t) {
-                shake = t;
-            }));
-            shaker.Interval = 0.02f;
-            shaker.On = true;
-            for (float p = 0f; p < 1f; p += Engine.DeltaTime) {
-                whiteFill = Ease.CubeIn(p);
-                yield return null;
-            }
-            shaker.On = false;
-            yield return 0.5f;
-            ActivateNoRoutine();
-            whiteHeight = 1f;
-            whiteFill = 1f;
-            for (float p = 1f; p > 0f; p -= Engine.DeltaTime * 0.5f) {
-                whiteHeight = p;
-                if (level.OnInterval(0.1f)) {
-                    int num = 0;
-                    while (num < Width) {
-                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, new Vector2(X + num, Y + Height * whiteHeight + 1f));
-                        num += 4;
-                    }
-                }
-                if (level.OnInterval(0.1f)) {
-                    level.Shake(0.3f);
-                }
-                Input.Rumble(RumbleStrength.Strong, RumbleLength.Short);
-                yield return null;
-            }
-            while (whiteFill > 0f) {
-                whiteFill -= Engine.DeltaTime * 3f;
-                yield return null;
-            }
-            yield break;
-        }
-
         public void ActivateNoRoutine() {
             if (!PlayerHasDreamDash) {
                 PlayerHasDreamDash = true;
                 Setup();
                 Remove(occlude);
-                whiteHeight = 0f;
-                whiteFill = 0f;
-                if (shaker != null) {
-                    shaker.On = false;
-                }
             }
         }
 
@@ -473,124 +446,32 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     occlude = new LightOcclude(1f);
                 }
                 Add(occlude);
-                whiteHeight = 1f;
-                whiteFill = 0f;
-                if (shaker != null) {
-                    shaker.On = false;
-                }
                 surfaceSoundIndex = SurfaceIndex.DreamBlockInactive;
             }
         }
 
-        public IEnumerator Deactivate() {
-            Level level = SceneAs<Level>();
-            yield return 1f;
-            Input.Rumble(RumbleStrength.Light, RumbleLength.Long);
-            if (shaker == null) {
-                shaker = new Shaker(true, delegate (Vector2 t) {
-                    shake = t;
-                });
-            }
-            Add(shaker);
-            shaker.Interval = 0.02f;
-            shaker.On = true;
-            for (float alpha = 0f; alpha < 1f; alpha += Engine.DeltaTime) {
-                whiteFill = Ease.CubeIn(alpha);
-                yield return null;
-            }
-            shaker.On = false;
-            yield return 0.5f;
-            DeactivateNoRoutine();
-            whiteHeight = 1f;
-            whiteFill = 1f;
-            for (float alpha = 1f; alpha > 0f; alpha -= Engine.DeltaTime * 0.5f) {
-                whiteHeight = alpha;
-                if (level.OnInterval(0.1f)) {
-                    int num = 0;
-                    while (num < Width) {
-                        level.ParticlesFG.Emit(Strawberry.P_WingsBurst, new Vector2(X + num, Y + Height * whiteHeight + 1f));
-                        num += 4;
-                    }
-                }
-                if (level.OnInterval(0.1f)) {
-                    level.Shake(0.3f);
-                }
-                Input.Rumble(RumbleStrength.Strong, RumbleLength.Short);
-                yield return null;
-            }
-            while (whiteFill > 0f) {
-                whiteFill -= Engine.DeltaTime * 3f;
-                yield return null;
-            }
-            yield break;
-        }
-
-        public IEnumerator FastDeactivate() {
-            Level level = SceneAs<Level>();
+        public IEnumerator Activate() {
+            Logger.Log(LogLevel.Warn, "CommunalHelper", "Dreamblock activation/deactivation animations are not yet implemented for DreamTunnelEntry, and are subject to change.");
             yield return null;
-            Input.Rumble(RumbleStrength.Light, RumbleLength.Short);
-            if (shaker == null) {
-                shaker = new Shaker(true, delegate (Vector2 t) {
-                    shake = t;
-                });
-            }
-            Add(shaker);
-            shaker.Interval = 0.02f;
-            shaker.On = true;
-            for (float alpha = 0f; alpha < 1f; alpha += Engine.DeltaTime * 3f) {
-                whiteFill = Ease.CubeIn(alpha);
-                yield return null;
-            }
-            shaker.On = false;
-            yield return 0.1f;
-            DeactivateNoRoutine();
-            whiteHeight = 1f;
-            whiteFill = 1f;
-            level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) Width, TopCenter, Vector2.UnitX * Width / 2f, Color.White, 3.14159274f);
-            level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) Width, BottomCenter, Vector2.UnitX * Width / 2f, Color.White, 0f);
-            level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) Height, CenterLeft, Vector2.UnitY * Height / 2f, Color.White, 4.712389f);
-            level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) Height, CenterRight, Vector2.UnitY * Height / 2f, Color.White, 1.57079637f);
-            level.Shake(0.3f);
-            yield return 0.1f;
-            while (whiteFill > 0f) {
-                whiteFill -= Engine.DeltaTime * 3f;
-                yield return null;
-            }
-            yield break;
+            ActivateNoRoutine();
         }
 
         public IEnumerator FastActivate() {
-            Level level = SceneAs<Level>();
+            Logger.Log(LogLevel.Warn, "CommunalHelper", "Dreamblock activation/deactivation animations are not yet implemented for DreamTunnelEntry, and are subject to change.");
             yield return null;
-            Input.Rumble(RumbleStrength.Light, RumbleLength.Short);
-            if (shaker == null) {
-                shaker = new Shaker(true, delegate (Vector2 t) {
-                    shake = t;
-                });
-            }
-            Add(shaker);
-            shaker.Interval = 0.02f;
-            shaker.On = true;
-            for (float alpha = 0f; alpha < 1f; alpha += Engine.DeltaTime * 3f) {
-                whiteFill = Ease.CubeIn(alpha);
-                yield return null;
-            }
-            shaker.On = false;
-            yield return 0.1f;
             ActivateNoRoutine();
-            whiteHeight = 1f;
-            whiteFill = 1f;
-            level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) Width, TopCenter, Vector2.UnitX * Width / 2f, Color.White, 3.14159274f);
-            level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) Width, BottomCenter, Vector2.UnitX * Width / 2f, Color.White, 0f);
-            level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) Height, CenterLeft, Vector2.UnitY * Height / 2f, Color.White, 4.712389f);
-            level.ParticlesFG.Emit(Strawberry.P_WingsBurst, (int) Height, CenterRight, Vector2.UnitY * Height / 2f, Color.White, 1.57079637f);
-            level.Shake(0.3f);
-            yield return 0.1f;
-            while (whiteFill > 0f) {
-                whiteFill -= Engine.DeltaTime * 3f;
-                yield return null;
-            }
-            yield break;
+        }
+
+        public IEnumerator Deactivate() {
+            Logger.Log(LogLevel.Warn, "CommunalHelper", "Dreamblock activation/deactivation animations are not yet implemented for DreamTunnelEntry, and are subject to change.");
+            yield return null;
+            DeactivateNoRoutine();
+        }
+
+        public IEnumerator FastDeactivate() {
+            Logger.Log(LogLevel.Warn, "CommunalHelper", "Dreamblock activation/deactivation animations are not yet implemented for DreamTunnelEntry, and are subject to change.");
+            yield return null;
+            DeactivateNoRoutine();
         }
 
         #endregion

@@ -5,9 +5,14 @@ using System;
 using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-    [TrackedAs(typeof(DreamBlock))]
-    [Tracked]
+    /// <summary>
+    /// A pseudo-<see cref="DreamBlock"/> class that can be used as a listener for DreamBlock Activation/Deactivation.
+    /// </summary>
+    [TrackedAs(typeof(DreamBlock))] // Track it as a DreamBlock for the ActivateDreamBlocksTrigger
+    [Tracked] // But also track it on it's own as a utility entity
     public class DreamBlockDummy : DreamBlock {
+        public Entity Entity;
+
         public Func<IEnumerator> OnActivate;
         public Func<IEnumerator> OnFastActivate;
         public Action OnActivateNoRoutine;
@@ -20,9 +25,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DynData<DreamBlock> Data;
 
-        public DreamBlockDummy() 
+        public DreamBlockDummy(Entity entity) 
             : base(Vector2.Zero, 0, 0, null, false, false) {
             Collidable = Active = Visible = false;
+            Entity = entity;
 
             Data = new DynData<DreamBlock>(this);
         }
@@ -47,12 +53,32 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.DreamBlock.Setup += DreamBlock_Setup;
         }
 
+        internal static void Unload() {
+            On.Celeste.DreamBlock.Activate -= DreamBlock_Activate;
+            On.Celeste.DreamBlock.FastActivate -= DreamBlock_FastActivate;
+            On.Celeste.DreamBlock.ActivateNoRoutine -= DreamBlock_ActivateNoRoutine;
+
+            On.Celeste.DreamBlock.Deactivate -= DreamBlock_Deactivate;
+            On.Celeste.DreamBlock.FastDeactivate -= DreamBlock_FastDeactivate;
+            On.Celeste.DreamBlock.DeactivateNoRoutine -= DreamBlock_DeactivateNoRoutine;
+
+            On.Celeste.DreamBlock.Setup -= DreamBlock_Setup;
+        }
+
         private static IEnumerator DreamBlock_Activate(On.Celeste.DreamBlock.orig_Activate orig, DreamBlock self) {
-            return (self as DreamBlockDummy)?.OnActivate?.Invoke() ?? orig(self);
+            if (self is DreamBlockDummy dummy && dummy.OnActivate != null) {
+                dummy.Entity.Add(new Coroutine(dummy.OnActivate()));
+                return null;
+            }
+            return orig(self);
         }
 
         private static IEnumerator DreamBlock_FastActivate(On.Celeste.DreamBlock.orig_FastActivate orig, DreamBlock self) {
-            return (self as DreamBlockDummy)?.OnFastActivate?.Invoke() ?? orig(self);
+            if (self is DreamBlockDummy dummy && dummy.OnFastActivate != null) {
+                dummy.Entity.Add(new Coroutine(dummy.OnFastActivate()));
+                return null;
+            }
+            return orig(self);
         }
 
         private static void DreamBlock_ActivateNoRoutine(On.Celeste.DreamBlock.orig_ActivateNoRoutine orig, DreamBlock self) {
@@ -64,11 +90,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static IEnumerator DreamBlock_Deactivate(On.Celeste.DreamBlock.orig_Deactivate orig, DreamBlock self) {
-            return (self as DreamBlockDummy)?.OnDeactivate?.Invoke() ?? orig(self);
+            if (self is DreamBlockDummy dummy && dummy.OnDeactivate != null) {
+                dummy.Entity.Add(new Coroutine(dummy.OnDeactivate()));
+                return null;
+            }
+            return orig(self);
         }
 
         private static IEnumerator DreamBlock_FastDeactivate(On.Celeste.DreamBlock.orig_FastDeactivate orig, DreamBlock self) {
-            return (self as DreamBlockDummy)?.OnFastDeactivate?.Invoke() ?? orig(self);
+            if (self is DreamBlockDummy dummy && dummy.OnFastDeactivate != null) {
+                dummy.Entity.Add(new Coroutine(dummy.OnFastDeactivate()));
+                return null;
+            }
+            return orig(self);
         }
 
         private static void DreamBlock_DeactivateNoRoutine(On.Celeste.DreamBlock.orig_DeactivateNoRoutine orig, DreamBlock self) {
