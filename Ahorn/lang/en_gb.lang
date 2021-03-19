@@ -137,6 +137,9 @@ placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.featherMode
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.oneUse=Whether this block should shatter upon exit.
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.persistent=Whether this block should remain broken permanently.
 
+# -- Dream Tunnel Entry --
+placements.entities.CommunalHelper/DreamTunnelEntry.tooltips.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
+
 
 # -- Move Swap Block --
 placements.entities.CommunalHelper/MoveSwapBlock.tooltips.canSteer=Whether the Move Swap Block can be moved by the player.

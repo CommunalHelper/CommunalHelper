@@ -3,7 +3,7 @@ module CommunalHelperDreamTunnelEntry
 using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/DreamTunnelEntry" DreamTunnelEntry(x::Integer, y::Integer, 
-	oneUse::Bool=false, overrideAllowStaticMovers=false)
+	overrideAllowStaticMovers=false)
 
 const placements = Ahorn.PlacementDict(
 	"DreamTunnelEntry ($dir) (Communal Helper)" => Ahorn.EntityPlacement(
