@@ -11,6 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using static Celeste.Mod.CommunalHelper.Entities.DreamTunnelDash;
+using DreamParticle = Celeste.Mod.CommunalHelper.Entities.CustomDreamBlock.DreamParticle;
 
 /*
 * Slow routine: Particles spray out from each end diagonally, moving inwards
@@ -63,12 +64,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private Shaker shaker;
         public Vector2 shake;
         public Vector2 start => new Vector2(
-                X + (Orientation == Spikes.Directions.Right || Orientation == Spikes.Directions.Down ? Width : 0),
-                Y + (Orientation == Spikes.Directions.Left || Orientation == Spikes.Directions.Down ? Height : 0));
+                X + (Orientation is Spikes.Directions.Right or Spikes.Directions.Down ? Width : 0),
+                Y + (Orientation is Spikes.Directions.Left or Spikes.Directions.Down ? Height : 0));
         public Vector2 end => new Vector2(
-                X + (Orientation == Spikes.Directions.Up || Orientation == Spikes.Directions.Right ? Width : 0),
-                Y + (Orientation == Spikes.Directions.Right || Orientation == Spikes.Directions.Down ? Height : 0));
-        private Vector2 platformShake;
+                X + (Orientation is Spikes.Directions.Up or Spikes.Directions.Right ? Width : 0),
+                Y + (Orientation is Spikes.Directions.Right or Spikes.Directions.Down ? Height : 0));
+        public Vector2 platformShake;
         public float whiteFill;
         public float whiteHeight;
 
@@ -77,7 +78,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float wobbleFrom;
         private float wobbleTo;
 
-        private CustomDreamBlock.DreamParticle[] particles;
+        public float Alpha = 1f;
+        private Vector2? lockedCamera;
+
+        private DreamParticle[] particles;
         private MTexture[] particleTextures;
 
         private Level level;
@@ -88,27 +92,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Orientation = orientation;
             this.overrideAllowStaticMovers = overrideAllowStaticMovers;
 
-            switch (orientation) {
-                case Spikes.Directions.Up:
-                    Collider = new Hitbox(size, 8f, 0f, 0f);
-                    break;
-                case Spikes.Directions.Down:
-                    Collider = new Hitbox(size, 8f, 0f, 0);
-                    break;
-                case Spikes.Directions.Left:
-                    Collider = new Hitbox(8f, size, 0f, 0f);
-                    break;
-                case Spikes.Directions.Right:
-                    Collider = new Hitbox(8f, size, 0, 0f);
-                    break;
-            }
+            Collider = orientation switch {
+                Spikes.Directions.Up => new Hitbox(size, 8f),
+                Spikes.Directions.Down => new Hitbox(size, 8f),
+                Spikes.Directions.Left => new Hitbox(8f, size),
+                Spikes.Directions.Right => new Hitbox(8f, size)
+            };
 
             Add(staticMover = new StaticMover {
                 OnAttach = OnAttach,
-                OnShake = v => platformShake = v,
+                OnShake = v => platformShake += v,
                 SolidChecker = IsRiding,
                 OnEnable = () => Active = Visible = Collidable = true,
-                OnDisable = () => Active = Visible = Collidable = false
+                OnDisable = () => Active = Visible = Collidable = false,
+                OnDestroy = Destroy
             });
 
             surfaceSoundIndex = SurfaceIndex.DreamBlockInactive;
@@ -129,25 +126,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private DashCollisionResults OnDashCollide(Player player, Vector2 dir) {
             // Correct position/ignore if only partially intersecting
+            // Have to use `player.DashDir` instead of `dir` because we need the actual dash direction, not the collision direction
             if (PlayerHasDreamDash) {
                 switch (Orientation) {
                     case Spikes.Directions.Up:
-                        if (dir.Y > 0 && TryCollidePlayer(player, Vector2.UnitY, dir)) {
+                        if (dir.Y > 0 && TryCollidePlayer(player, Vector2.UnitY, player.DashDir)) {
                             return DashCollisionResults.Ignore;
                         }
                         break;
                     case Spikes.Directions.Down:
-                        if (dir.Y < 0 && TryCollidePlayer(player, -Vector2.UnitY, dir)) {
+                        if (dir.Y < 0 && TryCollidePlayer(player, -Vector2.UnitY, player.DashDir)) {
                             return DashCollisionResults.Ignore;
                         }
                         break;
                     case Spikes.Directions.Left:
-                        if (dir.X > 0 && TryCollidePlayer(player, Vector2.UnitX, dir)) {
+                        if (dir.X > 0 && TryCollidePlayer(player, Vector2.UnitX, player.DashDir)) {
                             return DashCollisionResults.Ignore;
                         }
                         break;
                     case Spikes.Directions.Right:
-                        if (dir.X < 0 && TryCollidePlayer(player, -Vector2.UnitX, dir)) {
+                        if (dir.X < 0 && TryCollidePlayer(player, -Vector2.UnitX, player.DashDir)) {
                             return DashCollisionResults.Ignore;
                         }
                         break;
@@ -162,12 +160,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 return false;
 
             bool changeState = true;
-            if (Orientation == Spikes.Directions.Left || Orientation == Spikes.Directions.Right) {
+            if (Orientation is Spikes.Directions.Left or Spikes.Directions.Right) {
                 if (player.Top < Top) {
                     if (Top - player.Top <= 4)
                         player.Top = Top;
                     else if (dir.Y == 0 && TryCorrectPlayerPosition(player, new Vector2(at.X, Top)))
                         changeState = false;
+                    else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(TopCenter - Vector2.UnitY))
+                        ; // Messy
                     else
                         return false;
                 } else if (player.Bottom > Bottom) {
@@ -175,10 +175,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         player.Bottom = Bottom;
                     else if (dir.Y == 0 && TryCorrectPlayerPosition(player, new Vector2(at.X, Bottom + player.Height)))
                         changeState = false;
+                    else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(BottomCenter + Vector2.UnitY))
+                        ; // Messy
                     else
                         return false;
                 }
-            } else if (Orientation == Spikes.Directions.Up || Orientation == Spikes.Directions.Down) { 
+            } else if (Orientation is Spikes.Directions.Up or Spikes.Directions.Down) { 
                 if (player.Left < Left) {
                     // Sorry for my jank
                     if (!(player.OnGround() && !player.CollideCheck<Solid>(new Vector2(Left - player.Width / 2, at.Y)))) {
@@ -186,6 +188,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             player.Left = Left;
                         else if (dir.X == 0 && TryCorrectPlayerPosition(player, new Vector2(Left - player.Width / 2, at.Y)))
                             changeState = false;
+                        else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(CenterLeft - Vector2.UnitX))
+                            ; // Messy
                         else
                             return false;
                     }
@@ -195,6 +199,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             player.Right = Right;
                         else if (dir.X == 0 && TryCorrectPlayerPosition(player, new Vector2(Right + player.Width / 2, at.Y)))
                             changeState = false;
+                        else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(CenterRight + Vector2.UnitX))
+                            ; // Messy
                         else
                             return false;
                     }
@@ -218,18 +224,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         // Make sure at least one side aligns, and the rest are contained within the solid
         private bool IsRiding(Solid solid) {
-            switch (Orientation) {
-                case Spikes.Directions.Up:
-                    return this.CollideCheckOutsideInside(solid, TopCenter - Vector2.UnitY * Height);
-                case Spikes.Directions.Down:
-                    return this.CollideCheckOutsideInside(solid, BottomCenter + Vector2.UnitY);
-                case Spikes.Directions.Left:
-                    return this.CollideCheckOutsideInside(solid, CenterLeft - Vector2.UnitX * Width);
-                case Spikes.Directions.Right:
-                    return this.CollideCheckOutsideInside(solid, CenterRight + Vector2.UnitX);
-                default:
-                    return false;
-            }
+            return Orientation switch {
+                Spikes.Directions.Up => this.CollideCheckOutsideInside(solid, TopCenter - Vector2.UnitY * Height),
+                Spikes.Directions.Down => this.CollideCheckOutsideInside(solid, BottomCenter + Vector2.UnitY),
+                Spikes.Directions.Left => this.CollideCheckOutsideInside(solid, CenterLeft - Vector2.UnitX * Width),
+                Spikes.Directions.Right => this.CollideCheckOutsideInside(solid, CenterRight + Vector2.UnitX),
+                _ => false,
+            };
         }
 
         public override void Added(Scene scene) {
@@ -267,6 +268,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private void OneUseDestroy() {
             Collidable = Visible = false;
             RemoveSelf();
+        }
+
+        private void Destroy() {
+            Collidable = false;
+            Scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this);
+            lockedCamera = SceneAs<Level>().Camera.Position;
+            Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.Linear, 1, true);
+            tween.OnUpdate = t => Alpha = 1 - t.Percent;
+            tween.OnComplete = delegate { RemoveSelf(); };
+            Add(tween);
         }
 
         public override void Update() {
@@ -316,12 +327,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Camera camera = SceneAs<Level>().Camera;
             if (Right < camera.Left || Left > camera.Right || Bottom < camera.Top || Top > camera.Bottom)
                 return;
-            Vector2 position = camera.Position;
+            Vector2 position = lockedCamera ?? camera.Position;
             for (int i = 0; i < particles.Length; i++) {
                 int layer = particles[i].Layer;
                 Vector2 drawPos = particles[i].Position;
                 drawPos += position * (0.3f + 0.25f * layer);
-                drawPos = PutInside(drawPos);
+                drawPos = this.PutInside(drawPos);
                 MTexture mtexture;
                 if (layer == 0) {
                     int num = (int) ((particles[i].TimeOffset * 4f + animTimer) % 4f);
@@ -333,7 +344,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     mtexture = particleTextures[2];
                 }
                 if (drawPos.X >= X + 2f && drawPos.Y >= Y + 2f && drawPos.X < Right - 2f && drawPos.Y < Bottom - 2f) {
-                    mtexture.DrawCentered(drawPos + shake, particles[i].Color);
+                    mtexture.DrawCentered(drawPos + shake, particles[i].Color * Alpha);
                 }
             }
         }
@@ -377,24 +388,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return (float) (Math.Sin(seed + index / 16f + Math.Sin(seed * 2f + index / 32f) * Calc.Circle) + 1.0) * 1.5f;
         }
 
-        private Vector2 PutInside(Vector2 pos) {
-            while (pos.X < X) {
-                pos.X += Width;
-            }
-            while (pos.X > X + Width) {
-                pos.X -= Width;
-            }
-            while (pos.Y < Y) {
-                pos.Y += Height;
-            }
-            while (pos.Y > Y + Height) {
-                pos.Y -= Height;
-            }
-            return pos;
-        }
-
         public void Setup() {
-            particles = new CustomDreamBlock.DreamParticle[(int) ((Width / 4f) * (Height / 4f) * 0.5f)];
+            particles = new DreamParticle[(int) ((Width / 4f) * (Height / 4f) * 0.5f)];
             for (int i = 0; i < particles.Length; i++) {
                 particles[i].Position = new Vector2(Calc.Random.NextFloat(Width), Calc.Random.NextFloat(Height));
                 particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
@@ -635,6 +630,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(),
                 Player_DashCoroutine);
 
+            // Footstep Ripples
             IL.Celeste.Player.ClimbBegin += Player_ClimbBegin;
             IL.Celeste.Player.OnCollideV += Player_OnCollideV;
             hook_Player_orig_WallJump = new ILHook(
@@ -642,6 +638,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Player_orig_WallJump);
 
             On.Celeste.Solid.Awake += Solid_Awake;
+
+            On.Celeste.DashBlock.Break_Vector2_Vector2_bool_bool += DashBlock_Break_Vector2_Vector2_bool_bool;
+
+            // Add Renderer
+            On.Celeste.LevelLoader.LoadingThread += LevelLoader_LoadingThread;
         }
 
         internal static void Unload() {
@@ -655,6 +656,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             hook_Player_orig_WallJump.Dispose();
 
             On.Celeste.Solid.Awake -= Solid_Awake;
+
+            On.Celeste.DashBlock.Break_Vector2_Vector2_bool_bool -= DashBlock_Break_Vector2_Vector2_bool_bool;
+
+            On.Celeste.LevelLoader.LoadingThread -= LevelLoader_LoadingThread;
         }
 
         private static int Platform_GetLandOrStepSoundIndex(Func<Platform, Entity, int> orig, Platform self, Entity entity) {
@@ -680,6 +685,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return orig(self, player, side);
         }
 
+        /// <summary>
+        /// Handle down-diagonal dashing when standing on DreamTunnelEntry
+        /// </summary>
         private static void Player_DashCoroutine(ILContext il) {
             /*
              * adds a check for !player.CollideCheck<DreamTunnelEntry>(player.Position + Vector2.UnitY) to
@@ -696,6 +704,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 return v || player.CollideCheck<DreamTunnelEntry>(player.Position + Vector2.UnitY);
             });
         }
+
+        #region FootstepRipples
 
         private static void Player_ClimbBegin(ILContext il) {
             ILCursor cursor = new ILCursor(il);
@@ -749,6 +759,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             });
         }
 
+        #endregion
+
         private static void Solid_Awake(On.Celeste.Solid.orig_Awake orig, Solid self, Scene scene) {
             orig(self, scene);
 
@@ -763,13 +775,29 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             foreach (Component component in scene.Tracker.GetComponents<StaticMover>()) {
                 StaticMover staticMover = (StaticMover) component;
                 if (staticMover.Entity is DreamTunnelEntry entry && entry.overrideAllowStaticMovers && staticMover.IsRiding(solid) && staticMover.Platform == null) {
-                    solidData = solidData ?? new DynData<Solid>(solid);
+                    solidData ??= new DynData<Solid>(solid);
                     solidData.Get<List<StaticMover>>("staticMovers").Add(staticMover);
                     staticMover.Platform = solid;
                     staticMover.OnAttach?.Invoke(solid);
                 }
             }
             solid.Collidable = collidable;
+        }
+
+        private static FieldInfo f_Platform_staticMovers = typeof(Platform).GetField("staticMovers", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static void DashBlock_Break_Vector2_Vector2_bool_bool(On.Celeste.DashBlock.orig_Break_Vector2_Vector2_bool_bool orig, DashBlock self, Vector2 from, Vector2 direction, bool playSound, bool playDebrisSound) {
+            orig(self, from, direction, playSound, playDebrisSound);
+            List<StaticMover> staticMovers = (List<StaticMover>) f_Platform_staticMovers.GetValue(self);
+            foreach (StaticMover mover in staticMovers) {
+                if (mover.Entity is DreamTunnelEntry)
+                    mover.OnDestroy();
+            }
+        }
+
+        private static void LevelLoader_LoadingThread(On.Celeste.LevelLoader.orig_LoadingThread orig, LevelLoader self) {
+            orig(self);
+            self.Level.Add(new DreamTunnelEntryRenderer());
         }
 
         #endregion

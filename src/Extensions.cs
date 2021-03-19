@@ -278,5 +278,21 @@ namespace Celeste.Mod.CommunalHelper {
 
         #endregion
 
+        public static Vector2 PutInside(this Entity entity, Vector2 pos) {
+            while (pos.X < entity.X) {
+                pos.X += entity.Width;
+            }
+            while (pos.X > entity.X + entity.Width) {
+                pos.X -= entity.Width;
+            }
+            while (pos.Y < entity.Y) {
+                pos.Y += entity.Height;
+            }
+            while (pos.Y > entity.Y + entity.Height) {
+                pos.Y -= entity.Height;
+            }
+            return pos;
+        }
+
     }
 }

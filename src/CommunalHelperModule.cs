@@ -40,6 +40,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.Load();
             DreamRefill.Load();
+            // DreamTunnelEntry loaded late in LoadContent
 
             CustomDreamBlock.Load();
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
@@ -53,7 +54,6 @@ namespace Celeste.Mod.CommunalHelper {
             AbstractController.Load();
             // Controller-specific hooks loaded from AbstractController.Load
             // TimedTriggerSpikes hooked in Initialize
-            DreamTunnelEntryHooks.Hook();
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
@@ -80,7 +80,6 @@ namespace Celeste.Mod.CommunalHelper {
             MoveSwapBlock.Unload();
             AbstractController.Unload();
             TimedTriggerSpikes.Unload();
-            DreamTunnelEntryHooks.Unhook();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
