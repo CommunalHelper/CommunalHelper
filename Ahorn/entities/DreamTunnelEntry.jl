@@ -1,12 +1,13 @@
 module CommunalHelperDreamTunnelEntry
 
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/DreamTunnelEntry" DreamTunnelEntry(x::Integer, y::Integer, 
-	overrideAllowStaticMovers=false)
+	overrideAllowStaticMovers=false, depth::Integer=-13000)
 
 const placements = Ahorn.PlacementDict(
-	"DreamTunnelEntry ($dir) (Communal Helper)" => Ahorn.EntityPlacement(
+	"Dream Tunnel Entry ($dir) (Communal Helper)" => Ahorn.EntityPlacement(
 		DreamTunnelEntry,
 		"rectangle",
 		Dict{String, Any}(
@@ -16,7 +17,8 @@ const placements = Ahorn.PlacementDict(
 )
 
 Ahorn.editingOptions(entity::DreamTunnelEntry) = Dict{String, Any}(
-    "orientation" => Maple.spike_directions
+    "orientation" => Maple.spike_directions,
+	"depth" => CommunalHelper.depths
 )
 
 Ahorn.minimumSize(entity::DreamTunnelEntry) = 8, 8

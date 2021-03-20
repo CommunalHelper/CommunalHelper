@@ -139,6 +139,8 @@ placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.persistent=
 
 # -- Dream Tunnel Entry --
 placements.entities.CommunalHelper/DreamTunnelEntry.tooltips.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
+placements.entities.CommunalHelper/DreamTunnelEntry.tooltips.orientation=The way this Dream Tunnel Entry faces.
+placements.entities.CommunalHelper/DreamTunnelEntry.tooltips.depth=The depth value for this entity. Used to make it render below or above other entities.
 
 
 # -- Move Swap Block --
