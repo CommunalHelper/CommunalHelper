@@ -39,9 +39,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 GetSize(entityData, orientation),
                 orientation,
                 entityData.Bool("overrideAllowStaticMovers"),
-                false,
-                false,
-                false);
+                entityData.Int("depth", Depths.FakeWalls));
         }
 
         private static int GetSize(EntityData data, Spikes.Directions dir) {
@@ -92,9 +90,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private Level level;
 
-        public DreamTunnelEntry(Vector2 position, float size, Spikes.Directions orientation, bool overrideAllowStaticMovers, bool below, bool featherMode, bool oneUse)
+        private int originalDepth = Depths.FakeWalls;
+
+        public DreamTunnelEntry(Vector2 position, float size, Spikes.Directions orientation, bool overrideAllowStaticMovers, int depth)
             : base(position) {
-            Depth = Depths.FakeWalls - 10;
+            Depth = depth - 10;
+            originalDepth = depth;
             Orientation = orientation;
             this.overrideAllowStaticMovers = overrideAllowStaticMovers;
 
@@ -282,13 +283,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
-            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Track(this);
+            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Track(this, originalDepth, level);
         }
 
         private void Destroy() {
             Collidable = false;
             // Stop rendering the block/outline
-            Scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this);
+            Scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth, level);
             // "Lock the Camera" to keep dreamblock particles in place
             lockedCamera = SceneAs<Level>().Camera.Position;
             Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.Linear, 1, true);
@@ -329,7 +330,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             base.Removed(scene);
 
-            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this);
+            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth, level);
         }
 
         public void FootstepRipple(Vector2 position) {
