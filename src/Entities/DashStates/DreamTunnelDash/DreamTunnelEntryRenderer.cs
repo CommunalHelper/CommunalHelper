@@ -11,10 +11,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked(false)]
     class DreamTunnelEntryRenderer : Entity {
 
-        private class CustomDepthDreamTunnelEntryRenderer : Entity{
+        private class CustomDepthRenderer : Entity{
             public List<DreamTunnelEntry> list = new List<DreamTunnelEntry>();
 
-            public CustomDepthDreamTunnelEntryRenderer(int depth) {
+            public CustomDepthRenderer(int depth) {
                 Tag = Tags.Global | Tags.TransitionUpdate;
                 Depth = depth;
             }
@@ -39,35 +39,31 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private Dictionary<int, CustomDepthDreamTunnelEntryRenderer> renderers = new Dictionary<int, CustomDepthDreamTunnelEntryRenderer>();
+        private Dictionary<int, CustomDepthRenderer> renderers = new Dictionary<int, CustomDepthRenderer>();
 
         public DreamTunnelEntryRenderer() {
             Tag = Tags.Global | Tags.TransitionUpdate;
-            Depth = Depths.FakeWalls;
         }
 
-        public void Track(DreamTunnelEntry entity, int depth, Level level) {
+        public void Track(DreamTunnelEntry entity, int depth) {
             // Create new renderer with specific depth if doesn't exist, or get the older one otherwise.
-            CustomDepthDreamTunnelEntryRenderer renderer;
-            if (renderers.TryGetValue(depth, out CustomDepthDreamTunnelEntryRenderer oldRenderer)) {
-                renderer = oldRenderer;
-            } else {
-                renderers.Add(depth, renderer = new CustomDepthDreamTunnelEntryRenderer(depth));
-                level.Add(renderer);
+            if (!renderers.TryGetValue(depth, out CustomDepthRenderer renderer)) {
+                renderers.Add(depth, renderer = new CustomDepthRenderer(depth));
+                entity.Scene.Add(renderer);
             }
 
             // Add entity
             renderer.list.Add(entity);
         }
 
-        public void Untrack(DreamTunnelEntry entity, int depth, Level level) {
-            if (renderers.TryGetValue(depth, out CustomDepthDreamTunnelEntryRenderer renderer)) {
+        public void Untrack(DreamTunnelEntry entity, int depth) {
+            if (renderers.TryGetValue(depth, out CustomDepthRenderer renderer)) {
                 renderer.list.Remove(entity);
 
                 if (renderer.list.Count == 0) {
                     // No entity with this renderer's depth exist, get rid of it.
                     renderers.Remove(depth);
-                    level.Remove(renderer);
+                    renderer.RemoveSelf();
                 }
             }
         }

@@ -283,13 +283,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
-            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Track(this, originalDepth, level);
+            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Track(this, originalDepth);
         }
 
         private void Destroy() {
             Collidable = false;
             // Stop rendering the block/outline
-            Scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth, level);
+            Scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth);
             // "Lock the Camera" to keep dreamblock particles in place
             lockedCamera = SceneAs<Level>().Camera.Position;
             Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.Linear, 1, true);
@@ -330,7 +330,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             base.Removed(scene);
 
-            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth, level);
+            scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth);
         }
 
         public void FootstepRipple(Vector2 position) {
