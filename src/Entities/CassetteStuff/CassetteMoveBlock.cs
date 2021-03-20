@@ -60,7 +60,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private ParticleType P_BreakPressed;
 
         public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, MoveBlock.Directions direction, float moveSpeed, int index, float tempo)
-            : base(position, id, width, height, index, 1, tempo, dynamicHitbox: true) {
+            : base(position, id, width, height, index, tempo, dynamicHitbox: true) {
             startPosition = position;
             this.direction = direction;
             this.moveSpeed = moveSpeed;

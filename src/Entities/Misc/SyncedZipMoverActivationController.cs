@@ -29,10 +29,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             level = scene as Level;
         }
 
-        public override void Removed(Scene scene) {
-            base.Removed(scene);
-        }
-
         public override void Update() {
             base.Update();
             if (resetTimer > 0) {
@@ -48,9 +44,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 resetTimer = resetTime;
             }
         }
-    }
 
-    class SyncedZipMoverActivationControllerHooks {
         public static void Hook() {
             On.Monocle.Engine.Update += modEngineUpdate;
         }
@@ -61,7 +55,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void modEngineUpdate(On.Monocle.Engine.orig_Update orig, Engine engine, GameTime gameTime) {
             orig(engine, gameTime);
-            if (Engine.FreezeTimer > 0f && SyncedZipMoverActivationController.ActivatePressed) {
+            if (Engine.FreezeTimer > 0f && ActivatePressed) {
                 var engineData = new DynData<Engine>(engine);
                 foreach (Entity controller in engineData.Get<Scene>("scene").Tracker.GetEntities<SyncedZipMoverActivationController>()) {
                     (controller as SyncedZipMoverActivationController).Activate();
