@@ -177,7 +177,7 @@ namespace Celeste.Mod.CommunalHelper {
                 return true;
             return false;
         }
-
+        
         // Sort of the inverse of CollideCheckOutside
         public static bool CollideCheckOutsideInside(this Entity self, Entity other, Vector2 at) {
             if (Collide.Check(self, other))

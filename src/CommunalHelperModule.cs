@@ -51,6 +51,7 @@ namespace Celeste.Mod.CommunalHelper {
             MoveBlockRedirect.Load();
             MoveBlockRedirectable.Load();
             MoveSwapBlock.Load();
+
             AbstractInputController.Load();
             // Controller-specific hooks loaded from AbstractInputController.Load
             CassetteJumpFixController.Load();
