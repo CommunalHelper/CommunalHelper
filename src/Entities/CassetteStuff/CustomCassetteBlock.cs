@@ -9,15 +9,16 @@ using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(CassetteBlock), true)]
-    public abstract class CustomCassetteBlock : CassetteBlock {
+    [CustomEntity("CommunalHelper/CustomCassetteBlock")]
+    public class CustomCassetteBlock : CassetteBlock {
         public static List<string> CustomCassetteBlockNames = new List<string>();
 
-        public static void Initialize() {
+        public static void initialize() {
             // Overengineered attempt to handle CustomCassetteBlock types
             IEnumerable<Type> customCassetteBlockTypes =
                 from module in Everest.Modules
                 from type in module.GetType().Assembly.GetTypesSafe()
-                where type.IsSubclassOf(typeof(CustomCassetteBlock))
+                where (type.IsSubclassOf(typeof(CustomCassetteBlock)) || type == typeof(CustomCassetteBlock))
                 select type;
 
             // This could all be contained in the linq query but that'd be a bit much, no?
