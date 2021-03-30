@@ -1,5 +1,6 @@
---1.?.? (??/??/????)--
-* Added Manual Cassette Controller
+--1.7.1 (30/03/2021)--
+* [Silent] Added Manual Cassette Controller.
+* Fixed crashes involving using readonly structs.
 
 --1.7.0 (27/02/2021)--
 * Added Melvin.
