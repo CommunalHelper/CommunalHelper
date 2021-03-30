@@ -13,7 +13,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     public class CustomCassetteBlock : CassetteBlock {
         public static List<string> CustomCassetteBlockNames = new List<string>();
 
-        public static void initialize() {
+        public static void Initialize() {
             // Overengineered attempt to handle CustomCassetteBlock types
             IEnumerable<Type> customCassetteBlockTypes =
                 from module in Everest.Modules
@@ -51,12 +51,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DynData<CassetteBlock> blockData;
 
-        public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool dynamicHitbox = false)
+        public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool dynamicHitbox = false, Color? overrideColor = null)
             : base(position, id, width, height, index, tempo) {
             blockData = new DynData<CassetteBlock>(this);
 
             Index = index;
-            color = colorOptions[index];
+            color = overrideColor ?? colorOptions[index];
             pressedColor = color.Mult(Calc.HexToColor("667da5"));
 
             this.dynamicHitbox = dynamicHitbox;
