@@ -19,7 +19,7 @@ namespace Celeste.Mod.CommunalHelper {
         private enum TileType {
             Edge, Corner, InnerCorner, Filler
         }
-        private readonly struct AutoTileData {
+        private struct AutoTileData {
             public AutoTileData(int x_, int y_, TileType type_) {
                 x = x_;
                 y = y_;

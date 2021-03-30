@@ -31,7 +31,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static readonly MTexture[,] litVCornersCut = new MTexture[2, 2];
         #endregion
 
-        private readonly struct MoveState {
+        private struct MoveState {
             public readonly Vector2 From;
             public readonly Vector2 Direction;
 
