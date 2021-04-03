@@ -236,6 +236,12 @@ placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Grouped=Sett
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
 
 
+# -- Input Flag Controller --
+placements.entities.CommunalHelper/InputFlagController.tooltips.flags=Multiple flags can be separated by commas, and sequences of flags can be separated by semi-colons.
+placements.entities.CommunalHelper/InputFlagController.tooltips.toggle=If enabled, flags will be toggled and the sequence will loop. If disabled, flags will be enable once.
+placements.entities.CommunalHelper/InputFlagController.tooltips.resetFlags=If enabled, all specified flags will be disabled upon leaving the room this entity is in.
+placements.entities.CommunalHelper/InputFlagController.tooltips.delay=The minimum delay in seconds between inputs.
+
 
 
 # -- Triggers --

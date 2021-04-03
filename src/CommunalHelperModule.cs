@@ -50,8 +50,8 @@ namespace Celeste.Mod.CommunalHelper {
             AttachedWallBooster.Hook();
             MoveBlockRedirect.Load();
             MoveSwapBlock.Load();
-            SyncedZipMoverActivationController.Hook();
-            ManualCassetteController.Load();
+            AbstractController.Load();
+            // Controller-specific hooks loaded from AbstractController.Load
             // TimedTriggerSpikes hooked in Initialize
 
             HeartGemShard.Load();
@@ -74,8 +74,7 @@ namespace Celeste.Mod.CommunalHelper {
             AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
             MoveSwapBlock.Unload();
-            SyncedZipMoverActivationController.Unhook();
-            ManualCassetteController.Unload();
+            AbstractController.Unload();
             TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();
@@ -166,6 +165,9 @@ namespace Celeste.Mod.CommunalHelper {
 
             if (command == "CommunalHelperCycleCassetteBlocksBinding")
                 return Settings.CycleCassetteBlocks.Button;
+
+            if (command == "CommunalHelperActivateFlagControllerBinding")
+                return Settings.ActivateFlagController.Button;
 
             return null;
         }

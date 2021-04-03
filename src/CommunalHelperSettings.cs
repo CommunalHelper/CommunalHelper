@@ -11,5 +11,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         [DefaultButtonBinding(Buttons.RightShoulder, Keys.Z)]
         public ButtonBinding CycleCassetteBlocks { get; set; }
+
+        [DefaultButtonBinding(Buttons.RightShoulder, Keys.Z)]
+        public ButtonBinding ActivateFlagController { get; set; }
     }
 }
