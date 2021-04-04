@@ -10,4 +10,9 @@ const placements = Ahorn.PlacementDict(
    )
 )
 
+const sprite = "objects/CommunalHelper/inputFlagController/icon"
+
+Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Controller) = Ahorn.drawSprite(ctx, sprite, 0, 0)
+Ahorn.selection(entity::Controller) = Ahorn.getSpriteRectangle(sprite, Ahorn.position(entity)...)
+
 end 
