@@ -1,17 +1,20 @@
 ﻿using Celeste.Mod.Entities;
 using FMOD.Studio;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/AttachedWallBooster")]
     [Tracked(false)]
-    class AttachedWallBooster : WallBooster {
-        private Vector2 Shake = Vector2.Zero;
+    public class AttachedWallBooster : WallBooster {
+        public Vector2 Shake = Vector2.Zero;
 
-        DynData<WallBooster> baseData;
+        private DynData<WallBooster> baseData;
 
         public AttachedWallBooster(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Height, data.Bool("left"), data.Bool("notCoreMode")) {
@@ -26,7 +29,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             });
         }
 
-        private void SetColor(Color color) {
+        public void SetColor(Color color) {
             foreach (Image img in baseData.Get<List<Sprite>>("tiles")) {
                 img.Color = color;
             }
@@ -70,21 +73,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static EventInstance conveyorLoopSfx;
         private static float playerWallBoostTimer = 0f;
 
-        public static void Unhook() {
-            On.Celeste.Player.ClimbBegin -= Player_ClimbBegin;
-            On.Celeste.Player.ClimbUpdate -= Player_ClimbUpdate;
-            On.Celeste.Player.ClimbEnd -= Player_ClimbEnd;
-            On.Celeste.Player.ClimbJump -= Player_ClimbJump;
-            On.Celeste.Player.WallJump -= Player_WallJump;
-            On.Celeste.Player.Update -= Player_Update;
-        }
         public static void Hook() {
             On.Celeste.Player.ClimbBegin += Player_ClimbBegin;
             On.Celeste.Player.ClimbUpdate += Player_ClimbUpdate;
+            IL.Celeste.Player.ClimbUpdate += Player_ClimbUpdate;
             On.Celeste.Player.ClimbEnd += Player_ClimbEnd;
             On.Celeste.Player.ClimbJump += Player_ClimbJump;
             On.Celeste.Player.WallJump += Player_WallJump;
             On.Celeste.Player.Update += Player_Update;
+        }
+
+        public static void Unhook() {
+            On.Celeste.Player.ClimbBegin -= Player_ClimbBegin;
+            On.Celeste.Player.ClimbUpdate -= Player_ClimbUpdate;
+            IL.Celeste.Player.ClimbUpdate -= Player_ClimbUpdate;
+            On.Celeste.Player.ClimbEnd -= Player_ClimbEnd;
+            On.Celeste.Player.ClimbJump -= Player_ClimbJump;
+            On.Celeste.Player.WallJump -= Player_WallJump;
+            On.Celeste.Player.Update -= Player_Update;
         }
 
         private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
@@ -145,7 +151,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 conveyorLoopSfx.release();
             }
 
-            return orig(self);
+            int ret = orig(self);
+
+            if (attachedWallBoosting) {
+                // This is unset during orig so we have to set it here instead
+                self.GetData()["wallBoosting"] = true;
+            }
+
+            return ret;
+        }
+
+        private static void Player_ClimbUpdate(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            cursor.GotoNext(instr => instr.MatchLdstr(SFX.char_mad_grab_letgo));
+            cursor.GotoNext(MoveType.After, instr => instr.Match(OpCodes.Brfalse_S));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Player>>(PlayerWallBoost);
         }
 
         #endregion
