@@ -50,8 +50,8 @@ namespace Celeste.Mod.CommunalHelper {
             AttachedWallBooster.Hook();
             MoveBlockRedirect.Load();
             MoveSwapBlock.Load();
-            SyncedZipMoverActivationController.Hook();
-            ManualCassetteController.Load();
+            AbstractController.Load();
+            // Controller-specific hooks loaded from AbstractController.Load
             // TimedTriggerSpikes hooked in Initialize
 
             HeartGemShard.Load();
@@ -74,8 +74,7 @@ namespace Celeste.Mod.CommunalHelper {
             AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
             MoveSwapBlock.Unload();
-            SyncedZipMoverActivationController.Unhook();
-            ManualCassetteController.Unload();
+            AbstractController.Unload();
             TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();
@@ -167,6 +166,9 @@ namespace Celeste.Mod.CommunalHelper {
             if (command == "CommunalHelperCycleCassetteBlocksBinding")
                 return Settings.CycleCassetteBlocks.Button;
 
+            if (command == "CommunalHelperActivateFlagControllerBinding")
+                return Settings.ActivateFlagController.Button;
+
             return null;
         }
     }
@@ -183,13 +185,21 @@ namespace Celeste.Mod.CommunalHelper {
 
         private static PropertyInfo[] namedColors = typeof(Color).GetProperties();
 
+        public static Color CopyColor(Color color, float alpha) {
+            return new Color(color.R, color.G, color.B, (byte) alpha * 255);
+        }
+
+        public static Color CopyColor(Color color, int alpha) {
+            return new Color(color.R, color.G, color.B, alpha);
+        }
+
         public static Color TryParseColor(string str, float alpha = 1f) {
             foreach (PropertyInfo prop in namedColors) {
                 if (str.Equals(prop.Name)) {
-                    return new Color((Color) prop.GetValue(null), alpha);
+                    return CopyColor((Color) prop.GetValue(null), alpha);
                 }
             }
-            return new Color(Calc.HexToColor(str.Trim('#')), alpha);
+            return CopyColor(Calc.HexToColor(str.Trim('#')), alpha);
         }
 
         public static int ToInt(bool b) => b ? 1 : 0;
