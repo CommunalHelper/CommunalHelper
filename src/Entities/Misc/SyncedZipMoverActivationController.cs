@@ -5,10 +5,10 @@ using MonoMod.Utils;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/SyncedZipMoverActivationController")]
-    class SyncedZipMoverActivationController : AbstractController {
+    public class SyncedZipMoverActivationController : AbstractController {
         private Level level;
 
-        private string colorCode;
+        public string ColorCode;
         private float resetTimer = 0f;
         private float resetTime;
         public static bool ActivatePressed =>
@@ -18,7 +18,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public SyncedZipMoverActivationController(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
-            colorCode = data.Attr("colorCode", "000000");
+            ColorCode = data.Attr("colorCode", "000000");
             resetTime = 0.5f + 0.5f / data.Float("zipMoverSpeedMultiplier", 1);
 
         }
@@ -32,7 +32,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Update();
             if (resetTimer > 0) {
                 resetTimer -= Engine.DeltaTime;
-            } else if (ActivatePressed || level.Session.GetFlag($"ZipMoverSync:{colorCode}")) {
+            } else if (ActivatePressed || level.Session.GetFlag($"ZipMoverSync:{ColorCode}")) {
                 Activate();
             }
         }
@@ -45,7 +45,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public void Activate() {
             if (resetTimer <= 0f) {
-                level.Session.SetFlag($"ZipMoverSync:{colorCode}");
+                level.Session.SetFlag($"ZipMoverSync:{ColorCode}");
                 resetTimer = resetTime;
             }
         }

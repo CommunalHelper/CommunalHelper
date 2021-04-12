@@ -73,7 +73,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static EventInstance conveyorLoopSfx;
         private static float playerWallBoostTimer = 0f;
 
-        public static void Hook() {
+        internal static void Hook() {
             On.Celeste.Player.ClimbBegin += Player_ClimbBegin;
             On.Celeste.Player.ClimbUpdate += Player_ClimbUpdate;
             IL.Celeste.Player.ClimbUpdate += Player_ClimbUpdate;
@@ -83,7 +83,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.Update += Player_Update;
         }
 
-        public static void Unhook() {
+        internal static void Unhook() {
             On.Celeste.Player.ClimbBegin -= Player_ClimbBegin;
             On.Celeste.Player.ClimbUpdate -= Player_ClimbUpdate;
             IL.Celeste.Player.ClimbUpdate -= Player_ClimbUpdate;

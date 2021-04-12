@@ -88,7 +88,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<SpaceJamCorner> GroupCorners;
         private Rectangle GroupRect;
 
-        enum Edges {
+        private enum Edges {
             North,
             East,
             South,

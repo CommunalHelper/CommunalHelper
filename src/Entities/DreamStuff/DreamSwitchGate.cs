@@ -14,7 +14,7 @@ namespace Celeste.Mod.CommunalHelper {
 
     [CustomEntity("CommunalHelper/DreamSwitchGate",
         "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate = DreamFlagSwitchGate")]
-    class DreamSwitchGate : CustomDreamBlock {
+    public class DreamSwitchGate : CustomDreamBlock {
         private static ParticleType[] P_BehindDreamParticles;
 
         private ParticleType P_RecoloredFire;

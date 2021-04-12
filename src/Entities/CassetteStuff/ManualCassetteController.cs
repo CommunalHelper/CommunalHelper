@@ -63,11 +63,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static IDetour hook_Level_orig_LoadLevel;
-        public new static void Load() {
+        internal new static void Load() {
             hook_Level_orig_LoadLevel = new ILHook(typeof(Level).GetMethod("orig_LoadLevel"), Level_orig_LoadLevel);
         }
 
-        public new static void Unload() {
+        internal new static void Unload() {
             hook_Level_orig_LoadLevel.Dispose();
         }
 

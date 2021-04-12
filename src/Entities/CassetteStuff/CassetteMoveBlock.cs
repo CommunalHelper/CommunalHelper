@@ -13,9 +13,9 @@ using System.Collections.Generic;
 // fix block staying collidable after breaking
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CassetteMoveBlock")]
-    class CassetteMoveBlock : CustomCassetteBlock {
+    public class CassetteMoveBlock : CustomCassetteBlock {
 
-        private enum MovementState {
+        public enum MovementState {
             Idling,
             Moving,
             Breaking
@@ -31,10 +31,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private const float RegenTime = 3f;
 
         private float moveSpeed;
-        private MoveBlock.Directions direction;
+        public MoveBlock.Directions Direction;
         private float homeAngle;
         private Vector2 startPosition;
-        private MovementState state = MovementState.Idling;
+        public MovementState State = MovementState.Idling;
 
         private float speed;
         private float targetSpeed;
@@ -62,7 +62,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, MoveBlock.Directions direction, float moveSpeed, int index, float tempo)
             : base(position, id, width, height, index, tempo, dynamicHitbox: true) {
             startPosition = position;
-            this.direction = direction;
+            Direction = direction;
             this.moveSpeed = moveSpeed;
 
             homeAngle = targetAngle = angle = direction switch {
@@ -101,12 +101,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private IEnumerator Controller() {
             while (true) {
                 triggered = false;
-                state = MovementState.Idling;
+                State = MovementState.Idling;
                 while (!triggered && !HasPlayerRider())
                     yield return null;
 
                 Audio.Play(SFX.game_04_arrowblock_activate, Position);
-                state = MovementState.Moving;
+                State = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
                 yield return 0.2f;
@@ -125,7 +125,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     angle = Calc.Approach(angle, targetAngle, SteerSpeed * Engine.DeltaTime);
                     Vector2 move = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool hit;
-                    if (direction is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
+                    if (Direction is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
                         hit = MoveCheck(move.XComp());
                         noSquish = Scene.Tracker.GetEntity<Player>();
                         MoveVCollideSolids(move.Y, thruDashBlocks: false);
@@ -149,7 +149,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                 ScrapeParticles(-Vector2.UnitX);
                             }
                         }
-                        if (direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
+                        if (Direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
                             hit = true;
                         }
                     }
@@ -177,7 +177,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Audio.Play(SFX.game_04_arrowblock_break, Position);
                 moveSfx.Stop();
-                state = MovementState.Breaking;
+                State = MovementState.Breaking;
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
                 StartShaking(0.2f);
@@ -333,7 +333,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void HandleUpdateVisualState() {
             base.HandleUpdateVisualState();
-            bool crossVisible = state == MovementState.Breaking;
+            bool crossVisible = State == MovementState.Breaking;
             arrow.Visible &= !crossVisible;
             arrowPressed.Visible &= !crossVisible;
             cross.Visible &= crossVisible;
@@ -372,17 +372,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 positionRange;
             float num;
             float num2;
-            if (direction == MoveBlock.Directions.Right) {
+            if (Direction == MoveBlock.Directions.Right) {
                 position = CenterLeft + Vector2.UnitX;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 num = (float) Math.PI;
                 num2 = Height / 32f;
-            } else if (direction == MoveBlock.Directions.Left) {
+            } else if (Direction == MoveBlock.Directions.Left) {
                 position = CenterRight;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 num = 0f;
                 num2 = Height / 32f;
-            } else if (direction == MoveBlock.Directions.Down) {
+            } else if (Direction == MoveBlock.Directions.Down) {
                 position = TopCenter + Vector2.UnitY;
                 positionRange = Vector2.UnitX * (Width - 4f);
                 num = -(float) Math.PI / 2f;

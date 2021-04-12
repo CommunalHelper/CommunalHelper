@@ -9,7 +9,7 @@ using static Celeste.Mod.CommunalHelper.Entities.StationBlock;
 namespace Celeste.Mod.CommunalHelper.Entities {
 
     [CustomEntity("CommunalHelper/Melvin")]
-    class Melvin : Solid {
+    public class Melvin : Solid {
 
         public static ParticleType P_Activate;
 

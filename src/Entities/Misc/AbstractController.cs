@@ -13,13 +13,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public abstract void FrozenUpdate();
 
-        public static void Load() {
+        internal static void Load() {
             IL.Monocle.Engine.Update += Engine_Update;
 
             ManualCassetteController.Load();
         }
 
-        public static void Unload() {
+        internal static void Unload() {
             IL.Monocle.Engine.Update -= Engine_Update;
 
             ManualCassetteController.Unload();

@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ShieldedRefill")]
-    class ShieldedRefill : Entity {
+    public class ShieldedRefill : Entity {
         private Sprite sprite;
         private Sprite flash;
         private Image outline;

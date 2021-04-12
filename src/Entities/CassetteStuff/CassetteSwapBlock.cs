@@ -6,7 +6,7 @@ using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CassetteSwapBlock")]
-    class CassetteSwapBlock : CustomCassetteBlock {
+    public class CassetteSwapBlock : CustomCassetteBlock {
         private class PathRenderer : Entity {
             private CassetteSwapBlock block;
             private Color pathColor;

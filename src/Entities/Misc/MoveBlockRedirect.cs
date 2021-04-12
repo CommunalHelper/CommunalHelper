@@ -17,11 +17,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/MoveBlockRedirect")]
     public class MoveBlockRedirect : Entity {
 
-        public enum Operation {
+        public enum Operations {
             Add, Subtract, Multiply
         }
-        private Operation operation;
-        private float modifier;
+        public Operations Operation;
+        public float Modifier;
 
         private ParticleType p_Used;
 
@@ -62,10 +62,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             FastRedirect = data.Bool("fastRedirect");
             OneUse = data.Bool("oneUse");
-            DeleteBlock = data.Bool("deleteBlock") || (operation == Operation.Multiply && modifier == 0f);
+            DeleteBlock = data.Bool("deleteBlock") || (Operation == Operations.Multiply && Modifier == 0f);
 
-            operation = data.Enum("operation", Operation.Add);
-            modifier = Math.Abs(data.Float("modifier"));
+            Operation = data.Enum("operation", Operations.Add);
+            Modifier = Math.Abs(data.Float("modifier"));
 
             if (float.TryParse(data.Attr("direction"), out float fAngle))
                 angle = fAngle;
@@ -131,10 +131,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 iconTexture = "x";
                 startColor = DeleteColor;
             } else {
-                if ((operation == Operation.Add && modifier != 0f) || (operation == Operation.Multiply && modifier > 1f)) {
+                if ((Operation == Operations.Add && Modifier != 0f) || (Operation == Operations.Multiply && Modifier > 1f)) {
                     iconTexture = "fast";
                     startColor = FasterColor;
-                } else if ((operation == Operation.Subtract && modifier != 0f) || (operation == Operation.Multiply && modifier < 1f)) {
+                } else if ((Operation == Operations.Subtract && Modifier != 0f) || (Operation == Operations.Multiply && Modifier < 1f)) {
                     iconTexture = "slow";
                     startColor = SlowerColor;
                 }
@@ -242,10 +242,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             blockData["direction"] = Direction;
 
             float newSpeed = blockData.Get<float>("targetSpeed");
-            newSpeed = operation switch {
-                Operation.Add => newSpeed + modifier,
-                Operation.Subtract => newSpeed - modifier,
-                Operation.Multiply => newSpeed * modifier,
+            newSpeed = Operation switch {
+                Operations.Add => newSpeed + Modifier,
+                Operations.Subtract => newSpeed - Modifier,
+                Operations.Multiply => newSpeed * Modifier,
                 _ => newSpeed
             };
 
