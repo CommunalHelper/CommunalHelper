@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod;
 using MonoMod.Utils;
 using System;
 using System.Collections;
@@ -12,6 +13,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked] // But also track it on it's own as a utility entity
     public class DreamBlockDummy : DreamBlock {
         public Entity Entity;
+
+        public bool PlayerHasDreamDash => Data.Get<bool>("playerHasDreamDash");
 
         public Func<IEnumerator> OnActivate;
         public Func<IEnumerator> OnFastActivate;
@@ -33,7 +36,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Data = new DynData<DreamBlock>(this);
         }
 
-        public override void Added(Scene scene) { }
+        [MonoModLinkTo("Monocle.Entity", "System.Void Added(Monocle.Scene)")]
+        public void base_Added(Scene scene) {
+            base.Added(scene);
+        }
+
+        public override void Added(Scene scene) {
+            base_Added(scene);
+            Data["playerHasDreamDash"] = SceneAs<Level>().Session.Inventory.DreamDash;
+        }
 
         public override void Update() { }
 
@@ -67,6 +78,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static IEnumerator DreamBlock_Activate(On.Celeste.DreamBlock.orig_Activate orig, DreamBlock self) {
             if (self is DreamBlockDummy dummy && dummy.OnActivate != null) {
+                dummy.Data["playerHasDreamDash"] = true;
                 dummy.Entity.Add(new Coroutine(dummy.OnActivate()));
                 return null;
             }
@@ -75,6 +87,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static IEnumerator DreamBlock_FastActivate(On.Celeste.DreamBlock.orig_FastActivate orig, DreamBlock self) {
             if (self is DreamBlockDummy dummy && dummy.OnFastActivate != null) {
+                dummy.Data["playerHasDreamDash"] = true;
                 dummy.Entity.Add(new Coroutine(dummy.OnFastActivate()));
                 return null;
             }
@@ -83,6 +96,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void DreamBlock_ActivateNoRoutine(On.Celeste.DreamBlock.orig_ActivateNoRoutine orig, DreamBlock self) {
             if (self is DreamBlockDummy dummy && dummy.OnActivateNoRoutine != null) {
+                dummy.Data["playerHasDreamDash"] = true;
                 dummy.OnActivateNoRoutine();
                 return;
             }
@@ -91,6 +105,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static IEnumerator DreamBlock_Deactivate(On.Celeste.DreamBlock.orig_Deactivate orig, DreamBlock self) {
             if (self is DreamBlockDummy dummy && dummy.OnDeactivate != null) {
+                dummy.Data["playerHasDreamDash"] = false;
                 dummy.Entity.Add(new Coroutine(dummy.OnDeactivate()));
                 return null;
             }
@@ -99,6 +114,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static IEnumerator DreamBlock_FastDeactivate(On.Celeste.DreamBlock.orig_FastDeactivate orig, DreamBlock self) {
             if (self is DreamBlockDummy dummy && dummy.OnFastDeactivate != null) {
+                dummy.Data["playerHasDreamDash"] = false;
                 dummy.Entity.Add(new Coroutine(dummy.OnFastDeactivate()));
                 return null;
             }
@@ -107,6 +123,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void DreamBlock_DeactivateNoRoutine(On.Celeste.DreamBlock.orig_DeactivateNoRoutine orig, DreamBlock self) {
             if (self is DreamBlockDummy dummy && dummy.OnDeactivateNoRoutine != null) {
+                dummy.Data["playerHasDreamDash"] = false;
                 dummy.OnDeactivateNoRoutine();
                 return;
             }

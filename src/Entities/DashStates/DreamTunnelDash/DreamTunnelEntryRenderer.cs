@@ -9,7 +9,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     /// Added in a LevelLoader.LoadingThread hook in DreamTunnelEntry.
     /// </summary>
     [Tracked(false)]
-    class DreamTunnelEntryRenderer : Entity {
+    public class DreamTunnelEntryRenderer : Entity {
 
         private class CustomDepthRenderer : Entity{
             public List<DreamTunnelEntry> list = new List<DreamTunnelEntry>();

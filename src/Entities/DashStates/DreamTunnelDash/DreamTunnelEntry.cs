@@ -11,7 +11,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using static Celeste.Mod.CommunalHelper.Entities.DreamTunnelDash;
-using DreamParticle = Celeste.Mod.CommunalHelper.Entities.CustomDreamBlock.DreamParticle;
 
 /*
 * Slow routine: Particles spray out from each end diagonally, moving inwards
@@ -24,12 +23,20 @@ using DreamParticle = Celeste.Mod.CommunalHelper.Entities.CustomDreamBlock.Dream
 * Two modes, one uses deactivated texture and blocks dashcollides, other fades away and does not block
 * Add support for PandorasBox DreamDash controller
 * Add OneUse mode
+* Add interaction with DreamTunnelDash
 */
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamTunnelEntry = LoadDreamTunnelEntry")]
     [Tracked]
     public class DreamTunnelEntry : Entity {
+
+        private struct DreamParticle {
+            public Vector2 Position;
+            public int Layer;
+            public Color Color;
+            public float TimeOffset;
+        }
 
         #region Loading
 
@@ -103,7 +110,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Spikes.Directions.Up => new Hitbox(size, 8f),
                 Spikes.Directions.Down => new Hitbox(size, 8f),
                 Spikes.Directions.Left => new Hitbox(8f, size),
-                Spikes.Directions.Right => new Hitbox(8f, size)
+                Spikes.Directions.Right => new Hitbox(8f, size),
+                _ => null
             };
 
             Add(staticMover = new StaticMover {

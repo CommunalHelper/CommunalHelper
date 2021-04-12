@@ -38,7 +38,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 for (int x = 0; x < Width / 8f; x++) {
                     for (int y = 0; y < Height / 8f; y++) {
                         if (!Scene.CollideCheck<Solid>(new Rectangle((int) X + x * 8, (int) Y + y * 8, 8, 8))) {
-                            Scene.Add(Engine.Pooler.Create<DreamBlockDebris>().Init(Position + new Vector2(4 + x * 8, 4 + y * 8), this).BlastFrom(TopCenter));
+                            Scene.Add(Engine.Pooler.Create<DreamBlockDebris>().Init(Position + new Vector2(4 + x * 8, 4 + y * 8)).BlastFrom(TopCenter));
                         }
                     }
                 }
