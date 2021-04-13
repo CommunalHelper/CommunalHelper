@@ -241,6 +241,7 @@ placements.entities.CommunalHelper/InputFlagController.tooltips.flags=Multiple f
 placements.entities.CommunalHelper/InputFlagController.tooltips.toggle=If enabled, flags will be toggled and the sequence will loop. If disabled, flags will be enable once.
 placements.entities.CommunalHelper/InputFlagController.tooltips.resetFlags=If enabled, all specified flags will be disabled upon leaving the room this entity is in.
 placements.entities.CommunalHelper/InputFlagController.tooltips.delay=The minimum delay in seconds between inputs.
+placements.entities.CommunalHelper/InputFlagController.tooltips.grabOverride=Overrides the user's button binding to use the grab bind instead.
 
 
 

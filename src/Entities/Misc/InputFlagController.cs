@@ -7,6 +7,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/InputFlagController")]
     public class InputFlagController : AbstractController {
 
+        public bool Activated => OverrideBinding ? Input.Grab.Pressed :
+            CommunalHelperModule.Settings.ActivateFlagController.Pressed;
+
         public string[][] Flags;
         private int flagIndex = 0;
 
@@ -17,11 +20,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public float Delay;
         private float cooldown;
 
+        public bool OverrideBinding;
+
         public InputFlagController(EntityData data, Vector2 _) {
             Flags = data.Attr("flags").Split(';').Select(str => str.Split(',')).ToArray();
             Toggle = data.Bool("toggle", true);
             ResetFlags = data.Bool("resetFlags");
             Delay = data.Float("delay");
+            OverrideBinding = data.Bool("grabOverride");
         }
 
         public override void Update() {
@@ -29,12 +35,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (cooldown > 0)
                 cooldown -= Engine.DeltaTime;
-            else if (CommunalHelperModule.Settings.ActivateFlagController.Pressed)
+            else if (Activated)
                 Activate();
         }
 
         public override void FrozenUpdate() {
-            if (cooldown <= 0 && CommunalHelperModule.Settings.ActivateFlagController.Pressed) {
+            if (cooldown <= 0 && Activated) {
                 Activate();
             }
         }
