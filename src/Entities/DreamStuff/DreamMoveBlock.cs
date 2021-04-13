@@ -9,6 +9,7 @@ using MonoMod.RuntimeDetour;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
@@ -103,6 +104,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(moveSfx = new SoundSource());
             Add(controller = new Coroutine(Controller()));
             Add(new LightOcclude(0.5f));
+
+            Add(new MoveBlockRedirectable(new MonoMod.Utils.DynamicData(this)) {
+                Get_CanSteer = () => false,
+                Get_Direction = () => Direction,
+                Set_Direction = dir => Direction = dir
+            });
         }
 
         private IEnumerator Controller() {
@@ -122,9 +129,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
 
                 targetSpeed = moveSpeed;
-                moveSfx.Play(SFX.game_04_arrowblock_move_loop);
+                moveSfx.Play(CustomSFX.game_redirectMoveBlock_arrowblock_move);
                 moveSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;
+
                 float crashTimer = CrashTime;
                 float crashResetTimer = CrashResetTime;
                 while (true) {
@@ -198,6 +206,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
 
                 BreakParticles();
+                Get<MoveBlockRedirectable>()?.ResetBlock();
                 List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
                 for (int x = 0; x < Width; x += 8) {
                     for (int y = 0; y < Height; y += 8) {
@@ -273,7 +282,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Remove(controller);
             moveSfx.Stop();
         }
-
 
         public override void SetupCustomParticles(float canvasWidth, float canvasHeight) {
             base.SetupCustomParticles(canvasWidth, canvasHeight);

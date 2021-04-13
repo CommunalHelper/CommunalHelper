@@ -192,6 +192,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             Add(moveBlockSfx = new SoundSource());
             Add(new Coroutine(Controller()));
+
+            Add(new MoveBlockRedirectable(new DynamicData(this)) {
+                Get_Speed = () => moveSpeed,
+                Get_TargetSpeed = () => targetMoveSpeed,
+                Get_MoveSfx = () => moveBlockSfx,
+                Get_Direction = () => MoveDirection,
+                Set_Direction = dir => MoveDirection = dir,
+            });
         }
 
         public override void Awake(Scene scene) {
@@ -294,7 +302,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return 0.2f;
 
                 targetMoveSpeed = MoveSpeed;
-                moveBlockSfx.Play(SFX.game_04_arrowblock_move_loop);
+                moveBlockSfx.Play(CustomSFX.game_redirectMoveBlock_arrowblock_move);
                 moveBlockSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;
                 float crashTimer = CrashTime;
@@ -409,6 +417,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return 0.2f;
 
                 BreakParticles();
+                Get<MoveBlockRedirectable>()?.ResetBlock();
                 List<MoveBlockDebris> debrisList = new List<MoveBlockDebris>();
                 for (int i = 0; i < Width; i += 8) {
                     for (int j = 0; j < Height; j += 8) {

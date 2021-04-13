@@ -5,6 +5,8 @@ using Monocle;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 // TODO
 // movement stuff
@@ -80,6 +82,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             P_MovePressed = new ParticleType(MoveBlock.P_Move) { Color = pressedColor };
             P_Break = new ParticleType(MoveBlock.P_Break) { Color = color };
             P_BreakPressed = new ParticleType(MoveBlock.P_Break) { Color = pressedColor };
+
+            Add(new MoveBlockRedirectable(new MonoMod.Utils.DynamicData(this)) {
+                Get_CanSteer = () => false,
+                Get_Direction = () => Direction,
+                Set_Direction = dir => {
+                    int index = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
+                    arrow.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index];
+                    arrowPressed.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index];
+                    Direction = dir;
+                }
+            });
         }
 
         public CassetteMoveBlock(EntityData data, Vector2 offset, EntityID id)
@@ -185,6 +198,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return 0.2f;
 
                 BreakParticles();
+                Get<MoveBlockRedirectable>()?.ResetBlock();
                 List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
                 for (int x = 0; x < Width; x += 8) {
                     for (int y = 0; y < Height; y += 8) {

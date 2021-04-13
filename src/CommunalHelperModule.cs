@@ -49,6 +49,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             AttachedWallBooster.Hook();
             MoveBlockRedirect.Load();
+            MoveBlockRedirectable.Load();
             MoveSwapBlock.Load();
             AbstractController.Load();
             // Controller-specific hooks loaded from AbstractController.Load
@@ -73,6 +74,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
+            MoveBlockRedirectable.Unload();
             MoveSwapBlock.Unload();
             AbstractController.Unload();
             TimedTriggerSpikes.Unload();
