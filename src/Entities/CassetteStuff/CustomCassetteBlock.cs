@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
@@ -128,6 +129,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         internal static void Hook() {
             On.Celeste.CassetteBlock.ShiftSize += CassetteBlock_ShiftSize;
             On.Celeste.CassetteBlock.UpdateVisualState += CassetteBlock_UpdateVisualState;
+            IL.Celeste.CassetteBlock.Update += CassetteBlock_Update;
             On.Celeste.Level.LoadLevel += Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
         }
@@ -135,6 +137,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         internal static void Unhook() {
             On.Celeste.CassetteBlock.ShiftSize -= CassetteBlock_ShiftSize;
             On.Celeste.CassetteBlock.UpdateVisualState -= CassetteBlock_UpdateVisualState;
+            IL.Celeste.CassetteBlock.Update -= CassetteBlock_Update;
             On.Celeste.Level.LoadLevel -= Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
         }
@@ -160,6 +163,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void CassetteBlock_UpdateVisualState(On.Celeste.CassetteBlock.orig_UpdateVisualState orig, CassetteBlock block) {
             orig(block);
             (block as CustomCassetteBlock)?.HandleUpdateVisualState();
+        }
+
+        private static void CassetteBlock_Update(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            Util.Log("Emitting instructions after `ldfld CassetteBlock.group` in `CassetteBlock.Update` to remove blocks from `group` if their Scene is `null`");
+            cursor.GotoNext(MoveType.After, instr => instr.MatchLdfld<CassetteBlock>("group"));
+            cursor.EmitDelegate<Func<List<CassetteBlock>, List<CassetteBlock>>>(group => {
+                group.RemoveAll(block => block.Scene is null); // Assume that the block has been removed from the scene.
+                return group;
+            });
         }
 
         private static void Level_LoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes introType, bool isFromLoader = false) {
