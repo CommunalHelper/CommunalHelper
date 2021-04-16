@@ -13,31 +13,56 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private DreamBooster dreamBooster;
 
             public float Alpha;
+            public float Percent = 1f;
+            public float RainbowLerp;
+
+            private Vector2 perp;
 
             public DreamBoosterPathRenderer(DreamBooster booster, float alpha) {
                 Depth = Depths.SolidsBelow;
                 dreamBooster = booster;
 
-                Alpha = alpha;
+                Alpha = Percent = alpha;
+                perp = dreamBooster.Dir.Perpendicular();
+            }
+
+            public override void Update() {
+                base.Update();
+                if (dreamBooster.BoostingPlayer)
+                    RainbowLerp += Engine.DeltaTime * 8f;
             }
 
             public override void Render() {
                 base.Render();
                 if (Alpha <= 0f)
                     return;
-
-                Vector2 perp = dreamBooster.Dir.Perpendicular();
-                for (float f = 0f; f < dreamBooster.Length; f += 6f) {
-                    Vector2 pos = dreamBooster.Start + dreamBooster.Dir * f;
-
-                    float highlight = Util.TryGetPlayer(out Player player) ? Calc.ClampedMap(Vector2.Distance(player.Center, pos), 0, 80) : 1f;
-                    float lineHighlight = (1 - highlight) * 3 + 0.75f;
-                    float alphaHighlight = 1 - Calc.Clamp(highlight, 0.01f, 0.8f);
-                    Color color = Color.White * alphaHighlight;
-
-                    Draw.Line(pos + perp * lineHighlight, pos - perp * lineHighlight, color * Alpha);
-
+                Util.TryGetPlayer(out Player player);
+                for (float f = 0f; f < dreamBooster.Length * Percent; f += 6f) {
+                    DrawPathLine(f, player, dreamBooster.BoostingPlayer ? GetRainbowColor(RainbowLerp) : Color.White);
                 }
+                DrawPathLine(dreamBooster.Length * Percent - dreamBooster.Length % 6, null, Color.White);
+            }
+
+            private Color GetRainbowColor(float lerp) {
+                float m = lerp % DreamColors.Length;
+                int fromIndex = (int) Math.Floor(m);
+                int toIndex = (fromIndex + 1) % DreamColors.Length;
+                float clampedLerp = m - fromIndex;
+
+                return Color.Lerp(DreamColors[fromIndex], DreamColors[toIndex], clampedLerp);
+            }
+
+            private void DrawPathLine(float linePos, Player player, Color lerp) {
+                Vector2 pos = dreamBooster.Start + dreamBooster.Dir * linePos;
+                float sin = (float) Math.Sin(linePos + Scene.TimeActive * 6f) * 0.3f + 1f;
+
+                float highlight = player == null ? 0.25f : Calc.ClampedMap(Vector2.Distance(player.Center, pos), 0, 80);
+                float lineHighlight = (1 - highlight) * 3 + 0.75f;
+                float alphaHighlight = 1 - Calc.Clamp(highlight, 0.01f, 0.8f);
+                Color color = Color.Lerp(Color.White, lerp, 1 - highlight) * alphaHighlight;
+
+                Vector2 lineOffset = perp * lineHighlight * sin;
+                Draw.Line(pos + lineOffset, pos - lineOffset, color * Alpha);
             }
         }
 
@@ -51,6 +76,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public static readonly Color BurstColor = Calc.HexToColor("19233b");
         public static readonly Color AppearColor = Calc.HexToColor("4d5f6e");
+
+        // red, orange, yellow, green, cyan, blue, purple, pink.
+        public static readonly Color[] DreamColors = new Color[8] {
+            Calc.HexToColor("ee3566"),
+            Calc.HexToColor("ff7b3d"),
+            Calc.HexToColor("efdc65"),
+            Calc.HexToColor("44bd4c"),
+            Calc.HexToColor("3b9c8a"),
+            Calc.HexToColor("30a0e6"),
+            Calc.HexToColor("af7fc9"),
+            Calc.HexToColor("df6da2")
+        };
+        public static readonly ParticleType[] DreamParticles = new ParticleType[8];
 
         public DreamBooster(EntityData data, Vector2 offset) 
             : this(data.Position + offset, data.Nodes[0] + offset, !data.Bool("hidePath")) { }
@@ -70,7 +108,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             SetSoundEvent(
                 showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,
                 CustomSFX.game_customBoosters_dreamBooster_dreambooster_move, 
-                true);
+                false);
         }
 
         public override void Added(Scene scene) {
@@ -87,7 +125,30 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected override void OnPlayerEnter(Player player) {
             base.OnPlayerEnter(player);
-            // TODO: path reacts to player entering in some way, cool effects :))
+            pathRenderer.RainbowLerp = Calc.Random.Range(0, 8);
+            if (!showPath) Add(new Coroutine(HiddenPathReact()));
+        }
+
+        private IEnumerator HiddenPathReact() {
+            float duration = 0.5f;
+            float timer = 0f;
+
+            showPath = true;
+            SetSoundEvent(
+                CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter,
+                CustomSFX.game_customBoosters_dreamBooster_dreambooster_move,
+                false);
+
+            ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
+            while (timer < duration) {
+                timer += Engine.DeltaTime;
+                pathRenderer.Alpha = pathRenderer.Percent = Ease.SineOut(timer / duration);
+
+                Vector2 pos = Start + Dir * pathRenderer.Percent * Length;
+
+                particlesBG.Emit(DreamParticles[Calc.Random.Range(0, 8)], 2, pos, Vector2.One * 2f, (-Dir).Angle());
+                yield return null;
+            }
         }
 
         public override void Render() {
@@ -99,6 +160,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Color = BurstColor,
                 SpeedMax = 250
             };
+            for (int i = 0; i < 8; i++) {
+                DreamParticles[i] = new ParticleType(P_Appear) {
+                    Color = DreamColors[i],
+                    SpeedMax = 60
+                };
+            }
         }
     }
 
