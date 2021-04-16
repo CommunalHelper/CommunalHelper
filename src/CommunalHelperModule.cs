@@ -111,6 +111,8 @@ namespace Celeste.Mod.CommunalHelper {
             Melvin.InitializeTextures();
             Melvin.InitializeParticles();
 
+            RailedMoveBlock.InitializeTextures();
+
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
             if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule dashelineModule)) {

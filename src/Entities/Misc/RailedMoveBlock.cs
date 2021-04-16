@@ -118,7 +118,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static readonly Color PlacementErrorBgFill = Calc.HexToColor("cc7c27");
 
         private Vector2 start, target, dir;
-        float percent;
+        private float percent, length;
+
+        private bool hasTopButtons, hasSideButtons;
+        private float speed;
+
+        public static MTexture XIcon, LeftIcon, RightIcon, UpIcon, DownIcon;
+        private MTexture idleIcon;
+
+        private MTexture icon;
+        private bool showX;
+
+        public const float MoveSpeed = 240f;
 
         public RailedMoveBlock(EntityData data, Vector2 offset) 
             : this(data.Position + offset, data.Width, data.Height, data.NodesOffset(offset)[0], data.Enum("steeringMode", SteeringMode.Both)) { }
@@ -127,7 +138,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             : base(position, width, height, safe: false) {
             start = position;
             target = node;
-            dir = target - start;
+            dir = Calc.SafeNormalize(target - start);
+            length = Vector2.Distance(start, target);
 
             if (dir == Vector2.Zero)
                 steeringMode = SteeringMode.None;
@@ -138,26 +150,42 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     steeringMode = SteeringMode.Vertical;
             }
             this.steeringMode = steeringMode;
+            hasSideButtons = steeringMode == SteeringMode.Both || steeringMode == SteeringMode.Horizontal;
+            hasTopButtons = steeringMode == SteeringMode.Both || steeringMode == SteeringMode.Vertical;
 
             int tilesWidth = width / 8;
             int tilesHeight = height / 8;
 
-            MTexture block = steeringMode switch {
-                SteeringMode.Horizontal => GFX.Game["objects/moveBlock/base_v"],
-                SteeringMode.Vertical => GFX.Game["objects/moveBlock/base_h"],
-                SteeringMode.Both => GFX.Game["objects/CommunalHelper/railedMoveBlock/base_both"],
-                _ => GFX.Game["objects/moveBlock/base"]
-            };
             MTexture button = GFX.Game["objects/moveBlock/button"];
+            MTexture block;
+            switch (steeringMode) {
+                default:
+                    block = GFX.Game["objects/moveBlock/base"];
+                    idleIcon = GFX.Game["objects/CommunalHelper/railedMoveBlock/o"];
+                    break;
+                case SteeringMode.Both:
+                    block = GFX.Game["objects/CommunalHelper/railedMoveBlock/base_both"];
+                    idleIcon = GFX.Game["objects/CommunalHelper/railedMoveBlock/both"];
+                    break;
+                case SteeringMode.Vertical:
+                    block = GFX.Game["objects/moveBlock/base_h"];
+                    idleIcon = GFX.Game["objects/CommunalHelper/railedMoveBlock/v"];
+                    break;
+                case SteeringMode.Horizontal:
+                    block = GFX.Game["objects/moveBlock/base_v"];
+                    idleIcon = GFX.Game["objects/CommunalHelper/railedMoveBlock/h"];
+                    break;
+            }
+            icon = idleIcon;
 
-            if (steeringMode == SteeringMode.Both || steeringMode == SteeringMode.Vertical) {
+            if (hasTopButtons) {
                 for (int i = 0; i < tilesWidth; i++) {
                     int num3 = ((i != 0) ? ((i < tilesWidth - 1) ? 1 : 2) : 0);
                     AddImage(button.GetSubtexture(num3 * 8, 0, 8, 8), new Vector2(i * 8, -4f), 0f, new Vector2(1f, 1f), topButton);
                 }
             } 
             
-            if (steeringMode == SteeringMode.Both || steeringMode == SteeringMode.Horizontal) {
+            if (hasSideButtons) {
                 for (int j = 0; j < tilesHeight; j++) {
                     int num4 = ((j != 0) ? ((j < tilesHeight - 1) ? 1 : 2) : 0);
                     AddImage(button.GetSubtexture(num4 * 8, 0, 8, 8), new Vector2(-4f, j * 8), (float) Math.PI / 2f, new Vector2(1f, -1f), leftButton);
@@ -208,9 +236,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
 
-            bool leftCheck = (steeringMode == SteeringMode.Both || steeringMode == SteeringMode.Horizontal) && CollideCheck<Player>(Position + new Vector2(-1f, 0f));
-            bool rightCheck = (steeringMode == SteeringMode.Both || steeringMode == SteeringMode.Horizontal) && CollideCheck<Player>(Position + new Vector2(1f, 0f));
-            bool topCheck = (steeringMode == SteeringMode.Both || steeringMode == SteeringMode.Vertical) && CollideCheck<Player>(Position + new Vector2(0f, -1f));
+            bool leftCheck = hasSideButtons && CollideCheck<Player>(Position + new Vector2(-1f, 0f));
+            bool rightCheck = hasSideButtons && CollideCheck<Player>(Position + new Vector2(1f, 0f));
+            bool topCheck = hasTopButtons && CollideCheck<Player>(Position + new Vector2(0f, -1f));
             
             foreach (Image image in topButton) {
                 image.Y = (topCheck ? 2 : 0);
@@ -234,10 +262,60 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             topPressed = topCheck;
 
             Color newFillColor = IdleBgFill;
+            showX = false;
 
-            Player player = GetPlayerRider();
-            if (player != null) {
-                newFillColor = MoveBgFill;
+            if (dir != Vector2.Zero) {
+                float newSpeed = 0f;
+
+                icon = idleIcon;
+                if (hasTopButtons && GetPlayerOnTop() != null && Input.MoveY.Value != 0) {
+                    newSpeed = MoveSpeed * Input.MoveY.Value * (dir.Y > 0f ? 1f : -1f);
+                    newFillColor = MoveBgFill;
+                    icon = Input.MoveY.Value == 1 ? DownIcon : UpIcon;
+                } else if (hasSideButtons && GetPlayerClimbing() != null && Input.MoveX.Value != 0) {
+                    newSpeed = MoveSpeed * Input.MoveX.Value * (dir.X > 0f ? 1f : -1f);
+                    newFillColor = MoveBgFill;
+                    icon = Input.MoveX.Value == 1 ? RightIcon : LeftIcon;
+                }
+
+                if (Math.Sign(speed) != Math.Sign(newSpeed)) {
+                    if (Scene.OnInterval(0.05f))
+                        SceneAs<Level>().Particles.Emit(ZipMover.P_Scrape, 2, Center - dir * speed * Engine.DeltaTime * 4, Vector2.One * 2);
+                }
+                speed = Calc.Approach(speed, newSpeed, 300f * Engine.DeltaTime);
+
+                if ((newSpeed > 0f && percent >= 1f) || (newSpeed < 0f && percent == 0f)) {
+                    showX = true;
+                    Console.WriteLine(speed);
+                    newFillColor = StopBgFill;
+                } else if (speed != 0f) {
+                    if (Scene.OnInterval(0.25f)) {
+                        pathRenderer.CreateSparks();
+                    }
+                }
+
+                MoveH(dir.X * speed * Engine.DeltaTime);
+                MoveV(dir.Y * speed * Engine.DeltaTime);
+
+                percent = Vector2.Distance(start, Position) / length;
+
+                bool impact = false;
+                if (percent > 1f) {
+                    impact = speed > MoveSpeed / 2f;
+                    MoveTo(target);
+                    speed = 0f;
+                    percent = 1f;
+                } else if (Vector2.Distance(Position, target) > length) {
+                    impact = speed < MoveSpeed / -2f;
+                    MoveTo(start);
+                    speed = 0f;
+                    percent = 0f;
+                }
+                
+                if (impact) {
+                    SceneAs<Level>().DirectionalShake(dir, 0.15f);
+                    StartShaking(0.1f);
+                }
             }
 
             UpdateColors(steeringMode == SteeringMode.None ? PlacementErrorBgFill : newFillColor);
@@ -275,9 +353,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             foreach (Image tile in body) {
                 tile.Render();
             }
+            Draw.Rect(base.Center.X - 4f, base.Center.Y - 4f, 8f, 8f, fillColor);
+            (showX ? XIcon : icon).DrawCentered(Center);
 
             Position = position;
         }
 
+        public static void InitializeTextures() {
+            UpIcon = GFX.Game["objects/CommunalHelper/railedMoveBlock/up"];
+            DownIcon = GFX.Game["objects/CommunalHelper/railedMoveBlock/down"];
+            RightIcon = GFX.Game["objects/CommunalHelper/railedMoveBlock/right"];
+            LeftIcon = GFX.Game["objects/CommunalHelper/railedMoveBlock/left"];
+            XIcon = GFX.Game["objects/moveBlock/x"];
+        }
     }
 }
