@@ -36,9 +36,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 base.Render();
                 if (Alpha <= 0f)
                     return;
+
+                Color color = dreamBooster.BoostingPlayer ? Util.ColorArrayLerp(RainbowLerp, DreamColors) : Color.White;
+
                 Util.TryGetPlayer(out Player player);
                 for (float f = 0f; f < dreamBooster.Length * Percent; f += 6f) {
-                    DrawPathLine(f, player, dreamBooster.BoostingPlayer ? Util.ColorArrayLerp(RainbowLerp, DreamColors) : Color.White);
+                    DrawPathLine(f, player, color);
                 }
                 DrawPathLine(dreamBooster.Length * Percent - dreamBooster.Length % 6, null, Color.White);
             }
@@ -48,12 +51,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float sin = (float) Math.Sin(linePos + Scene.TimeActive * 6f) * 0.3f + 1f;
 
                 float highlight = player == null ? 0.25f : Calc.ClampedMap(Vector2.Distance(player.Center, pos), 0, 80);
-                float lineHighlight = (1 - highlight) * 3 + 0.75f;
+                float lineHighlight = (1 - highlight) * 2.5f + 0.75f;
                 float alphaHighlight = 1 - Calc.Clamp(highlight, 0.01f, 0.8f);
                 Color color = Color.Lerp(Color.White, lerp, 1 - highlight) * alphaHighlight;
 
-                Vector2 lineOffset = perp * lineHighlight * sin;
-                Draw.Line(pos + lineOffset, pos - lineOffset, color * Alpha);
+                float lineLength = lineHighlight * sin;
+                Vector2 lineOffset = perp * lineLength;
+
+                // Single perpendicular short segments
+                //Draw.Line(pos + lineOffset, pos - lineOffset, color * Alpha);
+
+                // "Arrow" style
+                Vector2 arrowOffset = -dreamBooster.Dir * lineLength;
+                Draw.Line(pos, pos - lineOffset + arrowOffset, color * Alpha);
+                Draw.Line(pos, pos + lineOffset + arrowOffset, color * Alpha);
             }
         }
 
