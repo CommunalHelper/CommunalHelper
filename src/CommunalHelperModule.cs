@@ -178,6 +178,15 @@ namespace Celeste.Mod.CommunalHelper {
             return new Color(color.R, color.G, color.B, alpha);
         }
 
+        public static Color ColorArrayLerp(float lerp, params Color[] colors) {
+            float m = lerp % colors.Length;
+            int fromIndex = (int) Math.Floor(m);
+            int toIndex = (fromIndex + 1) % colors.Length;
+            float clampedLerp = m - fromIndex;
+
+            return Color.Lerp(colors[fromIndex], colors[toIndex], clampedLerp);
+        }
+
         public static Color TryParseColor(string str, float alpha = 1f) {
             foreach (PropertyInfo prop in namedColors) {
                 if (str.Equals(prop.Name)) {

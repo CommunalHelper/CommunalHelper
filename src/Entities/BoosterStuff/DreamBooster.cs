@@ -38,18 +38,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     return;
                 Util.TryGetPlayer(out Player player);
                 for (float f = 0f; f < dreamBooster.Length * Percent; f += 6f) {
-                    DrawPathLine(f, player, dreamBooster.BoostingPlayer ? GetRainbowColor(RainbowLerp) : Color.White);
+                    DrawPathLine(f, player, dreamBooster.BoostingPlayer ? Util.ColorArrayLerp(RainbowLerp, DreamColors) : Color.White);
                 }
                 DrawPathLine(dreamBooster.Length * Percent - dreamBooster.Length % 6, null, Color.White);
-            }
-
-            private Color GetRainbowColor(float lerp) {
-                float m = lerp % DreamColors.Length;
-                int fromIndex = (int) Math.Floor(m);
-                int toIndex = (fromIndex + 1) % DreamColors.Length;
-                float clampedLerp = m - fromIndex;
-
-                return Color.Lerp(DreamColors[fromIndex], DreamColors[toIndex], clampedLerp);
             }
 
             private void DrawPathLine(float linePos, Player player, Color lerp) {
