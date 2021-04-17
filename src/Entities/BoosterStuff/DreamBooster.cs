@@ -253,10 +253,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static bool Actor_MoveH(On.Celeste.Actor.orig_MoveH orig, Actor self, float moveH, Collision onCollide, Solid pusher) {
             if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster booster) {
+                DynData<Actor> playerData = new DynData<Actor>(player);
                 float pos = player.X;
+                Vector2 counter = playerData.Get<Vector2>("movementCounter");
                 dreamBoostMove = true;
                 if (orig(self, moveH, onCollide, pusher) && !dreamBoostStop) {
                     player.X = pos;
+                    playerData["movementCounter"] = counter;
                     player.NaiveMove(Vector2.UnitX * moveH);
                 }
                 dreamBoostStop = false;
@@ -268,10 +271,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static bool Actor_MoveV(On.Celeste.Actor.orig_MoveV orig, Actor self, float moveV, Collision onCollide, Solid pusher) {
             if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster booster) {
+                DynData<Actor> playerData = new DynData<Actor>(player);
                 float pos = player.Y;
+                Vector2 counter = playerData.Get<Vector2>("movementCounter");
                 dreamBoostMove = true;
                 if (orig(self, moveV, onCollide, pusher) && !dreamBoostStop) {
                     player.Y = pos;
+                    playerData["movementCounter"] = counter;
                     player.NaiveMove(Vector2.UnitY * moveV);
                 }
                 dreamBoostStop = false;
