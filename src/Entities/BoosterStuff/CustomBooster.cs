@@ -44,6 +44,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             hasCustomSounds = true;
         }
 
+        public void LoopingSfxParam(string path, float value) {
+            BoosterData.Get<SoundSource>("loopingSfx").Param(path, value);
+        }
+
         protected virtual void OnPlayerEnter(Player player) { }
 
         #region Hooks

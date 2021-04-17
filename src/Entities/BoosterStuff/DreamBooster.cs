@@ -20,7 +20,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private Vector2 perp;
 
             public DreamBoosterPathRenderer(DreamBooster booster, float alpha) {
-                Depth = Depths.SolidsBelow;
+                Depth = Depths.DreamBlocks + 1;
                 dreamBooster = booster;
 
                 Alpha = Percent = alpha;
@@ -98,6 +98,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DreamBooster(Vector2 position, Vector2 node, bool showPath) 
             : base(position, redBoost: true) {
+            Depth = Depths.DreamBlocks;
 
             Target = node;
             Dir = Calc.SafeNormalize(Target - Position);
@@ -214,7 +215,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int result = orig(self);
 
             if (self.LastBooster is DreamBooster booster) {
-                self.LastBooster.Ch9HubTransition = false; 
+                self.LastBooster.Ch9HubTransition = false;
+                booster.LoopingSfxParam("dream_tunnel", Util.ToInt(self.CollideCheck<Solid, DreamBlock>()));
                 if (Vector2.Distance(self.Center, booster.Start) >= booster.Length) {
                     self.Position = booster.Target;
                     self.SceneAs<Level>().DirectionalShake(booster.Dir, 0.175f);
@@ -250,7 +252,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static bool dreamBoostStop = false;
 
         private static bool Actor_MoveH(On.Celeste.Actor.orig_MoveH orig, Actor self, float moveH, Collision onCollide, Solid pusher) {
-            if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster) {
+            if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster booster) {
                 float pos = player.X;
                 dreamBoostMove = true;
                 if (orig(self, moveH, onCollide, pusher) && !dreamBoostStop) {
@@ -265,7 +267,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static bool Actor_MoveV(On.Celeste.Actor.orig_MoveV orig, Actor self, float moveV, Collision onCollide, Solid pusher) {
-            if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster) {
+            if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster booster) {
                 float pos = player.Y;
                 dreamBoostMove = true;
                 if (orig(self, moveV, onCollide, pusher) && !dreamBoostStop) {
@@ -287,6 +289,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void Player_OnCollide(Action<Player, CollisionData> orig, Player self, CollisionData data) {
             if (dreamBoostMove) {
+                DreamBooster booster = self.LastBooster as DreamBooster;
                 if (data.Hit is not DreamBlock block) {
                     EmitDreamBurst(self, data.Hit.Collider);
                     return;
