@@ -129,7 +129,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private MTexture icon;
         private bool showX;
 
-        public const float MoveSpeed = 240f;
+        private SoundSource sfx;
+
+        private float moveSpeed;
 
         public RailedMoveBlock(EntityData data, Vector2 offset) 
             : this(data.Position + offset, data.Width, data.Height, data.NodesOffset(offset)[0], data.Enum("steeringMode", SteeringMode.Both)) { }
@@ -202,7 +204,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             UpdateColors(fillColor);
-
+            Add(sfx = new SoundSource() { 
+                Position = new Vector2(width / 2f, Height / 2f)
+            });
+            sfx.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_move, "arrow_stop", 1f);
             Add(new LightOcclude(0.5f));
         }
 
@@ -269,11 +274,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 icon = idleIcon;
                 if (hasTopButtons && GetPlayerOnTop() != null && Input.MoveY.Value != 0) {
-                    newSpeed = MoveSpeed * Input.MoveY.Value * (dir.Y > 0f ? 1f : -1f);
+                    newSpeed = moveSpeed * Input.MoveY.Value * (dir.Y > 0f ? 1f : -1f);
                     newFillColor = MoveBgFill;
                     icon = Input.MoveY.Value == 1 ? DownIcon : UpIcon;
                 } else if (hasSideButtons && GetPlayerClimbing() != null && Input.MoveX.Value != 0) {
-                    newSpeed = MoveSpeed * Input.MoveX.Value * (dir.X > 0f ? 1f : -1f);
+                    newSpeed = moveSpeed * Input.MoveX.Value * (dir.X > 0f ? 1f : -1f);
                     newFillColor = MoveBgFill;
                     icon = Input.MoveX.Value == 1 ? RightIcon : LeftIcon;
                 }
@@ -286,13 +291,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 if ((newSpeed > 0f && percent >= 1f) || (newSpeed < 0f && percent == 0f)) {
                     showX = true;
-                    Console.WriteLine(speed);
                     newFillColor = StopBgFill;
                 } else if (speed != 0f) {
                     if (Scene.OnInterval(0.25f)) {
                         pathRenderer.CreateSparks();
                     }
                 }
+                sfx.Param("arrow_stop", 1 - Math.Abs(speed / moveSpeed));
 
                 MoveH(dir.X * speed * Engine.DeltaTime);
                 MoveV(dir.Y * speed * Engine.DeltaTime);
@@ -301,20 +306,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 bool impact = false;
                 if (percent > 1f) {
-                    impact = speed > MoveSpeed / 2f;
+                    impact = speed > moveSpeed / 2f;
                     MoveTo(target);
                     speed = 0f;
                     percent = 1f;
                 } else if (Vector2.Distance(Position, target) > length) {
-                    impact = speed < MoveSpeed / -2f;
+                    impact = speed < moveSpeed / -2f;
                     MoveTo(start);
                     speed = 0f;
                     percent = 0f;
                 }
                 
                 if (impact) {
-                    SceneAs<Level>().DirectionalShake(dir, 0.15f);
+                    SceneAs<Level>().DirectionalShake(dir, 0.2f);
                     StartShaking(0.1f);
+                    Audio.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_impact, Center);
                 }
             }
 
