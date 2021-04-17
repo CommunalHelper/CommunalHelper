@@ -312,12 +312,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 bool impact = false;
                 if (percent > 1f) {
-                    impact = speed > moveSpeed / 2f;
+                    impact = speed > 60f;
                     MoveTo(target);
                     speed = 0f;
                     percent = 1f;
                 } else if (Vector2.Distance(Position, target) > length) {
-                    impact = speed < moveSpeed / -2f;
+                    impact = speed < -60f;
                     MoveTo(start);
                     speed = 0f;
                     percent = 0f;
