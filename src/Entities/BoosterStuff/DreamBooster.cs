@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
 using System.Collections;
@@ -176,12 +177,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.RedDashCoroutine -= Player_RedDashCoroutine;
             On.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
             On.Celeste.Booster.BoostRoutine -= Booster_BoostRoutine;
+            On.Celeste.Actor.MoveH -= Actor_MoveH;
+            On.Celeste.Actor.MoveV -= Actor_MoveV;
+            On.Celeste.Player.OnCollideH -= Player_OnCollideH;
+            On.Celeste.Player.OnCollideV -= Player_OnCollideV;
         }
 
         public static void Hook() {
             On.Celeste.Player.RedDashCoroutine += Player_RedDashCoroutine;
             On.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
             On.Celeste.Booster.BoostRoutine += Booster_BoostRoutine;
+            On.Celeste.Actor.MoveH += Actor_MoveH;
+            On.Celeste.Actor.MoveV += Actor_MoveV;
+            On.Celeste.Player.OnCollideH += Player_OnCollideH;
+            On.Celeste.Player.OnCollideV += Player_OnCollideV;
         }
 
         private static IEnumerator Booster_BoostRoutine(On.Celeste.Booster.orig_BoostRoutine orig, Booster self, Player player, Vector2 dir) {
@@ -199,9 +208,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static int Player_RedDashUpdate(On.Celeste.Player.orig_RedDashUpdate orig, Player self) {
+            if (self.LastBooster is DreamBooster && !DreamTunnelDash.HasDreamTunnelDash && self.CollideCheck<Solid, DreamBlock>())
+                self.LastBooster.Ch9HubTransition = true; // If for whatever reason this becomes an actual option for DreamBoosters, this will need to be changed.
+
             int result = orig(self);
 
             if (self.LastBooster is DreamBooster booster) {
+                self.LastBooster.Ch9HubTransition = false; 
                 if (Vector2.Distance(self.Center, booster.Start) >= booster.Length) {
                     self.Position = booster.Target;
                     self.SceneAs<Level>().DirectionalShake(booster.Dir, 0.175f);
@@ -228,6 +241,72 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (self.DashDir.X != 0f) {
                     self.Facing = (Facings) Math.Sign(self.DashDir.X);
                 }
+            }
+        }
+
+        // A little bit of jank to make use of collision results
+        private static bool dreamBoostMove = false;
+        // More jank to indicate an actual collision (disabled DreamBlock)
+        private static bool dreamBoostStop = false;
+
+        private static bool Actor_MoveH(On.Celeste.Actor.orig_MoveH orig, Actor self, float moveH, Collision onCollide, Solid pusher) {
+            if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster) {
+                float pos = player.X;
+                dreamBoostMove = true;
+                if (orig(self, moveH, onCollide, pusher) && !dreamBoostStop) {
+                    moveH -= player.X - pos;
+                    player.NaiveMove(Vector2.UnitX * moveH);
+                }
+                dreamBoostStop = false;
+                dreamBoostMove = false;
+                return false;
+            }
+            return orig(self, moveH, onCollide, pusher);
+        }
+
+        private static bool Actor_MoveV(On.Celeste.Actor.orig_MoveV orig, Actor self, float moveV, Collision onCollide, Solid pusher) {
+            if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster) {
+                float pos = player.Y;
+                dreamBoostMove = true;
+                if (orig(self, moveV, onCollide, pusher) && !dreamBoostStop) {
+                    moveV -= player.Y - pos;
+                    player.NaiveMove(Vector2.UnitY * moveV);
+                }
+                dreamBoostStop = false;
+                dreamBoostMove = false;
+                return false;
+            }
+            return orig(self, moveV, onCollide, pusher);
+        }
+
+        private static void Player_OnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player self, CollisionData data) =>
+            Player_OnCollide(new Action<Player, CollisionData>(orig), self, data);
+
+        private static void Player_OnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player self, CollisionData data) =>
+            Player_OnCollide(new Action<Player, CollisionData>(orig), self, data);
+
+        private static void Player_OnCollide(Action<Player, CollisionData> orig, Player self, CollisionData data) {
+            if (dreamBoostMove) {
+                if (data.Hit is not DreamBlock block) {
+                    EmitDreamBurst(self, data.Hit.Collider);
+                    return;
+                }
+
+                if (new DynData<DreamBlock>(block).Get<bool>("playerHasDreamDash")) {
+                    self.Die(-data.Moved);
+                    return;
+                } else
+                    dreamBoostStop = true;
+            }
+            orig(self, data);
+        }
+
+        private static void EmitDreamBurst(Player player, Collider worldClipCollider) {
+            Level level = player.SceneAs<Level>();
+            if (level.OnInterval(0.04f)) {
+                DisplacementRenderer.Burst burst = level.Displacement.AddBurst(player.Center, 0.3f, 0f, 40f);
+                burst.WorldClipCollider = worldClipCollider;
+                burst.WorldClipPadding = 2;
             }
         }
     }
