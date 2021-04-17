@@ -256,7 +256,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float pos = player.X;
                 dreamBoostMove = true;
                 if (orig(self, moveH, onCollide, pusher) && !dreamBoostStop) {
-                    moveH -= player.X - pos;
+                    player.X = pos;
                     player.NaiveMove(Vector2.UnitX * moveH);
                 }
                 dreamBoostStop = false;
@@ -271,7 +271,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float pos = player.Y;
                 dreamBoostMove = true;
                 if (orig(self, moveV, onCollide, pusher) && !dreamBoostStop) {
-                    moveV -= player.Y - pos;
+                    player.Y = pos;
                     player.NaiveMove(Vector2.UnitY * moveV);
                 }
                 dreamBoostStop = false;
