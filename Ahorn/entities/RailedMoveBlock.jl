@@ -8,7 +8,7 @@ const steeringModes = ["Horizontal", "Vertical", "Both"]
 			x::Integer, y::Integer,
 			width::Integer=16, height::Integer=16,
 			nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[],
-            steeringMode::String="Horizontal")
+            steeringMode::String="Horizontal", speed::Number=120.0)
 
 const placements = Ahorn.PlacementDict(
     "Railed Move Block ($steeringMode) (Communal Helper)" => Ahorn.EntityPlacement(

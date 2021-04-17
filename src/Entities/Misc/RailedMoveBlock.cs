@@ -134,12 +134,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float moveSpeed;
 
         public RailedMoveBlock(EntityData data, Vector2 offset) 
-            : this(data.Position + offset, data.Width, data.Height, data.NodesOffset(offset)[0], data.Enum("steeringMode", SteeringMode.Both)) { }
+            : this(data.Position + offset, data.Width, data.Height, data.NodesOffset(offset)[0], data.Enum("steeringMode", SteeringMode.Both), data.Float("speed", 120f)) { }
 
-        public RailedMoveBlock(Vector2 position, int width, int height, Vector2 node, SteeringMode steeringMode) 
+        public RailedMoveBlock(Vector2 position, int width, int height, Vector2 node, SteeringMode steeringMode, float speed) 
             : base(position, width, height, safe: false) {
             start = position;
             target = node;
+
+            if (speed <= 0f)
+                steeringMode = SteeringMode.None;
+            else
+                moveSpeed = speed;
+
             dir = Calc.SafeNormalize(target - start);
             length = Vector2.Distance(start, target);
 
