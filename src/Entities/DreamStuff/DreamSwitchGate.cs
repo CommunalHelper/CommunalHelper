@@ -155,18 +155,11 @@ namespace Celeste.Mod.CommunalHelper {
             while (true) {
                 if (!startAtNode) {
                     // go forth
-                    IEnumerator forthSeq = MaxHelpingHandSequence(node, goingBack: false);
-                    while (forthSeq.MoveNext()) {
-                        yield return forthSeq.Current;
-                    }
+                    yield return new SwapImmediately(MaxHelpingHandSequence(node, goingBack: false));
                 }
 
                 // go back
-                IEnumerator backSeq = MaxHelpingHandSequence(position, goingBack: true);
-                while (backSeq.MoveNext()) {
-                    yield return backSeq.Current;
-                }
-
+                yield return new SwapImmediately(MaxHelpingHandSequence(position, goingBack: true));
                 startAtNode = false;
             }
         }

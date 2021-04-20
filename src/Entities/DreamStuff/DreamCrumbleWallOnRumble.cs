@@ -93,10 +93,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static IEnumerator RumbleTrigger_RumbleRoutine(On.Celeste.RumbleTrigger.orig_RumbleRoutine orig, RumbleTrigger self, float delay) {
             DynData<RumbleTrigger> triggerData = new DynData<RumbleTrigger>(self);
 
-            IEnumerator enumerator = orig(self, delay);
-            while (enumerator.MoveNext()) {
-                yield return enumerator.Current;
-            }
+            yield return new SwapImmediately(orig(self, delay));
 
             foreach (DreamCrumbleWallOnRumble crumble in triggerData.Get<List<DreamCrumbleWallOnRumble>>(RUMBLETRIGGER_DREAMCRUMBLES)) {
                 crumble.Break();
