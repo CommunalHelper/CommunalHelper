@@ -3,7 +3,7 @@ module CommunalHelperPlayerBubbleRegion
 using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/PlayerBubbleRegion" PlayerBubbleRegion(x::Integer, y::Integer, 
-    width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
+    width::Integer=24, height::Integer=24,
     nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[])
 
 const placements = Ahorn.PlacementDict(
@@ -61,7 +61,7 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::PlayerBu
     py += height / 2
 
     cx, cy = Int.(nodes[1])
-    ex, ey = Int.(nodes[1])
+    ex, ey = Int.(nodes[2])
     
     Ahorn.drawArrow(ctx, px, py, cx, cy, Ahorn.colors.selection_selected_fc, headLength=6)
     Ahorn.drawArrow(ctx, cx, cy, ex, ey, Ahorn.colors.selection_selected_fc, headLength=6)
