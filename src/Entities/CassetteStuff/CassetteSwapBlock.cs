@@ -6,7 +6,7 @@ using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CassetteSwapBlock")]
-    class CassetteSwapBlock : CustomCassetteBlock {
+    public class CassetteSwapBlock : CustomCassetteBlock {
         private class PathRenderer : Entity {
             private CassetteSwapBlock block;
             private Color pathColor;
@@ -64,7 +64,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool noReturn;
 
         public CassetteSwapBlock(Vector2 position, EntityID id, int width, int height, Vector2 node, int index, float tempo, bool noReturn)
-            : base(position, id, width, height, index, 2, tempo) {
+            : base(position, id, width, height, index, tempo) {
             start = Position;
             end = node;
             this.noReturn = noReturn;

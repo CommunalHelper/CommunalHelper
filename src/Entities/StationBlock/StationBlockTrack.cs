@@ -24,7 +24,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public enum TrackSwitchState {
             None, On, Off
         }
-        public TrackSwitchState switchState;
+        public TrackSwitchState SwitchState;
         private TrackSwitchState initialSwitchState;
 
         public bool HasGroup { get; private set; }
@@ -56,11 +56,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             : base(data.Position + offset) {
             Depth = Depths.SolidsBelow;
 
-            initialSwitchState = switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
+            initialSwitchState = SwitchState = data.Enum("trackSwitchState", TrackSwitchState.None);
             if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off && initialSwitchState != TrackSwitchState.None)
                 Switch(TrackSwitchState.Off);
 
-            trackStatePercent = switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f;
+            trackStatePercent = SwitchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f;
 
             horizontal = data.Bool("horizontal");
             multiBlockTrack = data.Bool("multiBlockTrack", false);
@@ -133,7 +133,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
 
                 if (toAttach.Count == 0) {
-                    SetTrackTheme(StationBlock.Theme.Normal, false);
+                    SetTrackTheme(StationBlock.Themes.Normal, false);
                 } else {
                     bool setTheme = false;
                     foreach (Tuple<StationBlock, Node> tuple in toAttach) {
@@ -144,7 +144,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         block.Attach(node);
                         if (!setTheme) {
                             OffsetTrack(block.Center - node.Center);
-                            SetTrackTheme(block.theme, block.reverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
+                            SetTrackTheme(block.Theme, block.reverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
                             setTheme = true;
                         }
                         block.Position += node.Center - block.Center;
@@ -153,13 +153,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private void SetTrackTheme(StationBlock.Theme theme, bool reversedControls, MTexture customNode = null, MTexture customTrackH = null, MTexture customTrackV = null) {
+        private void SetTrackTheme(StationBlock.Themes theme, bool reversedControls, MTexture customNode = null, MTexture customTrackH = null, MTexture customTrackV = null) {
             if (customNode == null && customTrackH == null && customTrackV == null) {
                 string node, trackV, trackH;
                 bool constantLooping;
                 switch (theme) {
                     default:
-                    case StationBlock.Theme.Normal:
+                    case StationBlock.Themes.Normal:
                         constantLooping = false;
                         if (reversedControls) {
                             node = "altTrack/ball";
@@ -172,7 +172,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         }
                         break;
 
-                    case StationBlock.Theme.Moon:
+                    case StationBlock.Themes.Moon:
                         constantLooping = true;
                         if (reversedControls) {
                             node = "altMoonTrack/node";
@@ -301,7 +301,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
             //trackStatePercent = Calc.Approach(trackStatePercent, switchState == TrackSwitchState.On ? 1f : 0f, Engine.DeltaTime);
-            trackStatePercent += ((switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f) - trackStatePercent) / 4 * Engine.DeltaTime * 25;
+            trackStatePercent += ((SwitchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f) - trackStatePercent) / 4 * Engine.DeltaTime * 25;
         }
 
         public override void Render() {
@@ -320,7 +320,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void DrawPipe() {
-            if (switchState != TrackSwitchState.None)
+            if (SwitchState != TrackSwitchState.None)
                 for (int i = 0; i <= length; i += 8) {
                     disabledTrackSprite.Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i), Vector2.Zero, Color.White * trackStatePercent);
                 }
@@ -357,7 +357,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private void Switch(TrackSwitchState state) {
             if (initialSwitchState == TrackSwitchState.None)
                 return;
-            switchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
+            SwitchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
         }
     }
 }

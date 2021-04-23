@@ -15,7 +15,7 @@ namespace Celeste.Mod.CommunalHelper {
 
     [CustomEntity("CommunalHelper/ConnectedSwapBlock")]
     [Tracked(false)]
-    class ConnectedSwapBlock : ConnectedSolid {
+    public class ConnectedSwapBlock : ConnectedSolid {
 
         private class PathRenderer : Entity {
 
@@ -399,7 +399,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         private static ILHook Player_DashCoroutine_Hook;
 
-        public static void Hook() {
+        internal static void Hook() {
 
             // The "this" field defined in the compiler-generated type
             DashCoroutine_Hook_F_This = Player_DashCoroutine.GetStateMachineTarget().DeclaringType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
@@ -409,7 +409,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             Player_DashCoroutine_Hook = new ILHook(Player_DashCoroutine.GetStateMachineTarget(), DashCoroutineILHook);
         }
-        public static void Unhook() {
+
+        internal static void Unhook() {
             Player_DashCoroutine_Hook.Dispose();
         }
 

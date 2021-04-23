@@ -10,7 +10,7 @@ using System.Collections.Generic;
 namespace Celeste.Mod.CommunalHelper {
 
     [CustomEntity("CommunalHelper/ConnectedMoveBlock")]
-    class ConnectedMoveBlock : ConnectedSolid {
+    public class ConnectedMoveBlock : ConnectedSolid {
         // Custom Border Entity
         private class Border : Entity {
             public ConnectedMoveBlock Parent;
@@ -40,12 +40,12 @@ namespace Celeste.Mod.CommunalHelper {
             }
         }
 
-        private enum MovementState {
+        public enum MovementState {
             Idling,
             Moving,
             Breaking
         }
-        private MovementState state;
+        public MovementState State;
 
         private static MTexture[,] edges = new MTexture[3, 3];
         private static MTexture[,] innerCorners = new MTexture[2, 2];
@@ -60,7 +60,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         private Vector2 startPosition;
 
-        private MoveBlock.Directions direction;
+        public MoveBlock.Directions Direction;
 
         private List<Hitbox> ArrowsList;
 
@@ -89,7 +89,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             Depth = -1;
             startPosition = position;
-            this.direction = direction;
+            Direction = direction;
             this.moveSpeed = moveSpeed;
 
             homeAngle = targetAngle = angle = direction switch {
@@ -107,13 +107,13 @@ namespace Celeste.Mod.CommunalHelper {
         private IEnumerator Controller() {
             while (true) {
                 triggered = false;
-                state = MovementState.Idling;
+                State = MovementState.Idling;
                 while (!triggered && !HasPlayerRider()) {
                     yield return null;
                 }
 
                 Audio.Play(SFX.game_04_arrowblock_activate, Position);
-                state = MovementState.Moving;
+                State = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
                 yield return 0.2f;
@@ -133,7 +133,7 @@ namespace Celeste.Mod.CommunalHelper {
                     Vector2 vec = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool flag2;
                     Vector2 start = Position;
-                    if (direction is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
+                    if (Direction is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
                         flag2 = MoveCheck(vec.XComp());
                         noSquish = Scene.Tracker.GetEntity<Player>();
                         MoveVCollideSolids(vec.Y, thruDashBlocks: false);
@@ -143,7 +143,7 @@ namespace Celeste.Mod.CommunalHelper {
                         noSquish = Scene.Tracker.GetEntity<Player>();
                         MoveHCollideSolids(vec.X, thruDashBlocks: false);
                         noSquish = null;
-                        if (direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
+                        if (Direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
                             flag2 = true;
                         }
                     }
@@ -174,7 +174,7 @@ namespace Celeste.Mod.CommunalHelper {
 
                 Audio.Play(SFX.game_04_arrowblock_break, Position);
                 moveSfx.Stop();
-                state = MovementState.Breaking;
+                State = MovementState.Breaking;
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
                 StartShaking(0.2f);
@@ -255,7 +255,7 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         private void UpdateColors() {
-            Color value = state switch {
+            Color value = State switch {
                 MovementState.Moving => pressedBgFill,
                 MovementState.Breaking => breakingBgFill,
                 _ => idleBgFill,
@@ -357,17 +357,17 @@ namespace Celeste.Mod.CommunalHelper {
                 Vector2 positionRange;
                 float num;
                 float num2;
-                if (direction == MoveBlock.Directions.Right) {
+                if (Direction == MoveBlock.Directions.Right) {
                     position = hitbox.CenterLeft + Vector2.UnitX;
                     positionRange = Vector2.UnitY * (hitbox.Height - 4f);
                     num = (float) Math.PI;
                     num2 = hitbox.Height / 32f;
-                } else if (direction == MoveBlock.Directions.Left) {
+                } else if (Direction == MoveBlock.Directions.Left) {
                     position = hitbox.CenterRight;
                     positionRange = Vector2.UnitY * (hitbox.Height - 4f);
                     num = 0f;
                     num2 = hitbox.Height / 32f;
-                } else if (direction == MoveBlock.Directions.Down) {
+                } else if (Direction == MoveBlock.Directions.Down) {
                     position = hitbox.TopCenter + Vector2.UnitY;
                     positionRange = Vector2.UnitX * (hitbox.Width - 4f);
                     num = -(float) Math.PI / 2f;
@@ -427,7 +427,7 @@ namespace Celeste.Mod.CommunalHelper {
             foreach (Hitbox hitbox in ArrowsList) {
                 Vector2 vec = hitbox.Center + Position;
                 Draw.Rect(vec.X - 4f, vec.Y - 4f, 8f, 8f, fillColor);
-                if (state != MovementState.Breaking) {
+                if (State != MovementState.Breaking) {
                     arrows[arrowIndex].DrawCentered(vec);
                 } else {
                     GFX.Game["objects/moveBlock/x"].DrawCentered(vec);

@@ -7,15 +7,15 @@ using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/ConnectedZipMover")]
-    class ConnectedZipMover : ConnectedSolid {
+    public class ConnectedZipMover : ConnectedSolid {
         public enum Themes {
             Normal,
             Moon,
             Cliffside
         }
-        private Themes theme;
+        public Themes theme;
 
-        private class ConnectedZipMoverPathRenderer : Entity {
+        private class PathRenderer : Entity {
             public ConnectedZipMover ConnectedZipMover;
             private MTexture cog;
 
@@ -28,7 +28,7 @@ namespace Celeste.Mod.CommunalHelper {
             private float sparkDirToA;
             private float sparkDirToB;
 
-            public ConnectedZipMoverPathRenderer(ConnectedZipMover advancedZipMover) {
+            public PathRenderer(ConnectedZipMover advancedZipMover) {
                 Depth = Depths.SolidsBelow;
                 ConnectedZipMover = advancedZipMover;
                 from = GetNodeFrom(ConnectedZipMover.start);
@@ -134,7 +134,7 @@ namespace Celeste.Mod.CommunalHelper {
         private BloomPoint bloom;
 
         // The instance of the PathRenderer Class defined above.
-        private ConnectedZipMoverPathRenderer pathRenderer;
+        private PathRenderer pathRenderer;
 
         private static readonly Color ropeColor = Calc.HexToColor("663931");
         private static readonly Color ropeLightColor = Calc.HexToColor("9b6157");
@@ -265,7 +265,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
 
             // Creating the Path Renderer.
-            scene.Add(pathRenderer = new ConnectedZipMoverPathRenderer(this));
+            scene.Add(pathRenderer = new PathRenderer(this));
         }
 
         public override void Removed(Scene scene) {

@@ -9,7 +9,7 @@ using static Celeste.Mod.CommunalHelper.Entities.StationBlock;
 namespace Celeste.Mod.CommunalHelper.Entities {
 
     [CustomEntity("CommunalHelper/Melvin")]
-    class Melvin : Solid {
+    public class Melvin : Solid {
 
         public static ParticleType P_Activate;
 
@@ -31,7 +31,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static readonly MTexture[,] litVCornersCut = new MTexture[2, 2];
         #endregion
 
-        private readonly struct MoveState {
+        private struct MoveState {
             public readonly Vector2 From;
             public readonly Vector2 Direction;
 

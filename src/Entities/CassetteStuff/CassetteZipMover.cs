@@ -6,8 +6,8 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CassetteZipMover")]
-    class CassetteZipMover : CustomCassetteBlock {
-        private class CassetteZipMoverPathRenderer : Entity {
+    public class CassetteZipMover : CustomCassetteBlock {
+        private class PathRenderer : Entity {
             public CassetteZipMover zipMover;
 
             private Color ropeColor = Calc.HexToColor("bfcfde");
@@ -31,7 +31,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private ParticleType sparkParticle;
             private ParticleType sparkParticlePressed;
 
-            public CassetteZipMoverPathRenderer(CassetteZipMover zipMover) {
+            public PathRenderer(CassetteZipMover zipMover) {
                 Depth = Depths.BGDecals;
                 this.zipMover = zipMover;
 
@@ -122,7 +122,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private CassetteZipMoverPathRenderer pathRenderer;
+        private PathRenderer pathRenderer;
 
         private Vector2 start;
         private float percent = 0f;
@@ -137,7 +137,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool noReturn;
 
         public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] targets, int index, float tempo, bool noReturn, bool perm, bool waits, bool ticking)
-            : base(position, id, width, height, index, 0, tempo) {
+            : base(position, id, width, height, index, tempo) {
             start = Position;
             this.noReturn = noReturn;
             permanent = perm;
@@ -186,7 +186,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 points[i + 1] = targets[i];
             }
 
-            scene.Add(pathRenderer = new CassetteZipMoverPathRenderer(this));
+            scene.Add(pathRenderer = new PathRenderer(this));
         }
 
         public override void Removed(Scene scene) {

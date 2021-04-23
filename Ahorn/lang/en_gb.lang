@@ -34,6 +34,9 @@ placements.entities.CommunalHelper/CassetteZipMover.tooltips.permanent=Whether t
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.waitforplayer=Whether this block requires the player to trigger it each node in the path.
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
 
+# -- Manual Cassette Controller --
+placements.entities.CommunalHelper/ManualCassetteController.tooltips.startIndex=The color of Cassette Block that should start activated.
+
 
 # -- Connected Dream Block --
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.below=Determines whether the Connected Dream Block should render in the background or foreground.
@@ -232,6 +235,13 @@ placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.WaitForPlaye
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
 
+
+# -- Input Flag Controller --
+placements.entities.CommunalHelper/InputFlagController.tooltips.flags=Multiple flags can be separated by commas, and sequences of flags can be separated by semi-colons.
+placements.entities.CommunalHelper/InputFlagController.tooltips.toggle=If enabled, flags will be toggled and the sequence will loop. If disabled, flags will be enable once.
+placements.entities.CommunalHelper/InputFlagController.tooltips.resetFlags=If enabled, all specified flags will be disabled upon leaving the room this entity is in.
+placements.entities.CommunalHelper/InputFlagController.tooltips.delay=The minimum delay in seconds between inputs.
+placements.entities.CommunalHelper/InputFlagController.tooltips.grabOverride=Overrides the user's button binding to use the grab bind instead.
 
 
 

@@ -12,8 +12,9 @@ namespace Celeste.Mod.CommunalHelper {
      * https://github.com/max4805/MaxHelpingHand/blob/master/Entities/FlagSwitchGate.cs
      */
 
-    [CustomEntity("CommunalHelper/DreamSwitchGate")]
-    class DreamSwitchGate : CustomDreamBlock {
+    [CustomEntity("CommunalHelper/DreamSwitchGate",
+        "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate = DreamFlagSwitchGate")]
+    public class DreamSwitchGate : CustomDreamBlock {
         private static ParticleType[] P_BehindDreamParticles;
 
         private ParticleType P_RecoloredFire;
@@ -49,8 +50,13 @@ namespace Celeste.Mod.CommunalHelper {
 
         private bool isFlagSwitchGate;
 
+        public static DreamSwitchGate DreamFlagSwitchGate(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
+            entityData.Values["permanent"] = entityData.Bool("persistent");
+            return new DreamSwitchGate(entityData, offset) { isFlagSwitchGate = true };
+        }
+
         public DreamSwitchGate(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("oneUse"), data.Bool("featherMode"), GetRefillCount(data), data.Bool("below"), data.Bool("permanent") || data.Bool("persistent"))  { }
+            : this(data.Position + offset, data, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("oneUse"), data.Bool("featherMode"), GetRefillCount(data), data.Bool("below"), data.Bool("permanent"))  { }
 
         public DreamSwitchGate(Vector2 position, EntityData data, int width, int height, Vector2 node, bool oneUse, bool featherMode, int refillCount, bool below, bool permanent)
             : base(position, width, height, featherMode, oneUse, refillCount, below) {
@@ -71,8 +77,8 @@ namespace Celeste.Mod.CommunalHelper {
             moveTime = data.Float("moveTime", 1.8f);
             moveEased = data.Bool("moveEased", true);
 
-            moveSound = data.Attr("moveSound", "event:/game/general/touchswitch_gate_open");
-            finishedSound = data.Attr("finishedSound", "event:/game/general/touchswitch_gate_finish");
+            moveSound = data.Attr("moveSound", SFX.game_gen_touchswitch_gate_open);
+            finishedSound = data.Attr("finishedSound", SFX.game_gen_touchswitch_gate_finish);
 
             allowReturn = data.Bool("allowReturn");
 
