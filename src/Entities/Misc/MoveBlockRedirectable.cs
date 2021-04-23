@@ -175,7 +175,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void MoveBlock_ctor_Vector2_int_int_Directions_bool_bool(On.Celeste.MoveBlock.orig_ctor_Vector2_int_int_Directions_bool_bool orig, MoveBlock self, Vector2 position, int width, int height, MoveBlock.Directions direction, bool canSteer, bool fast) {
             orig(self, position, width, height, direction, canSteer, fast);
-            self.Add(new MoveBlockRedirectable(new DynamicData(self)));
+            if (self.GetType() == typeof(MoveBlock))
+                self.Add(new MoveBlockRedirectable(new DynamicData(typeof(MoveBlock), self)));
         }
 
         private static void MoveBlock_BreakParticles(On.Celeste.MoveBlock.orig_BreakParticles orig, MoveBlock self) {
