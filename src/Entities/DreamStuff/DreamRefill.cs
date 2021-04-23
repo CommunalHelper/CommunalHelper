@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -166,40 +167,41 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.GotoNext(instr => instr.Next.MatchLdfld<Refill>("level"));
 
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Isinst, t_DreamRefill);
-            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
-
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Castclass, t_DreamRefill);
-            cursor.EmitDelegate(method);
-            cursor.Emit(OpCodes.Br_S, il.Instrs.First(instr => instr.MatchCallvirt<ParticleSystem>("Emit")).Next);
+            cursor.EmitDelegate<Func<Refill, bool>>(r => {
+                if (r is DreamRefill refill) {
+                    method.Invoke(refill);
+                    return true;
+                }
+                return false;
+            });
+            cursor.Emit(OpCodes.Brtrue, il.Instrs.First(instr => instr.MatchCallvirt<ParticleSystem>("Emit")).Next);
         }
 
         private static void Refill_RefillRoutine(ILContext il) {
-            FieldInfo f_this = m_Refill_RefillRoutine.GetStateMachineTarget().DeclaringType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+            Type StateMachineType = m_Refill_RefillRoutine.GetStateMachineTarget().DeclaringType;
+            FieldInfo f_this = StateMachineType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
+            FieldInfo f_player = StateMachineType.GetField("player", BindingFlags.Public | BindingFlags.Instance);
 
             ILCursor cursor = new ILCursor(il);
-            cursor.GotoNext(instr => instr.MatchLdfld<Level>("ParticlesFG"));
-            cursor.GotoPrev(instr => instr.OpCode != OpCodes.Ldfld); // A bit messy but eh
-            Instruction angleLoc = cursor.Prev;
+            cursor.GotoNext(instr => instr.Match(OpCodes.Ldarg_0),
+                instr => instr.MatchLdfld(out FieldReference field) && field.Name == "player");
+            if (cursor.Prev.OpCode == OpCodes.Ldarg_0) // For SteamFNA
+                cursor.Goto(cursor.Prev);
 
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.Emit(OpCodes.Ldfld, f_this);
-            cursor.Emit(OpCodes.Isinst, typeof(DreamRefill).GetTypeInfo());
-            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
-
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldfld, f_this);
-            cursor.Emit(OpCodes.Castclass, t_DreamRefill);
+            cursor.Emit(OpCodes.Ldfld, f_player);
 
-            if (angleLoc.OpCode == OpCodes.Stfld) { // Steam FNA has different il code
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.Emit(OpCodes.Ldfld, angleLoc.Operand);
-            } else
-                cursor.Emit(OpCodes.Ldloc_2);
+            cursor.EmitDelegate<Func<Refill, Player, bool>>((r, player) => {
+                if (r is DreamRefill refill) {
+                    refill.EmitShatterParticles(player.Speed.Angle());
+                    return true;
+                }
+                return false;
+            });
 
-            cursor.EmitDelegate<Action<DreamRefill, float>>((refill, angle) => refill.EmitShatterParticles(angle));
-            cursor.Emit(OpCodes.Br_S, il.Instrs.First(instr => instr.MatchCallvirt<ParticleSystem>("Emit")).Next);
+            cursor.Emit(OpCodes.Brtrue, il.Instrs.First(instr => instr.MatchCallvirt<ParticleSystem>("Emit")).Next);
         }
 
         #endregion

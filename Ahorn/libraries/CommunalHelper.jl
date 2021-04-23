@@ -11,6 +11,30 @@ export renderDreamBlock
 export renderCassetteBlock, cassetteColorNames, getCassetteColor
 # Connected Blocks
 export getExtensionRectangles, notAdjacent
+# Depths
+export depths
+
+"Celeste.Depths"
+const depths = Dict{String, Integer}(
+        "BGTerrain (10000)" => 10000,
+        "BGDecals (9000)" => 9000,
+        "BGParticles (8000)" => 8000,
+        "Below (2000)" => 2000,
+        "NPCs (1000)" => 1000,
+        "Player (0)" => 0,
+        "Dust (-50)" => -50,
+        "Pickups (-100)" => -100,
+        "Particles (-8000)" => -8000,
+        "Above Particles (-8500)" => -8500,
+        "Solids (-9000)" => -9000,
+        "FGTerrain (-10000)" => -10000,
+        "FGDecals (-10500)" => -10500,
+        "DreamBlocks (-11000)" => -11000,
+        "CrystalSpinners (-11500)" => -11500,
+        "Chaser (-12500)" => -12500,
+        "Fake Walls (-13000)" => -13000,
+        "FGParticles (-50000)" => -50000
+)
 
 """
 	 hexToRGBA(hex)
