@@ -57,6 +57,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
+
+            CustomBooster.Load();
         }
 
         public override void Unload() {
@@ -81,6 +83,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
+
+            CustomBooster.Unload();
         }
 
         public override void Initialize() {
@@ -111,6 +115,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             Melvin.InitializeTextures();
             Melvin.InitializeParticles();
+
+            DreamBooster.InitializeParticles();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
@@ -193,6 +199,15 @@ namespace Celeste.Mod.CommunalHelper {
 
         public static Color CopyColor(Color color, int alpha) {
             return new Color(color.R, color.G, color.B, alpha);
+        }
+
+        public static Color ColorArrayLerp(float lerp, params Color[] colors) {
+            float m = lerp % colors.Length;
+            int fromIndex = (int) Math.Floor(m);
+            int toIndex = (fromIndex + 1) % colors.Length;
+            float clampedLerp = m - fromIndex;
+
+            return Color.Lerp(colors[fromIndex], colors[toIndex], clampedLerp);
         }
 
         public static Color TryParseColor(string str, float alpha = 1f) {
