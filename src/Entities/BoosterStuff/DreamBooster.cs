@@ -212,7 +212,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (self.LastBooster is DreamBooster && !DreamTunnelDash.HasDreamTunnelDash && self.CollideCheck<Solid, DreamBlock>())
                 self.LastBooster.Ch9HubTransition = true; // If for whatever reason this becomes an actual option for DreamBoosters, this will need to be changed.
 
-            int result = orig(self);
 
             if (self.LastBooster is DreamBooster booster) {
                 self.LastBooster.Ch9HubTransition = false;
@@ -224,7 +223,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
-            return result;
+            return orig(self);
         }
 
         private static IEnumerator Player_RedDashCoroutine(On.Celeste.Player.orig_RedDashCoroutine orig, Player self) {
