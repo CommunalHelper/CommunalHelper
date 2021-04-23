@@ -195,18 +195,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         player.Top = Top;
                     else if (dir.Y == 0 && TryCorrectPlayerPosition(player, new Vector2(at.X, Top)))
                         changeState = false;
-                    else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(TopCenter - Vector2.UnitY))
+                    else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(TopCenter - Vector2.UnitY)) {
                         ; // Messy
-                    else
+                    } else
                         return false;
                 } else if (player.Bottom > Bottom) {
                     if (player.Bottom - Bottom <= 4)
                         player.Bottom = Bottom;
                     else if (dir.Y == 0 && TryCorrectPlayerPosition(player, new Vector2(at.X, Bottom + player.Height)))
                         changeState = false;
-                    else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(BottomCenter + Vector2.UnitY))
+                    else if (dir.Y != 0 && !Scene.CollideCheck<Solid>(BottomCenter + Vector2.UnitY)) {
                         ; // Messy
-                    else
+                    } else
                         return false;
                 }
             } else if (Orientation is Spikes.Directions.Up or Spikes.Directions.Down) {
@@ -217,9 +217,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             player.Left = Left;
                         else if (dir.X == 0 && TryCorrectPlayerPosition(player, new Vector2(Left - player.Width / 2, at.Y)))
                             changeState = false;
-                        else if (dir.X != 0 && !Scene.CollideCheck<Solid>(CenterLeft - Vector2.UnitX))
+                        else if (dir.X != 0 && !Scene.CollideCheck<Solid>(CenterLeft - Vector2.UnitX)) {
                             ; // Messy
-                        else
+                        } else
                             return false;
                     }
                 } else if (player.Right > Right) {
@@ -228,9 +228,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             player.Right = Right;
                         else if (dir.X == 0 && TryCorrectPlayerPosition(player, new Vector2(Right + player.Width / 2, at.Y)))
                             changeState = false;
-                        else if (dir.X != 0 && !Scene.CollideCheck<Solid>(CenterRight + Vector2.UnitX))
+                        else if (dir.X != 0 && !Scene.CollideCheck<Solid>(CenterRight + Vector2.UnitX)) {
                             ; // Messy
-                        else
+                        } else
                             return false;
                     }
                 }
