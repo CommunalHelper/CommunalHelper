@@ -249,6 +249,9 @@ placements.entities.CommunalHelper/InputFlagController.tooltips.delay=The minimu
 placements.entities.CommunalHelper/InputFlagController.tooltips.grabOverride=Overrides the user's button binding to use the grab bind instead.
 
 
+# -- Booster --
+placements.entities.CommunalHelper/DreamBooster.tooltips.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+
 
 # -- Triggers --
 
