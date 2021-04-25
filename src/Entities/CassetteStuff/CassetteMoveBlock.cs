@@ -59,8 +59,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private ParticleType P_Break;
         private ParticleType P_BreakPressed;
 
-        public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, MoveBlock.Directions direction, float moveSpeed, int index, float tempo)
-            : base(position, id, width, height, index, tempo, dynamicHitbox: true) {
+        public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, MoveBlock.Directions direction, float moveSpeed, int index, float tempo, Color? overrideColor)
+            : base(position, id, width, height, index, tempo, dynamicHitbox: true, overrideColor) {
             startPosition = position;
             this.direction = direction;
             this.moveSpeed = moveSpeed;
@@ -83,7 +83,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public CassetteMoveBlock(EntityData data, Vector2 offset, EntityID id)
-            : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", MoveBlock.Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f)) {
+            : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", MoveBlock.Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.HexColorNullable("customColor")) {
         }
 
         public override void Awake(Scene scene) {

@@ -63,8 +63,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool noReturn;
 
-        public CassetteSwapBlock(Vector2 position, EntityID id, int width, int height, Vector2 node, int index, float tempo, bool noReturn)
-            : base(position, id, width, height, index, tempo) {
+        public CassetteSwapBlock(Vector2 position, EntityID id, int width, int height, Vector2 node, int index, float tempo, bool noReturn, Color? overrideColor)
+            : base(position, id, width, height, index, tempo, false, overrideColor) {
             start = Position;
             end = node;
             this.noReturn = noReturn;
@@ -100,7 +100,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public CassetteSwapBlock(EntityData data, Vector2 offset, EntityID id)
-            : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("noReturn", false)) {
+            : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("noReturn", false), data.HexColorNullable("customColor")) {
         }
 
         public override void Awake(Scene scene) {

@@ -51,6 +51,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DynData<CassetteBlock> blockData;
 
+        public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
+            : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.HexColorNullable("customColor")) { }
+
         public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool dynamicHitbox = false, Color? overrideColor = null)
             : base(position, id, width, height, index, tempo) {
             blockData = new DynData<CassetteBlock>(this);
@@ -58,6 +61,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Index = index;
             color = overrideColor ?? colorOptions[index];
             pressedColor = color.Mult(Calc.HexToColor("667da5"));
+
+            blockData["color"] = color;
 
             this.dynamicHitbox = dynamicHitbox;
             if (dynamicHitbox) {
