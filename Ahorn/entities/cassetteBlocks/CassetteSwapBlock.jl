@@ -14,7 +14,8 @@ end
 
 @mapdef Entity "CommunalHelper/CassetteSwapBlock" CassetteSwapBlock(x::Integer, y::Integer, 
     width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    index::Integer=0, tempo::Number=1.0, noReturn::Bool=false) 
+    index::Integer=0, tempo::Number=1.0, noReturn::Bool=false,
+    customColor="") 
 
 const ropeColors = Dict{Int, Ahorn.colorTupleType}(
     1 => (194, 116, 171, 255) ./ 255,

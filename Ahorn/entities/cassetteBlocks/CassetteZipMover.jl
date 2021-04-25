@@ -6,7 +6,8 @@ using Ahorn.CommunalHelper
 @mapdef Entity "CommunalHelper/CassetteZipMover" CassetteZipMover(x::Integer, y::Integer, 
     width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
     index::Integer=0, tempo::Number=1.0, permanent::Bool=false,
-    waiting::Bool=false, ticking::Bool=false, noReturn::Bool=false) 
+    waiting::Bool=false, ticking::Bool=false, noReturn::Bool=false,
+    customColor="") 
 
 const ropeColors = Dict{Int, Ahorn.colorTupleType}(
     1 => (194, 116, 171, 255) ./ 255,
@@ -68,8 +69,17 @@ function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZ
     block, cog = textures
 
     index = Int(get(entity.data, "index", 0))
+
     color = getCassetteColor(index)
-    ropeColor = get(ropeColors, index, defaultRopeColor)
+    hasCustomColor = false
+
+    hexColor = String(get(entity.data, "customColor", ""))
+    if hexColor != "" && length(hexColor) == 6
+        color = tuple(Ahorn.argb32ToRGBATuple(parse(Int, hexColor, base=16))[1:3] ./ 255..., 1.0)
+        hasCustomColor = true
+    end
+
+    ropeColor = hasCustomColor ? color : get(ropeColors, index, defaultRopeColor)
 
     # Iteration through all the nodes
 	for node in get(entity.data, "nodes", ())
@@ -105,7 +115,7 @@ function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZ
 		px, py = nx, ny
 	end
     
-    renderCassetteBlock(ctx, x, y, width, height, index)
+    renderCassetteBlock(ctx, x, y, width, height, index, color)
 
     if Bool(get(entity.data, "noReturn", false))
         noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")

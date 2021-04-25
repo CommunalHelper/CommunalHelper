@@ -134,11 +134,11 @@ const cassetteColorNames = Dict{String, Int}(
 
 getCassetteColor(index::Int) = get(cassetteColors, index, defaultCassetteColor)
 
-function renderCassetteBlock(ctx::CairoContext, x, y, width, height, index)
+function renderCassetteBlock(ctx::CairoContext, x, y, width, height, index, customColor=nothing)
    tileWidth = ceil(Int, width / 8)
    tileHeight = ceil(Int, height / 8)
 
-   color = get(cassetteColors, index, defaultCassetteColor)
+   color = isnothing(customColor) ? get(cassetteColors, index, defaultCassetteColor) : customColor
 
    for i in 1:tileWidth, j in 1:tileHeight
 		tx = (i == 1) ? 0 : ((i == tileWidth) ? 16 : 8)
