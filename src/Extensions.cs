@@ -27,6 +27,16 @@ namespace Celeste.Mod.CommunalHelper {
             return color;
         }
 
+        public static Color? HexColorNullable(this EntityData data, string key) {
+            if (data.Values.TryGetValue(key, out object value)) {
+                string text = value.ToString();
+                if (text.Length is 6 or 7) { // we don't care about the '#' character.
+                    return Calc.HexToColor(text);
+                }
+            }
+            return null;
+        }
+
         public static Vector2 CorrectJoystickPrecision(this Vector2 dir) {
             if (dir.X != 0f && Math.Abs(dir.X) < 0.001f) {
                 dir.X = 0f;

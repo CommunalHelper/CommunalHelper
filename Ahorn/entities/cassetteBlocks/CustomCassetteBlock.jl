@@ -1,9 +1,9 @@
-module CommunalHelperCassetteFallingBlock
+module CommunalHelperCustomCassetteBlock
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/CassetteFallingBlock" CassetteFallingBlock(x::Integer, 
+@mapdef Entity "CommunalHelper/CustomCassetteBlock" CustomCassetteBlock(x::Integer, 
                                                                   y::Integer, 
                                                                   width::Integer=Maple.defaultBlockWidth, 
                                                                   height::Integer=Maple.defaultBlockHeight,
@@ -12,8 +12,8 @@ using Ahorn.CommunalHelper
                                                                   customColor="") 
 
 const placements = Ahorn.PlacementDict(
-    "Cassette Falling Block ($index - $color) (Communal Helper)" => Ahorn.EntityPlacement(
-        CassetteFallingBlock,
+    "Custom Cassette Block ($index - $color) (Communal Helper)" => Ahorn.EntityPlacement(
+        CustomCassetteBlock,
         "rectangle",
         Dict{String, Any}(
             "index" => index,
@@ -21,25 +21,25 @@ const placements = Ahorn.PlacementDict(
     ) for (color, index) in cassetteColorNames
 )
 
-Ahorn.editingOptions(entity::CassetteFallingBlock) = Dict{String, Any}(
+Ahorn.editingOptions(entity::CustomCassetteBlock) = Dict{String, Any}(
     "index" => cassetteColorNames
 )
 
-Ahorn.nodeLimits(entity::CassetteFallingBlock) = 1, 1
+Ahorn.nodeLimits(entity::CustomCassetteBlock) = 1, 1
 
-Ahorn.minimumSize(entity::CassetteFallingBlock) = 16, 16
-Ahorn.resizable(entity::CassetteFallingBlock) = true, true
+Ahorn.minimumSize(entity::CustomCassetteBlock) = 16, 16
+Ahorn.resizable(entity::CustomCassetteBlock) = true, true
 
-Ahorn.selection(entity::CassetteFallingBlock) = Ahorn.getEntityRectangle(entity)
+Ahorn.selection(entity::CustomCassetteBlock) = Ahorn.getEntityRectangle(entity)
 
 const block = "objects/cassetteblock/solid"
 
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::CassetteFallingBlock)
+function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::CustomCassetteBlock)
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
 
     index = Int(get(entity.data, "index", 0))
-    
+
     hexColor = String(get(entity.data, "customColor", ""))
     if hexColor != "" && length(hexColor) == 6
         renderCassetteBlock(ctx, 0, 0, width, height, index, hexToRGBA(hexColor))

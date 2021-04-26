@@ -136,8 +136,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool ticking;
         private bool noReturn;
 
-        public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] targets, int index, float tempo, bool noReturn, bool perm, bool waits, bool ticking)
-            : base(position, id, width, height, index, tempo) {
+        public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] targets, int index, float tempo, bool noReturn, bool perm, bool waits, bool ticking, Color? overrideColor)
+            : base(position, id, width, height, index, tempo, false, overrideColor) {
             start = Position;
             this.noReturn = noReturn;
             permanent = perm;
@@ -162,7 +162,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                   data.Bool("noReturn", false),
                   data.Bool("permanent"),
                   data.Bool("waiting"),
-                  data.Bool("ticking")) {
+                  data.Bool("ticking"),
+                  data.HexColorNullable("customColor")) {
         }
 
         public override void Awake(Scene scene) {

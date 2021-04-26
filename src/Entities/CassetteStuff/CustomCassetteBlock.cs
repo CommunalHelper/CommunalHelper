@@ -10,7 +10,8 @@ using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(CassetteBlock), true)]
-    public abstract class CustomCassetteBlock : CassetteBlock {
+    [CustomEntity("CommunalHelper/CustomCassetteBlock")]
+    public class CustomCassetteBlock : CassetteBlock {
         public static List<string> CustomCassetteBlockNames = new List<string>();
 
         public static void Initialize() {
@@ -18,7 +19,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IEnumerable<Type> customCassetteBlockTypes =
                 from module in Everest.Modules
                 from type in module.GetType().Assembly.GetTypesSafe()
-                where type.IsSubclassOf(typeof(CustomCassetteBlock))
+                where type.IsAssignableFrom(typeof(CustomCassetteBlock))
                 select type;
 
             // This could all be contained in the linq query but that'd be a bit much, no?
@@ -51,13 +52,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected DynData<CassetteBlock> blockData;
 
-        public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool dynamicHitbox = false)
+        public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
+            : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.HexColorNullable("customColor")) { }
+
+        public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool dynamicHitbox = false, Color? overrideColor = null)
             : base(position, id, width, height, index, tempo) {
             blockData = new DynData<CassetteBlock>(this);
 
             Index = index;
-            color = colorOptions[index];
+            color = overrideColor ?? colorOptions[index];
             pressedColor = color.Mult(Calc.HexToColor("667da5"));
+
+            blockData["color"] = color;
 
             this.dynamicHitbox = dynamicHitbox;
             if (dynamicHitbox) {

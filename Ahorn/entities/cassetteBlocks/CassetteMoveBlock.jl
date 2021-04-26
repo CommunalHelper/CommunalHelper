@@ -5,7 +5,8 @@ using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/CassetteMoveBlock" CassetteMoveBlock(x::Integer, y::Integer,
 	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    direction::String="Right", moveSpeed::Number=60.0, index::Integer=0, tempo::Number=1.0)
+    direction::String="Right", moveSpeed::Number=60.0, index::Integer=0, tempo::Number=1.0,
+    customColor="")
 
 const placements = Ahorn.PlacementDict(
     "Cassette Move Block ($index - $color) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -46,7 +47,12 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::CassetteMoveBlock)
     index = Int(get(entity.data, "index", 0))
     color = getCassetteColor(index)
 
-    renderCassetteBlock(ctx, 0, 0, width, height, index)
+    hexColor = String(get(entity.data, "customColor", ""))
+    if hexColor != "" && length(hexColor) == 6
+        color = hexToRGBA(hexColor)
+    end
+
+    renderCassetteBlock(ctx, 0, 0, width, height, index, color)
 
     direction = lowercase(get(entity.data, "direction", "up"))
     arrowSprite = Ahorn.getSprite(arrows[lowercase(direction)], "Gameplay")
