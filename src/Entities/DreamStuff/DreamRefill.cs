@@ -59,11 +59,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private DynData<Refill> baseData;
 
+        private float respawnTime;
+
         public DreamRefill(EntityData data, Vector2 offset)
             : base(data.Position + offset, false, data.Bool("oneUse")) {
             baseData = new DynData<Refill>(this);
 
             Get<PlayerCollider>().OnCollide = OnPlayer;
+
+            respawnTime = data.Float("respawnTime", 2.5f); // default is 2.5 sec.
 
             Remove(baseData.Get<Sprite>("sprite"));
             Sprite sprite = new Sprite(GFX.Game, "objects/CommunalHelper/dreamRefill/idle");
@@ -110,7 +114,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 Collidable = false;
                 Add(new Coroutine((IEnumerator) m_Refill_RefillRoutine.Invoke(this, new object[] { player })));
-                baseData["respawnTimer"] = 2.5f;
+                baseData["respawnTimer"] = respawnTime;
             }
         }
 

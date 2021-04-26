@@ -2,7 +2,7 @@ module CommunalHelperDreamRefill
 
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/DreamRefill" DreamRefill(x::Integer, y::Integer, oneUse::Bool=false)
+@mapdef Entity "CommunalHelper/DreamRefill" DreamRefill(x::Integer, y::Integer, oneUse::Bool=false, respawnTime::Number=2.5)
 
 const placements = Ahorn.PlacementDict(
     "Dream Refill (Communal Helper)" => Ahorn.EntityPlacement(
