@@ -40,11 +40,14 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.Load();
             DreamRefill.Load();
-            // DreamTunnelEntry loaded late in LoadContent
+            
             DreamBlockDummy.Load();
 
             CustomDreamBlock.Load();
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
+
+            AbstractPanel.Load();
+            // Panel-specific hooks loaded from AbstractPanel.Load
 
             ConnectedSwapBlockHooks.Hook();
             CustomCassetteBlock.Hook();
@@ -69,7 +72,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.Unload();
             DreamRefill.Unload();
-            DreamTunnelEntry.Unload();
+            AbstractPanel.Unload();
             DreamBlockDummy.Unload();
 
             CustomDreamBlock.Unload();
@@ -101,7 +104,7 @@ namespace Celeste.Mod.CommunalHelper {
             CustomCassetteBlock.Initialize();
 
             // We may hook methods in other mods, so this needs to be done after they're loaded
-            DreamTunnelEntry.LoadDelayed();
+            AbstractPanel.LoadDelayed();
         }
 
         public override void LoadContent(bool firstLoad) {

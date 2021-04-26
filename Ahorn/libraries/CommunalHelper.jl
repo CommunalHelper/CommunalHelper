@@ -36,6 +36,45 @@ const depths = Dict{String, Integer}(
         "FGParticles (-50000)" => -50000
 )
 
+"Celeste.SurfaceSound"
+const surfaceSounds = Dict{String, Integer}(
+   "Asphalt" => 1,
+   "Car" => 2,
+   "Dirt" => 3,
+   "Snow" => 4,
+   "Wood" => 5,
+   "StoneBridge" => 6,
+   "Girder" => 7,
+   "Brick" => 8,
+   "ZipMover" => 9,
+   "DreamBlockInactive" => 11,
+   "DreamBlockActive" => 12,
+   "ResortWood" => 13,
+   "ResortRoof" => 14,
+   "ResortSinkingPlatforms" => 15,
+   "ResortBasementTile" => 16,
+   "ResortLinens" => 17,
+   "ResortBoxes" => 18,
+   "ResortBooks" => 19,
+   "ClutterDoor" => 20,
+   "ClutterSwitch" => 21,
+   "ResortMagicButton" => 21,
+   "ResortElevator" => 22,
+   "CliffsideSnow" => 23,
+   "CliffsideGrass" => 25,
+   "CliffsideWhiteBlock" => 27,
+   "Gondola" => 28,
+   "AuroraGlass" => 32,
+   "Grass" => 33,
+   "CassetteBlock" => 35,
+   "CoreIce" => 36,
+   "CoreMoltenRock" => 37,
+   "Glitch" => 40,
+   "MoonCafe" => 42,
+   "DreamClouds" => 43,
+   "Moon" => 44,
+)
+
 """
 	 hexToRGBA(hex)
 

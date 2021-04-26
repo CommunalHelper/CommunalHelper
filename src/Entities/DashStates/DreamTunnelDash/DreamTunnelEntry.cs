@@ -29,7 +29,7 @@ using static Celeste.Mod.CommunalHelper.Entities.DreamTunnelDash;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamTunnelEntry = LoadDreamTunnelEntry")]
     [Tracked]
-    public class DreamTunnelEntry : Entity {
+    public class DreamTunnelEntry : AbstractPanel {
 
         private struct DreamParticle {
             public Vector2 Position;
@@ -49,37 +49,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 entityData.Int("depth", Depths.FakeWalls));
         }
 
-        private static int GetSize(EntityData data, Spikes.Directions dir) {
-            if (dir <= Spikes.Directions.Down) {
-                return data.Width;
-            }
-            return data.Height;
-        }
-
         #endregion
 
         public bool PlayerHasDreamDash;
-
-        public Spikes.Directions Orientation;
-
-        private bool overrideAllowStaticMovers;
-
-        private StaticMover staticMover;
         private LightOcclude occlude;
-
-        private DashCollision platformDashCollide;
-        private int surfaceSoundIndex;
-
-        public Vector2 Start => new Vector2(
-                X + (Orientation is Spikes.Directions.Right or Spikes.Directions.Down ? Width : 0),
-                Y + (Orientation is Spikes.Directions.Left or Spikes.Directions.Down ? Height : 0));
-        public Vector2 End => new Vector2(
-                X + (Orientation is Spikes.Directions.Up or Spikes.Directions.Right ? Width : 0),
-                Y + (Orientation is Spikes.Directions.Right or Spikes.Directions.Down ? Height : 0));
 
         public Vector2 Shake => shake + platformShake;
         private Vector2 shake; // For use in Activation/Deactivation routines
-        private Vector2 platformShake;
 
         public float Whitefill;
         public float WhiteHeight;
@@ -89,39 +65,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float wobbleFrom;
         private float wobbleTo;
 
-        public float Alpha = 1f;
         private Vector2? lockedCamera;
 
         private DreamParticle[] particles;
         private MTexture[] particleTextures;
 
-        private Level level;
-
         private int originalDepth = Depths.FakeWalls;
 
         public DreamTunnelEntry(Vector2 position, float size, Spikes.Directions orientation, bool overrideAllowStaticMovers, int depth)
-            : base(position) {
+            : base(position, size, orientation, overrideAllowStaticMovers) {
             Depth = depth - 10;
             originalDepth = depth;
-            Orientation = orientation;
-            this.overrideAllowStaticMovers = overrideAllowStaticMovers;
-
-            Collider = orientation switch {
-                Spikes.Directions.Up => new Hitbox(size, 8f),
-                Spikes.Directions.Down => new Hitbox(size, 8f),
-                Spikes.Directions.Left => new Hitbox(8f, size),
-                Spikes.Directions.Right => new Hitbox(8f, size),
-                _ => null
-            };
-
-            Add(staticMover = new StaticMover {
-                OnAttach = OnAttach,
-                OnShake = v => platformShake += v,
-                SolidChecker = IsRiding,
-                OnEnable = () => Active = Visible = Collidable = true,
-                OnDisable = () => Active = Visible = Collidable = false,
-                OnDestroy = Destroy
-            });
 
             surfaceSoundIndex = SurfaceIndex.DreamBlockInactive;
 
@@ -133,12 +87,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             };
         }
 
-        private void OnAttach(Platform platform) {
-            platformDashCollide = platform.OnDashCollide;
-            platform.OnDashCollide = OnDashCollide;
-        }
-
-        private DashCollisionResults OnDashCollide(Player player, Vector2 dir) {
+        protected override DashCollisionResults OnDashCollide(Player player, Vector2 dir) {
             // Correct position/ignore if only partially intersecting
             // Have to use `player.DashDir` instead of `dir` because we need the actual dash direction, not the collision direction
             if (PlayerHasDreamDash) {
@@ -180,7 +129,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         break;
                 }
             }
-            return platformDashCollide?.Invoke(player, dir) ?? DashCollisionResults.NormalCollision;
+            return base.OnDashCollide(player, dir);
         }
 
         private bool TryCollidePlayer(Player player, Vector2 offset, Vector2 dir) {
@@ -251,20 +200,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return false;
         }
 
-        // Make sure at least one side aligns, and the rest are contained within the solid
-        private bool IsRiding(Solid solid) {
-            return Orientation switch {
-                Spikes.Directions.Up => this.CollideCheckOutsideInside(solid, TopCenter - Vector2.UnitY * Height),
-                Spikes.Directions.Down => this.CollideCheckOutsideInside(solid, BottomCenter + Vector2.UnitY),
-                Spikes.Directions.Left => this.CollideCheckOutsideInside(solid, CenterLeft - Vector2.UnitX * Width),
-                Spikes.Directions.Right => this.CollideCheckOutsideInside(solid, CenterRight + Vector2.UnitX),
-                _ => false,
-            };
-        }
-
         public override void Added(Scene scene) {
             base.Added(scene);
-            level = scene as Level;
             PlayerHasDreamDash = level.Session.Inventory.DreamDash;
 
             scene.Add(new DreamBlockDummy(this) {
@@ -283,36 +220,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Awake(Scene scene) {
             base.Awake(scene);
 
-            if (overrideAllowStaticMovers) {
-                foreach (Entity entity in scene.GetEntitiesByTagMask(Tags.Global | Tags.Persistent)) {
-                    if (entity is Solid solid && entity.Scene == scene) {
-                        ForceAttachStaticMovers(solid, scene);
-                    }
-                }
-            }
-
             scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Track(this, originalDepth);
         }
 
-        private void Destroy() {
-            Collidable = false;
+        protected override void Destroy() {
             // Stop rendering the block/outline
             Scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth);
             // "Lock the Camera" to keep dreamblock particles in place
             lockedCamera = SceneAs<Level>().Camera.Position;
-            Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.Linear, 1, true);
-            tween.OnUpdate = t => Alpha = 1 - t.Percent;
-            tween.OnComplete = delegate { RemoveSelf(); };
-            Add(tween);
+
+            base.Destroy();
         }
 
         public override void Update() {
-            if (staticMover.Platform == null) {
-                RemoveSelf();
-                return;
-            }
-
             base.Update();
+
             if (PlayerHasDreamDash) {
                 animTimer += 6f * Engine.DeltaTime;
                 wobbleEase += Engine.DeltaTime * 2f;
@@ -326,16 +248,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Removed(Scene scene) {
-            if (staticMover.Platform != null && (staticMover.Platform.TagCheck(Tags.Global) || staticMover.Platform.TagCheck(Tags.Persistent))) {
-                List<StaticMover> movers = new DynData<Platform>(staticMover.Platform).Get<List<StaticMover>>("staticMovers");
-                // Iterate backwards so we can remove stuff
-                for (int i = movers.Count - 1; i >= 0; i--) {
-                    if (movers[i].Entity is DreamTunnelEntry entry) {
-                        movers[i].Platform.OnDashCollide = entry.platformDashCollide;
-                        movers.RemoveAt(i);
-                    }
-                }
-            }
             base.Removed(scene);
 
             scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth);
@@ -487,33 +399,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
-        private static List<IDetour> hook_Platform_GetLandOrStepSoundIndex = new List<IDetour>();
-        private static List<IDetour> hook_Platform_GetWallSoundIndex = new List<IDetour>();
         private static IDetour hook_Player_DashCoroutine;
         private static IDetour hook_Player_orig_WallJump;
 
-        internal static void LoadDelayed() {
-            // Land and Step sound are identical
-            MethodInfo Platform_GetLandOrStepSoundIndex = typeof(DreamTunnelEntry).GetMethod("Platform_GetLandOrStepSoundIndex", BindingFlags.NonPublic | BindingFlags.Static);
-            foreach (MethodInfo method in typeof(Platform).GetMethod("GetLandSoundIndex").GetOverrides(true)) {
-                Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when DreamTunnelEntry present.");
-                hook_Platform_GetLandOrStepSoundIndex.Add(
-                    new Hook(method, Platform_GetLandOrStepSoundIndex)
-                );
-            }
-            foreach (MethodInfo method in typeof(Platform).GetMethod("GetStepSoundIndex").GetOverrides(true)) {
-                Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when DreamTunnelEntry present.");
-                hook_Platform_GetLandOrStepSoundIndex.Add(
-                    new Hook(method, Platform_GetLandOrStepSoundIndex)
-                );
-            }
-            MethodInfo Platform_GetWallSoundIndex = typeof(DreamTunnelEntry).GetMethod("Platform_GetWallSoundIndex", BindingFlags.NonPublic | BindingFlags.Static);
-            foreach (MethodInfo method in typeof(Platform).GetMethod("GetWallSoundIndex").GetOverrides(true)) {
-                Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when DreamTunnelEntry present.");
-                hook_Platform_GetWallSoundIndex.Add(
-                    new Hook(method, Platform_GetWallSoundIndex)
-                );
-            }
+        internal new static void Load() {
 
             hook_Player_DashCoroutine = new ILHook(
                 typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(),
@@ -526,52 +415,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 typeof(Player).GetMethod("orig_WallJump", BindingFlags.NonPublic | BindingFlags.Instance),
                 Player_orig_WallJump);
 
-            On.Celeste.Solid.Awake += Solid_Awake;
-
-            On.Celeste.DashBlock.Break_Vector2_Vector2_bool_bool += DashBlock_Break_Vector2_Vector2_bool_bool;
-
             // Add Renderer
             On.Celeste.LevelLoader.LoadingThread += LevelLoader_LoadingThread;
         }
 
-        internal static void Unload() {
-            hook_Platform_GetLandOrStepSoundIndex.ForEach(h => h.Dispose());
-            hook_Platform_GetWallSoundIndex.ForEach(h => h.Dispose());
-
+        internal new static void Unload() {
             hook_Player_DashCoroutine.Dispose();
 
             IL.Celeste.Player.ClimbBegin -= Player_ClimbBegin;
             IL.Celeste.Player.OnCollideV -= Player_OnCollideV;
             hook_Player_orig_WallJump.Dispose();
 
-            On.Celeste.Solid.Awake -= Solid_Awake;
-
-            On.Celeste.DashBlock.Break_Vector2_Vector2_bool_bool -= DashBlock_Break_Vector2_Vector2_bool_bool;
-
             On.Celeste.LevelLoader.LoadingThread -= LevelLoader_LoadingThread;
-        }
-
-        private static int Platform_GetLandOrStepSoundIndex(Func<Platform, Entity, int> orig, Platform self, Entity entity) {
-            foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers")) {
-                if (sm.Entity is DreamTunnelEntry entry && entry.Orientation == Spikes.Directions.Up && entity.CollideCheck(entry, entity.Position + Vector2.UnitY)) {
-                    return entry.surfaceSoundIndex;
-                }
-            }
-            return orig(self, entity);
-        }
-
-        private static int Platform_GetWallSoundIndex(Func<Platform, Player, int, int> orig, Platform self, Player player, int side) {
-            foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers")) {
-                if (sm.Entity is DreamTunnelEntry entry) {
-                    if (side == (int) Facings.Left && entry.Orientation == Spikes.Directions.Right && player.CollideCheck(entry, player.Position - Vector2.UnitX)) {
-                        return entry.surfaceSoundIndex;
-                    }
-                    if (side == (int) Facings.Right && entry.Orientation == Spikes.Directions.Left && player.CollideCheck(entry, player.Position + Vector2.UnitX)) {
-                        return entry.surfaceSoundIndex;
-                    }
-                }
-            }
-            return orig(self, player, side);
         }
 
         /// <summary>
@@ -649,40 +504,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         #endregion
-
-        private static void Solid_Awake(On.Celeste.Solid.orig_Awake orig, Solid self, Scene scene) {
-            orig(self, scene);
-
-            if (!self.AllowStaticMovers)
-                ForceAttachStaticMovers(self, scene);
-        }
-
-        private static void ForceAttachStaticMovers(Solid solid, Scene scene) {
-            bool collidable = solid.Collidable;
-            solid.Collidable = true;
-            DynData<Solid> solidData = null;
-            foreach (Component component in scene.Tracker.GetComponents<StaticMover>()) {
-                StaticMover staticMover = (StaticMover) component;
-                if (staticMover.Entity is DreamTunnelEntry entry && entry.overrideAllowStaticMovers && staticMover.IsRiding(solid) && staticMover.Platform == null) {
-                    solidData ??= new DynData<Solid>(solid);
-                    solidData.Get<List<StaticMover>>("staticMovers").Add(staticMover);
-                    staticMover.Platform = solid;
-                    staticMover.OnAttach?.Invoke(solid);
-                }
-            }
-            solid.Collidable = collidable;
-        }
-
-        private static FieldInfo f_Platform_staticMovers = typeof(Platform).GetField("staticMovers", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        private static void DashBlock_Break_Vector2_Vector2_bool_bool(On.Celeste.DashBlock.orig_Break_Vector2_Vector2_bool_bool orig, DashBlock self, Vector2 from, Vector2 direction, bool playSound, bool playDebrisSound) {
-            orig(self, from, direction, playSound, playDebrisSound);
-            List<StaticMover> staticMovers = (List<StaticMover>) f_Platform_staticMovers.GetValue(self);
-            foreach (StaticMover mover in staticMovers) {
-                if (mover.Entity is DreamTunnelEntry)
-                    mover.OnDestroy();
-            }
-        }
 
         private static void LevelLoader_LoadingThread(On.Celeste.LevelLoader.orig_LoadingThread orig, LevelLoader self) {
             orig(self);
