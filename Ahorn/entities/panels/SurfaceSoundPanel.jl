@@ -3,6 +3,8 @@ module CommunalHelperSurfaceSoundPanel
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
+const surfaceSoundPanelDirections = String["Up", "Left", "Right"]
+
 @mapdef Entity "CommunalHelper/SurfaceSoundPanel" Panel(x::Integer, y::Integer, 
    soundIndex::Integer=11)
 
@@ -13,7 +15,7 @@ const placements = Ahorn.PlacementDict(
       Dict{String, Any}(
          "orientation" => dir
       ),
-   ) for dir in Maple.spike_directions
+   ) for dir in surfaceSoundPanelDirections
 )
 
 Ahorn.editingOptions(entity::Panel) = Dict{String, Any}(
@@ -25,7 +27,6 @@ Ahorn.minimumSize(entity::Panel) = 8, 8
 
 const resizeDirections = Dict{String, Tuple{Bool, Bool}}(
    "Up" => (true, false),
-   "Down" => (true, false),
    "Left" => (false, true),
    "Right" => (false, true),
 )
