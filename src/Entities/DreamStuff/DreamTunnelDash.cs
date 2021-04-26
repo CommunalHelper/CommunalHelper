@@ -489,6 +489,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 player.NaiveMove(dir);
             }
 
+            // Hackfix to unduck when downdiagonal dashing next to solid, caused by forcing the player into the solid as part of fast-moving solid correction
+            if (player.DashDir.Y > 0)
+                player.Ducking = false;
+
             player.Speed = player.DashDir * Player_DashSpeed;
             player.TreatNaive = true;
             player.Depth = Depths.PlayerDreamDashing;
