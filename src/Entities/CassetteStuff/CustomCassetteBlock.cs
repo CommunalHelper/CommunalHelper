@@ -18,7 +18,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IEnumerable<Type> customCassetteBlockTypes =
                 from module in Everest.Modules
                 from type in module.GetType().Assembly.GetTypesSafe()
-                where (type.IsSubclassOf(typeof(CustomCassetteBlock)) || type == typeof(CustomCassetteBlock))
+                where type.IsAssignableFrom(typeof(CustomCassetteBlock))
                 select type;
 
             // This could all be contained in the linq query but that'd be a bit much, no?

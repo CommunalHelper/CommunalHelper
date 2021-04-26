@@ -75,7 +75,7 @@ function renderCassetteZipMover(ctx::Ahorn.Cairo.CairoContext, entity::CassetteZ
 
     hexColor = String(get(entity.data, "customColor", ""))
     if hexColor != "" && length(hexColor) == 6
-        color = tuple(Ahorn.argb32ToRGBATuple(parse(Int, hexColor, base=16))[1:3] ./ 255..., 1.0)
+        color = hexToRGBA(hexColor)
         hasCustomColor = true
     end
 

@@ -96,8 +96,7 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::Cassette
 
     hexColor = String(get(entity.data, "customColor", ""))
     if hexColor != "" && length(hexColor) == 6
-        customColor = tuple(Ahorn.argb32ToRGBATuple(parse(Int, hexColor, base=16))[1:3] ./ 255..., 1.0)
-        renderCassetteBlock(ctx, stopX, stopY, width, height, index, customColor)
+        renderCassetteBlock(ctx, stopX, stopY, width, height, index, hexToRGBA(hexColor))
     else
         renderCassetteBlock(ctx, stopX, stopY, width, height, index)
     end
@@ -118,7 +117,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::CassetteSwapBloc
 
     hexColor = String(get(entity.data, "customColor", ""))
     if hexColor != "" && length(hexColor) == 6
-        color = tuple(Ahorn.argb32ToRGBATuple(parse(Int, hexColor, base=16))[1:3] ./ 255..., 1.0)
+        color = hexToRGBA(hexColor)
     end
 
     renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height, "objects/swapblock/target", index, color)

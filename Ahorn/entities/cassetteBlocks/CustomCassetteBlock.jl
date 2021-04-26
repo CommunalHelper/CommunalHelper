@@ -42,8 +42,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::CustomCassetteBlock
 
     hexColor = String(get(entity.data, "customColor", ""))
     if hexColor != "" && length(hexColor) == 6
-        customColor = tuple(Ahorn.argb32ToRGBATuple(parse(Int, hexColor, base=16))[1:3] ./ 255..., 1.0)
-        renderCassetteBlock(ctx, 0, 0, width, height, index, customColor)
+        renderCassetteBlock(ctx, 0, 0, width, height, index, hexToRGBA(hexColor))
     else
         renderCassetteBlock(ctx, 0, 0, width, height, index)
     end
