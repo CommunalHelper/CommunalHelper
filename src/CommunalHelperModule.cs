@@ -52,6 +52,7 @@ namespace Celeste.Mod.CommunalHelper {
             MoveSwapBlock.Load();
             SyncedZipMoverActivationController.Hook();
             ManualCassetteController.Load();
+            CassetteJumpFixController.Load();
             // TimedTriggerSpikes hooked in Initialize
 
             HeartGemShard.Load();
@@ -76,6 +77,7 @@ namespace Celeste.Mod.CommunalHelper {
             MoveSwapBlock.Unload();
             SyncedZipMoverActivationController.Unhook();
             ManualCassetteController.Unload();
+            CassetteJumpFixController.Unload();
             TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();
@@ -183,14 +185,14 @@ namespace Celeste.Mod.CommunalHelper {
 
         private static PropertyInfo[] namedColors = typeof(Color).GetProperties();
 
-        public static Color TryParseColor(string str, float alpha = 1f) {
-            foreach (PropertyInfo prop in namedColors) {
-                if (str.Equals(prop.Name)) {
-                    return new Color((Color) prop.GetValue(null), alpha);
-                }
-            }
-            return new Color(Calc.HexToColor(str.Trim('#')), alpha);
-        }
+        //public static Color TryParseColor(string str, float alpha = 1f) {
+        //    foreach (PropertyInfo prop in namedColors) {
+        //        if (str.Equals(prop.Name)) {
+        //            return new Color((Color) prop.GetValue(null), alpha);
+        //        }
+        //    }
+        //    return new Color(Calc.HexToColor(str.Trim('#')), alpha);
+        //}
 
         public static int ToInt(bool b) => b ? 1 : 0;
 

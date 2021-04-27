@@ -37,6 +37,10 @@ placements.entities.CommunalHelper/CassetteZipMover.tooltips.ticking=Causes this
 # -- Manual Cassette Controller --
 placements.entities.CommunalHelper/ManualCassetteController.tooltips.startIndex=The color of Cassette Block that should start activated.
 
+# -- Cassette Jump Fix Controller --
+placements.entities.CommunalHelper/CassetteJumpFixController.tooltips.persistent=Whether the controller should apply for the entire level, only applies to the current room if this is turned off.
+placements.entities.CommunalHelper/CassetteJumpFixController.tooltips.off=Turns off the fix, regardless of the persistent option.
+
 
 # -- Connected Dream Block --
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.below=Determines whether the Connected Dream Block should render in the background or foreground.
