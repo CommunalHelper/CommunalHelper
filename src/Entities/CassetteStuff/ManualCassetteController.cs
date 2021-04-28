@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-    public class ManualCassetteController : AbstractController {
+    public class ManualCassetteController : AbstractInputController {
 
         private int startIndex;
 

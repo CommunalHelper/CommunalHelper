@@ -5,7 +5,7 @@ using MonoMod.Utils;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/SyncedZipMoverActivationController")]
-    public class SyncedZipMoverActivationController : AbstractController {
+    public class SyncedZipMoverActivationController : AbstractInputController {
         private Level level;
 
         public string ColorCode;

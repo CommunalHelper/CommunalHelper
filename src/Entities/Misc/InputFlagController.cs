@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/InputFlagController")]
-    public class InputFlagController : AbstractController {
+    public class InputFlagController : AbstractInputController {
 
         public bool Activated => OverrideBinding ? Input.Grab.Pressed :
             CommunalHelperModule.Settings.ActivateFlagController.Pressed;
