@@ -1,5 +1,7 @@
 module CommunalHelperStationBlock
+
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 const themes = ["Normal", "Moon"]
 const behaviors = ["Pulling", "Pushing"]
@@ -10,7 +12,8 @@ const behaviors = ["Pulling", "Pushing"]
             theme::String="Normal", behavior::String="Pulling",
             customBlockPath::String="", customArrowPath::String="", customTrackPath::String="",
             speedFactor::Number=1.0,
-            allowWavedash::Bool = false)
+            allowWavedash::Bool = false,
+            wavedashButtonColor="5BF75B", wavedashButtonPressedColor="F25EFF")
 
 const placements = Ahorn.PlacementDict(
     "Station Block ($theme, $behavior) (Communal Helper)" => Ahorn.EntityPlacement(
@@ -71,11 +74,14 @@ function renderStationBlock(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock)
     
     # Button
     if Bool(get(entity.data, "allowWavedash", false))
+        hexColor = String(get(entity.data, "wavedashButtonColor", "FFFFFF"))
+        color = (length(hexColor) == 6) ? hexToRGBA(hexColor) : (1.0, 1.0, 1.0, 1.0)
+
         for i in 1:tilesWidth
             tx = (i == 1) ? 0 : ((i == tilesWidth) ? 16 : 8)
 
-            Ahorn.drawImage(ctx, buttonOutline, x + (i - 1) * 8, y - 4, tx, 0, 8, 8)
-            Ahorn.drawImage(ctx, button, x + (i - 1) * 8, y - 4, tx, 0, 8, 8)
+            Ahorn.drawImage(ctx, buttonOutline, x + (i - 1) * 8, y - 4, tx, 0, 8, 8, tint=color)
+            Ahorn.drawImage(ctx, button, x + (i - 1) * 8, y - 4, tx, 0, 8, 8, tint=color)
         end
     end
 

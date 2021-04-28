@@ -48,6 +48,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static readonly Color activatedButton = Calc.HexToColor("f25eff");
         private static readonly Color deactivatedButton = Calc.HexToColor("5bf75b");
+
+        private Color buttonColor, buttonPressedColor;
         private float colorLerp = 0.0f;
 
         private float speedFactor = 1f;
@@ -63,6 +65,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             this.offset = new Vector2(Width, Height) / 2f;
             allowWavedash = data.Bool("allowWavedash", false);
             speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 2f);
+
+            buttonColor = data.HexColor("wavedashButtonColor", deactivatedButton);
+            buttonPressedColor = data.HexColor("wavedashButtonPressedColor", activatedButton);
 
             int minSize = (int) Calc.Min(Width, Height);
             string size;
@@ -450,7 +455,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Vector2 vec2 = new Vector2(X + i * 8, Y - 4 + (HasPlayerOnTop() ? 1 : 0)) + (Vector2.One * 4f) + hitOffset;
                         vec2.X = Center.X + (vec2.X - Center.X) * scale.X;
                         vec2.Y = Center.Y + (vec2.Y - Center.Y) * scale.Y;
-                        Color c = Color.Lerp(deactivatedButton, activatedButton, colorLerp);
+                        Color c = Color.Lerp(buttonColor, buttonPressedColor, colorLerp);
                         buttonTiles[tx, 0].DrawCentered(vec2, c, scale);
                         buttonTiles[tx, 1].DrawCentered(vec2, c, scale);
                     }

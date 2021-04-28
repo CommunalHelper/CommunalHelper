@@ -7,6 +7,7 @@
 * Added custom color option for Cassette Block types from Communal Helper.
 * Added Custom Cassette Block for the vanilla Cassette Blocks with custom color.
 * Added custom respawn time for Dream Refills.
+* Added custom wavedash button indicator color options. (wavedashButtonColor and wavedashButtonPressedColor)
 * Fixed Attached Wall Booster neutral boost.
 * Fixed Move Block Redirects not affecting every MoveBlock derivatives.
 * Fixed crouched hitbox when dream tunneling next to solid.
