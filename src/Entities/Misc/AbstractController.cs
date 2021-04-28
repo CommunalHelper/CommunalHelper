@@ -11,20 +11,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public AbstractController(Vector2 position) : base(position) { }
 
-        public virtual void FrozenUpdate() { }
+        public abstract void FrozenUpdate();
 
         internal static void Load() {
             IL.Monocle.Engine.Update += Engine_Update;
 
             ManualCassetteController.Load();
-            CassetteJumpFixController.Load();
         }
 
         internal static void Unload() {
             IL.Monocle.Engine.Update -= Engine_Update;
 
             ManualCassetteController.Unload();
-            CassetteJumpFixController.Unload();
         }
 
         private static void Engine_Update(ILContext il) {
