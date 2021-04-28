@@ -5,8 +5,7 @@ using System;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-    [Tracked]
-    public class ManualCassetteController : Entity {
+    public class ManualCassetteController : AbstractController {
 
         private int startIndex;
 
@@ -43,6 +42,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         }
 
+        public override void FrozenUpdate() {
+            if (CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed) {
+                Tick();
+            }
+        }
+
         public void Tick() {
             currentIndex++;
             currentIndex %= roomBeats;
@@ -58,16 +63,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static IDetour hook_Level_orig_LoadLevel;
-        public static void Load() {
+        internal new static void Load() {
             hook_Level_orig_LoadLevel = new ILHook(typeof(Level).GetMethod("orig_LoadLevel"), Level_orig_LoadLevel);
-
-            On.Monocle.Engine.Update += Engine_Update;
         }
 
-        public static void Unload() {
+        internal new static void Unload() {
             hook_Level_orig_LoadLevel.Dispose();
-
-            On.Monocle.Engine.Update -= Engine_Update;
         }
 
         private static void Level_orig_LoadLevel(ILContext il) {
@@ -95,12 +96,5 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             });
         }
 
-        private static void Engine_Update(On.Monocle.Engine.orig_Update orig, Engine self, Microsoft.Xna.Framework.GameTime gameTime) {
-            orig(self, gameTime);
-            if (Engine.FreezeTimer > 0f && CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed) {
-                ManualCassetteController controller = Engine.Scene.Tracker.GetEntity<ManualCassetteController>();
-                controller?.Tick();
-            }
-        }
     }
 }

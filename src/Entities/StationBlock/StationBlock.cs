@@ -9,8 +9,8 @@ using TrackSwitchState = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.T
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/StationBlock")]
     [Tracked(false)]
-    class StationBlock : Solid {
-        public enum Theme {
+    public class StationBlock : Solid {
+        public enum Themes {
             Normal, Moon
         }
 
@@ -44,7 +44,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private Vector2 offset;
         private Vector2 hitOffset;
         private SoundSource Sfx;
-        public Theme theme = Theme.Moon;
+        public Themes Theme = Themes.Moon;
 
         private static readonly Color activatedButton = Calc.HexToColor("f25eff");
         private static readonly Color deactivatedButton = Calc.HexToColor("5bf75b");
@@ -76,15 +76,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             string block = "objects/CommunalHelper/stationBlock/blocks/";
             string sprite;
             reverseControls = data.Attr("behavior", "Pulling") == "Pushing";
-            theme = data.Enum<Theme>("theme");
+            Theme = data.Enum<Themes>("theme");
 
             string customBlockPath = data.Attr("customBlockPath").Trim();
             string customArrowPath = data.Attr("customArrowPath").Trim();
             string customTrackPath = data.Attr("customTrackPath").Trim();
 
-            switch (theme) {
+            switch (Theme) {
                 default:
-                case Theme.Normal:
+                case Themes.Normal:
                     if (reverseControls) {
                         block += "alt_block";
                         sprite = size + "AltStationBlockArrow";
@@ -94,8 +94,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                     break;
 
-                case Theme.Moon:
-                    theme = Theme.Moon;
+                case Themes.Moon:
+                    Theme = Themes.Moon;
                     if (reverseControls) {
                         block += "alt_moon_block";
                         sprite = size + "AltMoonStationBlockArrow";
@@ -112,7 +112,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             MTexture customBlock = null;
             Sprite customArrow = null;
 
-            p_sparks = theme == Theme.Normal ? ZipMover.P_Sparks : (reverseControls ? P_PurpleSparks : P_BlueSparks);
+            p_sparks = Theme == Themes.Normal ? ZipMover.P_Sparks : (reverseControls ? P_PurpleSparks : P_BlueSparks);
 
             if (customBlockPath != "") {
                 customBlock = GFX.Game["objects/" + customBlockPath];
@@ -385,8 +385,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     currentTrack = CurrentNode.trackRight;
                 }
 
-                bool travel = nextNode != null && currentTrack.switchState != TrackSwitchState.Off;
-                Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (theme == Theme.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
+                bool travel = nextNode != null && currentTrack.SwitchState != TrackSwitchState.Off;
+                Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
                 if (travel) {
                     Safe = false;
 
@@ -415,7 +415,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         yield return null;
                     }
                     StartShaking(0.2f);
-                    Sfx.Param(theme == Theme.Moon ? "end_moon" : "end", 1);
+                    Sfx.Param(Theme == Themes.Moon ? "end_moon" : "end", 1);
                     Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                     SceneAs<Level>().Shake(0.2f);
                     StopPlayerRunIntoAnimation = true;

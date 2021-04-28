@@ -16,7 +16,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ConnectedDreamBlock")]
     [Tracked(true)]
     public class ConnectedDreamBlock : CustomDreamBlock {
-        private readonly struct SpaceJamTile {
+        private struct SpaceJamTile {
             public readonly int X, Y;
             public readonly int[] Edges;
             public readonly bool Exist;
@@ -63,7 +63,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Edges facing;
         }
 
-        private readonly struct SpaceJamCorner {
+        private struct SpaceJamCorner {
             public readonly bool
                 upright, upleft, downright, downleft,
                 inupright, inupleft, indownright, indownleft;
@@ -88,7 +88,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<SpaceJamCorner> GroupCorners;
         private Rectangle GroupRect;
 
-        enum Edges {
+        private enum Edges {
             North,
             East,
             South,
@@ -364,7 +364,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             if (MasterOfGroup) {
-                Color lineColor = PlayerHasDreamDash ? activeLineColor : disabledLineColor;
+                Color lineColor = PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
                 Color backColor = Color.Lerp(PlayerHasDreamDash ? baseData.Get<Color>("activeBackColor") : baseData.Get<Color>("disabledBackColor"), Color.White, ColorLerp);
 
                 if (whiteFill > 0f) {

@@ -8,6 +8,9 @@
 {2bcf18f4-d0cf-423c-841f-7bf54151cf0d} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_return
 {1069f2f2-d704-4cec-ad66-c9509e388a43} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_start
 {93fa1eca-cd8f-46fe-8167-84f6eefcc601} event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_tick
+{56e914d8-6460-4d34-8bbb-0db5a9439ef1} event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter
+{82196f99-4cd9-46eb-8705-74766fcb25e7} event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_move
+{a60c2909-ac85-4b6a-aea3-e2fb6722e54d} event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter_cue
 {596b795d-af4d-4284-8836-506c20eaf2a9} event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_activate
 {6f9b0cdf-b702-40ef-96fd-ff265ad64d5b} event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_break
 {f808b781-963d-4742-8b47-e4340c395936} event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_reappear

@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
@@ -46,10 +47,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool dynamicHitbox;
         private Hitbox[] hitboxes;
 
-        public bool present = true;
+        public bool Present = true;
         public bool virtualCollidable = true;
 
-        public DynData<CassetteBlock> blockData;
+        protected DynData<CassetteBlock> blockData;
 
         public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
             : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.HexColorNullable("customColor")) { }
@@ -74,12 +75,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Update() {
-            if (!present) {
+            if (!Present) {
                 Collidable = virtualCollidable;
             }
             base.Update();
             virtualCollidable = Collidable;
-            if (!present) {
+            if (!Present) {
                 Collidable = false;
                 DisableStaticMovers();
             }
@@ -123,7 +124,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         protected void UpdatePresent(bool present) {
-            this.present = present;
+            Present = present;
             Collidable = present && virtualCollidable;
         }
 
@@ -131,16 +132,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static bool createdCassetteManager = false;
 
-        public static void Hook() {
+        internal static void Hook() {
             On.Celeste.CassetteBlock.ShiftSize += CassetteBlock_ShiftSize;
             On.Celeste.CassetteBlock.UpdateVisualState += CassetteBlock_UpdateVisualState;
+            IL.Celeste.CassetteBlock.Update += CassetteBlock_Update;
             On.Celeste.Level.LoadLevel += Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
         }
 
-        public static void Unhook() {
+        internal static void Unhook() {
             On.Celeste.CassetteBlock.ShiftSize -= CassetteBlock_ShiftSize;
             On.Celeste.CassetteBlock.UpdateVisualState -= CassetteBlock_UpdateVisualState;
+            IL.Celeste.CassetteBlock.Update -= CassetteBlock_Update;
             On.Celeste.Level.LoadLevel -= Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
         }
@@ -168,13 +171,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             (block as CustomCassetteBlock)?.HandleUpdateVisualState();
         }
 
+        private static void CassetteBlock_Update(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            Util.Log("Emitting instructions after `ldfld CassetteBlock.group` in `CassetteBlock.Update` to remove blocks from `group` if their Scene is `null`");
+            cursor.GotoNext(MoveType.After, instr => instr.MatchLdfld<CassetteBlock>("group"));
+            cursor.EmitDelegate<Func<List<CassetteBlock>, List<CassetteBlock>>>(group => {
+                group.RemoveAll(block => block.Scene is null); // Assume that the block has been removed from the scene.
+                return group;
+            });
+        }
+
         private static void Level_LoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes introType, bool isFromLoader = false) {
             createdCassetteManager = false;
             orig(level, introType, isFromLoader);
         }
 
         private static MethodInfo m_Level_get_ShouldCreateCassetteManager = typeof(Level).GetProperty("ShouldCreateCassetteManager", BindingFlags.NonPublic | BindingFlags.Instance).GetGetMethod(true);
-        private static FieldInfo f_EntityList_toAdd = typeof(EntityList).GetField("toAdd", BindingFlags.NonPublic | BindingFlags.Instance);
 
         private static bool Level_OnLoadEntity(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
             if (CustomCassetteBlockNames.Contains(entityData.Name)) {
@@ -187,8 +199,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (!createdCassetteManager) {
                     createdCassetteManager = true;
                     if (level.Tracker.GetEntity<CassetteBlockManager>() == null && (bool) m_Level_get_ShouldCreateCassetteManager.Invoke(level, null)) {
-                        List<Entity> toAdd = (List<Entity>) f_EntityList_toAdd.GetValue(level.Entities);
-                        if (!toAdd.Any(e => e is CassetteBlockManager)) {
+                        if (!level.Entities.ToAdd.Any(e => e is CassetteBlockManager)) {
                             level.Entities.ForceAdd(new CassetteBlockManager());
                         }
                     }

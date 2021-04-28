@@ -40,23 +40,30 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.Load();
             DreamRefill.Load();
+            
+            DreamBlockDummy.Load();
 
             CustomDreamBlock.Load();
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
+
+            AbstractPanel.Load();
+            // Panel-specific hooks loaded from AbstractPanel.Load
 
             ConnectedSwapBlockHooks.Hook();
             CustomCassetteBlock.Hook();
 
             AttachedWallBooster.Hook();
             MoveBlockRedirect.Load();
+            MoveBlockRedirectable.Load();
             MoveSwapBlock.Load();
-            SyncedZipMoverActivationController.Hook();
-            ManualCassetteController.Load();
-            CassetteJumpFixController.Load();
+            AbstractController.Load();
+            // Controller-specific hooks loaded from AbstractController.Load
             // TimedTriggerSpikes hooked in Initialize
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
+
+            CustomBooster.Load();
         }
 
         public override void Unload() {
@@ -65,6 +72,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.Unload();
             DreamRefill.Unload();
+            AbstractPanel.Unload();
+            DreamBlockDummy.Unload();
 
             CustomDreamBlock.Unload();
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
@@ -74,14 +83,15 @@ namespace Celeste.Mod.CommunalHelper {
 
             AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
+            MoveBlockRedirectable.Unload();
             MoveSwapBlock.Unload();
-            SyncedZipMoverActivationController.Unhook();
-            ManualCassetteController.Unload();
-            CassetteJumpFixController.Unload();
+            AbstractController.Unload();
             TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
+
+            CustomBooster.Unload();
         }
 
         public override void Initialize() {
@@ -92,6 +102,9 @@ namespace Celeste.Mod.CommunalHelper {
 
             // Register CustomCassetteBlock types
             CustomCassetteBlock.Initialize();
+
+            // We may hook methods in other mods, so this needs to be done after they're loaded
+            AbstractPanel.LoadDelayed();
         }
 
         public override void LoadContent(bool firstLoad) {
@@ -112,6 +125,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             Melvin.InitializeTextures();
             Melvin.InitializeParticles();
+
+            DreamBooster.InitializeParticles();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
@@ -169,6 +184,9 @@ namespace Celeste.Mod.CommunalHelper {
             if (command == "CommunalHelperCycleCassetteBlocksBinding")
                 return Settings.CycleCassetteBlocks.Button;
 
+            if (command == "CommunalHelperActivateFlagControllerBinding")
+                return Settings.ActivateFlagController.Button;
+
             return null;
         }
     }
@@ -185,13 +203,30 @@ namespace Celeste.Mod.CommunalHelper {
 
         private static PropertyInfo[] namedColors = typeof(Color).GetProperties();
 
+        public static Color CopyColor(Color color, float alpha) {
+            return new Color(color.R, color.G, color.B, (byte) alpha * 255);
+        }
+
+        public static Color CopyColor(Color color, int alpha) {
+            return new Color(color.R, color.G, color.B, alpha);
+        }
+
+        public static Color ColorArrayLerp(float lerp, params Color[] colors) {
+            float m = lerp % colors.Length;
+            int fromIndex = (int) Math.Floor(m);
+            int toIndex = (fromIndex + 1) % colors.Length;
+            float clampedLerp = m - fromIndex;
+
+            return Color.Lerp(colors[fromIndex], colors[toIndex], clampedLerp);
+        }
+
         public static Color TryParseColor(string str, float alpha = 1f) {
             foreach (PropertyInfo prop in namedColors) {
                 if (str.Equals(prop.Name)) {
-                    return new Color((Color) prop.GetValue(null), alpha);
+                    return CopyColor((Color) prop.GetValue(null), alpha);
                 }
             }
-            return new Color(Calc.HexToColor(str.Trim('#')), alpha);
+            return CopyColor(Calc.HexToColor(str.Trim('#')), alpha);
         }
 
         public static int ToInt(bool b) => b ? 1 : 0;

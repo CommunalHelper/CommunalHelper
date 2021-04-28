@@ -11,6 +11,69 @@ export renderDreamBlock
 export renderCassetteBlock, cassetteColorNames, getCassetteColor
 # Connected Blocks
 export getExtensionRectangles, notAdjacent
+# Depths
+export depths
+
+"Celeste.Depths"
+const depths = Dict{String, Integer}(
+        "BGTerrain (10000)" => 10000,
+        "BGDecals (9000)" => 9000,
+        "BGParticles (8000)" => 8000,
+        "Below (2000)" => 2000,
+        "NPCs (1000)" => 1000,
+        "Player (0)" => 0,
+        "Dust (-50)" => -50,
+        "Pickups (-100)" => -100,
+        "Particles (-8000)" => -8000,
+        "Above Particles (-8500)" => -8500,
+        "Solids (-9000)" => -9000,
+        "FGTerrain (-10000)" => -10000,
+        "FGDecals (-10500)" => -10500,
+        "DreamBlocks (-11000)" => -11000,
+        "CrystalSpinners (-11500)" => -11500,
+        "Chaser (-12500)" => -12500,
+        "Fake Walls (-13000)" => -13000,
+        "FGParticles (-50000)" => -50000
+)
+
+"Celeste.SurfaceSound"
+const surfaceSounds = Dict{String, Integer}(
+   "Asphalt" => 1,
+   "Car" => 2,
+   "Dirt" => 3,
+   "Snow" => 4,
+   "Wood" => 5,
+   "StoneBridge" => 6,
+   "Girder" => 7,
+   "Brick" => 8,
+   "ZipMover" => 9,
+   "DreamBlockInactive" => 11,
+   "DreamBlockActive" => 12,
+   "ResortWood" => 13,
+   "ResortRoof" => 14,
+   "ResortSinkingPlatforms" => 15,
+   "ResortBasementTile" => 16,
+   "ResortLinens" => 17,
+   "ResortBoxes" => 18,
+   "ResortBooks" => 19,
+   "ClutterDoor" => 20,
+   "ClutterSwitch" => 21,
+   "ResortMagicButton" => 21,
+   "ResortElevator" => 22,
+   "CliffsideSnow" => 23,
+   "CliffsideGrass" => 25,
+   "CliffsideWhiteBlock" => 27,
+   "Gondola" => 28,
+   "AuroraGlass" => 32,
+   "Grass" => 33,
+   "CassetteBlock" => 35,
+   "CoreIce" => 36,
+   "CoreMoltenRock" => 37,
+   "Glitch" => 40,
+   "MoonCafe" => 42,
+   "DreamClouds" => 43,
+   "Moon" => 44,
+)
 
 """
 	 hexToRGBA(hex)

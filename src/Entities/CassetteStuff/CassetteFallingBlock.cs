@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CassetteFallingBlock")]
-    class CassetteFallingBlock : CustomCassetteBlock {
+    public class CassetteFallingBlock : CustomCassetteBlock {
         public bool Triggered;
         public float FallDelay;
 
