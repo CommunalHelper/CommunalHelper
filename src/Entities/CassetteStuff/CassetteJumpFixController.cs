@@ -7,7 +7,7 @@ using System;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked]
     [CustomEntity("CommunalHelper/CassetteJumpFixController")]
-    public class CassetteJumpFixController : Entity {
+    public class CassetteJumpFixController : AbstractController {
 
         private bool enable, persistent;
 
@@ -34,12 +34,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return CommunalHelperModule.Session.CassetteJumpFix;
         }
 
-
-        public static void Load() {
+        internal new static void Load() {
             On.Celeste.CassetteBlock.ShiftSize += CassetteBlock_ShiftSize;
         }
 
-        public static void Unload() {
+        internal new static void Unload() {
             On.Celeste.CassetteBlock.ShiftSize -= CassetteBlock_ShiftSize;
         }
 
