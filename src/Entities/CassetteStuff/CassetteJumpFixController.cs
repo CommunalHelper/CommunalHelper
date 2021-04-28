@@ -21,7 +21,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Added(Scene scene) {
             base.Added(scene);
 
-            if (persistent) {
+            if (persistent || !enable) {
                 CommunalHelperModule.Session.CassetteJumpFix = enable;
             }
         }
