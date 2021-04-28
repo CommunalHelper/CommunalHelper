@@ -1,5 +1,15 @@
---?.?.? (??/??/????)--
-* Added Dream Tunnel Entry
+--1.8.0 (??/??/2021)--
+* Added Dream Tunnel Entry.
+* Added SoundSurfacePanel
+* Added Input Flag Controller.
+* Added Dream Booster.
+* Added Player Bubble Region.
+* Added custom color option for Cassette Block types from Communal Helper.
+* Added Custom Cassette Block for the vanilla Cassette Blocks with custom color.
+* Added custom respawn time for Dream Refills.
+* Fixed Attached Wall Booster neutral boost.
+* Fixed Move Block Redirects not affecting every MoveBlock derivatives.
+* Fixed crouched hitbox when dream tunneling next to solid.
 
 --1.7.1 (30/03/2021)--
 * [Silent] Added Manual Cassette Controller.
