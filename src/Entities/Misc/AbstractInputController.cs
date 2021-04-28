@@ -5,11 +5,11 @@ using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked(true)]
-    public abstract class AbstractController : Entity {
+    public abstract class AbstractInputController : Entity {
 
-        public AbstractController() : base() { }
+        public AbstractInputController() : base() { }
 
-        public AbstractController(Vector2 position) : base(position) { }
+        public AbstractInputController(Vector2 position) : base(position) { }
 
         public abstract void FrozenUpdate();
 
@@ -41,7 +41,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static void UpdateControllers() {
-            foreach (AbstractController controller in Engine.Scene.Tracker.GetEntities<AbstractController>()) {
+            foreach (AbstractInputController controller in Engine.Scene.Tracker.GetEntities<AbstractInputController>()) {
                 controller.FrozenUpdate();
             }
         }

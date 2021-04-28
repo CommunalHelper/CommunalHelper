@@ -56,8 +56,9 @@ namespace Celeste.Mod.CommunalHelper {
             MoveBlockRedirect.Load();
             MoveBlockRedirectable.Load();
             MoveSwapBlock.Load();
-            AbstractController.Load();
-            // Controller-specific hooks loaded from AbstractController.Load
+            AbstractInputController.Load();
+            // Controller-specific hooks loaded from AbstractInputController.Load
+            CassetteJumpFixController.Load();
             // TimedTriggerSpikes hooked in Initialize
 
             HeartGemShard.Load();
@@ -85,7 +86,8 @@ namespace Celeste.Mod.CommunalHelper {
             MoveBlockRedirect.Unload();
             MoveBlockRedirectable.Unload();
             MoveSwapBlock.Unload();
-            AbstractController.Unload();
+            AbstractInputController.Unload();
+            CassetteJumpFixController.Unload();
             TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();

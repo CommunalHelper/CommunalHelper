@@ -8,6 +8,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         public TrackSwitchState TrackInitialState = TrackSwitchState.On;
 
+        public bool CassetteJumpFix = false;
+
         public CommunalHelperSession() {
             SummitGems = new SortedSet<string>(StringComparer.InvariantCulture);
         }
