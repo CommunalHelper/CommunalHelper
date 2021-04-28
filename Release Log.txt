@@ -1,13 +1,15 @@
---1.8.0 (??/??/2021)--
+--1.8.0 (29/04/2021)--
 * Added Dream Tunnel Entry.
-* Added SoundSurfacePanel
+* Added Sound Surface Panel.
 * Added Input Flag Controller.
+* Added Cassette Jump Fix Controller.
+* Added Manual Cassette Controller (in 1.7.1).
 * Added Dream Booster.
+* Added Custom Cassette Block for the vanilla Cassette Blocks with custom color.
 * Added Player Bubble Region.
 * Added custom color option for Cassette Block types from Communal Helper.
-* Added Custom Cassette Block for the vanilla Cassette Blocks with custom color.
 * Added custom respawn time for Dream Refills.
-* Added custom wavedash button indicator color options. (wavedashButtonColor and wavedashButtonPressedColor)
+* Added custom wavedash button indicator color options (wavedashButtonColor and wavedashButtonPressedColor). 
 * Fixed Attached Wall Booster neutral boost.
 * Fixed Move Block Redirects not affecting every MoveBlock derivatives.
 * Fixed crouched hitbox when dream tunneling next to solid.

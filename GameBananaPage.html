@@ -8,10 +8,10 @@ The current list of included mechanics:
 <ul>
 	<li>
 		<b>Connected Dream Block</b> -
-			Dream blocks that when placed such that they overlap, will form continuous regions. 
-			The <i>"feather mode"</i> option allows the player to control their direction of movement while traveling through the block, 
-			the <i>"refill"</i> will determine the number of dashes to give the player when exiting the dream block, 
-			and the <i>"one use"</i> option will cause the dream block to shatter upon exit.
+		Dream blocks that when placed such that they overlap, will form continuous regions. 
+   		The <i>"feather mode"</i> option allows the player to control their direction of movement while traveling through the block, 
+		the <i>"refill"</i> will determine the number of dashes to give the player when exiting the dream block, 
+		and the <i>"one use"</i> option will cause the dream block to shatter upon exit.
 	</li>
 	<li>
 		<b>Dream Zip Mover</b>, <b>Move Block</b>, <b>Swap Block</b>, <b>Falling Block,</b> <b>Switch Gate</b>, <b>Crumble Block</b> and <b>Floaty Space Block</b> - 
@@ -25,22 +25,23 @@ The current list of included mechanics:
 	<li>
 		<b>Dream Refill</b> - 
 		A special refill that once collected, allows the player to dash through any solid, except for dream blocks which will kill them.
+		You can specify a custom respawn time if you want to, using the <i>"respawnTime"</i> option.
 	</li>
-   <li>
-      <b>Dream Tunnel Entry</b> - 
-      A panel that can be attached to any solid that allows the player to Dream Tunnel through it.
-   </li>
+   	<li>
+      	<b>Dream Tunnel Entry</b> - 
+      	A panel that can be attached to any solid that allows the player to Dream Tunnel through it.
+   	</li>
+   	<li>
+		<b>Sound Surface Panel</b> - 
+		A panel that placed on solids that changes the sound that the player makes when climbing or walking on it.
+ 	</li>
 	<li>
 		<b>Cassette Zip Mover</b>, <b>Move Block</b>, <b>Swap Block</b> and <b>Falling Block</b> - 
 		Similar to the dream block types above, each of these entities take the movement behaviour of a specific solid, and apply it to a cassette block. 
 		<b>Cassette Zip Mover</b> and <b>Swap Block</b> both have access to <i>"no return"</i> mode.
 		<b>Dream Zip Mover</b> has additional <i>"ticking"</i>, <i>"permanent"</i> and <i>"waiting"</i> modes.
+		Since 1.8.0, all of these types, and a new <b>Custom Cassette Block</b> include a <i>"customColor"</i> option, which is an hexadecimal color code.
 	</li>
-   <li>
-      <b>Manual Cassette Controller</b> - 
-      When placed in a room, it will allow the player to manually cycle through cassette block colors using a rebindable button (defaults to Grab).
-      (<u>For map makers</u>: this binding can be displayed by the <b>Custom Bird Tutorial</b> provided by Everest by adding <i>"CommunalHelperCycleCassetteBlocksBinding"</i> to <i>"Controls"</i> in Ahorn).
-   </li>
 	<li>
 		<b>Connected Zip Mover</b>, <b>Move Block</b> and <b>Swap Block</b>, <b>Connected Solid Extension</b> - 
 		They act like their corresponding vanilla version, but they can have any shape, simply by placing <b>Connected Solid Extensions</b> so that they touch or overlap, and are tiled automatically.
@@ -52,7 +53,7 @@ The current list of included mechanics:
 		Track segments are either vertical or horizontal, and when placed such that their nodes (ends) overlap, will connect to form full, continuous tracks. 
 		The block must be placed directly on top of a track node for it to attach to the track, and when activated can only move in directions that have a track segment leading away from their current node, in that direction. 
 		They are also reskinnable. Since 1.6.0, <b>Station Block Tracks </b>can now be set to be "ON" or "OFF" using the <i>"trackSwitchState"</i> attribute, which will enable / disable them depending on the current state in the level. 
-		A track set to "NONE" will always be active, and is not affected in any way. <b>Station Block</b> now have an <i>"allowWavedash"</i> attribute that allows you to perform a wavedash on them instead of bouncing upwards.
+		A track set to "NONE" will always be active, and is not affected in any way. <b>Station Block</b> now have an <i>"allowWavedash"</i> attribute that allows you to perform a wavedash on them instead of bouncing upwards, and if you want, it also has custom colors using the <i>"wavedashButtonColor"</i> and <i>"wavedashButtonPressedColor"</i> options.
 	</li>
 	<li>
 		<b>Track Switch Box </b>(and <b>Switch Track Trigger</b>) - 
@@ -64,6 +65,20 @@ The current list of included mechanics:
 		If you wish to, you can rebind the key/button of your choice to activate them. 
 		(<u>For map makers</u>: the <b>Custom Bird Tutorial</b> provided by Everest can now correctly display the binding that is used by players, by adding <i>"CommunalHelperSyncedZipMoverBinding"</i> to <i>"Controls"</i> in Ahorn).
 	</li>
+	<li>
+	   	<b>Manual Cassette Controller</b> - 
+	   	When placed in a room, it will allow the player to manually cycle through cassette block colors using a rebindable button (defaults to Grab).
+	   	(<u>For map makers</u>: this binding is displayed using <i>"CommunalHelperCycleCassetteBlocksBinding"</i>).
+	</li>
+ 	<li>
+	 	<b>Input Flag Controller</b> - 
+	 	Allows a sequence of flags to be toggled using a key or button binding. 
+	 	(<u>For map makers</u>: this binding is displayed using <i>"CommunalHelperActivateFlagControllerBinding"</i>).
+ 	</li>
+ 	<li>
+	 	<b>Cassette Jump Fix Controller</b> - 
+	 	A controller entity that makes it impossible to get extra liftspeed from jumping against an appearing Cassette Block.
+ 	</li>
 	<li>
 		<b>Attached Wall Booster</b> - 
 		A wall booster that can be attached to a moving solid.
@@ -116,6 +131,16 @@ The current list of included mechanics:
 		It's a Kevin-like entity, but it wants to kill you. It's completely static, but looks for you on all four sides, until it finds you, no matter how far away you are. When it sees you, it'll basically "dash-attack" towards you, like a Kevin does. Don't worry, it can't see you if you're behind tiles or basically anything that's solid.
 		Seeker Barriers can act as a spot to hide for you, but on top of that, Melvins can't go through them. Use it to your advantage! 
 		You can dash into it like a Kevin, but only on its "weak" sides, which appear red-open. You can select which sides are weak using the <i>"weakTop"</i>, <i>"weakBottom"</i>, <i>"weakLeft"</i> and <i>"weakRight"</i> attributes.
+	</li>
+	<li>
+		<b>Dream Booster</b> -
+		Similar to the vanilla red booster, this one goes through solid tiles and blocks, by following a segment, and releasing the player upon reaching its path's end.
+		You cannot dash out of the bubble while you are travelling inside solid objects.
+		The <i>"hidePath"</i> option allows you to hide the segment path of the booster, revealing it when the bubble is entered, which will play an alternative audio sound with a cue. 
+	</li>
+	<li>
+		<b>Player Bubble Region</b> - 
+		A rectangular region that will put the player entering it into the bubble state and move it back to a defined node, following the path of a curve (with a control node).
 	</li>
 </ul>
 <br/><br/>
