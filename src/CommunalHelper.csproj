@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net452</TargetFrameworks>
     <AssemblyName>CommunalHelper</AssemblyName>
@@ -7,17 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="MonoMod" Version="21.4.2.3" PrivateAssets="all" />
-	<PackageReference Include="MonoMod.RuntimeDetour" Version="21.01.11.01" PrivateAssets="all" ExcludeAssets="runtime">
-	  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	</PackageReference>
+    <PackageReference Include="MonoMod" Version="21.4.2.3" PrivateAssets="all" />
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="21.01.11.01" PrivateAssets="all" ExcludeAssets="runtime">
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
-	
+
   <ItemGroup>
-	<Reference Include="Celeste" HintPath="..\..\..\Celeste.exe" Private="false" />
-	<Reference Include="MMHOOK_Celeste" HintPath="..\..\..\MMHOOK_Celeste.dll" Private="false" />
-	  <Reference Include="FNA" HintPath="..\..\..\FNA.dll" Private="false" />
-	<Reference Include="YamlDotNet" HintPath="..\..\..\YamlDotNet.dll" Private="false" />
+    <Reference Include="Celeste" HintPath="..\..\..\Celeste.exe" Private="false" />
+    <Reference Include="MMHOOK_Celeste" HintPath="..\..\..\MMHOOK_Celeste.dll" Private="false" />
+    <Reference Include="FNA" HintPath="..\..\..\FNA.dll" Private="false" />
+    <Reference Include="YamlDotNet" HintPath="..\..\..\YamlDotNet.dll" Private="false" />
   </ItemGroup>
   
 </Project>
