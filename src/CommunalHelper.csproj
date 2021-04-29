@@ -7,18 +7,25 @@
     <LangVersion>9</LangVersion>
   </PropertyGroup>
 
+  <!--Disable "Copy Local" for all references-->
+  <ItemDefinitionGroup>
+    <PackageReference ExcludeAssets="runtime" PrivateAssets="all" />
+    <Reference Private="false" />
+  </ItemDefinitionGroup>
+
   <ItemGroup>
-    <PackageReference Include="MonoMod" Version="21.4.2.3" PrivateAssets="all" />
-    <PackageReference Include="MonoMod.RuntimeDetour" Version="21.01.11.01" PrivateAssets="all" ExcludeAssets="runtime">
+    <PackageReference Include="MonoMod" Version="21.4.2.3" />
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="21.01.11.01">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Celeste" HintPath="..\..\..\Celeste.exe" Private="false" />
-    <Reference Include="MMHOOK_Celeste" HintPath="..\..\..\MMHOOK_Celeste.dll" Private="false" />
-    <Reference Include="FNA" HintPath="..\..\..\FNA.dll" Private="false" />
-    <Reference Include="YamlDotNet" HintPath="..\..\..\YamlDotNet.dll" Private="false" />
+    <Reference Include="Celeste" HintPath="..\..\..\Celeste.exe" />
+    <Reference Include="MMHOOK_Celeste" HintPath="..\..\..\MMHOOK_Celeste.dll" />
+    <Reference Include="FNA" HintPath="..\..\..\FNA.dll" />
+    <Reference Include="YamlDotNet" HintPath="..\..\..\YamlDotNet.dll" />
+    <Reference Include="System.ValueTuple" HintPath="..\..\..\System.ValueTuple.dll" />
   </ItemGroup>
   
 </Project>
