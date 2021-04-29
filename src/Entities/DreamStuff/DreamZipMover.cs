@@ -406,9 +406,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Color lightColor = ropeLightColor;
                     if (dreamAesthetic) {
                         if (playerHasDreamDash)
-                            lightColor = activeDreamColors[(int) mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
+                            lightColor = activeDreamColors[(int) Util.Mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
                         else
-                            lightColor = disabledDreamColors[(int) mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 4f)];
+                            lightColor = disabledDreamColors[(int) Util.Mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 4f)];
                     }
                     lightColor = Color.Lerp(lightColor, colorLerpTarget, colorLerp);
                     Draw.Line(value3 + offset, value3 + travelDir * 2f + offset, colorOverride ?? lightColor);
@@ -423,9 +423,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     cogWhite.DrawCentered(to + offset, tempColor, 1f, rotation);
                 }
             }
-
-            private float mod(float x, float m) =>
-                (x % m + m) % m;
         }
 
     }

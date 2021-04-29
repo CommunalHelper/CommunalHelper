@@ -460,7 +460,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers")) {
                     Vector2 origin = player.Position + new Vector2((float) player.Facing * 3, -4f);
                     if (sm.Entity is DreamTunnelEntry entry
-                        && (entry.Orientation == Spikes.Directions.Left || entry.Orientation == Spikes.Directions.Right)
+                        && (entry.Orientation is Spikes.Directions.Left or Spikes.Directions.Right)
                         && entry.CollidePoint(origin + Vector2.UnitX * (float) player.Facing)) {
                         entry.FootstepRipple(origin);
                     }
@@ -494,7 +494,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.EmitDelegate<Func<Platform, Player, int, Platform>>((platform, player, dir) => {
                 foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers")) {
                     if (sm.Entity is DreamTunnelEntry entry
-                        && (entry.Orientation == Spikes.Directions.Left || entry.Orientation == Spikes.Directions.Right)
+                        && (entry.Orientation is Spikes.Directions.Left or Spikes.Directions.Right)
                         && entry.CollidePoint(player.Position - Vector2.UnitX * dir * 4f)) {
                         entry.FootstepRipple(player.Position + new Vector2(0, -4f));
                     }

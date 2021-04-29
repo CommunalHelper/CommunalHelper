@@ -35,10 +35,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static readonly Color FasterColor = Calc.HexToColor("29c32f");
         public static readonly Color SlowerColor = Calc.HexToColor("1c5bb3");
 
-        private static readonly FieldInfo f_MoveBlock_canSteer = typeof(MoveBlock).GetField("canSteer", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo m_MoveBlock_BreakParticles = typeof(MoveBlock).GetMethod("BreakParticles", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo m_MoveBlock_UpdateColors = typeof(MoveBlock).GetMethod("UpdateColors", BindingFlags.NonPublic | BindingFlags.Instance);
-
         private Color startColor;
 
         public Directions Direction;
@@ -69,12 +65,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 angle = fAngle;
             else {
                 Direction = data.Enum<Directions>("direction");
-                angle = Direction switch {
-                    Directions.Left => Calc.HalfCircle,
-                    Directions.Up => -Calc.QuarterCircle,
-                    Directions.Down => Calc.QuarterCircle,
-                    _ => 0f,
-                };
+                angle = Direction.Angle();
             }
 
             AddTextures();
@@ -147,17 +138,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             };
         }
 
-        private static Vector2 MoveBlockDirectionToVector(Directions dir, float factor = 1f) {
-            Vector2 result = dir switch {
-                Directions.Up => -Vector2.UnitY,
-                Directions.Down => Vector2.UnitY,
-                Directions.Left => -Vector2.UnitX,
-                _ => Vector2.UnitX
-            };
-
-            return result * factor;
-        }
-
         private void UpdateAppearance() {
             Color currentColor = Color.Lerp(startColor, UsedColor, maskAlpha) * alpha;
             icon.Sprite.Color = currentColor;
@@ -184,7 +164,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 if (!Collider.Contains(block.Collider, 0.001f)) {
                     Directions dir = redirectable.Direction;
-                    Vector2 prevPosOffset = -MoveBlockDirectionToVector(dir, redirectable.Speed);
+                    Vector2 prevPosOffset = -dir.Vector(redirectable.Speed);
 
                     float edgeMin;
                     float edgeMax;
@@ -236,13 +216,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             redirectable.Angle = redirectable.TargetAngle = redirectable.HomeAngle = angle;
             redirectable.Direction = Direction;
 
-            float newSpeed = redirectable.TargetSpeed;
-            newSpeed = Operation switch {
-                Operations.Add => newSpeed + Modifier,
-                Operations.Subtract => newSpeed - Modifier,
-                Operations.Multiply => newSpeed * Modifier,
-                _ => newSpeed
-            };
+            float newSpeed = Operation.ApplyTo(redirectable.TargetSpeed, Modifier);
 
             redirectable.TargetSpeed = Math.Max(10f, newSpeed); // could go into negative speeds, yuck
             lastMoveBlock = redirectable;

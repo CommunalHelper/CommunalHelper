@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Directions = Celeste.Spikes.Directions;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
 
@@ -19,12 +20,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         "CommunalHelper/TimedTriggerSpikesRight = LoadRight"
     })]
     public class TimedTriggerSpikes : Entity {
-        public enum Directions {
-            Up,
-            Down,
-            Left,
-            Right
-        }
 
         protected struct SpikeInfo {
             public TimedTriggerSpikes Parent;
@@ -366,7 +361,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static IDetour hook_TimedTriggerSpikes_GetHue;
 
-        internal static void Load() {
+        internal static void LoadDelayed() {
             hook_TimedTriggerSpikes_GetHue = new ILHook(
                 typeof(TimedTriggerSpikes).GetMethod("GetHue"),
                 TimedTriggerSpikes_GetHue);

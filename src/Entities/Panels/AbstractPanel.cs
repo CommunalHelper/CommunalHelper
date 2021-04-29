@@ -49,10 +49,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             this.overrideAllowStaticMovers = overrideAllowStaticMovers;
 
             Collider = orientation switch {
-                Directions.Up => new Hitbox(size, 8f),
-                Directions.Down => new Hitbox(size, 8f),
-                Directions.Left => new Hitbox(8f, size),
-                Directions.Right => new Hitbox(8f, size),
+                Directions.Up or Directions.Down => new Hitbox(size, 8f),
+                Directions.Left or Directions.Right => new Hitbox(8f, size),
                 _ => null
             };
 

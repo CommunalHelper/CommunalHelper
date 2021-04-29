@@ -100,7 +100,7 @@ namespace Celeste.Mod.CommunalHelper {
             // Because of `Celeste.Tags.Initialize` of all things
             // We create a static CrystalStaticSpinner which needs to access Tags.TransitionUpdate
             // Which wouldn't be loaded in time for EverestModule.Load
-            TimedTriggerSpikes.Load();
+            TimedTriggerSpikes.LoadDelayed();
 
             // Register CustomCassetteBlock types
             CustomCassetteBlock.Initialize();
@@ -238,6 +238,10 @@ namespace Celeste.Mod.CommunalHelper {
             for (int i = 0; i < b.Length; i++)
                 ret |= ToInt(b[i]) << i;
             return ret;
+        }
+
+        public static float Mod(float x, float m) {
+            return (x % m + m) % m;
         }
 
     }

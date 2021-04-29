@@ -192,7 +192,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Color ParticleColor;
             public Vector2 Shake;
             public Sprite Sprite;
-            public Image Bg;
+            //public Image Bg; // Unused in favour of providing decals
             public BloomPoint Bloom;
 
             public Gem(string id, Vector2 position)
