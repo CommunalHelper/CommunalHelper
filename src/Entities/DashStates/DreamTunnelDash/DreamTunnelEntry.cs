@@ -123,7 +123,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         break;
                     case Spikes.Directions.Left when dir.X > 0:
                     case Spikes.Directions.Right when dir.X < 0:
-                        if (player.Top > Top - 4 || !Scene.CollideCheck<Solid>(TopCenter - Vector2.UnitY) && 
+                        if (player.Top > Top - 4 || !Scene.CollideCheck<Solid>(TopCenter - Vector2.UnitY) &&
                             player.Bottom < Bottom + 4 || !Scene.CollideCheck<Solid>(BottomCenter + Vector2.UnitY))
                             return DashCollisionResults.NormalCollision;
                         break;

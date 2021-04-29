@@ -15,7 +15,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #endregion
 
-        public SurfaceSoundPanel(Vector2 position, float size, Spikes.Directions orientation, int soundIndex) 
+        public SurfaceSoundPanel(Vector2 position, float size, Spikes.Directions orientation, int soundIndex)
             : base(position, size, orientation, false) {
             surfaceSoundIndex = soundIndex;
         }

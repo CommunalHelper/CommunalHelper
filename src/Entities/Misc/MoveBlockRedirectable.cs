@@ -136,7 +136,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             } else {
                 t_Controller = f_Controller_this.DeclaringType;
             }
-            
+
             return orig => {
                 IEnumerator controller;
                 orig.Replace(controller = (IEnumerator) Activator.CreateInstance(t_Controller, 3));

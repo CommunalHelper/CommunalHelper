@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.Entities;
-using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -141,7 +140,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private void UpdateAppearance() {
             Color currentColor = Color.Lerp(startColor, UsedColor, maskAlpha) * alpha;
             icon.Sprite.Color = currentColor;
-            foreach(Image image in borders) {
+            foreach (Image image in borders) {
                 image.Color = currentColor * alpha;
             }
         }

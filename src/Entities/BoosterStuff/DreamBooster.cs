@@ -1,7 +1,6 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
-using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
 using System.Collections;
@@ -93,10 +92,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         };
         public static readonly ParticleType[] DreamParticles = new ParticleType[8];
 
-        public DreamBooster(EntityData data, Vector2 offset) 
+        public DreamBooster(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Nodes[0] + offset, !data.Bool("hidePath")) { }
 
-        public DreamBooster(Vector2 position, Vector2 node, bool showPath) 
+        public DreamBooster(Vector2 position, Vector2 node, bool showPath)
             : base(position, redBoost: true) {
             Depth = Depths.DreamBlocks;
 
@@ -111,7 +110,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             SetParticleColors(BurstColor, AppearColor);
             SetSoundEvent(
                 showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,
-                CustomSFX.game_customBoosters_dreamBooster_dreambooster_move, 
+                CustomSFX.game_customBoosters_dreamBooster_dreambooster_move,
                 false);
         }
 
@@ -130,7 +129,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected override void OnPlayerEnter(Player player) {
             base.OnPlayerEnter(player);
             pathRenderer.RainbowLerp = Calc.Random.Range(0, 8);
-            if (!showPath) Add(new Coroutine(HiddenPathReact()));
+            if (!showPath)
+                Add(new Coroutine(HiddenPathReact()));
         }
 
         private IEnumerator HiddenPathReact() {
@@ -237,7 +237,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (currentBooster is DreamBooster booster) {
                 DynData<Player> playerData = new DynData<Player>(self);
-                self.Speed = ((Vector2)(playerData["gliderBoostDir"] = self.DashDir = booster.Dir)) * 240f;
+                self.Speed = ((Vector2) (playerData["gliderBoostDir"] = self.DashDir = booster.Dir)) * 240f;
                 self.SceneAs<Level>().DirectionalShake(self.DashDir, 0.2f);
                 if (self.DashDir.X != 0f) {
                     self.Facing = (Facings) Math.Sign(self.DashDir.X);
