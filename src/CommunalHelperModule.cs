@@ -1,12 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
-using Celeste.Mod.Entities;
-using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper {
@@ -40,7 +35,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.Load();
             DreamRefill.Load();
-            
+
             DreamBlockDummy.Load();
 
             CustomDreamBlock.Load();

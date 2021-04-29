@@ -393,7 +393,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float rotation = -DreamZipMover.percent * (float) Math.PI * 2f;
 
                 Color dreamRopeColor = playerHasDreamDash ? colorLerpTarget : DreamZipMover.DisabledLineColor;
-                Color color = Color.Lerp(dreamAesthetic ?  dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
+                Color color = Color.Lerp(dreamAesthetic ? dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
 
                 Draw.Line(from + hOffset1 + offset, to + hOffset1 + offset, colorOverride ?? color);
                 Draw.Line(from + hOffset2 + offset, to + hOffset2 + offset, colorOverride ?? color);

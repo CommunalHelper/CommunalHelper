@@ -512,11 +512,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.MoveHExact(move);
             SetSeekerBarriersCollidable(before);
         }
-        
+
         // returns collidable field before calling this function
         private bool SetSeekerBarriersCollidable(bool collidable) {
             bool before = !collidable;
-            foreach(SeekerBarrier entity in Scene.Tracker.GetEntities<SeekerBarrier>()) {
+            foreach (SeekerBarrier entity in Scene.Tracker.GetEntities<SeekerBarrier>()) {
                 before = entity.Collidable;
                 entity.Collidable = collidable;
             }

@@ -1,7 +1,6 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/PlayerBubbleRegion")]
@@ -9,7 +8,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private Vector2 control, end;
 
-        public PlayerBubbleRegion(EntityData data, Vector2 offset) 
+        public PlayerBubbleRegion(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.NodesOffset(offset)) { }
 
         public PlayerBubbleRegion(Vector2 position, int width, int height, Vector2[] nodes)

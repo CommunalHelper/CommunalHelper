@@ -90,7 +90,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     level.Tracker.GetEntity<CassetteBlockManager>()?.RemoveSelf();
                     level.Add(new ManualCassetteController(data));
                     // Lists were just updated so there's no harm in doing it again (hopefully)
-                    level.Entities.UpdateLists(); 
+                    level.Entities.UpdateLists();
                 }
                 return level;
             });

@@ -11,7 +11,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked(false)]
     public class DreamTunnelEntryRenderer : Entity {
 
-        private class CustomDepthRenderer : Entity{
+        private class CustomDepthRenderer : Entity {
             public List<DreamTunnelEntry> list = new List<DreamTunnelEntry>();
 
             public CustomDepthRenderer(int depth) {
