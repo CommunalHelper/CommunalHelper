@@ -92,12 +92,7 @@ namespace Celeste.Mod.CommunalHelper {
             Direction = direction;
             this.moveSpeed = moveSpeed;
 
-            homeAngle = targetAngle = angle = direction switch {
-                MoveBlock.Directions.Left => (float) Math.PI,
-                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
-                MoveBlock.Directions.Down => (float) Math.PI / 2f,
-                _ => 0f,
-            };
+            homeAngle = targetAngle = angle = direction.Angle();
             Add(moveSfx = new SoundSource());
             Add(new Coroutine(Controller()));
             UpdateColors();

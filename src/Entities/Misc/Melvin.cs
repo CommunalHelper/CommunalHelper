@@ -4,7 +4,7 @@ using Monocle;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using static Celeste.Mod.CommunalHelper.Entities.StationBlock;
+using ArrowDir = Celeste.Mod.CommunalHelper.Entities.StationBlock.ArrowDir;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
 
@@ -90,6 +90,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(new LightOcclude(0.2f));
             Add(returnLoopSfx = new SoundSource());
             Add(attackCoroutine = new Coroutine(false));
+
+            Add(new WaterInteraction(new Rectangle(0, 0, width, height), () => crushDir != Vector2.Zero));
         }
 
         public override void Awake(Scene scene) {

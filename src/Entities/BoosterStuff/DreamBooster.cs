@@ -294,7 +294,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void Player_OnCollide(Action<Player, CollisionData> orig, Player self, CollisionData data) {
             if (dreamBoostMove) {
-                DreamBooster booster = self.LastBooster as DreamBooster;
                 if (data.Hit is not DreamBlock block) {
                     EmitDreamBurst(self, data.Hit.Collider);
                     return;
