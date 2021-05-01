@@ -3,6 +3,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public class ManualCassetteController : AbstractInputController {
@@ -30,7 +31,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 throw new IndexOutOfRangeException("ManualCassetteController startIndex is outside of the number of CassetteBlock indices present");
             currentIndex = startIndex;
 
-            SetActiveIndex(currentIndex);
+            SetActiveIndex(currentIndex, true);
         }
 
         public override void Update() {
@@ -56,9 +57,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
         }
 
-        public void SetActiveIndex(int index) {
+        public void SetActiveIndex(int index, bool silent = false) {
             foreach (CassetteBlock entity in Scene.Tracker.GetEntities<CassetteBlock>()) {
-                entity.Activated = entity.Index == index;
+                bool activated = entity.Index == index;
+                if (silent)
+                    entity.SetActivatedSilently(activated);
+                else
+                    entity.Activated = activated;
             }
         }
 
