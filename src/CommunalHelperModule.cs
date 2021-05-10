@@ -242,4 +242,7 @@ namespace Celeste.Mod.CommunalHelper {
 
     }
 
+    // Don't worry about it
+    internal class NoInliningException : Exception { public NoInliningException() : base("Something went horribly wrong.") { } }
+
 }

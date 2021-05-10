@@ -31,28 +31,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Vector2 Position {
                 get { UpdatePos(); return tempVec2; }
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                set { }
+                set { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
             }
             [MethodImpl(MethodImplOptions.NoInlining)]
-            private void UpdatePos() { }
+            private void UpdatePos() { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
 
             public int Layer {
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                get => default;
+                get { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                set { }
+                set { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
             }
             public Color Color {
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                get => default;
+                get { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                set { }
+                set { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
             }
             public float TimeOffset {
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                get => default;
+                get { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                set { }
+                set { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
             }
 
             // Feather particle stuff
