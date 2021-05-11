@@ -5,6 +5,7 @@
     <AssemblyName>CommunalHelper</AssemblyName>
     <RootNamespace>Celeste.Mod.CommunalHelper</RootNamespace>
     <LangVersion>9</LangVersion>
+    <CelesteGamePath Condition="'$(CELESTEGAMEPATH)' == ''">..\..\..</CelesteGamePath>
   </PropertyGroup>
 
   <!--Disable "Copy Local" for all references-->
@@ -21,11 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Celeste" HintPath="..\..\..\Celeste.exe" />
-    <Reference Include="MMHOOK_Celeste" HintPath="..\..\..\MMHOOK_Celeste.dll" />
-    <Reference Include="FNA" HintPath="..\..\..\FNA.dll" />
-    <Reference Include="YamlDotNet" HintPath="..\..\..\YamlDotNet.dll" />
-    <Reference Include="System.ValueTuple" HintPath="..\..\..\System.ValueTuple.dll" />
+    <Reference Include="Celeste" HintPath="$(CELESTEGAMEPATH)\Celeste.exe" />
+    <Reference Include="MMHOOK_Celeste" HintPath="$(CELESTEGAMEPATH)\MMHOOK_Celeste.dll" />
+      <Reference Include="FNA" HintPath="$(CELESTEGAMEPATH)\FNA.dll" />
+    <Reference Include="YamlDotNet" HintPath="$(CELESTEGAMEPATH)\YamlDotNet.dll" />
+    <Reference Include="System.ValueTuple" HintPath="$(CELESTEGAMEPATH)\System.ValueTuple.dll" />
   </ItemGroup>
-  
+
 </Project>
