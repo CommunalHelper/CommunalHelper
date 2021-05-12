@@ -28,7 +28,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DynData<DreamBlock> Data;
 
-        public DreamBlockDummy(Entity entity) 
+        public DreamBlockDummy(Entity entity)
             : base(Vector2.Zero, 0, 0, null, false, false) {
             Collidable = Active = Visible = false;
             Entity = entity;

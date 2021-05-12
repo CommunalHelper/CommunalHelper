@@ -5,8 +5,7 @@ using Monocle;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using Directions = Celeste.MoveBlock.Directions;
 
 // TODO
 // movement stuff
@@ -33,7 +32,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private const float RegenTime = 3f;
 
         private float moveSpeed;
-        public MoveBlock.Directions Direction;
+        public Directions Direction;
         private float homeAngle;
         private Vector2 startPosition;
         public MovementState State = MovementState.Idling;
@@ -61,18 +60,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private ParticleType P_Break;
         private ParticleType P_BreakPressed;
 
-        public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, MoveBlock.Directions direction, float moveSpeed, int index, float tempo, Color? overrideColor)
+        public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, Color? overrideColor)
             : base(position, id, width, height, index, tempo, dynamicHitbox: true, overrideColor) {
             startPosition = position;
             Direction = direction;
             this.moveSpeed = moveSpeed;
 
-            homeAngle = targetAngle = angle = direction switch {
-                MoveBlock.Directions.Left => (float) Math.PI,
-                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
-                MoveBlock.Directions.Down => (float) Math.PI / 2f,
-                _ => 0f
-            };
+            homeAngle = targetAngle = angle = direction.Angle();
 
             Add(moveSfx = new SoundSource());
             Add(new Coroutine(Controller()));
@@ -96,7 +90,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public CassetteMoveBlock(EntityData data, Vector2 offset, EntityID id)
-            : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", MoveBlock.Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.HexColorNullable("customColor")) {
+            : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.HexColorNullable("customColor")) {
         }
 
         public override void Awake(Scene scene) {
@@ -138,7 +132,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     angle = Calc.Approach(angle, targetAngle, SteerSpeed * Engine.DeltaTime);
                     Vector2 move = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool hit;
-                    if (Direction is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
+                    if (Direction is Directions.Right or Directions.Left) {
                         hit = MoveCheck(move.XComp());
                         noSquish = Scene.Tracker.GetEntity<Player>();
                         MoveVCollideSolids(move.Y, thruDashBlocks: false);
@@ -162,7 +156,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                 ScrapeParticles(-Vector2.UnitX);
                             }
                         }
-                        if (Direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
+                        if (Direction == Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
                             hit = true;
                         }
                     }
@@ -386,17 +380,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 positionRange;
             float num;
             float num2;
-            if (Direction == MoveBlock.Directions.Right) {
+            if (Direction == Directions.Right) {
                 position = CenterLeft + Vector2.UnitX;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 num = (float) Math.PI;
                 num2 = Height / 32f;
-            } else if (Direction == MoveBlock.Directions.Left) {
+            } else if (Direction == Directions.Left) {
                 position = CenterRight;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 num = 0f;
                 num2 = Height / 32f;
-            } else if (Direction == MoveBlock.Directions.Down) {
+            } else if (Direction == Directions.Down) {
                 position = TopCenter + Vector2.UnitY;
                 positionRange = Vector2.UnitX * (Width - 4f);
                 num = -(float) Math.PI / 2f;

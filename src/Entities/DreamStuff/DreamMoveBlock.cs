@@ -9,7 +9,6 @@ using MonoMod.RuntimeDetour;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
@@ -93,12 +92,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             noCollide = data.Bool("noCollide");
 
             Direction = data.Enum<MoveBlock.Directions>("direction");
-            homeAngle = targetAngle = angle = Direction switch {
-                MoveBlock.Directions.Left => (float) Math.PI,
-                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
-                MoveBlock.Directions.Down => (float) Math.PI / 2f,
-                _ => 0f,
-            };
+            homeAngle = targetAngle = angle = Direction.Angle();
 
             arrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/arrow");
             Add(moveSfx = new SoundSource());

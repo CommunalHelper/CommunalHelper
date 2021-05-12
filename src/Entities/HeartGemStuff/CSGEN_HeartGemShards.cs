@@ -42,7 +42,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 piece.OnAllCollected();
             }
 
-            heart.Depth = -2000002;
+            heart.Depth = Depths.FormationSequences - 2;
             heart.AddTag(Tags.FrozenUpdate);
             yield return 0.35f;
 

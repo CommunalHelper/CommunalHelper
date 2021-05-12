@@ -30,7 +30,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public CustomSummitGemManager(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
-            Depth = -10010;
+            Depth = Depths.FGTerrain - 10;
 
             // Hopefully this always works
             string mapId = AreaData.Get((Engine.Scene as Level)?.Session ?? (Engine.Scene as LevelLoader).Level.Session).SID;
@@ -192,14 +192,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Color ParticleColor;
             public Vector2 Shake;
             public Sprite Sprite;
-            public Image Bg;
+            //public Image Bg; // Unused in favour of providing decals
             public BloomPoint Bloom;
 
             public Gem(string id, Vector2 position)
                 : base(position) {
                 ID = id;
                 Index = Calc.Clamp(int.Parse(id.Substring(id.LastIndexOf('/') + 1)), 0, 7);
-                Depth = -10010;
+                Depth = Depths.FGTerrain - 10;
 
                 // Will probably be implemented as Decals
                 //Add(Bg = new Image(GFX.Game["collectables/summitgems/" + id + "/bg"]));

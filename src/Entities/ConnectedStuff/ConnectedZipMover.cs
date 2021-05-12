@@ -157,7 +157,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking, string customBlockPath)
             : base(position, width, height, safe: false) {
-            Depth = -9999;
+            Depth = Depths.FGTerrain + 1;
 
             start = Position;
             targets = new Vector2[nodes.Length];
@@ -308,7 +308,7 @@ namespace Celeste.Mod.CommunalHelper {
             for (int i = 4; i <= h + 4; i += 8) {
                 int num3 = num;
                 for (int j = 4; j <= w + 4; j += 8) {
-                    int index = (int) (mod((num2 + num * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
+                    int index = (int) (Util.Mod((num2 + num * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
                     MTexture mTexture = innerCogs[index];
                     Rectangle rectangle = new Rectangle(0, 0, mTexture.Width, mTexture.Height);
                     Vector2 zero = Vector2.Zero;
@@ -484,10 +484,6 @@ namespace Celeste.Mod.CommunalHelper {
                     }
                 }
             }
-        }
-
-        private float mod(float x, float m) {
-            return (x % m + m) % m;
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Directions = Celeste.MoveBlock.Directions;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     /// <summary>
@@ -58,10 +59,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        public Func<MoveBlock.Directions>? Get_Direction = null;
-        public Action<MoveBlock.Directions>? Set_Direction = null;
-        public MoveBlock.Directions Direction {
-            get => Get_Direction?.Invoke() ?? Data.Get<MoveBlock.Directions>("direction");
+        public Func<Directions>? Get_Direction = null;
+        public Action<Directions>? Set_Direction = null;
+        public Directions Direction {
+            get => Get_Direction?.Invoke() ?? Data.Get<Directions>("direction");
             set {
                 if (Set_Direction != null)
                     Set_Direction.Invoke(value);
@@ -109,7 +110,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public float? InitialAngle;
-        public MoveBlock.Directions? InitialDirection;
+        public Directions? InitialDirection;
 
         public Action<float>? OnStartShaking;
         public Action<Vector2>? OnMoveTo;
@@ -135,7 +136,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             } else {
                 t_Controller = f_Controller_this.DeclaringType;
             }
-            
+
             return orig => {
                 IEnumerator controller;
                 orig.Replace(controller = (IEnumerator) Activator.CreateInstance(t_Controller, 3));
@@ -173,7 +174,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.MoveBlock.ctor_Vector2_int_int_Directions_bool_bool -= MoveBlock_ctor_Vector2_int_int_Directions_bool_bool;
         }
 
-        private static void MoveBlock_ctor_Vector2_int_int_Directions_bool_bool(On.Celeste.MoveBlock.orig_ctor_Vector2_int_int_Directions_bool_bool orig, MoveBlock self, Vector2 position, int width, int height, MoveBlock.Directions direction, bool canSteer, bool fast) {
+        private static void MoveBlock_ctor_Vector2_int_int_Directions_bool_bool(On.Celeste.MoveBlock.orig_ctor_Vector2_int_int_Directions_bool_bool orig, MoveBlock self, Vector2 position, int width, int height, Directions direction, bool canSteer, bool fast) {
             orig(self, position, width, height, direction, canSteer, fast);
             if (self.GetType() == typeof(MoveBlock))
                 self.Add(new MoveBlockRedirectable(new DynamicData(typeof(MoveBlock), self)));

@@ -25,7 +25,7 @@ namespace Celeste.Mod.CommunalHelper {
             public PathRenderer(ConnectedSwapBlock block)
                 : base(block.Position) {
                 this.block = block;
-                Depth = 8999;
+                Depth = Depths.BGDecals - 1;
                 timer = Calc.Random.NextFloat();
             }
 
@@ -149,7 +149,7 @@ namespace Celeste.Mod.CommunalHelper {
             middleRed.Position = middleGreen.Position = new Vector2(width, height) / 2f;
 
             Add(new LightOcclude(0.2f));
-            Depth = -9999;
+            Depth = Depths.FGTerrain + 1;
         }
 
         public ConnectedSwapBlock(EntityData data, Vector2 offset)
