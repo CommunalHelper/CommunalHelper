@@ -157,7 +157,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking, string customBlockPath)
             : base(position, width, height, safe: false) {
-            Depth = -9999;
+            Depth = Depths.FGTerrain + 1;
 
             start = Position;
             targets = new Vector2[nodes.Length];

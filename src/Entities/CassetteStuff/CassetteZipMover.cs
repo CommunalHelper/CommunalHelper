@@ -77,7 +77,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             public override void Update() {
                 base.Update();
-                Depth = zipMover.Collidable ? 9000 : 9010;
+                Depth = zipMover.Collidable ? Depths.BGDecals : Depths.BGDecals + 10;
             }
 
             public override void Render() {

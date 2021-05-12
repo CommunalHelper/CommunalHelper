@@ -50,7 +50,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             this.global = global;
 
-            SurfaceSoundIndex = 9;
+            SurfaceSoundIndex = SurfaceIndex.ZipMover;
             start = Position;
             sprite = CommunalHelperModule.SpriteBank.Create("trackSwitchBox");
             sprite.Position = new Vector2(Width, Height) / 2f;

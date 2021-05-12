@@ -18,7 +18,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             public Border(ConnectedMoveBlock parent) {
                 Parent = parent;
-                Depth = 1;
+                Depth = Depths.Player + 1;
             }
 
             public override void Update() {
@@ -87,7 +87,7 @@ namespace Celeste.Mod.CommunalHelper {
         public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
             : base(position, width, height, safe: false) {
 
-            Depth = -1;
+            Depth = Depths.Player - 1;
             startPosition = position;
             Direction = direction;
             this.moveSpeed = moveSpeed;

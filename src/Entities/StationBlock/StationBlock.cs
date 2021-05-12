@@ -59,7 +59,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public StationBlock(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Width, data.Height, safe: true) {
-            Depth = -9999;
+            Depth = Depths.FGTerrain + 1;
             Add(new LightOcclude());
 
             this.offset = new Vector2(Width, Height) / 2f;
