@@ -5,33 +5,34 @@ using Ahorn.CommunalHelper
 
 function swapFinalizer(entity)
     x, y = Ahorn.position(entity)
-
     width = Int(get(entity.data, "width", 8))
-    height = Int(get(entity.data, "height", 8))
 
     entity.data["nodes"] = [(x + width, y)]
 end
 
 @mapdef Entity "CommunalHelper/ConnectedSwapBlock" ConnectedSwapBlock(
-                            x::Integer, y::Integer,
-                            width::Integer = Maple.defaultBlockWidth, 
-                            height::Integer = Maple.defaultBlockWidth,
-                            theme::String = "Normal",
-                            customGreenBlockTexture::String = "", customRedBlockTexture::String = "")
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockWidth,
+    theme::String="Normal",
+    customGreenBlockTexture::String="",
+    customRedBlockTexture::String="",
+)
 
 const placements = Ahorn.PlacementDict(
     "Connected Swap Block ($theme) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedSwapBlock,
         "rectangle",
-        Dict{String, Any}(
-            "theme" => theme
+        Dict{String,Any}(
+            "theme" => theme,
         ),
-        swapFinalizer
+        swapFinalizer,
     ) for theme in Maple.swap_block_themes
 )
 
-Ahorn.editingOptions(entity::ConnectedSwapBlock) = Dict{String, Any}(
-    "theme" => Maple.swap_block_themes
+Ahorn.editingOptions(entity::ConnectedSwapBlock) = Dict{String,Any}(
+    "theme" => Maple.swap_block_themes,
 )
 
 Ahorn.nodeLimits(entity::ConnectedSwapBlock) = 1, 1
@@ -46,23 +47,22 @@ function Ahorn.selection(entity::ConnectedSwapBlock)
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    return [Ahorn.Rectangle(x, y, width, height), Ahorn.Rectangle(stopX, stopY, width, height)]
+    return [
+        Ahorn.Rectangle(x, y, width, height),
+        Ahorn.Rectangle(stopX, stopY, width, height),
+    ]
 end
 
 function getTextures(entity::ConnectedSwapBlock)
     theme = lowercase(get(entity, "theme", "normal"))
+    themePath = (theme == "normal") ? "" : string(theme, "/")
 
-    if theme == "moon"
-        return "objects/swapblock/moon/blockRed", 
-               "objects/swapblock/moon/target", 
-               "objects/swapblock/moon/midBlockRed00",
-               "objects/CommunalHelper/connectedSwapBlock/moon/innerCornersRed"
-    end
-
-    return "objects/swapblock/blockRed", 
-           "objects/swapblock/target", 
-           "objects/swapblock/midBlockRed00",
-           "objects/CommunalHelper/connectedSwapBlock/innerCornersRed"
+    return (
+        "objects/swapblock/$(themePath)blockRed",
+        "objects/swapblock/$(themePath)target",
+        "objects/swapblock/$(themePath)midBlockRed00",
+        "objects/CommunalHelper/connectedSwapBlock/$(themePath)innerCornersRed",
+    )
 end
 
 function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number, trail::String)
@@ -91,21 +91,21 @@ end
 
 function renderSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, width::Number, height::Number, midResource::String, block::String, innerCorners::String, entity::ConnectedSwapBlock, room::Maple.Room)
     midSprite = Ahorn.getSprite(midResource, "Gameplay")
-    
+
     tileWidth = div(width, 8)
     tileHeight = div(height, 8)
-    
+
     rects = getExtensionRectangles(room)
     rx, ry = Ahorn.position(entity)
     rect = Ahorn.Rectangle(rx, ry, width, height)
-	
-	if !(rect in rects)
+
+    if !(rect in rects)
         push!(rects, rect)
     end
 
     for i in 1:tileWidth, j in 1:tileHeight
-		drawX, drawY = (i - 1) * 8, (j - 1) * 8
-		
+        drawX, drawY = (i - 1) * 8, (j - 1) * 8
+
         closedLeft = !notAdjacent(entity, drawX - 8, drawY, rects)
         closedRight = !notAdjacent(entity, drawX + 8, drawY, rects)
         closedUp = !notAdjacent(entity, drawX, drawY - 8, rects)
@@ -113,7 +113,6 @@ function renderSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, wi
         completelyClosed = closedLeft && closedRight && closedUp && closedDown
 
         if completelyClosed
-            
             if notAdjacent(entity, drawX + 8, drawY - 8, rects)
                 # up right
                 Ahorn.drawImage(ctx, innerCorners, x + drawX, y + drawY, 8, 0, 8, 8)
@@ -133,9 +132,8 @@ function renderSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, wi
             else
                 # entirely surrounded, fill tile
                 Ahorn.drawImage(ctx, block, x + drawX, y + drawY, 8, 8, 8, 8)
-
             end
-        else 
+        else
             if closedLeft && closedRight && !closedUp && closedDown
                 Ahorn.drawImage(ctx, block, x + drawX, y + drawY, 8, 0, 8, 8)
 
@@ -167,22 +165,19 @@ function renderSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, wi
 end
 
 function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedSwapBlock, room::Maple.Room)
-    sprite = get(entity.data, "sprite", "block")
     startX, startY = Int(entity.data["x"]), Int(entity.data["y"])
     stopX, stopY = Int.(entity.data["nodes"][1])
 
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
 
-    frame, trail, mid, innerCorners = getTextures(entity)
+    frame, _, mid, innerCorners = getTextures(entity)
 
     renderSwapBlock(ctx, stopX, stopY, width, height, mid, frame, innerCorners, entity, room)
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
 end
 
 function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedSwapBlock, room::Maple.Room)
-    sprite = get(entity.data, "sprite", "block")
-
     startX, startY = Int(entity.data["x"]), Int(entity.data["y"])
     stopX, stopY = Int.(entity.data["nodes"][1])
 
