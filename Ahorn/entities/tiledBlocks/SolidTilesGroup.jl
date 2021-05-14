@@ -26,7 +26,7 @@ function Ahorn.selection(entity::SolidTilesGroup)
 	return Ahorn.Rectangle(x, y, width, height)
 end
 
-const block = "objects/CommunalHelper/connectedZipMover/extension_outline"
+const block = "objects/CommunalHelper/solidExtension/tiles"
 
 const color = (129, 62, 163, 255) ./ 255
 
