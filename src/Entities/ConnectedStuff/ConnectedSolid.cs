@@ -71,6 +71,14 @@ namespace Celeste.Mod.CommunalHelper {
 
         }
 
+        public void SetNewColliderList(ColliderList colliderList) {
+            Collider = colliderList;
+            Colliders = new Hitbox[colliderList.colliders.Length];
+            for (int i = 0; i < Colliders.Length; i++) {
+                Colliders[i] = (Hitbox) colliderList.colliders[i];
+            }
+        }
+
         public static Tuple<MTexture[,], MTexture[,]> SetupCustomTileset(string path) {
             MTexture tileset = GFX.Game["objects/" + path];
 
