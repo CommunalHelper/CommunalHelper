@@ -18,6 +18,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base(position, width, height, safe: true) {
             OnDashCollide = Dashed;
             Collidable = false;
+            Depth = Depths.FGTerrain - 1;
         }
 
         public DashCollisionResults Dashed(Player player, Vector2 dir) {
@@ -55,45 +56,67 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
-            Console.WriteLine(GenerateBetterColliderGrid(tileMap) == null);
+            SetNewColliderList(GenerateBetterColliderGrid(tileMap));
         }
 
+        public override void Render() {
+            base.Render();
+        }
 
-
-        // From FancyTileEntities : https://github.com/catapillie/FancyTileEntities/blob/dev/FancyTileEntities/Extensions.cs#L97
-        // It's not perfectly optimized in terms of how many colliders there are, but it's better than nothing.
         public static ColliderList GenerateBetterColliderGrid(VirtualMap<char> tileMap, int cellWidth = 8, int cellHeight = 8) {
             ColliderList colliders = new ColliderList();
-            List<Hitbox> prevCollidersOnX = new List<Hitbox>();
+            VirtualMap<char> temp = tileMap.Clone();
+
             for (int x = 0; x < tileMap.Columns; x++) {
-                Hitbox prevCollider = null;
-                for (int y = 0; y < tileMap.Rows; y++) {
-                    if (tileMap.AnyInSegmentAtTile(x, y) && tileMap[x, y] != '0') {
-                        if (prevCollider == null)
-                            prevCollider = new Hitbox(cellWidth, cellHeight, x * cellWidth, y * cellHeight);
-                        else
-                            prevCollider = new Hitbox(cellWidth, prevCollider.Height + cellHeight, prevCollider.Position.X, prevCollider.Position.Y);
-                    } else if (prevCollider != null) {
-                        bool extendedOnX = false;
-                        foreach (Hitbox hitbox in prevCollidersOnX) {
-                            if (hitbox.Position.X + hitbox.Width == prevCollider.Position.X &&
-                               hitbox.Position.Y == prevCollider.Position.Y &&
-                               hitbox.Height == prevCollider.Height) {
-                                // Weird check, but hey.
-                                extendedOnX = true;
-                                hitbox.Width += cellWidth;
-                                prevCollider = null;
-                                break;
+                List<Hitbox> prevColliders = new List<Hitbox>();
+                Hitbox currentPrevCollider = null;
+                for (int y = 0; y < tileMap.Rows + 1; y++) {
+
+                    // basic vertical expansion of the colliders.
+                    if (temp[x, y] != '0') {
+                        temp[x, y] = '0';
+                        if (currentPrevCollider == null) {
+                            currentPrevCollider = new Hitbox(cellWidth, cellHeight, x * cellWidth, y * cellHeight);
+                        } else {
+                            currentPrevCollider.Height += cellHeight;
+                        }
+                    } else if (currentPrevCollider != null) {
+                        prevColliders.Add((Hitbox) currentPrevCollider.Clone());
+                        currentPrevCollider = null;
+                    }
+                }
+
+                // once we are done with them, we can extend them horizontally to the right as much as possible.
+                if (prevColliders.Count > 0) {
+                    foreach (Hitbox prevCollider in prevColliders) {
+                        int cx = (int) prevCollider.Position.X / cellWidth;
+                        int cy = (int) prevCollider.Position.Y / cellHeight;
+                        int cw = (int) prevCollider.Width / cellWidth;
+                        int ch = (int) prevCollider.Height / cellHeight;
+
+                        while (cx + cw < temp.Columns) {
+                            bool canExtend = true;
+                            for (int j = cy; j < cy + ch; j++) {
+                                if (temp[cx + cw, j] == '0') {
+                                    canExtend = false;
+                                    break;
+                                }
                             }
+                            if (canExtend) {
+                                for (int j = cy; j < cy + ch; j++) {
+                                    temp[cx + cw, j] = '0';
+                                }
+                                prevCollider.Width += cellWidth;
+                                cw++;
+                            } else
+                                break;
                         }
-                        if (!extendedOnX) {
-                            colliders.Add(prevCollider);
-                            prevCollidersOnX.Add(prevCollider);
-                            prevCollider = null;
-                        }
+
+                        colliders.Add(prevCollider);
                     }
                 }
             }
+            Console.WriteLine("\nlength : " + colliders.colliders.Length);
             return colliders.colliders.Length > 0 ? colliders : null;
         }
     }
