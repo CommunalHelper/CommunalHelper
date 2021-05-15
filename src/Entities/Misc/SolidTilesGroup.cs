@@ -11,13 +11,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool triggered;
 
+        private VirtualMap<char> tileMap;
+
         public SolidTilesGroup(EntityData data, Vector2 offset) :
             this(data.Position + offset, data.Width, data.Height) { }
 
         public SolidTilesGroup(Vector2 position, int width, int height) :
             base(position, width, height, safe: true) {
             OnDashCollide = Dashed;
-            Collidable = false;
+
             Depth = Depths.FGTerrain - 1;
         }
 
@@ -41,26 +43,34 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             Rectangle tileBounds = level.Session.MapData.TileBounds;
 
-            int x = (int) (base.X / 8f) - tileBounds.Left;
-            int y = (int) (base.Y / 8f) - tileBounds.Top;
+            int x = (int) (Left / 8f) - tileBounds.Left;
+            int y = (int) (Top / 8f) - tileBounds.Top;
             int w = (int) (Width / 8f);
             int h = (int) (Height / 8f);
 
             VirtualMap<char> levelTileTypes = new DynData<SolidTiles>(level.SolidTiles).Get<VirtualMap<char>>("tileTypes");
-            VirtualMap<char> tileMap = new VirtualMap<char>(w, h, '0');
+            tileMap = new VirtualMap<char>(w, h, '0');
 
             for (int j = 0; j < h; j++) {
                 for (int i = 0; i < w; i++) {
-                    if (Collider.Collide(new Rectangle((int) X + i * 8, (int) Y + j * 8, 8, 8)))
+                    if (CollideRect(new Rectangle((int) Left + i * 8, (int) Top + j * 8, 8, 8))) {
                         tileMap[i, j] = levelTileTypes[i + x, j + y];
+                        level.SolidTiles.Grid[i + x, j + y] = false; // cursed
+                    }
+                    Console.Write(levelTileTypes[i + x, j + y]);
                 }
+                Console.Write("\n");
             }
 
-            SetNewColliderList(GenerateBetterColliderGrid(tileMap));
+
+            SetNewColliderList(GenerateBetterColliderGrid(tileMap), TopLeft);
         }
 
         public override void Render() {
             base.Render();
+            foreach (Hitbox h in Colliders) {
+                Draw.HollowRect(h, Color.Green);
+            }
         }
 
         public static ColliderList GenerateBetterColliderGrid(VirtualMap<char> tileMap, int cellWidth = 8, int cellHeight = 8) {
@@ -116,7 +126,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
             }
-            Console.WriteLine("\nlength : " + colliders.colliders.Length);
+
             return colliders.colliders.Length > 0 ? colliders : null;
         }
     }
