@@ -269,6 +269,11 @@ placements.entities.CommunalHelper/SurfaceSoundPanel.tooltips.orientation=The wa
 
 # -- Triggers --
 
+# -- Music Param Trigger --
+placements.triggers.CommunalHelper/MusicParamTrigger.tooltips.enterValue=The value to which the parameter(s) are set when the player is touching the trigger.
+placements.triggers.CommunalHelper/MusicParamTrigger.tooltips.exitValue=The value to which the parameter(s) are set when the player is outside the trigger.
+placements.triggers.CommunalHelper/MusicParamTrigger.tooltips.param=The name of the affected parameters. You can specify more than one parameter by separating them with a comma (,).
+
 # -- Switch Track Trigger --
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.oneUse=Allows for only one use of this trigger.
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.flash=Whether the screen should flash and shake when triggered.
