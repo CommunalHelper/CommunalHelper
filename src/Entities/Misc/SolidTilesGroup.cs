@@ -55,7 +55,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 for (int i = 0; i < w; i++) {
                     if (CollideRect(new Rectangle((int) Left + i * 8, (int) Top + j * 8, 8, 8))) {
                         tileMap[i, j] = levelTileTypes[i + x, j + y];
-                        level.SolidTiles.Grid[i + x, j + y] = false; // cursed
                     }
                     Console.Write(levelTileTypes[i + x, j + y]);
                 }
