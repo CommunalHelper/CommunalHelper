@@ -261,7 +261,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void OnCollide(Player player) {
-            GetPlayerCollideIndex(player, out int minIndex, out int maxIndex);
+            (int minIndex, int maxIndex) = GetPlayerCollideIndex(player);
             if (maxIndex >= 0 && minIndex < spikes.Length) {
                 minIndex = Math.Max(minIndex, 0);
                 maxIndex = Math.Min(maxIndex, spikes.Length - 1);
@@ -270,33 +270,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private void GetPlayerCollideIndex(Player player, out int minIndex, out int maxIndex) {
-            minIndex = maxIndex = -1;
+        private (int, int) GetPlayerCollideIndex(Player player) {
             switch (direction) {
-                case Directions.Up:
-                    if (player.Speed.Y >= 0f) {
-                        minIndex = (int) ((player.Left - Left) / 8f);
-                        maxIndex = (int) ((player.Right - Left) / 8f);
-                    }
-                    break;
-                case Directions.Down:
-                    if (player.Speed.Y <= 0f) {
-                        minIndex = (int) ((player.Left - Left) / 8f);
-                        maxIndex = (int) ((player.Right - Left) / 8f);
-                    }
-                    break;
-                case Directions.Left:
-                    if (player.Speed.X >= 0f) {
-                        minIndex = (int) ((player.Top - Top) / 8f);
-                        maxIndex = (int) ((player.Bottom - Top) / 8f);
-                    }
-                    break;
-                case Directions.Right:
-                    if (player.Speed.X <= 0f) {
-                        minIndex = (int) ((player.Top - Top) / 8f);
-                        maxIndex = (int) ((player.Bottom - Top) / 8f);
-                    }
-                    break;
+                case Directions.Up when player.Speed.Y >= 0f:
+                case Directions.Down when player.Speed.Y <= 0f:
+                    return (
+                        (int) ((player.Left - Left) / 8f),
+                        (int) ((player.Right - Left) / 8f)
+                    );
+                case Directions.Left when player.Speed.X >= 0f:
+                case Directions.Right when player.Speed.X <= 0f:
+                    return (
+                        (int) ((player.Top - Top) / 8f),
+                        (int) ((player.Bottom - Top) / 8f)
+                    );
+                default:
+                    return (-1, -1);
             }
         }
 
@@ -306,7 +295,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 return false;
             }
 
-            GetPlayerCollideIndex(player, out int minIndex, out int maxIndex);
+            (int minIndex, int maxIndex) = GetPlayerCollideIndex(player);
             if (minIndex <= spikeIndex + 1) {
                 return maxIndex >= spikeIndex - 1;
             }
