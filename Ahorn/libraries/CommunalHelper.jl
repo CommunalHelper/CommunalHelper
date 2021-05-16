@@ -260,13 +260,13 @@ macro mapdefdata(entity::Symbol, id::String, type::Symbol, data::Symbol)
 end
 
 function appendkwargs(func::Expr, kwargs::Expr...)
-    return _appendkwargs(deepcopy(func), deepcopy(kwargs)...)
+    return _appendkwargs!(deepcopy(func), deepcopy(kwargs)...)
 end
 
-function _appendkwargs(func::Expr, kwargs::Expr...)
+function _appendkwargs!(func::Expr, kwargs::Expr...)
     for e in kwargs
         if e.head == :tuple
-            func = appendkwargs(func, e.args...)
+            _appendkwargs!(func, e.args...)
         else
             e.head = :kw
             push!(func.args, e)

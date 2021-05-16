@@ -3,19 +3,19 @@ module CommunalHelperTimedTriggerSpikes
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-pos = :(spike(
+const pos = :(spike(
     x::Integer,
     y::Integer,
 )) 
-data = :(
+const data = :(
     type::String="default",
     Delay::Number=0.4,
     WaitForPlayer::Bool=false,
     Grouped::Bool=false,
     Rainbow::Bool=false,
 )
-heightData = appendkwargs(pos, :(height::Integer=Maple.defaultSpikeHeight), data)
-widthData = appendkwargs(pos, :(width::Integer=Maple.defaultSpikeWidth), data)
+const heightData = appendkwargs(pos, :(height::Integer=Maple.defaultSpikeHeight), data)
+const widthData = appendkwargs(pos, :(width::Integer=Maple.defaultSpikeWidth), data)
 
 @mapdefdata Entity "CommunalHelper/TimedTriggerSpikesLeft" TimedTriggerSpikesLeft heightData
 @mapdefdata Entity "CommunalHelper/TimedTriggerSpikesUp" TimedTriggerSpikesUp widthData
