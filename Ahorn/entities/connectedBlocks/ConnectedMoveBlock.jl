@@ -3,34 +3,39 @@ module CommunalHelperConnectedMoveBlock
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/ConnectedMoveBlock" ConnectedMoveBlock(x::Integer, y::Integer,
-	width::Integer = Maple.defaultBlockWidth, height::Integer = Maple.defaultBlockWidth,
-    direction::String="Right", moveSpeed::Number=60.0,
-    customBlockTexture::String = "")
+@mapdef Entity "CommunalHelper/ConnectedMoveBlock" ConnectedMoveBlock(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockWidth,
+    direction::String="Right",
+    moveSpeed::Number=60.0,
+    customBlockTexture::String="",
+)
 
 const placements = Ahorn.PlacementDict(
     "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedMoveBlock,
         "rectangle",
-        Dict{String, Any}(
-            "direction" => direction
-        )
+        Dict{String,Any}(
+            "direction" => direction,
+        ),
     ) for direction in Maple.move_block_directions
 )
 
-Ahorn.editingOptions(entity::ConnectedMoveBlock) = Dict{String, Any}(
+Ahorn.editingOptions(entity::ConnectedMoveBlock) = Dict{String,Any}(
     "direction" => Maple.move_block_directions,
-	"moveSpeed" => Dict{String, Number}(
-		"Slow" => 60.0,
-		"Fast" => 75.0
-	)
+    "moveSpeed" => Dict{String,Number}(
+        "Slow" => 60.0,
+        "Fast" => 75.0,
+    ),
 )
 Ahorn.minimumSize(entity::ConnectedMoveBlock) = 16, 16
 Ahorn.resizable(entity::ConnectedMoveBlock) = true, true
 
 Ahorn.selection(entity::ConnectedMoveBlock) = Ahorn.getEntityRectangle(entity)
 
-const arrows = Dict{String, String}(
+const arrows = Dict{String,String}(
     "up" => "objects/moveBlock/arrow02",
     "left" => "objects/moveBlock/arrow04",
     "right" => "objects/moveBlock/arrow00",
@@ -58,16 +63,16 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock,
     direction = lowercase(get(entity.data, "direction", "up"))
     arrowSprite = Ahorn.getSprite(arrows[lowercase(direction)], "Gameplay")
 
-    block, innerCorners = "objects/moveBlock/base",  "objects/CommunalHelper/connectedMoveBlock/innerCorners"
+    block, innerCorners = "objects/moveBlock/base", "objects/CommunalHelper/connectedMoveBlock/innerCorners"
 
     rects = getExtensionRectangles(room)
     rect = Ahorn.Rectangle(x, y, width, height)
-	if !(rect in rects)
+    if !(rect in rects)
         push!(rects, rect)
     end
 
     for i in 1:tileWidth, j in 1:tileHeight
-		drawX, drawY = (i - 1) * 8, (j - 1) * 8
+        drawX, drawY = (i - 1) * 8, (j - 1) * 8
 
         closedLeft = !notAdjacent(entity, drawX - 8, drawY, rects)
         closedRight = !notAdjacent(entity, drawX + 8, drawY, rects)
@@ -76,7 +81,6 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock,
         completelyClosed = closedLeft && closedRight && closedUp && closedDown
 
         if completelyClosed
-
             if notAdjacent(entity, drawX + 8, drawY - 8, rects)
                 # up right
                 Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 8, 0, 8, 8)
@@ -96,7 +100,6 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock,
             else
                 # entirely surrounded, fill tile
                 Ahorn.drawImage(ctx, block, drawX, drawY, 8, 8, 8, 8)
-
             end
         else
             if closedLeft && closedRight && !closedUp && closedDown
