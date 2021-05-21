@@ -15,7 +15,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static List<string> CustomCassetteBlockNames = new List<string>();
 
         public static void Initialize() {
-            // Overengineered attempt to handle CustomCassetteBlock types
+            // Overengineered attempt to handle adding a CassetteBlockController when CustomCassetteBlock types are present
+            // Actual loading handled in the OnLoadEntity handler
             IEnumerable<Type> customCassetteBlockTypes =
                 from module in Everest.Modules
                 from type in module.GetType().Assembly.GetTypesSafe()
@@ -42,13 +43,32 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected Color color;
         protected Color pressedColor;
 
-        public int blockHeight = 2;
-        protected Vector2 blockOffset = Vector2.Zero;
+        protected int blockHeight {
+            get => blockData.Get<int>("blockHeight");
+            set => blockData.Set("blockHeight", value);
+        }
+        /// <summary>
+        /// Block offset based on <c>(2 - <see cref="blockHeight"/>)</c>
+        /// </summary>
+        protected Vector2 blockOffset => Vector2.UnitY * (2 - blockHeight);
+        // dynamic hitbox currently disabled
         private bool dynamicHitbox;
         private Hitbox[] hitboxes;
 
-        public bool Present = true;
-        public bool virtualCollidable = true;
+        private bool present = true;
+        /// <summary>
+        /// Whether the block is actually collidable, not just according to cassette state.
+        /// </summary>
+        public bool Present {
+            get => present;
+            set {
+                present = value;
+                // Update collision immediately without waiting for Update
+                Collidable = value && virtualCollidable;
+            }
+        }
+        // Whether the block is collidable according to cassette state
+        private bool virtualCollidable = true;
 
         protected DynData<CassetteBlock> blockData;
 
@@ -78,8 +98,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (!Present) {
                 Collidable = virtualCollidable;
             }
+
             base.Update();
+            // Update what the cassette state dictates collision should be
             virtualCollidable = Collidable;
+
             if (!Present) {
                 Collidable = false;
                 DisableStaticMovers();
@@ -93,15 +116,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 origin = blockData.Get<Vector2>("groupOrigin") - Position;
             Vector2 size = new Vector2(Width, Height);
 
-            Vector2 value = (size - new Vector2(solid.Width, solid.Height)) * 0.5f;
-            solid.Origin = origin - value;
+            Vector2 half = (size - new Vector2(solid.Width, solid.Height)) * 0.5f;
+            solid.Origin = origin - half;
             solid.Position = origin;
             solid.Color = color;
             Add(solid);
             all.Add(solid);
 
-            value = (size - new Vector2(pressed.Width, pressed.Height)) * 0.5f;
-            pressed.Origin = origin - value;
+            half = (size - new Vector2(pressed.Width, pressed.Height)) * 0.5f;
+            pressed.Origin = origin - half;
             pressed.Position = origin;
             pressed.Color = color;
             Add(pressed);
@@ -110,7 +133,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public void HandleShiftSize(int amount) {
             blockHeight -= amount;
-            blockOffset = (2 - blockHeight) * Vector2.UnitY;
+            //blockOffset = (2 - blockHeight) * Vector2.UnitY;
             if (dynamicHitbox) {
                 Collider = hitboxes[blockHeight];
             }
@@ -123,17 +146,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        protected void UpdatePresent(bool present) {
-            Present = present;
-            Collidable = present && virtualCollidable;
-        }
-
         #region Hooks
 
         private static bool createdCassetteManager = false;
 
         internal static void Hook() {
-            On.Celeste.CassetteBlock.ShiftSize += CassetteBlock_ShiftSize;
+            //On.Celeste.CassetteBlock.ShiftSize += CassetteBlock_ShiftSize;
             On.Celeste.CassetteBlock.UpdateVisualState += CassetteBlock_UpdateVisualState;
             IL.Celeste.CassetteBlock.Update += CassetteBlock_Update;
             On.Celeste.Level.LoadLevel += Level_LoadLevel;
@@ -141,7 +159,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         internal static void Unhook() {
-            On.Celeste.CassetteBlock.ShiftSize -= CassetteBlock_ShiftSize;
+            //On.Celeste.CassetteBlock.ShiftSize -= CassetteBlock_ShiftSize;
             On.Celeste.CassetteBlock.UpdateVisualState -= CassetteBlock_UpdateVisualState;
             IL.Celeste.CassetteBlock.Update -= CassetteBlock_Update;
             On.Celeste.Level.LoadLevel -= Level_LoadLevel;
