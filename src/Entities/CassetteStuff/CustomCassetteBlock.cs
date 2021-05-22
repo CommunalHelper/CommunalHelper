@@ -143,6 +143,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        /// <summary>
+        /// Makes static movers (Spikes and Springs) appear or disappear when they are disabled.
+        /// </summary>
+        /// <param name="visible">Whether disabled static movers should be visible.</param>
+        protected void SetDisabledStaticMoversVisibility(bool visible) {
+            foreach (StaticMover staticMover in staticMovers) {
+                if (staticMover.Entity is Spikes spikes)
+                    spikes.VisibleWhenDisabled = visible;
+
+                if (staticMover.Entity is Spring spring)
+                    spring.VisibleWhenDisabled = visible;
+            }
+        }
+
         #region Hooks
 
         private static bool createdCassetteManager = false;

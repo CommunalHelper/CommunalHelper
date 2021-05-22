@@ -207,6 +207,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
                 Vector2 newPosition = startPosition + blockOffset;
+                SetDisabledStaticMoversVisibility(false);
                 MoveStaticMovers(newPosition - Position);
                 Position = newPosition;
                 Visible = false;
@@ -239,6 +240,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (Collidable) {
                     EnableStaticMovers();
                 }
+                SetDisabledStaticMoversVisibility(true);
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
                 noSquish = null;
