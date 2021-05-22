@@ -51,7 +51,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         /// Block offset based on <c>(2 - <see cref="blockHeight"/>)</c>
         /// </summary>
         protected Vector2 blockOffset => Vector2.UnitY * (2 - blockHeight);
-        // dynamic hitbox currently disabled
         private bool dynamicHitbox;
         private Hitbox[] hitboxes;
 
@@ -132,10 +131,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public void HandleShiftSize(int amount) {
-            blockHeight -= amount;
-            //blockOffset = (2 - blockHeight) * Vector2.UnitY;
             if (dynamicHitbox) {
-                Collider = hitboxes[blockHeight];
+                Collider = hitboxes[blockHeight - amount];
             }
         }
 
@@ -151,7 +148,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static bool createdCassetteManager = false;
 
         internal static void Hook() {
-            //On.Celeste.CassetteBlock.ShiftSize += CassetteBlock_ShiftSize;
+            On.Celeste.CassetteBlock.ShiftSize += CassetteBlock_ShiftSize;
             On.Celeste.CassetteBlock.UpdateVisualState += CassetteBlock_UpdateVisualState;
             IL.Celeste.CassetteBlock.Update += CassetteBlock_Update;
             On.Celeste.Level.LoadLevel += Level_LoadLevel;
@@ -159,7 +156,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         internal static void Unhook() {
-            //On.Celeste.CassetteBlock.ShiftSize -= CassetteBlock_ShiftSize;
+            On.Celeste.CassetteBlock.ShiftSize -= CassetteBlock_ShiftSize;
             On.Celeste.CassetteBlock.UpdateVisualState -= CassetteBlock_UpdateVisualState;
             IL.Celeste.CassetteBlock.Update -= CassetteBlock_Update;
             On.Celeste.Level.LoadLevel -= Level_LoadLevel;
@@ -179,9 +176,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     cassetteBlock.HandleShiftSize(amount);
                 }
             }
-            if (shift) {
+
+            if (shift)
                 orig(block, amount);
-            }
         }
 
         private static void CassetteBlock_UpdateVisualState(On.Celeste.CassetteBlock.orig_UpdateVisualState orig, CassetteBlock block) {
