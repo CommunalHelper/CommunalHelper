@@ -157,6 +157,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        protected void SetStaticMoversVisible(bool visible) {
+            foreach (StaticMover staticMover in staticMovers) {
+                staticMover.Entity.Visible = visible;
+            }
+        }
+
         #region Hooks
 
         private static bool createdCassetteManager = false;
@@ -167,6 +173,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IL.Celeste.CassetteBlock.Update += CassetteBlock_Update;
             On.Celeste.Level.LoadLevel += Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
+
+            // Fix static movers getting enabled by Platform.EnableStaticMovers when CustomCassetteBlock is not visible.
+            On.Celeste.Platform.EnableStaticMovers += Platform_EnableStaticMovers;
         }
 
         internal static void Unhook() {
@@ -175,6 +184,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IL.Celeste.CassetteBlock.Update -= CassetteBlock_Update;
             On.Celeste.Level.LoadLevel -= Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
+
+            On.Celeste.Platform.EnableStaticMovers -= Platform_EnableStaticMovers;
+        }
+
+        private static void Platform_EnableStaticMovers(On.Celeste.Platform.orig_EnableStaticMovers orig, Platform self) {
+            if (self is CustomCassetteBlock && !self.Visible)
+                return; // do nothing
+            orig(self);
         }
 
         private static void CassetteBlock_ShiftSize(On.Celeste.CassetteBlock.orig_ShiftSize orig, CassetteBlock block, int amount) {
