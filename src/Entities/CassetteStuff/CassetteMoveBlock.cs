@@ -207,6 +207,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
                 Vector2 newPosition = startPosition + blockOffset;
+                SetDisabledStaticMoversVisibility(false);
+                SetStaticMoversVisible(false);
                 MoveStaticMovers(newPosition - Position);
                 Position = newPosition;
                 Visible = false;
@@ -236,9 +238,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     d.RemoveSelf();
                 Audio.Play("event:/game/04_cliffside/arrowblock_reappear", Position);
                 Visible = true;
-                if (Collidable) {
+                SetDisabledStaticMoversVisibility(true);
+                SetStaticMoversVisible(true);
+                
+                if (Collidable)
                     EnableStaticMovers();
+                else {
+                    // would inexplicably appear turned on
+                    DisableStaticMovers();
                 }
+
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
                 noSquish = null;
