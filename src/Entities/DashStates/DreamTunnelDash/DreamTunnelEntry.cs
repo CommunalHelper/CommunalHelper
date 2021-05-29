@@ -443,7 +443,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Callvirt &&
                 ((MethodReference) instr.Operand).FullName == "System.Boolean Monocle.Entity::CollideCheck<Celeste.DreamBlock>(Microsoft.Xna.Framework.Vector2)");
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldfld, typeof(Player).GetNestedType("<DashCoroutine>d__427", BindingFlags.NonPublic).GetField("<>4__this"));
+            cursor.Emit(OpCodes.Ldfld, typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget().DeclaringType.GetField("<>4__this"));
             cursor.EmitDelegate<Func<bool, Player, bool>>((v, player) => {
                 return v || player.CollideCheck<DreamTunnelEntry>(player.Position + Vector2.UnitY);
             });
