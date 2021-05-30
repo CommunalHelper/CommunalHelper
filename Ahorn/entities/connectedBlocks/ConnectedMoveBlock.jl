@@ -14,14 +14,24 @@ using Ahorn.CommunalHelper
 )
 
 const placements = Ahorn.PlacementDict(
-    "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Connected Move Block (Reskinnable) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedMoveBlock,
         "rectangle",
         Dict{String,Any}(
-            "direction" => direction,
+            "customBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
         ),
-    ) for direction in Maple.move_block_directions
+    ),
 )
+for direction in Maple.move_block_directions
+    key = "Connected Move Block ($direction) (Communal Helper)"
+    placements[key] = Ahorn.EntityPlacement(
+        ConnectedMoveBlock,
+        "rectangle",
+        Dict{String,Any}(
+            "direction" => direction
+        ),
+    )
+end
 
 Ahorn.editingOptions(entity::ConnectedMoveBlock) = Dict{String,Any}(
     "direction" => Maple.move_block_directions,
@@ -64,6 +74,14 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock,
     arrowSprite = Ahorn.getSprite(arrows[lowercase(direction)], "Gameplay")
 
     block, innerCorners = "objects/moveBlock/base", "objects/CommunalHelper/connectedMoveBlock/innerCorners"
+    customBlockTexture = String(get(entity.data, "customBlockTexture", ""))
+    hasCustomTexture = customBlockTexture != ""
+    txOffset = 0
+
+    if hasCustomTexture 
+        block = innerCorners = "objects/" * customBlockTexture
+        txOffset = 24
+    end
 
     rects = getExtensionRectangles(room)
     rect = Ahorn.Rectangle(x, y, width, height)
@@ -83,19 +101,19 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock,
         if completelyClosed
             if notAdjacent(entity, drawX + 8, drawY - 8, rects)
                 # up right
-                Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 8, 0, 8, 8)
+                Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 8 + txOffset, 0, 8, 8)
 
             elseif notAdjacent(entity, drawX - 8, drawY - 8, rects)
                 # up left
-                Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 0, 0, 8, 8)
+                Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 0 + txOffset, 0, 8, 8)
 
             elseif notAdjacent(entity, drawX + 8, drawY + 8, rects)
                 # down right
-                Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 8, 8, 8, 8)
+                Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 8 + txOffset, 8, 8, 8)
 
             elseif notAdjacent(entity, drawX - 8, drawY + 8, rects)
                 # down left
-                Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 0, 8, 8, 8)
+                Ahorn.drawImage(ctx, innerCorners, drawX, drawY, 0 + txOffset, 8, 8, 8)
 
             else
                 # entirely surrounded, fill tile

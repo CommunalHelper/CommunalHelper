@@ -21,15 +21,27 @@ end
 )
 
 const placements = Ahorn.PlacementDict(
-    "Connected Swap Block ($theme) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Connected Swap Block (Reskinnable) (Communal Helper)" => Ahorn.EntityPlacement(
+        ConnectedSwapBlock,
+        "rectangle",
+        Dict{String,Any}(
+            "customGreenBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
+            "customRedBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
+        ),
+        swapFinalizer,
+    )
+)
+for theme in Maple.swap_block_themes
+    key = "Connected Swap Block ($theme) (Communal Helper)"
+    placements[key] = Ahorn.EntityPlacement(
         ConnectedSwapBlock,
         "rectangle",
         Dict{String,Any}(
             "theme" => theme,
         ),
         swapFinalizer,
-    ) for theme in Maple.swap_block_themes
-)
+    )
+end
 
 Ahorn.editingOptions(entity::ConnectedSwapBlock) = Dict{String,Any}(
     "theme" => Maple.swap_block_themes,
@@ -89,7 +101,7 @@ function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number, t
     Ahorn.drawImage(ctx, trail, x + 2, y + height - 8, 0, 14, 6, 6)
 end
 
-function renderSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, width::Number, height::Number, midResource::String, block::String, innerCorners::String, entity::ConnectedSwapBlock, room::Maple.Room)
+function renderSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, width::Number, height::Number, midResource::String, block::String, innerCorners::String, txOffset::Integer, entity::ConnectedSwapBlock, room::Maple.Room)
     midSprite = Ahorn.getSprite(midResource, "Gameplay")
 
     tileWidth = div(width, 8)
@@ -115,19 +127,19 @@ function renderSwapBlock(ctx::Ahorn.Cairo.CairoContext, x::Number, y::Number, wi
         if completelyClosed
             if notAdjacent(entity, drawX + 8, drawY - 8, rects)
                 # up right
-                Ahorn.drawImage(ctx, innerCorners, x + drawX, y + drawY, 8, 0, 8, 8)
+                Ahorn.drawImage(ctx, innerCorners, x + drawX, y + drawY, 8 + txOffset, 0, 8, 8)
 
             elseif notAdjacent(entity, drawX - 8, drawY - 8, rects)
                 # up left
-                Ahorn.drawImage(ctx, innerCorners, x + drawX, y + drawY, 0, 0, 8, 8)
+                Ahorn.drawImage(ctx, innerCorners, x + drawX, y + drawY, 0 + txOffset, 0, 8, 8)
 
             elseif notAdjacent(entity, drawX + 8, drawY + 8, rects)
                 # down right
-                Ahorn.drawImage(ctx, innerCorners, x + drawX, y + drawY, 8, 8, 8, 8)
+                Ahorn.drawImage(ctx, innerCorners, x + drawX, y + drawY, 8 + txOffset, 8, 8, 8)
 
             elseif notAdjacent(entity, drawX - 8, drawY + 8, rects)
                 # down left
-                Ahorn.drawImage(ctx, innerCorners, x + drawX, y + drawY, 0, 8, 8, 8)
+                Ahorn.drawImage(ctx, innerCorners, x + drawX, y + drawY, 0 + txOffset, 8, 8, 8)
 
             else
                 # entirely surrounded, fill tile
@@ -172,8 +184,16 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::Connecte
     height = Int(get(entity.data, "height", 32))
 
     frame, _, mid, innerCorners = getTextures(entity)
+    customBlockTexture = String(get(entity.data, "customRedBlockTexture", ""))
+    hasCustomTexture = customBlockTexture != ""
+    txOffset = 0
 
-    renderSwapBlock(ctx, stopX, stopY, width, height, mid, frame, innerCorners, entity, room)
+    if hasCustomTexture 
+        frame = innerCorners = "objects/" * customBlockTexture
+        txOffset = 24
+    end
+
+    renderSwapBlock(ctx, stopX, stopY, width, height, mid, frame, innerCorners, txOffset, entity, room)
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
 end
 
@@ -185,9 +205,17 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedSwapBlo
     height = Int(get(entity.data, "height", 32))
 
     frame, trail, mid, innerCorners = getTextures(entity)
+    customBlockTexture = String(get(entity.data, "customRedBlockTexture", ""))
+    hasCustomTexture = customBlockTexture != ""
+    txOffset = 0
+
+    if hasCustomTexture 
+        frame = innerCorners = "objects/" * customBlockTexture
+        txOffset = 24
+    end
 
     renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height, trail)
-    renderSwapBlock(ctx, startX, startY, width, height, mid, frame, innerCorners, entity, room)
+    renderSwapBlock(ctx, startX, startY, width, height, mid, frame, innerCorners, txOffset, entity, room)
 end
 
 end
