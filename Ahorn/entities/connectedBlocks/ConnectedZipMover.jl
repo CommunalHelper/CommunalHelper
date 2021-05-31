@@ -65,7 +65,17 @@ function getTextures(entity::ConnectedZipMover)
     theme = lowercase(get(entity, "theme", "normal"))
     folder = theme == "cliffside" ? "CommunalHelper/connectedZipMover" : "zipmover"
     themePath = (theme == "normal") ? "" : string(theme, "/")
-
+    
+    customSkin = get(entity, "customSkin", "")
+    if customSkin != ""
+        return (
+            "$(customSkin)/block",
+            "$(customSkin)/light01",
+            "$(customSkin)/cog",
+            "$(customSkin)/innerCorners"
+        )
+    end
+    
     return (
         "objects/$(folder)/$(themePath)block",
         "objects/$(folder)/$(themePath)light01",
