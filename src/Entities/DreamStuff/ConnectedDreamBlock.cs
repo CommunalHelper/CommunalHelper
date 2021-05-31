@@ -750,19 +750,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static void Hook() {
             On.Celeste.DreamBlock.FootstepRipple += DreamBlock_FootstepRipple;
 
-            Type nestedType = typeof(DreamBlock).GetNestedType("<FastActivate>d__13", BindingFlags.NonPublic);
+            Type[] nestedTypes = typeof(DreamBlock).GetNestedTypes(BindingFlags.NonPublic);
+            Type nestedType = nestedTypes.First(t => t.Name.StartsWith("<FastActivate>"));
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_FastActivate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
 
-            nestedType = typeof(DreamBlock).GetNestedType("<FastDeactivate>d__12", BindingFlags.NonPublic);
+            nestedType = nestedTypes.First(t => t.Name.StartsWith("<FastDeactivate>"));
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_FastDeactivate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
 
-            nestedType = typeof(DreamBlock).GetNestedType("<Activate>d__34", BindingFlags.NonPublic);
+            nestedType = nestedTypes.First(t => t.Name.StartsWith("<Activate>"));
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_Activate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockSlowRoutine);
 
-            nestedType = typeof(DreamBlock).GetNestedType("<Deactivate>d__11", BindingFlags.NonPublic);
+            nestedType = nestedTypes.First(t => t.Name.StartsWith("<Deactivate>"));
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_Deactivate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockSlowRoutine);
         }
