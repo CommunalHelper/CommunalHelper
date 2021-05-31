@@ -150,10 +150,11 @@ namespace Celeste.Mod.CommunalHelper {
                   data.Bool("permanent"),
                   data.Bool("waiting"),
                   data.Bool("ticking"),
-                  data.Attr("customBlockTexture").Trim(),
-                  data.Attr("colors").Trim()) { }
+                  data.Attr("customSkin").Trim(),
+                  data.Attr("colors").Trim(),
+                  data.Attr("customBlockTexture").Trim()) { }
 
-        public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking, string customBlockPath, string colors)
+        public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking, string customSkin, string colors, string legacyCustomTexture)
             : base(position, width, height, safe: false) {
             Depth = Depths.FGTerrain + 1;
 
@@ -175,14 +176,16 @@ namespace Celeste.Mod.CommunalHelper {
 
             SurfaceSoundIndex = SurfaceIndex.Girder;
 
-            if (!string.IsNullOrEmpty(customBlockPath)) {
-                path = customBlockPath + "/light";
-                id = customBlockPath + "/block";
-                key = customBlockPath + "/innercog";
-                corners = customBlockPath + "/innerCorners";
-                cog = GFX.Game[customBlockPath + "/cog"];
+            if (!string.IsNullOrEmpty(customSkin)) {
+                path = customSkin + "/light";
+                id = customSkin + "/block";
+                key = customSkin + "/innercog";
+                corners = customSkin + "/innerCorners";
+                cog = GFX.Game[customSkin + "/cog"];
                 themePath = "normal";
                 backgroundColor = Color.Black;
+                if (theme == Themes.Moon)
+                    themePath = "moon";
             } else switch (theme) {
                 default:
                 case Themes.Normal:
@@ -244,7 +247,11 @@ namespace Celeste.Mod.CommunalHelper {
                 Position = new Vector2(Width / 2f, 4f)
             });
 
-            {
+            if (legacyCustomTexture != "") {
+                Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(legacyCustomTexture);
+                edges = customTiles.Item1;
+                innerCorners = customTiles.Item2;
+            } else {
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 3; j++) {
                         edges[i, j] = GFX.Game[id].GetSubtexture(i * 8, j * 8, 8, 8);

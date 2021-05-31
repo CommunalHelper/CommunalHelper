@@ -15,8 +15,8 @@ const theme_options = String["Normal", "Moon", "Cliffside"]
     waiting::Bool=false,
     ticking::Bool=false,
     nodes::Array{Tuple{Integer,Integer},1}=Tuple{Integer,Integer}[],
-    customBlockTexture::String="",
-	colors::String="",
+    customSkin::String="",
+    colors::String="",
 )
 
 const placements = Ahorn.PlacementDict(
