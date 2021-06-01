@@ -192,7 +192,7 @@ namespace Celeste.Mod.CommunalHelper {
                     path = "objects/zipmover/light";
                     id = "objects/zipmover/block";
                     key = "objects/zipmover/innercog";
-                    corners = "objects/CommunalHelper/connectedZipMover/innerCorners";
+                    corners = "objects/CommunalHelper/zipmover/innerCorners";
                     cog = GFX.Game["objects/zipmover/cog"];
                     themePath = "normal";
                     drawBlackBorder = true;
@@ -203,7 +203,7 @@ namespace Celeste.Mod.CommunalHelper {
                     path = "objects/zipmover/moon/light";
                     id = "objects/zipmover/moon/block";
                     key = "objects/zipmover/moon/innercog";
-                    corners = "objects/CommunalHelper/connectedZipMover/moon/innerCorners";
+                    corners = "objects/CommunalHelper/zipmover/moon/innerCorners";
                     cog = GFX.Game["objects/zipmover/moon/cog"];
                     themePath = "moon";
                     drawBlackBorder = false;

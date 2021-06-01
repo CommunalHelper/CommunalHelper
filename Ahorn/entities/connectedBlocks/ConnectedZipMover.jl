@@ -35,6 +35,14 @@ const placements = Ahorn.PlacementDict(
     ) for theme in theme_options
 )
 
+placements["Connected Zip Mover (Reskinnable) (Communal Helper)"] = Ahorn.EntityPlacement(
+    ConnectedZipMover,
+    "rectangle",
+    Dict{String,Any}(
+        "customBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
+    ),
+)
+
 Ahorn.editingOptions(entity::ConnectedZipMover) = Dict{String,Any}(
     "theme" => theme_options,
 )
@@ -63,7 +71,8 @@ end
 
 function getTextures(entity::ConnectedZipMover)
     theme = lowercase(get(entity, "theme", "normal"))
-    folder = theme == "cliffside" ? "CommunalHelper/connectedZipMover" : "zipmover"
+    isCliffside = theme == "cliffside"
+    folder = isCliffside ? "CommunalHelper/connectedZipMover" : "zipmover"
     themePath = (theme == "normal") ? "" : string(theme, "/")
     
     customSkin = get(entity, "customSkin", "")
@@ -80,7 +89,7 @@ function getTextures(entity::ConnectedZipMover)
         "objects/$(folder)/$(themePath)block",
         "objects/$(folder)/$(themePath)light01",
         "objects/$(folder)/$(themePath)cog",
-        "objects/$(folder)/$(themePath)innerCorners"
+        "objects/$((isCliffside ? "" : "CommunalHelper/") * folder)/$(themePath)innerCorners"
     )
 end
 
@@ -97,6 +106,15 @@ function renderZipMover(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedZipMover
 
     block, light, cog, incorners = getTextures(entity)
     lightSprite = Ahorn.getSprite(light, "Gameplay")
+
+    customBlockTexture = String(get(entity.data, "customBlockTexture", ""))
+    hasCustomTexture = customBlockTexture != ""
+    txOffset = 0
+
+    if hasCustomTexture 
+        block = incorners = "objects/" * customBlockTexture
+        txOffset = 24
+    end
 
     tileWidth = div(width, 8)
     tileHeight = div(height, 8)
@@ -156,19 +174,19 @@ function renderZipMover(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedZipMover
             Ahorn.drawRectangle(ctx, x + drawX, y + drawY, 8, 8, (0.0, 0.0, 0.0, 1.0))
             if notAdjacent(entity, drawX + 8, drawY - 8, rects)
                 # up right
-                Ahorn.drawImage(ctx, incorners, x + drawX, y + drawY, 8, 0, 8, 8)
+                Ahorn.drawImage(ctx, incorners, x + drawX, y + drawY, 8 + txOffset, 0, 8, 8)
 
             elseif notAdjacent(entity, drawX - 8, drawY - 8, rects)
                 # up left
-                Ahorn.drawImage(ctx, incorners, x + drawX, y + drawY, 0, 0, 8, 8)
+                Ahorn.drawImage(ctx, incorners, x + drawX, y + drawY, 0 + txOffset, 0, 8, 8)
 
             elseif notAdjacent(entity, drawX + 8, drawY + 8, rects)
                 # down right
-                Ahorn.drawImage(ctx, incorners, x + drawX, y + drawY, 8, 8, 8, 8)
+                Ahorn.drawImage(ctx, incorners, x + drawX, y + drawY, 8 + txOffset, 8, 8, 8)
 
             elseif notAdjacent(entity, drawX - 8, drawY + 8, rects)
                 # down left
-                Ahorn.drawImage(ctx, incorners, x + drawX, y + drawY, 0, 8, 8, 8)
+                Ahorn.drawImage(ctx, incorners, x + drawX, y + drawY, 0 + txOffset, 8, 8, 8)
             end
         else
             if closedLeft && closedRight && !closedUp && closedDown
