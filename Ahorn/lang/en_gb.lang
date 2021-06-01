@@ -62,11 +62,13 @@ placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customRedBlockTex
 placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearance of the Connected Swap Block.
 
 # -- Connected Zip Mover --
-placements.entities.CommunalHelper/ConnectedZipMover.tooltips.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
-placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=The appearance of the Connected Zip Mover. The Cliffside theme is a custom theme.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.customBlockTexture=Legacy. Replace this zip mover and use Custom Skin instead. The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.customSkin=The path to a directory with custom textures for this Connected Zip Mover. This is relative to Graphics/Atlases/Gameplay. If set, this overrides the Theme option. Setting the Cliffside theme is equivalent to setting this field to objects/CommunalHelper/connectedZipMover/cliffside, and customising Colors to match.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=If Custom Skin is not set, this determines the appearance of the Connected Zip Mover. This also determines the sounds used. The Cliffside theme is a custom theme.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.permanent=Whether the Connected Zip Mover should stay completely static after stopping.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.waiting=Whether the Connected Zip Mover should wait for the player at each node. Only useful if has more than one node.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.ticking=Whether the Connected Zip Mover should be ticking at each node, forcing the player to reactivate it within a limited amount of time. Will return to initial position if the player doesn't reactivate it, or locks in place completely if "permanent" is on. Only useful if has more than one node.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.colors=The background and rope colors for this Connected Zip Mover. Setting this value overrides the default values. This is a comma-seperated list of hex codes; the first is used as ther background color, the second as the main rope color, and the third as the lighter rope color (when present). For the Normal and Moon themes, this is 000000,663931,9b6157 by default; for the Cliffside theme, this is 171018,663931,9b6157 by default.
 
 
 # -- Dream Falling Block --

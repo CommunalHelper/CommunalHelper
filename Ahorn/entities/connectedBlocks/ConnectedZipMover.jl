@@ -15,7 +15,8 @@ const theme_options = String["Normal", "Moon", "Cliffside"]
     waiting::Bool=false,
     ticking::Bool=false,
     nodes::Array{Tuple{Integer,Integer},1}=Tuple{Integer,Integer}[],
-    customBlockTexture::String="",
+    customSkin::String="",
+    colors::String="",
 )
 
 const placements = Ahorn.PlacementDict(
@@ -73,7 +74,17 @@ function getTextures(entity::ConnectedZipMover)
     isCliffside = theme == "cliffside"
     folder = isCliffside ? "CommunalHelper/connectedZipMover" : "zipmover"
     themePath = (theme == "normal") ? "" : string(theme, "/")
-
+    
+    customSkin = get(entity, "customSkin", "")
+    if customSkin != ""
+        return (
+            "$(customSkin)/block",
+            "$(customSkin)/light01",
+            "$(customSkin)/cog",
+            "$(customSkin)/innerCorners"
+        )
+    end
+    
     return (
         "objects/$(folder)/$(themePath)block",
         "objects/$(folder)/$(themePath)light01",
