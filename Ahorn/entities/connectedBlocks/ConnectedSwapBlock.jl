@@ -21,27 +21,25 @@ end
 )
 
 const placements = Ahorn.PlacementDict(
-    "Connected Swap Block (Reskinnable) (Communal Helper)" => Ahorn.EntityPlacement(
-        ConnectedSwapBlock,
-        "rectangle",
-        Dict{String,Any}(
-            "customGreenBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
-            "customRedBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
-        ),
-        swapFinalizer,
-    )
-)
-for theme in Maple.swap_block_themes
-    key = "Connected Swap Block ($theme) (Communal Helper)"
-    placements[key] = Ahorn.EntityPlacement(
+    "Connected Swap Block ($theme) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedSwapBlock,
         "rectangle",
         Dict{String,Any}(
             "theme" => theme,
         ),
         swapFinalizer,
-    )
-end
+    ) for theme in Maple.swap_block_themes
+)
+
+placements["Connected Swap Block (Reskinnable) (Communal Helper)"] = Ahorn.EntityPlacement(
+    ConnectedSwapBlock,
+    "rectangle",
+    Dict{String,Any}(
+        "customGreenBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
+        "customRedBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
+    ),
+    swapFinalizer,
+)
 
 Ahorn.editingOptions(entity::ConnectedSwapBlock) = Dict{String,Any}(
     "theme" => Maple.swap_block_themes,

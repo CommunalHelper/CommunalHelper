@@ -14,24 +14,22 @@ using Ahorn.CommunalHelper
 )
 
 const placements = Ahorn.PlacementDict(
-    "Connected Move Block (Reskinnable) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedMoveBlock,
         "rectangle",
         Dict{String,Any}(
-            "customBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
+            "direction" => direction,
         ),
+    ) for direction in Maple.move_block_directions
+)
+
+placements["Connected Move Block (Reskinnable) (Communal Helper)"] = Ahorn.EntityPlacement(
+    ConnectedMoveBlock,
+    "rectangle",
+    Dict{String,Any}(
+        "customBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
     ),
 )
-for direction in Maple.move_block_directions
-    key = "Connected Move Block ($direction) (Communal Helper)"
-    placements[key] = Ahorn.EntityPlacement(
-        ConnectedMoveBlock,
-        "rectangle",
-        Dict{String,Any}(
-            "direction" => direction
-        ),
-    )
-end
 
 Ahorn.editingOptions(entity::ConnectedMoveBlock) = Dict{String,Any}(
     "direction" => Maple.move_block_directions,

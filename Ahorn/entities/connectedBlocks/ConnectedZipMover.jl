@@ -19,18 +19,7 @@ const theme_options = String["Normal", "Moon", "Cliffside"]
 )
 
 const placements = Ahorn.PlacementDict(
-    "Connected Zip Mover (Reskinnable) (Communal Helper)" => Ahorn.EntityPlacement(
-        ConnectedZipMover,
-        "rectangle",
-        Dict{String,Any}(
-            "customBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
-        ),
-    )
-)
-
-for theme in theme_options
-    key = "Connected Zip Mover ($theme) (Communal Helper)"
-    placements[key] = Ahorn.EntityPlacement(
+    "Connected Zip Mover ($(uppercasefirst(theme))) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedZipMover,
         "rectangle",
         Dict{String,Any}(
@@ -42,8 +31,16 @@ for theme in theme_options
                 Int(entity.data["y"]),
             )]
         end,
-    )
-end
+    ) for theme in theme_options
+)
+
+placements["Connected Zip Mover (Reskinnable) (Communal Helper)"] = Ahorn.EntityPlacement(
+    ConnectedZipMover,
+    "rectangle",
+    Dict{String,Any}(
+        "customBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
+    ),
+)
 
 Ahorn.editingOptions(entity::ConnectedZipMover) = Dict{String,Any}(
     "theme" => theme_options,
