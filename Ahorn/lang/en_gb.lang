@@ -56,6 +56,9 @@ placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.refillCount=Numb
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.moveSpeed=The speed at which the block moves (accepts any number).
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.
 
+# -- Equation Move Block --
+placements.entities.CommunalHelper/EquationMoveBlock.tooltips.equation=The equation used by the Equation Move Block.\n0: y = ax\n1: y = ax^2 + bx\n2: y = ax^3 + bx^2 + x\n3: y = a*sin bx\n4: y = a*cos bx\n5: y = ae^bx\n6: y = ax^b
+
 # -- Connected Swap Block --
 placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customGreenBlockTexture=The path to the custom green variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
 placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customRedBlockTexture=The path to the custom red variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
