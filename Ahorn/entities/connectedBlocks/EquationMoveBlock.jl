@@ -17,7 +17,7 @@ using Ahorn.CommunalHelper
 )
 
 const placements = Ahorn.PlacementDict(
-    "Equation Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Equation Move Block [BETA] ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
         EquationMoveBlock,
         "rectangle",
         Dict{String,Any}(

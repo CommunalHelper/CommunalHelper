@@ -57,21 +57,29 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                         MoveParticles();
                     }
                     // use gradients to decide on an angle
-                    float xdiff = X - startPosition.X;
-                    // assume we're moving directly right
-                    float xgrad = Direction == MoveBlock.Directions.Left? -1 : 1;
+                    float progress = Direction switch {
+                        MoveBlock.Directions.Left or
+                        MoveBlock.Directions.Right => X - startPosition.X,
+                        MoveBlock.Directions.Up or
+                        MoveBlock.Directions.Down => Y - startPosition.Y,
+                        _ => 0
+                    };
+                    // assume we're moving constantly
+                    float xgrad = (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Up) ? -1 : 1;
                     float ygrad = equation switch {
                         0 => constA,
-                        1 => 2 * constA * xdiff + constB,
-                        2 => 3 * constA * xdiff * xdiff + 2 * constB * xdiff + 1,
-                        3 => (float)(constA * constB * Math.Cos(constB * xdiff)),
-                        4 => (float)(-constA * constB * Math.Sin(constB * xdiff)),
-                        5 => (float)(constA * constB * Math.Pow(Math.E, constB * xdiff)),
-                        6 => (float)(Math.Pow(xdiff, constB - 1) * constA * constB),
+                        1 => 2 * constA * progress + constB,
+                        2 => 3 * constA * progress * progress + 2 * constB * progress + 1,
+                        3 => (float)(constA * constB * Math.Cos(constB * progress)),
+                        4 => (float)(-constA * constB * Math.Sin(constB * progress)),
+                        5 => (float)(constA * constB * Math.Pow(Math.E, constB * progress)),
+                        6 => (float)(Math.Pow(progress, constB - 1) * constA * constB),
                         _ => 1
                     };
                     // tan x = y / x
-                    float targetAngle = (float)Math.Atan2(ygrad * xgrad, xgrad);
+                    // make y negative because y- is up in Celeste
+                    // swap x/y if we're vertical
+                    float targetAngle = (float)Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * xgrad) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * xgrad));
                     // and then we resume as normal
                     speed = Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
                     angle = Calc.Approach(angle, targetAngle, (float) Math.PI * 16f * Engine.DeltaTime);
@@ -102,7 +110,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                         }
                     }
                     Level level = Scene as Level;
-                    if (Left < level.Bounds.Left || Top < level.Bounds.Top || Right > level.Bounds.Right) {
+                    if (Left < level.Bounds.Left || Top < level.Bounds.Top || Right > level.Bounds.Right || Top > SceneAs<Level>().Bounds.Bottom + 32) {
                         break;
                     }
                     yield return null;
