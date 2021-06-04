@@ -82,7 +82,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                     float targetAngle = (float)Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * xgrad) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * xgrad));
                     // and then we resume as normal
                     speed = Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
-                    angle = Calc.Approach(angle, targetAngle, (float) Math.PI * 16f * Engine.DeltaTime);
+                    angle = targetAngle;//Calc.Approach(angle, targetAngle, (float) Math.PI * 16f * Engine.DeltaTime);
                     Vector2 vec = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool moveCheck = MoveCheck(vec.XComp()) || MoveCheck(vec.YComp());
                     Vector2 start = Position;
