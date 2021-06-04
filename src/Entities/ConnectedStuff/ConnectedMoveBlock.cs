@@ -47,14 +47,21 @@ namespace Celeste.Mod.CommunalHelper {
         }
         public MovementState State;
 
-        private static MTexture[,] edges = new MTexture[3, 3];
-        private static MTexture[,] innerCorners = new MTexture[2, 2];
-        private static List<MTexture> arrows = new List<MTexture>();
+        private static MTexture[,] masterEdges = new MTexture[3, 3];
+        private static MTexture[,] masterInnerCorners = new MTexture[2, 2];
+        private static List<MTexture> masterArrows = new List<MTexture>();
+        private MTexture xTexture;
+        
+        //Custom Texture support
+        private bool customTexture;
+        private Tuple<MTexture[,], MTexture[,]> tiles;
+        private List<MTexture> arrows;
 
-        private static readonly Color idleBgFill = Calc.HexToColor("474070");
-        private static readonly Color pressedBgFill = Calc.HexToColor("30b335");
-        private static readonly Color breakingBgFill = Calc.HexToColor("cc2541");
-        private Color fillColor = idleBgFill;
+        //ColorModifiers added to entityData constructor.
+        private readonly Color idleBgFill = Calc.HexToColor("474070");
+        private readonly Color pressedBgFill = Calc.HexToColor("30b335");
+        private readonly Color breakingBgFill = Calc.HexToColor("cc2541");
+        private Color fillColor;
 
         private float particleRemainder;
 
@@ -82,7 +89,56 @@ namespace Celeste.Mod.CommunalHelper {
         private SoundSource moveSfx;
 
         public ConnectedMoveBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f)) { }
+            : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f)) {
+            idleBgFill = Util.TryParseColor(data.Attr("idleColor", "474070"));
+            pressedBgFill = Util.TryParseColor(data.Attr("pressedColor", "30b335"));
+            breakingBgFill = Util.TryParseColor(data.Attr("breakColor", "cc2541"));
+            fillColor = idleBgFill;
+            string customPath = data.Attr("customBlockTexture").Trim().TrimEnd('/');
+            GFX.Game.PushFallback(null);
+            customTexture = !string.IsNullOrWhiteSpace(customPath);
+            if (customTexture) {
+                string temp;
+                if(GFX.Game["objects/" + customPath] == null) {
+                    if(GFX.Game["objects/" + customPath + "/tileset"] == null) {
+                        throw new Exception($"No valid tileset found, searched @ objects/{customPath}.png & objects/{customPath}/tileset.png\nFor custom arrow textures, use 'objects/{customPath}/arrow', 'objects/{customPath}/tileset' for tiles, and 'objects/{customPath}/x.png' for the breaking X sprite.");
+                    }
+
+                    arrows = GFX.Game.GetAtlasSubtextures("objects/" + customPath + "/arrow");
+                    if (arrows.Count != 8) {
+                        Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
+                        arrows = null;
+                    }
+                    temp = "objects/" + customPath + "/tileset";
+                    xTexture = GFX.Game[$"objects/{customPath}/x"];
+                    if (xTexture == null) {
+                        Util.Log("No breaking texture found, defaulting to normal");
+                        xTexture = GFX.Game["objects/moveBlock/x"];
+                    }
+                } else {
+                    List<string> temp1 = new List<string>();
+                    temp1.AddRange(customPath.Split('/'));
+                    temp1.RemoveAt(temp1.Count - 1);
+                    string temp2 = string.Join("/", temp1);
+                    arrows = GFX.Game.GetAtlasSubtextures("objects/" + temp2 + "/arrow");
+                    if (arrows.Count != 8) {
+                        Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
+                        arrows = null;
+                    }
+                    temp = "objects/" + customPath;
+                    xTexture = GFX.Game[$"objects/{temp2}/x"];
+                    if (xTexture == null) {
+                        Util.Log("No breaking texture found, defaulting to normal");
+                        xTexture = GFX.Game["objects/moveBlock/x"];
+                    }
+                }
+                tiles = SetupCustomTileset(temp);
+                
+            } else {
+                xTexture = GFX.Game["objects/moveBlock/x"];
+            }
+            GFX.Game.PopFallback();
+        }
 
         public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
             : base(position, width, height, safe: false) {
@@ -98,6 +154,7 @@ namespace Celeste.Mod.CommunalHelper {
                 MoveBlock.Directions.Down => (float) Math.PI / 2f,
                 _ => 0f,
             };
+            fillColor = idleBgFill;
             Add(moveSfx = new SoundSource());
             Add(new Coroutine(Controller()));
             UpdateColors();
@@ -391,7 +448,11 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            AutoTile(edges, innerCorners);
+            if (customTexture) {
+                AutoTile(tiles.Item1, tiles.Item2);
+            } else {
+                AutoTile(masterEdges, masterInnerCorners);
+            }
             scene.Add(border = new Border(this));
 
             // Get all the colliders that can have an arrow drawn on.
@@ -428,9 +489,13 @@ namespace Celeste.Mod.CommunalHelper {
                 Vector2 vec = hitbox.Center + Position;
                 Draw.Rect(vec.X - 4f, vec.Y - 4f, 8f, 8f, fillColor);
                 if (State != MovementState.Breaking) {
-                    arrows[arrowIndex].DrawCentered(vec);
+                    if (arrows == null) {
+                        masterArrows[arrowIndex].DrawCentered(vec);
+                    } else {
+                        arrows[arrowIndex].DrawCentered(vec);
+                    }
                 } else {
-                    GFX.Game["objects/moveBlock/x"].DrawCentered(vec);
+                    xTexture.DrawCentered(vec);
                 }
             }
 
@@ -444,17 +509,17 @@ namespace Celeste.Mod.CommunalHelper {
         public static void InitializeTextures() {
             MTexture edgeTiles = GFX.Game["objects/moveBlock/base"];
             MTexture innerTiles = GFX.Game["objects/CommunalHelper/connectedMoveBlock/innerCorners"];
-            arrows = GFX.Game.GetAtlasSubtextures("objects/moveBlock/arrow");
+            masterArrows = GFX.Game.GetAtlasSubtextures("objects/moveBlock/arrow");
 
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    edges[i, j] = edgeTiles.GetSubtexture(i * 8, j * 8, 8, 8);
+                    masterEdges[i, j] = edgeTiles.GetSubtexture(i * 8, j * 8, 8, 8);
                 }
             }
 
             for (int i = 0; i < 2; i++) {
                 for (int j = 0; j < 2; j++) {
-                    innerCorners[i, j] = innerTiles.GetSubtexture(i * 8, j * 8, 8, 8);
+                    masterInnerCorners[i, j] = innerTiles.GetSubtexture(i * 8, j * 8, 8, 8);
                 }
             }
 

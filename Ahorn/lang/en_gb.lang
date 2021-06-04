@@ -55,6 +55,11 @@ placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.refillCount=Numb
 # -- Connected Move Block --
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.moveSpeed=The speed at which the block moves (accepts any number).
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).\nFor adding arrow textures, name the texture for tiles "tileset.png", the arrow textures "arrowXX.png" (00 thru 08), and the breaking "X" sprite as "x.png".
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.idleColor=The color of the arrow when not moving.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.pressedColor=The color of the arrow when moving.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.breakColor=The color of the arrow when breaking.
+
 
 # -- Connected Swap Block --
 placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customGreenBlockTexture=The path to the custom green variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).

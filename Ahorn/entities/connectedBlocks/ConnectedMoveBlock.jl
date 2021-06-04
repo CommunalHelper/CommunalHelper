@@ -1,22 +1,36 @@
 module CommunalHelperConnectedMoveBlock
 
+using Base: DirectOrdering
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/ConnectedMoveBlock" ConnectedMoveBlock(x::Integer, y::Integer,
 	width::Integer = Maple.defaultBlockWidth, height::Integer = Maple.defaultBlockWidth,
     direction::String="Right", moveSpeed::Number=60.0,
-    customBlockTexture::String = "")
+    
+    )
 
-const placements = Ahorn.PlacementDict(
-    "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
+const placements = Ahorn.PlacementDict()
+for direction in Maple.move_block_directions
+    key1 = "Connected Move Block ($direction) (Communal Helper)";
+    placements[key1] =  Ahorn.EntityPlacement(
         ConnectedMoveBlock,
         "rectangle",
         Dict{String, Any}(
             "direction" => direction
         )
-    ) for direction in Maple.move_block_directions
-)
+    )
+    key2 = "Connected Move Block ($direction) (Reskinnable) (Communal Helper)";
+    placements[key2] = Ahorn.EntityPlacement(
+        ConnectedMoveBlock,
+        "rectangle",
+        Dict{String, Any}(
+            "direction" => direction,
+            #added in for custom texturing
+            "customBlockTexture" => "", "idleColor" => "474070", "pressedColor" => "30b335", "breakColor" => "cc2541"
+        )
+    )
+end
 
 Ahorn.editingOptions(entity::ConnectedMoveBlock) = Dict{String, Any}(
     "direction" => Maple.move_block_directions,

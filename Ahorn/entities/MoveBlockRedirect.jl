@@ -30,6 +30,8 @@ const placements = Ahorn.PlacementDict(
 
 const opTypes = ["Add", "Subtract", "Multiply"]
 
+Ahorn.editingIgnored(entity::MoveBlockRedirect, multiple::Bool=false) = multiple ? String["direction", "x", "y", "width", "height"] : String[]
+
 Ahorn.editingOptions(entity::MoveBlockRedirect) = Dict{String, Any}(
     "direction" => Maple.move_block_directions,
 	"operation" => opTypes
