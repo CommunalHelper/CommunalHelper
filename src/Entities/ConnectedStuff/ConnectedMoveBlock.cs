@@ -109,7 +109,7 @@ namespace Celeste.Mod.CommunalHelper {
                         Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                         arrows = null;
                     }
-                    temp = "objects/" + customPath + "/tileset";
+                    temp = customPath + "/tileset";
                     xTexture = GFX.Game[$"objects/{customPath}/x"];
                     if (xTexture == null) {
                         Util.Log("No breaking texture found, defaulting to normal");
@@ -125,7 +125,7 @@ namespace Celeste.Mod.CommunalHelper {
                         Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                         arrows = null;
                     }
-                    temp = "objects/" + customPath;
+                    temp = customPath;
                     xTexture = GFX.Game[$"objects/{temp2}/x"];
                     if (xTexture == null) {
                         Util.Log("No breaking texture found, defaulting to normal");
