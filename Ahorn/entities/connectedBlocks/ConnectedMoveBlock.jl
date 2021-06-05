@@ -1,6 +1,5 @@
 module CommunalHelperConnectedMoveBlock
 
-using Base: DirectOrdering
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
