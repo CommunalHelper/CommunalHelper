@@ -11,29 +11,20 @@ using Ahorn.CommunalHelper
     direction::String="Right",
     moveSpeed::Number=60.0,
     customBlockTexture::String="",
+    idleColor::String="474070",
+    pressedColor::String="30b335",
+    breakColor::String="cc2541",
 )
 
-const placements = Ahorn.PlacementDict()
-for direction in Maple.move_block_directions
-    key1 = "Connected Move Block ($direction) (Communal Helper)";
-    placements[key1] =  Ahorn.EntityPlacement(
+const placements = Ahorn.PlacementDict(
+    "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedMoveBlock,
         "rectangle",
         Dict{String, Any}(
             "direction" => direction
         )
-    )
-    key2 = "Connected Move Block ($direction) (Reskinnable) (Communal Helper)";
-    placements[key2] = Ahorn.EntityPlacement(
-        ConnectedMoveBlock,
-        "rectangle",
-        Dict{String, Any}(
-            "direction" => direction,
-            #added in for custom texturing
-            "customBlockTexture" => "", "idleColor" => "474070", "pressedColor" => "30b335", "breakColor" => "cc2541"
-        )
-    )
-end
+    ) for direction in Maple.move_block_directions
+)
 
 placements["Connected Move Block (Reskinnable) (Communal Helper)"] = Ahorn.EntityPlacement(
     ConnectedMoveBlock,
