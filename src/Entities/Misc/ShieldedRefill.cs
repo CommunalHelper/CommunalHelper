@@ -172,7 +172,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (!oneUse) {
                 outline.Visible = true;
             }
-            Depth = 8999;
+            Depth = Depths.BGDecals * 1;
             yield return 0.05f;
 
             float num = player.Speed.Angle();

@@ -327,7 +327,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             int trackpercent = (int) (trackStatePercent * (length + 2));
 
-            for (int i = (int) mod(trackConstantLooping ? Scene.TimeActive * 14 : trackOffset, 8) + trackpercent; i <= length; i += 8) {
+            for (int i = (int) Util.Mod(trackConstantLooping ? Scene.TimeActive * 14 : trackOffset, 8) + trackpercent; i <= length; i += 8) {
                 trackSprite.Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i));
             }
 
@@ -338,10 +338,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             SceneAs<Level>().ParticlesBG.Emit(p, position - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromB);
             SceneAs<Level>().ParticlesBG.Emit(p, position + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
             SceneAs<Level>().ParticlesBG.Emit(p, position - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
-        }
-
-        private static float mod(float x, float m) {
-            return (x % m + m) % m;
         }
 
         public static void SwitchTracks(Scene scene, TrackSwitchState state) {

@@ -138,7 +138,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public void OnAllCollected() {
             Tag = Tags.FrozenUpdate;
-            Depth = -2000002;
+            Depth = Depths.FormationSequences - 2;
             merging = true;
         }
 

@@ -1,5 +1,8 @@
+--1.8.2 (??/05/2021)--
+* [Silent] Added Music Param Trigger.
+
 --1.8.1 (30/04/2021)--
-* Fixed inverted logic when retrieving CustomCassetteBlock types
+* Fixed inverted logic when retrieving CustomCassetteBlock types.
 
 --1.8.0 (29/04/2021)--
 * Added Dream Tunnel Entry.

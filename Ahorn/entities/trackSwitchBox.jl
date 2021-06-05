@@ -1,20 +1,25 @@
 module CommunalHelperTrackSwitchBox
+
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/TrackSwitchBox" TrackSwitchBox(x::Integer, y::Integer, globalSwitch::Bool = false)
+@mapdef Entity "CommunalHelper/TrackSwitchBox" TrackSwitchBox(
+    x::Integer,
+    y::Integer,
+    globalSwitch::Bool=false,
+)
 
 const placements = Ahorn.PlacementDict(
     "Track Switch Box (Communal Helper)" => Ahorn.EntityPlacement(
         TrackSwitchBox,
-        "point"
+        "point",
     ),
     "Track Switch Box (Session Switch) (Communal Helper)" => Ahorn.EntityPlacement(
         TrackSwitchBox,
         "point",
-        Dict{String, Any}(
+        Dict{String,Any}(
             "globalSwitch" => true,
-        )
-    )
+        ),
+    ),
 )
 
 const sprite = "objects/CommunalHelper/trackSwitchBox/idle00"

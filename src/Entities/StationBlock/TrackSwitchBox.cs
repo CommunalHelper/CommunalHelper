@@ -50,7 +50,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             this.global = global;
 
-            SurfaceSoundIndex = 9;
+            SurfaceSoundIndex = SurfaceIndex.ZipMover;
             start = Position;
             sprite = CommunalHelperModule.SpriteBank.Create("trackSwitchBox");
             sprite.Position = new Vector2(Width, Height) / 2f;
@@ -214,7 +214,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Draw.Rect(rect, Color.Lerp(OnColor, OffColor, colorLerp));
 
             for (int i = rect.Y; (float) i < rect.Bottom; i += 2) {
-                float scale = 0.05f + (1f + (float) Math.Sin((float) i / 16f + Scene.TimeActive * 2f)) / 2f * 0.2f;
+                float scale = 0.05f + (1f + (float) Math.Sin(i / 16f + Scene.TimeActive * 2f)) / 2f * 0.2f;
                 Draw.Line(rect.X, i, rect.X + rect.Width, i, Color.White * 0.55f * scale);
             }
 

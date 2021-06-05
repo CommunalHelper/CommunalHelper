@@ -3,16 +3,23 @@ module CommunalHelperDreamCrumbleWallOnRumble
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/DreamCrumbleWallOnRumble" DreamCrumbleWallOnRumble(x::Integer, y::Integer,
-	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, below::Bool=false, persistent::Bool=false)
-
+@mapdef Entity "CommunalHelper/DreamCrumbleWallOnRumble" DreamCrumbleWallOnRumble(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockHeight,
+    featherMode::Bool=false,
+    oneUse::Bool=false,
+    refillCount::Integer=-1,
+    below::Bool=false,
+    persistent::Bool=false,
+)
 
 const placements = Ahorn.PlacementDict(
     "Dream Crumble Wall On Rumble (Communal Helper)" => Ahorn.EntityPlacement(
         DreamCrumbleWallOnRumble,
-		"rectangle"
-    )
+        "rectangle",
+    ),
 )
 
 Ahorn.minimumSize(entity::DreamCrumbleWallOnRumble) = 8, 8

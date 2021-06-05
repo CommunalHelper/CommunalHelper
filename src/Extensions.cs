@@ -48,7 +48,7 @@ namespace Celeste.Mod.CommunalHelper {
             return dir;
         }
 
-        private static void PutInside(this Vector2 pos, Rectangle bounds) {
+        public static void PutInside(this Vector2 pos, Rectangle bounds) {
             while (pos.X < bounds.X) {
                 pos.X += bounds.Width;
             }
@@ -217,6 +217,8 @@ namespace Celeste.Mod.CommunalHelper {
             holdable.Release(vector);
         }
 
+        #region EnumExtensions
+
         public static StationBlockTrack.TrackSwitchState Invert(this StationBlockTrack.TrackSwitchState state) {
             return state switch {
                 StationBlockTrack.TrackSwitchState.On => StationBlockTrack.TrackSwitchState.Off,
@@ -224,6 +226,55 @@ namespace Celeste.Mod.CommunalHelper {
                 _ => throw new NotImplementedException(),
             };
         }
+
+        /// <summary>
+        /// Returns the angle corresponding to the appropriate <see cref="MoveBlock.Directions"/> as defined in the <see cref="MoveBlock"/> constructor.
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns>Angle in Radians</returns>
+        public static float Angle(this MoveBlock.Directions dir) {
+            return dir switch {
+                MoveBlock.Directions.Left => (float) Math.PI,
+                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
+                MoveBlock.Directions.Down => (float) Math.PI / 2f,
+                _ => 0f
+            };
+        }
+
+        /// <summary>
+        /// Returns the <see cref="Vector2"/> corresponding to the <see cref="MoveBlock.Directions"/>. Defaults to <see cref="Vector2.UnitX"/>.
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <param name="factor">Factor to multiply the resulting vector by.</param>
+        /// <returns></returns>
+        public static Vector2 Vector(this MoveBlock.Directions dir, float factor = 1f) {
+            Vector2 result = dir switch {
+                MoveBlock.Directions.Up => -Vector2.UnitY,
+                MoveBlock.Directions.Down => Vector2.UnitY,
+                MoveBlock.Directions.Left => -Vector2.UnitX,
+                _ => Vector2.UnitX
+            };
+
+            return result * factor;
+        }
+
+        /// <summary>
+        /// Perform the specified <see cref="MoveBlockRedirect.Operations"/> on a <paramref name="value"/> with the second argument of <paramref name="modifier"/>. Defaults to no-op.
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="value"></param>
+        /// <param name="modifier"></param>
+        /// <returns></returns>
+        public static float ApplyTo(this MoveBlockRedirect.Operations op, float value, float modifier) {
+            return op switch {
+                MoveBlockRedirect.Operations.Add => value + modifier,
+                MoveBlockRedirect.Operations.Subtract => value - modifier,
+                MoveBlockRedirect.Operations.Multiply => value * modifier,
+                _ => value
+            };
+        }
+
+        #endregion
 
         private static MethodInfo m_TagLists_EntityAdded = typeof(TagLists).GetMethod("EntityAdded", BindingFlags.NonPublic | BindingFlags.Instance);
         private static MethodInfo m_Tracker_EntityAdded = typeof(Tracker).GetMethod("EntityAdded", BindingFlags.NonPublic | BindingFlags.Instance);

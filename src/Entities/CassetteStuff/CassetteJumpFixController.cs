@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
-using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked]
@@ -46,7 +45,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void CassetteBlock_ShiftSize(On.Celeste.CassetteBlock.orig_ShiftSize orig, CassetteBlock self, int amount) {
             if (MustApply(self.Scene)) {
                 self.MoveV(amount, 0f);
-                var data = new DynData<CassetteBlock>(self);
+                DynData<CassetteBlock> data = new DynData<CassetteBlock>(self);
                 data["blockHeight"] = data.Get<int>("blockHeight") - amount;
             } else
                 orig(self, amount);
