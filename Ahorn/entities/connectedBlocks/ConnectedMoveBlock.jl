@@ -11,15 +11,18 @@ using Ahorn.CommunalHelper
     direction::String="Right",
     moveSpeed::Number=60.0,
     customBlockTexture::String="",
+    idleColor::String="474070",
+    pressedColor::String="30b335",
+    breakColor::String="cc2541",
 )
 
 const placements = Ahorn.PlacementDict(
     "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedMoveBlock,
         "rectangle",
-        Dict{String,Any}(
-            "direction" => direction,
-        ),
+        Dict{String, Any}(
+            "direction" => direction
+        )
     ) for direction in Maple.move_block_directions
 )
 
@@ -49,6 +52,13 @@ const arrows = Dict{String,String}(
     "right" => "objects/moveBlock/arrow00",
     "down" => "objects/moveBlock/arrow06",
 )
+const customArrowSprites = Dict{String,String}(
+    "up" => "/arrow02",
+    "left" => "/arrow04",
+    "right" => "/arrow00",
+    "down" => "/arrow06",
+)
+
 const buttonColor = (71, 64, 112, 255) ./ 255
 const button = "objects/moveBlock/button"
 
@@ -68,18 +78,35 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock,
     Ahorn.drawRectangle(ctx, 1, 1, width - 2, height - 2, highlightColor, highlightColor)
     Ahorn.drawRectangle(ctx, 8, 8, width - 16, height - 16, midColor)
 
-    direction = lowercase(get(entity.data, "direction", "up"))
-    arrowSprite = Ahorn.getSprite(arrows[lowercase(direction)], "Gameplay")
-
-    block, innerCorners = "objects/moveBlock/base", "objects/CommunalHelper/connectedMoveBlock/innerCorners"
+    atlas = Ahorn.getAtlas("Gameplay")
     customBlockTexture = String(get(entity.data, "customBlockTexture", ""))
     hasCustomTexture = customBlockTexture != ""
     txOffset = 0
 
+    direction = lowercase(get(entity.data, "direction", "up"))
+    arrowSprite = get(atlas, arrows[direction], nothing)
+
+    blockPath, innerCornersPath = "objects/moveBlock/base", "objects/CommunalHelper/connectedMoveBlock/innerCorners"
+
     if hasCustomTexture 
-        block = innerCorners = "objects/" * customBlockTexture
+        arrowSprite = get(atlas, "objects/" * customBlockTexture * customArrowSprites[direction], arrowSprite)
+        blockPath = innerCornersPath = "objects/" * customBlockTexture
         txOffset = 24
     end
+
+    block = get(atlas, blockPath, nothing)
+    if (block === nothing)
+        block = get(atlas, blockPath * "/tileset", Ahorn.fileNotFoundSpriteHolder)
+    end
+
+    innerCorners = get(atlas, innerCornersPath, nothing)
+    if (innerCorners === nothing)
+        innerCorners = get(atlas, innerCornersPath * "/tileset", Ahorn.fileNotFoundSpriteHolder)
+    end
+
+    arrowSprite = arrowSprite.sprite
+    block = typeof(block) == Ahorn.SpriteHolder ? block.sprite : 
+    innerCorners = typeof(innerCorners) == Ahorn.Sprite ? innerCorners.sprite : innerCorners
 
     rects = getExtensionRectangles(room)
     rect = Ahorn.Rectangle(x, y, width, height)
