@@ -3,16 +3,23 @@ module CommunalHelperDreamFallingBlock
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/DreamFallingBlock" DreamFallingBlock(x::Integer, y::Integer,
-	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, noCollide::Bool=false, below::Bool=false)
-
+@mapdef Entity "CommunalHelper/DreamFallingBlock" DreamFallingBlock(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockHeight,
+    featherMode::Bool=false,
+    oneUse::Bool=false,
+    refillCount::Integer=-1,
+    noCollide::Bool=false,
+    below::Bool=false,
+)
 
 const placements = Ahorn.PlacementDict(
     "Dream Falling Block (Communal Helper)" => Ahorn.EntityPlacement(
         DreamFallingBlock,
-		"rectangle"
-    )
+        "rectangle",
+    ),
 )
 
 Ahorn.minimumSize(entity::DreamFallingBlock) = 8, 8

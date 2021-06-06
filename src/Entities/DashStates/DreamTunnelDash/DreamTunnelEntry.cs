@@ -123,7 +123,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         break;
                     case Spikes.Directions.Left when dir.X > 0:
                     case Spikes.Directions.Right when dir.X < 0:
-                        if (player.Top > Top - 4 || !Scene.CollideCheck<Solid>(TopCenter - Vector2.UnitY) && 
+                        if (player.Top > Top - 4 || !Scene.CollideCheck<Solid>(TopCenter - Vector2.UnitY) &&
                             player.Bottom < Bottom + 4 || !Scene.CollideCheck<Solid>(BottomCenter + Vector2.UnitY))
                             return DashCollisionResults.NormalCollision;
                         break;
@@ -443,7 +443,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Callvirt &&
                 ((MethodReference) instr.Operand).FullName == "System.Boolean Monocle.Entity::CollideCheck<Celeste.DreamBlock>(Microsoft.Xna.Framework.Vector2)");
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldfld, typeof(Player).GetNestedType("<DashCoroutine>d__427", BindingFlags.NonPublic).GetField("<>4__this"));
+            cursor.Emit(OpCodes.Ldfld, typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget().DeclaringType.GetField("<>4__this"));
             cursor.EmitDelegate<Func<bool, Player, bool>>((v, player) => {
                 return v || player.CollideCheck<DreamTunnelEntry>(player.Position + Vector2.UnitY);
             });
@@ -460,7 +460,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers")) {
                     Vector2 origin = player.Position + new Vector2((float) player.Facing * 3, -4f);
                     if (sm.Entity is DreamTunnelEntry entry
-                        && (entry.Orientation == Spikes.Directions.Left || entry.Orientation == Spikes.Directions.Right)
+                        && (entry.Orientation is Spikes.Directions.Left or Spikes.Directions.Right)
                         && entry.CollidePoint(origin + Vector2.UnitX * (float) player.Facing)) {
                         entry.FootstepRipple(origin);
                     }
@@ -494,7 +494,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.EmitDelegate<Func<Platform, Player, int, Platform>>((platform, player, dir) => {
                 foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers")) {
                     if (sm.Entity is DreamTunnelEntry entry
-                        && (entry.Orientation == Spikes.Directions.Left || entry.Orientation == Spikes.Directions.Right)
+                        && (entry.Orientation is Spikes.Directions.Left or Spikes.Directions.Right)
                         && entry.CollidePoint(player.Position - Vector2.UnitX * dir * 4f)) {
                         entry.FootstepRipple(player.Position + new Vector2(0, -4f));
                     }

@@ -3,25 +3,27 @@ module CommunalHelperCassetteFallingBlock
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/CassetteFallingBlock" CassetteFallingBlock(x::Integer, 
-                                                                  y::Integer, 
-                                                                  width::Integer=Maple.defaultBlockWidth, 
-                                                                  height::Integer=Maple.defaultBlockHeight,
-                                                                  index::Integer=0,
-                                                                  tempo::Number=1.0,
-                                                                  customColor="") 
+@mapdef Entity "CommunalHelper/CassetteFallingBlock" CassetteFallingBlock(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockHeight,
+    index::Integer=0,
+    tempo::Number=1.0,
+    customColor="",
+)
 
 const placements = Ahorn.PlacementDict(
     "Cassette Falling Block ($index - $color) (Communal Helper)" => Ahorn.EntityPlacement(
         CassetteFallingBlock,
         "rectangle",
-        Dict{String, Any}(
+        Dict{String,Any}(
             "index" => index,
-        )
+        ),
     ) for (color, index) in cassetteColorNames
 )
 
-Ahorn.editingOptions(entity::CassetteFallingBlock) = Dict{String, Any}(
+Ahorn.editingOptions(entity::CassetteFallingBlock) = Dict{String,Any}(
     "index" => cassetteColorNames
 )
 
@@ -39,7 +41,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::CassetteFallingBloc
     height = Int(get(entity.data, "height", 32))
 
     index = Int(get(entity.data, "index", 0))
-    
+
     hexColor = String(get(entity.data, "customColor", ""))
     if hexColor != "" && length(hexColor) == 6
         renderCassetteBlock(ctx, 0, 0, width, height, index, hexToRGBA(hexColor))

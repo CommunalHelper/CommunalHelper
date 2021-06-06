@@ -93,12 +93,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             noCollide = data.Bool("noCollide");
 
             Direction = data.Enum<MoveBlock.Directions>("direction");
-            homeAngle = targetAngle = angle = Direction switch {
-                MoveBlock.Directions.Left => (float) Math.PI,
-                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
-                MoveBlock.Directions.Down => (float) Math.PI / 2f,
-                _ => 0f,
-            };
+            homeAngle = targetAngle = angle = Direction.Angle();
 
             arrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/arrow");
             Add(moveSfx = new SoundSource());
@@ -532,43 +527,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
-        static FieldInfo f_this;
-        static IDetour hook_DreamBlock_Activate;
-        static IDetour hook_DreamBlock_Deactivate;
-        static IDetour hook_DreamBlock_FastActivate;
-        static IDetour hook_DreamBlock_FastDectivate;
+        private static FieldInfo f_this;
+        private static List<IDetour> hook_DreamBlock_Routines;
 
         internal new static void Load() {
-            Type type = typeof(DreamBlock).GetNestedType("<Activate>d__34", BindingFlags.NonPublic);
-            f_this = type.GetField("<>4__this");
-            hook_DreamBlock_Activate = new ILHook(
-                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
-                DreamBlock_ActivationParticles);
-
-            type = typeof(DreamBlock).GetNestedType("<Deactivate>d__11", BindingFlags.NonPublic);
-            f_this = type.GetField("<>4__this");
-            hook_DreamBlock_Deactivate = new ILHook(
-                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
-                DreamBlock_ActivationParticles);
-
-            type = typeof(DreamBlock).GetNestedType("<FastActivate>d__13", BindingFlags.NonPublic);
-            f_this = type.GetField("<>4__this");
-            hook_DreamBlock_FastActivate = new ILHook(
-                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
-                DreamBlock_ActivationParticles);
-
-            type = typeof(DreamBlock).GetNestedType("<FastDeactivate>d__12", BindingFlags.NonPublic);
-            f_this = type.GetField("<>4__this");
-            hook_DreamBlock_FastDectivate = new ILHook(
-                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
-                DreamBlock_ActivationParticles);
+            hook_DreamBlock_Routines = new List<IDetour>();
+            Type[] nestedTypes = typeof(DreamBlock).GetNestedTypes(BindingFlags.NonPublic);
+            foreach (string method in new string[] { "FastActivate", "FastDeactivate", "Activate", "Deactivate" }) {
+                Type type = nestedTypes.First(t => t.Name.StartsWith($"<{method}>"));
+                f_this = type.GetField("<>4__this");
+                hook_DreamBlock_Routines.Add(new ILHook(type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlock_ActivationParticles));
+            }
         }
 
         internal new static void Unload() {
-            hook_DreamBlock_Activate.Dispose();
-            hook_DreamBlock_Deactivate.Dispose();
-            hook_DreamBlock_FastActivate.Dispose();
-            hook_DreamBlock_FastDectivate.Dispose();
+            hook_DreamBlock_Routines.ForEach(hook => hook?.Dispose());
         }
 
         // Probably a bad idea to leave it like this, but it works

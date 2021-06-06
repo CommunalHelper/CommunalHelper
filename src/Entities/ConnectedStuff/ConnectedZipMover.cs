@@ -38,11 +38,7 @@ namespace Celeste.Mod.CommunalHelper {
                 sparkDirFromB = angle - (float) Math.PI / 8f;
                 sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
                 sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
-                cog = advancedZipMover.theme switch {
-                    Themes.Moon => GFX.Game["objects/zipmover/moon/cog"],
-                    Themes.Cliffside => GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"],
-                    _ => cog = GFX.Game["objects/zipmover/cog"],
-                };
+                cog = advancedZipMover.cog;
             }
 
             public void CreateSparks() {
@@ -102,13 +98,13 @@ namespace Celeste.Mod.CommunalHelper {
                 Vector2 value = vector.Perpendicular() * 3f;
                 Vector2 value2 = -vector.Perpendicular() * 4f;
                 float rotation = ConnectedZipMover.percent * (float) Math.PI * 2f;
-                Draw.Line(from + value + offset, to + value + offset, colorOverride ?? ropeColor);
-                Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? ropeColor);
+                Draw.Line(from + value + offset, to + value + offset, colorOverride ?? ConnectedZipMover.ropeColor);
+                Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? ConnectedZipMover.ropeColor);
                 for (float num = 4f - ConnectedZipMover.percent * (float) Math.PI * 8f % 4f; num < (to - from).Length(); num += 4f) {
                     Vector2 value3 = from + value + vector.Perpendicular() + vector * num;
                     Vector2 value4 = to + value2 - vector * num;
-                    Draw.Line(value3 + offset, value3 + vector * 2f + offset, colorOverride ?? ropeLightColor);
-                    Draw.Line(value4 + offset, value4 - vector * 2f + offset, colorOverride ?? ropeLightColor);
+                    Draw.Line(value3 + offset, value3 + vector * 2f + offset, colorOverride ?? ConnectedZipMover.ropeLightColor);
+                    Draw.Line(value4 + offset, value4 - vector * 2f + offset, colorOverride ?? ConnectedZipMover.ropeLightColor);
                 }
                 cog.DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
                 cog.DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
@@ -120,6 +116,7 @@ namespace Celeste.Mod.CommunalHelper {
         private Sprite streetlight;
         private List<MTexture> innerCogs;
         private MTexture temp = new MTexture();
+        private MTexture cog;
 
         private bool drawBlackBorder;
         private Vector2 start;
@@ -136,8 +133,8 @@ namespace Celeste.Mod.CommunalHelper {
         // The instance of the PathRenderer Class defined above.
         private PathRenderer pathRenderer;
 
-        private static readonly Color ropeColor = Calc.HexToColor("663931");
-        private static readonly Color ropeLightColor = Calc.HexToColor("9b6157");
+        private Color ropeColor = Calc.HexToColor("663931");
+        private Color ropeLightColor = Calc.HexToColor("9b6157");
 
         private bool permanent;
         private bool waits;
@@ -153,11 +150,13 @@ namespace Celeste.Mod.CommunalHelper {
                   data.Bool("permanent"),
                   data.Bool("waiting"),
                   data.Bool("ticking"),
+                  data.Attr("customSkin").Trim(),
+                  data.Attr("colors").Trim(),
                   data.Attr("customBlockTexture").Trim()) { }
 
-        public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking, string customBlockPath)
+        public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking, string customSkin, string colors, string legacyCustomTexture)
             : base(position, width, height, safe: false) {
-            Depth = -9999;
+            Depth = Depths.FGTerrain + 1;
 
             start = Position;
             targets = new Vector2[nodes.Length];
@@ -177,13 +176,24 @@ namespace Celeste.Mod.CommunalHelper {
 
             SurfaceSoundIndex = SurfaceIndex.Girder;
 
-            switch (theme) {
+            if (!string.IsNullOrEmpty(customSkin)) {
+                path = customSkin + "/light";
+                id = customSkin + "/block";
+                key = customSkin + "/innercog";
+                corners = customSkin + "/innerCorners";
+                cog = GFX.Game[customSkin + "/cog"];
+                themePath = "normal";
+                backgroundColor = Color.Black;
+                if (theme == Themes.Moon)
+                    themePath = "moon";
+            } else switch (theme) {
                 default:
                 case Themes.Normal:
                     path = "objects/zipmover/light";
                     id = "objects/zipmover/block";
                     key = "objects/zipmover/innercog";
-                    corners = "objects/CommunalHelper/connectedZipMover/innerCorners";
+                    corners = "objects/CommunalHelper/zipmover/innerCorners";
+                    cog = GFX.Game["objects/zipmover/cog"];
                     themePath = "normal";
                     drawBlackBorder = true;
                     backgroundColor = Color.Black;
@@ -193,7 +203,8 @@ namespace Celeste.Mod.CommunalHelper {
                     path = "objects/zipmover/moon/light";
                     id = "objects/zipmover/moon/block";
                     key = "objects/zipmover/moon/innercog";
-                    corners = "objects/CommunalHelper/connectedZipMover/moon/innerCorners";
+                    corners = "objects/CommunalHelper/zipmover/moon/innerCorners";
+                    cog = GFX.Game["objects/zipmover/moon/cog"];
                     themePath = "moon";
                     drawBlackBorder = false;
                     backgroundColor = Color.Black;
@@ -204,12 +215,27 @@ namespace Celeste.Mod.CommunalHelper {
                     id = "objects/CommunalHelper/connectedZipMover/cliffside/block";
                     key = "objects/CommunalHelper/connectedZipMover/cliffside/innercog";
                     corners = "objects/CommunalHelper/connectedZipMover/cliffside/innerCorners";
+                    cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
                     themePath = "normal";
                     drawBlackBorder = true;
                     backgroundColor = Calc.HexToColor("171018");
                     break;
-
             }
+            if (!string.IsNullOrEmpty(colors)) {
+                // Comma seperated list of colors
+                // First is background color, second is main rope color, third is light rope color
+                string[] colorList = colors.Split(',');
+                if (colorList.Length > 0) {
+                    backgroundColor = Calc.HexToColor(colorList[0]);
+                }
+                if (colorList.Length > 1) {
+                    ropeColor = Calc.HexToColor(colorList[1]);
+                }
+                if (colorList.Length > 2) {
+                    ropeLightColor = Calc.HexToColor(colorList[2]);
+                }
+            }
+
             innerCogs = GFX.Game.GetAtlasSubtextures(key);
             streetlight = new Sprite(GFX.Game, path);
             streetlight.Add("frames", "", 1f);
@@ -221,8 +247,8 @@ namespace Celeste.Mod.CommunalHelper {
                 Position = new Vector2(Width / 2f, 4f)
             });
 
-            if (customBlockPath != "") {
-                Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(customBlockPath);
+            if (legacyCustomTexture != "") {
+                Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(legacyCustomTexture);
                 edges = customTiles.Item1;
                 innerCorners = customTiles.Item2;
             } else {
@@ -308,7 +334,7 @@ namespace Celeste.Mod.CommunalHelper {
             for (int i = 4; i <= h + 4; i += 8) {
                 int num3 = num;
                 for (int j = 4; j <= w + 4; j += 8) {
-                    int index = (int) (mod((num2 + num * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
+                    int index = (int) (Util.Mod((num2 + num * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
                     MTexture mTexture = innerCogs[index];
                     Rectangle rectangle = new Rectangle(0, 0, mTexture.Width, mTexture.Height);
                     Vector2 zero = Vector2.Zero;
@@ -484,10 +510,6 @@ namespace Celeste.Mod.CommunalHelper {
                     }
                 }
             }
-        }
-
-        private float mod(float x, float m) {
-            return (x % m + m) % m;
         }
     }
 }

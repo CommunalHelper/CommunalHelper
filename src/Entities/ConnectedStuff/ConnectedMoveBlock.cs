@@ -18,7 +18,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             public Border(ConnectedMoveBlock parent) {
                 Parent = parent;
-                Depth = 1;
+                Depth = Depths.Player + 1;
             }
 
             public override void Update() {
@@ -109,7 +109,7 @@ namespace Celeste.Mod.CommunalHelper {
                         Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                         arrows = null;
                     }
-                    temp = "objects/" + customPath + "/tileset";
+                    temp = customPath + "/tileset";
                     xTexture = GFX.Game[$"objects/{customPath}/x"];
                     if (xTexture == null) {
                         Util.Log("No breaking texture found, defaulting to normal");
@@ -125,7 +125,7 @@ namespace Celeste.Mod.CommunalHelper {
                         Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                         arrows = null;
                     }
-                    temp = "objects/" + customPath;
+                    temp = customPath;
                     xTexture = GFX.Game[$"objects/{temp2}/x"];
                     if (xTexture == null) {
                         Util.Log("No breaking texture found, defaulting to normal");
@@ -143,18 +143,12 @@ namespace Celeste.Mod.CommunalHelper {
         public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
             : base(position, width, height, safe: false) {
 
-            Depth = -1;
+            Depth = Depths.Player - 1;
             startPosition = position;
             Direction = direction;
             this.moveSpeed = moveSpeed;
 
-            homeAngle = targetAngle = angle = direction switch {
-                MoveBlock.Directions.Left => (float) Math.PI,
-                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
-                MoveBlock.Directions.Down => (float) Math.PI / 2f,
-                _ => 0f,
-            };
-            fillColor = idleBgFill;
+            homeAngle = targetAngle = angle = direction.Angle();
             Add(moveSfx = new SoundSource());
             Add(new Coroutine(Controller()));
             UpdateColors();

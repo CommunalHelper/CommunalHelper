@@ -15,7 +15,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public PathRenderer(DreamSwapBlock block)
                 : base(block.Position) {
                 this.block = block;
-                Depth = 8999;
+                Depth = Depths.BGDecals - 1;
                 timer = Calc.Random.NextFloat();
             }
 
