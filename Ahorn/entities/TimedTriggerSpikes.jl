@@ -19,7 +19,6 @@ const spikeTypes = String[
     "default",
     "outline",
     "cliffside",
-    "dust",
     "reflection"
 ]
 
