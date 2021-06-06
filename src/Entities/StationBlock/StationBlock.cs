@@ -57,6 +57,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool IsAttachedToTrack = false;
         private Node CurrentNode = null;
 
+        private bool dashCornerCorrection;
+
         public StationBlock(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Width, data.Height, safe: true) {
             Depth = Depths.FGTerrain + 1;
@@ -68,6 +70,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             buttonColor = data.HexColor("wavedashButtonColor", deactivatedButton);
             buttonPressedColor = data.HexColor("wavedashButtonPressedColor", activatedButton);
+
+            dashCornerCorrection = data.Bool("dashCornerCorrection", false);
 
             int minSize = (int) Calc.Min(Width, Height);
             string size;
@@ -269,6 +273,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // Weird, lame fix, but eh.
             if (player.StateMachine.State == 5)
                 player.StateMachine.State = 0;
+
+            // Easier wall bounces.
+            if (player.Left >= Right - 4f || player.Right < Left + 4f && dir.Y == -1) {
+                return DashCollisionResults.NormalCollision;
+            }
 
             if (IsMoving || !IsAttachedToTrack || (player.CollideCheck<Spikes>() && !SaveData.Instance.Assists.Invincible)) {
                 return DashCollisionResults.NormalCollision;
