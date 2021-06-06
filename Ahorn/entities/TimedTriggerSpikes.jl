@@ -31,7 +31,7 @@ const TimedTriggerSpikes = Dict{String,Type}(
     "right" => TimedTriggerSpikesRight,
 )
 
-const spikeTypes = String["default", "outline", "cliffside", "dust", "reflection"]
+const spikeTypes = String["default", "outline", "cliffside", "reflection"]
 
 const triggerSpikeColors = [
     (242, 90, 16, 255) ./ 255,
