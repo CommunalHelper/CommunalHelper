@@ -44,12 +44,12 @@ The current list of included mechanics:
 	</li>
 	<li>
 		<b>Connected Zip Mover</b>, <b>Move Block</b> and <b>Swap Block</b>, <b>Connected Solid Extension</b> - 
-		They act like their corresponding vanilla version, but they can have any shape, simply by placing <b>Connected Solid Extensions</b> so that they touch or overlap, and are tiled automatically.
+		They act like their corresponding vanilla version, but they can have any shape, simply by placing <b>Connected Solid Extensions</b> so that they touch or overlap, and are tiled automatically. They are reskinnable.
 	</li>
 	<li>
 		<b>Station Block</b> and <b>Tracks</b> - 
 		A block that sits on a track, and when activated will move along the track to a specific node. 
-		The block is activated by dashing into it, and will either move toward the side that was dashed into, or away from it, based on the <i>"behaviour"</i> option. 
+		The block is activated by dashing into it, and will either move toward the side that was dashed into, or away from it, based on the <i>"behaviour"</i> option. Now with 1.8.2, he <i>"dashCornerCorrection"</i> option will allow for easier wallbounces, previously way more precise than with most of other solids.
 		Track segments are either vertical or horizontal, and when placed such that their nodes (ends) overlap, will connect to form full, continuous tracks. 
 		The block must be placed directly on top of a track node for it to attach to the track, and when activated can only move in directions that have a track segment leading away from their current node, in that direction. 
 		They are also reskinnable. Since 1.6.0, <b>Station Block Tracks </b>can now be set to be "ON" or "OFF" using the <i>"trackSwitchState"</i> attribute, which will enable / disable them depending on the current state in the level. 
@@ -142,12 +142,17 @@ The current list of included mechanics:
 		<b>Player Bubble Region</b> - 
 		A rectangular region that will put the player entering it into the bubble state and move it back to a defined node, following the path of a curve (with a control node).
 	</li>
+	<li>
+		<b>Music Param Trigger</b> - 
+		A trigger that sets one or more FMOD parameters of the music event to a specific value when entering it. When leaving the trigger, the parameters are set to another specified value.
+		Used to manipulate audio effects only when you are standing in the trigger.
+	</li>
 </ul>
 <br/><br/>
 To use this helper as part of your map, put the text below into the <code>Dependencies:</code> section of your everest.yaml:
 <br/>
 <pre>
 - Name: CommunalHelper
-  Version: 1.8.0
+  Version: 1.8.2
 </pre>
 <br/><br/>

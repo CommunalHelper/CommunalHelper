@@ -1,5 +1,14 @@
---1.8.2 (??/05/2021)--
-* [Silent] Added Music Param Trigger.
+--1.8.2 (06/06/2021)--
+* Added Station Block option to allow easier wallbounces (dashCornerCorrection).
+* Added Music Param Trigger.
+* Added more Connected Zip Mover reskinning options.
+* Added missing Connected Move Block reskinning code.
+* Code cleanup.
+* Fixed Manual Cassette Controller not visually updating Cassette Blocks.
+* Fixed crash involving Dream Blocks (Linux only).
+* Fixed being able to jump out of Dream Boosters when being inside of solids.
+* Fixed Cassette Zip Mover liftspeed boost when deactivating.
+* Fixed Cassette Move Block static mover issues.
 
 --1.8.1 (30/04/2021)--
 * Fixed inverted logic when retrieving CustomCassetteBlock types.
