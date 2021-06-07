@@ -1,3 +1,6 @@
+--1.8.3 (07/06/2021)--
+* Fixed another Linux-related crash.
+
 --1.8.2 (06/06/2021)--
 * Added Station Block option to allow easier wallbounces (dashCornerCorrection).
 * Added Music Param Trigger.
