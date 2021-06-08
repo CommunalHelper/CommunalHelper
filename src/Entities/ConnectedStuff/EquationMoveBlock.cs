@@ -13,6 +13,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
 
         int equation = 3;
         float constA = 8, constB = 0.1f;
+        float moveTime = 0;
         // TODO: constC? arbitrary constants?
         // 0: y = ax               ->   a
         // 1: y = ax^2 + bx        ->   2ax + b
@@ -20,7 +21,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
         // 3: y = a*sin bx         ->   a*b*cos(bx)
         // 4: y = a*cos bx         ->  -a*b*sin(bx)
         // 5: y = ae^bx            ->   abe^bx
-        // 6: y = ax^b             ->   abx^(b-1)
+        // 6: y = (ax)^b           ->   b(ax)^(b-1)
 
         public EquationMoveBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f), data.Int("equation", 3), data.Float("constantA", 10), data.Float("constantB", 0.05f)) { }
@@ -36,6 +37,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
             while (true) {
                 triggered = false;
                 State = MovementState.Idling;
+                moveTime = 0;
                 while (!triggered && !HasPlayerRider()) {
                     yield return null;
                 }
@@ -65,7 +67,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                         _ => 0
                     };
                     // assume we're moving constantly
-                    float xgrad = (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Up) ? -1 : 1;
+                    int neg = (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Up) ? -1 : 1;
+                    float xgrad = (float) (neg * (equation is 7 ? constA * Math.Sin(moveTime) : 1));
                     float ygrad = equation switch {
                         0 => constA,
                         1 => 2 * constA * progress + constB,
@@ -73,23 +76,27 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                         3 => (float)(constA * constB * Math.Cos(constB * progress)),
                         4 => (float)(-constA * constB * Math.Sin(constB * progress)),
                         5 => (float)(constA * constB * Math.Pow(Math.E, constB * progress)),
-                        6 => (float)(Math.Pow(progress, constB - 1) * constA * constB),
+                        6 => (float)(Math.Pow(progress * constA, constB - 1) * constB),
+                        7 => (float)(constB * Math.Cos(moveTime)),
                         _ => 1
                     };
                     // tan x = y / x
                     // make y negative because y- is up in Celeste
                     // swap x/y if we're vertical
-                    float targetAngle = (float)Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * xgrad) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * xgrad));
+                    float targetAngle = (float)Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * neg) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * neg));
                     // and then we resume as normal
                     speed = Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
-                    angle = targetAngle;//Calc.Approach(angle, targetAngle, (float) Math.PI * 16f * Engine.DeltaTime);
+                    angle = targetAngle;
                     Vector2 vec = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool moveCheck = MoveCheck(vec.XComp()) || MoveCheck(vec.YComp());
+                    if (targetAngle == double.NaN)
+                        moveCheck = true;
                     Vector2 start = Position;
                     noSquish = Scene.Tracker.GetEntity<Player>();
                     MoveVCollideSolids(vec.Y, thruDashBlocks: false);
                     MoveHCollideSolids(vec.X, thruDashBlocks: false);
                     noSquish = null;
+                    moveTime += Engine.DeltaTime;
 
                     Vector2 move = Position - start;
                     SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
