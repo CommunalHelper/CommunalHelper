@@ -64,6 +64,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         internal static void Load() {
             On.Celeste.Player.ctor += Player_ctor;
             On.Celeste.Player.DashUpdate += Player_DashUpdate;
+            On.Celeste.Player.UpdateSprite += Player_UpdateSprite;
+        }
+
+        private static void Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self) {
+            orig(self);
+            if (self.StateMachine.State == StColliderDreamDashState) {
+                if (self.Sprite.CurrentAnimationID != "dreamDashIn" && self.Sprite.CurrentAnimationID != "dreamDashLoop") {
+                    self.Sprite.Play("dreamDashIn");
+                }
+            } else if (self.Sprite.DreamDashing && self.Sprite.LastAnimationID != "dreamDashOut") {
+                self.Sprite.Play("dreamDashOut");
+            }
         }
 
         internal static void Unload() {
