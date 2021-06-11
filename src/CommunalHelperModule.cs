@@ -63,6 +63,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             ColliderDreamDash.Load();
             DreamJellyfish.Load();
+            DreamJellyfishRenderer.Load();
         }
 
         public override void Unload() {
@@ -95,6 +96,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             ColliderDreamDash.Unload();
             DreamJellyfish.Unload();
+            DreamJellyfishRenderer.Unload();
         }
 
         public override void Initialize() {
@@ -130,6 +132,8 @@ namespace Celeste.Mod.CommunalHelper {
             Melvin.InitializeParticles();
 
             DreamBooster.InitializeParticles();
+
+            DreamJellyfish.InitializeTextures();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };

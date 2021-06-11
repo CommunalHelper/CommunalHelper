@@ -6,10 +6,22 @@ using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamJellyfish")]
-    [TrackedAs(typeof(Glider))]
+    [Tracked(true)]
     class DreamJellyfish : Glider {
 
         private static MethodInfo m_Player_Pickup = typeof(Player).GetMethod("Pickup", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        // Could maybe use CustomDreamBlock.DreamParticle.
+        public struct DreamParticle {
+            public Vector2 Position;
+            public int Layer;
+            public Color Color;
+            public float TimeOffset;
+        }
+        public DreamParticle[] Particles;
+        public static MTexture[] ParticleTextures;
+
+        public Rectangle particleBounds = new Rectangle(-23, -35, 48, 42);
 
         private DreamDashCollider dreamDashCollider;
         public bool AllowDreamDash {
@@ -21,7 +33,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private Sprite sprite;
+        public Sprite Sprite;
+        public MTexture CurrentFrame => Sprite.GetFrame(Sprite.CurrentAnimationID, Sprite.CurrentAnimationFrame);
 
         public DreamJellyfish(EntityData data, Vector2 offset) 
             : this(data.Position + offset, data.Bool("bubble"), data.Bool("tutorial")) { }
@@ -29,9 +42,38 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public DreamJellyfish(Vector2 position, bool bubble, bool tutorial)
             : base(position, bubble, tutorial) {
             DynData<Glider> gliderData = new DynData<Glider>(this);
-            sprite = gliderData.Get<Sprite>("sprite");
+
+            Sprite oldSprite = gliderData.Get<Sprite>("sprite");
+            Remove(oldSprite);
+            gliderData["sprite"] = Sprite = CommunalHelperModule.SpriteBank.Create("dreamJellyfish");
+            Add(Sprite);
 
             Add(dreamDashCollider = new DreamDashCollider(new Hitbox(28, 16, -13, -18), OnDreamDashExit));
+        }
+
+        public override void Awake(Scene scene) {
+            base.Awake(scene);
+
+            int w = particleBounds.Width;
+            int h = particleBounds.Height;
+            Particles = new DreamParticle[(int) (w / 8f * (h / 8f) * 1.5f)];
+            for (int i = 0; i < Particles.Length; i++) {
+                Particles[i].Position = new Vector2(Calc.Random.NextFloat(w), Calc.Random.NextFloat(h));
+                Particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
+                Particles[i].TimeOffset = Calc.Random.NextFloat();
+                Particles[i].Color = Particles[i].Layer switch {
+                    2 => Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64")),
+                    1 => Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C")),
+                    _ => Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310")),
+                };
+            }
+
+            scene.Tracker.GetEntity<DreamJellyfishRenderer>().Track(this);
+        }
+
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            scene.Tracker.GetEntity<DreamJellyfishRenderer>().Untrack(this);
         }
 
         public void OnDreamDashExit(Player player) {
@@ -51,14 +93,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (AllowDreamDash)
                 return;
             AllowDreamDash = true;
-            sprite.SetColor(Color.White);
         }
 
         private void DisableDreamDash() {
             if (!AllowDreamDash)
                 return;
             AllowDreamDash = false;
-            sprite.SetColor(Color.LightSlateGray);
         }
 
         public override void Update() {
@@ -66,6 +106,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if ((Hold.Holder == null && OnGround()) || (Hold.Holder != null && Hold.Holder.OnGround())) {
                 EnableDreamDash();
             }
+        }
+
+        public override void Render() {
+            Remove(Sprite);
+            base.Render();
+            Add(Sprite);
+        }
+
+        public static void InitializeTextures() {
+            ParticleTextures = new MTexture[4] {
+                GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7),
+                GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),
+                GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7),
+                GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),
+            };
         }
 
         #region Hooks
