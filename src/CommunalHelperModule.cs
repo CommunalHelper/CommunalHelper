@@ -60,6 +60,8 @@ namespace Celeste.Mod.CommunalHelper {
             CustomSummitGem.Load();
 
             CustomBooster.Load();
+
+            ColliderDreamDash.Load();
         }
 
         public override void Unload() {
@@ -89,6 +91,8 @@ namespace Celeste.Mod.CommunalHelper {
             CustomSummitGem.Unload();
 
             CustomBooster.Unload();
+
+            ColliderDreamDash.Unload();
         }
 
         public override void Initialize() {

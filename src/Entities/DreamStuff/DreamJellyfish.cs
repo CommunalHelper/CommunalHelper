@@ -12,9 +12,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DreamJellyfish(Vector2 position, bool bubble, bool tutorial)
             : base(position, bubble, tutorial) {
-            Add(new DreamDashCollider(new Hitbox(28, 12, -13, -18)) {
-                Active = false,
-            });
+            Add(new DreamDashCollider(new Hitbox(28, 20, -13, -18)));
         }
     }
 }
