@@ -178,21 +178,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         } else if (player.DashDir.X < 0f && player.CollideCheck<Solid>(player.Position + Vector2.UnitX * 5f)) {
                             player.MoveHExact(5);
                         }
-
-                        bool flag = player.ClimbCheck(-1);
-                        bool flag2 = player.ClimbCheck(1);
-
-                        int moveX = playerData.Get<int>("moveX");
-                        if (Input.GrabCheck && ((moveX == 1 && flag2) || (moveX == -1 && flag))) {
-                            player.Facing = (Facings) moveX;
-
-                            if (!SaveData.Instance.Assists.NoGrabbing) {
-                                return 1;
-                            }
-
-                            player.ClimbTrigger(moveX);
-                            player.Speed.X = 0f;
-                        }
                     }
                     return Player.StNormal;
                 }
@@ -206,7 +191,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Level level = player.SceneAs<Level>();
                 if (level.OnInterval(0.04f)) {
                     DisplacementRenderer.Burst burst = level.Displacement.AddBurst(player.Center, 0.3f, 0f, 40f);
-                    burst.WorldClipCollider = component.Collider;
                     burst.WorldClipPadding = 2;
                 }
             }
