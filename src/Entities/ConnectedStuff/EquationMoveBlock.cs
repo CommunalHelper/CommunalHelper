@@ -24,13 +24,10 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
         // 6: y = (ax)^b           ->   b(ax)^(b-1)
 
         public EquationMoveBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f), data.Int("equation", 3), data.Float("constantA", 10), data.Float("constantB", 0.05f)) { }
-
-        public EquationMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed, int equation, float constA, float constB)
-            : base(position, width, height, direction, moveSpeed) {
-            this.equation = equation;
-            this.constA = constA;
-            this.constB = constB;
+            : base(data, offset) {
+            equation = data.Int("equation", 3);
+            constA = data.Float("constantA", 10);
+            constB = data.Float("constantB", 0.05f);
         }
 
         protected override IEnumerator Controller() {
