@@ -36,7 +36,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public void OnDreamDashExit(Player player) {
             DisableDreamDash();
-            if (Input.GrabCheck && player.DashDir.Y == -1) {
+            if (Input.GrabCheck && player.DashDir.Y <= 0) {
                 // force-allow pickup
                 player.GetData()["minHoldTimer"] = 0f;
                 new DynData<Holdable>(Hold)["cannotHoldTimer"] = 0;
@@ -76,6 +76,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.StartDash += Player_StartDash;
 
             On.Celeste.Glider.HitSpring += Glider_HitSpring;
+            On.Celeste.Player.SideBounce += Player_SideBounce;
         }
 
         internal static void Unload() {
@@ -84,6 +85,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.StartDash -= Player_StartDash;
 
             On.Celeste.Glider.HitSpring -= Glider_HitSpring;
+            On.Celeste.Player.SideBounce -= Player_SideBounce;
+        }
+
+        private static bool Player_SideBounce(On.Celeste.Player.orig_SideBounce orig, Player self, int dir, float fromX, float fromY) {
+            bool result = orig(self, dir, fromX, fromY);
+            if (result && self.Holding?.Entity is DreamJellyfish jelly)
+                jelly.EnableDreamDash();
+            return result;
         }
 
         private static bool Glider_HitSpring(On.Celeste.Glider.orig_HitSpring orig, Glider self, Spring spring) {
