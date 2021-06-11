@@ -81,7 +81,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 GameplayRenderer.End();
                 Engine.Graphics.GraphicsDevice.SetRenderTarget(renderTarget);
-                Engine.Graphics.GraphicsDevice.Clear(Color.Black);
+                Engine.Graphics.GraphicsDevice.Clear(Color.Lerp(Color.Black, Color.White, jelly.Flash));
 
 
                 Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, ColorGrade.Effect);
@@ -103,7 +103,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         particlePos.Y -= jellyBounds.Height;
                     }
 
-                    Color color = jelly.Particles[i].Color;
+                    Color color = jelly.AllowDreamDash ? jelly.Particles[i].EnabledColor : jelly.Particles[i].DisabledColor;
                     MTexture mTexture;
                     switch (layer) {
                         case 0: {

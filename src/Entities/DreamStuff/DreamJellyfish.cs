@@ -15,11 +15,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public struct DreamParticle {
             public Vector2 Position;
             public int Layer;
-            public Color Color;
+            public Color EnabledColor, DisabledColor;
             public float TimeOffset;
         }
         public DreamParticle[] Particles;
         public static MTexture[] ParticleTextures;
+        public float Flash;
 
         public Rectangle particleBounds = new Rectangle(-23, -35, 48, 42);
 
@@ -33,6 +34,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        DynData<Glider> gliderData;
+
         public Sprite Sprite;
         public MTexture CurrentFrame => Sprite.GetFrame(Sprite.CurrentAnimationID, Sprite.CurrentAnimationFrame);
 
@@ -41,7 +44,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DreamJellyfish(Vector2 position, bool bubble, bool tutorial)
             : base(position, bubble, tutorial) {
-            DynData<Glider> gliderData = new DynData<Glider>(this);
+            gliderData = new DynData<Glider>(this);
 
             Sprite oldSprite = gliderData.Get<Sprite>("sprite");
             Remove(oldSprite);
@@ -61,7 +64,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Particles[i].Position = new Vector2(Calc.Random.NextFloat(w), Calc.Random.NextFloat(h));
                 Particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
                 Particles[i].TimeOffset = Calc.Random.NextFloat();
-                Particles[i].Color = Particles[i].Layer switch {
+
+                Particles[i].DisabledColor = Color.LightGray * (0.5f + Particles[i].Layer / 2f * 0.5f);
+                Particles[i].DisabledColor.A = 255;
+
+                Particles[i].EnabledColor = Particles[i].Layer switch {
                     2 => Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64")),
                     1 => Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C")),
                     _ => Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310")),
@@ -93,16 +100,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (AllowDreamDash)
                 return;
             AllowDreamDash = true;
+            Flash = 0.5f;
+            Sprite.Scale = new Vector2(1.3f, 1.2f);
         }
 
         private void DisableDreamDash() {
             if (!AllowDreamDash)
                 return;
             AllowDreamDash = false;
+            Flash = 1f;
         }
 
         public override void Update() {
             base.Update();
+
+            Flash = Calc.Approach(Flash, 0f, Engine.DeltaTime * 2.5f);
+
             if ((Hold.Holder == null && OnGround()) || (Hold.Holder != null && Hold.Holder.OnGround())) {
                 EnableDreamDash();
             }
