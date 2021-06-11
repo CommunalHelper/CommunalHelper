@@ -62,6 +62,7 @@ namespace Celeste.Mod.CommunalHelper {
             CustomBooster.Load();
 
             ColliderDreamDash.Load();
+            DreamJellyfish.Load();
         }
 
         public override void Unload() {
@@ -93,6 +94,7 @@ namespace Celeste.Mod.CommunalHelper {
             CustomBooster.Unload();
 
             ColliderDreamDash.Unload();
+            DreamJellyfish.Unload();
         }
 
         public override void Initialize() {

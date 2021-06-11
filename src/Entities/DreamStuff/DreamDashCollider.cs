@@ -12,9 +12,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public Collider Collider;
 
-        public Action<Player, bool> OnExit;
+        public Action<Player> OnExit;
 
-        public DreamDashCollider(Collider collider, Action<Player, bool> onExit_player_dreamJumped = null)
+        public DreamDashCollider(Collider collider, Action<Player> onExit_player_dreamJumped = null)
             : base(active: true, visible: false) {
             Collider = collider;
             OnExit = onExit_player_dreamJumped;
@@ -63,8 +63,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void Load() {
             On.Celeste.Player.ctor += Player_ctor;
-            On.Celeste.Player.DashUpdate += Player_DashUpdate;
+            On.Celeste.Player.Update += Player_Update;
             On.Celeste.Player.UpdateSprite += Player_UpdateSprite;
+        }
+
+        internal static void Unload() {
+            On.Celeste.Player.ctor -= Player_ctor;
+            On.Celeste.Player.Update -= Player_Update;
+            On.Celeste.Player.UpdateSprite -= Player_UpdateSprite;
+        }
+
+        private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
+            if ((self.StateMachine.State == Player.StDash || self.StateMachine.State == Player.StRedDash) &&
+                self.PlayerInDreamDashCollider() && self.DashDir != Vector2.Zero)
+                self.StateMachine.State = StColliderDreamDashState;
+            orig(self);
         }
 
         private static void Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self) {
@@ -76,20 +89,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             } else if (self.Sprite.DreamDashing && self.Sprite.LastAnimationID != "dreamDashOut") {
                 self.Sprite.Play("dreamDashOut");
             }
-        }
-
-        internal static void Unload() {
-            On.Celeste.Player.ctor -= Player_ctor;
-            On.Celeste.Player.DashUpdate -= Player_DashUpdate;
-        }
-
-        private static int Player_DashUpdate(On.Celeste.Player.orig_DashUpdate orig, Player self) {
-            int result = orig(self);
-
-            if (self.PlayerInDreamDashCollider() && self.DashDir != Vector2.Zero)
-                return StColliderDreamDashState;
-
-            return result;
         }
 
         private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
@@ -124,11 +123,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             player.Depth = Depths.Player;
 
-            bool dreamJump = true;
             if (!playerData.Get<bool>("dreamJump")) {
                 player.AutoJump = true;
                 player.AutoJumpTimer = 0f;
-                dreamJump = false;
             }
 
             if (!player.Inventory.NoRefills) {
@@ -147,7 +144,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     playerData["jumpGraceTimer"] = 0f;
                 }
                 if (component.OnExit is not null)
-                    component.OnExit(player, dreamJump);
+                    component.OnExit(player);
                 playerData[Player_dreamDashCollider] = null;
             }
 
