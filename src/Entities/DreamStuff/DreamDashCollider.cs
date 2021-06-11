@@ -26,17 +26,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         /// <param name="player">The player instance.</param>
         /// <returns></returns>
         public bool Check(Player player) {
-            Collider collider = Entity.Collider;
+            if (Active) {
+                Collider collider = Entity.Collider;
 
-            Entity.Collider = Collider;
-            bool check = player.CollideCheck(Entity);
-            Entity.Collider = collider;
+                Entity.Collider = Collider;
+                bool check = player.CollideCheck(Entity);
+                Entity.Collider = collider;
 
-            return check;
+                return check;
+            }
+            return false;
         }
 
         public override void DebugRender(Camera camera) {
-            if (Collider != null && Active) {
+            if (Collider != null) {
                 Collider collider = Entity.Collider;
                 
                 Entity.Collider = Collider;
