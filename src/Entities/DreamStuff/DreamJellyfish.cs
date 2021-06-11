@@ -46,11 +46,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         internal static void Load() {
             On.Celeste.Holdable.Check += Holdable_Check;
             On.Celeste.Player.NormalUpdate += Player_NormalUpdate;
+            On.Celeste.Player.StartDash += Player_StartDash;
         }
 
         internal static void Unload() {
             On.Celeste.Holdable.Check -= Holdable_Check;
             On.Celeste.Player.NormalUpdate -= Player_NormalUpdate;
+            On.Celeste.Player.StartDash -= Player_StartDash;
+        }
+
+        private static int Player_StartDash(On.Celeste.Player.orig_StartDash orig, Player self) {
+            if (self.Holding?.Entity is DreamJellyfish && Input.MoveY.Value == -1f)
+                self.Drop();
+            return orig(self);
         }
 
         private static bool Holdable_Check(On.Celeste.Holdable.orig_Check orig, Holdable self, Player player) {
