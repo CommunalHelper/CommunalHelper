@@ -18,8 +18,9 @@ const behaviors = ["Pulling", "Pushing"]
     customTrackPath::String="",
     speedFactor::Number=1.0,
     allowWavedash::Bool=false,
-    wavedashButtonColor="5BF75B",
-    wavedashButtonPressedColor="F25EFF",
+    wavedashButtonColor::String="5BF75B",
+    wavedashButtonPressedColor::String="F25EFF",
+    dashCornerCorrection::Bool=true,
 )
 
 const placements = Ahorn.PlacementDict(

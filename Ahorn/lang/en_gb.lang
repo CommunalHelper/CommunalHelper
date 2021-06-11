@@ -55,6 +55,11 @@ placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.refillCount=Numb
 # -- Connected Move Block --
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.moveSpeed=The speed at which the block moves (accepts any number).
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).\nFor adding arrow textures, name the texture for tiles "tileset.png", the arrow textures "arrowXX.png" (00 thru 08), and the breaking "X" sprite as "x.png".
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.idleColor=The color of the arrow when not moving.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.pressedColor=The color of the arrow when moving.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.breakColor=The color of the arrow when breaking.
+
 
 # -- Equation Move Block --
 placements.entities.CommunalHelper/EquationMoveBlock.tooltips.equation=The equation used by the Equation Move Block.\n0: y = ax\n1: y = ax^2 + bx\n2: y = ax^3 + bx^2 + x\n3: y = a*sin bx\n4: y = a*cos bx\n5: y = ae^bx\n6: y = ax^b\n7: elliptic, x-scale = a, y-scale = b
@@ -65,11 +70,13 @@ placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customRedBlockTex
 placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearance of the Connected Swap Block.
 
 # -- Connected Zip Mover --
-placements.entities.CommunalHelper/ConnectedZipMover.tooltips.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
-placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=The appearance of the Connected Zip Mover. The Cliffside theme is a custom theme.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.customBlockTexture=Legacy. Replace this zip mover and use Custom Skin instead. The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.customSkin=The path to a directory with custom textures for this Connected Zip Mover. This is relative to Graphics/Atlases/Gameplay. If set, this overrides the Theme option. Setting the Cliffside theme is equivalent to setting this field to objects/CommunalHelper/connectedZipMover/cliffside, and customising Colors to match.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=If Custom Skin is not set, this determines the appearance of the Connected Zip Mover. This also determines the sounds used. The Cliffside theme is a custom theme.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.permanent=Whether the Connected Zip Mover should stay completely static after stopping.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.waiting=Whether the Connected Zip Mover should wait for the player at each node. Only useful if has more than one node.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.ticking=Whether the Connected Zip Mover should be ticking at each node, forcing the player to reactivate it within a limited amount of time. Will return to initial position if the player doesn't reactivate it, or locks in place completely if "permanent" is on. Only useful if has more than one node.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.colors=The background and rope colors for this Connected Zip Mover. Setting this value overrides the default values. This is a comma-seperated list of hex codes; the first is used as ther background color, the second as the main rope color, and the third as the lighter rope color (when present). For the Normal and Moon themes, this is 000000,663931,9b6157 by default; for the Cliffside theme, this is 171018,663931,9b6157 by default.
 
 
 # -- Dream Falling Block --
@@ -196,6 +203,7 @@ placements.entities.CommunalHelper/StationBlock.tooltips.customArrowPath=This is
 placements.entities.CommunalHelper/StationBlock.tooltips.customTrackPath=This is the path you should specify if you're using custom textures for the tracks, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>/node.png, trackv.png and trackh.png. There should be 3 textures in the folder you specified in the path, all of size 8x8, called: node.png, trackv.png, and trackh.png. The node.png texture is the point of intersection between tracks. trackv.png and trackh.png are the track horizontal & vertical textures, they should loop over seamlessly. Example: "catapillie/customStationBlock/tracks", where the texture are located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/tracks/node.png, trackv.png and trackh.png. This should point to a directory, not an image.
 placements.entities.CommunalHelper/StationBlock.tooltips.wavedashButtonColor=The hexadecimal color of the allowed wavedash button indicator when it's not pressed. Must not include the hash (#) symbol!
 placements.entities.CommunalHelper/StationBlock.tooltips.wavedashButtonPressedColor=The hexadecimal color of the allowed wavedash button indicator when it's pressed. Must not include the hash (#) symbol!
+placements.entities.CommunalHelper/StationBlock.tooltips.dashCornerCorrection=Makes wallbouncing off of this Station Block less precise (by allowing it up to 4 pixels deep into the block horizontally, dashing from the bottom).
 
 # -- Station Block Track --
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.multiBlockTrack=Whether this set of tracks can support more than one Station Block.
