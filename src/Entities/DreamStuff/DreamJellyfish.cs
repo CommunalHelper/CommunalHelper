@@ -102,6 +102,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             AllowDreamDash = true;
             Flash = 0.5f;
             Sprite.Scale = new Vector2(1.3f, 1.2f);
+            Audio.Play(CustomSFX.game_dreamJellyfish_jelly_refill);
         }
 
         private void DisableDreamDash() {
@@ -109,6 +110,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 return;
             AllowDreamDash = false;
             Flash = 1f;
+            Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
         }
 
         public override void Update() {
