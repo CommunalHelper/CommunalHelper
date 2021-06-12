@@ -189,6 +189,10 @@ placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.operation=The type
 placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.modifier=The number which with the operation is applied to the Move Block speed.
 placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.oneUse=Whether this Move Block Redirect can only be used once or not.
 
+# -- Railed Move Block --
+placements.entities.CommunalHelper/RailedMoveBlock.tooltips.steeringMode=Represents the way in which you can steer the block using the side buttons.\n\n- "Horizontal" will enable buttons on the left and right side of the block.\n- "Vertical" will enable one button at the top of the block.\n- "Both" will enable the two above.
+placements.entities.CommunalHelper/RailedMoveBlock.tooltips.speed=The maximum speed this block can go at.
+
 
 # -- Shielded Refill --
 placements.entities.CommunalHelper/ShieldedRefill.tooltips.twoDashes=Whether the refill should give two dashes, instead of one.

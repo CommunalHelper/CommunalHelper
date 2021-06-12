@@ -5,21 +5,25 @@ using ..Ahorn, Maple
 const steeringModes = ["Horizontal", "Vertical", "Both"]
 
 @mapdef Entity "CommunalHelper/RailedMoveBlock" RailedMoveBlock(
-			x::Integer, y::Integer,
-			width::Integer=16, height::Integer=16,
-			nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[],
-            steeringMode::String="Horizontal", speed::Number=120.0)
+    x::Integer,
+    y::Integer,
+    width::Integer=16,
+    height::Integer=16,
+    nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[],
+    steeringMode::String="Horizontal",
+    speed::Number=120.0,
+)
 
 const placements = Ahorn.PlacementDict(
     "Railed Move Block ($steeringMode) (Communal Helper)" => Ahorn.EntityPlacement(
         RailedMoveBlock,
-		"rectangle",
-		Dict{String, Any}(
+        "rectangle",
+        Dict{String, Any}(
             "steeringMode" => steeringMode
         ),
-		function(entity)
+        function(entity)
             entity.data["nodes"] = [(Int(entity.data["x"]) + Int(entity.data["width"]) + 8, Int(entity.data["y"]))]
-        end
+        end,
     ) for steeringMode in steeringModes
 )
 
@@ -94,15 +98,20 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::RailedMoveBlock,
     vertical = false
 
     frame = "objects/CommunalHelper/railedMoveBlock/base_both"
+    icon = "objects/CommunalHelper/railedMoveBlock/both"
     if steeringMode == "Horizontal"
         frame = "objects/moveBlock/base_v"
+        icon = "objects/CommunalHelper/railedMoveBlock/h"
         both = false
         horizontal = true
     elseif steeringMode == "Vertical"
         frame = "objects/moveBlock/base_h"
+        icon = "objects/CommunalHelper/railedMoveBlock/v"
         both = false
         vertical = true
     end
+    
+    iconSprite = Ahorn.getSprite(icon, "Gameplay")
 
     Ahorn.drawRectangle(ctx, x + 2, y + 2, width - 4, height - 4, highlightColor, highlightColor)
     Ahorn.drawRectangle(ctx, x + 8, y + 8, width - 16, height - 16, midColor)
@@ -160,8 +169,8 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::RailedMoveBlock,
         Ahorn.Cairo.restore(ctx)
     end
 
-    # Ahorn.drawRectangle(ctx, div(width - arrowSprite.width, 2) + 1, div(height - arrowSprite.height, 2) + 1, 8, 8, highlightColor, highlightColor)
-    # Ahorn.drawImage(ctx, arrowSprite, div(width - arrowSprite.width, 2), div(height - arrowSprite.height, 2))
+    Ahorn.drawRectangle(ctx, x + div(width - iconSprite.width, 2) + 1, y + div(height - iconSprite.height, 2) + 1, 8, 8, highlightColor, highlightColor)
+    Ahorn.drawImage(ctx, iconSprite, x + div(width - iconSprite.width, 2), y + div(height - iconSprite.height, 2))
 end
 
 end
