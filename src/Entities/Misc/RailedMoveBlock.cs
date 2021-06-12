@@ -205,8 +205,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             for (int i = 0; i < tilesWidth; i++) {
                 for (int j = 0; j < tilesHeight; j++) {
-                    int tx = ((i != 0) ? ((i < tilesWidth - 1) ? 1 : 2) : 0);
-                    int ty = ((j != 0) ? ((j < tilesHeight - 1) ? 1 : 2) : 0);
+                    int tx = (i != 0) ? ((i < tilesWidth - 1) ? 1 : 2) : 0;
+                    int ty = (j != 0) ? ((j < tilesHeight - 1) ? 1 : 2) : 0;
                     AddImage(block.GetSubtexture(tx * 8, ty * 8, 8, 8), new Vector2(i, j) * 8f, 0f, new Vector2(1f, 1f), body);
                 }
             }
@@ -256,20 +256,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bool topCheck = hasTopButtons && CollideCheck<Player>(Position + new Vector2(0f, -1f));
             
             foreach (Image image in topButton) {
-                image.Y = (topCheck ? 2 : 0);
+                image.Y = topCheck ? 2 : 0;
             }
             foreach (Image image in leftButton) {
-                image.X = (leftCheck ? 2 : 0);
+                image.X = leftCheck ? 2 : 0;
             }
             foreach (Image image in rightButton) {
-                image.X = base.Width + (float) (rightCheck ? (-2) : 0);
+                image.X = Width + (rightCheck ? (-2) : 0);
             }
 
             if ((leftCheck && !leftPressed) || (topCheck && !topPressed) || (rightCheck && !rightPressed)) {
-                Audio.Play("event:/game/04_cliffside/arrowblock_side_depress", Position);
+                Audio.Play(SFX.game_04_arrowblock_side_depress, Position);
             }
             if ((!leftCheck && leftPressed) || (!topCheck && topPressed) || (!rightCheck && rightPressed)) {
-                Audio.Play("event:/game/04_cliffside/arrowblock_side_release", Position);
+                Audio.Play(SFX.game_04_arrowblock_side_release, Position);
             }
 
             leftPressed = leftCheck;
@@ -365,7 +365,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Render() {
             Vector2 position = Position;
-            Position += base.Shake;
+            Position += Shake;
 
             foreach (Image image in leftButton) {
                 image.Render();
@@ -377,11 +377,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 image.Render();
             }
 
-            Draw.Rect(base.X + 3f, base.Y + 3f, base.Width - 6f, base.Height - 6f, fillColor);
+            Draw.Rect(X + 3f, Y + 3f, Width - 6f, Height - 6f, fillColor);
             foreach (Image tile in body) {
                 tile.Render();
             }
-            Draw.Rect(base.Center.X - 4f, base.Center.Y - 4f, 8f, 8f, fillColor);
+            Draw.Rect(Center.X - 4f, Center.Y - 4f, 8f, 8f, fillColor);
             (showX ? XIcon : icon).DrawCentered(Center);
 
             Position = position;
