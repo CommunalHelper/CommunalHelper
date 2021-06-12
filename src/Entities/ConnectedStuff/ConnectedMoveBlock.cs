@@ -12,7 +12,7 @@ namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/ConnectedMoveBlock")]
     public class ConnectedMoveBlock : ConnectedSolid {
         // Custom Border Entity
-        private class Border : Entity {
+        protected class Border : Entity {
             public ConnectedMoveBlock Parent;
             private static Vector2 offset = new Vector2(1, 1);
 
@@ -47,46 +47,46 @@ namespace Celeste.Mod.CommunalHelper {
         }
         public MovementState State;
 
-        private static MTexture[,] masterEdges = new MTexture[3, 3];
-        private static MTexture[,] masterInnerCorners = new MTexture[2, 2];
-        private static List<MTexture> masterArrows = new List<MTexture>();
-        private MTexture xTexture;
+        protected static MTexture[,] masterEdges = new MTexture[3, 3];
+        protected static MTexture[,] masterInnerCorners = new MTexture[2, 2];
+        protected static List<MTexture> masterArrows = new List<MTexture>();
+        protected MTexture xTexture;
         
         //Custom Texture support
-        private bool customTexture;
-        private Tuple<MTexture[,], MTexture[,]> tiles;
-        private List<MTexture> arrows;
+        protected bool customTexture;
+        protected Tuple<MTexture[,], MTexture[,]> tiles;
+        protected List<MTexture> arrows;
 
         //ColorModifiers added to entityData constructor.
-        private readonly Color idleBgFill = Calc.HexToColor("474070");
-        private readonly Color pressedBgFill = Calc.HexToColor("30b335");
-        private readonly Color breakingBgFill = Calc.HexToColor("cc2541");
-        private Color fillColor;
+        protected readonly Color idleBgFill = Calc.HexToColor("474070");
+        protected readonly Color pressedBgFill = Calc.HexToColor("30b335");
+        protected readonly Color breakingBgFill = Calc.HexToColor("cc2541");
+        protected Color fillColor;
 
-        private float particleRemainder;
+        protected float particleRemainder;
 
-        private Vector2 startPosition;
+        protected Vector2 startPosition;
 
         public MoveBlock.Directions Direction;
 
-        private List<Hitbox> ArrowsList;
+        protected List<Hitbox> ArrowsList;
 
-        private float moveSpeed;
-        private bool triggered;
+        protected float moveSpeed;
+        protected bool triggered;
 
-        private float speed;
-        private float targetSpeed;
+        protected float speed;
+        protected float targetSpeed;
 
-        private float angle;
-        private float targetAngle;
-        private float homeAngle;
+        protected float angle;
+        protected float targetAngle;
+        protected float homeAngle;
 
-        private float flash;
-        private Border border;
+        protected float flash;
+        protected Border border;
 
-        private Player noSquish;
+        protected Player noSquish;
 
-        private SoundSource moveSfx;
+        protected SoundSource moveSfx;
 
         public ConnectedMoveBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f)) {
@@ -155,7 +155,7 @@ namespace Celeste.Mod.CommunalHelper {
             Add(new LightOcclude(0.5f));
         }
 
-        private IEnumerator Controller() {
+        protected virtual IEnumerator Controller() {
             while (true) {
                 triggered = false;
                 State = MovementState.Idling;
@@ -289,7 +289,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
         }
 
-        private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris) {
+        protected IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris) {
             while (true) {
                 instance.getPlaybackState(out PLAYBACK_STATE pLAYBACK_STATE);
                 if (pLAYBACK_STATE == PLAYBACK_STATE.STOPPED) {
@@ -305,7 +305,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
         }
 
-        private void UpdateColors() {
+        protected void UpdateColors() {
             Color value = State switch {
                 MovementState.Moving => pressedBgFill,
                 MovementState.Breaking => breakingBgFill,
@@ -332,7 +332,7 @@ namespace Celeste.Mod.CommunalHelper {
             base.MoveVExact(move);
         }
 
-        private bool MoveCheck(Vector2 speed) {
+        protected bool MoveCheck(Vector2 speed) {
             if (speed.X != 0f) {
                 if (MoveHCollideSolids(speed.X, thruDashBlocks: false)) {
                     for (int i = 1; i <= 3; i++) {
@@ -368,7 +368,7 @@ namespace Celeste.Mod.CommunalHelper {
             return false;
         }
 
-        private void ActivateParticles() {
+        protected void ActivateParticles() {
             foreach (Hitbox hitbox in Colliders) {
                 bool left = !CollideCheck<Player>(Position - Vector2.UnitX);
                 bool right = !CollideCheck<Player>(Position + Vector2.UnitX);
@@ -387,7 +387,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
         }
 
-        private void BreakParticles() {
+        protected void BreakParticles() {
             foreach (Hitbox hitbox in Colliders) {
 
                 Vector2 center = Position + hitbox.Center;
@@ -401,7 +401,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
         }
 
-        private void MoveParticles() {
+        protected void MoveParticles() {
             foreach (Hitbox hitbox in Colliders) {
 
                 Vector2 position;
