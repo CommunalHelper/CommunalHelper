@@ -1,42 +1,49 @@
 module CommunalHelperMelvin
+
 using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/Melvin" Melvin(
-			x::Integer, y::Integer,
-            width::Integer=24, height::Integer=24,
-            weakTop::Bool = false, weakRight::Bool = false, weakBottom::Bool = false, weakLeft::Bool = false)
-           
+    x::Integer,
+    y::Integer,
+    width::Integer=24,
+    height::Integer=24,
+    weakTop::Bool=false,
+    weakRight::Bool=false,
+    weakBottom::Bool=false,
+    weakLeft::Bool=false,
+)
+
 const placements = Ahorn.PlacementDict(
     "Melvin (All Strong) (Communal Helper)" => Ahorn.EntityPlacement(
         Melvin,
-        "rectangle"
+        "rectangle",
     ),
     "Melvin (All Weak) (Communal Helper)" => Ahorn.EntityPlacement(
         Melvin,
         "rectangle",
-        Dict{String, Any}(
+        Dict{String,Any}(
             "weakTop" => true,
             "weakRight" => true,
             "weakBottom" => true,
-            "weakLeft" => true
-        )
+            "weakLeft" => true,
+        ),
     ),
     "Melvin (Horizontally Weak) (Communal Helper)" => Ahorn.EntityPlacement(
         Melvin,
         "rectangle",
-        Dict{String, Any}(
+        Dict{String,Any}(
             "weakRight" => true,
-            "weakLeft" => true
-        )
+            "weakLeft" => true,
+        ),
     ),
     "Melvin (Vertically Weak) (Communal Helper)" => Ahorn.EntityPlacement(
         Melvin,
         "rectangle",
-        Dict{String, Any}(
+        Dict{String,Any}(
             "weakTop" => true,
-            "weakBottom" => true
-        )
-    )
+            "weakBottom" => true,
+        ),
+    ),
 )
 
 Ahorn.minimumSize(entity::Melvin) = 24, 24
@@ -57,7 +64,7 @@ const kevinColor = (98, 34, 43) ./ 255
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Melvin, room::Maple.Room)
     width = Int(get(entity.data, "width", 24))
     height = Int(get(entity.data, "height", 24))
-    
+
     eyeSprite = Ahorn.getSprite(eye, "Gameplay")
 
     tileRands = Ahorn.getDrawableRoom(Ahorn.loadedState.map, room).fgTileStates.rands
@@ -83,7 +90,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Melvin, room::Maple
         isEdge = (i == 1 || i == tileWidth || j == 1 || j == tileHeight)
         isCorner = ((i == 1 || i == tileWidth) && (j == 1 || j == tileHeight))
         tileChoice = mod(get(tileRands, (rty + j, rtx + i), 0), 4)
-        
+
         if tx == 8
             if tileChoice == 1 || tileChoice == 3
                 tx += 8

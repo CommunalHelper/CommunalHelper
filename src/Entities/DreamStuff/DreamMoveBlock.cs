@@ -9,13 +9,14 @@ using MonoMod.RuntimeDetour;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamMoveBlock")]
     public class DreamMoveBlock : CustomDreamBlock {
 
-        private enum MovementState {
+        public enum MovementState {
             Idling,
             Moving,
             Breaking
@@ -43,10 +44,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float moveSpeed;
 
-        private MoveBlock.Directions direction;
+        public MoveBlock.Directions Direction;
         private float homeAngle;
         private Vector2 startPosition;
-        private MovementState state = MovementState.Idling;
+        public MovementState State = MovementState.Idling;
 
         private float speed;
         private float targetSpeed;
@@ -91,40 +92,42 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             moveSpeed = data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed);
             noCollide = data.Bool("noCollide");
 
-            direction = data.Enum<MoveBlock.Directions>("direction");
-            homeAngle = targetAngle = angle = direction switch {
-                MoveBlock.Directions.Left => (float) Math.PI,
-                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
-                MoveBlock.Directions.Down => (float) Math.PI / 2f,
-                _ => 0f,
-            };
+            Direction = data.Enum<MoveBlock.Directions>("direction");
+            homeAngle = targetAngle = angle = Direction.Angle();
 
             arrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/arrow");
             Add(moveSfx = new SoundSource());
             Add(controller = new Coroutine(Controller()));
             Add(new LightOcclude(0.5f));
+
+            Add(new MoveBlockRedirectable(new MonoMod.Utils.DynamicData(this)) {
+                Get_CanSteer = () => false,
+                Get_Direction = () => Direction,
+                Set_Direction = dir => Direction = dir
+            });
         }
 
         private IEnumerator Controller() {
             while (true) {
                 triggered = false;
-                state = MovementState.Idling;
+                State = MovementState.Idling;
                 while (!triggered && !HasPlayerRider()) {
                     yield return null;
                 }
 
 
                 Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_activate : SFX.game_04_arrowblock_activate, Position);
-                state = MovementState.Moving;
+                State = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
                 yield return 0.2f;
 
 
                 targetSpeed = moveSpeed;
-                moveSfx.Play(SFX.game_04_arrowblock_move_loop);
+                moveSfx.Play(CustomSFX.game_redirectMoveBlock_arrowblock_move);
                 moveSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;
+
                 float crashTimer = CrashTime;
                 float crashResetTimer = CrashResetTime;
                 while (true) {
@@ -136,7 +139,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     // angle = Calc.Approach(angle, targetAngle, SteerSpeed * Engine.DeltaTime);
                     Vector2 move = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool hit;
-                    if (direction is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
+                    if (Direction is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
                         hit = MoveCheck(move.XComp());
                         noSquish = Scene.Tracker.GetEntity<Player>();
                         MoveVCollideSolids(move.Y, thruDashBlocks: false);
@@ -160,7 +163,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                 ScrapeParticles(-Vector2.UnitX);
                             }
                         }
-                        if (direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
+                        if (Direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
                             hit = true;
                         }
                     }
@@ -189,7 +192,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_break : SFX.game_04_arrowblock_break, Position);
                 moveSfx.Stop();
-                state = MovementState.Breaking;
+                State = MovementState.Breaking;
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
                 StartShaking(0.2f);
@@ -198,6 +201,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
 
                 BreakParticles();
+                Get<MoveBlockRedirectable>()?.ResetBlock();
                 List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
                 for (int x = 0; x < Width; x += 8) {
                     for (int y = 0; y < Height; y += 8) {
@@ -263,7 +267,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void BeginShatter() {
-            if (state != MovementState.Breaking)
+            if (State != MovementState.Breaking)
                 base.BeginShatter();
             oneUseBroken = true;
         }
@@ -273,7 +277,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Remove(controller);
             moveSfx.Stop();
         }
-
 
         public override void SetupCustomParticles(float canvasWidth, float canvasHeight) {
             base.SetupCustomParticles(canvasWidth, canvasHeight);
@@ -393,8 +396,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Position += Shake;
             base.Render();
 
-            Color color = Color.Lerp(activeLineColor, Color.Black, ColorLerp);
-            if (state != MovementState.Breaking) {
+            Color color = Color.Lerp(ActiveLineColor, Color.Black, ColorLerp);
+            if (State != MovementState.Breaking) {
                 int value = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
                 MTexture arrow = arrows[Calc.Clamp(value, 0, 7)];
                 arrow.DrawCentered(Center + baseData.Get<Vector2>("shake"), color);
@@ -464,17 +467,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 positionRange;
             float dir;
             float num2;
-            if (direction == MoveBlock.Directions.Right) {
+            if (Direction == MoveBlock.Directions.Right) {
                 position = CenterLeft + Vector2.UnitX;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 dir = (float) Math.PI;
                 num2 = Height / 32f;
-            } else if (direction == MoveBlock.Directions.Left) {
+            } else if (Direction == MoveBlock.Directions.Left) {
                 position = CenterRight;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 dir = 0f;
                 num2 = Height / 32f;
-            } else if (direction == MoveBlock.Directions.Down) {
+            } else if (Direction == MoveBlock.Directions.Down) {
                 position = TopCenter + Vector2.UnitY;
                 positionRange = Vector2.UnitX * (Width - 4f);
                 dir = -(float) Math.PI / 2f;
@@ -524,43 +527,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
-        static FieldInfo f_this;
-        static IDetour hook_DreamBlock_Activate;
-        static IDetour hook_DreamBlock_Deactivate;
-        static IDetour hook_DreamBlock_FastActivate;
-        static IDetour hook_DreamBlock_FastDectivate;
+        private static FieldInfo f_this;
+        private static List<IDetour> hook_DreamBlock_Routines;
 
         internal new static void Load() {
-            Type type = typeof(DreamBlock).GetNestedType("<Activate>d__34", BindingFlags.NonPublic);
-            f_this = type.GetField("<>4__this");
-            hook_DreamBlock_Activate = new ILHook(
-                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
-                DreamBlock_ActivationParticles);
-
-            type = typeof(DreamBlock).GetNestedType("<Deactivate>d__11", BindingFlags.NonPublic);
-            f_this = type.GetField("<>4__this");
-            hook_DreamBlock_Deactivate = new ILHook(
-                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
-                DreamBlock_ActivationParticles);
-
-            type = typeof(DreamBlock).GetNestedType("<FastActivate>d__13", BindingFlags.NonPublic);
-            f_this = type.GetField("<>4__this");
-            hook_DreamBlock_FastActivate = new ILHook(
-                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
-                DreamBlock_ActivationParticles);
-
-            type = typeof(DreamBlock).GetNestedType("<FastDeactivate>d__12", BindingFlags.NonPublic);
-            f_this = type.GetField("<>4__this");
-            hook_DreamBlock_FastDectivate = new ILHook(
-                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
-                DreamBlock_ActivationParticles);
+            hook_DreamBlock_Routines = new List<IDetour>();
+            Type[] nestedTypes = typeof(DreamBlock).GetNestedTypes(BindingFlags.NonPublic);
+            foreach (string method in new string[] { "FastActivate", "FastDeactivate", "Activate", "Deactivate" }) {
+                Type type = nestedTypes.First(t => t.Name.StartsWith($"<{method}>"));
+                f_this = type.GetField("<>4__this");
+                hook_DreamBlock_Routines.Add(new ILHook(type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlock_ActivationParticles));
+            }
         }
 
         internal new static void Unload() {
-            hook_DreamBlock_Activate.Dispose();
-            hook_DreamBlock_Deactivate.Dispose();
-            hook_DreamBlock_FastActivate.Dispose();
-            hook_DreamBlock_FastDectivate.Dispose();
+            hook_DreamBlock_Routines.ForEach(hook => hook?.Dispose());
         }
 
         // Probably a bad idea to leave it like this, but it works

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper {
-    class ConnectedSolid : Solid {
+    public class ConnectedSolid : Solid {
         public Vector2 GroupBoundsMin, GroupBoundsMax;
         public Vector2 GroupCenter => Position + GroupOffset + (GroupBoundsMax - GroupBoundsMin) / 2f;
 
@@ -15,10 +15,12 @@ namespace Celeste.Mod.CommunalHelper {
         // Auto-tiling stuff.
         public bool[,] GroupTiles;
         private AutoTileData[,] autoTileData;
-        bool wasAutoTiled = false;
+        private bool wasAutoTiled = false;
+
         private enum TileType {
             Edge, Corner, InnerCorner, Filler
         }
+
         private struct AutoTileData {
             public AutoTileData(int x_, int y_, TileType type_) {
                 x = x_;
@@ -50,8 +52,6 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public override void Awake(Scene scene) {
-
-
             List<SolidExtension> extensions = new List<SolidExtension>();
             FindExtensions(this, extensions);
 

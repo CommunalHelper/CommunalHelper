@@ -6,8 +6,8 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CassetteZipMover")]
-    class CassetteZipMover : CustomCassetteBlock {
-        private class CassetteZipMoverPathRenderer : Entity {
+    public class CassetteZipMover : CustomCassetteBlock {
+        private class PathRenderer : Entity {
             public CassetteZipMover zipMover;
 
             private Color ropeColor = Calc.HexToColor("bfcfde");
@@ -21,28 +21,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private MTexture cogWhite;
             private Vector2 from;
             private Vector2 to;
-            private Vector2 sparkAdd;
-
-            private float sparkDirFromA;
-            private float sparkDirFromB;
-            private float sparkDirToA;
-            private float sparkDirToB;
 
             private ParticleType sparkParticle;
             private ParticleType sparkParticlePressed;
 
-            public CassetteZipMoverPathRenderer(CassetteZipMover zipMover) {
+            public PathRenderer(CassetteZipMover zipMover) {
                 Depth = Depths.BGDecals;
                 this.zipMover = zipMover;
-
-                from = this.zipMover.start + new Vector2(this.zipMover.Width / 2f, this.zipMover.Height / 2f);
-                to = this.zipMover.targets[0] + new Vector2(this.zipMover.Width / 2f, this.zipMover.Height / 2f);
-                sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
-                float angle = (from - to).Angle();
-                sparkDirFromA = angle + (float) Math.PI / 8f;
-                sparkDirFromB = angle - (float) Math.PI / 8f;
-                sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
-                sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
 
                 cog = GFX.Game["objects/CommunalHelper/cassetteZipMover/cog"];
                 cogPressed = GFX.Game["objects/CommunalHelper/cassetteZipMover/cogPressed"];
@@ -59,43 +44,78 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             public void CreateSparks() {
-                from = GetNodeFrom(zipMover.start);
-                for (int i = 0; i < zipMover.targets.Length; i++) {
-                    to = GetNodeFrom(zipMover.targets[i]);
-                    ParticleType particle = zipMover.Collidable ? sparkParticle : sparkParticlePressed;
-                    SceneAs<Level>().ParticlesBG.Emit(particle, from + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromA);
-                    SceneAs<Level>().ParticlesBG.Emit(particle, from - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromB);
-                    SceneAs<Level>().ParticlesBG.Emit(particle, to + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
-                    SceneAs<Level>().ParticlesBG.Emit(particle, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
-                    from = GetNodeFrom(zipMover.targets[i]);
+                ParticleType particle = zipMover.Collidable ? sparkParticle : sparkParticlePressed;
+                ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
+
+                // First Node
+                Vector2 node = GetNodeFrom(zipMover.start, true);
+                Vector2 next = GetNodeFrom(zipMover.nodes[1], true);
+
+                float angle = Calc.Angle(node, next);
+                float sparkDir = angle + Calc.QuarterCircle;
+                Vector2 sparkAdd = Calc.AngleToVector(sparkDir, 5f);
+
+                particlesBG.Emit(particle, node + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.EighthCircle);
+                particlesBG.Emit(particle, node - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.HalfCircle - Calc.EighthCircle);
+
+                // Mid Nodes
+                for (int i = 2; i < zipMover.nodes.Length; i++) {
+                    node = next;
+                    next = GetNodeFrom(zipMover.nodes[i], true);
+
+                    // Half-way angle between previous and next nodes
+                    float lastAngle = angle;
+                    angle = Calc.Angle(node, next);
+                    sparkDir = Calc.AngleLerp(lastAngle, angle, 0.5f) - Calc.QuarterCircle;
+                    sparkAdd = Calc.AngleToVector(sparkDir, 5f);
+
+                    particlesBG.Emit(particle, node + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir);
+                    particlesBG.Emit(particle, node - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.HalfCircle);
                 }
+
+                // Last Node
+                node = next;
+
+                sparkDir = angle - Calc.QuarterCircle;
+                sparkAdd = Calc.AngleToVector(sparkDir, 5f);
+
+                particlesBG.Emit(particle, node + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.EighthCircle);
+                particlesBG.Emit(particle, node - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.HalfCircle - Calc.EighthCircle);
             }
 
-            private Vector2 GetNodeFrom(Vector2 node) {
-                return node + new Vector2(zipMover.Width / 2f, zipMover.Height / 2f);
+            private Vector2 GetNodeFrom(Vector2 node, bool offsetBlockHeight = false) {
+                Vector2 ret = node + new Vector2(zipMover.Width / 2f, zipMover.Height / 2f);
+                if (offsetBlockHeight) {
+                    ret += zipMover.blockOffset;
+                }
+                return ret;
             }
 
             public override void Update() {
                 base.Update();
-                Depth = zipMover.Collidable ? 9000 : 9010;
+                Depth = zipMover.Collidable ? Depths.BGDecals : Depths.BGDecals + 10;
             }
 
             public override void Render() {
-                from = GetNodeFrom(zipMover.start);
-                for (int j = 0; j < zipMover.targets.Length; j++) {
-                    for (int i = 1; i <= zipMover.blockHeight; ++i) {
-                        to = GetNodeFrom(zipMover.targets[j]);
-                        DrawCogs(zipMover.blockOffset + Vector2.UnitY * i, undersideColor);
-                        from = GetNodeFrom(zipMover.targets[j]);
+                int blockHeight = zipMover.blockHeight;
+                // Draw the "drop shadow" when active
+                if (blockHeight != 0) {
+                    from = GetNodeFrom(zipMover.start);
+                    for (int j = 1; j < zipMover.nodes.Length; j++) {
+                        for (int i = 1; i <= blockHeight; ++i) {
+                            to = GetNodeFrom(zipMover.nodes[j]);
+                            DrawCogs(Vector2.UnitY * i, undersideColor);
+                            from = to;
+                        }
                     }
                 }
-                from = GetNodeFrom(zipMover.start);
-                for (int j = 0; j < zipMover.targets.Length; j++) {
-                    to = GetNodeFrom(zipMover.targets[j]);
-                    DrawCogs(zipMover.blockOffset);
-                    from = GetNodeFrom(zipMover.targets[j]);
-                }
 
+                from = GetNodeFrom(zipMover.start);
+                for (int j = 1; j < zipMover.nodes.Length; j++) {
+                    to = GetNodeFrom(zipMover.nodes[j]);
+                    DrawCogs(zipMover.blockOffset);
+                    from = to;
+                }
             }
 
             private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
@@ -122,7 +142,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private CassetteZipMoverPathRenderer pathRenderer;
+        private PathRenderer pathRenderer;
 
         private Vector2 start;
         private float percent = 0f;
@@ -130,24 +150,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private SoundSource sfx = new SoundSource();
         private SoundSource altSfx = new SoundSource();
 
-        private Vector2[] targets, points, originalNodes;
+        /// <summary>
+        /// Entity nodes with start Position as the first element
+        /// </summary>
+        protected Vector2[] nodes;
+
         private bool permanent;
         private bool waits;
         private bool ticking;
         private bool noReturn;
 
-        public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] targets, int index, float tempo, bool noReturn, bool perm, bool waits, bool ticking)
-            : base(position, id, width, height, index, tempo) {
+        public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] nodes, int index, float tempo, bool noReturn, bool perm, bool waits, bool ticking, Color? overrideColor)
+            : base(position, id, width, height, index, tempo, false, overrideColor) {
             start = Position;
             this.noReturn = noReturn;
             permanent = perm;
             this.waits = waits;
             this.ticking = ticking;
 
-            this.targets = new Vector2[targets.Length];
-            points = new Vector2[targets.Length + 1];
-            points[0] = Position;
-            originalNodes = targets;
+            this.nodes = nodes;
 
             Add(new Coroutine(Sequence()));
 
@@ -158,11 +179,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public CassetteZipMover(EntityData data, Vector2 offset, EntityID id)
-            : this(data.Position + offset, id, data.Width, data.Height, data.Nodes, data.Int("index"), data.Float("tempo", 1f),
+            : this(data.Position + offset, id, data.Width, data.Height, data.NodesWithPosition(offset), data.Int("index"), data.Float("tempo", 1f),
                   data.Bool("noReturn", false),
                   data.Bool("permanent"),
                   data.Bool("waiting"),
-                  data.Bool("ticking")) {
+                  data.Bool("ticking"),
+                  data.HexColorNullable("customColor")) {
         }
 
         public override void Awake(Scene scene) {
@@ -177,16 +199,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Added(Scene scene) {
             base.Added(scene);
-
-            // Offset the points to their position, relative to the room's position.
-            Rectangle bounds = SceneAs<Level>().Bounds;
-            Vector2 levelOffset = new Vector2(bounds.Left, bounds.Top);
-            for (int i = 0; i < originalNodes.Length; i++) {
-                targets[i] = originalNodes[i] + levelOffset;
-                points[i + 1] = targets[i];
-            }
-
-            scene.Add(pathRenderer = new CassetteZipMoverPathRenderer(this));
+            scene.Add(pathRenderer = new PathRenderer(this));
         }
 
         public override void Removed(Scene scene) {
@@ -245,7 +258,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private IEnumerator Sequence() {
             // Infinite.
-            Vector2 start = Position;
             while (true) {
                 if (!HasPlayerRider()) {
                     yield return null;
@@ -259,8 +271,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 // Player is riding.
                 bool shouldCancel = false;
                 int i;
-                for (i = 0; i < targets.Length; i++) {
-                    to = targets[i];
+                // Zeroth node is the origin
+                for (i = 1; i < nodes.Length; i++) {
+                    to = nodes[i];
 
                     // Start shaking.
                     sfx.Play(CustomSFX.game_connectedZipMover_normal_zip_mover_start);
@@ -277,6 +290,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
                         percent = Ease.SineIn(at2);
                         Vector2 vector = Vector2.Lerp(from, to, percent);
+                        vector = FixCassetteY(vector);
                         ScrapeParticlesCheck(to);
                         if (Scene.OnInterval(0.1f)) {
                             pathRenderer.CreateSparks();
@@ -284,7 +298,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         MoveTo(vector);
                     }
 
-                    bool last = (i == targets.Length - 1);
+                    bool last = (i == nodes.Length - 1);
 
                     // Arrived, will wait for 0.5 secs.
                     StartShaking(0.2f);
@@ -294,7 +308,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     StopPlayerRunIntoAnimation = true;
                     yield return 0.5f;
 
-                    from = targets[i];
+                    from = nodes[i];
 
                     if (ticking && !last) {
                         float tickTime = 0.0f;
@@ -328,10 +342,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (!permanent) {
                     if (noReturn) {
                         ReverseNodes(out Vector2 newStart);
-                        start = this.start = newStart;
+                        start = newStart;
                     } else {
-                        for (i -= 2 - (shouldCancel ? 1 : 0); i > -2; i--) {
-                            to = (i == -1) ? start : targets[i];
+                        for (i -= 2 - (shouldCancel ? 1 : 0); i > -1; i--) {
+                            
+                            to = (i == 0) ? start : nodes[i];
 
                             // Goes back to start with a speed that is four times slower.
                             StopPlayerRunIntoAnimation = false;
@@ -343,10 +358,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                 at2 = Calc.Approach(at2, 1f, 0.5f * Engine.DeltaTime);
                                 percent = 1f - Ease.SineIn(at2);
                                 Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
+                                position = FixCassetteY(position);
                                 MoveTo(position);
                             }
-                            if (i != -1) {
-                                from = targets[i];
+                            if (i != 0) {
+                                from = nodes[i];
                             }
 
                             StartShaking(0.2f);
@@ -373,12 +389,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        private Vector2 FixCassetteY(Vector2 vec) {
+            return vec + blockOffset;
+        }
+
         private void ReverseNodes(out Vector2 newStart) {
-            Array.Reverse(points);
-            for (int i = 0; i < points.Length - 1; i++) {
-                targets[i] = points[i + 1];
-            }
-            newStart = points[0];
+            Array.Reverse(nodes);
+            newStart = nodes[0];
         }
     }
 }

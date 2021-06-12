@@ -9,8 +9,8 @@ using TrackSwitchState = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.T
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/StationBlock")]
     [Tracked(false)]
-    class StationBlock : Solid {
-        public enum Theme {
+    public class StationBlock : Solid {
+        public enum Themes {
             Normal, Moon
         }
 
@@ -44,10 +44,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private Vector2 offset;
         private Vector2 hitOffset;
         private SoundSource Sfx;
-        public Theme theme = Theme.Moon;
+        public Themes Theme = Themes.Moon;
 
         private static readonly Color activatedButton = Calc.HexToColor("f25eff");
         private static readonly Color deactivatedButton = Calc.HexToColor("5bf75b");
+
+        private Color buttonColor, buttonPressedColor;
         private float colorLerp = 0.0f;
 
         private float speedFactor = 1f;
@@ -55,14 +57,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool IsAttachedToTrack = false;
         private Node CurrentNode = null;
 
+        private bool dashCornerCorrection;
+
         public StationBlock(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Width, data.Height, safe: true) {
-            Depth = -9999;
+            Depth = Depths.FGTerrain + 1;
             Add(new LightOcclude());
 
             this.offset = new Vector2(Width, Height) / 2f;
             allowWavedash = data.Bool("allowWavedash", false);
             speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 2f);
+
+            buttonColor = data.HexColor("wavedashButtonColor", deactivatedButton);
+            buttonPressedColor = data.HexColor("wavedashButtonPressedColor", activatedButton);
+
+            dashCornerCorrection = data.Bool("dashCornerCorrection", false);
 
             int minSize = (int) Calc.Min(Width, Height);
             string size;
@@ -76,15 +85,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             string block = "objects/CommunalHelper/stationBlock/blocks/";
             string sprite;
             reverseControls = data.Attr("behavior", "Pulling") == "Pushing";
-            theme = data.Enum<Theme>("theme");
+            Theme = data.Enum<Themes>("theme");
 
             string customBlockPath = data.Attr("customBlockPath").Trim();
             string customArrowPath = data.Attr("customArrowPath").Trim();
             string customTrackPath = data.Attr("customTrackPath").Trim();
 
-            switch (theme) {
+            switch (Theme) {
                 default:
-                case Theme.Normal:
+                case Themes.Normal:
                     if (reverseControls) {
                         block += "alt_block";
                         sprite = size + "AltStationBlockArrow";
@@ -94,8 +103,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                     break;
 
-                case Theme.Moon:
-                    theme = Theme.Moon;
+                case Themes.Moon:
+                    Theme = Themes.Moon;
                     if (reverseControls) {
                         block += "alt_moon_block";
                         sprite = size + "AltMoonStationBlockArrow";
@@ -112,7 +121,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             MTexture customBlock = null;
             Sprite customArrow = null;
 
-            p_sparks = theme == Theme.Normal ? ZipMover.P_Sparks : (reverseControls ? P_PurpleSparks : P_BlueSparks);
+            p_sparks = Theme == Themes.Normal ? ZipMover.P_Sparks : (reverseControls ? P_PurpleSparks : P_BlueSparks);
 
             if (customBlockPath != "") {
                 customBlock = GFX.Game["objects/" + customBlockPath];
@@ -265,6 +274,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (player.StateMachine.State == 5)
                 player.StateMachine.State = 0;
 
+            // Easier wall bounces.
+            if (player.Left >= Right - 4f || player.Right < Left + 4f && dir.Y == -1) {
+                return DashCollisionResults.NormalCollision;
+            }
+
             if (IsMoving || !IsAttachedToTrack || (player.CollideCheck<Spikes>() && !SaveData.Instance.Assists.Invincible)) {
                 return DashCollisionResults.NormalCollision;
             } else {
@@ -385,8 +399,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     currentTrack = CurrentNode.trackRight;
                 }
 
-                bool travel = nextNode != null && currentTrack.switchState != TrackSwitchState.Off;
-                Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (theme == Theme.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
+                bool travel = nextNode != null && currentTrack.SwitchState != TrackSwitchState.Off;
+                Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
                 if (travel) {
                     Safe = false;
 
@@ -415,7 +429,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         yield return null;
                     }
                     StartShaking(0.2f);
-                    Sfx.Param(theme == Theme.Moon ? "end_moon" : "end", 1);
+                    Sfx.Param(Theme == Themes.Moon ? "end_moon" : "end", 1);
                     Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                     SceneAs<Level>().Shake(0.2f);
                     StopPlayerRunIntoAnimation = true;
@@ -450,7 +464,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Vector2 vec2 = new Vector2(X + i * 8, Y - 4 + (HasPlayerOnTop() ? 1 : 0)) + (Vector2.One * 4f) + hitOffset;
                         vec2.X = Center.X + (vec2.X - Center.X) * scale.X;
                         vec2.Y = Center.Y + (vec2.Y - Center.Y) * scale.Y;
-                        Color c = Color.Lerp(deactivatedButton, activatedButton, colorLerp);
+                        Color c = Color.Lerp(buttonColor, buttonPressedColor, colorLerp);
                         buttonTiles[tx, 0].DrawCentered(vec2, c, scale);
                         buttonTiles[tx, 1].DrawCentered(vec2, c, scale);
                     }

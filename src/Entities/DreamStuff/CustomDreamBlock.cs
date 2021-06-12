@@ -31,28 +31,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Vector2 Position {
                 get { UpdatePos(); return tempVec2; }
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                set { }
+                set { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
             }
             [MethodImpl(MethodImplOptions.NoInlining)]
-            private void UpdatePos() { }
+            private void UpdatePos() { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
 
             public int Layer {
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                get => default;
+                get { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                set { }
+                set { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
             }
             public Color Color {
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                get => default;
+                get { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                set { }
+                set { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
             }
             public float TimeOffset {
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                get => default;
+                get { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
                 [MethodImpl(MethodImplOptions.NoInlining)]
-                set { }
+                set { Console.Error.Write("NoInlining"); throw new NoInliningException(); }
             }
 
             // Feather particle stuff
@@ -77,10 +77,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public bool PlayerHasDreamDash => baseData.Get<bool>("playerHasDreamDash");
 
-        protected Color activeLineColor => baseData.Get<Color>("activeLineColor");
-        protected Color disabledLineColor => baseData.Get<Color>("disabledLineColor");
-        protected Color activeBackColor => baseData.Get<Color>("activeBackColor");
-        protected Color disabledBackColor => baseData.Get<Color>("disabledBackColor");
+        public static Color ActiveLineColor => (Color) f_DreamBlock_activeLineColor.GetValue(null);
+        private static FieldInfo f_DreamBlock_activeLineColor = typeof(DreamBlock).GetField("activeLineColor", BindingFlags.NonPublic | BindingFlags.Static);
+        public static Color DisabledLineColor => (Color) f_DreamBlock_disabledLineColor.GetValue(null);
+        private static FieldInfo f_DreamBlock_disabledLineColor = typeof(DreamBlock).GetField("disabledLineColor", BindingFlags.NonPublic | BindingFlags.Static);
+        public static Color ActiveBackColor => (Color) f_DreamBlock_activeBackColor.GetValue(null);
+        private static FieldInfo f_DreamBlock_activeBackColor = typeof(DreamBlock).GetField("activeBackColor", BindingFlags.NonPublic | BindingFlags.Static);
+        public static Color DisabledBackColor => (Color) f_DreamBlock_disabledBackColor.GetValue(null);
+        private static FieldInfo f_DreamBlock_disabledBackColor = typeof(DreamBlock).GetField("disabledBackColor", BindingFlags.NonPublic | BindingFlags.Static);
 
         public bool FeatherMode;
         protected int RefillCount;
@@ -106,7 +110,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             //    activeLineColor = Calc.HexToColor("FF66D9"); 
             //}
             shakeParticle = new ParticleType(SwitchGate.P_Behind) {
-                Color = activeLineColor,
+                Color = ActiveLineColor,
                 ColorMode = ParticleType.ColorModes.Static,
                 Acceleration = Vector2.Zero,
                 DirectionRange = (float) Math.PI / 2
@@ -290,8 +294,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             float whiteFill = baseData.Get<float>("whiteFill");
             float whiteHeight = baseData.Get<float>("whiteHeight");
 
-            Color backColor = Color.Lerp(PlayerHasDreamDash ? activeBackColor : disabledBackColor, Color.White, ColorLerp);
-            Color lineColor = PlayerHasDreamDash ? activeLineColor : disabledLineColor;
+            Color backColor = Color.Lerp(PlayerHasDreamDash ? ActiveBackColor : DisabledBackColor, Color.White, ColorLerp);
+            Color lineColor = PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
 
             Draw.Rect(shake.X + X, shake.Y + Y, Width, Height, backColor);
 

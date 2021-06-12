@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Directions = Celeste.MoveBlock.Directions;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [TrackedAs(typeof(SwapBlock))]
@@ -61,7 +62,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool Triggered { get; set; }
 
         public MovementState State { get; protected set; }
-        public MoveBlock.Directions MoveDirection { get; protected set; }
+        public Directions MoveDirection { get; protected set; }
 
         private bool canSteer;
 
@@ -143,37 +144,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             canSteer = data.Bool("canSteer", false);
             moveAcceleration = data.Float("moveAcceleration", Accel);
-            MoveDirection = data.Enum("direction", MoveBlock.Directions.Left);
-            switch (MoveDirection) {
-                default:
-                    homeAngle = (targetAngle = (angle = 0f));
-                    angleSteerSign = 1;
-                    break;
-                case MoveBlock.Directions.Left:
-                    homeAngle = (targetAngle = (angle = (float) Math.PI));
-                    angleSteerSign = -1;
-                    break;
-                case MoveBlock.Directions.Up:
-                    homeAngle = (targetAngle = (angle = -(float) Math.PI / 2f));
-                    angleSteerSign = 1;
-                    break;
-                case MoveBlock.Directions.Down:
-                    homeAngle = (targetAngle = (angle = (float) Math.PI / 2f));
-                    angleSteerSign = -1;
-                    break;
-            }
+            MoveDirection = data.Enum("direction", Directions.Left);
+            homeAngle = targetAngle = angle = MoveDirection.Angle();
+            angleSteerSign = angle > 0f ? -1 : 1;
 
             int tilesX = (int) Width / 8;
             int tilesY = (int) Height / 8;
             MTexture buttonTexture = GFX.Game["objects/moveBlock/button"];
             MTexture buttonPressedTexture = GFX.Game["objects/CommunalHelper/moveSwapBlock/buttonPressed"];
-            if (canSteer && (MoveDirection == MoveBlock.Directions.Left || MoveDirection == MoveBlock.Directions.Right)) {
+            if (canSteer && (MoveDirection == Directions.Left || MoveDirection == Directions.Right)) {
                 for (int x = 0; x < tilesX; x++) {
                     int offsetX = (x != 0) ? ((x < tilesX - 1) ? 1 : 2) : 0;
                     AddImage(buttonTexture.GetSubtexture(offsetX * 8, 0, 8, 8), new Vector2(x * 8, -4f), 0f, new Vector2(1f, 1f), topButton);
                     AddImage(buttonPressedTexture.GetSubtexture(offsetX * 8, 0, 8, 8), new Vector2(x * 8, -4f), 0f, new Vector2(1f, 1f), topButton);
                 }
-            } else if (canSteer && (MoveDirection == MoveBlock.Directions.Up || MoveDirection == MoveBlock.Directions.Down)) {
+            } else if (canSteer && (MoveDirection == Directions.Up || MoveDirection == Directions.Down)) {
                 for (int y = 0; y < tilesY; y++) {
                     int offsetY = (y != 0) ? ((y < tilesY - 1) ? 1 : 2) : 0;
                     AddImage(buttonTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(-4f, y * 8), (float) Math.PI / 2f, new Vector2(1f, -1f), leftButton);
@@ -192,6 +177,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             Add(moveBlockSfx = new SoundSource());
             Add(new Coroutine(Controller()));
+
+            Add(new MoveBlockRedirectable(new DynamicData(this)) {
+                Get_Speed = () => moveSpeed,
+                Get_TargetSpeed = () => targetMoveSpeed,
+                Get_MoveSfx = () => moveBlockSfx,
+                Get_Direction = () => MoveDirection,
+                Set_Direction = dir => MoveDirection = dir,
+            });
         }
 
         public override void Awake(Scene scene) {
@@ -294,7 +287,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return 0.2f;
 
                 targetMoveSpeed = MoveSpeed;
-                moveBlockSfx.Play(SFX.game_04_arrowblock_move_loop);
+                moveBlockSfx.Play(CustomSFX.game_redirectMoveBlock_arrowblock_move);
                 moveBlockSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;
                 float crashTimer = CrashTime;
@@ -304,13 +297,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (!Swapping || !freezeOnSwap) {
                         if (canSteer) {
                             targetAngle = homeAngle;
-                            bool hasPlayer = (MoveDirection is not MoveBlock.Directions.Right and not 0) ? HasPlayerClimbing() : HasPlayerOnTop();
+                            bool hasPlayer = (MoveDirection is not Directions.Right and not Directions.Left) ? HasPlayerClimbing() : HasPlayerOnTop();
                             if (hasPlayer && noSteerTimer > 0f) {
                                 noSteerTimer -= Engine.DeltaTime;
                             }
                             if (hasPlayer) {
                                 if (noSteerTimer <= 0f) {
-                                    if (MoveDirection is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
+                                    if (MoveDirection is Directions.Right or Directions.Left) {
                                         targetAngle = homeAngle + MaxAngle * angleSteerSign * Input.MoveY.Value;
                                     } else {
                                         targetAngle = homeAngle + MaxAngle * angleSteerSign * Input.MoveX.Value;
@@ -331,7 +324,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Vector2 vector = Calc.AngleToVector(angle, moveSpeed) * Engine.DeltaTime;
                         bool shouldBreak;
                         moveSwapPoints = true; // Tells MoveExact to move start and end points too
-                        if (MoveDirection is MoveBlock.Directions.Right or MoveBlock.Directions.Left) {
+                        if (MoveDirection is Directions.Right or Directions.Left) {
                             shouldBreak = MoveCheck(vector.XComp());
 
                             noSquish = Scene.Tracker.GetEntity<Player>();
@@ -359,7 +352,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                     ScrapeParticles(-Vector2.UnitX);
                                 }
                             }
-                            if (MoveDirection == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
+                            if (MoveDirection == Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32) {
                                 shouldBreak = true;
                             }
                         }
@@ -409,6 +402,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return 0.2f;
 
                 BreakParticles();
+                Get<MoveBlockRedirectable>()?.ResetBlock();
                 List<MoveBlockDebris> debrisList = new List<MoveBlockDebris>();
                 for (int i = 0; i < Width; i += 8) {
                     for (int j = 0; j < Height; j += 8) {
@@ -527,7 +521,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void ActivateParticles() {
-            bool vertical = MoveDirection is MoveBlock.Directions.Down or MoveBlock.Directions.Up;
+            bool vertical = MoveDirection is Directions.Down or Directions.Up;
             bool left = (!canSteer || !vertical) && !CollideCheck<Player>(Position - Vector2.UnitX);
             bool right = (!canSteer || !vertical) && !CollideCheck<Player>(Position + Vector2.UnitX);
             bool top = (!canSteer | vertical) && !CollideCheck<Player>(Position - Vector2.UnitY);
@@ -558,17 +552,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 positionRange;
             float angle;
             float particleNum;
-            if (MoveDirection == MoveBlock.Directions.Right) {
+            if (MoveDirection == Directions.Right) {
                 position = CenterLeft + Vector2.UnitX;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 angle = (float) Math.PI;
                 particleNum = Height / 32f;
-            } else if (MoveDirection == MoveBlock.Directions.Left) {
+            } else if (MoveDirection == Directions.Left) {
                 position = CenterRight;
                 positionRange = Vector2.UnitY * (Height - 4f);
                 angle = 0f;
                 particleNum = Height / 32f;
-            } else if (MoveDirection == MoveBlock.Directions.Down) {
+            } else if (MoveDirection == Directions.Down) {
                 position = TopCenter + Vector2.UnitY;
                 positionRange = Vector2.UnitX * (Width - 4f);
                 angle = -(float) Math.PI / 2f;
@@ -728,9 +722,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (self is MoveSwapBlock block) {
                 if (block.canSteer) {
-                    bool playerLeft = (block.MoveDirection == MoveBlock.Directions.Up || block.MoveDirection == MoveBlock.Directions.Down) && block.CollideCheck<Player>(block.Position + new Vector2(-1f, 0f));
-                    bool playerRight = (block.MoveDirection == MoveBlock.Directions.Up || block.MoveDirection == MoveBlock.Directions.Down) && block.CollideCheck<Player>(block.Position + new Vector2(1f, 0f));
-                    bool playerTop = (block.MoveDirection == MoveBlock.Directions.Left || block.MoveDirection == MoveBlock.Directions.Right) && block.CollideCheck<Player>(block.Position + new Vector2(0f, -1f));
+                    bool playerLeft = (block.MoveDirection == Directions.Up || block.MoveDirection == Directions.Down) && block.CollideCheck<Player>(block.Position + new Vector2(-1f, 0f));
+                    bool playerRight = (block.MoveDirection == Directions.Up || block.MoveDirection == Directions.Down) && block.CollideCheck<Player>(block.Position + new Vector2(1f, 0f));
+                    bool playerTop = (block.MoveDirection == Directions.Left || block.MoveDirection == Directions.Right) && block.CollideCheck<Player>(block.Position + new Vector2(0f, -1f));
 
                     if ((playerLeft && !block.leftPressed) || (playerTop && !block.topPressed) || (playerRight && !block.rightPressed)) {
                         Audio.Play(SFX.game_04_arrowblock_side_depress, block.Position);

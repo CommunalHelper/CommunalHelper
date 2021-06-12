@@ -5,8 +5,7 @@ using System;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-    [Tracked]
-    public class ManualCassetteController : Entity {
+    public class ManualCassetteController : AbstractInputController {
 
         private int startIndex;
 
@@ -31,7 +30,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 throw new IndexOutOfRangeException("ManualCassetteController startIndex is outside of the number of CassetteBlock indices present");
             currentIndex = startIndex;
 
-            SetActiveIndex(currentIndex);
+            SetActiveIndex(currentIndex, true);
         }
 
         public override void Update() {
@@ -43,6 +42,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         }
 
+        public override void FrozenUpdate() {
+            if (CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed) {
+                Tick();
+            }
+        }
+
         public void Tick() {
             currentIndex++;
             currentIndex %= roomBeats;
@@ -51,23 +56,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
         }
 
-        public void SetActiveIndex(int index) {
+        public void SetActiveIndex(int index, bool silent = false) {
             foreach (CassetteBlock entity in Scene.Tracker.GetEntities<CassetteBlock>()) {
                 entity.Activated = entity.Index == index;
+                bool activated = entity.Index == index;
+                if (silent)
+                    entity.SetActivatedSilently(activated);
+                else
+                    entity.Activated = activated;
             }
         }
 
         private static IDetour hook_Level_orig_LoadLevel;
-        public static void Load() {
+        internal new static void Load() {
             hook_Level_orig_LoadLevel = new ILHook(typeof(Level).GetMethod("orig_LoadLevel"), Level_orig_LoadLevel);
-
-            On.Monocle.Engine.Update += Engine_Update;
         }
 
-        public static void Unload() {
+        internal new static void Unload() {
             hook_Level_orig_LoadLevel.Dispose();
-
-            On.Monocle.Engine.Update -= Engine_Update;
         }
 
         private static void Level_orig_LoadLevel(ILContext il) {
@@ -89,18 +95,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     level.Tracker.GetEntity<CassetteBlockManager>()?.RemoveSelf();
                     level.Add(new ManualCassetteController(data));
                     // Lists were just updated so there's no harm in doing it again (hopefully)
-                    level.Entities.UpdateLists(); 
+                    level.Entities.UpdateLists();
                 }
                 return level;
             });
         }
 
-        private static void Engine_Update(On.Monocle.Engine.orig_Update orig, Engine self, Microsoft.Xna.Framework.GameTime gameTime) {
-            orig(self, gameTime);
-            if (Engine.FreezeTimer > 0f && CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed) {
-                ManualCassetteController controller = Engine.Scene.Tracker.GetEntity<ManualCassetteController>();
-                controller?.Tick();
-            }
-        }
     }
 }

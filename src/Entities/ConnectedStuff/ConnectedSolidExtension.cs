@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/SolidExtension")]
     [Tracked(false)]
-    class SolidExtension : Solid {
+    public class SolidExtension : Solid {
         public bool HasGroup { get; private set; }
 
         public SolidExtension(EntityData data, Vector2 offset)

@@ -14,7 +14,7 @@ namespace Celeste.Mod.CommunalHelper {
 
     [CustomEntity("CommunalHelper/DreamSwitchGate",
         "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate = DreamFlagSwitchGate")]
-    class DreamSwitchGate : CustomDreamBlock {
+    public class DreamSwitchGate : CustomDreamBlock {
         private static ParticleType[] P_BehindDreamParticles;
 
         private ParticleType P_RecoloredFire;
@@ -56,7 +56,7 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public DreamSwitchGate(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("oneUse"), data.Bool("featherMode"), GetRefillCount(data), data.Bool("below"), data.Bool("permanent"))  { }
+            : this(data.Position + offset, data, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("oneUse"), data.Bool("featherMode"), GetRefillCount(data), data.Bool("below"), data.Bool("permanent")) { }
 
         public DreamSwitchGate(Vector2 position, EntityData data, int width, int height, Vector2 node, bool oneUse, bool featherMode, int refillCount, bool below, bool permanent)
             : base(position, width, height, featherMode, oneUse, refillCount, below) {
@@ -107,8 +107,8 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Awake(Scene scene) {
             base.Awake(scene);
 
-            bool check = isFlagSwitchGate ? 
-                (SceneAs<Level>().Session.GetFlag(Flag + "_gate" + ID) && !allowReturn) || SceneAs<Level>().Session.GetFlag(Flag) : 
+            bool check = isFlagSwitchGate ?
+                (SceneAs<Level>().Session.GetFlag(Flag + "_gate" + ID) && !allowReturn) || SceneAs<Level>().Session.GetFlag(Flag) :
                 Switch.CheckLevelFlag(SceneAs<Level>());
 
             if (check) {
@@ -155,18 +155,11 @@ namespace Celeste.Mod.CommunalHelper {
             while (true) {
                 if (!startAtNode) {
                     // go forth
-                    IEnumerator forthSeq = MaxHelpingHandSequence(node, goingBack: false);
-                    while (forthSeq.MoveNext()) {
-                        yield return forthSeq.Current;
-                    }
+                    yield return new SwapImmediately(MaxHelpingHandSequence(node, goingBack: false));
                 }
 
                 // go back
-                IEnumerator backSeq = MaxHelpingHandSequence(position, goingBack: true);
-                while (backSeq.MoveNext()) {
-                    yield return backSeq.Current;
-                }
-
+                yield return new SwapImmediately(MaxHelpingHandSequence(position, goingBack: true));
                 startAtNode = false;
             }
         }

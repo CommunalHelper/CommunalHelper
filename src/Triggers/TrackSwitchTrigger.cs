@@ -6,7 +6,7 @@ using TrackSwitchState = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.T
 
 namespace Celeste.Mod.CommunalHelper.Triggers {
     [CustomEntity("CommunalHelper/TrackSwitchTrigger")]
-    class TrackSwitchTrigger : Trigger {
+    public class TrackSwitchTrigger : Trigger {
 
         public enum Modes {
             Alternate, On, Off
@@ -15,14 +15,14 @@ namespace Celeste.Mod.CommunalHelper.Triggers {
         private bool oneUse = true;
         private bool flash = false;
         private bool global = false;
-        private Modes mode;
+        public Modes Mode;
 
         public TrackSwitchTrigger(EntityData data, Vector2 offset)
             : base(data, offset) {
             oneUse = data.Bool("oneUse", true);
             flash = data.Bool("flash", false);
             global = data.Bool("globalSwitch", false);
-            mode = data.Enum("mode", Modes.Alternate);
+            Mode = data.Enum("mode", Modes.Alternate);
         }
 
         public override void OnEnter(Player player) {
@@ -31,7 +31,7 @@ namespace Celeste.Mod.CommunalHelper.Triggers {
             if (oneUse)
                 Collidable = false;
 
-            TrackSwitchState state = mode switch {
+            TrackSwitchState state = Mode switch {
                 Modes.On => TrackSwitchState.On,
                 Modes.Off => TrackSwitchState.Off,
                 _ => TrackSwitchBox.LocalTrackSwitchState.Invert()
@@ -42,7 +42,6 @@ namespace Celeste.Mod.CommunalHelper.Triggers {
             if (flash && switched)
                 Pulse();
         }
-
 
         private void Pulse() {
             SceneAs<Level>().Shake(.2f);

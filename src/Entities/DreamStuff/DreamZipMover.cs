@@ -386,14 +386,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 bool playerHasDreamDash = DreamZipMover.PlayerHasDreamDash;
 
                 float colorLerp = DreamZipMover.ColorLerp;
-                Color colorLerpTarget = DreamZipMover.activeLineColor;
+                Color colorLerpTarget = DreamZipMover.ActiveLineColor;
                 Vector2 travelDir = (to - from).SafeNormalize();
                 Vector2 hOffset1 = travelDir.Perpendicular() * 3f;
                 Vector2 hOffset2 = -travelDir.Perpendicular() * 4f;
                 float rotation = -DreamZipMover.percent * (float) Math.PI * 2f;
 
-                Color dreamRopeColor = playerHasDreamDash ? colorLerpTarget : DreamZipMover.disabledLineColor;
+                Color dreamRopeColor = playerHasDreamDash ? colorLerpTarget : DreamZipMover.DisabledLineColor;
                 Color color = Color.Lerp(dreamAesthetic ? dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
+
                 Draw.Line(from + hOffset1 + offset, to + hOffset1 + offset, colorOverride ?? color);
                 Draw.Line(from + hOffset2 + offset, to + hOffset2 + offset, colorOverride ?? color);
                 float dist = (to - from).Length();
@@ -405,9 +406,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Color lightColor = ropeLightColor;
                     if (dreamAesthetic) {
                         if (playerHasDreamDash)
-                            lightColor = activeDreamColors[(int) mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
+                            lightColor = activeDreamColors[(int) Util.Mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
                         else
-                            lightColor = disabledDreamColors[(int) mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 4f)];
+                            lightColor = disabledDreamColors[(int) Util.Mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 4f)];
                     }
                     lightColor = Color.Lerp(lightColor, colorLerpTarget, colorLerp);
                     Draw.Line(value3 + offset, value3 + travelDir * 2f + offset, colorOverride ?? lightColor);
@@ -422,9 +423,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     cogWhite.DrawCentered(to + offset, tempColor, 1f, rotation);
                 }
             }
-
-            private float mod(float x, float m) =>
-                (x % m + m) % m;
         }
 
     }

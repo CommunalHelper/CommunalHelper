@@ -14,8 +14,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Calc.HexToColor("E0564C")
         };
 
-        // TODO: Change this to use a DreamBlockDummy
-        public CustomDreamBlock Block;
+        public DreamBlockDummy Block;
 
         protected Sprite sprite;
 
@@ -29,10 +28,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             baseData = new DynData<Debris>(this);
         }
 
-        public DreamBlockDebris Init(Vector2 pos, CustomDreamBlock block) {
+        public DreamBlockDebris Init(Vector2 pos, DreamBlockDummy block = null) {
             orig_Init(pos, '1');
 
-            Block = block;
+            Block = block ?? new DreamBlockDummy(this);
             Image image = baseData.Get<Image>("image");
             Remove(image);
             Sprite sprite = new Sprite(GFX.Game, "objects/CommunalHelper/dreamMoveBlock/");
@@ -57,6 +56,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             return this;
+        }
+
+        public override void Added(Scene scene) {
+            base.Added(scene);
+
+            if (Block.Scene != scene)
+                scene.Add(Block);
         }
 
         public override void Update() {

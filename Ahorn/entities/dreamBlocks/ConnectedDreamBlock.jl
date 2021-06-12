@@ -3,37 +3,44 @@ module CommunalHelperConnectedDreamBlock
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/ConnectedDreamBlock" ConnectedDreamBlock(x::Integer, y::Integer,
-	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, below::Bool=false)
+@mapdef Entity "CommunalHelper/ConnectedDreamBlock" ConnectedDreamBlock(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockHeight,
+    featherMode::Bool=false,
+    oneUse::Bool=false,
+    refillCount::Integer=-1,
+    below::Bool=false,
+)
 
 const placements = Ahorn.PlacementDict(
     "Connected Dream Block (Normal) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedDreamBlock,
-		"rectangle"
+        "rectangle",
     ),
-	"Connected Dream Block (Feather Mode) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Connected Dream Block (Feather Mode) (Communal Helper)" => Ahorn.EntityPlacement(
         ConnectedDreamBlock,
-		"rectangle",
-        Dict{String, Any}(
-            "featherMode" => true
-        )
-    ),
-	"Connected Dream Block (Normal, One Use) (Communal Helper)" => Ahorn.EntityPlacement(
-        ConnectedDreamBlock,
-		"rectangle",
-        Dict{String, Any}(
-            "oneUse" => true
-        )
-    ),
-	"Connected Dream Block (Feather Mode, One Use) (Communal Helper)" => Ahorn.EntityPlacement(
-        ConnectedDreamBlock,
-		"rectangle",
-        Dict{String, Any}(
+        "rectangle",
+        Dict{String,Any}(
             "featherMode" => true,
-			"oneUse" => true
-        )
-    )
+        ),
+    ),
+    "Connected Dream Block (Normal, One Use) (Communal Helper)" => Ahorn.EntityPlacement(
+        ConnectedDreamBlock,
+        "rectangle",
+        Dict{String,Any}(
+            "oneUse" => true,
+        ),
+    ),
+    "Connected Dream Block (Feather Mode, One Use) (Communal Helper)" => Ahorn.EntityPlacement(
+        ConnectedDreamBlock,
+        "rectangle",
+        Dict{String,Any}(
+            "featherMode" => true,
+            "oneUse" => true,
+        ),
+    ),
 )
 
 Ahorn.minimumSize(entity::ConnectedDreamBlock) = 8, 8

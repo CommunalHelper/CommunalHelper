@@ -1,3 +1,37 @@
+--1.8.3 (07/06/2021)--
+* Fixed another Linux-related crash.
+
+--1.8.2 (06/06/2021)--
+* Added Station Block option to allow easier wallbounces (dashCornerCorrection).
+* Added Music Param Trigger.
+* Added more Connected Zip Mover reskinning options.
+* Added missing Connected Move Block reskinning code.
+* Code cleanup.
+* Fixed Manual Cassette Controller not visually updating Cassette Blocks.
+* Fixed crash involving Dream Blocks (Linux only).
+* Fixed being able to jump out of Dream Boosters when being inside of solids.
+* Fixed Cassette Zip Mover liftspeed boost when deactivating.
+* Fixed Cassette Move Block static mover issues.
+
+--1.8.1 (30/04/2021)--
+* Fixed inverted logic when retrieving CustomCassetteBlock types.
+
+--1.8.0 (29/04/2021)--
+* Added Dream Tunnel Entry.
+* Added Sound Surface Panel.
+* Added Input Flag Controller.
+* Added Cassette Jump Fix Controller.
+* Added Manual Cassette Controller (in 1.7.1).
+* Added Dream Booster.
+* Added Custom Cassette Block for the vanilla Cassette Blocks with custom color.
+* Added Player Bubble Region.
+* Added custom color option for Cassette Block types from Communal Helper.
+* Added custom respawn time for Dream Refills.
+* Added custom wavedash button indicator color options (wavedashButtonColor and wavedashButtonPressedColor). 
+* Fixed Attached Wall Booster neutral boost.
+* Fixed Move Block Redirects not affecting every MoveBlock derivatives.
+* Fixed crouched hitbox when dream tunneling next to solid.
+
 --1.7.1 (30/03/2021)--
 * [Silent] Added Manual Cassette Controller.
 * Fixed crashes involving using readonly structs.

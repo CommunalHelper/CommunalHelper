@@ -5,39 +5,43 @@ using Ahorn.CommunalHelper
 
 function swapFinalizer(entity)
     x, y = Ahorn.position(entity)
-
     width = Int(get(entity.data, "width", 8))
-    height = Int(get(entity.data, "height", 8))
 
     entity.data["nodes"] = [(x + width, y)]
 end
 
-@mapdef Entity "CommunalHelper/CassetteSwapBlock" CassetteSwapBlock(x::Integer, y::Integer, 
-    width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    index::Integer=0, tempo::Number=1.0, noReturn::Bool=false) 
+@mapdef Entity "CommunalHelper/CassetteSwapBlock" CassetteSwapBlock(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockHeight,
+    index::Integer=0,
+    tempo::Number=1.0,
+    noReturn::Bool=false,
+    customColor="",
+)
 
-const ropeColors = Dict{Int, Ahorn.colorTupleType}(
+const ropeColors = Dict{Int,Ahorn.colorTupleType}(
     1 => (194, 116, 171, 255) ./ 255,
-	2 => (227, 214, 148, 255) ./ 255,
-	3 => (128, 224, 141, 255) ./ 255
+    2 => (227, 214, 148, 255) ./ 255,
+    3 => (128, 224, 141, 255) ./ 255,
 )
 
 const defaultRopeColor = (110, 189, 245, 255) ./ 255
-
 
 const placements = Ahorn.PlacementDict(
     "Cassette Swap Block ($index - $color) (Communal Helper)" => Ahorn.EntityPlacement(
         CassetteSwapBlock,
         "rectangle",
-        Dict{String, Any}(
+        Dict{String,Any}(
             "index" => index,
         ),
-        swapFinalizer
+        swapFinalizer,
     ) for (color, index) in cassetteColorNames
 )
 
-Ahorn.editingOptions(entity::CassetteSwapBlock) = Dict{String, Any}(
-    "index" => cassetteColorNames
+Ahorn.editingOptions(entity::CassetteSwapBlock) = Dict{String,Any}(
+    "index" => cassetteColorNames,
 )
 
 Ahorn.nodeLimits(entity::Maple.SwapBlock) = 1, 1
@@ -52,17 +56,20 @@ function Ahorn.selection(entity::CassetteSwapBlock)
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    return [Ahorn.Rectangle(x, y, width, height), Ahorn.Rectangle(stopX, stopY, width, height)]
+    return [
+        Ahorn.Rectangle(x, y, width, height),
+        Ahorn.Rectangle(stopX, stopY, width, height),
+    ]
 end
 
 const block = "objects/cassetteblock/solid"
 const crossSprite = "objects/CommunalHelper/cassetteMoveBlock/x"
 
-function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number, trail::String, index::Int)
+function renderTrail(ctx, x::Number, y::Number, width::Number, height::Number, trail::String, index::Int, color=nothing)
     tilesWidth = div(width, 8)
     tilesHeight = div(height, 8)
 
-    ropeColor = get(ropeColors, index, defaultRopeColor)
+    ropeColor = isnothing(color) ? get(ropeColors, index, defaultRopeColor) : color
 
     for i in 2:tilesWidth - 1
         Ahorn.drawImage(ctx, trail, x + (i - 1) * 8, y + 2, 6, 0, 8, 6, tint=ropeColor)
@@ -93,13 +100,21 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::Cassette
 
     index = Int(get(entity.data, "index", 0))
 
-    renderCassetteBlock(ctx, stopX, stopY, width, height, index)
+    hexColor = String(get(entity.data, "customColor", ""))
+    if hexColor != "" && length(hexColor) == 6
+        renderCassetteBlock(ctx, stopX, stopY, width, height, index, hexToRGBA(hexColor))
+    else
+        renderCassetteBlock(ctx, stopX, stopY, width, height, index)
+    end
 
     Ahorn.drawArrow(ctx, startX + width / 2, startY + height / 2, stopX + width / 2, stopY + height / 2, Ahorn.colors.selection_selected_fc, headLength=6)
 end
 
-
-function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::CassetteSwapBlock, room::Maple.Room)
+function Ahorn.renderAbs(
+    ctx::Ahorn.Cairo.CairoContext,
+    entity::CassetteSwapBlock,
+    room::Maple.Room,
+)
     startX, startY = Ahorn.position(entity)
     stopX, stopY = Int.(entity.data["nodes"][1])
 
@@ -109,9 +124,14 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::CassetteSwapBloc
     index = Int(get(entity.data, "index", 0))
     color = getCassetteColor(index)
 
-    renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height, "objects/swapblock/target", index)
+    hexColor = String(get(entity.data, "customColor", ""))
+    if hexColor != "" && length(hexColor) == 6
+        color = hexToRGBA(hexColor)
+    end
 
-    renderCassetteBlock(ctx, startX, startY, width, height, index)
+    renderTrail(ctx, min(startX, stopX), min(startY, stopY), abs(startX - stopX) + width, abs(startY - stopY) + height, "objects/swapblock/target", index, color)
+
+    renderCassetteBlock(ctx, startX, startY, width, height, index, color)
 
     if Bool(get(entity.data, "noReturn", false))
         noReturnSprite = Ahorn.getSprite(crossSprite, "Gameplay")

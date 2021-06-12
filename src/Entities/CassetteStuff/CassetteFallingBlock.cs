@@ -6,19 +6,19 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CassetteFallingBlock")]
-    class CassetteFallingBlock : CustomCassetteBlock {
+    public class CassetteFallingBlock : CustomCassetteBlock {
         public bool Triggered;
         public float FallDelay;
 
         public bool HasStartedFalling { get; private set; }
 
-        public CassetteFallingBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo)
-            : base(position, id, width, height, index, tempo, dynamicHitbox: true) {
+        public CassetteFallingBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, Color? overrideColor)
+            : base(position, id, width, height, index, tempo, dynamicHitbox: true, overrideColor) {
             Add(new Coroutine(Sequence()));
         }
 
         public CassetteFallingBlock(EntityData data, Vector2 offset, EntityID id)
-            : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f)) {
+            : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), data.HexColorNullable("customColor")) {
         }
 
         public override void OnStaticMoverTrigger(StaticMover sm) {

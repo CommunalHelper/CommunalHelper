@@ -3,20 +3,30 @@ module CommunalHelperDreamSwitchGate
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/DreamSwitchGate" DreamSwitchGate(x::Integer, y::Integer,
-	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool = false, oneUse::Bool = false, refillCount::Integer=-1, below::Bool=false, permanent::Bool = false)
-
+@mapdef Entity "CommunalHelper/DreamSwitchGate" DreamSwitchGate(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockHeight,
+    featherMode::Bool=false,
+    oneUse::Bool=false,
+    refillCount::Integer=-1,
+    below::Bool=false,
+    permanent::Bool=false,
+)
 
 const placements = Ahorn.PlacementDict(
     "Dream Switch Gate (Communal Helper)" => Ahorn.EntityPlacement(
         DreamSwitchGate,
         "rectangle",
-        Dict{String, Any}(),
-		function(entity)
-            entity.data["nodes"] = [(Int(entity.data["x"]) + Int(entity.data["width"]), Int(entity.data["y"]))]
-        end
-    )
+        Dict{String,Any}(),
+        function (entity)
+            entity.data["nodes"] = [(
+                Int(entity.data["x"]) + Int(entity.data["width"]),
+                Int(entity.data["y"]),
+            )]
+        end,
+    ),
 )
 
 const iconSprite = Ahorn.getSprite("objects/switchgate/icon00", "Gameplay")
@@ -33,7 +43,10 @@ function Ahorn.selection(entity::DreamSwitchGate)
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    return [Ahorn.Rectangle(x, y, width, height), Ahorn.Rectangle(stopX, stopY, width, height)]
+    return [
+        Ahorn.Rectangle(x, y, width, height),
+        Ahorn.Rectangle(stopX, stopY, width, height),
+    ]
 end
 
 function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwitchGate)

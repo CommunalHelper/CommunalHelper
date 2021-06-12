@@ -17,6 +17,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool persistent;
         private EntityID id;
+
         public DreamCrumbleWallOnRumble(EntityData data, Vector2 offset, EntityID id)
             : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) {
             this.id = id;
@@ -37,7 +38,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 for (int x = 0; x < Width / 8f; x++) {
                     for (int y = 0; y < Height / 8f; y++) {
                         if (!Scene.CollideCheck<Solid>(new Rectangle((int) X + x * 8, (int) Y + y * 8, 8, 8))) {
-                            Scene.Add(Engine.Pooler.Create<DreamBlockDebris>().Init(Position + new Vector2(4 + x * 8, 4 + y * 8), this).BlastFrom(TopCenter));
+                            Scene.Add(Engine.Pooler.Create<DreamBlockDebris>().Init(Position + new Vector2(4 + x * 8, 4 + y * 8)).BlastFrom(TopCenter));
                         }
                     }
                 }
@@ -92,10 +93,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static IEnumerator RumbleTrigger_RumbleRoutine(On.Celeste.RumbleTrigger.orig_RumbleRoutine orig, RumbleTrigger self, float delay) {
             DynData<RumbleTrigger> triggerData = new DynData<RumbleTrigger>(self);
 
-            IEnumerator enumerator = orig(self, delay);
-            while (enumerator.MoveNext()) {
-                yield return enumerator.Current;
-            }
+            yield return new SwapImmediately(orig(self, delay));
 
             foreach (DreamCrumbleWallOnRumble crumble in triggerData.Get<List<DreamCrumbleWallOnRumble>>(RUMBLETRIGGER_DREAMCRUMBLES)) {
                 crumble.Break();

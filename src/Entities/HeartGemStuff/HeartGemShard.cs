@@ -138,7 +138,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public void OnAllCollected() {
             Tag = Tags.FrozenUpdate;
-            Depth = -2000002;
+            Depth = Depths.FormationSequences - 2;
             merging = true;
         }
 
@@ -267,12 +267,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
-        public static void Load() {
+        internal static void Load() {
             On.Celeste.HeartGem.ctor_EntityData_Vector2 += HeartGem_ctor_EntityData_Vector2;
             On.Celeste.HeartGem.Awake += HeartGem_Awake;
         }
 
-        public static void Unload() {
+        internal static void Unload() {
             On.Celeste.HeartGem.ctor_EntityData_Vector2 -= HeartGem_ctor_EntityData_Vector2;
             On.Celeste.HeartGem.Awake -= HeartGem_Awake;
         }

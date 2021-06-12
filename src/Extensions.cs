@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
@@ -26,6 +27,16 @@ namespace Celeste.Mod.CommunalHelper {
             return color;
         }
 
+        public static Color? HexColorNullable(this EntityData data, string key) {
+            if (data.Values.TryGetValue(key, out object value)) {
+                string text = value.ToString();
+                if (text.Length is 6 or 7) { // we don't care about the '#' character.
+                    return Calc.HexToColor(text);
+                }
+            }
+            return null;
+        }
+
         public static Vector2 CorrectJoystickPrecision(this Vector2 dir) {
             if (dir.X != 0f && Math.Abs(dir.X) < 0.001f) {
                 dir.X = 0f;
@@ -35,6 +46,45 @@ namespace Celeste.Mod.CommunalHelper {
                 dir.X = Math.Sign(dir.X);
             }
             return dir;
+        }
+
+        public static void PutInside(this Vector2 pos, Rectangle bounds) {
+            while (pos.X < bounds.X) {
+                pos.X += bounds.Width;
+            }
+            while (pos.X > bounds.X + bounds.Width) {
+                pos.X -= bounds.Width;
+            }
+            while (pos.Y < bounds.Y) {
+                pos.Y += bounds.Height;
+            }
+            while (pos.Y > bounds.Y + bounds.Height) {
+                pos.Y -= bounds.Height;
+            }
+        }
+
+        public static List<Type> GetSubClasses(this Type type) {
+            List<Type> list = new List<Type>();
+            foreach (Type type2 in FakeAssembly.GetFakeEntryAssembly().GetTypes()) {
+                if (type != type2 && type.IsAssignableFrom(type2)) {
+                    list.Add(type2);
+                }
+            }
+            return list;
+        }
+
+        public static List<MethodInfo> GetOverrides(this MethodInfo method, bool returnBase) {
+            List<MethodInfo> list = new List<MethodInfo>();
+            if (returnBase)
+                list.Add(method);
+
+            foreach (Type subType in method.DeclaringType.GetSubClasses()) {
+                MethodInfo overrideMethod = subType.GetMethod(method.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
+                if (overrideMethod != null && overrideMethod.Attributes.HasFlag(MethodAttributes.Virtual) && overrideMethod.GetBaseDefinition() == method)
+                    list.Add(overrideMethod);
+
+            }
+            return list;
         }
 
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
@@ -114,6 +164,13 @@ namespace Celeste.Mod.CommunalHelper {
             return false;
         }
 
+        // Sort of the inverse of CollideCheckOutside
+        public static bool CollideCheckOutsideInside(this Entity self, Entity other, Vector2 at) {
+            if (Collide.Check(self, other))
+                return !Collide.Check(self, other, at);
+            return false;
+        }
+
         #endregion
 
         #region WallBoosters
@@ -160,6 +217,8 @@ namespace Celeste.Mod.CommunalHelper {
             holdable.Release(vector);
         }
 
+        #region EnumExtensions
+
         public static StationBlockTrack.TrackSwitchState Invert(this StationBlockTrack.TrackSwitchState state) {
             return state switch {
                 StationBlockTrack.TrackSwitchState.On => StationBlockTrack.TrackSwitchState.Off,
@@ -167,6 +226,55 @@ namespace Celeste.Mod.CommunalHelper {
                 _ => throw new NotImplementedException(),
             };
         }
+
+        /// <summary>
+        /// Returns the angle corresponding to the appropriate <see cref="MoveBlock.Directions"/> as defined in the <see cref="MoveBlock"/> constructor.
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns>Angle in Radians</returns>
+        public static float Angle(this MoveBlock.Directions dir) {
+            return dir switch {
+                MoveBlock.Directions.Left => (float) Math.PI,
+                MoveBlock.Directions.Up => -(float) Math.PI / 2f,
+                MoveBlock.Directions.Down => (float) Math.PI / 2f,
+                _ => 0f
+            };
+        }
+
+        /// <summary>
+        /// Returns the <see cref="Vector2"/> corresponding to the <see cref="MoveBlock.Directions"/>. Defaults to <see cref="Vector2.UnitX"/>.
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <param name="factor">Factor to multiply the resulting vector by.</param>
+        /// <returns></returns>
+        public static Vector2 Vector(this MoveBlock.Directions dir, float factor = 1f) {
+            Vector2 result = dir switch {
+                MoveBlock.Directions.Up => -Vector2.UnitY,
+                MoveBlock.Directions.Down => Vector2.UnitY,
+                MoveBlock.Directions.Left => -Vector2.UnitX,
+                _ => Vector2.UnitX
+            };
+
+            return result * factor;
+        }
+
+        /// <summary>
+        /// Perform the specified <see cref="MoveBlockRedirect.Operations"/> on a <paramref name="value"/> with the second argument of <paramref name="modifier"/>. Defaults to no-op.
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="value"></param>
+        /// <param name="modifier"></param>
+        /// <returns></returns>
+        public static float ApplyTo(this MoveBlockRedirect.Operations op, float value, float modifier) {
+            return op switch {
+                MoveBlockRedirect.Operations.Add => value + modifier,
+                MoveBlockRedirect.Operations.Subtract => value - modifier,
+                MoveBlockRedirect.Operations.Multiply => value * modifier,
+                _ => value
+            };
+        }
+
+        #endregion
 
         private static MethodInfo m_TagLists_EntityAdded = typeof(TagLists).GetMethod("EntityAdded", BindingFlags.NonPublic | BindingFlags.Instance);
         private static MethodInfo m_Tracker_EntityAdded = typeof(Tracker).GetMethod("EntityAdded", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -230,6 +338,22 @@ namespace Celeste.Mod.CommunalHelper {
         private static FieldInfo StateMachine_coroutines = typeof(StateMachine).GetField("coroutines", BindingFlags.Instance | BindingFlags.NonPublic);
 
         #endregion
+
+        public static Vector2 PutInside(this Entity entity, Vector2 pos) {
+            while (pos.X < entity.X) {
+                pos.X += entity.Width;
+            }
+            while (pos.X > entity.X + entity.Width) {
+                pos.X -= entity.Width;
+            }
+            while (pos.Y < entity.Y) {
+                pos.Y += entity.Height;
+            }
+            while (pos.Y > entity.Y + entity.Height) {
+                pos.Y -= entity.Height;
+            }
+            return pos;
+        }
 
     }
 }

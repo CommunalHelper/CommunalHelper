@@ -1,12 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
-using Celeste.Mod.Entities;
-using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper {
@@ -41,21 +36,30 @@ namespace Celeste.Mod.CommunalHelper {
             DreamTunnelDash.Load();
             DreamRefill.Load();
 
+            DreamBlockDummy.Load();
+
             CustomDreamBlock.Load();
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
+
+            AbstractPanel.Load();
+            // Panel-specific hooks loaded from AbstractPanel.Load
 
             ConnectedSwapBlockHooks.Hook();
             CustomCassetteBlock.Hook();
 
             AttachedWallBooster.Hook();
             MoveBlockRedirect.Load();
+            MoveBlockRedirectable.Load();
             MoveSwapBlock.Load();
-            SyncedZipMoverActivationController.Hook();
-            ManualCassetteController.Load();
+            AbstractInputController.Load();
+            // Controller-specific hooks loaded from AbstractInputController.Load
+            CassetteJumpFixController.Load();
             // TimedTriggerSpikes hooked in Initialize
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
+
+            CustomBooster.Load();
         }
 
         public override void Unload() {
@@ -64,6 +68,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamTunnelDash.Unload();
             DreamRefill.Unload();
+            AbstractPanel.Unload();
+            DreamBlockDummy.Unload();
 
             CustomDreamBlock.Unload();
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
@@ -73,23 +79,29 @@ namespace Celeste.Mod.CommunalHelper {
 
             AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
+            MoveBlockRedirectable.Unload();
             MoveSwapBlock.Unload();
-            SyncedZipMoverActivationController.Unhook();
-            ManualCassetteController.Unload();
+            AbstractInputController.Unload();
+            CassetteJumpFixController.Unload();
             TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
+
+            CustomBooster.Unload();
         }
 
         public override void Initialize() {
             // Because of `Celeste.Tags.Initialize` of all things
             // We create a static CrystalStaticSpinner which needs to access Tags.TransitionUpdate
             // Which wouldn't be loaded in time for EverestModule.Load
-            TimedTriggerSpikes.Load();
+            TimedTriggerSpikes.LoadDelayed();
 
             // Register CustomCassetteBlock types
             CustomCassetteBlock.Initialize();
+
+            // We may hook methods in other mods, so this needs to be done after they're loaded
+            AbstractPanel.LoadDelayed();
         }
 
         public override void LoadContent(bool firstLoad) {
@@ -112,6 +124,7 @@ namespace Celeste.Mod.CommunalHelper {
             Melvin.InitializeParticles();
 
             RailedMoveBlock.InitializeTextures();
+            DreamBooster.InitializeParticles();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
@@ -169,6 +182,9 @@ namespace Celeste.Mod.CommunalHelper {
             if (command == "CommunalHelperCycleCassetteBlocksBinding")
                 return Settings.CycleCassetteBlocks.Button;
 
+            if (command == "CommunalHelperActivateFlagControllerBinding")
+                return Settings.ActivateFlagController.Button;
+
             return null;
         }
     }
@@ -193,6 +209,15 @@ namespace Celeste.Mod.CommunalHelper {
             return new Color(color.R, color.G, color.B, alpha);
         }
 
+        public static Color ColorArrayLerp(float lerp, params Color[] colors) {
+            float m = lerp % colors.Length;
+            int fromIndex = (int) Math.Floor(m);
+            int toIndex = (fromIndex + 1) % colors.Length;
+            float clampedLerp = m - fromIndex;
+
+            return Color.Lerp(colors[fromIndex], colors[toIndex], clampedLerp);
+        }
+
         public static Color TryParseColor(string str, float alpha = 1f) {
             foreach (PropertyInfo prop in namedColors) {
                 if (str.Equals(prop.Name)) {
@@ -211,6 +236,13 @@ namespace Celeste.Mod.CommunalHelper {
             return ret;
         }
 
+        public static float Mod(float x, float m) {
+            return (x % m + m) % m;
+        }
+
     }
+
+    // Don't worry about it
+    internal class NoInliningException : Exception { public NoInliningException() : base("Something went horribly wrong.") { } }
 
 }

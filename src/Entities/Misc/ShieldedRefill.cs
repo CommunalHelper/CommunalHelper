@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ShieldedRefill")]
-    class ShieldedRefill : Entity {
+    public class ShieldedRefill : Entity {
         private Sprite sprite;
         private Sprite flash;
         private Image outline;
@@ -172,7 +172,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (!oneUse) {
                 outline.Visible = true;
             }
-            Depth = 8999;
+            Depth = Depths.BGDecals * 1;
             yield return 0.05f;
 
             float num = player.Speed.Angle();
