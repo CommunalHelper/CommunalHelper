@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -117,6 +118,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static readonly Color StopBgFill = Calc.HexToColor("cc2541");
         public static readonly Color PlacementErrorBgFill = Calc.HexToColor("cc7c27");
 
+        private DynData<Platform> platformData;
         private Vector2 start, target, dir;
         private float percent, length;
 
@@ -215,6 +217,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             });
             sfx.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_move, "arrow_stop", 1f);
             Add(new LightOcclude(0.5f));
+
+            platformData = new DynData<Platform>(this);
         }
 
         private void AddImage(MTexture tex, Vector2 position, float rotation, Vector2 scale, List<Image> addTo) {
@@ -303,26 +307,33 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         pathRenderer.CreateSparks();
                     }
                 }
-                sfx.Param("arrow_stop", 1 - Math.Abs(speed / moveSpeed));
 
-                MoveH(dir.X * speed * Engine.DeltaTime);
-                MoveV(dir.Y * speed * Engine.DeltaTime);
+                Vector2 move = Vector2.Zero;
+                Vector2 position = Position;
+                move.X += dir.X * speed * Engine.DeltaTime;
+                move.Y += dir.Y * speed * Engine.DeltaTime;
+                position += move;
 
-                percent = Vector2.Distance(start, Position) / length;
+                percent = Vector2.Distance(start, position) / length;
 
                 bool impact = false;
                 if (percent > 1f) {
                     impact = speed > 60f;
-                    MoveTo(target);
+                    move += target - position;
                     speed = 0f;
                     percent = 1f;
                 } else if (Vector2.Distance(Position, target) > length) {
                     impact = speed < -60f;
-                    MoveTo(start);
+                    move += start - position;
                     speed = 0f;
                     percent = 0f;
                 }
-                
+
+                MoveH(move.X);
+                MoveH(move.Y);
+
+                sfx.Param("arrow_stop", 1 - Math.Abs(speed / (moveSpeed / 2f)));
+
                 if (impact) {
                     SceneAs<Level>().DirectionalShake(dir, 0.2f);
                     StartShaking(0.1f);
