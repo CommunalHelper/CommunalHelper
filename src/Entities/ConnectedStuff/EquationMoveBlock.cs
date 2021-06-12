@@ -32,17 +32,29 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
 
         protected override IEnumerator Controller() {
             while (true) {
+                bool startingBroken = false;
                 triggered = false;
                 State = MovementState.Idling;
-                moveTime = 0;
-                while (!triggered && !HasPlayerRider()) {
+                while (!triggered && !AnySetEnabled(ActivatorFlags) && !startingBroken) {
                     yield return null;
+                    startingBroken = AnySetEnabled(BreakerFlags);
                 }
 
                 Audio.Play(SFX.game_04_arrowblock_activate, Position);
                 State = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
+                if (!startingBroken)
+                    foreach (string flag in OnActivateFlags) {
+                        if (flag.Length > 0) {
+                            if (flag.StartsWith("!")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
+                            } else if (flag.StartsWith("~")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            } else
+                                SceneAs<Level>().Session.SetFlag(flag);
+                        }
+                    }
                 yield return 0.2f;
 
                 targetSpeed = moveSpeed;
@@ -82,7 +94,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                     // swap x/y if we're vertical
                     float targetAngle = (float)Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * neg) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * neg));
                     // and then we resume as normal
-                    speed = Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
+                    speed = startingBroken ? 0 : Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
                     angle = targetAngle;
                     Vector2 vec = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool moveCheck = MoveCheck(vec.XComp()) || MoveCheck(vec.YComp());
@@ -98,7 +110,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                     Vector2 move = Position - start;
                     SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
 
-                    if (moveCheck) {
+                    curMoveCheck = moveCheck;
+
+                    if (startingBroken || AnySetEnabled(BreakerFlags) || targetAngle == double.NaN) {
                         moveSfx.Param("arrow_stop", 1f);
                         crashResetTimer = 0.1f;
                         if (!(crashTimer > 0f)) {
@@ -145,12 +159,36 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                 DisableStaticMovers();
                 Position = startPosition;
                 Visible = Collidable = false;
+
+                bool shouldProcessBreakFlags = true;
+                if (BarrierBlocksFlags) {
+                    bool colliding = false;
+                    foreach (SeekerBarrier entity in Scene.Tracker.GetEntities<SeekerBarrier>()) {
+                        entity.Collidable = true;
+                        colliding |= CollideCheck(entity);
+                        entity.Collidable = false;
+                    }
+                    shouldProcessBreakFlags = !colliding;
+                }
+
+                if (shouldProcessBreakFlags)
+                    foreach (string flag in OnBreakFlags) {
+                        if (flag.Length > 0) {
+                            if (flag.StartsWith("!")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
+                            } else if (flag.StartsWith("~")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            } else
+                                SceneAs<Level>().Session.SetFlag(flag);
+                        }
+                    }
+                curMoveCheck = false;
                 yield return 2.2f;
 
                 foreach (MoveBlockDebris item in debris) {
                     item.StopMoving();
                 }
-                while (CollideCheck<Actor>() || CollideCheck<Solid>()) {
+                while (CollideCheck<Actor>() || CollideCheck<Solid>() || AnySetEnabled(BreakerFlags)) {
                     yield return null;
                 }
 
