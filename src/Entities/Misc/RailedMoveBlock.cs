@@ -299,46 +299,51 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
                 speed = Calc.Approach(speed, newSpeed, 300f * Engine.DeltaTime);
 
-                if ((newSpeed > 0f && percent >= 1f) || (newSpeed < 0f && percent == 0f)) {
+                if ((newSpeed > 0f && percent >= 1f) || (newSpeed < 0f && percent <= 0f)) {
                     showX = true;
                     newFillColor = StopBgFill;
+                    speed = 0f;
                 } else if (speed != 0f) {
                     if (Scene.OnInterval(0.25f)) {
                         pathRenderer.CreateSparks();
                     }
                 }
 
-                Vector2 move = Vector2.Zero;
-                Vector2 position = Position;
-                move.X += dir.X * speed * Engine.DeltaTime;
-                move.Y += dir.Y * speed * Engine.DeltaTime;
-                position += move;
+                if (newFillColor != StopBgFill) {
+                    Vector2 move = Vector2.Zero;
+                    Vector2 position = Position;
+                    move.X += dir.X * speed * Engine.DeltaTime;
+                    move.Y += dir.Y * speed * Engine.DeltaTime;
+                    position += move;
 
-                percent = Vector2.Distance(start, position) / length;
+                    percent = Vector2.Distance(start, position) / length;
 
-                bool impact = false;
-                if (percent > 1f) {
-                    impact = speed > 60f;
-                    move += target - position;
-                    speed = 0f;
-                    percent = 1f;
-                } else if (Vector2.Distance(Position, target) > length) {
-                    impact = speed < -60f;
-                    move += start - position;
-                    speed = 0f;
-                    percent = 0f;
+                    bool impact = false;
+                    if (percent > 1f) {
+                        impact = speed > 60f;
+                        move += target - position;
+                        speed = 0f;
+                        percent = 1f;
+                        newFillColor = StopBgFill;
+                    } else if (Vector2.Distance(Position, target) > length) {
+                        impact = speed < -60f;
+                        move += start - position;
+                        speed = 0f;
+                        percent = 0f;
+                        newFillColor = StopBgFill;
+                    }
+
+                    MoveH(move.X);
+                    MoveV(move.Y);
+
+                    if (impact) {
+                        SceneAs<Level>().DirectionalShake(dir, 0.2f);
+                        StartShaking(0.1f);
+                        Audio.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_impact, Center);
+                    }
                 }
-
-                MoveH(move.X);
-                MoveH(move.Y);
 
                 sfx.Param("arrow_stop", 1 - Math.Abs(speed / (moveSpeed / 2f)));
-
-                if (impact) {
-                    SceneAs<Level>().DirectionalShake(dir, 0.2f);
-                    StartShaking(0.1f);
-                    Audio.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_impact, Center);
-                }
             }
 
             UpdateColors(steeringMode == SteeringMode.None ? PlacementErrorBgFill : newFillColor);
