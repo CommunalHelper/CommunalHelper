@@ -3,26 +3,28 @@ module CommunalHelperCustomCassetteBlock
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/CustomCassetteBlock" CustomCassetteBlock(x::Integer, 
-                                                                  y::Integer, 
-                                                                  width::Integer=Maple.defaultBlockWidth, 
-                                                                  height::Integer=Maple.defaultBlockHeight,
-                                                                  index::Integer=0,
-                                                                  tempo::Number=1.0,
-                                                                  customColor="") 
+@mapdef Entity "CommunalHelper/CustomCassetteBlock" CustomCassetteBlock(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockHeight,
+    index::Integer=0,
+    tempo::Number=1.0,
+    customColor="",
+)
 
 const placements = Ahorn.PlacementDict(
     "Custom Cassette Block ($index - $color) (Communal Helper)" => Ahorn.EntityPlacement(
         CustomCassetteBlock,
         "rectangle",
-        Dict{String, Any}(
+        Dict{String,Any}(
             "index" => index,
-        )
+        ),
     ) for (color, index) in cassetteColorNames
 )
 
-Ahorn.editingOptions(entity::CustomCassetteBlock) = Dict{String, Any}(
-    "index" => cassetteColorNames
+Ahorn.editingOptions(entity::CustomCassetteBlock) = Dict{String,Any}(
+    "index" => cassetteColorNames,
 )
 
 Ahorn.nodeLimits(entity::CustomCassetteBlock) = 1, 1

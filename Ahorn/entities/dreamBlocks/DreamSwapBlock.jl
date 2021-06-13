@@ -3,17 +3,25 @@ module CommunalHelperDreamSwapBlock
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/DreamSwapBlock" DreamSwapBlock(x::Integer, y::Integer,
-	width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight,
-	noReturn::Bool=false, featherMode::Bool=false, oneUse::Bool=false, refillCount::Integer=-1, below::Bool=false)
+@mapdef Entity "CommunalHelper/DreamSwapBlock" DreamSwapBlock(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockHeight,
+    noReturn::Bool=false,
+    featherMode::Bool=false,
+    oneUse::Bool=false,
+    refillCount::Integer=-1,
+    below::Bool=false,
+)
 
 const placements = Ahorn.PlacementDict(
     "Dream Swap Block (Communal Helper)" => Ahorn.EntityPlacement(
         DreamSwapBlock,
         "rectangle",
-        Dict{String, Any}(),
-        Ahorn.SwapBlock.swapFinalizer
-    )
+        Dict{String,Any}(),
+        Ahorn.SwapBlock.swapFinalizer,
+    ),
 )
 
 Ahorn.nodeLimits(entity::DreamSwapBlock) = 1, 1
@@ -30,11 +38,13 @@ function Ahorn.selection(entity::DreamSwapBlock)
     width = Int(get(entity.data, "width", 8))
     height = Int(get(entity.data, "height", 8))
 
-    return [Ahorn.Rectangle(x, y, width, height), Ahorn.Rectangle(stopX, stopY, width, height)]
+    return [
+        Ahorn.Rectangle(x, y, width, height),
+        Ahorn.Rectangle(stopX, stopY, width, height),
+    ]
 end
 
 function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock)
-    sprite = get(entity.data, "sprite", "block")
     startX, startY = Int(entity.data["x"]), Int(entity.data["y"])
     stopX, stopY = Int.(entity.data["nodes"][1])
 
@@ -47,7 +57,6 @@ function Ahorn.renderSelectedAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwa
 end
 
 function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::DreamSwapBlock)
-    sprite = get(entity.data, "sprite", "block")
 
     startX, startY = Int(entity.data["x"]), Int(entity.data["y"])
     stopX, stopY = Int.(entity.data["nodes"][1])

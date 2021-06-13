@@ -207,10 +207,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
                 Vector2 newPosition = startPosition + blockOffset;
+                SetDisabledStaticMoversVisibility(false);
+                SetStaticMoversVisible(false);
                 MoveStaticMovers(newPosition - Position);
                 Position = newPosition;
                 Visible = false;
-                UpdatePresent(false);
+                Present = false;
                 yield return 2.2f;
 
                 foreach (MoveBlockDebris d in debris)
@@ -218,7 +220,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 while (CollideCheck<Actor>() || CollideCheck<Solid>())
                     yield return null;
 
-                UpdatePresent(true);
+                Present = true;
                 EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
                 Coroutine component;
                 Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(sound, debris));
@@ -236,9 +238,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     d.RemoveSelf();
                 Audio.Play("event:/game/04_cliffside/arrowblock_reappear", Position);
                 Visible = true;
-                if (Collidable) {
+                SetDisabledStaticMoversVisibility(true);
+                SetStaticMoversVisible(true);
+                
+                if (Collidable)
                     EnableStaticMovers();
+                else {
+                    // would inexplicably appear turned on
+                    DisableStaticMovers();
                 }
+
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
                 noSquish = null;

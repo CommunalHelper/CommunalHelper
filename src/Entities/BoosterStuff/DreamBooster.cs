@@ -1,6 +1,8 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
 using System.Collections;
@@ -177,6 +179,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static void Unhook() {
             On.Celeste.Player.RedDashCoroutine -= Player_RedDashCoroutine;
             On.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
+            IL.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
             On.Celeste.Booster.BoostRoutine -= Booster_BoostRoutine;
             On.Celeste.Actor.MoveH -= Actor_MoveH;
             On.Celeste.Actor.MoveV -= Actor_MoveV;
@@ -187,6 +190,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static void Hook() {
             On.Celeste.Player.RedDashCoroutine += Player_RedDashCoroutine;
             On.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
+            IL.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
             On.Celeste.Booster.BoostRoutine += Booster_BoostRoutine;
             On.Celeste.Actor.MoveH += Actor_MoveH;
             On.Celeste.Actor.MoveV += Actor_MoveV;
@@ -209,21 +213,41 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static int Player_RedDashUpdate(On.Celeste.Player.orig_RedDashUpdate orig, Player self) {
-            if (self.LastBooster is DreamBooster && !DreamTunnelDash.HasDreamTunnelDash && self.CollideCheck<Solid, DreamBlock>())
-                self.LastBooster.Ch9HubTransition = true; // If for whatever reason this becomes an actual option for DreamBoosters, this will need to be changed.
+            DreamBooster dreamBooster = self.LastBooster as DreamBooster;
+            if (dreamBooster != null) {
+                bool inSolid = self.CollideCheck<Solid, DreamBlock>();
 
+                // Prevent the player from jumping or dashing out of the DreamBooster. May be reset in IL hook below.
+                // If for whatever reason this becomes an actual option for DreamBoosters, this will need to be changed.
+                if (inSolid)
+                    self.LastBooster.Ch9HubTransition = true;
 
-            if (self.LastBooster is DreamBooster booster) {
-                self.LastBooster.Ch9HubTransition = false;
-                booster.LoopingSfxParam("dream_tunnel", Util.ToInt(self.CollideCheck<Solid, DreamBlock>()));
-                if (Vector2.Distance(self.Center, booster.Start) >= booster.Length) {
-                    self.Position = booster.Target;
-                    self.SceneAs<Level>().DirectionalShake(booster.Dir, 0.175f);
+                dreamBooster.LoopingSfxParam("dream_tunnel", Util.ToInt(inSolid));
+                if (Vector2.Distance(self.Center, dreamBooster.Start) >= dreamBooster.Length) {
+                    self.Position = dreamBooster.Target;
+                    self.SceneAs<Level>().DirectionalShake(dreamBooster.Dir, 0.175f);
                     return 0;
                 }
             }
 
-            return orig(self);
+            int ret = orig(self);
+
+            if (dreamBooster != null)
+                self.LastBooster.Ch9HubTransition = false;
+
+            return ret;
+        }
+
+        private static void Player_RedDashUpdate(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            // We want to reset this *only* if the player has DreamTunnelDash, since will then allow them to dash.
+            // The check for whether the player can jump *just* happened, so that is no longer possible.
+            cursor.GotoNext(MoveType.After, instr => instr.MatchLdfld<Booster>("Ch9HubTransition"));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Player>>(player => {
+                if (player.LastBooster is DreamBooster && DreamTunnelDash.HasDreamTunnelDash)
+                    player.LastBooster.Ch9HubTransition = false;
+            });
         }
 
         private static IEnumerator Player_RedDashCoroutine(On.Celeste.Player.orig_RedDashCoroutine orig, Player self) {
