@@ -72,13 +72,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     PaddingIgnoreOutOfLevel = false
                 }).TileGrid);
 
+                VirtualMap<char> levelTileMap = new DynData<SolidTiles>(level.SolidTiles).Get<VirtualMap<char>>("tileTypes");
+
                 for (int j = 0; j < h; j++) {
                     for (int i = 0; i < w; i++) {
                         if (tileMap[i, j] != '0') {
-                            level.SolidTiles.Tiles.Tiles[i + x, j + y] = null;
+                            levelTileMap[i + x, j + y] = '0';
                         }
                     }
                 }
+
+                level.SolidTiles.Tiles.Tiles = GFX.FGAutotiler.GenerateMap(levelTileMap, paddingIgnoreOutOfLevel: true).TileGrid.Tiles;
             } else {
                 TileGrid tileGrid = new TileGrid(8, 8, w, h);
 
