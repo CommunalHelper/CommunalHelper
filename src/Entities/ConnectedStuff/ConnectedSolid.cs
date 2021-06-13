@@ -72,6 +72,8 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public void SetNewColliderList(ColliderList colliderList, Vector2 at) {
+            if (colliderList == null)
+                return;
             Collider = colliderList;
             Colliders = new Hitbox[colliderList.colliders.Length];
             Position = at;

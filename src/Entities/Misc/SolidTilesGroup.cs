@@ -9,8 +9,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/SolidTilesGroup")]
     class SolidTilesGroup : ConnectedSolid {
 
-        private bool triggered;
-
+        private Level level;
         private VirtualMap<char> tileMap;
 
         public SolidTilesGroup(EntityData data, Vector2 offset) :
@@ -18,24 +17,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public SolidTilesGroup(Vector2 position, int width, int height) :
             base(position, width, height, safe: true) {
+            Add(new LightOcclude());
             OnDashCollide = Dashed;
-
-            Depth = Depths.FGTerrain - 1;
         }
 
-        public DashCollisionResults Dashed(Player player, Vector2 dir) {
-            if (!triggered) {
-                triggered = true;
-                return DashCollisionResults.Rebound;
-            }
-
-            return DashCollisionResults.NormalCollision;
+        private DashCollisionResults Dashed(Player player, Vector2 dir) {
+            Detach(true);
+            return DashCollisionResults.Rebound;
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
 
-            Level level = SceneAs<Level>();
+            level = SceneAs<Level>();
 
             // If this entity doesn't affect any solid tiles, then it is useless, so get rid of it.
             if (!level.SolidTiles.Grid.Collide(Collider))
@@ -55,24 +49,53 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 for (int i = 0; i < w; i++) {
                     if (CollideRect(new Rectangle((int) Left + i * 8, (int) Top + j * 8, 8, 8))) {
                         tileMap[i, j] = levelTileTypes[i + x, j + y];
+                        level.SolidTiles.Grid.Data[i + x, y + j] = false;
                     }
-                    Console.Write(levelTileTypes[i + x, j + y]);
                 }
-                Console.Write("\n");
             }
 
-
-            SetNewColliderList(GenerateBetterColliderGrid(tileMap), TopLeft);
+            SetNewColliderList(GenerateColliderGrid(tileMap), TopLeft);
         }
 
-        public override void Render() {
-            base.Render();
-            foreach (Hitbox h in Colliders) {
-                Draw.HollowRect(h, Color.Green);
+        public void Detach(bool autotile = true) {
+            Rectangle tileBounds = level.Session.MapData.TileBounds;
+
+            int x = (int) (X / 8f) - tileBounds.Left;
+            int y = (int) (Y / 8f) - tileBounds.Top;
+            int w = tileMap.Columns;
+            int h = tileMap.Rows;
+
+            if (autotile) {
+                Add(GFX.FGAutotiler.GenerateMap(tileMap, new Autotiler.Behaviour {
+                    EdgesExtend = false,
+                    EdgesIgnoreOutOfLevel = false,
+                    PaddingIgnoreOutOfLevel = false
+                }).TileGrid);
+
+                for (int j = 0; j < h; j++) {
+                    for (int i = 0; i < w; i++) {
+                        if (tileMap[i, j] != '0') {
+                            level.SolidTiles.Tiles.Tiles[i + x, j + y] = null;
+                        }
+                    }
+                }
+            } else {
+                TileGrid tileGrid = new TileGrid(8, 8, w, h);
+
+                for (int j = 0; j < h; j++) {
+                    for (int i = 0; i < w; i++) {
+                        if (tileMap[i, j] != '0') {
+                            tileGrid.Tiles[i, j] = level.SolidTiles.Tiles.Tiles[i + x, j + y];
+                            level.SolidTiles.Tiles.Tiles[i + x, j + y] = null;
+                        }
+                    }
+                }
+
+                Add(tileGrid);
             }
         }
 
-        public static ColliderList GenerateBetterColliderGrid(VirtualMap<char> tileMap, int cellWidth = 8, int cellHeight = 8) {
+        public static ColliderList GenerateColliderGrid(VirtualMap<char> tileMap, int cellWidth = 8, int cellHeight = 8) {
             ColliderList colliders = new ColliderList();
             VirtualMap<char> temp = tileMap.Clone();
 
@@ -129,4 +152,5 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return colliders.colliders.Length > 0 ? colliders : null;
         }
     }
+
 }
