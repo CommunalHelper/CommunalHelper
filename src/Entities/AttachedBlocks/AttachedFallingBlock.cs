@@ -1,5 +1,7 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Monocle;
+using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities.AttachedBlocks {
     [CustomEntity("CommunalHelper/AttachedFallingBlock")]
@@ -10,6 +12,15 @@ namespace Celeste.Mod.CommunalHelper.Entities.AttachedBlocks {
 
         public AttachedFallingBlock(Vector2 position, int width, int height, char tileType) 
             : base(position, width, height, tileType, safe: false) {
+            Add(new Coroutine(Sequence()));
+        }
+
+        public IEnumerator Sequence() {
+            while (!HasPlayerRider()) {
+                yield return null;
+            }
+            Detach(true);
+            yield break;
         }
 
     }

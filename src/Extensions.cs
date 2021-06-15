@@ -48,6 +48,18 @@ namespace Celeste.Mod.CommunalHelper {
             return dir;
         }
 
+        public static bool AnyAround<T>(this VirtualMap<T> map, int x, int y) {
+            return 
+                !map[x - 1, y].Equals(map.EmptyValue) ||
+                !map[x + 1, y].Equals(map.EmptyValue) ||
+                !map[x, y - 1].Equals(map.EmptyValue) ||
+                !map[x, y + 1].Equals(map.EmptyValue) ||
+                !map[x - 1, y - 1].Equals(map.EmptyValue) ||
+                !map[x - 1, y + 1].Equals(map.EmptyValue) ||
+                !map[x + 1, y - 1].Equals(map.EmptyValue) ||
+                !map[x + 1, y + 1].Equals(map.EmptyValue);
+        }
+
         public static void PutInside(this Vector2 pos, Rectangle bounds) {
             while (pos.X < bounds.X) {
                 pos.X += bounds.Width;
