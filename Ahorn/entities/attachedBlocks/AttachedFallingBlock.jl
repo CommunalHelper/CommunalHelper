@@ -8,7 +8,7 @@ using Ahorn.CommunalHelper
     y::Integer,
     width::Integer=8,
     height::Integer=8,
-    tileType::String="3",
+    tiletype::String="3",
 )
 
 const placements = Ahorn.PlacementDict(
@@ -21,7 +21,7 @@ const placements = Ahorn.PlacementDict(
 )
 
 Ahorn.editingOptions(entity::AttachedFallingBlock) = Dict{String, Any}(
-    "tileType" => Ahorn.tiletypeEditingOptions()
+    "tiletype" => Ahorn.tiletypeEditingOptions()
 )
 
 Ahorn.minimumSize(entity::AttachedFallingBlock) = 8, 8
