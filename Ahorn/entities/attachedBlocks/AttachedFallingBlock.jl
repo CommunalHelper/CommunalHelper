@@ -10,6 +10,7 @@ using Ahorn.CommunalHelper
     height::Integer=8,
     tiletype::String="3",
     smoothDetach::Bool = true,
+    climbFall=true,
 )
 
 const placements = Ahorn.PlacementDict(

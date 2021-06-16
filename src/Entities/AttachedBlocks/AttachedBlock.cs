@@ -16,15 +16,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private TileGrid fakeTileGrid, normalTileGrid;
 
         private bool detached;
-        private bool smoothDetach = true;
+        private bool smoothDetach;
 
         private VirtualMap<MTexture> levelFakeTiles;
 
-        public AttachedBlock(Vector2 position, int width, int height, char tileType, bool safe = true) :
+        public AttachedBlock(Vector2 position, int width, int height, char tileType, bool smoothDetach, bool safe = true) :
             base(position, width, height, safe) {
             this.tileType = tileType;
+            this.smoothDetach = smoothDetach;
+
             SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
             Depth = Depths.FGTerrain - 1;
+        }
+
+        public override void OnShake(Vector2 amount) {
+            base.OnShake(amount);
+            normalTileGrid.Position += amount;
+            fakeTileGrid.Position += amount;
         }
 
         public override void Awake(Scene scene) {
