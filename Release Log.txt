@@ -1,3 +1,8 @@
+--1.8.4 (17/06/2021)--
+* [Silent] Added Equation Move Blocks.
+* [Silent] Added flag options for Connected & Equation Move Blocks.
+* Fixed Station Block issue concerning dash corner correction.
+
 --1.8.3 (07/06/2021)--
 * Fixed another Linux-related crash.
 
@@ -123,4 +128,3 @@
 * Added Dream Zip Mover.
 * Added Dream Move Block.
 * Added Dream Swap Block.
-
