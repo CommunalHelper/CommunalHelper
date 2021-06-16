@@ -46,6 +46,7 @@ placements["Equation Move Block (Beta) (Flag-controlled) (Communal Helper)"] = A
 		"onActivateFlags" => "",
 		"onBreakFlags" => "",
 		"barrierBlocksFlags" => false,
+		"waitForFlags" => false,
     ),
 )
 

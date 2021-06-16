@@ -43,6 +43,7 @@ placements["Connected Move Block (Flag-controlled) (Communal Helper)"] = Ahorn.E
 		"onActivateFlags" => "",
 		"onBreakFlags" => "",
 		"barrierBlocksFlags" => false,
+		"waitForFlags" => false,
     ),
 )
 

@@ -104,6 +104,8 @@ namespace Celeste.Mod.CommunalHelper {
         protected List<string> OnBreakFlags = new List<string>();
         // If true, OnBreakFlags will not be set if the block breaks inside a seeker barrier.
         protected bool BarrierBlocksFlags = false;
+        // If true, the block will not appear until breaker flags are disabled.
+        protected bool WaitForFlags = false;
 
         protected bool curMoveCheck = false;
 
@@ -163,6 +165,7 @@ namespace Celeste.Mod.CommunalHelper {
             OnActivateFlags.AddRange(data.Attr("onActivateFlags", "").Split(','));
             OnBreakFlags.AddRange(data.Attr("onBreakFlags", "").Split(','));
             BarrierBlocksFlags = data.Bool("barrierBlocksFlags", false);
+            WaitForFlags = data.Bool("waitForFlags", false);
         }
 
         public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
@@ -181,16 +184,24 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         protected virtual IEnumerator Controller() {
+            // If we're waiting for flags before becoming visible, start off invisible.
+            bool startInvisible = AnySetEnabled(BreakerFlags) && WaitForFlags;
+            if (startInvisible)
+                Visible = Collidable = false;
             while (true) {
-                bool startingBroken = false;
+                bool startingBroken = false, startingByActivator = false;
                 curMoveCheck = false;
                 triggered = false;
                 State = MovementState.Idling;
-                while (!triggered && !AnySetEnabled(ActivatorFlags) && !startingBroken) {
+                while (!triggered && !startingByActivator && !startingBroken) {
+                    if (startInvisible && !AnySetEnabled(BreakerFlags)) {
+                        goto Rebuild;
+                    }
                     yield return null;
-                    startingBroken = AnySetEnabled(BreakerFlags);
+                    startingBroken = AnySetEnabled(BreakerFlags) && !startInvisible;
+                    startingByActivator = AnySetEnabled(ActivatorFlags);
                 }
-
+                
                 Audio.Play(SFX.game_04_arrowblock_activate, Position);
                 State = MovementState.Moving;
                 StartShaking(0.2f);
@@ -345,8 +356,10 @@ namespace Celeste.Mod.CommunalHelper {
                 foreach (MoveBlockDebris item4 in debris) {
                     item4.RemoveSelf();
                 }
+            Rebuild:
                 Audio.Play(SFX.game_04_arrowblock_reappear, Position);
                 Visible = true;
+                Collidable = true;
                 EnableStaticMovers();
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
@@ -354,6 +367,7 @@ namespace Celeste.Mod.CommunalHelper {
                 fillColor = idleBgFill;
                 UpdateColors();
                 flash = 1f;
+                startInvisible = false;
             }
         }
 

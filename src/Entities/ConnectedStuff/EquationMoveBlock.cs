@@ -31,13 +31,26 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
         }
 
         protected override IEnumerator Controller() {
+            // If we're waiting for flags before becoming visible, start off invisible.
+            bool startInvisible = false;
+            if (WaitForFlags) {
+                yield return null;
+                startInvisible = AnySetEnabled(BreakerFlags) && WaitForFlags;
+            }
+            if (startInvisible)
+                Visible = Collidable = false;
             while (true) {
-                bool startingBroken = false;
+                bool startingBroken = false, startingByActivator = false;
+                curMoveCheck = false;
                 triggered = false;
                 State = MovementState.Idling;
-                while (!triggered && !AnySetEnabled(ActivatorFlags) && !startingBroken) {
+                while (!triggered && !startingByActivator && !startingBroken) {
+                    if (startInvisible && !AnySetEnabled(BreakerFlags)) {
+                        goto Rebuild;
+                    }
                     yield return null;
-                    startingBroken = AnySetEnabled(BreakerFlags);
+                    startingBroken = AnySetEnabled(BreakerFlags) && !startInvisible;
+                    startingByActivator = AnySetEnabled(ActivatorFlags);
                 }
 
                 Audio.Play(SFX.game_04_arrowblock_activate, Position);
@@ -212,8 +225,10 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                 foreach (MoveBlockDebris item4 in debris) {
                     item4.RemoveSelf();
                 }
+            Rebuild:
                 Audio.Play(SFX.game_04_arrowblock_reappear, Position);
                 Visible = true;
+                Collidable = true;
                 EnableStaticMovers();
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
@@ -221,6 +236,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                 fillColor = idleBgFill;
                 UpdateColors();
                 flash = 1f;
+                startInvisible = false;
             }
         }
     }
