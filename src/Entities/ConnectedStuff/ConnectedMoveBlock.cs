@@ -292,17 +292,14 @@ namespace Celeste.Mod.CommunalHelper {
 
                 bool shouldProcessBreakFlags = true;
                 if (BarrierBlocksFlags) {
-                    Logger.Log("CommunalHelper/ConnectedMoveBlock", "Checking seeker barriers!");
                     bool colliding = false;
                     foreach (SeekerBarrier entity in Scene.Tracker.GetEntities<SeekerBarrier>()) {
                         entity.Collidable = true;
                         bool collision = CollideCheck(entity);
                         colliding |= collision;
-                        Logger.Log("CommunalHelper/ConnectedMoveBlock", $"Colliding: {collision}");
                         entity.Collidable = false;
                     }
                     shouldProcessBreakFlags = !colliding;
-                    Logger.Log("CommunalHelper/ConnectedMoveBlock", $"Should process break flags: {shouldProcessBreakFlags}");
                 }
 
                 Position = startPosition;
