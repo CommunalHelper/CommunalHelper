@@ -157,8 +157,6 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                 }
                 MoveStaticMovers(startPosition - Position);
                 DisableStaticMovers();
-                Position = startPosition;
-                Visible = Collidable = false;
 
                 bool shouldProcessBreakFlags = true;
                 if (BarrierBlocksFlags) {
@@ -170,6 +168,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                     }
                     shouldProcessBreakFlags = !colliding;
                 }
+
+                Position = startPosition;
+                Visible = Collidable = false;
 
                 if (shouldProcessBreakFlags)
                     foreach (string flag in OnBreakFlags) {
