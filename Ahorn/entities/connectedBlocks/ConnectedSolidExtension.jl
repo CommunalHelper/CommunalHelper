@@ -36,6 +36,7 @@ const connectTo = [
     "CommunalHelper/ConnectedZipMover",
     "CommunalHelper/ConnectedSwapBlock",
     "CommunalHelper/ConnectedMoveBlock",
+	"CommunalHelper/EquationMoveBlock",
 ]
 
 # Gets rectangles from Solid Extensions & Connected Solids

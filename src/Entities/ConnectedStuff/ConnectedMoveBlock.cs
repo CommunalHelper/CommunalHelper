@@ -183,6 +183,7 @@ namespace Celeste.Mod.CommunalHelper {
         protected virtual IEnumerator Controller() {
             while (true) {
                 bool startingBroken = false;
+                curMoveCheck = false;
                 triggered = false;
                 State = MovementState.Idling;
                 while (!triggered && !AnySetEnabled(ActivatorFlags) && !startingBroken) {
@@ -194,17 +195,18 @@ namespace Celeste.Mod.CommunalHelper {
                 State = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
-                if (!startingBroken)
+                if (!startingBroken) {
                     foreach (string flag in OnActivateFlags) {
-                        if (flag.Length > 0) {
-                            if (flag.StartsWith("!")) {
-                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
-                            } else if (flag.StartsWith("~")) {
-                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
-                            } else
-                             SceneAs<Level>().Session.SetFlag(flag);
-                        }
+                    if (flag.Length > 0) 
+                        if (flag.StartsWith("!")) {
+                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
+                        } else if (flag.StartsWith("~")) {
+                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                        } else
+                            SceneAs<Level>().Session.SetFlag(flag);
                     }
+                }else
+                    State = MovementState.Breaking;
                 yield return 0.2f;
 
                 targetSpeed = moveSpeed;
@@ -287,8 +289,6 @@ namespace Celeste.Mod.CommunalHelper {
                 }
                 MoveStaticMovers(startPosition - Position);
                 DisableStaticMovers();
-                Position = startPosition;
-                Visible = Collidable = false;
 
                 bool shouldProcessBreakFlags = true;
                 if (BarrierBlocksFlags) {
@@ -296,11 +296,17 @@ namespace Celeste.Mod.CommunalHelper {
                     bool colliding = false;
                     foreach (SeekerBarrier entity in Scene.Tracker.GetEntities<SeekerBarrier>()) {
                         entity.Collidable = true;
-                        colliding |= CollideCheck(entity);
+                        bool collision = CollideCheck(entity);
+                        colliding |= collision;
+                        Logger.Log("CommunalHelper/ConnectedMoveBlock", $"Colliding: {collision}");
                         entity.Collidable = false;
                     }
                     shouldProcessBreakFlags = !colliding;
+                    Logger.Log("CommunalHelper/ConnectedMoveBlock", $"Should process break flags: {shouldProcessBreakFlags}");
                 }
+
+                Position = startPosition;
+                Visible = Collidable = false;
 
                 if (shouldProcessBreakFlags) 
                     foreach (string flag in OnBreakFlags) {
