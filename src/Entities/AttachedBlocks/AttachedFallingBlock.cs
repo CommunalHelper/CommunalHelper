@@ -19,7 +19,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.AttachedBlocks {
             while (!HasPlayerRider()) {
                 yield return null;
             }
-            Detach(true);
+            Detach();
             yield break;
         }
 
