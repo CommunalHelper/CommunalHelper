@@ -6,6 +6,7 @@ using Monocle;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper {
 
@@ -51,7 +52,7 @@ namespace Celeste.Mod.CommunalHelper {
         protected static MTexture[,] masterInnerCorners = new MTexture[2, 2];
         protected static List<MTexture> masterArrows = new List<MTexture>();
         protected MTexture xTexture;
-        
+
         //Custom Texture support
         protected bool customTexture;
         protected Tuple<MTexture[,], MTexture[,]> tiles;
@@ -88,6 +89,26 @@ namespace Celeste.Mod.CommunalHelper {
 
         protected SoundSource moveSfx;
 
+        // Flag options
+        // A list of sets of flags. When all in a set are on (or off, and preceded by !), the move block will activate.
+        // The flag "_pressed" is considered to be on when the player is riding the block. This is the only set by default.
+        // Sets are separated by '|' and flags in a set are seperated by ','.
+        protected List<List<string>> ActivatorFlags = new List<List<string>>();
+        // A list of flags to be enabled (or disabled when preceded by !, toggled when preceded by ~) when the move block activates.
+        protected List<string> OnActivateFlags = new List<string>();
+        // A list of sets of flags. When all are on (or off, and preceded by !), the move block will immediately break, and will not respawn until off.
+        // The flag "_obstructed" is considered to be on when the block is obstructed (and not broken) by a solid or screen edge. This is the only set by default.
+        // Sets are separated by '|' and flags in a set are seperated by ','.
+        protected List<List<string>> BreakerFlags = new List<List<string>>();
+        // A list of flags to be enabled (or disabled when preceded by !, toggled when preceded by ~) when the move block breaks.
+        protected List<string> OnBreakFlags = new List<string>();
+        // If true, OnBreakFlags will not be set if the block breaks inside a seeker barrier.
+        protected bool BarrierBlocksFlags = false;
+        // If true, the block will not appear until breaker flags are disabled.
+        protected bool WaitForFlags = false;
+
+        protected bool curMoveCheck = false;
+
         public ConnectedMoveBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f)) {
             idleBgFill = Util.TryParseColor(data.Attr("idleColor", "474070"));
@@ -99,8 +120,8 @@ namespace Celeste.Mod.CommunalHelper {
             customTexture = !string.IsNullOrWhiteSpace(customPath);
             if (customTexture) {
                 string temp;
-                if(GFX.Game["objects/" + customPath] == null) {
-                    if(GFX.Game["objects/" + customPath + "/tileset"] == null) {
+                if (GFX.Game["objects/" + customPath] == null) {
+                    if (GFX.Game["objects/" + customPath + "/tileset"] == null) {
                         throw new Exception($"No valid tileset found, searched @ objects/{customPath}.png & objects/{customPath}/tileset.png\nFor custom arrow textures, use 'objects/{customPath}/arrow', 'objects/{customPath}/tileset' for tiles, and 'objects/{customPath}/x.png' for the breaking X sprite.");
                     }
 
@@ -133,11 +154,18 @@ namespace Celeste.Mod.CommunalHelper {
                     }
                 }
                 tiles = SetupCustomTileset(temp);
-                
+
             } else {
                 xTexture = GFX.Game["objects/moveBlock/x"];
             }
             GFX.Game.PopFallback();
+
+            ActivatorFlags.AddRange(data.Attr("activatorFlags", "_pressed").Split('|').Select(l => l.Split(',').ToList()));
+            BreakerFlags.AddRange(data.Attr("breakerFlags", "_obstructed").Split('|').Select(l => l.Split(',').ToList()));
+            OnActivateFlags.AddRange(data.Attr("onActivateFlags", "").Split(','));
+            OnBreakFlags.AddRange(data.Attr("onBreakFlags", "").Split(','));
+            BarrierBlocksFlags = data.Bool("barrierBlocksFlags", false);
+            WaitForFlags = data.Bool("waitForFlags", false);
         }
 
         public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
@@ -156,17 +184,40 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         protected virtual IEnumerator Controller() {
+            // If we're waiting for flags before becoming visible, start off invisible.
+            bool startInvisible = AnySetEnabled(BreakerFlags) && WaitForFlags;
+            if (startInvisible)
+                Visible = Collidable = false;
             while (true) {
+                bool startingBroken = false, startingByActivator = false;
+                curMoveCheck = false;
                 triggered = false;
                 State = MovementState.Idling;
-                while (!triggered && !HasPlayerRider()) {
+                while (!triggered && !startingByActivator && !startingBroken) {
+                    if (startInvisible && !AnySetEnabled(BreakerFlags)) {
+                        goto Rebuild;
+                    }
                     yield return null;
+                    startingBroken = AnySetEnabled(BreakerFlags) && !startInvisible;
+                    startingByActivator = AnySetEnabled(ActivatorFlags);
                 }
-
+                
                 Audio.Play(SFX.game_04_arrowblock_activate, Position);
                 State = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
+                if (!startingBroken) {
+                    foreach (string flag in OnActivateFlags) {
+                    if (flag.Length > 0) 
+                        if (flag.StartsWith("!")) {
+                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
+                        } else if (flag.StartsWith("~")) {
+                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                        } else
+                            SceneAs<Level>().Session.SetFlag(flag);
+                    }
+                }else
+                    State = MovementState.Breaking;
                 yield return 0.2f;
 
                 targetSpeed = moveSpeed;
@@ -179,7 +230,7 @@ namespace Celeste.Mod.CommunalHelper {
                     if (Scene.OnInterval(0.02f)) {
                         MoveParticles();
                     }
-                    speed = Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
+                    speed = startingBroken ? 0 : Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
                     angle = Calc.Approach(angle, targetAngle, (float) Math.PI * 16f * Engine.DeltaTime);
                     Vector2 vec = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool flag2;
@@ -201,7 +252,9 @@ namespace Celeste.Mod.CommunalHelper {
                     Vector2 move = Position - start;
                     SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
 
-                    if (flag2) {
+                    curMoveCheck = flag2;
+
+                    if (startingBroken || AnySetEnabled(BreakerFlags)) {
                         moveSfx.Param("arrow_stop", 1f);
                         crashResetTimer = 0.1f;
                         if (!(crashTimer > 0f)) {
@@ -247,14 +300,40 @@ namespace Celeste.Mod.CommunalHelper {
                 }
                 MoveStaticMovers(startPosition - Position);
                 DisableStaticMovers();
+
+                bool shouldProcessBreakFlags = true;
+                if (BarrierBlocksFlags) {
+                    bool colliding = false;
+                    foreach (SeekerBarrier entity in Scene.Tracker.GetEntities<SeekerBarrier>()) {
+                        entity.Collidable = true;
+                        bool collision = CollideCheck(entity);
+                        colliding |= collision;
+                        entity.Collidable = false;
+                    }
+                    shouldProcessBreakFlags = !colliding;
+                }
+
                 Position = startPosition;
                 Visible = Collidable = false;
+
+                if (shouldProcessBreakFlags) 
+                    foreach (string flag in OnBreakFlags) {
+                        if (flag.Length > 0) {
+                            if (flag.StartsWith("!")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
+                            } else if (flag.StartsWith("~")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            } else
+                                SceneAs<Level>().Session.SetFlag(flag);
+                        }
+                    }
+                curMoveCheck = false;
                 yield return 2.2f;
 
                 foreach (MoveBlockDebris item in debris) {
                     item.StopMoving();
                 }
-                while (CollideCheck<Actor>() || CollideCheck<Solid>()) {
+                while (CollideCheck<Actor>() || CollideCheck<Solid>() || AnySetEnabled(BreakerFlags)) {
                     yield return null;
                 }
 
@@ -277,8 +356,10 @@ namespace Celeste.Mod.CommunalHelper {
                 foreach (MoveBlockDebris item4 in debris) {
                     item4.RemoveSelf();
                 }
+            Rebuild:
                 Audio.Play(SFX.game_04_arrowblock_reappear, Position);
                 Visible = true;
+                Collidable = true;
                 EnableStaticMovers();
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
@@ -286,6 +367,7 @@ namespace Celeste.Mod.CommunalHelper {
                 fillColor = idleBgFill;
                 UpdateColors();
                 flash = 1f;
+                startInvisible = false;
             }
         }
 
@@ -438,6 +520,17 @@ namespace Celeste.Mod.CommunalHelper {
                 }
 
             }
+        }
+
+        protected bool AnySetEnabled(List<List<string>> sets){
+            return sets.Any(s => SetEnabled(s));
+        }
+
+        protected bool SetEnabled(List<string> set) {
+            return set.All(s => s.Equals("_pressed") ? HasPlayerRider()
+                              : s.Equals("_obstructed") ? curMoveCheck
+                              : s.StartsWith("!") ? !SceneAs<Level>().Session.GetFlag(s.Substring(1))
+                              : SceneAs<Level>().Session.GetFlag(s));
         }
 
         public override void Awake(Scene scene) {

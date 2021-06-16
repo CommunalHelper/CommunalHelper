@@ -34,6 +34,19 @@ placements["Connected Move Block (Reskinnable) (Communal Helper)"] = Ahorn.Entit
     ),
 )
 
+placements["Connected Move Block (Flag-controlled) (Communal Helper)"] = Ahorn.EntityPlacement(
+    ConnectedMoveBlock,
+    "rectangle",
+    Dict{String,Any}(
+        "activatorFlags" => "_pressed",
+		"breakerFlags" => "_obstructed",
+		"onActivateFlags" => "",
+		"onBreakFlags" => "",
+		"barrierBlocksFlags" => false,
+		"waitForFlags" => false,
+    ),
+)
+
 Ahorn.editingOptions(entity::ConnectedMoveBlock) = Dict{String,Any}(
     "direction" => Maple.move_block_directions,
     "moveSpeed" => Dict{String,Number}(

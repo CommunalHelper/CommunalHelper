@@ -37,6 +37,19 @@ placements["Equation Move Block (Beta) (Reskinnable) (Communal Helper)"] = Ahorn
     ),
 )
 
+placements["Equation Move Block (Beta) (Flag-controlled) (Communal Helper)"] = Ahorn.EntityPlacement(
+    EquationMoveBlock,
+    "rectangle",
+    Dict{String,Any}(
+        "activatorFlags" => "_pressed",
+		"breakerFlags" => "_obstructed",
+		"onActivateFlags" => "",
+		"onBreakFlags" => "",
+		"barrierBlocksFlags" => false,
+		"waitForFlags" => false,
+    ),
+)
+
 Ahorn.editingOptions(entity::EquationMoveBlock) = Dict{String,Any}(
     "direction" => Maple.move_block_directions,
     "moveSpeed" => Dict{String,Number}(
