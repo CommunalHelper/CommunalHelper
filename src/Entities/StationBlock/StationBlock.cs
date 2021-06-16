@@ -275,7 +275,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 player.StateMachine.State = 0;
 
             // Easier wall bounces.
-            if (player.Left >= Right - 4f || player.Right < Left + 4f && dir.Y == -1) {
+            if ((player.Left >= Right - 4f || player.Right < Left + 4f) && dir.Y == -1 && dashCornerCorrection) {
                 return DashCollisionResults.NormalCollision;
             }
 
