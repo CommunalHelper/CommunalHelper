@@ -10,12 +10,14 @@ using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.DashStates {
     // Add custom playerhair that makes tentacles on head
+    // Green/Shadow tentacles that lash out from the player (fade in/out) while HasSeekerDash
+    // Localized glitch/seekerslowdown effect field
     public static class SeekerDash {
 
         private static bool hasSeekerDash;
         public static bool HasSeekerDash {
-            get { return hasSeekerDash || CommunalHelperModule.Settings.AlwaysActiveSeekerDash; }
-            set { hasSeekerDash = value; }
+            get => hasSeekerDash || CommunalHelperModule.Settings.AlwaysActiveSeekerDash;
+            set => hasSeekerDash = value;
         }
 
         public static bool SeekerAttacking => seekerDashAttacking || seekerDashLaunched;
@@ -23,6 +25,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         private static bool seekerDashAttacking;
         private static float seekerDashTimer;
         private static bool seekerDashLaunched;
+        /// <summary>jank fix for wavedashing</summary>
+        private static bool launchPossible;
 
         private static MethodInfo m_Player_CallDashEvents = typeof(Player).GetMethod("CallDashEvents", BindingFlags.NonPublic | BindingFlags.Instance);
         private static MethodInfo m_Player_CorrectDashPrecision = typeof(Player).GetMethod("CorrectDashPrecision", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -34,16 +38,20 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         internal static void Load() {
             On.Celeste.Player.ctor += Player_ctor;
             hook_Player_get_CanDash = new Hook(
-                typeof(Player).GetProperty("CanDash").GetGetMethod(), 
+                typeof(Player).GetProperty("CanDash").GetGetMethod(),
                 typeof(SeekerDash).GetMethod("Player_get_CanDash", BindingFlags.NonPublic | BindingFlags.Static));
             On.Celeste.Player.DashBegin += Player_DashBegin;
             IL.Celeste.Player.DashUpdate += Player_DashUpdate;
+            On.Celeste.Player.DashEnd += Player_DashEnd;
             IL.Celeste.Player.CallDashEvents += Player_CallDashEvents;
             On.Celeste.Player.Update += Player_Update;
             On.Celeste.Player.OnCollideH += Player_OnCollideH;
             On.Celeste.Player.OnCollideV += Player_OnCollideV;
+
+            // Rendering
             On.Celeste.Player.GetCurrentTrailColor += Player_GetCurrentTrailColor;
 
+            // Interactions
             On.Celeste.DashBlock.OnDashed += DashBlock_OnDashed;
             On.Celeste.TempleCrackedBlock.ctor_EntityID_Vector2_float_float_bool += TempleCrackedBlock_ctor_EntityID_Vector2_float_float_bool;
             On.Celeste.SeekerBarrier.ctor_Vector2_float_float += SeekerBarrier_ctor_Vector2_float_float;
@@ -59,10 +67,12 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             hook_Player_get_CanDash.Dispose();
             On.Celeste.Player.DashBegin -= Player_DashBegin;
             IL.Celeste.Player.DashUpdate -= Player_DashUpdate;
+            On.Celeste.Player.DashEnd -= Player_DashEnd;
             IL.Celeste.Player.CallDashEvents -= Player_CallDashEvents;
             On.Celeste.Player.Update -= Player_Update;
             On.Celeste.Player.OnCollideH -= Player_OnCollideH;
             On.Celeste.Player.OnCollideV -= Player_OnCollideV;
+
             On.Celeste.Player.GetCurrentTrailColor -= Player_GetCurrentTrailColor;
 
             On.Celeste.DashBlock.OnDashed -= DashBlock_OnDashed;
@@ -80,7 +90,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         // Initialize dash state
         private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
             orig(self, position, spriteMode);
-            HasSeekerDash = seekerDashAttacking = false;
+            HasSeekerDash = seekerDashAttacking = seekerDashLaunched = launchPossible = false;
         }
 
         // Prevent dash if HasSeekerDash and inside SeekerBarrier
@@ -132,6 +142,11 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             cursor.EmitDelegate<Func<ParticleType, ParticleType>>(type => seekerDashAttacking ? Seeker.P_Attack : type);
         }
 
+        private static void Player_DashEnd(On.Celeste.Player.orig_DashEnd orig, Player self) {
+            orig(self);
+            launchPossible = false;
+        }
+
         // Replace dash sound
         private static void Player_CallDashEvents(ILContext il) {
             ILCursor cursor = new ILCursor(il);
@@ -152,8 +167,12 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
             DynData<Player> playerData = self.GetData();
 
-            if (seekerDashTimer > 0 && playerData.Get<bool>("launched"))
+            // launchPossible is a bad hack to fix wavedashing
+            bool resetLaunchPossible = false;
+            if (seekerDashTimer > 0 && playerData.Get<bool>("launched") || launchPossible) {
                 seekerDashLaunched = true;
+                resetLaunchPossible = true;
+            }
 
             float dashAttackTimer = playerData.Get<float>("dashAttackTimer");
             if (dashAttackTimer < seekerDashTimer)
@@ -164,8 +183,11 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             if (seekerDashTimer <= 0f)
                 seekerDashAttacking = false;
 
-            if (seekerDashLaunched && !playerData.Get<bool>("launched"))
+            if (seekerDashLaunched && !playerData.Get<bool>("launched") && !launchPossible)
                 seekerDashLaunched = false;
+
+            if (resetLaunchPossible)
+                launchPossible = false;
 
             if (HasSeekerDash)
                 self.Sprite.Color = Seeker.TrailColor;
@@ -197,6 +219,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             orig(self, data);
 
             if (SeekerAttacking && !(data.Hit is SeekerBarrier)) { // SeekerBarriers handled elsewhere
+                launchPossible = true;
                 float direction;
                 float y;
                 if (data.Direction.Y > 0f) {
@@ -265,7 +288,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             orig(self, player);
         }
 
-        // Bop the seeker if seekerdashing, kill the seeker if player was launched from seekerdash
+        // Bop the seeker if SeekerAttacking, kill the seeker if player was launched from seekerdash
         private static void Seeker_OnAttackPlayer(On.Celeste.Seeker.orig_OnAttackPlayer orig, Seeker self, Player player) {
             DynData<Seeker> seekerData = new DynData<Seeker>(self);
             int state = seekerData.Get<StateMachine>("State").State;
@@ -286,7 +309,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             orig(self, player);
         }
 
-        // Bop Oshiro is SeekerAttacking
+        // Bop Oshiro if SeekerAttacking
         private static void AngryOshiro_OnPlayer(On.Celeste.AngryOshiro.orig_OnPlayer orig, AngryOshiro self, Player player) {
             if (SeekerAttacking) {
                 DynData<AngryOshiro> oshiroData = new DynData<AngryOshiro>(self);

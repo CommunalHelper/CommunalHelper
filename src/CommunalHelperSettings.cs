@@ -8,6 +8,9 @@ namespace Celeste.Mod.CommunalHelper {
         [SettingName("Settings_SeekerDash_AlwaysActive")]
         public bool AlwaysActiveSeekerDash { get; set; }
 
+        [SettingName("Settings_Boosteline_AlwaysActive")]
+        public bool AlwaysActiveBoosteline { get; set; }
+
         [DefaultButtonBinding(Buttons.RightShoulder, Keys.Z)]
         public ButtonBinding ActivateSyncedZipMovers { get; set; }
         public bool AllowActivateRebinding { get; set; }
