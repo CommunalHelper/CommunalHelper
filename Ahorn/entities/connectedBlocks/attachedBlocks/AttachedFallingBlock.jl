@@ -6,11 +6,11 @@ using Ahorn.CommunalHelper
 @mapdef Entity "CommunalHelper/AttachedFallingBlock" AttachedFallingBlock(
     x::Integer,
     y::Integer,
-    width::Integer=8,
-    height::Integer=8,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockWidth,
     tiletype::String="3",
     smoothDetach::Bool=true,
-    climbFall=true,
+    climbFall::Bool=true,
 )
 
 const placements = Ahorn.PlacementDict(
