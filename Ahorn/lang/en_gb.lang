@@ -290,6 +290,7 @@ placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.climbFall=Whethe
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.behind=Whether this entity should appear farther behind in the scene or not.
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.centeredChain=Renders only one chain at the horizontal center of this block.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.chainOutline=Whether the chain of this block should have a black outline.
 
 
 

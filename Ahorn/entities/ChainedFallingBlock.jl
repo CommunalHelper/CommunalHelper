@@ -13,6 +13,7 @@ using Cairo
     behind::Bool=false,
     fallDistance::Integer=64,
     centeredChain::Bool=false,
+    chainOutline::Bool=true,
 )
 
 const placements = Ahorn.PlacementDict(

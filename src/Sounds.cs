@@ -59,6 +59,13 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_customBoosters_dreamBooster_dreambooster_enter = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter";
         public const string game_customBoosters_dreamBooster_dreambooster_enter_cue = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter_cue";
         public const string game_customBoosters_dreamBooster_dreambooster_move = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_move";
+
+        public const string game_chainedFallingBlock_chain_rattle = "event:/CommunalHelperEvents/game/chainedFallingBlock/chain_rattle";
+        public const string game_chainedFallingBlock_chain_tighten_ceiling = "event:/CommunalHelperEvents/game/chainedFallingBlock/chain_tighten_ceiling";
+        public const string game_chainedFallingBlock_chain_tighten_block = "event:/CommunalHelperEvents/game/chainedFallingBlock/chain_tighten_block";
+        public const string game_chainedFallingBlock_attenuatedImpacts_boss_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/boss_impact";
+        public const string game_chainedFallingBlock_attenuatedImpacts_wood_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/wood_impact";
+        public const string game_chainedFallingBlock_attenuatedImpacts_ice_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/ice_impact";
     }
 
     public static class CustomBanks {

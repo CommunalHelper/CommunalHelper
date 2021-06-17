@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.Entities;
+using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -22,13 +23,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float chainStopY, startY;
         private bool centeredChain;
+        private bool chainOutline;
+
+        private EventInstance rattle;
 
         private static MTexture chain, chainEnd;
 
         public ChainedFallingBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Char("tiletype", '3'), data.Bool("climbFall", true), data.Bool("behind"), data.Int("fallDistance"), data.Bool("centeredChain")) { }
+            : this(data.Position + offset, data.Width, data.Height, data.Char("tiletype", '3'), data.Bool("climbFall", true), data.Bool("behind"), data.Int("fallDistance"), data.Bool("centeredChain"), data.Bool("chainOutline", true)) { }
 
-        public ChainedFallingBlock(Vector2 position, int width, int height, char tileType, bool climbFall, bool behind, int maxFallDistance, bool centeredChain)
+        public ChainedFallingBlock(Vector2 position, int width, int height, char tileType, bool climbFall, bool behind, int maxFallDistance, bool centeredChain, bool chainOutline)
             : base(position, width, height, safe: false) {
             this.climbFall = climbFall;
             this.tileType = tileType;
@@ -36,6 +40,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             startY = Y;
             chainStopY = startY + maxFallDistance;
             this.centeredChain = centeredChain || Width <= 8;
+            this.chainOutline = chainOutline;
 
             Calc.PushRandom(Calc.Random.Next());
             Add(tiles = GFX.FGAutotiler.GenerateBox(tileType, width / 8, height / 8).TileGrid);
@@ -81,11 +86,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return false;
         }
 
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            Audio.Stop(rattle);
+        }
+
         private IEnumerator Sequence() {
             while (!triggered && !PlayerFallCheck()) {
                 yield return null;
             }
 
+            Vector2 rattleSoundPos = new Vector2(Center.X, startY);
             while (true) {
                 ShakeSfx();
                 StartShaking();
@@ -101,6 +112,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 StopShaking();
                 FallParticles();
 
+                rattle = Audio.Play(CustomSFX.game_chainedFallingBlock_chain_rattle, rattleSoundPos);
+
                 float speed = 0f;
                 //float maxSpeed = 160f;
                 while (true) {
@@ -114,6 +127,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         MoveToY(chainStopY);
                         break;
                     }
+                    Audio.Position(rattle, rattleSoundPos);
                     yield return null;
                 }
 
@@ -122,12 +136,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 SceneAs<Level>().DirectionalShake(Vector2.UnitY, 0.3f);
                 StartShaking();
                 LandParticles();
+                Audio.Stop(rattle);
+                if (held) {
+                    Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
+                    Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, rattleSoundPos);
+                }
                 yield return 0.2f;
 
                 StopShaking();
                 if (CollideCheck<SolidTiles>(Position + new Vector2(0f, 1f))) {
                     break;
                 }
+
                 while (held) {
                     yield return null;
                 }
@@ -168,20 +188,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void ImpactSfx() {
+            // Some impacts weren't as attenuated like the game_gen_fallblock_impact event,
+            // and it was inconsistent with the fact that you can hear the chain tighten but not the block impact.
+            // So custom impact sounds for all specific variants with matching distance attenuation effects were added.
             Audio.Play(tileType switch {
-                '3' => SFX.game_01_fallingblock_ice_impact,
-                '9' => SFX.game_03_fallingblock_wood_impact,
-                'g' => SFX.game_06_fallingblock_boss_impact,
+                '3' => CustomSFX.game_chainedFallingBlock_attenuatedImpacts_ice_impact,
+                '9' => CustomSFX.game_chainedFallingBlock_attenuatedImpacts_wood_impact,
+                'g' => CustomSFX.game_chainedFallingBlock_attenuatedImpacts_boss_impact,
                 _ => SFX.game_gen_fallblock_impact,
             }, Center);
         }
 
         private void RenderChain(float x) {
             Vector2 top = new Vector2(x, startY);
-            for (float y = Y - 6f; y > startY - 8f; y -= 8f) {
-                chain.DrawOutlineOnly(new Vector2(x, y));
+
+            if (chainOutline) {
+                for (float y = Y - 6f; y > startY - 8f; y -= 8f) {
+                    chain.DrawOutlineOnly(new Vector2(x, y));
+                }
+                chainEnd.DrawOutlineOnly(top);
             }
-            chainEnd.DrawOutlineOnly(top);
 
             for (float y = Y - 6f; y > startY - 8f; y -= 8f) {
                 chain.Draw(new Vector2(x, y));
