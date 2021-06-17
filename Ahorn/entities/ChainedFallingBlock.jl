@@ -14,7 +14,8 @@ using Cairo
     fallDistance::Integer=64,
     centeredChain::Bool=false,
     chainOutline::Bool=true,
-    trajectoryIndicator=false,
+    indicator::Bool=false,
+    indicatorAtStart::Bool=false,
 )
 
 const placements = Ahorn.PlacementDict(

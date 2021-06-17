@@ -291,7 +291,8 @@ placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.behind=Whether t
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.centeredChain=Renders only one chain at the horizontal center of this block.
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.chainOutline=Whether the chain of this block should have a black outline.
-placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.trajectoryIndicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 
 
 
