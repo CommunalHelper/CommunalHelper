@@ -3,7 +3,6 @@ using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
-using System.Collections;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper {
@@ -13,7 +12,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override Type SettingsType => typeof(CommunalHelperSettings);
         public static CommunalHelperSettings Settings => (CommunalHelperSettings) Instance._Settings;
-        
+
         public override Type SaveDataType => typeof(CommunalHelperSaveData);
         public static CommunalHelperSaveData SaveData => (CommunalHelperSaveData) Instance._SaveData;
 
@@ -22,7 +21,11 @@ namespace Celeste.Mod.CommunalHelper {
 
         public static SpriteBank SpriteBank => Instance._SpriteBank;
         public SpriteBank _SpriteBank;
-        
+
+
+        public static bool MaxHelpingHandLoaded { get; private set; }
+        public static bool VivHelperLoaded { get; private set; }
+
         public CommunalHelperModule() {
             Instance = this;
         }
@@ -35,18 +38,30 @@ namespace Celeste.Mod.CommunalHelper {
             DreamTunnelDash.Load();
             SeekerDash.Load();
 
+            DreamBlockDummy.Load();
+
             CustomDreamBlock.Load();
-            ConnectedDreamBlock.Hook();
+            // Individual Dream Blocks hooked in CustomDreamBlock.Load
+
+            AbstractPanel.Load();
+            // Panel-specific hooks loaded from AbstractPanel.Load
+
             ConnectedSwapBlockHooks.Hook();
-            CustomCassetteBlockHooks.Hook();
+            CustomCassetteBlock.Hook();
 
             AttachedWallBooster.Hook();
             MoveBlockRedirect.Load();
+            MoveBlockRedirectable.Load();
             MoveSwapBlock.Load();
-            SyncedZipMoverActivationControllerHooks.Hook();
+            AbstractInputController.Load();
+            // Controller-specific hooks loaded from AbstractInputController.Load
+            CassetteJumpFixController.Load();
+            // TimedTriggerSpikes hooked in Initialize
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
+
+            CustomBooster.Load();
         }
 
         public override void Unload() {
@@ -57,35 +72,87 @@ namespace Celeste.Mod.CommunalHelper {
             DreamTunnelDash.Unload();
             SeekerDash.Unload();
 
-            CustomDreamBlock.Unload();
-            ConnectedDreamBlock.Unhook();
-            ConnectedSwapBlockHooks.Unhook();
-            CustomCassetteBlockHooks.Unhook();
+            DreamBlockDummy.Unload();
 
-			AttachedWallBooster.Unhook();
+            CustomDreamBlock.Unload();
+            // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
+
+            AbstractPanel.Unload();
+
+            ConnectedSwapBlockHooks.Unhook();
+            CustomCassetteBlock.Unhook();
+
+            AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
+            MoveBlockRedirectable.Unload();
             MoveSwapBlock.Unload();
-            SyncedZipMoverActivationControllerHooks.Unhook();
+            AbstractInputController.Unload();
+            CassetteJumpFixController.Unload();
+            TimedTriggerSpikes.Unload();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
+
+            CustomBooster.Unload();
         }
 
-		public override void LoadContent(bool firstLoad) {
+        public override void Initialize() {
+            // Because of `Celeste.Tags.Initialize` of all things
+            // We create a static CrystalStaticSpinner which needs to access Tags.TransitionUpdate
+            // Which wouldn't be loaded in time for EverestModule.Load
+            TimedTriggerSpikes.LoadDelayed();
+
+            // Register CustomCassetteBlock types
+            CustomCassetteBlock.Initialize();
+
+            // We may hook methods in other mods, so this needs to be done after they're loaded
+            AbstractPanel.LoadDelayed();
+        }
+
+        public override void LoadContent(bool firstLoad) {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
 
-			StationBlock.InitializeParticles();
+            StationBlock.InitializeParticles();
+            TrackSwitchBox.InitializeParticles();
 
             DreamTunnelRefill.InitializeParticles();
             DreamTunnelDash.InitializeParticles();
 
             DreamMoveBlock.InitializeParticles();
             DreamSwitchGate.InitializeParticles();
-            
+
             ConnectedMoveBlock.InitializeTextures();
             ConnectedSwapBlock.InitializeTextures();
 
             HeartGemShard.InitializeParticles();
+
+            Melvin.InitializeTextures();
+            Melvin.InitializeParticles();
+
+            DreamBooster.InitializeParticles();
+
+
+            EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
+            if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule dashelineModule)) {
+                Extensions.MoreDashelineLoaded = true;
+                Extensions.MoreDasheline_GetHairColor = dashelineModule.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) });
+                Logger.Log("Communal Helper", "MoreDasheline detected: using MoreDasheline hair colors for CustomDreamBlock particles.");
+            }
+            EverestModuleMetadata collabUtilsMeta = new EverestModuleMetadata { Name = "CollabUtils2", VersionString = "1.3.8.1" };
+            if (Extensions.TryGetModule(collabUtilsMeta, out EverestModule collabModule)) {
+                Extensions.CollabUtilsLoaded = true;
+                Extensions.CollabUtils_MiniHeart = collabModule.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart");
+            }
+            EverestModuleMetadata celesteTASMeta = new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.5" };
+            if (Extensions.TryGetModule(celesteTASMeta, out EverestModule tasModule)) {
+                Extensions.CelesteTASLoaded = true;
+                Type t_PlayerStates = tasModule.GetType().Module.GetType("TAS.PlayerStates");
+                Extensions.CelesteTAS_PlayerStates_Register = t_PlayerStates.GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
+                Extensions.CelesteTAS_PlayerStates_Unregister = t_PlayerStates.GetMethod("Unregister", BindingFlags.Public | BindingFlags.Static);
+            }
+
+            MaxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
+            VivHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "VivHelper", VersionString = "1.0.28" });
         }
 
         // Loading "custom" entities
@@ -104,6 +171,16 @@ namespace Celeste.Mod.CommunalHelper {
                 return Level.LoadCustomEntity(entityData, level);
             }
 
+            if (entityData.Name == "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate") {
+                entityData.Name = "CommunalHelper/DreamSwitchGate";
+                entityData.Values["isFlagSwitchGate"] = true;
+                return Level.LoadCustomEntity(entityData, level);
+            }
+
+            // Will be handled later
+            if (entityData.Name == "CommunalHelper/ManualCassetteController")
+                return true;
+
             return false;
         }
 
@@ -113,47 +190,71 @@ namespace Celeste.Mod.CommunalHelper {
                 return Settings.AllowActivateRebinding ?
                     Settings.ActivateSyncedZipMovers.Button : Input.Grab;
             }
+
+            if (command == "CommunalHelperCycleCassetteBlocksBinding")
+                return Settings.CycleCassetteBlocks.Button;
+
+            if (command == "CommunalHelperActivateFlagControllerBinding")
+                return Settings.ActivateFlagController.Button;
+
             return null;
         }
     }
 
-	public static class Util {
-		public static void log(string str) {
-			Logger.Log("Communal Helper", str);
-		}
-	}
+    public static class Util {
+        public static void Log(string str) {
+            Logger.Log("Communal Helper", str);
+        }
 
-    #region JaThePlayer's state machine extension code
-    internal static class StateMachineExt {
-		/// <summary>
-		/// Adds a state to a StateMachine
-		/// </summary>
-		/// <returns>The index of the new state</returns>
-		public static int AddState(this StateMachine machine, Func<int> onUpdate, Func<IEnumerator> coroutine = null, Action begin = null, Action end = null) {
-			Action[] begins = (Action[])StateMachine_begins.GetValue(machine);
-			Func<int>[] updates = (Func<int>[])StateMachine_updates.GetValue(machine);
-			Action[] ends = (Action[])StateMachine_ends.GetValue(machine);
-			Func<IEnumerator>[] coroutines = (Func<IEnumerator>[])StateMachine_coroutines.GetValue(machine);
-			int nextIndex = begins.Length;
-			// Now let's expand the arrays
-			Array.Resize(ref begins, begins.Length + 1);
-			Array.Resize(ref updates, begins.Length + 1);
-			Array.Resize(ref ends, begins.Length + 1);
-			Array.Resize(ref coroutines, coroutines.Length + 1);
-			// Store the resized arrays back into the machine
-			StateMachine_begins.SetValue(machine, begins);
-			StateMachine_updates.SetValue(machine, updates);
-			StateMachine_ends.SetValue(machine, ends);
-			StateMachine_coroutines.SetValue(machine, coroutines);
-			// And now we add the new functions
-			machine.SetCallbacks(nextIndex, onUpdate, coroutine, begin, end);
-			return nextIndex;
-		}
-		private static FieldInfo StateMachine_begins = typeof(StateMachine).GetField("begins", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static FieldInfo StateMachine_updates = typeof(StateMachine).GetField("updates", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static FieldInfo StateMachine_ends = typeof(StateMachine).GetField("ends", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static FieldInfo StateMachine_coroutines = typeof(StateMachine).GetField("coroutines", BindingFlags.Instance | BindingFlags.NonPublic);
-	}
-    #endregion
+        public static bool TryGetPlayer(out Player player) {
+            player = Engine.Scene?.Tracker?.GetEntity<Player>();
+            return player != null;
+        }
+
+        private static PropertyInfo[] namedColors = typeof(Color).GetProperties();
+
+        public static Color CopyColor(Color color, float alpha) {
+            return new Color(color.R, color.G, color.B, (byte) alpha * 255);
+        }
+
+        public static Color CopyColor(Color color, int alpha) {
+            return new Color(color.R, color.G, color.B, alpha);
+        }
+
+        public static Color ColorArrayLerp(float lerp, params Color[] colors) {
+            float m = lerp % colors.Length;
+            int fromIndex = (int) Math.Floor(m);
+            int toIndex = (fromIndex + 1) % colors.Length;
+            float clampedLerp = m - fromIndex;
+
+            return Color.Lerp(colors[fromIndex], colors[toIndex], clampedLerp);
+        }
+
+        public static Color TryParseColor(string str, float alpha = 1f) {
+            foreach (PropertyInfo prop in namedColors) {
+                if (str.Equals(prop.Name)) {
+                    return CopyColor((Color) prop.GetValue(null), alpha);
+                }
+            }
+            return CopyColor(Calc.HexToColor(str.Trim('#')), alpha);
+        }
+
+        public static int ToInt(bool b) => b ? 1 : 0;
+
+        public static int ToBitFlag(params bool[] b) {
+            int ret = 0;
+            for (int i = 0; i < b.Length; i++)
+                ret |= ToInt(b[i]) << i;
+            return ret;
+        }
+
+        public static float Mod(float x, float m) {
+            return (x % m + m) % m;
+        }
+
+    }
+
+    // Don't worry about it
+    internal class NoInliningException : Exception { public NoInliningException() : base("Something went horribly wrong.") { } }
 
 }

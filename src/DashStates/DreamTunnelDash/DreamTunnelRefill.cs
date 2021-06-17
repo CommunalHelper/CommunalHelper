@@ -68,13 +68,15 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             return true;
         }
 
-        protected override void EmitGlowParticles(Level level) {
+        protected override void EmitGlowParticles() {
+            Level level = baseData.Get<Level>("level");
             level.ParticlesFG.Emit(P_Glow[glowParticleIndex], 1, Position, Vector2.One * 5f);
             ++glowParticleIndex;
             glowParticleIndex %= 4;
         }
 
-        protected override void EmitShatterParticles(Level level, float angle) {
+        protected override void EmitShatterParticles(float angle) {
+            Level level = baseData.Get<Level>("level");
             for (int i = 0; i < 5; ++i) {
                 level.ParticlesFG.Emit(P_Shatter[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle - (float) Math.PI / 2f);
                 ++shatterParticleIndex;
@@ -87,7 +89,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             }
         }
 
-        protected override void EmitRegenParticles(Level level) {
+        protected override void EmitRegenParticles() {
+            Level level = baseData.Get<Level>("level");
             for (int i = 0; i < 16; ++i) {
                 level.ParticlesFG.Emit(P_Regen[regenParticleIndex], 1, Position, Vector2.One * 2f);
                 ++regenParticleIndex;

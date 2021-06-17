@@ -1,10 +1,10 @@
-# -- Entity and Trigger Tooltips -- 
+# -- Entity and Trigger Tooltips --
 #    placements.entities.entityName.tooltips.attr=Tooltip
 #    placements.triggers.triggerName.tooltips.attr=Tooltip
 
 
 
-# -- Entities -- 
+# -- Entities --
 
 # -- Attached Wall Booster --
 placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the Wall Booster should attach to the left sides of solids.
@@ -14,77 +14,167 @@ placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whet
 # -- Cassette Falling Block --
 placements.entities.CommunalHelper/CassetteFallingBlock.tooltips.index=The color of the Cassette Falling Block.
 placements.entities.CommunalHelper/CassetteFallingBlock.tooltips.tempo=The tempo of the cassette music in the room.
+placements.entities.CommunalHelper/CassetteFallingBlock.tooltips.customColor=Optional hexadecimal color code, visual-only change. Do not include the hash (#) symbol.
 
 # -- Cassette Move Block --
 placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.direction=The direction in which the Cassette Move Block moves.
-placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.fast=Whether the Cassette Move Block should move faster.
+placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.moveSpeed=The speed at which the block moves (accepts any number).
 placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.index=The color of the Cassette Move Block.
 placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.tempo=The tempo of the cassette music in the room.
+placements.entities.CommunalHelper/CassetteMoveBlock.tooltips.customColor=Optional hexadecimal color code, visual-only change. Do not include the hash (#) symbol.
 
 # -- Cassette Swap Block --
 placements.entities.CommunalHelper/CassetteSwapBlock.tooltips.noReturn=Whether Cassette Swap Block should return to its starting point or not.
 placements.entities.CommunalHelper/CassetteSwapBlock.tooltips.index=The color of the Cassette Swap Block.
 placements.entities.CommunalHelper/CassetteSwapBlock.tooltips.tempo=The tempo of the cassette music in the room.
+placements.entities.CommunalHelper/CassetteSwapBlock.tooltips.customColor=Optional hexadecimal color code, visual-only change. Do not include the hash (#) symbol.
 
 # -- Cassette Zip Mover --
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.index=The color of the Cassette Zip Mover.
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.tempo=The tempo of the cassette music in the room.
 placements.entities.CommunalHelper/CassetteZipMover.tooltips.noReturn=Whether the Cassette Zip Mover should return to its starting point or not.
+placements.entities.CommunalHelper/CassetteZipMover.tooltips.permanent=Whether this block should lock in place after being triggered.
+placements.entities.CommunalHelper/CassetteZipMover.tooltips.waitforplayer=Whether this block requires the player to trigger it each node in the path.
+placements.entities.CommunalHelper/CassetteZipMover.tooltips.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
+placements.entities.CommunalHelper/CassetteZipMover.tooltips.customColor=Optional hexadecimal color code, visual-only change. Do not include the hash (#) symbol.
+
+# -- Manual Cassette Controller --
+placements.entities.CommunalHelper/ManualCassetteController.tooltips.startIndex=The color of Cassette Block that should start activated.
+
+# -- Cassette Jump Fix Controller --
+placements.entities.CommunalHelper/CassetteJumpFixController.tooltips.persistent=Whether the controller should apply for the entire level, only applies to the current room if this is turned off.
+placements.entities.CommunalHelper/CassetteJumpFixController.tooltips.off=Turns off the fix, regardless of the persistent option.
 
 
 # -- Connected Dream Block --
+placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.below=Determines whether the Connected Dream Block should render in the background or foreground.
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.featherMode=Whether the Connected Dream Block has the Dream Block Feather controls enabled. Connected Dream Blocks only connect with other dream blocks with the same controls.
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.oneUse=Whether THIS Connected Dream Block should make its entire group shatter upon leaving it.
-placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.doubleRefill=Whether this group of Connected Dream Blocks should refill two dashes, instead of one.
+placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.refillCount=Number of dashes this group of Connected Dream Blocks should refill (-1 for default).
 
 # -- Connected Move Block --
-placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.fast=Whether the Connected Move Block should move faster.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.moveSpeed=The speed at which the block moves (accepts any number).
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).\nFor adding arrow textures, name the texture for tiles "tileset.png", the arrow textures "arrowXX.png" (00 thru 08), and the breaking "X" sprite as "x.png".
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.idleColor=The color of the arrow when not moving.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.pressedColor=The color of the arrow when moving.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.breakColor=The color of the arrow when breaking.
+
+
+# -- Equation Move Block --
+placements.entities.CommunalHelper/EquationMoveBlock.tooltips.equation=The equation used by the Equation Move Block.\n0: y = ax\n1: y = ax^2 + bx\n2: y = ax^3 + bx^2 + x\n3: y = a*sin bx\n4: y = a*cos bx\n5: y = ae^bx\n6: y = ax^b\n7: elliptic, x-scale = a, y-scale = b
+placements.entities.CommunalHelper/EquationMoveBlock.tooltips.moveSpeed=The speed at which the block moves (accepts any number).
+placements.entities.CommunalHelper/EquationMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.
+placements.entities.CommunalHelper/EquationMoveBlock.tooltips.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).\nFor adding arrow textures, name the texture for tiles "tileset.png", the arrow textures "arrowXX.png" (00 thru 08), and the breaking "X" sprite as "x.png".
+placements.entities.CommunalHelper/EquationMoveBlock.tooltips.idleColor=The color of the arrow when not moving.
+placements.entities.CommunalHelper/EquationMoveBlock.tooltips.pressedColor=The color of the arrow when moving.
+placements.entities.CommunalHelper/EquationMoveBlock.tooltips.breakColor=The color of the arrow when breaking.
 
 # -- Connected Swap Block --
+placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customGreenBlockTexture=The path to the custom green variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
+placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customRedBlockTexture=The path to the custom red variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
 placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.theme=The appearance of the Connected Swap Block.
 
 # -- Connected Zip Mover --
-placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=The appearance of the Connected Zip Mover. The Cliffside theme is a custom theme. 
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.customBlockTexture=Legacy. Replace this zip mover and use Custom Skin instead. The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.customSkin=The path to a directory with custom textures for this Connected Zip Mover. This is relative to Graphics/Atlases/Gameplay. If set, this overrides the Theme option. Setting the Cliffside theme is equivalent to setting this field to objects/CommunalHelper/connectedZipMover/cliffside, and customising Colors to match.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.theme=If Custom Skin is not set, this determines the appearance of the Connected Zip Mover. This also determines the sounds used. The Cliffside theme is a custom theme.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.permanent=Whether the Connected Zip Mover should stay completely static after stopping.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.waiting=Whether the Connected Zip Mover should wait for the player at each node. Only useful if has more than one node.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.ticking=Whether the Connected Zip Mover should be ticking at each node, forcing the player to reactivate it within a limited amount of time. Will return to initial position if the player doesn't reactivate it, or locks in place completely if "permanent" is on. Only useful if has more than one node.
+placements.entities.CommunalHelper/ConnectedZipMover.tooltips.colors=The background and rope colors for this Connected Zip Mover. Setting this value overrides the default values. This is a comma-seperated list of hex codes; the first is used as ther background color, the second as the main rope color, and the third as the lighter rope color (when present). For the Normal and Moon themes, this is 000000,663931,9b6157 by default; for the Cliffside theme, this is 171018,663931,9b6157 by default.
 
 
 # -- Dream Falling Block --
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.featherMode=Whether the Dream Falling Block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.oneUse=Whether the Dream Falling Block should shatter upon exit.
-placements.entities.CommunalHelper/DreamFallingBlock.tooltips.doubleRefill=Whether the Dream Falling Block should should refill two dashes, instead of one.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.refillCount=Number of dashes the Dream Falling Block should refill (-1 for default).
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.below=Determines whether the Dream Falling Block should render in the background or foreground.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.noCollide=Whether the Dream Falling Block should go through everything.
 
 # -- Dream Move Block --
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.direction=The direction in which the Dream Move Block moves.
-placements.entities.CommunalHelper/DreamMoveBlock.tooltips.fast=Whether the Dream Move Block should move faster.
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.refillCount=Number of dashes the Dream Move Block should refill (-1 for default).
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.moveSpeed=The speed at which the Dream Move Block moves (accepts any number).
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.noCollide=Whether the Dream Move Block should go through everything.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.oneUse=Whether the Dream Move Block should shatter upon exit.
-placements.entities.CommunalHelper/DreamMoveBlock.tooltips.oneUse=Whether the Dream Move Block should refill two dashes, instead of one.
 
 # -- Dream Refill --
 placements.entities.CommunalHelper/DreamRefill.tooltips.oneUse=Whether the Dream Refill should be only used once.
 
 # -- Dream Swap Block --
+placements.entities.CommunalHelper/DreamSwapBlock.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.noReturn=Whether the Dream Swap Block should return to its starting point or not.
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.featherMode=Whether the Dream Swap Block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.oneUse=Whether the Dream Swap Block should shatter upon exit.
-placements.entities.CommunalHelper/DreamSwapBlock.tooltips.doubleRefill=Whether the Dream Swap Block should refill two dashes, instead of one.
+placements.entities.CommunalHelper/DreamSwapBlock.tooltips.refillCount=Number of dashes the Dream Swap Block should refill (-1 for default).
 
 # -- Dream Switch Gate --
+placements.entities.CommunalHelper/DreamSwitchGate.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.oneUse=Whether the Dream Switch Gate should shatter upon exit.
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.permanent=Whether the Dream Switch Gate should stay at its node permanently after being activated for the entire level.
-placements.entities.CommunalHelper/DreamSwitchGate.tooltips.doubleRefill=Whether the Dream Switch Gate should refill two dashes, instead of one.
+placements.entities.CommunalHelper/DreamSwitchGate.tooltips.refillCount=Number of dashes the Dream Switch Block should refill (-1 for default).
+
+# -- Dream Flag Switch Gate --
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.flag=The session flag this switch gate reacts to. Give the same to multiple touch switches and switch gates to group them.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.icon=The name of the icon for the switch gate (relative to objects/MaxHelpingHand/flagSwitchGate), or "vanilla" for the default one.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.persistent=If enabled, the switch gate will stay open when the player dies or changes rooms.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.inactiveColor=The gate icon colour when not triggered yet.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.activeColor=The gate icon colour when triggered, but the group is not complete yet.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.finishColor=The gate icon colour when the group is complete.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.shakeTime=The time (in seconds) the block spends shaking before starting to move. Vanilla value is 0.5 seconds.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.moveTime=The time (in seconds) the block takes to move to its destination after shaking. Vanilla value is 1.8 seconds.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.moveEased=Whether the block should slow down before reaching its final position. If unchecked, the block will move at constant speed.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.allowReturn=Whether the block should return to its original position if the flag is turned off. Only works if the gate is persistent.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.moveSound=The sound played by the gate when it starts moving.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.finishedSound=The sound played by the gate when it is done moving.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.oneUse=Whether the Dream Switch Gate should shatter upon exit.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.refillCount=Number of dashes the Dream Switch Block should refill (-1 for default).
 
 # -- Dream Zip Mover --
+placements.entities.CommunalHelper/DreamZipMover.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamZipMover.tooltips.noReturn=Whether the Dream Zip Mover should return to its starting point or not.
 placements.entities.CommunalHelper/DreamZipMover.tooltips.dreamAesthetic=Optional look for this entity, mostly unused, but left there.
 placements.entities.CommunalHelper/DreamZipMover.tooltips.featherMode=Whether the Dream Zip Mover has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamZipMover.tooltips.oneUse=Whether the Dream Zip Mover should shatter upon exit.
+placements.entities.CommunalHelper/DreamZipMover.tooltips.refillCount=Number of dashes the Dream Zip Block should refill (-1 for default).
 placements.entities.CommunalHelper/DreamZipMover.tooltips.doubleRefill=Whether the Dream Zip Mover should refill two dashes, instead of one.
+placements.entities.CommunalHelper/DreamZipMover.tooltips.permanent=Whether this block should lock in place after being triggered.
+placements.entities.CommunalHelper/DreamZipMover.tooltips.waitforplayer=Whether this block requires the player to trigger it each node in the path.
+placements.entities.CommunalHelper/DreamZipMover.tooltips.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
+
+# -- Dream Floaty Space Block --
+placements.entities.CommunalHelper/DreamFloatySpaceBlock.tooltips.below=Determines whether this block should render in the background or foreground.
+placements.entities.CommunalHelper/DreamFloatySpaceBlock.tooltips.refillCount=Number of dashes the Dream Floaty Space Block should refill (-1 for default).
+placements.entities.CommunalHelper/DreamFloatySpaceBlock.tooltips.featherMode=Whether this block has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/DreamFloatySpaceBlock.tooltips.oneUse=Whether this block should shatter upon exit.
+
+# -- Dream Crumble Wall On Rumble --
+placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.below=Determines whether this block should render in the background or foreground.
+placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.refillCount=Number of dashes the Dream Floaty Space Block should refill (-1 for default).
+placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.featherMode=Whether this block has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.oneUse=Whether this block should shatter upon exit.
+placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.persistent=Whether this block should remain broken permanently.
+
+# -- Dream Tunnel Entry --
+placements.entities.CommunalHelper/DreamTunnelEntry.tooltips.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
+placements.entities.CommunalHelper/DreamTunnelEntry.tooltips.orientation=The way this Dream Tunnel Entry faces.
+placements.entities.CommunalHelper/DreamTunnelEntry.tooltips.depth=The depth value for this entity. Used to make it render below or above other entities.
+
+
+# -- Move Swap Block --
+placements.entities.CommunalHelper/MoveSwapBlock.tooltips.canSteer=Whether the Move Swap Block can be moved by the player.
+placements.entities.CommunalHelper/MoveSwapBlock.tooltips.direction=The direction the Move Swap Block moves in upon activation.
+placements.entities.CommunalHelper/MoveSwapBlock.tooltips.freezeOnSwap=Whether the block will continue moving while swapping.
+placements.entities.CommunalHelper/MoveSwapBlock.tooltips.moveAcceleration=The speed at which the block will move upon activation.
+placements.entities.CommunalHelper/MoveSwapBlock.tooltips.moveSpeed=The maximum speed of the block while moving.
+placements.entities.CommunalHelper/MoveSwapBlock.tooltips.returns=Whether the block will return after swapping.
+placements.entities.CommunalHelper/MoveSwapBlock.tooltips.swapSpeedMultiplier=The speed multiplier for swapping.
 
 
 # -- Heart Gem Shards --
@@ -92,22 +182,42 @@ placements.entities.CommunalHelper/CrystalHeart.tooltips.removeCameraTriggers=Wh
 
 
 # -- Move Block Redirect --
-placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.direction=Determines the direction the move block moves after being redirected.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.direction=Determines the direction the Move Block moves after being redirected.
 placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.fastRedirect=Skips the redirect animation.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.deleteBlock=Breaks the Move Block that goes through.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.operation=The type of operation to apply to the current Move Block speed.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.modifier=The number which with the operation is applied to the Move Block speed.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.oneUse=Whether this Move Block Redirect can only be used once or not.
 
 
-# -- Solid Extension --
+# -- Shielded Refill --
+placements.entities.CommunalHelper/ShieldedRefill.tooltips.twoDashes=Whether the refill should give two dashes, instead of one.
+placements.entities.CommunalHelper/ShieldedRefill.tooltips.bubbleRepel=Whether the player should bounce off the bubble.
+placements.entities.CommunalHelper/ShieldedRefill.tooltips.oneUse=Whether the refill should reappear after being collected.
+
+# -- Reset State Crystal --
+placements.entities.CommunalHelper/ResetStateCrystal.tooltips.oneUse=Whether the crystal should reappear after being collected.
 
 
 # -- Station Block --
+placements.entities.CommunalHelper/StationBlock.tooltips.allowWavedash=Whether Wavedashing on top of the Station Block is allowed or not even while it's not moving (doesn't bounce you upwards).
+placements.entities.CommunalHelper/StationBlock.tooltips.speedFactor=The factor by which the speed of the Station Block is multiplied. This value can only be between 0.1 and 2.
 placements.entities.CommunalHelper/StationBlock.tooltips.theme=Aspect theme of the Station Block.
 placements.entities.CommunalHelper/StationBlock.tooltips.behavior=Behavior of the Station Block. Pulling will make it move towards you, and Pushing does the opposite. This changes slightly the appearance of the block, depending on the behavior.
 placements.entities.CommunalHelper/StationBlock.tooltips.customBlockPath=This is the path you should specify if you're using a custom texture for the block, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>. The block should be a 24x24 texture, that preferably gets tiled correctly. Example: "catapillie/customStationBlock/custom_block", where the texture is located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/custom_block.png. DON'T add the ".png".
 placements.entities.CommunalHelper/StationBlock.tooltips.customArrowPath=This is the path you should specify if you're using custom textures for the arrow, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>/small, med, or big. There should be 16 sprites for each size, so 48 in total, labeled like so: small00, small01, 02, 03, etc.. up to small15, and same goes for med and big. The first texture is the arrow pointing UP, the fifth pointing RIGHT, the ninth pointing DOWN, and the 13th pointing LEFT, the other sprites in between are the animation going from one direction to another. You can take a look at how Communal Helper has them setup. Example: "catapillie/customStationBlock/arrow", where the arrow textures are located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/arrow/small00, small01... small15, same for med(00 - 15) & big(00 - 15). This should point to a directory, not an image.
 placements.entities.CommunalHelper/StationBlock.tooltips.customTrackPath=This is the path you should specify if you're using custom textures for the tracks, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>/node.png, trackv.png and trackh.png. There should be 3 textures in the folder you specified in the path, all of size 8x8, called: node.png, trackv.png, and trackh.png. The node.png texture is the point of intersection between tracks. trackv.png and trackh.png are the track horizontal & vertical textures, they should loop over seamlessly. Example: "catapillie/customStationBlock/tracks", where the texture are located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/tracks/node.png, trackv.png and trackh.png. This should point to a directory, not an image.
+placements.entities.CommunalHelper/StationBlock.tooltips.wavedashButtonColor=The hexadecimal color of the allowed wavedash button indicator when it's not pressed. Must not include the hash (#) symbol!
+placements.entities.CommunalHelper/StationBlock.tooltips.wavedashButtonPressedColor=The hexadecimal color of the allowed wavedash button indicator when it's pressed. Must not include the hash (#) symbol!
+placements.entities.CommunalHelper/StationBlock.tooltips.dashCornerCorrection=Makes wallbouncing off of this Station Block less precise (by allowing it up to 4 pixels deep into the block horizontally, dashing from the bottom).
 
 # -- Station Block Track --
+placements.entities.CommunalHelper/StationBlockTrack.tooltips.multiBlockTrack=Whether this set of tracks can support more than one Station Block.
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.horizontal=Whether the track should be handled as a horizontal one.
+placements.entities.CommunalHelper/StationBlockTrack.tooltips.trackSwitchState=The starting state of the track. "None" will make it unswitchable. "On" will make it turned on by defaul, and "Off" will make it turned off.
+
+# -- Track Switch Box --
+placements.entities.CommunalHelper/TrackSwitchBox.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
 
 
 # -- Summit Gem --
@@ -118,9 +228,71 @@ placements.entities.CommunalHelper/CustomSummitGemManager.tooltips.gemIds=Comma 
 placements.entities.CommunalHelper/CustomSummitGemManager.tooltips.melody=NOT Comma separated list of numbers from 0-7 for a custom melody during collection. Defaults to the gem index if not provided.
 placements.entities.CommunalHelper/CustomSummitGemManager.tooltips.heartOffset=Determines where the crystal heart will move to relative to this summit gem manager once all gems are collected.
 
+
 # -- Synced Zip Mover Activation Controller --
 placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.zipMoverSpeedMultiplier=Speed Multiplier for the controlled Zip Movers.
 placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.colorCode=Target color code.
 
 
+# -- Melvin -- 
+placements.entities.CommunalHelper/Melvin.tooltips.weakTop=Whether this Melvin can be dashed into from above.
+placements.entities.CommunalHelper/Melvin.tooltips.weakBottom=Whether this Melvin can be dashed into from below.
+placements.entities.CommunalHelper/Melvin.tooltips.weakLeft=Whether this Melvin can be dashed into from the left.
+placements.entities.CommunalHelper/Melvin.tooltips.weakRight=Whether this Melvin can be dashed into from the right.
 
+
+# -- Timed Trigger Spikes --
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.names.Grouped=Grouping
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.names.Grouped=Grouping
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.names.Grouped=Grouping
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.names.Grouped=Grouping
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.names.type=Texture
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.names.type=Texture
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.names.type=Texture
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.names.type=Texture
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+
+
+# -- Input Flag Controller --
+placements.entities.CommunalHelper/InputFlagController.tooltips.flags=Multiple flags can be separated by commas, and sequences of flags can be separated by semi-colons.
+placements.entities.CommunalHelper/InputFlagController.tooltips.toggle=If enabled, flags will be toggled and the sequence will loop. If disabled, flags will be enable once.
+placements.entities.CommunalHelper/InputFlagController.tooltips.resetFlags=If enabled, all specified flags will be disabled upon leaving the room this entity is in.
+placements.entities.CommunalHelper/InputFlagController.tooltips.delay=The minimum delay in seconds between inputs.
+placements.entities.CommunalHelper/InputFlagController.tooltips.grabOverride=Overrides the user's button binding to use the grab bind instead.
+
+
+# -- Dream Booster --
+placements.entities.CommunalHelper/DreamBooster.tooltips.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+
+
+# -- Surface Sound Panel --
+placements.entities.CommunalHelper/SurfaceSoundPanel.tooltips.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
+
+
+# -- Triggers --
+
+# -- Music Param Trigger --
+placements.triggers.CommunalHelper/MusicParamTrigger.tooltips.enterValue=The value to which the parameter(s) are set when the player is touching the trigger.
+placements.triggers.CommunalHelper/MusicParamTrigger.tooltips.exitValue=The value to which the parameter(s) are set when the player is outside the trigger.
+placements.triggers.CommunalHelper/MusicParamTrigger.tooltips.param=The name of the affected parameters. You can specify more than one parameter by separating them with a comma (,).
+
+# -- Switch Track Trigger --
+placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.oneUse=Allows for only one use of this trigger.
+placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.flash=Whether the screen should flash and shake when triggered.
+placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)

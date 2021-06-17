@@ -7,36 +7,96 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper {
 
-    [CustomEntity("CommunalHelper/DreamSwitchGate")]
-    class DreamSwitchGate : CustomDreamBlock {
-        private static readonly Color inactiveColor = Calc.HexToColor("5fcde4");
-        private static readonly Color activeColor = Color.White;
-        private static readonly Color finishColor = Calc.HexToColor("f141df");
+    /*
+     * Lots of stuff taken from max480's Helping Hand Flag Switch Gate entity
+     * https://github.com/max4805/MaxHelpingHand/blob/master/Entities/FlagSwitchGate.cs
+     */
+
+    [CustomEntity("CommunalHelper/DreamSwitchGate",
+        "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate = DreamFlagSwitchGate")]
+    public class DreamSwitchGate : CustomDreamBlock {
         private static ParticleType[] P_BehindDreamParticles;
+
+        private ParticleType P_RecoloredFire;
+        private ParticleType P_RecoloredFireBack;
 
         private bool permanent;
 
         private Sprite icon;
+        private Vector2 iconOffset;
         private Wiggler wiggler;
 
         private Vector2 node;
 
         private SoundSource openSfx;
 
-        public DreamSwitchGate(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("oneUse"), data.Bool("featherMode"), data.Bool("doubleRefill"), data.Bool("below"), data.Bool("permanent")) { }
+        public int ID { get; private set; }
+        public string Flag { get; private set; }
 
-        public DreamSwitchGate(Vector2 position, int width, int height, Vector2 node, bool oneUse, bool featherMode, bool doubleRefill, bool below, bool permanent)
-            : base(position, width, height, featherMode, oneUse, doubleRefill, below) {
+        public bool Triggered { get; private set; }
+
+        private Color inactiveColor = Calc.HexToColor("5fcde4");
+        private Color activeColor = Color.White;
+        private Color finishColor = Calc.HexToColor("f141df");
+
+        private float shakeTime;
+        private float moveTime;
+        private bool moveEased;
+
+        private string moveSound;
+        private string finishedSound;
+
+        private bool allowReturn;
+
+        private bool isFlagSwitchGate;
+
+        public static DreamSwitchGate DreamFlagSwitchGate(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
+            entityData.Values["permanent"] = entityData.Bool("persistent");
+            return new DreamSwitchGate(entityData, offset) { isFlagSwitchGate = true };
+        }
+
+        public DreamSwitchGate(EntityData data, Vector2 offset)
+            : this(data.Position + offset, data, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("oneUse"), data.Bool("featherMode"), GetRefillCount(data), data.Bool("below"), data.Bool("permanent")) { }
+
+        public DreamSwitchGate(Vector2 position, EntityData data, int width, int height, Vector2 node, bool oneUse, bool featherMode, int refillCount, bool below, bool permanent)
+            : base(position, width, height, featherMode, oneUse, refillCount, below) {
 
             this.permanent = permanent;
             this.node = node;
-            icon = new Sprite(GFX.Game, "objects/switchgate/icon");
+
+            isFlagSwitchGate = data.Bool("isFlagSwitchGate");
+
+            ID = data.ID;
+            Flag = data.Attr("flag");
+
+            inactiveColor = Calc.HexToColor(data.Attr("inactiveColor", "5FCDE4"));
+            activeColor = Calc.HexToColor(data.Attr("activeColor", "FFFFFF"));
+            finishColor = Calc.HexToColor(data.Attr("finishColor", "F141DF"));
+
+            shakeTime = data.Float("shakeTime", 0.5f);
+            moveTime = data.Float("moveTime", 1.8f);
+            moveEased = data.Bool("moveEased", true);
+
+            moveSound = data.Attr("moveSound", SFX.game_gen_touchswitch_gate_open);
+            finishedSound = data.Attr("finishedSound", SFX.game_gen_touchswitch_gate_finish);
+
+            allowReturn = data.Bool("allowReturn");
+
+            P_RecoloredFire = new ParticleType(TouchSwitch.P_Fire) {
+                Color = finishColor
+            };
+            P_RecoloredFireBack = new ParticleType(TouchSwitch.P_Fire) {
+                Color = inactiveColor
+            };
+
+            string iconAttribute = data.Attr("icon", "vanilla");
+            icon = new Sprite(GFX.Game, iconAttribute == "vanilla" ? "objects/switchgate/icon" : $"objects/MaxHelpingHand/flagSwitchGate/{iconAttribute}/icon");
             icon.Add("spin", "", 0.1f, "spin");
             icon.Play("spin");
             icon.Rate = 0f;
             icon.Color = inactiveColor;
             icon.CenterOrigin();
+            iconOffset = new Vector2(Width, Height) / 2f;
             Add(wiggler = Wiggler.Create(0.5f, 4f, scale => {
                 icon.Scale = Vector2.One * (1f + scale);
             }));
@@ -46,13 +106,32 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            if (Switch.CheckLevelFlag(SceneAs<Level>())) {
+
+            bool check = isFlagSwitchGate ?
+                (SceneAs<Level>().Session.GetFlag(Flag + "_gate" + ID) && !allowReturn) || SceneAs<Level>().Session.GetFlag(Flag) :
+                Switch.CheckLevelFlag(SceneAs<Level>());
+
+            if (check) {
+                if (allowReturn && isFlagSwitchGate) {
+                    Add(new Coroutine(MoveBackAndForthSequence(Position, node, startAtNode: true)));
+                }
+
                 MoveTo(node);
                 icon.Rate = 0f;
                 icon.SetAnimationFrame(0);
                 icon.Color = finishColor;
             } else {
-                Add(new Coroutine(Sequence(node)));
+                if (isFlagSwitchGate) {
+                    if (allowReturn) {
+                        // go back and forth as needed.
+                        Add(new Coroutine(MoveBackAndForthSequence(Position, node, startAtNode: false)));
+                    } else {
+                        // we are only going to the node, then stopping.
+                        Add(new Coroutine(MaxHelpingHandSequence(node, goingBack: false)));
+                    }
+                } else {
+                    Add(new Coroutine(CommunalHelperSequence(node)));
+                }
             }
         }
 
@@ -72,7 +151,20 @@ namespace Celeste.Mod.CommunalHelper {
             Position = position;
         }
 
-        private IEnumerator Sequence(Vector2 node) {
+        private IEnumerator MoveBackAndForthSequence(Vector2 position, Vector2 node, bool startAtNode) {
+            while (true) {
+                if (!startAtNode) {
+                    // go forth
+                    yield return new SwapImmediately(MaxHelpingHandSequence(node, goingBack: false));
+                }
+
+                // go back
+                yield return new SwapImmediately(MaxHelpingHandSequence(position, goingBack: true));
+                startAtNode = false;
+            }
+        }
+
+        private IEnumerator CommunalHelperSequence(Vector2 node) {
             this.node = node;
 
             Vector2 start = Position;
@@ -184,6 +276,172 @@ namespace Celeste.Mod.CommunalHelper {
                 }
             }
             Collidable = collidable2;
+        }
+
+        private IEnumerator MaxHelpingHandSequence(Vector2 node, bool goingBack) {
+            Vector2 start = Position;
+
+            Color fromColor, toColor;
+
+            if (!goingBack) {
+                fromColor = inactiveColor;
+                toColor = finishColor;
+                while ((!Triggered || allowReturn) && !SceneAs<Level>().Session.GetFlag(Flag)) {
+                    yield return null;
+                }
+            } else {
+                fromColor = finishColor;
+                toColor = inactiveColor;
+                while (SceneAs<Level>().Session.GetFlag(Flag)) {
+                    yield return null;
+                }
+            }
+
+            yield return 0.1f;
+            if (ShouldCancelMove(goingBack))
+                yield break;
+
+            // animate the icon
+            openSfx.Play(moveSound);
+            if (shakeTime > 0f) {
+                StartShaking(shakeTime);
+                while (icon.Rate < 1f) {
+                    icon.Color = Color.Lerp(fromColor, activeColor, icon.Rate);
+                    icon.Rate += Engine.DeltaTime / shakeTime;
+                    yield return null;
+                    if (ShouldCancelMove(goingBack))
+                        yield break;
+                }
+            } else {
+                icon.Rate = 1f;
+            }
+
+            yield return 0.1f;
+            if (ShouldCancelMove(goingBack))
+                yield break;
+
+            // move the switch gate, emitting particles along the way
+            int particleAt = 0;
+            Tween tween = Tween.Create(Tween.TweenMode.Oneshot, moveEased ? Ease.CubeOut : null, moveTime + (moveEased ? 0.2f : 0f), start: true);
+            tween.OnUpdate = tweenArg => {
+                MoveTo(Vector2.Lerp(start, node, tweenArg.Eased));
+                if (Scene.OnInterval(0.1f)) {
+                    particleAt++;
+                    particleAt %= 2;
+                    for (int tileX = 0; tileX < Width / 8f; tileX++) {
+                        for (int tileY = 0; tileY < Height / 8f; tileY++) {
+                            if ((tileX + tileY) % 2 == particleAt) {
+                                SceneAs<Level>().ParticlesBG.Emit(SwitchGate.P_Behind,
+                                    Position + new Vector2(tileX * 8, tileY * 8) + Calc.Random.Range(Vector2.One * 2f, Vector2.One * 6f));
+                            }
+                        }
+                    }
+                }
+            };
+            Add(tween);
+
+            float moveTimeLeft = moveTime;
+            while (moveTimeLeft > 0f) {
+                yield return null;
+                moveTimeLeft -= Engine.DeltaTime;
+                if (ShouldCancelMove(goingBack, tween))
+                    yield break;
+            }
+
+            bool collidableBackup = Collidable;
+            Collidable = false;
+
+            // collide dust particles on the left
+            if (node.X <= start.X) {
+                Vector2 add = new Vector2(0f, 2f);
+                for (int tileY = 0; tileY < Height / 8f; tileY++) {
+                    Vector2 collideAt = new Vector2(Left - 1f, Top + 4f + (tileY * 8));
+                    Vector2 noCollideAt = collideAt + Vector2.UnitX;
+                    if (Scene.CollideCheck<Solid>(collideAt) && !Scene.CollideCheck<Solid>(noCollideAt)) {
+                        SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, (float) Math.PI);
+                        SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, (float) Math.PI);
+                    }
+                }
+            }
+
+            // collide dust particles on the rigth
+            if (node.X >= start.X) {
+                Vector2 add = new Vector2(0f, 2f);
+                for (int tileY = 0; tileY < Height / 8f; tileY++) {
+                    Vector2 collideAt = new Vector2(Right + 1f, Top + 4f + (tileY * 8));
+                    Vector2 noCollideAt = collideAt - Vector2.UnitX * 2f;
+                    if (Scene.CollideCheck<Solid>(collideAt) && !Scene.CollideCheck<Solid>(noCollideAt)) {
+                        SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, 0f);
+                        SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, 0f);
+                    }
+                }
+            }
+
+            // collide dust particles on the top
+            if (node.Y <= start.Y) {
+                Vector2 add = new Vector2(2f, 0f);
+                for (int tileX = 0; tileX < Width / 8f; tileX++) {
+                    Vector2 collideAt = new Vector2(Left + 4f + (tileX * 8), Top - 1f);
+                    Vector2 noCollideAt = collideAt + Vector2.UnitY;
+                    if (Scene.CollideCheck<Solid>(collideAt) && !Scene.CollideCheck<Solid>(noCollideAt)) {
+                        SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, -(float) Math.PI / 2f);
+                        SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, -(float) Math.PI / 2f);
+                    }
+                }
+            }
+
+            // collide dust particles on the bottom
+            if (node.Y >= start.Y) {
+                Vector2 add = new Vector2(2f, 0f);
+                for (int tileX = 0; tileX < Width / 8f; tileX++) {
+                    Vector2 collideAt = new Vector2(Left + 4f + (tileX * 8), Bottom + 1f);
+                    Vector2 noCollideAt = collideAt - Vector2.UnitY * 2f;
+                    if (Scene.CollideCheck<Solid>(collideAt) && !Scene.CollideCheck<Solid>(noCollideAt)) {
+                        SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, (float) Math.PI / 2f);
+                        SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, (float) Math.PI / 2f);
+                    }
+                }
+            }
+            Collidable = collidableBackup;
+
+            // moving is over
+            Audio.Play(finishedSound, Position);
+            StartShaking(0.2f);
+            while (icon.Rate > 0f) {
+                icon.Color = Color.Lerp(activeColor, toColor, 1f - icon.Rate);
+                icon.Rate -= Engine.DeltaTime * 4f;
+                yield return null;
+                if (ShouldCancelMove(goingBack))
+                    yield break;
+            }
+            icon.Rate = 0f;
+            icon.SetAnimationFrame(0);
+            wiggler.Start();
+
+            // emit fire particles if the block is not behind a solid.
+            collidableBackup = Collidable;
+            Collidable = false;
+            if (!Scene.CollideCheck<Solid>(Center)) {
+                for (int i = 0; i < 32; i++) {
+                    float angle = Calc.Random.NextFloat((float) Math.PI * 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(goingBack ? P_RecoloredFireBack : P_RecoloredFire, Position + iconOffset + Calc.AngleToVector(angle, 4f), angle);
+                }
+            }
+            Collidable = collidableBackup;
+        }
+
+        private bool ShouldCancelMove(bool goingBack, Tween tween = null) {
+            if (allowReturn && SceneAs<Level>().Session.GetFlag(Flag) == goingBack) {
+                // whoops, the flag changed too fast! we need to backtrack.
+                if (tween != null) {
+                    Remove(tween);
+                }
+
+                icon.Rate = 0f;
+                icon.SetAnimationFrame(0);
+                return true;
+            }
+            return false;
         }
 
         public static void InitializeParticles() {

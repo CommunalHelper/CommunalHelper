@@ -1,0 +1,9 @@
+style = "default"
+indent = 4
+always_for_in = true
+remove_extra_newlines = true
+whitespace_in_kwargs = false
+align_struct_field = true
+align_conditional = true
+align_assignment = true
+align_pair_arrow = true

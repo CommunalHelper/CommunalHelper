@@ -21,6 +21,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public float percent = 0f;
         }
 
+        public enum TrackSwitchState {
+            None, On, Off
+        }
+        public TrackSwitchState SwitchState;
+        private TrackSwitchState initialSwitchState;
+
         public bool HasGroup { get; private set; }
         public bool MasterOfGroup { get; private set; }
         public StationBlockTrack master;
@@ -30,7 +36,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private List<Node> Track;
         private List<StationBlockTrack> Group;
-        private MTexture trackSprite;
+        private bool multiBlockTrack = false;
+
+        private MTexture trackSprite, disabledTrackSprite;
         private List<MTexture> nodeSprite;
 
         private float sparkDirFromA, sparkDirFromB, sparkDirToA, sparkDirToB, length;
@@ -40,6 +48,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool horizontal;
         private bool trackConstantLooping = false;
         public float trackOffset = 0f;
+        private float trackStatePercent;
 
         private static readonly string TracksPath = "objects/CommunalHelper/stationBlock/tracks/";
 
@@ -47,9 +56,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             : base(data.Position + offset) {
             Depth = Depths.SolidsBelow;
 
+            initialSwitchState = SwitchState = data.Enum("trackSwitchState", TrackSwitchState.None);
+            if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off && initialSwitchState != TrackSwitchState.None)
+                Switch(TrackSwitchState.Off);
+
+            trackStatePercent = SwitchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f;
+
             horizontal = data.Bool("horizontal");
+            multiBlockTrack = data.Bool("multiBlockTrack", false);
             Collider = new Hitbox(horizontal ? data.Width : 8, horizontal ? 8 : data.Height);
-            
+
             nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
             nodeRect2 = new Rectangle((int) (X + Width - 8), (int) (Y + Height - 8), 8, 8);
 
@@ -90,41 +106,60 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Group = new List<StationBlockTrack>();
                 AddToGroupAndFindChildren(this);
 
-                StationBlock block = null;
+                bool multiBlock = false;
+                foreach (StationBlockTrack t in Group) {
+                    if (t.multiBlockTrack) {
+                        multiBlock = true;
+                        break;
+                    }
+                }
+
+                List<Tuple<StationBlock, Node>> toAttach = new List<Tuple<StationBlock, Node>>();
+                bool exit = false;
                 foreach (Node node in Track) {
                     foreach (StationBlock entity in Scene.Tracker.GetEntities<StationBlock>()) {
                         if (!entity.IsAttachedToTrack &&
                             Math.Abs(node.Center.X - entity.Center.X) <= 4 &&
                             Math.Abs(node.Center.Y - entity.Center.Y) <= 4) {
-                            block = entity;
-                            break;
+                            toAttach.Add(new Tuple<StationBlock, Node>(entity, node));
+                            if (!multiBlock) {
+                                exit = true;
+                                break;
+                            }
                         }
                     }
-
-                    if (block == null)
-                        continue;
-
-                    // Found block to attach.
-                    block.Attach(node);
-                    OffsetTrack(block.Center - node.Center);
-                    break;
+                    if (exit)
+                        break;
                 }
 
-                if (block == null) {
-                    SetTrackTheme(StationBlock.Theme.Normal, false);
+                if (toAttach.Count == 0) {
+                    SetTrackTheme(StationBlock.Themes.Normal, false);
                 } else {
-                    SetTrackTheme(block.theme, block.reverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
+                    bool setTheme = false;
+                    foreach (Tuple<StationBlock, Node> tuple in toAttach) {
+                        // Found block(s) to attach.
+                        Node node = tuple.Item2;
+                        StationBlock block = tuple.Item1;
+
+                        block.Attach(node);
+                        if (!setTheme) {
+                            OffsetTrack(block.Center - node.Center);
+                            SetTrackTheme(block.Theme, block.reverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
+                            setTheme = true;
+                        }
+                        block.Position += node.Center - block.Center;
+                    }
                 }
             }
         }
 
-        private void SetTrackTheme(StationBlock.Theme theme, bool reversedControls, MTexture customNode = null, MTexture customTrackH = null, MTexture customTrackV = null) {
+        private void SetTrackTheme(StationBlock.Themes theme, bool reversedControls, MTexture customNode = null, MTexture customTrackH = null, MTexture customTrackV = null) {
             if (customNode == null && customTrackH == null && customTrackV == null) {
                 string node, trackV, trackH;
                 bool constantLooping;
                 switch (theme) {
                     default:
-                    case StationBlock.Theme.Normal:
+                    case StationBlock.Themes.Normal:
                         constantLooping = false;
                         if (reversedControls) {
                             node = "altTrack/ball";
@@ -137,7 +172,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         }
                         break;
 
-                    case StationBlock.Theme.Moon:
+                    case StationBlock.Themes.Moon:
                         constantLooping = true;
                         if (reversedControls) {
                             node = "altMoonTrack/node";
@@ -153,6 +188,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 foreach (StationBlockTrack track in Group) {
                     track.trackConstantLooping = constantLooping;
                     track.trackSprite = GFX.Game[TracksPath + (track.horizontal ? trackH : trackV)];
+                    track.disabledTrackSprite = GFX.Game[TracksPath + "outline/" + (track.horizontal ? "h" : "v")];
                     track.nodeSprite = GFX.Game.GetAtlasSubtextures(TracksPath + node);
                 }
             } else {
@@ -262,6 +298,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        public override void Update() {
+            base.Update();
+            //trackStatePercent = Calc.Approach(trackStatePercent, switchState == TrackSwitchState.On ? 1f : 0f, Engine.DeltaTime);
+            trackStatePercent += ((SwitchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f) - trackStatePercent) / 4 * Engine.DeltaTime * 25;
+        }
+
         public override void Render() {
             base.Render();
 
@@ -278,9 +320,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void DrawPipe() {
-            for (int i = (int) mod(trackConstantLooping ? Scene.TimeActive * 14 : trackOffset, 8); i <= length; i += 8) {
+            if (SwitchState != TrackSwitchState.None)
+                for (int i = 0; i <= length; i += 8) {
+                    disabledTrackSprite.Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i), Vector2.Zero, Color.White * trackStatePercent);
+                }
+
+            int trackpercent = (int) (trackStatePercent * (length + 2));
+
+            for (int i = (int) Util.Mod(trackConstantLooping ? Scene.TimeActive * 14 : trackOffset, 8) + trackpercent; i <= length; i += 8) {
                 trackSprite.Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i));
             }
+
         }
 
         public void CreateSparks(Vector2 position, ParticleType p) {
@@ -289,8 +339,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             SceneAs<Level>().ParticlesBG.Emit(p, position + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
             SceneAs<Level>().ParticlesBG.Emit(p, position - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
         }
-        private static float mod(float x, float m) {
-            return (x % m + m) % m;
+
+        public static void SwitchTracks(Scene scene, TrackSwitchState state) {
+            foreach (StationBlockTrack track in scene.Tracker.GetEntities<StationBlockTrack>()) {
+                if (track.MasterOfGroup) {
+                    foreach (StationBlockTrack child in track.Group) {
+                        child.Switch(state);
+                    }
+                }
+            }
+        }
+
+        private void Switch(TrackSwitchState state) {
+            if (initialSwitchState == TrackSwitchState.None)
+                return;
+            SwitchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
         }
     }
 }

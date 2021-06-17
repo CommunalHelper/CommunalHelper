@@ -27,11 +27,11 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
         #endregion
 
-        public static int StDreamTunnelDash;
+        public static int StDreamTunnelDash = -1;
         private static bool hasDreamTunnelDash;
         public static bool HasDreamTunnelDash {
             get { return hasDreamTunnelDash || CommunalHelperModule.Settings.AlwaysActiveDreamRefillCharge; }
-            set { 
+            set {
                 hasDreamTunnelDash = value;
             }
         }
@@ -62,7 +62,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 Player_DashCoroutine);
 
             IL.Celeste.Player.IsRiding_Solid += State_DreamDashEqual;
-            IL.Celeste.Player.IsRiding_JumpThru += State_DreamDashEqual_And;
+            IL.Celeste.Player.IsRiding_JumpThru += Player_IsRiding_JumpThru;
             IL.Celeste.Player.OnCollideH += State_DreamDashEqual;
             IL.Celeste.Player.OnCollideV += State_DreamDashEqual;
             hook_Player_orig_Update = new ILHook(
@@ -78,7 +78,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
             IL.Celeste.FakeWall.Update += State_DreamDashNotEqual;
             IL.Celeste.Spring.OnCollide += State_DreamDashEqual;
-            IL.Celeste.Solid.Update += State_DreamDashNotEqual;
+            IL.Celeste.Solid.Update += State_DreamDashNotEqual_And;
         }
 
         public static void Unload() {
@@ -93,7 +93,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
             hook_Player_DashCoroutine.Dispose();
             IL.Celeste.Player.IsRiding_Solid -= State_DreamDashEqual;
-            IL.Celeste.Player.IsRiding_JumpThru -= State_DreamDashEqual;
+            IL.Celeste.Player.IsRiding_JumpThru -= Player_IsRiding_JumpThru;
             IL.Celeste.Player.OnCollideH -= State_DreamDashEqual;
             IL.Celeste.Player.OnCollideV -= State_DreamDashEqual;
             hook_Player_orig_Update.Dispose();
@@ -106,6 +106,9 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             IL.Celeste.FakeWall.Update -= State_DreamDashNotEqual;
             IL.Celeste.Spring.OnCollide -= State_DreamDashEqual;
             IL.Celeste.Solid.Update -= State_DreamDashNotEqual_And;
+
+            if (StDreamTunnelDash != -1)
+                Extensions.UnregisterState(StDreamTunnelDash);
         }
 
         public static void InitializeParticles() {
@@ -124,11 +127,15 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player player, Vector2 position, PlayerSpriteMode spriteMode) {
             orig(player, position, spriteMode);
             HasDreamTunnelDash = dreamTunnelDashAttacking = false;
+
+            if (StDreamTunnelDash != -1)
+                Extensions.UnregisterState(StDreamTunnelDash);
             StDreamTunnelDash = player.StateMachine.AddState(player.DreamTunnelDashUpdate, null, player.DreamTunnelDashBegin, player.DreamTunnelDashEnd);
+            Extensions.RegisterState(StDreamTunnelDash, "StDreamTunnelDash");
         }
 
         private static void Player_DashBegin(On.Celeste.Player.orig_DashBegin orig, Player self) {
-            orig(self);            
+            orig(self);
 
             if (HasDreamTunnelDash) {
                 dreamTunnelDashAttacking = true;
@@ -253,6 +260,13 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             return orig(self, dir, evenIfInvincible, registerDeathInStats);
         }
 
+        private static void Player_IsRiding_JumpThru(ILContext il) {
+            if (il.Instrs[0].OpCode == OpCodes.Nop)
+                State_DreamDashEqual(il);
+            else
+                State_DreamDashNotEqual_And(il);
+        }
+
         // Patch any method that checks the player's State
         /// <summary>
         /// Use if decompilation says <c>State==9</c> and NOT followed by <c>&amp;&amp;</c>.
@@ -278,7 +292,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         /// <param name="equal">Whether the decompilation says State == 9</param>
         /// <param name="and">Whether the check is followed by <c>&amp;&amp;</c></param>
         private static void Check_State_DreamDash(ILCursor cursor, bool equal, bool and = false) {
-            if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash))) {
+            if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash) &&
+                instr.Previous != null && instr.Previous.MatchCallvirt<StateMachine>("get_State"))) {
                 Instruction idx = cursor.Next;
                 // Duplicate the Player State
                 cursor.Emit(OpCodes.Dup);
@@ -294,9 +309,9 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 // Retrieve the next break instruction that checks equality
                 Instruction breakInstr = cursor.Clone().GotoNext(instr => instr.Match(OpCodes.Beq_S) || instr.Match(OpCodes.Bne_Un_S) || instr.Match(OpCodes.Ceq)).Next;
 
-                // For SteamFNA, if there is a check for equality just break to after it after pushing true to the stack
+                // For SteamFNA, if there is a check for equality just break to after it after pushing the appropriate value to the stack
                 if (breakInstr.OpCode == OpCodes.Ceq) {
-                    cursor.Emit(OpCodes.Ldc_I4_1);
+                    cursor.Emit(equal ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
                     cursor.Emit(OpCodes.Br_S, breakInstr.Next);
                 }
                 // If our intended behaviour matches what the break instruction is checking for, break to its target
@@ -305,6 +320,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 // Otherwise, break to after the break instruction (skip it)
                 else
                     cursor.Emit(OpCodes.Br_S, breakInstr.Next);
+
                 cursor.Goto(idx, MoveType.After);
             }
         }
@@ -384,11 +400,11 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
         private static bool DreamTunneledIntoDeath(this Player player) {
             if (player.CollideCheck<DreamBlock>()) {
-                for (int i = 1; i <= 5; i++) {
-                    for (int j = -1; j <= 1; j += 2) {
-                        for (int k = 1; k <= 5; k++) {
-                            for (int l = -1; l <= 1; l += 2) {
-                                Vector2 value = new Vector2(i * j, k * l);
+                for (int x = 1; x <= 5; x++) {
+                    for (int signX = -1; signX <= 1; signX += 2) {
+                        for (int y = 1; y <= 5; y++) {
+                            for (int signY = -1; signY <= 1; signY += 2) {
+                                Vector2 value = new Vector2(x * signX, y * signY);
                                 if (!player.CollideCheck<DreamBlock>(player.Position + value)) {
                                     player.Position += value;
                                     return false;
@@ -451,7 +467,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                     }
                 }
 
-                solid = solid ?? player.CollideFirst<Solid, DreamBlock>(player.Position + dir);
+                solid ??= player.CollideFirst<Solid, DreamBlock>(player.Position + dir);
                 if (solid != null) {
                     DynData<Player> playerData = player.GetData();
                     player.StateMachine.State = StDreamTunnelDash;
@@ -475,13 +491,16 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 player.Add(dreamSfxLoop);
                 playerData["dreamSfxLoop"] = dreamSfxLoop;
             }
-            
+
             // Extra correction for fast moving solids, this does not cause issues with dashdir leniency
             Vector2 dir = player.DashDir.Sign();
             if (!player.CollideCheck<Solid, DreamBlock>() && player.CollideCheck<Solid, DreamBlock>(player.Position + dir)) {
                 player.NaiveMove(dir);
             }
-            
+
+            // Hackfix to unduck when downdiagonal dashing next to solid, caused by forcing the player into the solid as part of fast-moving solid correction
+            if (player.DashDir.Y > 0)
+                player.Ducking = false;
 
             player.Speed = player.DashDir * Player_DashSpeed;
             player.TreatNaive = true;
