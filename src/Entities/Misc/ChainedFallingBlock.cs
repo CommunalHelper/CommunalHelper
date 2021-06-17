@@ -4,10 +4,6 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ChainedFallingBlock")]
@@ -25,14 +21,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool centeredChain;
         private bool chainOutline;
 
+        private bool indicator;
+        private float pathLerp;
+
         private EventInstance rattle;
 
         private static MTexture chain, chainEnd;
 
         public ChainedFallingBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Char("tiletype", '3'), data.Bool("climbFall", true), data.Bool("behind"), data.Int("fallDistance"), data.Bool("centeredChain"), data.Bool("chainOutline", true)) { }
+            : this(data.Position + offset, data.Width, data.Height, data.Char("tiletype", '3'), data.Bool("climbFall", true), data.Bool("behind"), data.Int("fallDistance"), data.Bool("centeredChain"), data.Bool("chainOutline", true), data.Bool("trajectoryIndicator")) { }
 
-        public ChainedFallingBlock(Vector2 position, int width, int height, char tileType, bool climbFall, bool behind, int maxFallDistance, bool centeredChain, bool chainOutline)
+        public ChainedFallingBlock(Vector2 position, int width, int height, char tileType, bool climbFall, bool behind, int maxFallDistance, bool centeredChain, bool chainOutline, bool indicator)
             : base(position, width, height, safe: false) {
             this.climbFall = climbFall;
             this.tileType = tileType;
@@ -41,6 +40,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             chainStopY = startY + maxFallDistance;
             this.centeredChain = centeredChain || Width <= 8;
             this.chainOutline = chainOutline;
+            this.indicator = indicator;
 
             Calc.PushRandom(Calc.Random.Next());
             Add(tiles = GFX.FGAutotiler.GenerateBox(tileType, width / 8, height / 8).TileGrid);
@@ -95,6 +95,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             while (!triggered && !PlayerFallCheck()) {
                 yield return null;
             }
+            triggered = true;
 
             Vector2 rattleSoundPos = new Vector2(Center.X, startY);
             while (true) {
@@ -124,7 +125,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         break;
                     } else if (Y > chainStopY && !chainShattered) {
                         held = true;
-                        MoveToY(chainStopY);
+                        MoveToY(chainStopY, LiftSpeed.Y);
                         break;
                     }
                     Audio.Position(rattle, rattleSoundPos);
@@ -215,7 +216,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             chainEnd.Draw(top);
         }
 
+        public override void Update() {
+            base.Update();
+
+            if (triggered && indicator)
+                pathLerp = Calc.Approach(pathLerp, 1f, Engine.DeltaTime * 2f);
+        }
+
         public override void Render() {
+            if (triggered && indicator && !held && !chainShattered) {
+                float toY = startY + (chainStopY + Height - startY) * Ease.ExpoOut(pathLerp);
+                Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
+            }
+
             if (centeredChain) {
                 RenderChain(Center.X - 4f);
             } else {
