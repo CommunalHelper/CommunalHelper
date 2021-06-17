@@ -14,7 +14,7 @@ using Ahorn.CommunalHelper
 )
 
 const placements = Ahorn.PlacementDict(
-    "Attached Falling Block (Communal Helper)" => Ahorn.EntityPlacement(
+    "Falling Block (Attached) (Communal Helper)" => Ahorn.EntityPlacement(
         AttachedFallingBlock,
         "rectangle",
         Dict{String, Any}(),
