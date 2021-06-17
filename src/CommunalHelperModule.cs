@@ -125,6 +125,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamBooster.InitializeParticles();
 
+            ChainedFallingBlock.InitializeTextures();
+
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
             if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule dashelineModule)) {

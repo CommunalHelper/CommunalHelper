@@ -17,9 +17,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool triggered;
         private bool climbFall;
+        private bool held;
+        private bool chainShattered;
 
-        private float chainStopY;
+        private float chainStopY, startY;
         private bool centeredChain;
+
+        private static MTexture chain, chainEnd;
 
         public ChainedFallingBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Char("tiletype", '3'), data.Bool("climbFall", true), data.Bool("behind"), data.Int("fallDistance"), data.Bool("centeredChain")) { }
@@ -29,7 +33,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             this.climbFall = climbFall;
             this.tileType = tileType;
 
-            chainStopY = Y + maxFallDistance;
+            startY = Y;
+            chainStopY = startY + maxFallDistance;
             this.centeredChain = centeredChain || Width <= 8;
 
             Calc.PushRandom(Calc.Random.Next());
@@ -102,8 +107,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Level level = SceneAs<Level>();
                     speed = Calc.Approach(speed, 160f, 500f * Engine.DeltaTime);
                     if (MoveVCollideSolids(speed * Engine.DeltaTime, thruDashBlocks: true)) {
+                        held = Y == chainStopY;
                         break;
-                    } else if (Y > chainStopY) {
+                    } else if (Y > chainStopY && !chainShattered) {
+                        held = true;
                         MoveToY(chainStopY);
                         break;
                     }
@@ -118,8 +125,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 yield return 0.2f;
 
                 StopShaking();
-                if (CollideCheck<SolidTiles>(Position + new Vector2(0f, 1f)) || Y == chainStopY) {
+                if (CollideCheck<SolidTiles>(Position + new Vector2(0f, 1f))) {
                     break;
+                }
+                while (held) {
+                    yield return null;
                 }
 
                 while (CollideCheck<Platform>(Position + new Vector2(0f, 1f))) {
@@ -164,6 +174,36 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 'g' => SFX.game_06_fallingblock_boss_impact,
                 _ => SFX.game_gen_fallblock_impact,
             }, Center);
+        }
+
+        private void RenderChain(float x) {
+            Vector2 top = new Vector2(x, startY);
+            for (float y = Y - 6f; y > startY - 8f; y -= 8f) {
+                chain.DrawOutlineOnly(new Vector2(x, y));
+            }
+            chainEnd.DrawOutlineOnly(top);
+
+            for (float y = Y - 6f; y > startY - 8f; y -= 8f) {
+                chain.Draw(new Vector2(x, y));
+            }
+            chainEnd.Draw(top);
+        }
+
+        public override void Render() {
+            if (centeredChain) {
+                RenderChain(Center.X - 4f);
+            } else {
+                RenderChain(X);
+                RenderChain(X + Width - 8f);
+            }
+
+            base.Render();
+        }
+
+        public static void InitializeTextures() {
+            MTexture texture = GFX.Game["objects/hanginglamp"];
+            chainEnd = texture.GetSubtexture(0, 0, 8, 8);
+            chain = texture.GetSubtexture(0, 8, 8, 8);
         }
     }
 }
