@@ -137,6 +137,13 @@ namespace Celeste.Mod.CommunalHelper {
                 Extensions.CollabUtilsLoaded = true;
                 Extensions.CollabUtils_MiniHeart = collabModule.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart");
             }
+            EverestModuleMetadata celesteTASMeta = new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.5" };
+            if (Extensions.TryGetModule(celesteTASMeta, out EverestModule tasModule)) {
+                Extensions.CelesteTASLoaded = true;
+                Type t_PlayerStates = tasModule.GetType().Module.GetType("TAS.PlayerStates");
+                Extensions.CelesteTAS_PlayerStates_Register = t_PlayerStates.GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
+                Extensions.CelesteTAS_PlayerStates_Unregister = t_PlayerStates.GetMethod("Unregister", BindingFlags.Public | BindingFlags.Static);
+            }
 
             MaxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
             VivHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "VivHelper", VersionString = "1.0.28" });
