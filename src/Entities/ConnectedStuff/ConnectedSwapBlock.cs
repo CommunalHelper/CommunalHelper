@@ -148,7 +148,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             middleRed.Position = middleGreen.Position = new Vector2(width, height) / 2f;
 
-            Add(new LightOcclude(0.2f));
+            SetLightOcclude(0.2f);
             Depth = Depths.FGTerrain + 1;
         }
 

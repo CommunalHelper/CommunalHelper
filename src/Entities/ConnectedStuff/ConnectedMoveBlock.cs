@@ -152,7 +152,7 @@ namespace Celeste.Mod.CommunalHelper {
             Add(moveSfx = new SoundSource());
             Add(new Coroutine(Controller()));
             UpdateColors();
-            Add(new LightOcclude(0.5f));
+            SetLightOcclude(0.5f);
         }
 
         protected virtual IEnumerator Controller() {

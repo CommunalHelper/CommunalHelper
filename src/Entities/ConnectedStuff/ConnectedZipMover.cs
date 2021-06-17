@@ -167,7 +167,7 @@ namespace Celeste.Mod.CommunalHelper {
             this.ticking = ticking;
             seq = new Coroutine(Sequence());
             Add(seq);
-            Add(new LightOcclude());
+            SetLightOcclude();
 
             string path;
             string id;

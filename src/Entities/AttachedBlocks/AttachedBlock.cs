@@ -27,6 +27,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
             Depth = Depths.FGTerrain - 1;
+
+            SetLightOcclude();
         }
 
         public override void OnShake(Vector2 amount) {

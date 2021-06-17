@@ -42,6 +42,8 @@ namespace Celeste.Mod.CommunalHelper {
         public List<Image> InnerCornerTiles = new List<Image>();
         public List<Image> FillerTiles = new List<Image>();
 
+        private float? lightOcclude;
+
         public ConnectedSolid(Vector2 position, int width, int height, bool safe)
             : base(position, width, height, safe) {
             GroupBoundsMin = new Vector2(X, Y);
@@ -67,20 +69,19 @@ namespace Celeste.Mod.CommunalHelper {
             Colliders[Colliders.Length - 1] = new Hitbox(Collider.Width, Collider.Height);
             Collider = new ColliderList(Colliders);
 
+            if (lightOcclude.HasValue)
+                foreach (Hitbox hitbox in Colliders)
+                    Add(new LightOcclude(
+                        new Rectangle(
+                            (int) (hitbox.AbsoluteLeft - X),
+                            (int) (hitbox.AbsoluteTop - Y),
+                            (int) hitbox.Width, (int) hitbox.Height), 
+                        lightOcclude.Value));
+
             base.Awake(scene);
-
         }
 
-        public void SetNewColliderList(ColliderList colliderList, Vector2 at) {
-            if (colliderList == null)
-                return;
-            Collider = colliderList;
-            Colliders = new Hitbox[colliderList.colliders.Length];
-            Position = at;
-            for (int i = 0; i < Colliders.Length; i++) {
-                Colliders[i] = (Hitbox) colliderList.colliders[i];
-            }
-        }
+        protected void SetLightOcclude(float alpha = 1.0f) => lightOcclude = alpha;
 
         public static Tuple<MTexture[,], MTexture[,]> SetupCustomTileset(string path) {
             MTexture tileset = GFX.Game["objects/" + path];
