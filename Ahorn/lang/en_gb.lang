@@ -284,6 +284,15 @@ placements.entities.CommunalHelper/DreamBooster.tooltips.hidePath=Hides the path
 placements.entities.CommunalHelper/SurfaceSoundPanel.tooltips.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
 
 
+# -- Chained Falling Block --
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.tiletype=Changes the visual appearance of this block.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.climbFall=Whether the block should start falling when the player is climbing it.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.behind=Whether this entity should appear farther behind in the scene or not.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.centeredChain=Renders only one chain at the horizontal center of this block.
+
+
+
 # -- Triggers --
 
 # -- Music Param Trigger --
