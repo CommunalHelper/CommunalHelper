@@ -70,12 +70,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.AttachedBlocks {
                 }
 
                 StopShaking();
-                for (int i = 2; i < Width; i += 4) {
-                    if (Scene.CollideCheck<Solid>(TopLeft + new Vector2(i, -2f))) {
-                        SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + i, Y), Vector2.One * 4f, (float) Math.PI / 2f);
-                    }
-                    SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + i, Y), Vector2.One * 4f);
-                }
+                FallParticles();
 
                 float speed = 0f;
                 //float maxSpeed = 160f;
@@ -130,6 +125,19 @@ namespace Celeste.Mod.CommunalHelper.Entities.AttachedBlocks {
                         float direction = (!(i < hitbox.Width / 2f)) ? 0f : ((float) Math.PI);
                         SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_LandDust, 1, new Vector2(hitbox.AbsoluteLeft + i, hitbox.AbsoluteBottom), Vector2.One * 4f, direction);
                     }
+                }
+            }
+            Collidable = true;
+        }
+
+        private void FallParticles() {
+            Collidable = false;
+            foreach (Hitbox hitbox in Colliders) {
+                for (int i = 2; i < hitbox.Width; i += 4) {
+                    if (Scene.CollideCheck<Solid>(new Vector2(hitbox.AbsoluteLeft + i, hitbox.AbsoluteTop - 2f))) {
+                        SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(hitbox.AbsoluteLeft + i, hitbox.AbsoluteTop), Vector2.One * 4f, (float) Math.PI / 2f);
+                    }
+                    SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(hitbox.AbsoluteLeft + i, hitbox.AbsoluteTop), Vector2.One * 4f);
                 }
             }
             Collidable = true;
