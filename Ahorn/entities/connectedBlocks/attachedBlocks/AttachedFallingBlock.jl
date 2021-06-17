@@ -9,7 +9,7 @@ using Ahorn.CommunalHelper
     width::Integer=8,
     height::Integer=8,
     tiletype::String="3",
-    smoothDetach::Bool = true,
+    smoothDetach::Bool=true,
     climbFall=true,
 )
 

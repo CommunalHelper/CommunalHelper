@@ -284,6 +284,13 @@ placements.entities.CommunalHelper/DreamBooster.tooltips.hidePath=Hides the path
 placements.entities.CommunalHelper/SurfaceSoundPanel.tooltips.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
 
 
+# -- Attached Falling Block --
+placements.entities.CommunalHelper/AttachedFallingBlock.tooltips.tiletype=Changes the visual appearance of this block.
+placements.entities.CommunalHelper/AttachedFallingBlock.tooltips.smoothDetach=Whether the block should refresh its tiles upon being triggered. This can look unnatural if turned off.
+placements.entities.CommunalHelper/AttachedFallingBlock.tooltips.climbFall=Whether the block should start falling when the player is climbing it.
+
+
+
 # -- Triggers --
 
 # -- Music Param Trigger --
