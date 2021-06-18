@@ -16,12 +16,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float distanceConstraint;
 
         public bool AllowPlayerInteraction;
+        public bool Tight;
         private bool placed, attached, canShatter;
 
         public static MTexture ChainTexture;
 
         public Chain(EntityData data, Vector2 offset)
-            : this(ChainTexture, data.Bool("outline"), (int) (Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8 + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) {
+            : this(ChainTexture, data.Bool("outline", true), (int) (Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8 + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) {
             AllowPlayerInteraction = true;
             placed = true;
         }
@@ -38,13 +39,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             this.outline = outline;
             this.canShatter = canShatter;
 
+            Tighten();
+            UpdateChain();
+        }
+
+        public void Tighten(bool instantly = true) {
             Vector2 from = attachedStartGetter != null ? attachedStartGetter() : Position;
             Vector2 to = attachedEndGetter != null ? attachedEndGetter() : Position;
 
-            for (int i = 0; i < nodeCount - 1; i++) {
-                Nodes[i].Position = Vector2.Lerp(from, to, i / (nodeCount - 1));
+            for (int i = 0; i < Nodes.Length; i++) {
+                Vector2 newPos = Vector2.Lerp(from, to, i / (Nodes.Length - 1));
+                if (instantly) {
+                    Nodes[i].Position = newPos;
+                    Nodes[i].Velocity *= 0.2f;
+                } else {
+                    Nodes[i].Velocity = (newPos - Position) * 75f;
+                }
             }
-            UpdateChain();
         }
 
         private void AttachedEndsToSolids(Scene scene) {
@@ -92,7 +103,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 BreakInHalf();
             }
 
-            if (AllowPlayerInteraction) {
+            if (AllowPlayerInteraction && !Tight) {
                 if (Util.TryGetPlayer(out Player player)) {
                     for (int i = attachedStartGetter != null ? 1 : 0; i < Nodes.Length - (attachedEndGetter != null ? 1 : 0); i++) {
                         if (player.CollidePoint(Nodes[i].Position)) {
@@ -137,24 +148,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             for (int i = 0; i < Nodes.Length; i++) {
                 Nodes[i].Acceleration += Vector2.UnitY * 200f;
-                if (Scene is not null)
+                if (Scene is not null && !Tight)
                     Nodes[i].Acceleration += SceneAs<Level>().Wind;
                 Nodes[i].UpdateStep();
             }
 
             if (!startAttached && !endAttached) {
                 for (int i = 1; i < Nodes.Length; i++)
-                    Nodes[i].ConstraintTo(Nodes[i - 1].Position, distanceConstraint, false);
+                    Nodes[i].ConstraintTo(Nodes[i - 1].Position, distanceConstraint, Tight);
                 for (int i = Nodes.Length - 2; i >= 0; i--)
-                    Nodes[i].ConstraintTo(Nodes[i + 1].Position, distanceConstraint, false);
+                    Nodes[i].ConstraintTo(Nodes[i + 1].Position, distanceConstraint, Tight);
             } else {
                 if (startAttached) {
                     for (int i = 1; i < Nodes.Length - (endAttached ? 1 : 0); i++)
-                        Nodes[i].ConstraintTo(Nodes[i - 1].Position, distanceConstraint, false);
+                        Nodes[i].ConstraintTo(Nodes[i - 1].Position, distanceConstraint, Tight);
                 }
                 if (endAttached) {
                     for (int i = Nodes.Length - 2; i >= (startAttached ? 1 : 0); i--)
-                        Nodes[i].ConstraintTo(Nodes[i + 1].Position, distanceConstraint, false);
+                        Nodes[i].ConstraintTo(Nodes[i + 1].Position, distanceConstraint, Tight);
                 }
             }
         }

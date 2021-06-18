@@ -144,6 +144,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 chainA?.FakeShake();
                 chainB?.FakeShake();
                 if (Held) {
+                    SetChainTight(true);
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, rattleSoundPos);
                 } else {
@@ -232,6 +233,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 chainA.AllowPlayerInteraction = allowed;
             if (chainB != null)
                 chainB.AllowPlayerInteraction = allowed;
+        }
+
+        private void SetChainTight(bool tight) {
+            if (chainA != null) {
+                chainA.Tight = tight;
+                if (tight)
+                    chainA.Tighten(instantly : false);
+            }
+            if (chainB != null) {
+                chainB.Tight = tight;
+                if (tight)
+                    chainB.Tighten(instantly: false);
+            }
         }
 
         public override void Removed(Scene scene) {
