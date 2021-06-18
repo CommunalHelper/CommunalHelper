@@ -126,7 +126,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool indicator, indicatorAtStart;
         private float pathLerp;
 
-        private EventInstance rattle;
+        private SoundSource rattle;
 
         private static MTexture chain, chainEnd;
 
@@ -153,6 +153,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Add(new Coroutine(Sequence()));
             Add(new LightOcclude());
             Add(new TileInterceptor(tiles, highPriority: false));
+            Add(rattle = new SoundSource() {
+                Position = Vector2.UnitX * width / 2f
+            });
 
             SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
             if (behind)
@@ -217,7 +220,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     addChains = false;
                 }
 
-                rattle = Audio.Play(CustomSFX.game_chainedFallingBlock_chain_rattle, rattleSoundPos);
+                rattle.Play(CustomSFX.game_chainedFallingBlock_chain_rattle);
 
                 float speed = 0f;
                 //float maxSpeed = 160f;
@@ -232,7 +235,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         MoveToY(chainStopY, LiftSpeed.Y);
                         break;
                     }
-                    Audio.Position(rattle, rattleSoundPos);
                     yield return null;
                 }
 
@@ -242,7 +244,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 StartShaking();
                 LandParticles();
                 ImpactChainShake();
-                Audio.Stop(rattle);
+                rattle.Stop();
                 if (held) {
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, rattleSoundPos);
@@ -333,7 +335,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Removed(Scene scene) {
             base.Removed(scene);
-            Audio.Stop(rattle);
 
             chainA?.RemoveSelf();
             chainB?.RemoveSelf();
