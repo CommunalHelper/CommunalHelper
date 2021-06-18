@@ -58,7 +58,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             => player.Stamina < 20f || !HasDreamTunnelDash;
 
         protected override void Activated(Player player) =>
-            HasDreamTunnelDash = true;
+            DashStates.DreamTunnelDash.SetEnabled(true);
 
         protected override bool TryCreateCustomSprite(out Sprite sprite) {
             sprite = new Sprite(GFX.Game, "objects/CommunalHelper/dreamRefill/idle");

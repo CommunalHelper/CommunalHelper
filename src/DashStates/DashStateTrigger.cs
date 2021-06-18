@@ -1,7 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.Entities;
+using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.CommunalHelper.DashStates {
-    public abstract class DashStateTrigger : Trigger {
+    [CustomEntity("CommunalHelper/DashStateTrigger")]
+    public class DashStateTrigger : Trigger {
 
         public enum Modes {
             OneUse = -1,
@@ -11,12 +13,16 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
         public Modes Mode;
 
+        public DashStates DashState;
+
         protected DashStateTrigger(EntityData data, Vector2 offset)
             : base(data, offset) {
             Mode = data.Enum("mode", Modes.Trigger);
+            DashState = data.Enum("dashState", DashStates.DreamTunnelDash);
         }
 
-        protected abstract void SetDashState(bool active);
+        protected virtual void SetDashState(bool active) =>
+            DashState.SetEnabled(active);
 
         public override void OnEnter(Player player) {
             base.OnEnter(player);

@@ -9,9 +9,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             : base(data, offset) {
         }
 
-        protected override void Activated(Player player) {
-            HasSeekerDash = true;
-        }
+        protected override void Activated(Player player) =>
+            DashStates.SeekerDash.SetEnabled(true);
 
         protected override bool CanActivate(Player player) {
             return !HasSeekerDash;
