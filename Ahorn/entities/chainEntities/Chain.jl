@@ -6,7 +6,8 @@ using Ahorn.CommunalHelper
 @mapdef Entity "CommunalHelper/Chain" Chain(
     x::Integer,
     y::Integer,
-    extraJoints::Integer=0
+    extraJoints::Integer=0,
+    outline::Bool=true,
 )
 
 const placements = Ahorn.PlacementDict(

@@ -21,13 +21,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static MTexture ChainTexture;
 
         public Chain(EntityData data, Vector2 offset)
-            : this(ChainTexture, true, (int) (Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8 + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) {
+            : this(ChainTexture, data.Bool("outline"), (int) (Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8 + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) {
             AllowPlayerInteraction = true;
             placed = true;
-            canShatter = true;
         }
 
-        public Chain(MTexture segment, bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter)
+        public Chain(MTexture segment, bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter, bool canShatter = true)
             : base(attachedStartGetter()) {
 
             Nodes = new ChainNode[nodeCount];
@@ -37,6 +36,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             this.segment = segment;
             this.outline = outline;
+            this.canShatter = canShatter;
 
             Vector2 from = attachedStartGetter != null ? attachedStartGetter() : Position;
             Vector2 to = attachedEndGetter != null ? attachedEndGetter() : Position;
