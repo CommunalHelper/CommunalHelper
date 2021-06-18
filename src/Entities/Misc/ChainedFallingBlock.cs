@@ -19,35 +19,37 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Acceleration = Vector2.Zero;
             }
 
-            public void ConstraintTo(ChainNode other, float distance) {
+            public void ConstraintTo(ChainNode other, float distance, bool cancelAcceleration) {
                 if (Vector2.Distance(other.Position, Position) > distance) {
                     Vector2 from = Position;
                     Vector2 dir = from - other.Position;
                     dir.Normalize();
                     Position = other.Position + dir * distance;
-                    Vector2 accel = Position - from;
-                    Acceleration += accel * 200f;
+                    if (!cancelAcceleration) {
+                        Vector2 accel = Position - from;
+                        Acceleration += accel * 200f;
+                    }
                 }
             }
         }
 
         public class Chain : Entity {
 
+            private ChainedFallingBlock block;
+
             public ChainNode[] Nodes;
             private Func<Vector2> attachedEndGetter;
 
             private float distanceConstraint;
 
-            private bool outline;
-
-            public Chain(Vector2 position, bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedEndGetter) 
+            public Chain(Vector2 position, ChainedFallingBlock block, int nodeCount, float distanceConstraint, Func<Vector2> attachedEndGetter) 
                 : base(position) {
 
                 Nodes = new ChainNode[nodeCount];
                 this.attachedEndGetter = attachedEndGetter;
                 this.distanceConstraint = distanceConstraint;
 
-                this.outline = outline;
+                this.block = block;
 
                 for (int i = 0; i < nodeCount - 1; i++) {
                     Nodes[i].Position = Position;
@@ -58,7 +60,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             public override void Update() {
                 base.Update();
-                if (Util.TryGetPlayer(out Player player)) {
+                if (Util.TryGetPlayer(out Player player) && !block.held) {
                     for (int i = 1; i < Nodes.Length - 1; i++) {
                         if (player.CollidePoint(Nodes[i].Position)) {
                             Nodes[i].Acceleration += player.Speed * 3f;
@@ -80,14 +82,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
 
                 for (int i = 1; i < Nodes.Length - 1; i++)
-                    Nodes[i].ConstraintTo(Nodes[i - 1], distanceConstraint);
+                    Nodes[i].ConstraintTo(Nodes[i - 1], distanceConstraint, block.held);
                 for (int i = Nodes.Length - 2; i > 0; i--)
-                    Nodes[i].ConstraintTo(Nodes[i + 1], distanceConstraint);
+                    Nodes[i].ConstraintTo(Nodes[i + 1], distanceConstraint, block.held);
             }
 
             public override void Render() {
                 base.Render();
-                if (outline) {
+                if (block.chainOutline) {
                     for (int i = 0; i < Nodes.Length - 1; i++) {
                         if (Calc.Round(Nodes[i].Position) == Calc.Round(Nodes[i + 1].Position)) {
                             continue;
@@ -305,22 +307,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private void AddChains() {
             if (centeredChain) {
-                Scene.Add(chainA = new Chain(new Vector2(Center.X, Y), chainOutline, (int) ((chainStopY - startY) / 8) + 1, 8, () => new Vector2(Center.X, Y)));
+                Scene.Add(chainA = new Chain(new Vector2(Center.X, Y), this, (int) ((chainStopY - startY) / 8) + 1, 8, () => new Vector2(Center.X, Y)));
             } else {
-                Scene.Add(chainA = new Chain(new Vector2(X + 4, Y), chainOutline, (int) ((chainStopY - startY) / 8) + 1, 8, () => new Vector2(X + 4, Y)));
-                Scene.Add(chainB = new Chain(new Vector2(Right - 4, Y), chainOutline, (int) ((chainStopY - startY) / 8) + 1, 8, () => new Vector2(Right - 4, Y)));
+                Scene.Add(chainA = new Chain(new Vector2(X + 4, Y), this, (int) ((chainStopY - startY) / 8) + 1, 8, () => new Vector2(X + 4, Y)));
+                Scene.Add(chainB = new Chain(new Vector2(Right - 4, Y), this, (int) ((chainStopY - startY) / 8) + 1, 8, () => new Vector2(Right - 4, Y)));
             }
         }
         
         private void ImpactChainShake() {
             if (chainA != null) {
                 for (int i = 1; i < chainA.Nodes.Length - 1; i++) {
-                    chainA.Nodes[i].Acceleration += new Vector2(Calc.Random.NextFloat(2f) - 1f, Calc.Random.NextFloat(2f) - 1f) * 3000f;
+                    chainA.Nodes[i].Position += new Vector2(Calc.Random.NextFloat(2f) - 1f, Calc.Random.NextFloat(2f) - 1f) * 16f;
                 }
             }
             if (chainB != null) {
                 for (int i = 1; i < chainB.Nodes.Length - 1; i++) {
-                    chainB.Nodes[i].Acceleration += new Vector2(Calc.Random.NextFloat(2f) - 1f, Calc.Random.NextFloat(2f) - 1f) * 3000f;
+                    chainB.Nodes[i].Position += new Vector2(Calc.Random.NextFloat(2f) - 1f, Calc.Random.NextFloat(2f) - 1f) * 16f;
                 }
             }
         }
