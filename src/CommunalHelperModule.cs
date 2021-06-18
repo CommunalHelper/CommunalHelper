@@ -125,7 +125,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamBooster.InitializeParticles();
 
-            ChainedFallingBlock.InitializeTextures();
+            Chain.InitializeTextures();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
@@ -241,6 +241,9 @@ namespace Celeste.Mod.CommunalHelper {
             return (x % m + m) % m;
         }
 
+        public static Vector2 RandomDir(float length) {
+            return Calc.AngleToVector(Calc.Random.NextAngle(), length);
+        }
     }
 
     // Don't worry about it

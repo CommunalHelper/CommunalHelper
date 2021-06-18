@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.Entities;
-using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -7,108 +6,7 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ChainedFallingBlock")]
-    class ChainedFallingBlock : Solid {
-
-        public struct ChainNode {
-
-            public Vector2 Position, Velocity, Acceleration;
-
-            public void UpdateStep() {
-                Velocity += Acceleration * Engine.DeltaTime;
-                Position += Velocity * Engine.DeltaTime;
-                Acceleration = Vector2.Zero;
-            }
-
-            public void ConstraintTo(ChainNode other, float distance, bool cancelAcceleration) {
-                if (Vector2.Distance(other.Position, Position) > distance) {
-                    Vector2 from = Position;
-                    Vector2 dir = from - other.Position;
-                    dir.Normalize();
-                    Position = other.Position + dir * distance;
-                    if (!cancelAcceleration) {
-                        Vector2 accel = Position - from;
-                        Acceleration += accel * 200f;
-                    }
-                }
-            }
-        }
-
-        public class Chain : Entity {
-
-            private ChainedFallingBlock block;
-
-            public ChainNode[] Nodes;
-            private Func<Vector2> attachedEndGetter;
-
-            private float distanceConstraint;
-
-            public Chain(Vector2 position, ChainedFallingBlock block, int nodeCount, float distanceConstraint, Func<Vector2> attachedEndGetter) 
-                : base(position) {
-
-                Nodes = new ChainNode[nodeCount];
-                this.attachedEndGetter = attachedEndGetter;
-                this.distanceConstraint = distanceConstraint;
-
-                this.block = block;
-
-                for (int i = 0; i < nodeCount - 1; i++) {
-                    Nodes[i].Position = Position;
-                }
-                Nodes[nodeCount - 1].Position = attachedEndGetter();
-                ChainUpdate();
-            }
-
-            public override void Update() {
-                base.Update();
-                if (Util.TryGetPlayer(out Player player) && !block.held) {
-                    for (int i = 1; i < Nodes.Length - 1; i++) {
-                        if (player.CollidePoint(Nodes[i].Position)) {
-                            Nodes[i].Acceleration += player.Speed * 3f;
-                        }
-                    }
-                }
-            }
-
-            public void ChainUpdate() {
-                Nodes[Nodes.Length - 1].Position = attachedEndGetter();
-                Nodes[Nodes.Length - 1].Velocity = Vector2.Zero;
-
-                for (int i = 1; i < Nodes.Length; i++) {
-                    // gravity
-                    if (i < Nodes.Length - 1)
-                        Nodes[i].Acceleration += Vector2.UnitY * 160f;
-
-                    Nodes[i].UpdateStep();
-                }
-
-                for (int i = 1; i < Nodes.Length - 1; i++)
-                    Nodes[i].ConstraintTo(Nodes[i - 1], distanceConstraint, block.held);
-                for (int i = Nodes.Length - 2; i > 0; i--)
-                    Nodes[i].ConstraintTo(Nodes[i + 1], distanceConstraint, block.held);
-            }
-
-            public override void Render() {
-                base.Render();
-                if (block.chainOutline) {
-                    for (int i = 0; i < Nodes.Length - 1; i++) {
-                        if (Calc.Round(Nodes[i].Position) == Calc.Round(Nodes[i + 1].Position)) {
-                            continue;
-                        }
-                        Vector2 mid = (Nodes[i].Position + Nodes[i + 1].Position) * 0.5f;
-                        float angle = Calc.Angle(Nodes[i].Position, Nodes[i + 1].Position) - MathHelper.PiOver2;
-                        chain.DrawOutlineCentered(mid, Color.White, 1f, angle);
-                    }
-                }
-                for (int i = 0; i < Nodes.Length - 1; i++) {
-                    if (Calc.Round(Nodes[i].Position) == Calc.Round(Nodes[i + 1].Position)) {
-                        continue;
-                    }
-                    Vector2 mid = (Nodes[i].Position + Nodes[i + 1].Position) * 0.5f;
-                    float angle = Calc.Angle(Nodes[i].Position, Nodes[i + 1].Position) - MathHelper.PiOver2;
-                    chain.DrawCentered(mid, Color.White, 1f, angle);
-                }
-            }
-        }
+    public class ChainedFallingBlock : Solid {
         private Chain chainA, chainB;
 
         private char tileType;
@@ -116,8 +14,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool triggered;
         private bool climbFall;
-        private bool held;
-        private bool chainShattered;
+        public bool Held;
 
         private float chainStopY, startY;
         private bool centeredChain;
@@ -127,8 +24,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float pathLerp;
 
         private SoundSource rattle;
-
-        private static MTexture chain, chainEnd;
 
         public ChainedFallingBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Char("tiletype", '3'), data.Bool("climbFall", true), data.Bool("behind"), data.Int("fallDistance"), data.Bool("centeredChain"), data.Bool("chainOutline", true), data.Bool("indicator"), data.Bool("indicatorAtStart")) { }
@@ -220,6 +115,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     addChains = false;
                 }
 
+                SetChainPlayerInteraction(false);
                 rattle.Play(CustomSFX.game_chainedFallingBlock_chain_rattle);
 
                 float speed = 0f;
@@ -228,10 +124,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Level level = SceneAs<Level>();
                     speed = Calc.Approach(speed, 160f, 500f * Engine.DeltaTime);
                     if (MoveVCollideSolids(speed * Engine.DeltaTime, thruDashBlocks: true)) {
-                        held = Y == chainStopY;
+                        Held = Y == chainStopY;
                         break;
-                    } else if (Y > chainStopY && !chainShattered) {
-                        held = true;
+                    } else if (Y > chainStopY) {
+                        Held = true;
                         MoveToY(chainStopY, LiftSpeed.Y);
                         break;
                     }
@@ -243,11 +139,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 SceneAs<Level>().DirectionalShake(Vector2.UnitY, 0.3f);
                 StartShaking();
                 LandParticles();
-                ImpactChainShake();
+
                 rattle.Stop();
-                if (held) {
+                chainA?.FakeShake();
+                chainB?.FakeShake();
+                if (Held) {
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, rattleSoundPos);
+                } else {
+                    chainA?.ShakeImpulse(5000f);
+                    chainB?.ShakeImpulse(5000f);
+                    SetChainPlayerInteraction(true);
                 }
                 yield return 0.2f;
 
@@ -256,7 +158,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     break;
                 }
 
-                while (held) {
+                while (Held) {
                     yield return null;
                 }
 
@@ -308,29 +210,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void AddChains() {
+            int nodeCount = (int) (((chainStopY - startY) / 8) + 1);
             if (centeredChain) {
-                Scene.Add(chainA = new Chain(new Vector2(Center.X, Y), this, (int) ((chainStopY - startY) / 8) + 1, 8, () => new Vector2(Center.X, Y)));
+                Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                    () => new Vector2(Center.X, startY),
+                    () => new Vector2(Center.X, Y)) {
+                    AllowPlayerInteraction = false
+                });
             } else {
-                Scene.Add(chainA = new Chain(new Vector2(X + 4, Y), this, (int) ((chainStopY - startY) / 8) + 1, 8, () => new Vector2(X + 4, Y)));
-                Scene.Add(chainB = new Chain(new Vector2(Right - 4, Y), this, (int) ((chainStopY - startY) / 8) + 1, 8, () => new Vector2(Right - 4, Y)));
+                Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                    () => new Vector2(X + 4, startY),
+                    () => new Vector2(X + 4, Y)));
+                Scene.Add(chainB = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                    () => new Vector2(Right - 4, startY),
+                    () => new Vector2(Right - 4, Y)));
             }
         }
         
-        private void ImpactChainShake() {
-            if (chainA != null) {
-                for (int i = 1; i < chainA.Nodes.Length - 1; i++) {
-                    chainA.Nodes[i].Position += new Vector2(Calc.Random.NextFloat(2f) - 1f, Calc.Random.NextFloat(2f) - 1f) * 16f;
-                }
-            }
-            if (chainB != null) {
-                for (int i = 1; i < chainB.Nodes.Length - 1; i++) {
-                    chainB.Nodes[i].Position += new Vector2(Calc.Random.NextFloat(2f) - 1f, Calc.Random.NextFloat(2f) - 1f) * 16f;
-                }
-            }
-        }
-
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
+        private void SetChainPlayerInteraction(bool allowed) {
+            if (chainA != null)
+                chainA.AllowPlayerInteraction = allowed;
+            if (chainB != null)
+                chainB.AllowPlayerInteraction = allowed;
         }
 
         public override void Removed(Scene scene) {
@@ -343,26 +244,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
 
-            chainA?.ChainUpdate();
-            chainB?.ChainUpdate();
-
             if (triggered && indicator && !indicatorAtStart)
                 pathLerp = Calc.Approach(pathLerp, 1f, Engine.DeltaTime * 2f);
         }
 
         public override void Render() {
-            if ((triggered || indicatorAtStart) && indicator && !held && !chainShattered) {
+            if ((triggered || indicatorAtStart) && indicator && !Held) {
                 float toY = startY + (chainStopY + Height - startY) * Ease.ExpoOut(pathLerp);
                 Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
             }
-
+            
             base.Render();
-        }
-
-        public static void InitializeTextures() {
-            MTexture texture = GFX.Game["objects/hanginglamp"];
-            chainEnd = texture.GetSubtexture(0, 0, 8, 8);
-            chain = texture.GetSubtexture(0, 8, 8, 8);
         }
     }
 }
