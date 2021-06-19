@@ -1,11 +1,15 @@
 ﻿using Celeste.Mod.Entities;
+using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/Chain")]
     public class Chain : Entity {
+
+        public static MTexture ChainTexture;
 
         private MTexture segment;
         private bool outline;
@@ -19,7 +23,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool Tight;
         private bool placed, attached, canShatter;
 
-        public static MTexture ChainTexture;
+        private EventInstance sfx;
+        private Vector2 sfxPos;
 
         public Chain(EntityData data, Vector2 offset)
             : this(ChainTexture, data.Bool("outline", true), (int) (Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8 + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) {
@@ -41,6 +46,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             Tighten();
             UpdateChain();
+
+            sfx = Audio.Play(CustomSFX.game_chain_move);
         }
 
         public void Tighten(bool instantly = true) {
@@ -87,6 +94,38 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 RemoveSelf();
         }
 
+        private void UpdateSfx(Vector2[] oldPositions) {
+            float intensity = 0f;
+            if (Nodes.Length > 0 && Nodes.Length == oldPositions.Length && sfx != null && Util.TryGetPlayer(out Player player)) {
+                float minDistSqr = float.MaxValue;
+
+                Vector2 averageOffset = Vector2.Zero;
+                int eff = Nodes.Length;
+                for (int i = 0; i < Nodes.Length; i++) {
+                    float lengthSqr = (player.Center - Nodes[i].Position).LengthSquared();
+                    if (lengthSqr < minDistSqr) {
+                        minDistSqr = lengthSqr;
+                        sfxPos = Nodes[i].Position;
+                    }
+
+                    Vector2 offset = Nodes[i].Position - oldPositions[i];
+                    if (offset.LengthSquared() < 0.025f && eff > 1)
+                        eff--;
+                    averageOffset += offset;
+                }
+                averageOffset /= eff;
+
+                intensity = Tight ? 0f : Calc.ClampedMap(averageOffset.Length(), 0f, 2f);
+            }
+            Audio.SetParameter(sfx, "intensity", intensity);
+            Audio.Position(sfx, sfxPos);
+        }
+
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            Audio.Stop(sfx);
+        }
+
         public override void Awake(Scene scene) {
             base.Awake(scene);
             if (placed) {
@@ -97,7 +136,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
 
+            Vector2[] oldPositions = Nodes.Select(node => node.Position).ToArray();
             UpdateChain();
+            UpdateSfx(oldPositions);
 
             if (canShatter && Vector2.Distance(Nodes[0].Position, Nodes[Nodes.Length - 1].Position) > (Nodes.Length + 1) * distanceConstraint) {
                 BreakInHalf();
@@ -119,11 +160,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 middleNode = Nodes[Nodes.Length / 2].Position;
 
             Chain a, b;
-            Scene.Add(a = new Chain(ChainTexture, true, Nodes.Length / 2, 8, () => middleNode, attachedStartGetter));
+            Scene.Add(a = new Chain(ChainTexture, true, Nodes.Length / 2, 8, () => middleNode, attachedStartGetter) {
+                AllowPlayerInteraction = true,
+            });
             a.AttachedEndsToSolids(Scene);
             a.ShakeImpulse();
 
-            Scene.Add(b = new Chain(ChainTexture, true, Nodes.Length / 2, 8, () => middleNode, attachedEndGetter));
+            Scene.Add(b = new Chain(ChainTexture, true, Nodes.Length / 2, 8, () => middleNode, attachedEndGetter) {
+                AllowPlayerInteraction = true,
+            });
             b.AttachedEndsToSolids(Scene);
             b.ShakeImpulse();
 
@@ -147,7 +192,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             for (int i = 0; i < Nodes.Length; i++) {
-                Nodes[i].Acceleration += Vector2.UnitY * 200f;
+                Nodes[i].Acceleration += Vector2.UnitY * 220f;
                 if (Scene is not null && !Tight)
                     Nodes[i].Acceleration += SceneAs<Level>().Wind;
                 Nodes[i].UpdateStep();
@@ -227,6 +272,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public void UpdateStep() {
             Velocity += Acceleration * Engine.DeltaTime;
             Position += Velocity * Engine.DeltaTime;
+            Velocity *= 1 - Engine.DeltaTime;
             Acceleration = Vector2.Zero;
         }
 
@@ -238,6 +284,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Position = to + dir * distance;
                 if (!cancelAcceleration) {
                     Vector2 accel = Position - from;
+                    accel.X = Calc.Clamp(accel.X, -2f, 2f);
+                    accel.Y = Calc.Clamp(accel.Y, -2f, 2f);
                     Acceleration += accel * 210f;
                 }
             }

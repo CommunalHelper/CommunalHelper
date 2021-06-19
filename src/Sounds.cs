@@ -66,6 +66,8 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_chainedFallingBlock_attenuatedImpacts_boss_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/boss_impact";
         public const string game_chainedFallingBlock_attenuatedImpacts_wood_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/wood_impact";
         public const string game_chainedFallingBlock_attenuatedImpacts_ice_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/ice_impact";
+
+        public const string game_chain_move = "event:/CommunalHelperEvents/game/chain/move";
     }
 
     public static class CustomBanks {
