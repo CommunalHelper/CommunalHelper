@@ -108,7 +108,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         // Used to maintain compatibility with Max's Helping Hand RainbowSpinnerColorController
         private static CrystalStaticSpinner crystalSpinner = new CrystalStaticSpinner(Vector2.Zero, false, CrystalColor.Rainbow);
         [MethodImpl(MethodImplOptions.NoInlining)] // No in-lining, method implemented by IL hook
-        public static Color GetHue(Scene scene, Vector2 position) => default;
+        public static Color GetHue(Scene scene, Vector2 position) {
+            Console.Error.Write("NoInlining");
+            throw new NoInliningException();
+        }
 
         private const float RetractTime = 6f;
 
