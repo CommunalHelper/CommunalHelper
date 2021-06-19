@@ -219,7 +219,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             redirectable.TargetSpeed = Math.Max(10f, newSpeed); // could go into negative speeds, yuck
             lastMoveBlock = redirectable;
-            redirectable.Entity.Position = Position;
+            redirectable.MoveTo(Position);
 
             UsedParticles();
         }
