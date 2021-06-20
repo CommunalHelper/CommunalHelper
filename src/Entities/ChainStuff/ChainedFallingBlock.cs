@@ -14,7 +14,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool triggered;
         private bool climbFall;
-        public bool Held;
+        private bool held;
 
         private float chainStopY, startY;
         private bool centeredChain;
@@ -123,10 +123,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Level level = SceneAs<Level>();
                     speed = Calc.Approach(speed, 160f, 500f * Engine.DeltaTime);
                     if (MoveVCollideSolids(speed * Engine.DeltaTime, thruDashBlocks: true)) {
-                        Held = Y == chainStopY;
+                        held = Y == chainStopY;
                         break;
                     } else if (Y > chainStopY) {
-                        Held = true;
+                        held = true;
                         MoveToY(chainStopY, LiftSpeed.Y);
                         break;
                     }
@@ -142,7 +142,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 rattle.Stop();
                 chainA?.FakeShake();
                 chainB?.FakeShake();
-                if (Held) {
+                if (held) {
                     SetChainTight(true);
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, rattleSoundPos);
@@ -157,7 +157,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     break;
                 }
 
-                while (Held) {
+                while (held) {
                     yield return null;
                 }
 
@@ -230,7 +230,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (chainA != null) {
                 chainA.Tight = tight;
                 if (tight)
-                    chainA.Tighten(instantly : false);
+                    chainA.Tighten(instantly: false);
             }
             if (chainB != null) {
                 chainB.Tight = tight;
@@ -254,7 +254,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Render() {
-            if ((triggered || indicatorAtStart) && indicator && !Held) {
+            if ((triggered || indicatorAtStart) && indicator && !held) {
                 float toY = startY + (chainStopY + Height - startY) * Ease.ExpoOut(pathLerp);
                 Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
             }

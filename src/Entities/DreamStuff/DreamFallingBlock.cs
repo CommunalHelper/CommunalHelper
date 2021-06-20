@@ -15,11 +15,39 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool HasStartedFalling { get; private set; }
         private bool hasLanded;
 
+        private Chain chainA, chainB;
+        private bool chained;
+        private bool held;
+
+        private float chainStopY, startY;
+        private bool centeredChain;
+        private bool chainOutline;
+
+        private bool indicator, indicatorAtStart;
+        private float pathLerp;
+
+        private SoundSource rattle;
+
         public DreamFallingBlock(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) {
             noCollide = data.Bool("noCollide", false);
 
+            chained = data.Bool("chained");
+
             Add(new Coroutine(Sequence()));
+            if (chained) {
+                startY = Y;
+                chainStopY = startY + data.Int("fallDistance", 64);
+                centeredChain = data.Bool("centeredChain") || Width <= 8;
+                chainOutline = data.Bool("chainOutline", true);
+                indicator = data.Bool("indicator");
+                indicatorAtStart = data.Bool("indicatorAtStart");
+                pathLerp = Util.ToInt(indicatorAtStart);
+                
+                Add(rattle = new SoundSource() {
+                    Position = Vector2.UnitX * Width / 2f
+                });
+            }
         }
 
         public override void OnStaticMoverTrigger(StaticMover sm) => Triggered = true;
@@ -38,6 +66,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             while (!Triggered && !HasPlayerRider()) {
                 yield return null;
             }
+            Triggered = true;
 
             while (FallDelay > 0f) {
                 FallDelay -= Engine.DeltaTime;
@@ -45,6 +74,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             HasStartedFalling = true;
+            Vector2 rattleSoundPos = new Vector2(Center.X, startY);
+            bool addChains = chained;
             while (true) {
                 ShakeSfx();
                 StartShaking();
@@ -64,6 +95,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                     SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + i, Y), Vector2.One * 4f);
                 }
+
+                if (addChains) {
+                    AddChains();
+                    addChains = false;
+                }
+                if (chained)
+                    rattle.Play(CustomSFX.game_chainedFallingBlock_chain_rattle);
+
                 float speed = 0f;
                 float maxSpeed = 160f;
                 hasLanded = false;
@@ -72,10 +111,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     speed = Calc.Approach(speed, maxSpeed, 500f * Engine.DeltaTime);
                     MoveV(speed * Engine.DeltaTime);
                     if (hasLanded) {
+                        held = chained && Y == chainStopY;
+                        break;
+                    } else if (Y > chainStopY && chained) {
+                        held = true;
+                        MoveToY(chainStopY, LiftSpeed.Y);
                         break;
                     }
 
-                    if (Top > level.Bounds.Bottom + 16 || (Top > level.Bounds.Bottom - 1 && CollideCheck<Solid>(Position + new Vector2(0f, 1f)))) {
+                    if (!chained && Top > level.Bounds.Bottom + 16 || (Top > level.Bounds.Bottom - 1 && CollideCheck<Solid>(Position + new Vector2(0f, 1f)))) {
                         Collidable = (Visible = false);
                         yield return 0.2f;
 
@@ -98,11 +142,29 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 SceneAs<Level>().DirectionalShake(Vector2.UnitY, 0.3f);
                 StartShaking();
                 LandParticles();
+
+                if (chained) {
+                    rattle.Stop();
+                    chainA?.FakeShake();
+                    chainB?.FakeShake();
+                    if (held) {
+                        SetChainTight(true);
+                        Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
+                        Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, rattleSoundPos);
+                    } else {
+                        chainA?.ShakeImpulse(5000f);
+                        chainB?.ShakeImpulse(5000f);
+                    }
+                }
                 yield return 0.2f;
 
                 StopShaking();
                 if (CollideCheck<SolidTiles>(Position + new Vector2(0f, 1f))) {
                     break;
+                }
+
+                while (held) {
+                    yield return null;
                 }
 
                 while (CollideCheck<Platform>(Position + new Vector2(0f, 1f))) {
@@ -111,6 +173,44 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             }
             Safe = true;
+        }
+
+        private void AddChains() {
+            int nodeCount = (int) (((chainStopY - startY) / 8) + 1);
+            if (centeredChain) {
+                Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                    () => new Vector2(Center.X, startY),
+                    () => new Vector2(Center.X, Y)) {
+                    AllowPlayerInteraction = false
+                });
+            } else {
+                Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                    () => new Vector2(X + 4, startY),
+                    () => new Vector2(X + 4, Y)));
+                Scene.Add(chainB = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                    () => new Vector2(Right - 4, startY),
+                    () => new Vector2(Right - 4, Y)));
+            }
+        }
+
+        private void SetChainTight(bool tight) {
+            if (chainA != null) {
+                chainA.Tight = tight;
+                if (tight)
+                    chainA.Tighten(instantly: false);
+            }
+            if (chainB != null) {
+                chainB.Tight = tight;
+                if (tight)
+                    chainB.Tighten(instantly: false);
+            }
+        }
+
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+
+            chainA?.RemoveSelf();
+            chainB?.RemoveSelf();
         }
 
         // Essentially just a copied/stripped version of MoveVExactCollideSolids
@@ -148,7 +248,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             hasLanded = platform != null;
         }
 
+        public override void Update() {
+            base.Update();
+
+            if (chained && Triggered && indicator && !indicatorAtStart)
+                pathLerp = Calc.Approach(pathLerp, 1f, Engine.DeltaTime * 2f);
+        }
+
         public override void Render() {
+            if (chained && (Triggered || indicatorAtStart) && indicator && !held) {
+                float toY = startY + (chainStopY + Height - startY) * Ease.ExpoOut(pathLerp);
+                Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
+            }
+
             Position += Shake;
             base.Render();
             Position -= Shake;
