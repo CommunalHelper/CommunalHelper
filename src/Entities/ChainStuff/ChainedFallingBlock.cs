@@ -115,7 +115,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     addChains = false;
                 }
 
-                SetChainPlayerInteraction(false);
                 rattle.Play(CustomSFX.game_chainedFallingBlock_chain_rattle);
 
                 float speed = 0f;
@@ -150,7 +149,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 } else {
                     chainA?.ShakeImpulse(5000f);
                     chainB?.ShakeImpulse(5000f);
-                    SetChainPlayerInteraction(true);
                 }
                 yield return 0.2f;
 
@@ -226,13 +224,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     () => new Vector2(Right - 4, startY),
                     () => new Vector2(Right - 4, Y)));
             }
-        }
-        
-        private void SetChainPlayerInteraction(bool allowed) {
-            if (chainA != null)
-                chainA.AllowPlayerInteraction = allowed;
-            if (chainB != null)
-                chainB.AllowPlayerInteraction = allowed;
         }
 
         private void SetChainTight(bool tight) {
