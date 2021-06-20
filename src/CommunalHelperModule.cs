@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Entities.ChainStuff;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -60,6 +61,8 @@ namespace Celeste.Mod.CommunalHelper {
             CustomSummitGem.Load();
 
             CustomBooster.Load();
+
+            HardChain.Load();
         }
 
         public override void Unload() {
@@ -89,6 +92,8 @@ namespace Celeste.Mod.CommunalHelper {
             CustomSummitGem.Unload();
 
             CustomBooster.Unload();
+
+            HardChain.Unload();
         }
 
         public override void Initialize() {

@@ -15,9 +15,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool outline;
 
         public ChainNode[] Nodes;
-        private Func<Vector2> attachedStartGetter, attachedEndGetter;
+        protected Func<Vector2> attachedStartGetter, attachedEndGetter;
 
-        private float distanceConstraint;
+        protected float distanceConstraint;
 
         public bool AllowPlayerInteraction;
         public bool Tight;
@@ -25,6 +25,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private EventInstance sfx;
         private Vector2 sfxPos;
+
+        protected Solid StartSolid, EndSolid;
 
         public Chain(EntityData data, Vector2 offset)
             : this(ChainTexture, data.Bool("outline", true), (int) (Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8 + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) {
@@ -73,19 +75,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 start = Nodes[0].Position;
             Vector2 end = Nodes[Nodes.Length - 1].Position;
 
-            Solid startSolid = scene.CollideFirst<Solid>(new Rectangle((int) start.X - 2, (int) start.Y - 2, 4, 4));
-            Solid endSolid = scene.CollideFirst<Solid>(new Rectangle((int) end.X - 2, (int) end.Y - 2, 4, 4));
+            StartSolid = scene.CollideFirst<Solid>(new Rectangle((int) start.X - 2, (int) start.Y - 2, 4, 4));
+            EndSolid = scene.CollideFirst<Solid>(new Rectangle((int) end.X - 2, (int) end.Y - 2, 4, 4));
 
-            if (startSolid != null) {
-                Vector2 offset = start - startSolid.Position;
-                attachedStartGetter = () => startSolid.Position + offset;
+            if (StartSolid != null) {
+                Vector2 offset = start - StartSolid.Position;
+                attachedStartGetter = () => StartSolid.Position + offset;
             } else {
                 DetachStart();
             }
 
-            if (endSolid != null) {
-                Vector2 offset = end - endSolid.Position;
-                attachedEndGetter = () => endSolid.Position + offset;
+            if (EndSolid != null) {
+                Vector2 offset = end - EndSolid.Position;
+                attachedEndGetter = () => EndSolid.Position + offset;
             } else {
                 DetachEnd();
             }
@@ -155,7 +157,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private void BreakInHalf() {
+        protected virtual void BreakInHalf() {
             RemoveSelf();
             Vector2 middleNode = Nodes[Nodes.Length / 2].Position;
 
