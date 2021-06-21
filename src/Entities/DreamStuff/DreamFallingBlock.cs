@@ -281,6 +281,5 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private void ImpactSfx() =>
             Audio.Play(SFX.game_gen_fallblock_impact, BottomCenter);
-
     }
 }

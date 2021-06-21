@@ -300,6 +300,11 @@ placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.chainOutline=Whe
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 
+# -- Chained Kevin
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chillout=Whether the block should have the large face and get tired after being hit.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.direction=The only direction in which this block will travel.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chainOutline=Whether the chain of this block should have a black outline.
 
 
 # -- Triggers --
