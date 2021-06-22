@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using System;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff {
@@ -66,6 +67,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff {
 
         #region Targeted Solid
 
+        private static readonly Dictionary<Entity, List<TargetedSolid>> Solids = new Dictionary<Entity, List<TargetedSolid>>();
+
         class TargetedSolid : Solid {
 
             public Entity target;
@@ -73,6 +76,16 @@ namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff {
             public TargetedSolid(Vector2 position, float width, float height, Entity target) : base(position, width, height, false) {
                 this.target = target;
                 Visible = Collidable = false;
+                if (!Solids.ContainsKey(target))
+                    Solids[target] = new List<TargetedSolid>();
+                Solids[target].Add(this);
+            }
+
+            public override void Removed(Scene scene) {
+                base.Removed(scene);
+                Solids[target].Remove(this);
+                if (Solids[target].Count == 0)
+                    Solids.Remove(target);
             }
         }
 
@@ -88,13 +101,14 @@ namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff {
         }
 
         private static void MakeTargetedSolidsCollidable(On.Monocle.Entity.orig_Update orig, Entity self) {
-            List<TargetedSolid> ts = self.Scene.Entities.FindAll<TargetedSolid>();
-            foreach (TargetedSolid item in ts)
-                if (item.target.Equals(self))
+            List<TargetedSolid> ts = Solids.ContainsKey(self) ? Solids[self] : null;
+            if (ts != null)
+                foreach (TargetedSolid item in ts)
                     item.Collidable = true;
             orig(self);
-            foreach (TargetedSolid item in ts)
-                item.Collidable = false;
+            if (ts != null)
+                foreach (TargetedSolid item in ts)
+                    item.Collidable = false;
         }
 
         #endregion
