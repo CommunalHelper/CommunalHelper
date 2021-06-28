@@ -56,6 +56,8 @@ namespace Celeste.Mod.CommunalHelper {
             CassetteJumpFixController.Load();
             // TimedTriggerSpikes hooked in Initialize
 
+            UnderwaterMusicController.Load();
+
             HeartGemShard.Load();
             CustomSummitGem.Load();
 
@@ -84,6 +86,8 @@ namespace Celeste.Mod.CommunalHelper {
             AbstractInputController.Unload();
             CassetteJumpFixController.Unload();
             TimedTriggerSpikes.Unload();
+
+            UnderwaterMusicController.Unload();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
