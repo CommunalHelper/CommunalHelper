@@ -284,6 +284,11 @@ placements.entities.CommunalHelper/DreamBooster.tooltips.hidePath=Hides the path
 placements.entities.CommunalHelper/SurfaceSoundPanel.tooltips.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
 
 
+# -- Surface Sound Panel --
+placements.entities.CommunalHelper/UnderwaterMusicController.tooltips.enable=Whether to always enable or always disable underwater sound modifiers.
+placements.entities.CommunalHelper/UnderwaterMusicController.tooltips.dashSFX=Whether to also affect the additional in-water dash sound effect.
+
+
 # -- Triggers --
 
 # -- Music Param Trigger --
