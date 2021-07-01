@@ -133,7 +133,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.Emit(OpCodes.Isinst, typeof(CustomSummitGem).GetTypeInfo());
             cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
-            cursor.Emit(OpCodes.Callvirt, typeof(CustomSummitGem).GetMethod("SmashRoutine", BindingFlags.NonPublic | BindingFlags.Instance));
+            cursor.Emit(OpCodes.Callvirt, typeof(CustomSummitGem).GetMethod(nameof(SmashRoutine), BindingFlags.NonPublic | BindingFlags.Instance));
             cursor.Emit(OpCodes.Br_S, cursor.Next.Next);
 
         }

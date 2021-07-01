@@ -172,7 +172,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             ILCursor cursor = new ILCursor(il);
             cursor.GotoNext(MoveType.After, instr => instr.MatchLdfld<Player>("onGround"));
             cursor.Emit(cursor.Next.OpCode, cursor.Next.Operand);
-            cursor.Emit(OpCodes.Ldsfld, typeof(DreamTunnelDash).GetField("dreamTunnelDashAttacking", BindingFlags.NonPublic | BindingFlags.Static));
+            cursor.Emit(OpCodes.Ldsfld, typeof(DreamTunnelDash).GetField(nameof(dreamTunnelDashAttacking), BindingFlags.NonPublic | BindingFlags.Static));
             cursor.Next.OpCode = OpCodes.Brtrue;
         }
 
