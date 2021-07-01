@@ -46,7 +46,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         #region MoveBlock properties
 
         private const float Accel = 300f;
-        private const float MoveSpeed = 60f;
         private const float SteerSpeed = Calc.Circle * 8f;
         private const float MaxAngle = Calc.EighthCircle;
         private const float NoSteerTime = 0.2f;
@@ -143,6 +142,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             middleOrange.CenterOrigin();
 
             canSteer = data.Bool("canSteer", false);
+            targetMoveSpeed = data.Float("moveSpeed", 60f);
             moveAcceleration = data.Float("moveAcceleration", Accel);
             MoveDirection = data.Enum("direction", Directions.Left);
             homeAngle = targetAngle = angle = MoveDirection.Angle();
@@ -286,7 +286,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 ActivateParticles();
                 yield return 0.2f;
 
-                targetMoveSpeed = MoveSpeed;
                 moveBlockSfx.Play(CustomSFX.game_redirectMoveBlock_arrowblock_move);
                 moveBlockSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;
