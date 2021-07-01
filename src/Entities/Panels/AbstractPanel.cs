@@ -150,7 +150,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void LoadDelayed() {
             // Land and Step sound are identical
-            MethodInfo Platform_GetLandOrStepSoundIndex = typeof(AbstractPanel).GetMethod("Platform_GetLandOrStepSoundIndex", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodInfo Platform_GetLandOrStepSoundIndex = typeof(AbstractPanel).GetMethod(nameof(AbstractPanel.Platform_GetLandOrStepSoundIndex), BindingFlags.NonPublic | BindingFlags.Static);
             foreach (MethodInfo method in typeof(Platform).GetMethod("GetLandSoundIndex").GetOverrides(true)) {
                 Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when AbstractPanel present.");
                 hook_Platform_GetLandOrStepSoundIndex.Add(
@@ -163,7 +163,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     new Hook(method, Platform_GetLandOrStepSoundIndex)
                 );
             }
-            MethodInfo Platform_GetWallSoundIndex = typeof(AbstractPanel).GetMethod("Platform_GetWallSoundIndex", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodInfo Platform_GetWallSoundIndex = typeof(AbstractPanel).GetMethod(nameof(AbstractPanel.Platform_GetWallSoundIndex), BindingFlags.NonPublic | BindingFlags.Static);
             foreach (MethodInfo method in typeof(Platform).GetMethod("GetWallSoundIndex").GetOverrides(true)) {
                 Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when AbstractPanel present.");
                 hook_Platform_GetWallSoundIndex.Add(

@@ -366,7 +366,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void LoadDelayed() {
             hook_TimedTriggerSpikes_GetHue = new ILHook(
-                typeof(TimedTriggerSpikes).GetMethod("GetHue"),
+                typeof(TimedTriggerSpikes).GetMethod(nameof(GetHue)),
                 TimedTriggerSpikes_GetHue);
         }
 
@@ -375,7 +375,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static void TimedTriggerSpikes_GetHue(ILContext il) {
-            FieldInfo crystalSpinner = typeof(TimedTriggerSpikes).GetField("crystalSpinner", BindingFlags.NonPublic | BindingFlags.Static);
+            FieldInfo crystalSpinner = typeof(TimedTriggerSpikes).GetField(nameof(TimedTriggerSpikes.crystalSpinner), BindingFlags.NonPublic | BindingFlags.Static);
             il.Instrs.Clear();
 
             ILCursor cursor = new ILCursor(il);
