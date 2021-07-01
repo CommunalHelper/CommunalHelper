@@ -93,6 +93,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #endregion
 
+        private bool swapUpdate;
+        private Vector2 swapLiftSpeed;
+        private Vector2 moveLiftSpeed;
+        new protected Vector2 LiftSpeed => moveLiftSpeed + swapLiftSpeed;
+
         protected DynData<SwapBlock> swapBlockData;
 
         private Chooser<MTexture> debrisTextures;
@@ -192,8 +197,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             path = swapBlockData.Get<Entity>("path");
         }
 
-        // Called via IL Delegate
-        public new void Update() {
+        // Called via IL Delegate for non-returning blocks ONLY. 
+        new public void Update() {
             DisplacementRenderer.Burst burst = swapBlockData.Get<DisplacementRenderer.Burst>("burst");
             if (burst != null) {
                 burst.Position = Center;
@@ -220,11 +225,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (lerp < previousLerp) {
                     liftSpeed *= -1f;
                 }
+                swapLiftSpeed = liftSpeed;
                 if (Scene.OnInterval(0.02f)) {
                     MoveParticles(difference);
                 }
 
-                MoveTo(Vector2.Lerp(start, end, lerp), liftSpeed);
+                MoveTo(Vector2.Lerp(start, end, lerp));
 
                 if (position != Position) {
                     Audio.Position(swapBlockData.Get<EventInstance>("moveSfx"), Center);
@@ -614,6 +620,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
+            if (!swapUpdate)
+                moveLiftSpeed.X = move / Engine.DeltaTime;
+
+            base.LiftSpeed = LiftSpeed;
             base.MoveHExact(move);
 
             if (moveSwapPoints) {
@@ -629,6 +639,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
+            if (!swapUpdate)
+                moveLiftSpeed.Y = move / Engine.DeltaTime;
+
+            base.LiftSpeed = LiftSpeed;
             base.MoveVExact(move);
 
             if (moveSwapPoints) {
@@ -700,6 +714,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate<Func<SwapBlock, bool>>(entity => {
                 if (entity is MoveSwapBlock block) {
+                    block.swapUpdate = true; // Reset in On hook
+
                     if (block.State == MovementState.Breaking)
                         return true;
 
@@ -714,6 +730,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
             // Else return (stop executing)
             cursor.Emit(OpCodes.Ret);
+
+            // Store the vanilla swap liftSpeed for combining with moveLiftSpeed
+            cursor.GotoNext(instr => instr.MatchCall<Platform>("MoveTo"));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<Vector2, SwapBlock, Vector2>>((liftSpeed, self) => {
+                if (self is MoveSwapBlock block)
+                    block.swapLiftSpeed = liftSpeed;
+                return liftSpeed;
+            });
         }
 
         // For updating the MoveBlock components
@@ -737,6 +762,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     block.topPressed = playerTop;
                 }
                 block.UpdateColors();
+
+                block.swapUpdate = false; // Set in IL hook
             }
         }
 
