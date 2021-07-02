@@ -12,6 +12,7 @@ using Ahorn.Cairo
     chainLength::Integer=64,
     direction::String="Right",
     chainOutline::Bool=true,
+    centeredChain::Bool=false,
 )
 
 const placements = Ahorn.PlacementDict(

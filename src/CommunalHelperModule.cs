@@ -248,6 +248,15 @@ namespace Celeste.Mod.CommunalHelper {
         public static Vector2 RandomDir(float length) {
             return Calc.AngleToVector(Calc.Random.NextAngle(), length);
         }
+
+        public static Vector2 MoveBlockDirectionToVector(MoveBlock.Directions direction) {
+            return direction switch {
+                MoveBlock.Directions.Up => -Vector2.UnitY,
+                MoveBlock.Directions.Down => Vector2.UnitY,
+                MoveBlock.Directions.Left => -Vector2.UnitX,
+                _ => Vector2.UnitX,
+            };
+        }
     }
 
     // Don't worry about it
