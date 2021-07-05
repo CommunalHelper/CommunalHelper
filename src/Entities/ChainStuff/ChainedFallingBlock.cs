@@ -219,10 +219,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             } else {
                 Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
                     () => new Vector2(X + 4, startY),
-                    () => new Vector2(X + 4, Y)));
+                    () => new Vector2(X + 4, Y)) {
+                    AllowPlayerInteraction = false
+                });
                 Scene.Add(chainB = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
                     () => new Vector2(Right - 4, startY),
-                    () => new Vector2(Right - 4, Y)));
+                    () => new Vector2(Right - 4, Y)) {
+                    AllowPlayerInteraction = false
+                });
             }
         }
 
