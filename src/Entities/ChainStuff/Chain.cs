@@ -51,11 +51,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public void Tighten(bool instantly = true) {
+            if (Nodes.Length == 1)
+                return;
+
             Vector2 from = attachedStartGetter != null ? attachedStartGetter() : Position;
             Vector2 to = attachedEndGetter != null ? attachedEndGetter() : Position;
 
             for (int i = 0; i < Nodes.Length; i++) {
-                Vector2 newPos = Vector2.Lerp(from, to, i / (Nodes.Length - 1));
+                Vector2 newPos = from + (to - from) * i / (Nodes.Length - 1);
                 if (instantly) {
                     Nodes[i].Position = newPos;
                     Nodes[i].Velocity *= 0.2f;
@@ -95,8 +98,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void UpdateSfx(Vector2[] oldPositions) {
+            if (sfx == null)
+                return;
+
             float intensity = 0f;
-            if (Nodes.Length > 0 && Nodes.Length == oldPositions.Length && sfx != null && Util.TryGetPlayer(out Player player)) {
+            if (Nodes.Length > 0 && Nodes.Length == oldPositions.Length && Util.TryGetPlayer(out Player player)) {
                 float minDistSqr = float.MaxValue;
 
                 Vector2 averageOffset = Vector2.Zero;
@@ -121,9 +127,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Audio.Position(sfx, sfxPos);
         }
 
+        public void RemoveSfx() {
+            Audio.Stop(sfx);
+        }
+
         public override void Removed(Scene scene) {
             base.Removed(scene);
-            Audio.Stop(sfx);
+            RemoveSfx();
         }
 
         public override void Awake(Scene scene) {
@@ -257,7 +267,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float angle = Calc.Angle(Nodes[i].Position, Nodes[i + 1].Position) - MathHelper.PiOver2;
                 segment.DrawCentered(mid, Color.White, new Vector2(1f, yScale), angle);
             }
-            ChainTexture = GFX.Game["objects/hanginglamp"].GetSubtexture(0, 8, 8, 8);
         }
 
         public static void InitializeTextures() {

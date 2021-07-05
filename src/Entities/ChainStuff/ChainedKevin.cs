@@ -3,9 +3,12 @@ using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using static Celeste.MoveBlock;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
@@ -20,6 +23,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool centeredChain;
         private bool chainOutline;
 
+        private Chain chainA, chainB;
+        private bool hasChains;
+
         private DynData<CrushBlock> crushBlockData;
         private List<Image> idleImages, activeTopImages, activeRightImages, activeLeftImages, activeBottomImages;
 
@@ -28,6 +34,92 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             start = Position;
             chainLength = data.Int("chainLength", 64);
             chainOutline = data.Bool("chainOutline", true);
+            if (((direction == Directions.Up || direction == Directions.Down) && Width <= 8) ||
+                ((direction == Directions.Left || direction == Directions.Right) && Height <= 8)) {
+                centeredChain = true;
+            }
+        }
+
+        private IEnumerator AddChainsSequence() {
+            yield return 0.4f;
+            AddChains();
+        }
+
+        private void AddChains() {
+            hasChains = true;
+            Level level = SceneAs<Level>();
+
+            int nodeCount = (chainLength / 8) + 1;
+            switch (direction) {
+                case Directions.Down:
+                    if (centeredChain) {
+                        Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(Center.X, start.Y),
+                            () => new Vector2(Center.X, Y)));
+                    } else {
+                        Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(X + 4, start.Y),
+                            () => new Vector2(X + 4, Y)));
+                        Scene.Add(chainB = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(Right - 4, start.Y),
+                            () => new Vector2(Right - 4, Y)));
+                    }
+                    break;
+
+                case Directions.Up:
+                    if (centeredChain) {
+                        Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(Center.X, start.Y + Height),
+                            () => new Vector2(Center.X, Y + Height)));
+                    } else {
+                        Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(X + 4, start.Y + Height),
+                            () => new Vector2(X + 4, Y + Height)));
+                        Scene.Add(chainB = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(Right - 4, start.Y + Height),
+                            () => new Vector2(Right - 4, Y + Height)));
+                    }
+                    break;
+
+                case Directions.Left:
+                    if (centeredChain) {
+                        Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(start.X + Width, Center.Y),
+                            () => new Vector2(X + Width, Center.Y)));
+                    } else {
+                        Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(start.X + Width, Y + 4),
+                            () => new Vector2(X + Width, Y + 4)));
+                        Scene.Add(chainB = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(start.X + Width, Bottom - 4),
+                            () => new Vector2(X + Width, Bottom - 4)));
+                    }
+                    break;
+
+                default:
+                case Directions.Right:
+                    if (centeredChain) {
+                        Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(start.X, Center.Y),
+                            () => new Vector2(X, Center.Y)));
+                    } else {
+                        Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(start.X, Y + 4),
+                            () => new Vector2(X, Y + 4)));
+                        Scene.Add(chainB = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
+                            () => new Vector2(start.X, Bottom - 4),
+                            () => new Vector2(X, Bottom - 4)));
+                    }
+                    break;
+            }
+        }
+
+        public override void Update() {
+            base.Update();
+            if (Position == start + vectorDirection * chainLength) {
+                chainA?.Tighten(false);
+                chainB?.Tighten(false);
+            }
         }
 
         #region Hooks
@@ -40,6 +132,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.CrushBlock.CanActivate += CrushBlock_CanActivate;
             On.Celeste.CrushBlock.MoveHCheck += CrushBlock_MoveHCheck;
             On.Celeste.CrushBlock.MoveVCheck += CrushBlock_MoveVCheck;
+            On.Celeste.CrushBlock.Attack += CrushBlock_Attack;
         }
 
         internal static void Unload() {
@@ -50,6 +143,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.CrushBlock.CanActivate -= CrushBlock_CanActivate;
             On.Celeste.CrushBlock.MoveHCheck -= CrushBlock_MoveHCheck;
             On.Celeste.CrushBlock.MoveVCheck -= CrushBlock_MoveVCheck;
+            On.Celeste.CrushBlock.Attack -= CrushBlock_Attack;
+        }
+
+        private static void CrushBlock_Attack(On.Celeste.CrushBlock.orig_Attack orig, CrushBlock self, Vector2 direction) {
+            orig(self, direction);
+
+            if (self is ChainedKevin chainedKevin && !chainedKevin.hasChains) {
+                chainedKevin.Add(new Coroutine(chainedKevin.AddChainsSequence()));
+            }
         }
 
         private static bool CrushBlock_MoveVCheck(On.Celeste.CrushBlock.orig_MoveVCheck orig, CrushBlock self, float amount) {
