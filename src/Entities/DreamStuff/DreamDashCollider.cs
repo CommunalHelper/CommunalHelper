@@ -1,8 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
-using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked]
@@ -11,22 +12,30 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static readonly Color InactiveColor = Calc.HexToColor("044f63"); // darker teal
 
         public Collider Collider;
+        public DreamBlockDummy Dummy;
 
         public Action<Player> OnExit;
 
         public DreamDashCollider(Collider collider, Action<Player> onExit_player_dreamJumped = null)
             : base(active: true, visible: false) {
             Collider = collider;
+            Dummy = new DreamBlockDummy(Entity);
             OnExit = onExit_player_dreamJumped;
         }
 
+        public override void Added(Entity entity) {
+            base.Added(entity);
+            Dummy.Entity = entity;
+        }
+
         /// <summary>
-        /// Checks if the player is colliding with this component's associated entity.
+        /// Checks if the player is colliding with this component.
         /// </summary>
         /// <param name="player">The player instance.</param>
-        /// <returns></returns>
-        public bool Check(Player player) {
-            if (Active) {
+        private bool Check(Player player) {
+            if (Active && Entity != null &&
+                player.GetData().Data.TryGetValue(Player_canEnterDreamDashCollider, out object canEnter) && canEnter.Equals(true)) {
+                
                 Collider collider = Entity.Collider;
 
                 Entity.Collider = Collider;
@@ -38,6 +47,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return false;
         }
 
+        public override void Update() {
+            base.Update();
+            if (Util.TryGetPlayer(out Player player) && Check(player) && player.DashAttacking && player.Speed != Vector2.Zero && player.StateMachine.State != Player.StDreamDash) {
+                player.StateMachine.State = Player.StDreamDash;
+            }
+        }
+
         public override void DebugRender(Camera camera) {
             if (Collider != null) {
                 Collider collider = Entity.Collider;
@@ -47,185 +63,52 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Entity.Collider = collider;
             }
         }
-    }
-
-    public static class ColliderDreamDash {
 
         #region Hooks
 
-        #region CommunalHelper Constants
-
-        private const string Player_dreamDashCollider = "communaldreamDashCollider";
-
-        #endregion
-
-        public static int StColliderDreamDashState;
-
-        private static MethodInfo m_Player_DreamDashedIntoSolid = typeof(Player).GetMethod("DreamDashedIntoSolid", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static MethodInfo m_Player_CreateTrail = typeof(Player).GetMethod("CreateTrail", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly string Player_canEnterDreamDashCollider = "communalHelperCanEnterDreamDashCollider";
 
         internal static void Load() {
-            On.Celeste.Player.ctor += Player_ctor;
-            On.Celeste.Player.Update += Player_Update;
-            On.Celeste.Player.UpdateSprite += Player_UpdateSprite;
+            IL.Celeste.Player.DreamDashUpdate += Player_DreamDashUpdate;
+            On.Celeste.Player.DashBegin += Player_DashBegin;
+            On.Celeste.Player.DreamDashEnd += Player_DreamDashEnd;
         }
 
         internal static void Unload() {
-            On.Celeste.Player.ctor -= Player_ctor;
-            On.Celeste.Player.Update -= Player_Update;
-            On.Celeste.Player.UpdateSprite -= Player_UpdateSprite;
+            IL.Celeste.Player.DreamDashUpdate -= Player_DreamDashUpdate;
+            On.Celeste.Player.DashBegin -= Player_DashBegin;
+            On.Celeste.Player.DreamDashEnd -= Player_DreamDashEnd;
         }
 
-        private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
-            if ((self.StateMachine.State == Player.StDash || self.StateMachine.State == Player.StRedDash) &&
-                self.PlayerInDreamDashCollider() && self.DashDir != Vector2.Zero)
-                self.StateMachine.State = StColliderDreamDashState;
+        private static void Player_DashBegin(On.Celeste.Player.orig_DashBegin orig, Player self) {
+            orig(self);
+            self.GetData()[Player_canEnterDreamDashCollider] = true;
+        }
+
+        private static void Player_DreamDashEnd(On.Celeste.Player.orig_DreamDashEnd orig, Player self) {
+            DynData<Player> playerData = self.GetData();
+            if ((DreamBlock) playerData["dreamBlock"] is DreamBlockDummy dummy) {
+                foreach (DreamDashCollider collider in dummy.Entity.Components.GetAll<DreamDashCollider>()) {
+                    playerData[Player_canEnterDreamDashCollider] = false;
+                    collider.OnExit?.Invoke(self);
+                }
+            }
             orig(self);
         }
 
-        private static void Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self) {
-            orig(self);
-            if (self.StateMachine.State == StColliderDreamDashState) {
-                if (self.Sprite.CurrentAnimationID != "dreamDashIn" && self.Sprite.CurrentAnimationID != "dreamDashLoop") {
-                    self.Sprite.Play("dreamDashIn");
-                }
-            } else if (self.Sprite.DreamDashing && self.Sprite.LastAnimationID != "dreamDashOut") {
-                self.Sprite.Play("dreamDashOut");
-            }
-        }
-
-        private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
-            orig(self, position, spriteMode);
-
-            // DreamDashCollider State
-            StColliderDreamDashState = self.StateMachine.AddState(self.ColliderDreamDashUpdate, null, self.ColliderDreamDashBegin, self.ColliderDreamDashEnd);
-        }
-
-        private static void ColliderDreamDashBegin(this Player player) {
-            DynData<Player> playerData = player.GetData();
-
-            if (playerData["dreamSfxLoop"] == null) {
-                SoundSource dreamSfxLoop = new SoundSource();
-                player.Add(dreamSfxLoop);
-                playerData["dreamSfxLoop"] = dreamSfxLoop;
-            }
-
-            player.Speed = player.DashDir * 240f;
-            player.TreatNaive = true;
-
-            player.Depth = Depths.PlayerDreamDashing;
-            player.Stamina = 110f;
-            playerData["dreamJump"] = false;
-
-            player.Play(SFX.char_mad_dreamblock_enter, null, 0f);
-            player.Loop(playerData.Get<SoundSource>("dreamSfxLoop"), SFX.char_mad_dreamblock_travel);
-        }
-
-        private static void ColliderDreamDashEnd(this Player player) {
-            DynData<Player> playerData = player.GetData();
-
-            player.Depth = Depths.Player;
-
-            if (!playerData.Get<bool>("dreamJump")) {
-                player.AutoJump = true;
-                player.AutoJumpTimer = 0f;
-            }
-
-            if (!player.Inventory.NoRefills) {
-                player.RefillDash();
-            }
-
-            player.RefillStamina();
-            player.TreatNaive = false;
-
-            DreamDashCollider component = playerData.Get<DreamDashCollider>(Player_dreamDashCollider);
-            if (component != null) {
-                if (player.DashDir.X != 0f) {
-                    playerData["jumpGraceTimer"] = 0.1f;
-                    playerData["dreamJump"] = true;
-                } else {
-                    playerData["jumpGraceTimer"] = 0f;
-                }
-                if (component.OnExit is not null)
-                    component.OnExit(player);
-                playerData[Player_dreamDashCollider] = null;
-            }
-
-            player.Stop(playerData.Get<SoundSource>("dreamSfxLoop"));
-            player.Play(SFX.char_mad_dreamblock_exit, null, 0f);
-            Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-        }
-
-        private static int ColliderDreamDashUpdate(this Player player) {
-            DynData<Player> playerData = player.GetData();
-
-            Input.Rumble(RumbleStrength.Light, RumbleLength.Medium);
-
-            Vector2 position = player.Position;
-
-            float dreamDashCanEndTimer = playerData.Get<float>("dreamDashCanEndTimer");
-            if (dreamDashCanEndTimer > 0f) {
-                playerData["dreamDashCanEndTimer"] = dreamDashCanEndTimer - Engine.DeltaTime;
-            }
-
-            player.PlayerInDreamDashCollider(out DreamDashCollider component);
-            if (component == null) {
-                if ((bool) m_Player_DreamDashedIntoSolid.Invoke(player, new object[] { })) {
-                    if (SaveData.Instance.Assists.Invincible) {
-                        player.Position = position;
-                        player.Speed *= -1f;
-                        player.Play(SFX.game_assist_dreamblockbounce);
-                    } else {
-                        player.Die(Vector2.Zero);
-                    }
-                } else if (dreamDashCanEndTimer <= 0f) {
-                    Celeste.Freeze(0.05f);
-
-                    if (Input.Jump.Pressed && player.DashDir.X != 0f) {
-                        playerData["dreamJump"] = true;
-                        player.Jump();
-                    } else if (player.DashDir.Y >= 0f || player.DashDir.X != 0f) {
-                        if (player.DashDir.X > 0f && player.CollideCheck<Solid>(player.Position - Vector2.UnitX * 5f)) {
-                            player.MoveHExact(-5);
-                        } else if (player.DashDir.X < 0f && player.CollideCheck<Solid>(player.Position + Vector2.UnitX * 5f)) {
-                            player.MoveHExact(5);
+        private static void Player_DreamDashUpdate(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchStloc(1))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Func<DreamBlock, Player, DreamBlock>>((dreamBlock, self) => {
+                    foreach (DreamDashCollider collider in self.Scene.Tracker.GetComponents<DreamDashCollider>()) {
+                        if (collider.Check(self)) {
+                            return collider.Dummy;
                         }
                     }
-                    return Player.StNormal;
-                }
-            } else {
-                playerData[Player_dreamDashCollider] = component;
-
-                if (player.Scene.OnInterval(0.1f)) {
-                    m_Player_CreateTrail.Invoke(player, new object[] { });
-                }
-
-                Level level = player.SceneAs<Level>();
-                if (level.OnInterval(0.04f)) {
-                    DisplacementRenderer.Burst burst = level.Displacement.AddBurst(player.Center, 0.3f, 0f, 40f);
-                    burst.WorldClipPadding = 2;
-                }
+                    return dreamBlock;
+                });
             }
-            return StColliderDreamDashState;
-        }
-
-        private static bool PlayerInDreamDashCollider(this Player player, out DreamDashCollider firstComponent) {
-            foreach (DreamDashCollider component in player.Scene.Tracker.GetComponents<DreamDashCollider>()) {
-                if (component.Check(player)) {
-                    firstComponent = component;
-                    return true;
-                }
-            }
-            firstComponent = null;
-            return false;
-        }
-
-        private static bool PlayerInDreamDashCollider(this Player player) {
-            foreach (DreamDashCollider component in player.Scene.Tracker.GetComponents<DreamDashCollider>()) {
-                if (component.Check(player))
-                    return true;
-            }
-            return false;
         }
 
         #endregion

@@ -61,7 +61,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Camera camera = SceneAs<Level>().Camera;
 
             foreach (DreamJellyfish jelly in jellies) {
-                Rectangle jellyBounds = jelly.particleBounds;
+                Rectangle jellyBounds = jelly.ParticleBounds;
                 Vector2 pos = jelly.Position + new Vector2(jellyBounds.X, jellyBounds.Y);
 
                 float left = pos.X;

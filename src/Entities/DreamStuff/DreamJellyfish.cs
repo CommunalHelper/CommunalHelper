@@ -22,9 +22,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static MTexture[] ParticleTextures;
         public float Flash;
 
-        public Rectangle particleBounds = new Rectangle(-23, -35, 48, 42);
+        public Rectangle ParticleBounds = new Rectangle(-23, -35, 48, 42);
 
-        private DreamDashCollider dreamDashCollider;
+        private readonly DreamDashCollider dreamDashCollider;
         public bool AllowDreamDash {
             get {
                 return dreamDashCollider.Active;
@@ -34,7 +34,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        DynData<Glider> gliderData;
+        private DynData<Glider> gliderData;
 
         public Sprite Sprite;
         public MTexture CurrentFrame => Sprite.GetFrame(Sprite.CurrentAnimationID, Sprite.CurrentAnimationFrame);
@@ -51,14 +51,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             gliderData["sprite"] = Sprite = CommunalHelperModule.SpriteBank.Create("dreamJellyfish");
             Add(Sprite);
 
+            Visible = false;
+
             Add(dreamDashCollider = new DreamDashCollider(new Hitbox(28, 16, -13, -18), OnDreamDashExit));
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
 
-            int w = particleBounds.Width;
-            int h = particleBounds.Height;
+            int w = ParticleBounds.Width;
+            int h = ParticleBounds.Height;
             Particles = new DreamParticle[(int) (w / 8f * (h / 8f) * 1.5f)];
             for (int i = 0; i < Particles.Length; i++) {
                 Particles[i].Position = new Vector2(Calc.Random.NextFloat(w), Calc.Random.NextFloat(h));
@@ -123,12 +125,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        public override void Render() {
-            Remove(Sprite);
-            base.Render();
-            Add(Sprite);
-        }
-
         public static void InitializeTextures() {
             ParticleTextures = new MTexture[4] {
                 GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7),
@@ -141,7 +137,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         #region Hooks
 
         internal static void Load() {
+            On.Celeste.Holdable.Pickup += Holdable_Pickup;
             On.Celeste.Holdable.Check += Holdable_Check;
+
             On.Celeste.Player.NormalUpdate += Player_NormalUpdate;
             On.Celeste.Player.StartDash += Player_StartDash;
 
@@ -150,12 +148,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         internal static void Unload() {
+            On.Celeste.Holdable.Pickup -= Holdable_Pickup;
             On.Celeste.Holdable.Check -= Holdable_Check;
+
             On.Celeste.Player.NormalUpdate -= Player_NormalUpdate;
             On.Celeste.Player.StartDash -= Player_StartDash;
 
             On.Celeste.Glider.HitSpring -= Glider_HitSpring;
             On.Celeste.Player.SideBounce -= Player_SideBounce;
+        }
+
+        private static bool Holdable_Pickup(On.Celeste.Holdable.orig_Pickup orig, Holdable self, Player player) {
+            bool result = orig(self, player);
+
+            if (self.Entity is DreamJellyfish jelly)
+               jelly.Visible = false;
+            
+
+            return result;
         }
 
         private static bool Player_SideBounce(On.Celeste.Player.orig_SideBounce orig, Player self, int dir, float fromX, float fromY) {
