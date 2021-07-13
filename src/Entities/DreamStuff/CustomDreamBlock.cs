@@ -158,7 +158,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             Color[] dashColors = new Color[3];
             if (RefillCount != -1) {
-                dashColors[0] = Scene.Tracker.GetEntity<Player>().GetHairColor(RefillCount);
+                dashColors[0] = Scene.Tracker.GetEntity<Player>()?.GetHairColor(RefillCount) ?? Color.White;
                 dashColors[1] = Color.Lerp(dashColors[0], Color.White, 0.5f);
                 dashColors[2] = Color.Lerp(dashColors[1], Color.White, 0.5f);
             }

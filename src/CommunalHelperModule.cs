@@ -58,6 +58,8 @@ namespace Celeste.Mod.CommunalHelper {
             CassetteJumpFixController.Load();
             // TimedTriggerSpikes hooked in Initialize
 
+            UnderwaterMusicController.Load();
+
             HeartGemShard.Load();
             CustomSummitGem.Load();
 
@@ -91,6 +93,8 @@ namespace Celeste.Mod.CommunalHelper {
             AbstractInputController.Unload();
             CassetteJumpFixController.Unload();
             TimedTriggerSpikes.Unload();
+
+            UnderwaterMusicController.Unload();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
@@ -148,6 +152,13 @@ namespace Celeste.Mod.CommunalHelper {
             if (Extensions.TryGetModule(collabUtilsMeta, out EverestModule collabModule)) {
                 Extensions.CollabUtilsLoaded = true;
                 Extensions.CollabUtils_MiniHeart = collabModule.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart");
+            }
+            EverestModuleMetadata celesteTASMeta = new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.5" };
+            if (Extensions.TryGetModule(celesteTASMeta, out EverestModule tasModule)) {
+                Extensions.CelesteTASLoaded = true;
+                Type t_PlayerStates = tasModule.GetType().Module.GetType("TAS.PlayerStates");
+                Extensions.CelesteTAS_PlayerStates_Register = t_PlayerStates.GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
+                Extensions.CelesteTAS_PlayerStates_Unregister = t_PlayerStates.GetMethod("Unregister", BindingFlags.Public | BindingFlags.Static);
             }
 
             MaxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });

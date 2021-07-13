@@ -89,6 +89,20 @@ namespace Celeste.Mod.CommunalHelper {
 
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
 
+        internal static bool CelesteTASLoaded;
+        internal static MethodInfo CelesteTAS_PlayerStates_Register;
+        internal static MethodInfo CelesteTAS_PlayerStates_Unregister;
+
+        public static void RegisterState(int state, string stateName) {
+            if (CelesteTASLoaded)
+                CelesteTAS_PlayerStates_Register.Invoke(null, new object[] { state, stateName });
+        }
+
+        public static void UnregisterState(int state) {
+            if (CelesteTASLoaded)
+                CelesteTAS_PlayerStates_Unregister.Invoke(null, new object[] { state });
+        }
+
         internal static bool MoreDashelineLoaded;
         internal static MethodInfo MoreDasheline_GetHairColor;
 

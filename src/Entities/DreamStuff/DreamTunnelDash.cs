@@ -26,7 +26,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #endregion
 
-        public static int StDreamTunnelDash;
+        public static int StDreamTunnelDash = -1;
         private static bool hasDreamTunnelDash;
         public static bool HasDreamTunnelDash {
             get { return hasDreamTunnelDash || CommunalHelperModule.Settings.AlwaysActiveDreamRefillCharge; }
@@ -105,6 +105,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IL.Celeste.FakeWall.Update -= State_DreamDashNotEqual;
             IL.Celeste.Spring.OnCollide -= State_DreamDashEqual;
             IL.Celeste.Solid.Update -= State_DreamDashNotEqual_And;
+
+            if (StDreamTunnelDash != -1)
+                Extensions.UnregisterState(StDreamTunnelDash);
         }
 
         public static void LoadContent() {
@@ -123,7 +126,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player player, Vector2 position, PlayerSpriteMode spriteMode) {
             orig(player, position, spriteMode);
             HasDreamTunnelDash = dreamTunnelDashAttacking = false;
+
+            if (StDreamTunnelDash != -1)
+                Extensions.UnregisterState(StDreamTunnelDash);
             StDreamTunnelDash = player.StateMachine.AddState(player.DreamTunnelDashUpdate, null, player.DreamTunnelDashBegin, player.DreamTunnelDashEnd);
+            Extensions.RegisterState(StDreamTunnelDash, "StDreamTunnelDash");
         }
 
         private static void Player_DashBegin(On.Celeste.Player.orig_DashBegin orig, Player self) {
@@ -165,7 +172,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             ILCursor cursor = new ILCursor(il);
             cursor.GotoNext(MoveType.After, instr => instr.MatchLdfld<Player>("onGround"));
             cursor.Emit(cursor.Next.OpCode, cursor.Next.Operand);
-            cursor.Emit(OpCodes.Ldsfld, typeof(DreamTunnelDash).GetField("dreamTunnelDashAttacking", BindingFlags.NonPublic | BindingFlags.Static));
+            cursor.Emit(OpCodes.Ldsfld, typeof(DreamTunnelDash).GetField(nameof(dreamTunnelDashAttacking), BindingFlags.NonPublic | BindingFlags.Static));
             cursor.Next.OpCode = OpCodes.Brtrue;
         }
 

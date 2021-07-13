@@ -449,7 +449,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             // Emit a call to a function that takes in the Vector2 and Player objects, and returns a Vector2
             // The Vector2 is already loaded by the previous instructions and stored by the following ones
-            cursor.Emit(OpCodes.Call, typeof(ConnectedSwapBlockHooks).GetMethod("Player_CancelDashAgainstConnectedSwapBlock", BindingFlags.NonPublic | BindingFlags.Static));
+            cursor.Emit(OpCodes.Call, typeof(ConnectedSwapBlockHooks).GetMethod(nameof(Player_CancelDashAgainstConnectedSwapBlock), BindingFlags.NonPublic | BindingFlags.Static));
         }
 
         /*

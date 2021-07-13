@@ -108,7 +108,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         // Used to maintain compatibility with Max's Helping Hand RainbowSpinnerColorController
         private static CrystalStaticSpinner crystalSpinner = new CrystalStaticSpinner(Vector2.Zero, false, CrystalColor.Rainbow);
         [MethodImpl(MethodImplOptions.NoInlining)] // No in-lining, method implemented by IL hook
-        public static Color GetHue(Scene scene, Vector2 position) => default;
+        public static Color GetHue(Scene scene, Vector2 position) {
+            Console.Error.Write("NoInlining");
+            throw new NoInliningException();
+        }
 
         private const float RetractTime = 6f;
 
@@ -363,7 +366,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void LoadDelayed() {
             hook_TimedTriggerSpikes_GetHue = new ILHook(
-                typeof(TimedTriggerSpikes).GetMethod("GetHue"),
+                typeof(TimedTriggerSpikes).GetMethod(nameof(GetHue)),
                 TimedTriggerSpikes_GetHue);
         }
 
@@ -372,7 +375,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static void TimedTriggerSpikes_GetHue(ILContext il) {
-            FieldInfo crystalSpinner = typeof(TimedTriggerSpikes).GetField("crystalSpinner", BindingFlags.NonPublic | BindingFlags.Static);
+            FieldInfo crystalSpinner = typeof(TimedTriggerSpikes).GetField(nameof(TimedTriggerSpikes.crystalSpinner), BindingFlags.NonPublic | BindingFlags.Static);
             il.Instrs.Clear();
 
             ILCursor cursor = new ILCursor(il);

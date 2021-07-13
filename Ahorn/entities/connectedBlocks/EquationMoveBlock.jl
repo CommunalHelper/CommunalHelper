@@ -1,9 +1,9 @@
-module CommunalHelperConnectedMoveBlock
+module CommunalHelperEquationMoveBlock
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-@mapdef Entity "CommunalHelper/ConnectedMoveBlock" ConnectedMoveBlock(
+@mapdef Entity "CommunalHelper/EquationMoveBlock" EquationMoveBlock(
     x::Integer,
     y::Integer,
     width::Integer=Maple.defaultBlockWidth,
@@ -11,31 +11,34 @@ using Ahorn.CommunalHelper
     direction::String="Right",
     moveSpeed::Number=60.0,
     customBlockTexture::String="",
-    idleColor::String="474070",
+    equation::Integer=3,
+	constantA::Number=10,
+	constantB::Number=0.05,
+	idleColor::String="474070",
     pressedColor::String="30b335",
     breakColor::String="cc2541",
 )
 
 const placements = Ahorn.PlacementDict(
-    "Connected Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
-        ConnectedMoveBlock,
+    "Equation Move Block (Beta) ($direction) (Communal Helper)" => Ahorn.EntityPlacement(
+        EquationMoveBlock,
         "rectangle",
-        Dict{String, Any}(
-            "direction" => direction
-        )
+        Dict{String,Any}(
+            "direction" => direction,
+        ),
     ) for direction in Maple.move_block_directions
 )
 
-placements["Connected Move Block (Reskinnable) (Communal Helper)"] = Ahorn.EntityPlacement(
-    ConnectedMoveBlock,
+placements["Equation Move Block (Beta) (Reskinnable) (Communal Helper)"] = Ahorn.EntityPlacement(
+    EquationMoveBlock,
     "rectangle",
     Dict{String,Any}(
         "customBlockTexture" => "CommunalHelper/customConnectedBlock/customConnectedBlock",
     ),
 )
 
-placements["Connected Move Block (Flag-controlled) (Communal Helper)"] = Ahorn.EntityPlacement(
-    ConnectedMoveBlock,
+placements["Equation Move Block (Beta) (Flag-controlled) (Communal Helper)"] = Ahorn.EntityPlacement(
+    EquationMoveBlock,
     "rectangle",
     Dict{String,Any}(
         "activatorFlags" => "_pressed",
@@ -47,17 +50,17 @@ placements["Connected Move Block (Flag-controlled) (Communal Helper)"] = Ahorn.E
     ),
 )
 
-Ahorn.editingOptions(entity::ConnectedMoveBlock) = Dict{String,Any}(
+Ahorn.editingOptions(entity::EquationMoveBlock) = Dict{String,Any}(
     "direction" => Maple.move_block_directions,
     "moveSpeed" => Dict{String,Number}(
         "Slow" => 60.0,
         "Fast" => 75.0,
     ),
 )
-Ahorn.minimumSize(entity::ConnectedMoveBlock) = 16, 16
-Ahorn.resizable(entity::ConnectedMoveBlock) = true, true
+Ahorn.minimumSize(entity::EquationMoveBlock) = 16, 16
+Ahorn.resizable(entity::EquationMoveBlock) = true, true
 
-Ahorn.selection(entity::ConnectedMoveBlock) = Ahorn.getEntityRectangle(entity)
+Ahorn.selection(entity::EquationMoveBlock) = Ahorn.getEntityRectangle(entity)
 
 const arrows = Dict{String,String}(
     "up" => "objects/moveBlock/arrow02",
@@ -78,7 +81,7 @@ const button = "objects/moveBlock/button"
 const midColor = (4, 3, 23, 255) ./ 255
 const highlightColor = (59, 50, 101, 255) ./ 255
 
-function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::ConnectedMoveBlock, room::Maple.Room)
+function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::EquationMoveBlock, room::Maple.Room)
     x = Int(get(entity.data, "x", 0))
     y = Int(get(entity.data, "y", 0))
 
