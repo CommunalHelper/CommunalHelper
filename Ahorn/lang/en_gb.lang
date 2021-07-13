@@ -272,6 +272,17 @@ placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Grouped=Sett
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
 
 
+# -- Dash-through Spikes --
+placements.entities.CommunalHelper/DashThroughSpikesUp.names.type=Texture
+placements.entities.CommunalHelper/DashThroughSpikesLeft.names.type=Texture
+placements.entities.CommunalHelper/DashThroughSpikesDown.names.type=Texture
+placements.entities.CommunalHelper/DashThroughSpikesRight.names.type=Texture
+placements.entities.CommunalHelper/DashThroughSpikesUp.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/DashThroughSpikesLeft.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/DashThroughSpikesDown.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/DashThroughSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+
+
 # -- Input Flag Controller --
 placements.entities.CommunalHelper/InputFlagController.tooltips.flags=Multiple flags can be separated by commas, and sequences of flags can be separated by semi-colons.
 placements.entities.CommunalHelper/InputFlagController.tooltips.toggle=If enabled, flags will be toggled and the sequence will loop. If disabled, flags will be enable once.
