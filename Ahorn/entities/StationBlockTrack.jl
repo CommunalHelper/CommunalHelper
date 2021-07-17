@@ -3,6 +3,7 @@ module CommunalHelperStationBlockTrack
 using ..Ahorn, Maple
 
 const switchStates = ["None", "On", "Off"]
+const moveModes = ["None", "ForwardOneWay", "BackwardOneWay", "ForwardForce", "BackwardForce"]
 
 @mapdef Entity "CommunalHelper/StationBlockTrack" StationBlockTrack(
     x::Integer,
@@ -11,8 +12,7 @@ const switchStates = ["None", "On", "Off"]
     height::Integer=24,
     horizontal::Bool=false,
     trackSwitchState::String="None",
-    offrampNode1::Bool=false,
-    offrampNode2::Bool=false,
+    moveMode::String="None",
     multiBlockTrack::Bool=false,
 )
 
@@ -27,9 +27,6 @@ const placements = Ahorn.PlacementDict(
     ) for orientation in ["Vertical", "Horizontal"], (state, stateLabel) in zip(switchStates, ["No Switching", "Switch On", "Switch Off"])
 )
 
-Ahorn.editingIgnored(entity::StationBlockTrack, multiple::Bool=false) =
-    multiple ? String["x", "y", "width", "height", "nodes", "offrampNode1", "offrampNode2"] : String["offrampNode1", "offrampNode2"]
-
 Ahorn.minimumSize(entity::StationBlockTrack) = 24, 24
 
 function Ahorn.resizable(entity::StationBlockTrack) 
@@ -39,6 +36,7 @@ end
 
 Ahorn.editingOptions(entity::StationBlockTrack) = Dict{String,Any}(
     "trackSwitchState" => switchStates,
+    "moveMode" => moveModes,
 )
 
 # very weird rotation
@@ -88,8 +86,9 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlockTrac
 
     color = getTrackColor(entity)
 
-    offramp1 = Bool(get(entity.data, "offrampNode1", false))
-    offramp2 = Bool(get(entity.data, "offrampNode2", false))
+    moveMode = String(get(entity.data, "moveMode", "None"))
+    backwardArrowCount = moveMode == "BackwardForce" ? 2 : (moveMode == "BackwardOneWay" ? 1 : 0)
+    forwardArrowCount = moveMode == "ForwardForce" ? 2 : (moveMode == "ForwardOneWay" ? 1 : 0)
 
     if horiz
         tilesWidth = div(width, 8)
@@ -100,11 +99,11 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlockTrac
 
         Ahorn.drawImage(ctx, nodeSprite, x, y, 0, 0, 8, 8, tint=color)
         Ahorn.drawImage(ctx, nodeSprite, x + width - 8, y, 8, 0, 8, 8, tint=color)
-        if offramp1
-            Ahorn.drawImage(ctx, arrows, x - 6, y, 0, 8, 8, 8)
+        for i in 0:backwardArrowCount-1
+            Ahorn.drawImage(ctx, arrows, x - 6 - 3 * i, y, 0, 8, 8, 8, tint=color)
         end
-        if offramp2
-            Ahorn.drawImage(ctx, arrows, x + width - 2, y, 8, 0, 8, 8)
+        for i in 0:forwardArrowCount-1
+            Ahorn.drawImage(ctx, arrows, x + width - 2 + 3 * i, y, 8, 0, 8, 8, tint=color)
         end
     else
         tilesHeight = div(height, 8)
@@ -115,11 +114,11 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlockTrac
 
         Ahorn.drawImage(ctx, nodeSprite, x, y, 8, 8, 8, 8, tint=color)
         Ahorn.drawImage(ctx, nodeSprite, x, y + height - 8, 0, 8, 8, 8, tint=color)
-        if offramp1
-            Ahorn.drawImage(ctx, arrows, x, y - 6, 0, 0, 8, 8)
+        for i in 0:backwardArrowCount-1
+            Ahorn.drawImage(ctx, arrows, x, y - 6 - i * 3, 0, 0, 8, 8, tint=color)
         end
-        if offramp2
-            Ahorn.drawImage(ctx, arrows, x, y + height - 2, 8, 8, 8, 8)
+        for i in 0:forwardArrowCount-1
+            Ahorn.drawImage(ctx, arrows, x, y + height - 2 + i * 3, 8, 8, 8, 8, tint=color)
         end
     end
 end
