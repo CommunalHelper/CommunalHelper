@@ -140,6 +140,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamBooster.InitializeParticles();
 
             DreamJellyfish.InitializeTextures();
+            DreamJellyfish.InitializeParticles();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };

@@ -1,15 +1,21 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.Utils;
+using System;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamJellyfish")]
     [Tracked(true)]
     class DreamJellyfish : Glider {
-
         private static MethodInfo m_Player_Pickup = typeof(Player).GetMethod("Pickup", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static readonly ParticleType[] P_DreamGlow = new ParticleType[CustomDreamBlock.DreamColors.Length];
+        public static readonly ParticleType[] P_DreamGlideUp = new ParticleType[CustomDreamBlock.DreamColors.Length];
+        public static readonly ParticleType[] P_DreamGlide = new ParticleType[CustomDreamBlock.DreamColors.Length];
 
         // Could maybe use CustomDreamBlock.DreamParticle.
         public struct DreamParticle {
@@ -39,7 +45,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public Sprite Sprite;
         public MTexture CurrentFrame => Sprite.GetFrame(Sprite.CurrentAnimationID, Sprite.CurrentAnimationFrame);
 
-        public DreamJellyfish(EntityData data, Vector2 offset) 
+        public DreamJellyfish(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Bool("bubble"), data.Bool("tutorial")) { }
 
         public DreamJellyfish(Vector2 position, bool bubble, bool tutorial)
@@ -134,8 +140,34 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             };
         }
 
+        public static void InitializeParticles() {
+            Color flash = P_Glow.Color2;
+            for (int i = 0; i < CustomDreamBlock.DreamColors.Length; i++) {
+                Color color = CustomDreamBlock.DreamColors[i];
+                Color highlight = i % 2 == 0 ? P_Glide.Color : P_Glide.Color2;
+                Color next = Color.Lerp(CustomDreamBlock.DreamColors[(i + 2) % CustomDreamBlock.DreamColors.Length], flash, 0.4f);
+
+                P_DreamGlow[i] = new ParticleType(P_Glow) {
+                    Color = color,
+                    Color2 = next,
+                };
+                P_DreamGlide[i] = new ParticleType(P_Glide) {
+                    Color = color,
+                    Color2 = highlight,
+                };
+                P_DreamGlideUp[i] = new ParticleType(P_GlideUp) {
+                    Color = color,
+                    Color2 = highlight,
+                };
+            }
+        }
+
         #region Hooks
 
+        private static readonly FieldInfo f_Glider_P_Glow = typeof(Glider).GetField("P_Glow", BindingFlags.Public | BindingFlags.Static);
+        private static readonly FieldInfo f_Glider_P_GlideUp = typeof(Glider).GetField("P_GlideUp", BindingFlags.Public | BindingFlags.Static);
+        private static readonly FieldInfo f_Glider_P_Glide = typeof(Glider).GetField("P_Glide", BindingFlags.Public | BindingFlags.Static);
+        
         internal static void Load() {
             On.Celeste.Holdable.Pickup += Holdable_Pickup;
             On.Celeste.Holdable.Check += Holdable_Check;
@@ -145,6 +177,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             On.Celeste.Glider.HitSpring += Glider_HitSpring;
             On.Celeste.Player.SideBounce += Player_SideBounce;
+
+            // Change particles
+            IL.Celeste.Glider.Update += Glider_Update;
         }
 
         internal static void Unload() {
@@ -156,14 +191,38 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             On.Celeste.Glider.HitSpring -= Glider_HitSpring;
             On.Celeste.Player.SideBounce -= Player_SideBounce;
+
+            IL.Celeste.Glider.Update -= Glider_Update;
+        }
+
+        private static void Glider_Update(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdsfld(f_Glider_P_Glow))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Func<ParticleType, Glider, ParticleType>>((particleType, glider) =>
+                    glider is DreamJellyfish ? Calc.Random.Choose(P_DreamGlow) : particleType
+                );
+            }
+
+            if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdsfld(f_Glider_P_GlideUp))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Func<ParticleType, Glider, ParticleType>>((particleType, glider) =>
+                    glider is DreamJellyfish ? Calc.Random.Choose(P_DreamGlideUp) : particleType
+                );
+            }
+            if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdsfld(f_Glider_P_Glide))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Func<ParticleType, Glider, ParticleType>>((particleType, glider) =>
+                    glider is DreamJellyfish ? Calc.Random.Choose(P_DreamGlide) : particleType
+                );
+            }
         }
 
         private static bool Holdable_Pickup(On.Celeste.Holdable.orig_Pickup orig, Holdable self, Player player) {
             bool result = orig(self, player);
 
             if (self.Entity is DreamJellyfish jelly)
-               jelly.Visible = false;
-            
+                jelly.Visible = false;
 
             return result;
         }
