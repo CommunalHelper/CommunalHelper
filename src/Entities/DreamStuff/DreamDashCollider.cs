@@ -16,11 +16,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public Action<Player> OnExit;
 
-        public DreamDashCollider(Collider collider, Action<Player> onExit_player_dreamJumped = null)
+        public DreamDashCollider(Collider collider, Action<Player> onExit_player = null)
             : base(active: true, visible: false) {
             Collider = collider;
             Dummy = new DreamBlockDummy(Entity);
-            OnExit = onExit_player_dreamJumped;
+            OnExit = onExit_player;
         }
 
         public override void Added(Entity entity) {
@@ -33,7 +33,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         /// </summary>
         /// <param name="player">The player instance.</param>
         private bool Check(Player player) {
-            if (Active && Entity != null &&
+            if (Active && Collider is not null && Entity != null &&
                 player.GetData().Data.TryGetValue(Player_canEnterDreamDashCollider, out object canEnter) && canEnter.Equals(true)) {
                 
                 Collider collider = Entity.Collider;

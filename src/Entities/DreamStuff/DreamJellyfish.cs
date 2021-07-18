@@ -32,12 +32,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private readonly DreamDashCollider dreamDashCollider;
         public bool AllowDreamDash {
-            get {
-                return dreamDashCollider.Active;
-            }
-            set {
-                dreamDashCollider.Active = value;
-            }
+            get => dreamDashCollider.Active;
+            set => dreamDashCollider.Active = value;
         }
 
         private DynData<Glider> gliderData;
@@ -76,10 +72,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Particles[i].DisabledColor = Color.LightGray * (0.5f + Particles[i].Layer / 2f * 0.5f);
                 Particles[i].DisabledColor.A = 255;
 
-                Particles[i].EnabledColor = Particles[i].Layer switch {
-                    2 => Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64")),
-                    1 => Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C")),
-                    _ => Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310")),
+                Particles[i].EnabledColor = Particles[i].Layer  switch {
+                    0 => Calc.Random.Choose(CustomDreamBlock.DreamColors[0], CustomDreamBlock.DreamColors[1], CustomDreamBlock.DreamColors[2]),
+                    1 => Calc.Random.Choose(CustomDreamBlock.DreamColors[3], CustomDreamBlock.DreamColors[4], CustomDreamBlock.DreamColors[5]),
+                    2 => Calc.Random.Choose(CustomDreamBlock.DreamColors[6], CustomDreamBlock.DreamColors[7], CustomDreamBlock.DreamColors[8]),
+                    _ => throw new NotImplementedException()
                 };
             }
 
