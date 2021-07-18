@@ -399,49 +399,60 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     currentTrack = CurrentNode.trackRight;
                 }
 
-                bool travel = nextNode != null && currentTrack.SwitchState != TrackSwitchState.Off;
-                Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
-                if (travel) {
-                    Safe = false;
+                while (true) {
+                    bool travel = nextNode != null && currentTrack.SwitchState != TrackSwitchState.Off;
+                    Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
+                    if (travel) {
+                        Safe = false;
 
-                    arrowSprite.Play(GetTurnAnim(arrowDir, MoveDir), true);
+                        arrowSprite.Play(GetTurnAnim(arrowDir, MoveDir), true);
 
-                    yield return 0.2f;
+                        yield return 0.2f;
 
-                    float t = 0f;
-                    StopPlayerRunIntoAnimation = false;
-                    Vector2 start = CurrentNode.Center - offset;
-                    Vector2 target = nextNode.Center - offset;
-                    while (t < 1f) {
-                        t = Calc.Approach(t, 1f, speedFactor * 2f * Engine.DeltaTime);
+                        float t = 0f;
+                        StopPlayerRunIntoAnimation = false;
+                        Vector2 start = CurrentNode.Center - offset;
+                        Vector2 target = nextNode.Center - offset;
+                        while (t < 1f) {
+                            t = Calc.Approach(t, 1f, speedFactor * 2f * Engine.DeltaTime);
 
-                        percent = Ease.SineIn(t);
-                        currentTrack.trackOffset = f * percent * 16;
-                        CurrentNode.percent = nextNode.percent = currentTrack.percent = percent;
+                            percent = Ease.SineIn(t);
+                            currentTrack.trackOffset = f * percent * 16;
+                            CurrentNode.percent = nextNode.percent = currentTrack.percent = percent;
 
-                        Vector2 vector = Vector2.Lerp(start, target, percent);
-                        ScrapeParticlesCheck(vector);
-                        if (Scene.OnInterval(0.05f)) {
-                            currentTrack.CreateSparks(Center, p_sparks);
+                            Vector2 vector = Vector2.Lerp(start, target, percent);
+                            ScrapeParticlesCheck(vector);
+                            if (Scene.OnInterval(0.05f)) {
+                                currentTrack.CreateSparks(Center, p_sparks);
+                            }
+
+                            MoveTo(vector);
+                            yield return null;
                         }
-
-                        MoveTo(vector);
-                        yield return null;
+                        StartShaking(0.2f);
+                        Sfx.Param(Theme == Themes.Moon ? "end_moon" : "end", 1);
+                        Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
+                        SceneAs<Level>().Shake(0.2f);
+                        StopPlayerRunIntoAnimation = true;
+                        currentTrack.trackOffset = 0f;
+                        CurrentNode.percent = nextNode.percent = currentTrack.percent = percent = 0f;
+                        CurrentNode = nextNode;
+                    } else {
+                        arrowSprite.Play(GetAnimName(arrowDir, arrowDir), true);
+                        yield return 0.25f;
                     }
-                    StartShaking(0.2f);
-                    Sfx.Param(Theme == Themes.Moon ? "end_moon" : "end", 1);
-                    Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
-                    SceneAs<Level>().Shake(0.2f);
-                    StopPlayerRunIntoAnimation = true;
-                    currentTrack.trackOffset = 0f;
-                    CurrentNode.percent = nextNode.percent = currentTrack.percent = percent = 0f;
-                    CurrentNode = nextNode;
-                } else {
-                    arrowSprite.Play(GetAnimName(arrowDir, arrowDir), true);
-                    yield return 0.25f;
+                    Safe = true;
+
+                    if (CurrentNode.ForceTarget is null) {
+                        IsMoving = false;
+                        break;
+                    } else {
+                        Console.WriteLine("forcetarget is not null");
+                        nextNode = CurrentNode.ForceTarget;
+                        currentTrack = CurrentNode.ForceTrack;
+                        MoveDir = (nextNode.Position - CurrentNode.Position).FourWayNormal();
+                    }
                 }
-                Safe = true;
-                IsMoving = false;
             }
         }
 

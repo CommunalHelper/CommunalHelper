@@ -19,6 +19,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Node nodeUp, nodeDown, nodeLeft, nodeRight;
             public StationBlockTrack trackUp, trackDown, trackLeft, trackRight;
             public float percent = 0f;
+
+            // Move Mode stuff
+            public Node ForceTarget;
+            public StationBlockTrack ForceTrack;
         }
 
         public enum TrackSwitchState {
@@ -26,6 +30,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
         public TrackSwitchState SwitchState;
         private TrackSwitchState initialSwitchState;
+
+        private enum MoveMode {
+            None, 
+            ForwardOneWay, BackwardOneWay,
+            ForwardForce, BackwardForce,
+        }
 
         public bool HasGroup { get; private set; }
         public bool MasterOfGroup { get; private set; }
@@ -66,6 +76,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             multiBlockTrack = data.Bool("multiBlockTrack", false);
             Collider = new Hitbox(horizontal ? data.Width : 8, horizontal ? 8 : data.Height);
 
+            MoveMode moveMode = data.Enum("moveMode", MoveMode.None);
+
             nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
             nodeRect2 = new Rectangle((int) (X + Width - 8), (int) (Y + Height - 8), 8, 8);
 
@@ -74,17 +86,29 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (horizontal) {
                 initialNodeData1.nodeRight = initialNodeData2;
                 initialNodeData1.trackRight = this;
+
                 initialNodeData2.nodeLeft = initialNodeData1;
                 initialNodeData2.trackLeft = this;
+
                 trackRect = new Rectangle((int) X + 8, (int) Y, (int) Width - 16, (int) Height);
                 length = Width - 8;
             } else {
                 initialNodeData1.nodeDown = initialNodeData2;
                 initialNodeData1.trackDown = this;
+
                 initialNodeData2.nodeUp = initialNodeData1;
                 initialNodeData2.trackUp = this;
+
                 trackRect = new Rectangle((int) X, (int) Y + 8, (int) Width, (int) Height - 16);
                 length = Height - 8;
+            }
+
+            if (moveMode == MoveMode.BackwardForce) {
+                initialNodeData2.ForceTarget = initialNodeData1;
+                initialNodeData2.ForceTrack = this;
+            } else if (moveMode == MoveMode.ForwardForce) {
+                initialNodeData1.ForceTarget = initialNodeData2;
+                initialNodeData1.ForceTrack = this;
             }
 
             from = initialNodeData1.Center;
@@ -266,6 +290,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     foundNode1.trackRight = track;
                     node1.nodeRight.trackLeft = track;
                 }
+                if (node1.ForceTarget != null && foundNode1.ForceTarget == null) {
+                    foundNode1.ForceTarget = node1.ForceTarget;
+                    foundNode1.ForceTrack = node1.ForceTrack;
+                }
             }
 
             if (foundNode2 == null) {
@@ -294,6 +322,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     node2.nodeRight.nodeLeft = foundNode2;
                     foundNode2.trackRight = track;
                     node2.nodeRight.trackLeft = track;
+                }
+                if (node2.ForceTarget != null && foundNode2.ForceTarget == null) {
+                    foundNode2.ForceTarget = node2.ForceTarget;
+                    foundNode2.ForceTrack = node2.ForceTrack;
                 }
             }
         }
