@@ -4,7 +4,6 @@ using Monocle;
 using System;
 using System.Collections;
 using Node = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.Node;
-using TrackSwitchState = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.TrackSwitchState;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/StationBlock")]
@@ -26,7 +25,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private ParticleType p_sparks;
 
         private ArrowDir arrowDir;
-        private float percent = 0f;
+        private float Percent = 0f;
 
         public enum ArrowDir {
             Up,
@@ -257,13 +256,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IsAttachedToTrack = true;
             CurrentNode = node;
 
-            if (node.nodeUp != null)
+            if (node.NodeUp != null)
                 arrowDir = ArrowDir.Up;
-            else if (node.nodeRight != null)
+            else if (node.NodeRight != null)
                 arrowDir = ArrowDir.Right;
-            else if (node.nodeLeft != null)
+            else if (node.NodeLeft != null)
                 arrowDir = ArrowDir.Left;
-            else if (node.nodeDown != null)
+            else if (node.NodeDown != null)
                 arrowDir = ArrowDir.Down;
 
             arrowSprite.Play("Idle" + Enum.GetName(typeof(ArrowDir), arrowDir), true);
@@ -380,27 +379,29 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Node nextNode = null;
                 StationBlockTrack currentTrack = null;
                 float f = 1f;
-                if (MoveDir == -Vector2.UnitY && CurrentNode.nodeUp != null) {
-                    nextNode = CurrentNode.nodeUp;
-                    currentTrack = CurrentNode.trackUp;
+                if (MoveDir == -Vector2.UnitY && CurrentNode.NodeUp != null) {
+                    nextNode = CurrentNode.NodeUp;
+                    currentTrack = CurrentNode.TrackUp;
                     f = -1f;
                 } else
-                if (MoveDir == Vector2.UnitY && CurrentNode.nodeDown != null) {
-                    nextNode = CurrentNode.nodeDown;
-                    currentTrack = CurrentNode.trackDown;
+                if (MoveDir == Vector2.UnitY && CurrentNode.NodeDown != null) {
+                    nextNode = CurrentNode.NodeDown;
+                    currentTrack = CurrentNode.TrackDown;
                 } else
-                if (MoveDir == -Vector2.UnitX && CurrentNode.nodeLeft != null) {
-                    nextNode = CurrentNode.nodeLeft;
-                    currentTrack = CurrentNode.trackLeft;
+                if (MoveDir == -Vector2.UnitX && CurrentNode.NodeLeft != null) {
+                    nextNode = CurrentNode.NodeLeft;
+                    currentTrack = CurrentNode.TrackLeft;
                     f = -1f;
                 } else
-                if (MoveDir == Vector2.UnitX && CurrentNode.nodeRight != null) {
-                    nextNode = CurrentNode.nodeRight;
-                    currentTrack = CurrentNode.trackRight;
+                if (MoveDir == Vector2.UnitX && CurrentNode.NodeRight != null) {
+                    nextNode = CurrentNode.NodeRight;
+                    currentTrack = CurrentNode.TrackRight;
                 }
 
+                bool travel = nextNode != null && currentTrack.CanBeUsed &&
+                    !(currentTrack.OneWayDir.HasValue && currentTrack.OneWayDir.Value == -MoveDir);
+
                 while (true) {
-                    bool travel = nextNode != null && currentTrack.SwitchState != TrackSwitchState.Off;
                     Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
                     if (travel) {
                         Safe = false;
@@ -416,11 +417,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         while (t < 1f) {
                             t = Calc.Approach(t, 1f, speedFactor * 2f * Engine.DeltaTime);
 
-                            percent = Ease.SineIn(t);
-                            currentTrack.trackOffset = f * percent * 16;
-                            CurrentNode.percent = nextNode.percent = currentTrack.percent = percent;
+                            Percent = Ease.SineIn(t);
+                            currentTrack.TrackOffset = f * Percent * 16;
+                            CurrentNode.Percent = nextNode.Percent = currentTrack.Percent = Percent;
 
-                            Vector2 vector = Vector2.Lerp(start, target, percent);
+                            Vector2 vector = Vector2.Lerp(start, target, Percent);
                             ScrapeParticlesCheck(vector);
                             if (Scene.OnInterval(0.05f)) {
                                 currentTrack.CreateSparks(Center, p_sparks);
@@ -434,24 +435,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                         SceneAs<Level>().Shake(0.2f);
                         StopPlayerRunIntoAnimation = true;
-                        currentTrack.trackOffset = 0f;
-                        CurrentNode.percent = nextNode.percent = currentTrack.percent = percent = 0f;
+                        currentTrack.TrackOffset = 0f;
+                        CurrentNode.Percent = nextNode.Percent = currentTrack.Percent = Percent = 0f;
                         CurrentNode = nextNode;
                     } else {
                         arrowSprite.Play(GetAnimName(arrowDir, arrowDir), true);
                         yield return 0.25f;
                     }
                     Safe = true;
-
-                    if (CurrentNode.ForceTarget is null) {
-                        IsMoving = false;
-                        break;
-                    } else {
-                        Console.WriteLine("forcetarget is not null");
-                        nextNode = CurrentNode.ForceTarget;
-                        currentTrack = CurrentNode.ForceTrack;
-                        MoveDir = (nextNode.Position - CurrentNode.Position).FourWayNormal();
-                    }
+                    IsMoving = false;
+                    break;
                 }
             }
         }
