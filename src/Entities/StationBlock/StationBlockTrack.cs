@@ -21,6 +21,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Node NodeUp, NodeDown, NodeLeft, NodeRight;
             public StationBlockTrack TrackUp, TrackDown, TrackLeft, TrackRight;
 
+            public Vector2 PushForce;
+
             public float Percent = 0f;
         }
 
@@ -50,7 +52,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool multiBlockTrack = false;
 
         public Vector2? OneWayDir;
-        public bool ForceMovement;
         
         private MTexture trackSprite, disabledTrackSprite;
         private List<MTexture> nodeSprite;
@@ -81,10 +82,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             multiBlockTrack = data.Bool("multiBlockTrack", false);
             Collider = new Hitbox(Horizontal ? data.Width : 8, Horizontal ? 8 : data.Height);
 
+            nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
+            nodeRect2 = new Rectangle((int) (X + Width - 8), (int) (Y + Height - 8), 8, 8);
+
+            initialNodeData1 = new Node(nodeRect1.X, nodeRect1.Y);
+            initialNodeData2 = new Node(nodeRect2.X, nodeRect2.Y);
+
             Vector2 dir = Horizontal ? Vector2.UnitX : Vector2.UnitY;
             switch (data.Enum("moveMode", MoveMode.None)) {
                 case MoveMode.ForwardForce:
-                    ForceMovement = true;
+                    initialNodeData1.PushForce = Horizontal ? Vector2.UnitX : Vector2.UnitY;
                     OneWayDir = dir;
                     break;
 
@@ -93,7 +100,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     break;
 
                 case MoveMode.BackwardForce:
-                    ForceMovement = true;
+                    initialNodeData2.PushForce = Horizontal ? -Vector2.UnitX : -Vector2.UnitY;
                     OneWayDir = -dir;
                     break;
 
@@ -104,12 +111,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 default:
                     break;
             }
-
-            nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
-            nodeRect2 = new Rectangle((int) (X + Width - 8), (int) (Y + Height - 8), 8, 8);
-
-            initialNodeData1 = new Node(nodeRect1.X, nodeRect1.Y);
-            initialNodeData2 = new Node(nodeRect2.X, nodeRect2.Y);
 
             if (Horizontal) {
                 initialNodeData1.NodeRight = initialNodeData2;
@@ -188,7 +189,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         block.Attach(node);
                         if (!setTheme) {
                             OffsetTrack(block.Center - node.Center);
-                            SetTrackTheme(block.Theme, block.reverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
+                            SetTrackTheme(block.Theme, block.ReverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
                             setTheme = true;
                         }
                         block.Position += node.Center - block.Center;
@@ -280,67 +281,45 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return null;
         }
 
+        private void AddNodeToTrack(Node node, StationBlockTrack track) {
+            Node foundNode = GetNodeAt(Track, node.Position);
+
+            if (foundNode == null) {
+                Track.Add(node);
+            } else {
+                if (foundNode.NodeUp == null && node.NodeUp != null) {
+                    foundNode.NodeUp = node.NodeUp;
+                    node.NodeUp.NodeDown = foundNode;
+                    foundNode.TrackUp = track;
+                    node.NodeUp.TrackDown = track;
+                }
+                if (foundNode.NodeDown == null && node.NodeDown != null) {
+                    foundNode.NodeDown = node.NodeDown;
+                    node.NodeDown.NodeUp = foundNode;
+                    foundNode.TrackDown = track;
+                    node.NodeDown.TrackUp = track;
+                }
+                if (foundNode.NodeLeft == null && node.NodeLeft != null) {
+                    foundNode.NodeLeft = node.NodeLeft;
+                    node.NodeLeft.NodeRight = foundNode;
+                    foundNode.TrackLeft = track;
+                    node.NodeLeft.TrackRight = track;
+                }
+                if (foundNode.NodeRight == null && node.NodeRight != null) {
+                    foundNode.NodeRight = node.NodeRight;
+                    node.NodeRight.NodeLeft = foundNode;
+                    foundNode.TrackRight = track;
+                    node.NodeRight.TrackLeft = track;
+                }
+                if (foundNode.PushForce == Vector2.Zero && node.PushForce != Vector2.Zero) {
+                    foundNode.PushForce = node.PushForce;
+                }
+            }
+        }
+
         private void AddTrackSegmentToTrack(Node node1, Node node2, StationBlockTrack track) {
-            Node foundNode1 = GetNodeAt(Track, node1.Position);
-            Node foundNode2 = GetNodeAt(Track, node2.Position);
-
-            if (foundNode1 == null) {
-                Track.Add(node1);
-            } else {
-                if (foundNode1.NodeUp == null && node1.NodeUp != null) {
-                    foundNode1.NodeUp = node1.NodeUp;
-                    node1.NodeUp.NodeDown = foundNode1;
-                    foundNode1.TrackUp = track;
-                    node1.NodeUp.TrackDown = track;
-                }
-                if (foundNode1.NodeDown == null && node1.NodeDown != null) {
-                    foundNode1.NodeDown = node1.NodeDown;
-                    node1.NodeDown.NodeUp = foundNode1;
-                    foundNode1.TrackDown = track;
-                    node1.NodeDown.TrackUp = track;
-                }
-                if (foundNode1.NodeLeft == null && node1.NodeLeft != null) {
-                    foundNode1.NodeLeft = node1.NodeLeft;
-                    node1.NodeLeft.NodeRight = foundNode1;
-                    foundNode1.TrackLeft = track;
-                    node1.NodeLeft.TrackRight = track;
-                }
-                if (foundNode1.NodeRight == null && node1.NodeRight != null) {
-                    foundNode1.NodeRight = node1.NodeRight;
-                    node1.NodeRight.NodeLeft = foundNode1;
-                    foundNode1.TrackRight = track;
-                    node1.NodeRight.TrackLeft = track;
-                }
-            }
-
-            if (foundNode2 == null) {
-                Track.Add(node2);
-            } else {
-                if (foundNode2.NodeUp == null && node2.NodeUp != null) {
-                    foundNode2.NodeUp = node2.NodeUp;
-                    node2.NodeUp.NodeDown = foundNode2;
-                    foundNode2.TrackUp = track;
-                    node2.NodeUp.TrackDown = track;
-                }
-                if (foundNode2.NodeDown == null && node2.NodeDown != null) {
-                    foundNode2.NodeDown = node2.NodeDown;
-                    node2.NodeDown.NodeUp = foundNode2;
-                    foundNode2.TrackDown = track;
-                    node2.NodeDown.TrackUp = track;
-                }
-                if (foundNode2.NodeLeft == null && node2.NodeLeft != null) {
-                    foundNode2.NodeLeft = node2.NodeLeft;
-                    node2.NodeLeft.NodeRight = foundNode2;
-                    foundNode2.TrackLeft = track;
-                    node2.NodeLeft.TrackRight = track;
-                }
-                if (foundNode2.NodeRight == null && node2.NodeRight != null) {
-                    foundNode2.NodeRight = node2.NodeRight;
-                    node2.NodeRight.NodeLeft = foundNode2;
-                    foundNode2.TrackRight = track;
-                    node2.NodeRight.TrackLeft = track;
-                }
-            }
+            AddNodeToTrack(node1, track);
+            AddNodeToTrack(node2, track);
         }
 
         public override void Update() {
