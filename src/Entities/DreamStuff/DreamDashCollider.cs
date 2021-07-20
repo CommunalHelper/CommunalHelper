@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -98,7 +99,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void Player_DreamDashUpdate(ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchStloc(1))) {
+            if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchCall(out MethodReference m) && m.Name == "CollideFirst")) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Func<DreamBlock, Player, DreamBlock>>((dreamBlock, self) => {
                     foreach (DreamDashCollider collider in self.Scene.Tracker.GetComponents<DreamDashCollider>()) {
