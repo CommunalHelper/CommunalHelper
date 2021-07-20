@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Monocle;
-using System;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
@@ -25,6 +24,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public DreamJellyfishRenderer() {
             Depth = Depths.Player - 4;
             Tag = Tags.Global | Tags.TransitionUpdate;
+            /* 
+             * Okay, so this was the only way I could imagine doing this.
+             * I was told that using a render target for masking stuff was a bit brutal, but I couldn't find another way.
+             */
             renderTarget = VirtualContent.CreateRenderTarget("communalhelper-dreamjellyfishrenderer", 48, 42);
         }
 
@@ -69,7 +72,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float top = pos.Y;
                 float bottom = pos.Y + jellyBounds.Height;
                 if (right < camera.Left || left > camera.Right || bottom < camera.Top || top > camera.Bottom)
-                    continue;
+                    continue; // Skip jelly rendering if it's not on screen.
 
                 MTexture frame = jelly.CurrentFrame;
 
@@ -80,9 +83,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 frame.DrawCentered(jelly.Position + new Vector2(1, -4), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
 
                 GameplayRenderer.End();
+                // Here we start drawing on a virtual texture.
                 Engine.Graphics.GraphicsDevice.SetRenderTarget(renderTarget);
                 Engine.Graphics.GraphicsDevice.Clear(Color.Lerp(Color.Black, Color.White, jelly.Flash));
-
 
                 Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, ColorGrade.Effect);
                 for (int i = 0; i < jelly.Particles.Length; i++) {
@@ -124,6 +127,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
                 Draw.SpriteBatch.End();
 
+                // We have drawn the dream block background and the stars, and we want to mask it using an alpha mask.
+                // The alpha masks are the same images that Gliders have, only with alpha information, no color, so they overlap the region in which we want the background to be visible.
 
                 Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, alphaMaskBlendState, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, ColorGrade.Effect);
                 frame.DrawCentered(
@@ -134,14 +139,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 );
                 Draw.SpriteBatch.End();
 
-
+                // Mask is drawn, we'll switch back to where the game was drawing entities previously.
                 Engine.Graphics.GraphicsDevice.SetRenderTarget(GameplayBuffers.Gameplay);
                 GameplayRenderer.Begin();
                 // Draw Virtual Texture
                 Draw.SpriteBatch.Draw(renderTarget, pos, Color.White);
             }
         }
-
 
         #region Hooks
 
