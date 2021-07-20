@@ -139,7 +139,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             return orig => {
                 IEnumerator controller;
-                orig.Replace(controller = (IEnumerator) Activator.CreateInstance(t_Controller, 3));
+                orig.Replace(controller = (IEnumerator) Activator.CreateInstance(t_Controller, jumpPoint));
                 f_Controller_this.SetValue(controller, targetData.Target);
             };
         }

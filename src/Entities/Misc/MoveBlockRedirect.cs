@@ -225,6 +225,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private IEnumerator BreakBlock(MoveBlockRedirectable redirectable, Coroutine orig, bool fast, bool oneUse) {
+            redirectable.MoveTo(Position);
             redirectable.MoveSfx.Stop();
 
             //state = MovementState.Breaking;
