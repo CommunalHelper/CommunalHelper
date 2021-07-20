@@ -426,6 +426,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         currentTrack.TrackOffset = f * Percent * 16;
                         CurrentNode.Percent = nextNode.Percent = currentTrack.Percent = Percent;
 
+                        if (nextNode.HasIndicator && nextNode.PushForce != Vector2.Zero) {
+                            nextNode.ColorLerp = Math.Min(1f, t * 2f);
+                        }
+
                         Vector2 vector = Vector2.Lerp(start, target, Percent);
                         ScrapeParticlesCheck(vector);
                         if (Scene.OnInterval(0.05f)) {

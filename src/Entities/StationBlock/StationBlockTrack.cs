@@ -22,6 +22,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public StationBlockTrack TrackUp, TrackDown, TrackLeft, TrackRight;
 
             public Vector2 PushForce;
+            public Color IndicatorColor;
+            public Color IndicatorIncomingColor;
+            public bool HasIndicator;
+            public float ColorLerp;
 
             public float Percent = 0f;
         }
@@ -68,6 +72,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static readonly string TracksPath = "objects/CommunalHelper/stationBlock/tracks/";
 
+        private static MTexture forceArrow;
+
         public StationBlockTrack(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
             Depth = Depths.SolidsBelow;
@@ -88,10 +94,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             initialNodeData1 = new Node(nodeRect1.X, nodeRect1.Y);
             initialNodeData2 = new Node(nodeRect2.X, nodeRect2.Y);
 
+            Color indicatorColor = data.HexColorNullable("indicatorColor") ?? Color.White;
+            Color indicatorIncomingColor = data.HexColorNullable("indicatorIncomingColor") ?? Color.White;
+            bool hasIndicator = data.Bool("indicator", true);
+
             Vector2 dir = Horizontal ? Vector2.UnitX : Vector2.UnitY;
             switch (data.Enum("moveMode", MoveMode.None)) {
                 case MoveMode.ForwardForce:
                     initialNodeData1.PushForce = Horizontal ? Vector2.UnitX : Vector2.UnitY;
+                    initialNodeData1.HasIndicator = hasIndicator;
+                    if (hasIndicator) {
+                        initialNodeData1.IndicatorColor = indicatorColor;
+                        initialNodeData1.IndicatorIncomingColor = indicatorIncomingColor;
+                    }
                     OneWayDir = dir;
                     break;
 
@@ -101,6 +116,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 case MoveMode.BackwardForce:
                     initialNodeData2.PushForce = Horizontal ? -Vector2.UnitX : -Vector2.UnitY;
+                    initialNodeData2.HasIndicator = hasIndicator;
+                    if (hasIndicator) {
+                        initialNodeData2.IndicatorColor = indicatorColor;
+                        initialNodeData2.IndicatorIncomingColor = indicatorIncomingColor;
+                    }
                     OneWayDir = -dir;
                     break;
 
@@ -313,6 +333,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
                 if (foundNode.PushForce == Vector2.Zero && node.PushForce != Vector2.Zero) {
                     foundNode.PushForce = node.PushForce;
+                    foundNode.HasIndicator = node.HasIndicator;
+                    foundNode.IndicatorColor = node.IndicatorColor;
+                    foundNode.IndicatorIncomingColor = node.IndicatorIncomingColor;
                 }
             }
         }
@@ -324,7 +347,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Update() {
             base.Update();
-            //trackStatePercent = Calc.Approach(trackStatePercent, switchState == TrackSwitchState.On ? 1f : 0f, Engine.DeltaTime);
+
+            if (MasterOfGroup) {
+                foreach (Node node in Track) {
+                    if (node.HasIndicator && node.ColorLerp != 0f) {
+                        node.ColorLerp = Calc.Approach(node.ColorLerp, 0f, Engine.DeltaTime);
+                    }
+                }
+            }
+
             trackStatePercent += ((switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f) - trackStatePercent) / 4 * Engine.DeltaTime * 25;
         }
 
@@ -336,9 +367,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     track.DrawPipe();
                 }
 
+                float bounce = (float) Math.Floor(1.5f * (Scene.TimeActive % 1f));
+
                 foreach (Node node in Track) {
                     int frame = (int) (node.Percent * 8) % nodeSprite.Count; // Allows for somewhat speed control.
                     nodeSprite[frame].DrawCentered(node.Center);
+                    if (node.HasIndicator && node.PushForce != Vector2.Zero) {
+                        forceArrow.DrawCentered(node.Center + node.PushForce * (8f + bounce), Color.Lerp(node.IndicatorColor, node.IndicatorIncomingColor, node.ColorLerp), 1f, node.PushForce.Angle());
+                    }
                 }
             }
         }
@@ -378,6 +414,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (initialSwitchState == TrackSwitchState.None)
                 return;
             switchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
+        }
+
+        internal static void InitializeTextures() {
+            forceArrow = GFX.Game["objects/CommunalHelper/stationBlock/tracks/forceIndicator"];
         }
     }
 }
