@@ -126,7 +126,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
 
                 Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, alphaMaskBlendState, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, ColorGrade.Effect);
-                Draw.Rect(0, 0, jellyBounds.Width, jellyBounds.Height, Color.Transparent);
                 frame.DrawCentered(
                     new Vector2(-1, 10) + new Vector2(jellyBounds.Width, jellyBounds.Height) / 2f,
                     Color.White,
