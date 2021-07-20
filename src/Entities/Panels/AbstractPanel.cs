@@ -146,6 +146,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.DashBlock.Break_Vector2_Vector2_bool_bool += DashBlock_Break_Vector2_Vector2_bool_bool;
 
             DreamTunnelEntry.Load();
+            FrictionlessPanel.Load();
         }
 
         internal static void LoadDelayed() {
@@ -181,6 +182,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.DashBlock.Break_Vector2_Vector2_bool_bool -= DashBlock_Break_Vector2_Vector2_bool_bool;
 
             DreamTunnelEntry.Unload();
+            FrictionlessPanel.Unload();
         }
 
         private static int Platform_GetLandOrStepSoundIndex(Func<Platform, Entity, int> orig, Platform self, Entity entity) {
