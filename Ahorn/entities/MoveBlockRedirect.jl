@@ -1,6 +1,7 @@
 module CommunalHelperMoveBlockRedirect
 
 using ..Ahorn, Maple
+using Ahorn.CommunalHelper
 
 @mapdef Entity "CommunalHelper/MoveBlockRedirect" MoveBlockRedirect(
     x::Integer,
@@ -13,6 +14,9 @@ using ..Ahorn, Maple
     oneUse::Bool=false,
     modifier::Number=0.0,
     operation::String="Add",
+    reskinFolder::String="",
+    overrideColor::String="",
+    overrideUsedColor::String="",
 )
 
 const placements = Ahorn.PlacementDict(
@@ -54,8 +58,6 @@ const deleteColor = (204, 37, 65, 255) ./ 255
 const fastColor = (41, 195, 47, 255) ./ 255
 const slowColor = (28, 91, 179, 255) ./ 255
 
-const block = "objects/CommunalHelper/moveBlockRedirect/block"
-
 const clockwise = ["Up", "Right", "Down", "Left"]
 function Ahorn.rotated(entity::MoveBlockRedirect, steps::Int)
     dir = get(entity.data, "direction", "Up")
@@ -82,34 +84,46 @@ function getRotation(dir::String)
     end
 end
 
-function getIconTextureAndColor(entity::MoveBlockRedirect)
+function getTexturesAndColor(entity::MoveBlockRedirect)
     path = "objects/CommunalHelper/moveBlockRedirect/"
+    reskinFolder = String(get(entity.data, "reskinFolder", ""))
+    if reskinFolder != ""
+        if last(reskinFolder, 1) != "/"
+            reskinFolder = reskinFolder * "/"
+        end
+        path = "objects/" * reskinFolder
+    end
+
+    block = path * "block"
+    overrideColorHex = String(get(entity.data, "overrideColor", ""))
+    overrideColor = (overrideColorHex != "" && length(overrideColorHex) == 6) ? hexToRGBA(overrideColorHex) : nothing
+    
     deleteBlock = Bool(get(entity.data, "deleteBlock", false))
     if deleteBlock
-        return path * "x", deleteColor
+        return block, path * "x", overrideColordeleteColor
     end
 
     operation = get(entity.data, "operation", "Add")
     modifier = abs(get(entity.data, "modifier", 0.0))
     if operation == "Add"
         if modifier != 0.0
-            return path * "fast", fastColor
+            return block, path * "fast", overrideColor === nothing ? fastColor : overrideColor
         end
     elseif operation == "Subtract"
         if modifier != 0
-            return path * "slow", slowColor
+            return block, path * "slow", overrideColor === nothing ? slowColor : overrideColor
         end
     elseif operation == "Multiply"
         if modifier == 0.0
-            return path * "x", deleteColor
+            return block, path * "x", overrideColor === nothing ? deleteColor : overrideColor
         elseif modifier > 1.0
-            return path * "fast", fastColor
+            return block, path * "fast", overrideColor === nothing ? fastColor : overrideColor
         elseif modifier < 1.0
-            return path * "slow", slowColor
+            return block, path * "slow", overrideColor === nothing ? slowColor : overrideColor
         end
     end
 
-    return path * "arrow", defaultColor
+    return block, path * "arrow", overrideColor === nothing ? defaultColor : overrideColor
 end
 
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::MoveBlockRedirect)
@@ -117,7 +131,7 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::MoveBlockRedirect)
     height = Int(get(entity.data, "height", 32))
 
     direction = String(get(entity.data, "direction", "Up"))
-    sprite, color = getIconTextureAndColor(entity)
+    block, sprite, color = getTexturesAndColor(entity)
 
     tileWidth = ceil(Int, width / 8)
     tileHeight = ceil(Int, height / 8)
@@ -140,5 +154,3 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::MoveBlockRedirect)
 end
 
 end
-
-

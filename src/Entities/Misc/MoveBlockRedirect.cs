@@ -35,6 +35,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static readonly Color SlowerColor = Calc.HexToColor("1c5bb3");
 
         private Color startColor;
+        private Color? overrideColor, overrideUsedColor;
 
         public Directions Direction;
         public bool FastRedirect;
@@ -46,6 +47,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private MoveBlockRedirectable lastMoveBlock;
 
+        private string reskinFolder;
         private Icon icon;
 
         public MoveBlockRedirect(EntityData data, Vector2 offset)
@@ -60,6 +62,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Operation = data.Enum("operation", Operations.Add);
             Modifier = Math.Abs(data.Float("modifier"));
 
+            overrideColor = data.HexColorNullable("overrideColor");
+            overrideUsedColor = data.HexColorNullable("overrideUsedColor");
+
             if (float.TryParse(data.Attr("direction"), out float fAngle))
                 angle = fAngle;
             else {
@@ -67,13 +72,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 angle = Direction.Angle();
             }
 
+            string str = data.Attr("reskinFolder").Trim().TrimEnd('/');
+            reskinFolder = str == "" ? null : "objects/" + str;
+
             AddTextures();
         }
 
         private void AddTextures() {
             borders = new List<Image>();
 
-            MTexture block = GFX.Game["objects/CommunalHelper/moveBlockRedirect/block"];
+            MTexture defaultTexture = GFX.Game["objects/CommunalHelper/moveBlockRedirect/block"];
+            MTexture block;
+            if (reskinFolder == null) {
+                block = defaultTexture;
+            } else {
+                GFX.Game.PushFallback(defaultTexture);
+                block = GFX.Game[reskinFolder + "/block"];
+                GFX.Game.PopFallback();
+            }
 
             int w = (int) (Width / 8f);
             int h = (int) (Height / 8f);
@@ -127,7 +143,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     startColor = SlowerColor;
                 }
             }
-            scene.Add(icon = new Icon(Center, angle, iconTexture));
+            scene.Add(icon = new Icon(Center, angle, iconTexture, reskinFolder));
             UpdateAppearance();
             p_Used = new ParticleType(SwitchGate.P_Behind) {
                 Color = icon.Sprite.Color,
@@ -138,7 +154,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void UpdateAppearance() {
-            Color currentColor = Color.Lerp(startColor, UsedColor, maskAlpha) * alpha;
+            Color currentColor = Color.Lerp(overrideColor ?? startColor, overrideUsedColor ?? UsedColor, maskAlpha) * alpha;
             icon.Sprite.Color = currentColor;
             foreach (Image image in borders) {
                 image.Color = currentColor * alpha;
@@ -339,15 +355,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Render() {
             Draw.Rect(X - 1, Y - 1, Width + 2, Height + 2, Mask * maskAlpha);
             base.Render();
-
         }
 
         private class Icon : Entity {
             public Image Sprite;
-            public Icon(Vector2 position, float rotation, string icon)
+            public Icon(Vector2 position, float rotation, string iconName, string reskinFolder)
                 : base(position) {
                 Depth = Depths.Below;
-                Add(Sprite = new Image(GFX.Game["objects/CommunalHelper/moveBlockRedirect/" + icon]));
+
+                MTexture defaultTexture = GFX.Game["objects/CommunalHelper/moveBlockRedirect/" + iconName];
+                MTexture icon;
+                if (reskinFolder == null) {
+                    icon = defaultTexture;
+                } else {
+                    GFX.Game.PushFallback(defaultTexture);
+                    icon = GFX.Game[$"{reskinFolder}/{iconName}"];
+                    GFX.Game.PopFallback();
+                }
+                Add(Sprite = new Image(icon));
+
                 Sprite.CenterOrigin();
                 Sprite.Rotation = rotation;
             }
