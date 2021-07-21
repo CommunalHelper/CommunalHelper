@@ -41,6 +41,8 @@ namespace Celeste.Mod.CommunalHelper {
             CustomDreamBlock.Load();
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
 
+            DreamDashCollider.Load();
+
             AbstractPanel.Load();
             // Panel-specific hooks loaded from AbstractPanel.Load
 
@@ -62,6 +64,9 @@ namespace Celeste.Mod.CommunalHelper {
             CustomSummitGem.Load();
 
             CustomBooster.Load();
+
+            DreamJellyfish.Load();
+            DreamJellyfishRenderer.Load();
         }
 
         public override void Unload() {
@@ -75,6 +80,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             CustomDreamBlock.Unload();
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
+
+            DreamDashCollider.Unload();
 
             ConnectedSwapBlockHooks.Unhook();
             CustomCassetteBlock.Unhook();
@@ -93,6 +100,9 @@ namespace Celeste.Mod.CommunalHelper {
             CustomSummitGem.Unload();
 
             CustomBooster.Unload();
+
+            DreamJellyfish.Unload();
+            DreamJellyfishRenderer.Unload();
         }
 
         public override void Initialize() {
@@ -130,6 +140,9 @@ namespace Celeste.Mod.CommunalHelper {
 
             RailedMoveBlock.InitializeTextures();
             DreamBooster.InitializeParticles();
+
+            DreamJellyfish.InitializeTextures();
+            DreamJellyfish.InitializeParticles();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
