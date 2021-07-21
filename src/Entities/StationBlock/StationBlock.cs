@@ -55,6 +55,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public bool IsAttachedToTrack = false;
         public Node CurrentNode = null;
+        private Node nextNode;
+        private StationBlockTrack currentTrack;
 
         private bool dashCornerCorrection;
 
@@ -291,14 +293,31 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private void Smash(Vector2 dir) {
-            scale = new Vector2(
-                1f + Math.Abs(dir.Y) * 0.35f - Math.Abs(dir.X) * 0.35f,
-                1f + Math.Abs(dir.X) * 0.35f - Math.Abs(dir.Y) * 0.35f);
-            hitOffset = dir * 5f;
-
+        private void Smash(Vector2 dir, bool force = false) {
             MoveDir = dir;
-            IsMoving = true;
+
+            if (MoveDir == -Vector2.UnitY && CurrentNode.NodeUp != null) {
+                nextNode = CurrentNode.NodeUp;
+                currentTrack = CurrentNode.TrackUp;
+            } else if (MoveDir == Vector2.UnitY && CurrentNode.NodeDown != null) {
+                nextNode = CurrentNode.NodeDown;
+                currentTrack = CurrentNode.TrackDown;
+            } else if (MoveDir == -Vector2.UnitX && CurrentNode.NodeLeft != null) {
+                nextNode = CurrentNode.NodeLeft;
+                currentTrack = CurrentNode.TrackLeft;
+            } else if (MoveDir == Vector2.UnitX && CurrentNode.NodeRight != null) {
+                nextNode = CurrentNode.NodeRight;
+                currentTrack = CurrentNode.TrackRight;
+            }
+
+            IsMoving = force && currentTrack.CanBeUsed;
+            if (!force) {
+                scale = new Vector2(
+                    1f + Math.Abs(dir.Y) * 0.35f - Math.Abs(dir.X) * 0.35f,
+                    1f + Math.Abs(dir.X) * 0.35f - Math.Abs(dir.Y) * 0.35f);
+                hitOffset = dir * 5f;
+                IsMoving = true;
+            }
         }
 
         private string GetTurnAnim(ArrowDir from, Vector2 dirTo) {
@@ -381,26 +400,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 StartShaking(0.2f);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 
-                Node nextNode = null;
-                StationBlockTrack currentTrack = null;
-
-                if (MoveDir == -Vector2.UnitY && CurrentNode.NodeUp != null) {
-                    nextNode = CurrentNode.NodeUp;
-                    currentTrack = CurrentNode.TrackUp;
-                } else
-                    if (MoveDir == Vector2.UnitY && CurrentNode.NodeDown != null) {
-                    nextNode = CurrentNode.NodeDown;
-                    currentTrack = CurrentNode.TrackDown;
-                } else
-                    if (MoveDir == -Vector2.UnitX && CurrentNode.NodeLeft != null) {
-                    nextNode = CurrentNode.NodeLeft;
-                    currentTrack = CurrentNode.TrackLeft;
-                } else
-                    if (MoveDir == Vector2.UnitX && CurrentNode.NodeRight != null) {
-                    nextNode = CurrentNode.NodeRight;
-                    currentTrack = CurrentNode.TrackRight;
-                }
-
                 Vector2 dirSign = Calc.Sign(MoveDir);
                 float f = dirSign.X == -1 || dirSign.Y == -1 ? -1 : 1f;
 
@@ -408,17 +407,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     !(currentTrack.OneWayDir.HasValue && currentTrack.OneWayDir.Value == -MoveDir);
 
                 Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
+
                 if (travel) {
                     Safe = false;
-
+                    if (CurrentNode.PushForce != Vector2.Zero) {
+                        Audio.Play(CustomSFX.game_stationBlock_force_cue, Center);
+                    }
                     arrowSprite.Play(GetTurnAnim(arrowDir, MoveDir), true);
-
                     yield return 0.2f;
 
                     float t = 0f;
                     StopPlayerRunIntoAnimation = false;
                     Vector2 start = CurrentNode.Center - offset;
                     Vector2 target = nextNode.Center - offset;
+
                     while (t < 1f) {
                         t = Calc.Approach(t, 1f, speedFactor * 2f * Engine.DeltaTime);
 
@@ -439,11 +441,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         MoveTo(vector);
                         yield return null;
                     }
+
                     StartShaking(0.2f);
                     Sfx.Param(Theme == Themes.Moon ? "end_moon" : "end", 1);
                     Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                     SceneAs<Level>().Shake(0.2f);
                     StopPlayerRunIntoAnimation = true;
+
                     currentTrack.TrackOffset = 0f;
                     CurrentNode.Percent = nextNode.Percent = currentTrack.Percent = Percent = 0f;
                     CurrentNode = nextNode;
@@ -501,7 +505,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             arrowSprite.Position = hitOffset + offset;
 
             if (CurrentNode != null && CurrentNode.PushForce != Vector2.Zero && !IsMoving) {
-                Smash(CurrentNode.PushForce);
+                Smash(CurrentNode.PushForce, force: true);
             }
         }
 
