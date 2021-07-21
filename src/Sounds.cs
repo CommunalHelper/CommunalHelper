@@ -19,6 +19,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public const string game_stationBlock_station_block_seq = "event:/CommunalHelperEvents/game/stationBlock/station_block_seq";
         public const string game_stationBlock_moon_block_seq = "event:/CommunalHelperEvents/game/stationBlock/moon_block_seq";
+        public const string game_stationBlock_force_cue = "event:/CommunalHelperEvents/game/stationBlock/force_cue";
 
         public const string game_trackSwitchBox_smash = "event:/CommunalHelperEvents/game/trackSwitchBox/smash";
 
@@ -70,5 +71,4 @@ namespace Celeste.Mod.CommunalHelper {
     public static class CustomBanks {
         public static Bank CommunalHelper = Audio.Banks.Banks["bank:/CommunalHelperBank"];
     }
-
 }

@@ -122,6 +122,7 @@ namespace Celeste.Mod.CommunalHelper {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
 
             StationBlock.InitializeParticles();
+            StationBlockTrack.InitializeTextures();
             TrackSwitchBox.InitializeParticles();
 
             DreamTunnelDash.LoadContent();

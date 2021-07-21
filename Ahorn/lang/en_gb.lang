@@ -222,6 +222,7 @@ placements.entities.CommunalHelper/StationBlock.tooltips.dashCornerCorrection=Ma
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.multiBlockTrack=Whether this set of tracks can support more than one Station Block.
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.horizontal=Whether the track should be handled as a horizontal one.
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.trackSwitchState=The starting state of the track. "None" will make it unswitchable. "On" will make it turned on by defaul, and "Off" will make it turned off.
+placements.entities.CommunalHelper/StationBlockTrack.tooltips.moveMode=This option will determine the behaviour of blocks sitting on this track.\n\n\n- "None" : Changes nothing.\n\n -"ForwardOneWay" : Makes blocks only able to travel along this track if they're moving RIGHT or DOWN.\n\n -"BackwardOneWay" : Makes blocks only able to travel along this track if they're moving LEFT or UP.\n\n -"ForwardForce" : If any block can travel along this track in the RIGHT or DOWN direction, they will be force to. Behaviour from "ForwardOneWay" also applies here.\n\n -"BackwardForce" : If any block can travel along this track in the LEFT or UP direction, they will be force to. Behaviour from "BackwardOneWay" also applies here.
 
 # -- Track Switch Box --
 placements.entities.CommunalHelper/TrackSwitchBox.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
