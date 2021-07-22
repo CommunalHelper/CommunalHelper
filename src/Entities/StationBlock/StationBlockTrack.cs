@@ -14,18 +14,35 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Center = Position + new Vector2(4, 4);
                 Hitbox = new Rectangle(x, y, 8, 8);
             }
+
             public Vector2 Position, Center;
             public Rectangle Hitbox;
-            public Node nodeUp, nodeDown, nodeLeft, nodeRight;
-            public StationBlockTrack trackUp, trackDown, trackLeft, trackRight;
-            public float percent = 0f;
+
+            public Node NodeUp, NodeDown, NodeLeft, NodeRight;
+            public StationBlockTrack TrackUp, TrackDown, TrackLeft, TrackRight;
+
+            public Vector2 PushForce;
+            public Color IndicatorColor;
+            public Color IndicatorIncomingColor;
+            public bool HasIndicator;
+            public float ColorLerp;
+
+            public float Percent = 0f;
         }
 
         public enum TrackSwitchState {
             None, On, Off
         }
-        public TrackSwitchState SwitchState;
+        private TrackSwitchState switchState;
         private TrackSwitchState initialSwitchState;
+
+        public bool CanBeUsed => switchState != TrackSwitchState.Off;
+
+        private enum MoveMode {
+            None, 
+            ForwardOneWay, BackwardOneWay,
+            ForwardForce, BackwardForce,
+        }
 
         public bool HasGroup { get; private set; }
         public bool MasterOfGroup { get; private set; }
@@ -38,51 +55,99 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<StationBlockTrack> Group;
         private bool multiBlockTrack = false;
 
+        public Vector2? OneWayDir;
+        
         private MTexture trackSprite, disabledTrackSprite;
         private List<MTexture> nodeSprite;
 
         private float sparkDirFromA, sparkDirFromB, sparkDirToA, sparkDirToB, length;
-        public float percent = 0f;
+        public float Percent = 0f;
         private Vector2 from, to, sparkAdd;
 
-        public bool horizontal;
-        private bool trackConstantLooping = false;
-        public float trackOffset = 0f;
+        public bool Horizontal;
+
+        private bool trackConstantLooping;
         private float trackStatePercent;
+        public float TrackOffset = 0f;
 
         private static readonly string TracksPath = "objects/CommunalHelper/stationBlock/tracks/";
+
+        private static MTexture forceArrow;
 
         public StationBlockTrack(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
             Depth = Depths.SolidsBelow;
 
-            initialSwitchState = SwitchState = data.Enum("trackSwitchState", TrackSwitchState.None);
+            initialSwitchState = switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
             if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off && initialSwitchState != TrackSwitchState.None)
                 Switch(TrackSwitchState.Off);
 
-            trackStatePercent = SwitchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f;
+            trackStatePercent = switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f;
 
-            horizontal = data.Bool("horizontal");
+            Horizontal = data.Bool("horizontal");
             multiBlockTrack = data.Bool("multiBlockTrack", false);
-            Collider = new Hitbox(horizontal ? data.Width : 8, horizontal ? 8 : data.Height);
+            Collider = new Hitbox(Horizontal ? data.Width : 8, Horizontal ? 8 : data.Height);
 
             nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
             nodeRect2 = new Rectangle((int) (X + Width - 8), (int) (Y + Height - 8), 8, 8);
 
             initialNodeData1 = new Node(nodeRect1.X, nodeRect1.Y);
             initialNodeData2 = new Node(nodeRect2.X, nodeRect2.Y);
-            if (horizontal) {
-                initialNodeData1.nodeRight = initialNodeData2;
-                initialNodeData1.trackRight = this;
-                initialNodeData2.nodeLeft = initialNodeData1;
-                initialNodeData2.trackLeft = this;
+
+            Color indicatorColor = data.HexColorNullable("indicatorColor") ?? Color.White;
+            Color indicatorIncomingColor = data.HexColorNullable("indicatorIncomingColor") ?? Color.White;
+            bool hasIndicator = data.Bool("indicator", true);
+
+            Vector2 dir = Horizontal ? Vector2.UnitX : Vector2.UnitY;
+            switch (data.Enum("moveMode", MoveMode.None)) {
+                case MoveMode.ForwardForce:
+                    initialNodeData1.PushForce = Horizontal ? Vector2.UnitX : Vector2.UnitY;
+                    initialNodeData1.HasIndicator = hasIndicator;
+                    if (hasIndicator) {
+                        initialNodeData1.IndicatorColor = indicatorColor;
+                        initialNodeData1.IndicatorIncomingColor = indicatorIncomingColor;
+                    }
+                    OneWayDir = dir;
+                    break;
+
+                case MoveMode.ForwardOneWay:
+                    OneWayDir = dir;
+                    break;
+
+                case MoveMode.BackwardForce:
+                    initialNodeData2.PushForce = Horizontal ? -Vector2.UnitX : -Vector2.UnitY;
+                    initialNodeData2.HasIndicator = hasIndicator;
+                    if (hasIndicator) {
+                        initialNodeData2.IndicatorColor = indicatorColor;
+                        initialNodeData2.IndicatorIncomingColor = indicatorIncomingColor;
+                    }
+                    OneWayDir = -dir;
+                    break;
+
+                case MoveMode.BackwardOneWay:
+                    OneWayDir = -dir;
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (Horizontal) {
+                initialNodeData1.NodeRight = initialNodeData2;
+                initialNodeData1.TrackRight = this;
+
+                initialNodeData2.NodeLeft = initialNodeData1;
+                initialNodeData2.TrackLeft = this;
+
                 trackRect = new Rectangle((int) X + 8, (int) Y, (int) Width - 16, (int) Height);
                 length = Width - 8;
             } else {
-                initialNodeData1.nodeDown = initialNodeData2;
-                initialNodeData1.trackDown = this;
-                initialNodeData2.nodeUp = initialNodeData1;
-                initialNodeData2.trackUp = this;
+                initialNodeData1.NodeDown = initialNodeData2;
+                initialNodeData1.TrackDown = this;
+
+                initialNodeData2.NodeUp = initialNodeData1;
+                initialNodeData2.TrackUp = this;
+
                 trackRect = new Rectangle((int) X, (int) Y + 8, (int) Width, (int) Height - 16);
                 length = Height - 8;
             }
@@ -90,12 +155,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             from = initialNodeData1.Center;
             to = initialNodeData2.Center;
             sparkAdd = (from - to).SafeNormalize(3f).Perpendicular();
+
             float num = (from - to).Angle();
             sparkDirFromA = num + (float) Math.PI / 8f;
             sparkDirFromB = num - (float) Math.PI / 8f;
             sparkDirToA = num + (float) Math.PI - (float) Math.PI / 8f;
             sparkDirToB = num + (float) Math.PI + (float) Math.PI / 8f;
-
         }
 
         public override void Awake(Scene scene) {
@@ -144,7 +209,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         block.Attach(node);
                         if (!setTheme) {
                             OffsetTrack(block.Center - node.Center);
-                            SetTrackTheme(block.Theme, block.reverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
+                            SetTrackTheme(block.Theme, block.ReverseControls, block.CustomNode, block.CustomTrackH, block.CustomTrackV);
                             setTheme = true;
                         }
                         block.Position += node.Center - block.Center;
@@ -185,15 +250,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         }
                         break;
                 }
+
                 foreach (StationBlockTrack track in Group) {
                     track.trackConstantLooping = constantLooping;
-                    track.trackSprite = GFX.Game[TracksPath + (track.horizontal ? trackH : trackV)];
-                    track.disabledTrackSprite = GFX.Game[TracksPath + "outline/" + (track.horizontal ? "h" : "v")];
+                    track.trackSprite = GFX.Game[TracksPath + (track.Horizontal ? trackH : trackV)];
+                    track.disabledTrackSprite = GFX.Game[TracksPath + "outline/" + (track.Horizontal ? "h" : "v")];
                     track.nodeSprite = GFX.Game.GetAtlasSubtextures(TracksPath + node);
                 }
             } else {
                 foreach (StationBlockTrack track in Group) {
-                    track.trackSprite = track.horizontal ? customTrackH : customTrackV;
+                    track.trackSprite = track.Horizontal ? customTrackH : customTrackV;
                     track.nodeSprite = new List<MTexture>() { customNode };
                 }
             }
@@ -235,73 +301,62 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return null;
         }
 
-        private void AddTrackSegmentToTrack(Node node1, Node node2, StationBlockTrack track) {
-            Node foundNode1 = GetNodeAt(Track, node1.Position);
-            Node foundNode2 = GetNodeAt(Track, node2.Position);
+        private void AddNodeToTrack(Node node, StationBlockTrack track) {
+            Node foundNode = GetNodeAt(Track, node.Position);
 
-            if (foundNode1 == null) {
-                Track.Add(node1);
+            if (foundNode == null) {
+                Track.Add(node);
             } else {
-                if (foundNode1.nodeUp == null && node1.nodeUp != null) {
-                    foundNode1.nodeUp = node1.nodeUp;
-                    node1.nodeUp.nodeDown = foundNode1;
-                    foundNode1.trackUp = track;
-                    node1.nodeUp.trackDown = track;
+                if (foundNode.NodeUp == null && node.NodeUp != null) {
+                    foundNode.NodeUp = node.NodeUp;
+                    node.NodeUp.NodeDown = foundNode;
+                    foundNode.TrackUp = track;
+                    node.NodeUp.TrackDown = track;
                 }
-                if (foundNode1.nodeDown == null && node1.nodeDown != null) {
-                    foundNode1.nodeDown = node1.nodeDown;
-                    node1.nodeDown.nodeUp = foundNode1;
-                    foundNode1.trackDown = track;
-                    node1.nodeDown.trackUp = track;
+                if (foundNode.NodeDown == null && node.NodeDown != null) {
+                    foundNode.NodeDown = node.NodeDown;
+                    node.NodeDown.NodeUp = foundNode;
+                    foundNode.TrackDown = track;
+                    node.NodeDown.TrackUp = track;
                 }
-                if (foundNode1.nodeLeft == null && node1.nodeLeft != null) {
-                    foundNode1.nodeLeft = node1.nodeLeft;
-                    node1.nodeLeft.nodeRight = foundNode1;
-                    foundNode1.trackLeft = track;
-                    node1.nodeLeft.trackRight = track;
+                if (foundNode.NodeLeft == null && node.NodeLeft != null) {
+                    foundNode.NodeLeft = node.NodeLeft;
+                    node.NodeLeft.NodeRight = foundNode;
+                    foundNode.TrackLeft = track;
+                    node.NodeLeft.TrackRight = track;
                 }
-                if (foundNode1.nodeRight == null && node1.nodeRight != null) {
-                    foundNode1.nodeRight = node1.nodeRight;
-                    node1.nodeRight.nodeLeft = foundNode1;
-                    foundNode1.trackRight = track;
-                    node1.nodeRight.trackLeft = track;
+                if (foundNode.NodeRight == null && node.NodeRight != null) {
+                    foundNode.NodeRight = node.NodeRight;
+                    node.NodeRight.NodeLeft = foundNode;
+                    foundNode.TrackRight = track;
+                    node.NodeRight.TrackLeft = track;
                 }
-            }
-
-            if (foundNode2 == null) {
-                Track.Add(node2);
-            } else {
-                if (foundNode2.nodeUp == null && node2.nodeUp != null) {
-                    foundNode2.nodeUp = node2.nodeUp;
-                    node2.nodeUp.nodeDown = foundNode2;
-                    foundNode2.trackUp = track;
-                    node2.nodeUp.trackDown = track;
-                }
-                if (foundNode2.nodeDown == null && node2.nodeDown != null) {
-                    foundNode2.nodeDown = node2.nodeDown;
-                    node2.nodeDown.nodeUp = foundNode2;
-                    foundNode2.trackDown = track;
-                    node2.nodeDown.trackUp = track;
-                }
-                if (foundNode2.nodeLeft == null && node2.nodeLeft != null) {
-                    foundNode2.nodeLeft = node2.nodeLeft;
-                    node2.nodeLeft.nodeRight = foundNode2;
-                    foundNode2.trackLeft = track;
-                    node2.nodeLeft.trackRight = track;
-                }
-                if (foundNode2.nodeRight == null && node2.nodeRight != null) {
-                    foundNode2.nodeRight = node2.nodeRight;
-                    node2.nodeRight.nodeLeft = foundNode2;
-                    foundNode2.trackRight = track;
-                    node2.nodeRight.trackLeft = track;
+                if (foundNode.PushForce == Vector2.Zero && node.PushForce != Vector2.Zero) {
+                    foundNode.PushForce = node.PushForce;
+                    foundNode.HasIndicator = node.HasIndicator;
+                    foundNode.IndicatorColor = node.IndicatorColor;
+                    foundNode.IndicatorIncomingColor = node.IndicatorIncomingColor;
                 }
             }
         }
 
+        private void AddTrackSegmentToTrack(Node node1, Node node2, StationBlockTrack track) {
+            AddNodeToTrack(node1, track);
+            AddNodeToTrack(node2, track);
+        }
+
         public override void Update() {
             base.Update();
-            //trackStatePercent = Calc.Approach(trackStatePercent, switchState == TrackSwitchState.On ? 1f : 0f, Engine.DeltaTime);
-            trackStatePercent += ((SwitchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f) - trackStatePercent) / 4 * Engine.DeltaTime * 25;
+
+            if (MasterOfGroup) {
+                foreach (Node node in Track) {
+                    if (node.HasIndicator && node.ColorLerp != 0f) {
+                        node.ColorLerp = Calc.Approach(node.ColorLerp, 0f, Engine.DeltaTime);
+                    }
+                }
+            }
+
+            trackStatePercent += ((switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f) - trackStatePercent) / 4 * Engine.DeltaTime * 25;
         }
 
         public override void Render() {
@@ -312,25 +367,30 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     track.DrawPipe();
                 }
 
+                float bounce = (float) Math.Floor(1.5f * (Scene.TimeActive % 1f));
+
                 foreach (Node node in Track) {
-                    int frame = (int) (node.percent * 8) % nodeSprite.Count; // Allows for somewhat speed control.
+                    int frame = (int) (node.Percent * 8) % nodeSprite.Count; // Allows for somewhat speed control.
                     nodeSprite[frame].DrawCentered(node.Center);
+                    if (node.HasIndicator && node.PushForce != Vector2.Zero) {
+                        forceArrow.DrawCentered(node.Center + node.PushForce * (8f + bounce), Color.Lerp(node.IndicatorColor, node.IndicatorIncomingColor, node.ColorLerp), 1f, node.PushForce.Angle());
+                    }
                 }
             }
         }
 
         private void DrawPipe() {
-            if (SwitchState != TrackSwitchState.None)
+            if (switchState != TrackSwitchState.None) {
                 for (int i = 0; i <= length; i += 8) {
-                    disabledTrackSprite.Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i), Vector2.Zero, Color.White * trackStatePercent);
+                    disabledTrackSprite.Draw(Position + new Vector2(Horizontal ? i : 0, Horizontal ? 0 : i), Vector2.Zero, Color.White * trackStatePercent);
                 }
+            }
 
             int trackpercent = (int) (trackStatePercent * (length + 2));
 
-            for (int i = (int) Util.Mod(trackConstantLooping ? Scene.TimeActive * 14 : trackOffset, 8) + trackpercent; i <= length; i += 8) {
-                trackSprite.Draw(Position + new Vector2(horizontal ? i : 0, horizontal ? 0 : i));
+            for (int i = (int) Util.Mod(trackConstantLooping ? Scene.TimeActive * 14 : TrackOffset, 8) + trackpercent; i <= length; i += 8) {
+                trackSprite.Draw(Position + new Vector2(Horizontal ? i : 0, Horizontal ? 0 : i));
             }
-
         }
 
         public void CreateSparks(Vector2 position, ParticleType p) {
@@ -353,7 +413,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private void Switch(TrackSwitchState state) {
             if (initialSwitchState == TrackSwitchState.None)
                 return;
-            SwitchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
+            switchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
+        }
+
+        internal static void InitializeTextures() {
+            forceArrow = GFX.Game["objects/CommunalHelper/stationBlock/tracks/forceIndicator"];
         }
     }
 }

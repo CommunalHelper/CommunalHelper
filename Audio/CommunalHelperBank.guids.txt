@@ -1,3 +1,11 @@
+{4d0ffdff-b036-4c3c-9692-42f572e34a8d} event:/CommunalHelperEvents/game/attachedBlock/move
+{6f5a9b5e-9410-41ac-bba6-e79e93ba367b} event:/CommunalHelperEvents/game/chain/move
+{20042b1d-3b1f-49c7-a2da-68a3003dae83} event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/boss_impact
+{bc5b56a5-ff0f-4d58-a03c-fd1aa05c9315} event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/ice_impact
+{f3d2b8a4-d2f6-40b3-bbb4-f422574b1a31} event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/wood_impact
+{012e8eb6-596f-4609-8db5-f2ed5f36ffdc} event:/CommunalHelperEvents/game/chainedFallingBlock/chain_rattle
+{ba29ad87-9daf-4a8f-9787-eb030d92ac70} event:/CommunalHelperEvents/game/chainedFallingBlock/chain_tighten_block
+{0009226b-4ee1-403d-aa19-13d1c538735a} event:/CommunalHelperEvents/game/chainedFallingBlock/chain_tighten_ceiling
 {2c2d55e6-5011-4a1a-99a4-e9ca9eeb1de1} event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_fly_travel
 {03a25dc3-b401-4c0a-8104-583eeb9d873e} event:/CommunalHelperEvents/game/connectedDreamBlock/dreamblock_shatter
 {70f3ff6c-1f4b-4eb6-9001-ab16f702795a} event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_finish
@@ -42,7 +50,8 @@
 {065a8ad7-9307-4d5e-9e3a-6c647e721190} event:/CommunalHelperEvents/game/shieldedRefill/pinkdiamond_return
 {f80c696c-0f98-481b-a522-c63b689e09e5} event:/CommunalHelperEvents/game/stationBlock/moon_block_seq
 {9cf2912d-3599-4d67-9bda-0e86743dadef} event:/CommunalHelperEvents/game/stationBlock/station_block_seq
+{a67c2031-2130-4202-b202-865788c22300} event:/CommunalHelperEvents/game/stationBlock/force_cue
 {48703669-7393-4511-b12f-eeb0b2e3f123} event:/CommunalHelperEvents/game/trackSwitchBox/smash
 {9629bd2f-74d2-4daf-b1cc-653e42508bb4} event:/CommunalHelperEvents/game/usableSummitGems/gem_unlock_la
 {94444ec5-a6cd-4cce-94a9-97177bc9129a} event:/CommunalHelperEvents/game/usableSummitGems/gem_unlock_ti
->>>>>>> 762b035deec6486959552462c1dffbfa1f27fbe4
+{c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank
