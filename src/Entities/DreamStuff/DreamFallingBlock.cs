@@ -15,7 +15,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool HasStartedFalling { get; private set; }
         private bool hasLanded;
 
-        private Chain chainA, chainB;
         private bool chained;
         private bool held;
 
@@ -75,7 +74,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             HasStartedFalling = true;
             Vector2 rattleSoundPos = new Vector2(Center.X, startY);
-            bool addChains = chained;
             while (true) {
                 ShakeSfx();
                 StartShaking();
@@ -96,10 +94,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + i, Y), Vector2.One * 4f);
                 }
 
-                if (addChains) {
-                    AddChains();
-                    addChains = false;
-                }
                 if (chained)
                     rattle.Play(CustomSFX.game_chainedFallingBlock_chain_rattle);
 
@@ -145,15 +139,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 if (chained) {
                     rattle.Stop();
-                    chainA?.FakeShake();
-                    chainB?.FakeShake();
                     if (held) {
-                        SetChainTight(true);
                         Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
                         Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, rattleSoundPos);
-                    } else {
-                        chainA?.ShakeImpulse(5000f);
-                        chainB?.ShakeImpulse(5000f);
                     }
                 }
                 yield return 0.2f;
@@ -173,44 +161,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             }
             Safe = true;
-        }
-
-        private void AddChains() {
-            int nodeCount = (int) (((chainStopY - startY) / 8) + 1);
-            if (centeredChain) {
-                Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
-                    () => new Vector2(Center.X, startY),
-                    () => new Vector2(Center.X, Y)) {
-                    AllowPlayerInteraction = false
-                });
-            } else {
-                Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
-                    () => new Vector2(X + 4, startY),
-                    () => new Vector2(X + 4, Y)));
-                Scene.Add(chainB = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
-                    () => new Vector2(Right - 4, startY),
-                    () => new Vector2(Right - 4, Y)));
-            }
-        }
-
-        private void SetChainTight(bool tight) {
-            if (chainA != null) {
-                chainA.Tight = tight;
-                if (tight)
-                    chainA.Tighten(instantly: false);
-            }
-            if (chainB != null) {
-                chainB.Tight = tight;
-                if (tight)
-                    chainB.Tighten(instantly: false);
-            }
-        }
-
-        public override void Removed(Scene scene) {
-            base.Removed(scene);
-
-            chainA?.RemoveSelf();
-            chainB?.RemoveSelf();
         }
 
         // Essentially just a copied/stripped version of MoveVExactCollideSolids

@@ -44,28 +44,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             this.outline = outline;
             this.canShatter = canShatter;
 
-            Tighten();
+            Vector2 from = attachedStartGetter != null ? attachedStartGetter() : Position;
+            Vector2 to = attachedEndGetter != null ? attachedEndGetter() : Position;
+            for (int i = 0; i < Nodes.Length; i++) {
+                Vector2 newPos = from + (to - from) * i / (Nodes.Length - 1);
+                Nodes[i].Position = newPos;
+            }
+
             UpdateChain();
 
             sfx = Audio.Play(CustomSFX.game_chain_move);
-        }
-
-        public void Tighten(bool instantly = true) {
-            if (Nodes.Length == 1)
-                return;
-
-            Vector2 from = attachedStartGetter != null ? attachedStartGetter() : Position;
-            Vector2 to = attachedEndGetter != null ? attachedEndGetter() : Position;
-
-            for (int i = 0; i < Nodes.Length; i++) {
-                Vector2 newPos = from + (to - from) * i / (Nodes.Length - 1);
-                if (instantly) {
-                    Nodes[i].Position = newPos;
-                    Nodes[i].Velocity *= 0.2f;
-                } else {
-                    Nodes[i].Velocity = (newPos - Position) * 75f;
-                }
-            }
         }
 
         private void AttachedEndsToSolids(Scene scene) {
@@ -83,14 +71,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Vector2 offset = start - startSolid.Position;
                 attachedStartGetter = () => startSolid.Position + offset;
             } else {
-                DetachStart();
+                attachedStartGetter = null;
             }
 
             if (endSolid != null) {
                 Vector2 offset = end - endSolid.Position;
                 attachedEndGetter = () => endSolid.Position + offset;
             } else {
-                DetachEnd();
+                attachedEndGetter = null;
             }
 
             if (attachedStartGetter == null && attachedEndGetter == null)
@@ -225,20 +213,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        public void DetachStart() {
-            attachedStartGetter = null;
-        }
-
-        public void DetachEnd() {
-            attachedEndGetter = null;
-        }
-
-        public void FakeShake() {
-            for (int i = attachedStartGetter != null ? 1 : 0; i < Nodes.Length - (attachedEndGetter != null ? 1 : 0); i++) {
-                Nodes[i].Position += Util.RandomDir(4f);
-            }
-        }
-
         public void ShakeImpulse(float strength = 10000f) {
             for (int i = attachedStartGetter != null ? 1 : 0; i < Nodes.Length - (attachedEndGetter != null ? 1 : 0); i++) {
                 Nodes[i].Acceleration += Util.RandomDir(strength);
@@ -275,7 +249,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     }
 
     public struct ChainNode {
-
         public Vector2 Position, Velocity, Acceleration;
 
         public void UpdateStep() {

@@ -7,8 +7,6 @@ using System.Collections;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ChainedFallingBlock")]
     public class ChainedFallingBlock : Solid {
-        private Chain chainA, chainB;
-
         private char tileType;
         private TileGrid tiles;
 
@@ -95,7 +93,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             triggered = true;
 
             Vector2 rattleSoundPos = new Vector2(Center.X, startY);
-            bool addChains = true;
             while (true) {
                 ShakeSfx();
                 StartShaking();
@@ -110,10 +107,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 StopShaking();
                 FallParticles();
-                if (addChains) {
-                    AddChains();
-                    addChains = false;
-                }
 
                 rattle.Play(CustomSFX.game_chainedFallingBlock_chain_rattle);
 
@@ -140,15 +133,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 LandParticles();
 
                 rattle.Stop();
-                chainA?.FakeShake();
-                chainB?.FakeShake();
                 if (held) {
-                    SetChainTight(true);
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
                     Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, rattleSoundPos);
-                } else {
-                    chainA?.ShakeImpulse(5000f);
-                    chainB?.ShakeImpulse(5000f);
                 }
                 yield return 0.2f;
 
@@ -206,48 +193,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 'g' => CustomSFX.game_chainedFallingBlock_attenuatedImpacts_boss_impact,
                 _ => SFX.game_gen_fallblock_impact,
             }, Center);
-        }
-
-        private void AddChains() {
-            int nodeCount = (int) (((chainStopY - startY) / 8) + 1);
-            if (centeredChain) {
-                Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
-                    () => new Vector2(Center.X, startY),
-                    () => new Vector2(Center.X, Y)) {
-                    AllowPlayerInteraction = false
-                });
-            } else {
-                Scene.Add(chainA = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
-                    () => new Vector2(X + 4, startY),
-                    () => new Vector2(X + 4, Y)) {
-                    AllowPlayerInteraction = false
-                });
-                Scene.Add(chainB = new Chain(Chain.ChainTexture, chainOutline, nodeCount, 8,
-                    () => new Vector2(Right - 4, startY),
-                    () => new Vector2(Right - 4, Y)) {
-                    AllowPlayerInteraction = false
-                });
-            }
-        }
-
-        private void SetChainTight(bool tight) {
-            if (chainA != null) {
-                chainA.Tight = tight;
-                if (tight)
-                    chainA.Tighten(instantly: false);
-            }
-            if (chainB != null) {
-                chainB.Tight = tight;
-                if (tight)
-                    chainB.Tighten(instantly: false);
-            }
-        }
-
-        public override void Removed(Scene scene) {
-            base.Removed(scene);
-
-            chainA?.RemoveSelf();
-            chainB?.RemoveSelf();
         }
 
         public override void Update() {
