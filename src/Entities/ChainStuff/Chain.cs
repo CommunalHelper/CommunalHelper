@@ -8,47 +8,64 @@ using System.Linq;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/Chain")]
     public class Chain : Entity {
+        private struct ChainNode {
+            public Vector2 Position, Velocity, Acceleration;
 
-        public static MTexture ChainTexture;
+            public void UpdateStep() {
+                Velocity += Acceleration * Engine.DeltaTime;
+                Position += Velocity * Engine.DeltaTime;
+                Velocity *= 1 - Engine.DeltaTime;
+                Acceleration = Vector2.Zero;
+            }
 
-        private MTexture segment;
+            public void ConstraintTo(Vector2 to, float distance, bool cancelAcceleration) {
+                if (Vector2.Distance(to, Position) > distance) {
+                    Vector2 from = Position;
+                    Vector2 dir = from - to;
+                    dir.Normalize();
+                    Position = to + dir * distance;
+                    if (!cancelAcceleration) {
+                        Vector2 accel = Position - from;
+                        accel.X = Calc.Clamp(accel.X, -2f, 2f);
+                        accel.Y = Calc.Clamp(accel.Y, -2f, 2f);
+                        Acceleration += accel * 210f;
+                    }
+                }
+            }
+        }
+
+        private static MTexture ChainTexture, ChainStartTexture;
+
         private bool outline;
 
-        public ChainNode[] Nodes;
+        private ChainNode[] nodes;
         private Func<Vector2> attachedStartGetter, attachedEndGetter;
 
         private float distanceConstraint;
 
-        public bool AllowPlayerInteraction;
         public bool Tight;
-        private bool placed, attached, canShatter;
 
         private EventInstance sfx;
         private Vector2 sfxPos;
 
         public Chain(EntityData data, Vector2 offset)
-            : this(ChainTexture, data.Bool("outline", true), (int) (Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8 + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) {
-            AllowPlayerInteraction = true;
-            placed = true;
-        }
+            : this(data.Bool("outline", true), (int) (Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8 + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) { }
 
-        public Chain(MTexture segment, bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter, bool canShatter = true)
+        public Chain(bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter)
             : base(attachedStartGetter()) {
 
-            Nodes = new ChainNode[nodeCount];
+            nodes = new ChainNode[nodeCount];
             this.attachedStartGetter = attachedStartGetter;
             this.attachedEndGetter = attachedEndGetter;
             this.distanceConstraint = distanceConstraint;
 
-            this.segment = segment;
             this.outline = outline;
-            this.canShatter = canShatter;
 
             Vector2 from = attachedStartGetter != null ? attachedStartGetter() : Position;
             Vector2 to = attachedEndGetter != null ? attachedEndGetter() : Position;
-            for (int i = 0; i < Nodes.Length; i++) {
-                Vector2 newPos = from + (to - from) * i / (Nodes.Length - 1);
-                Nodes[i].Position = newPos;
+            for (int i = 0; i < nodes.Length; i++) {
+                Vector2 newPos = from + (to - from) * i / (nodes.Length - 1);
+                nodes[i].Position = newPos;
             }
 
             UpdateChain();
@@ -57,12 +74,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void AttachedEndsToSolids(Scene scene) {
-            if (attached)
-                return;
-            attached = true;
-
-            Vector2 start = Nodes[0].Position;
-            Vector2 end = Nodes[Nodes.Length - 1].Position;
+            Vector2 start = nodes[0].Position;
+            Vector2 end = nodes[nodes.Length - 1].Position;
 
             Solid startSolid = scene.CollideFirst<Solid>(new Rectangle((int) start.X - 2, (int) start.Y - 2, 4, 4));
             Solid endSolid = scene.CollideFirst<Solid>(new Rectangle((int) end.X - 2, (int) end.Y - 2, 4, 4));
@@ -90,19 +103,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 return;
 
             float intensity = 0f;
-            if (Nodes.Length > 0 && Nodes.Length == oldPositions.Length && Util.TryGetPlayer(out Player player)) {
+            if (nodes.Length > 0 && nodes.Length == oldPositions.Length && Util.TryGetPlayer(out Player player)) {
                 float minDistSqr = float.MaxValue;
 
                 Vector2 averageOffset = Vector2.Zero;
-                int eff = Nodes.Length;
-                for (int i = 0; i < Nodes.Length; i++) {
-                    float lengthSqr = (player.Center - Nodes[i].Position).LengthSquared();
+                int eff = nodes.Length;
+                for (int i = 0; i < nodes.Length; i++) {
+                    float lengthSqr = (player.Center - nodes[i].Position).LengthSquared();
                     if (lengthSqr < minDistSqr) {
                         minDistSqr = lengthSqr;
-                        sfxPos = Nodes[i].Position;
+                        sfxPos = nodes[i].Position;
                     }
 
-                    Vector2 offset = Nodes[i].Position - oldPositions[i];
+                    Vector2 offset = nodes[i].Position - oldPositions[i];
                     if (offset.LengthSquared() < 0.025f && eff > 1)
                         eff--;
                     averageOffset += offset;
@@ -115,7 +128,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Audio.Position(sfx, sfxPos);
         }
 
-        public void RemoveSfx() {
+        private void RemoveSfx() {
             Audio.Stop(sfx);
         }
 
@@ -126,47 +139,31 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            if (placed) {
-                AttachedEndsToSolids(scene);
-            }
+            AttachedEndsToSolids(scene);
         }
 
         public override void Update() {
             base.Update();
 
-            Vector2[] oldPositions = Nodes.Select(node => node.Position).ToArray();
+            Vector2[] oldPositions = nodes.Select(node => node.Position).ToArray();
             UpdateChain();
             UpdateSfx(oldPositions);
 
-            if (canShatter && Vector2.Distance(Nodes[0].Position, Nodes[Nodes.Length - 1].Position) > (Nodes.Length + 1) * distanceConstraint) {
+            if (Vector2.Distance(nodes[0].Position, nodes[nodes.Length - 1].Position) > (nodes.Length + 1) * distanceConstraint) {
                 BreakInHalf();
-            }
-
-            if (AllowPlayerInteraction && !Tight) {
-                if (Util.TryGetPlayer(out Player player)) {
-                    for (int i = attachedStartGetter != null ? 1 : 0; i < Nodes.Length - (attachedEndGetter != null ? 1 : 0); i++) {
-                        if (player.CollidePoint(Nodes[i].Position)) {
-                            Nodes[i].Acceleration += player.Speed * 8f;
-                        }
-                    }
-                }
             }
         }
 
         private void BreakInHalf() {
             RemoveSelf();
-            Vector2 middleNode = Nodes[Nodes.Length / 2].Position;
+            Vector2 middleNode = nodes[nodes.Length / 2].Position;
 
             Chain a, b;
-            Scene.Add(a = new Chain(ChainTexture, true, Nodes.Length / 2, 8, () => middleNode, attachedStartGetter) {
-                AllowPlayerInteraction = true,
-            });
+            Scene.Add(a = new Chain(true, nodes.Length / 2, 8, () => middleNode, attachedStartGetter));
             a.AttachedEndsToSolids(Scene);
             a.ShakeImpulse();
 
-            Scene.Add(b = new Chain(ChainTexture, true, Nodes.Length / 2, 8, () => middleNode, attachedEndGetter) {
-                AllowPlayerInteraction = true,
-            });
+            Scene.Add(b = new Chain( true, nodes.Length / 2, 8, () => middleNode, attachedEndGetter));
             b.AttachedEndsToSolids(Scene);
             b.ShakeImpulse();
 
@@ -181,96 +178,72 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bool startAttached = attachedStartGetter != null;
             bool endAttached = attachedEndGetter != null;
             if (startAttached) {
-                Nodes[0].Position = attachedStartGetter();
-                Nodes[0].Velocity = Vector2.Zero;
+                nodes[0].Position = attachedStartGetter();
+                nodes[0].Velocity = Vector2.Zero;
             }
             if (endAttached) {
-                Nodes[Nodes.Length - 1].Position = attachedEndGetter();
-                Nodes[Nodes.Length - 1].Velocity = Vector2.Zero;
+                nodes[nodes.Length - 1].Position = attachedEndGetter();
+                nodes[nodes.Length - 1].Velocity = Vector2.Zero;
             }
 
-            for (int i = 0; i < Nodes.Length; i++) {
-                Nodes[i].Acceleration += Vector2.UnitY * 220f;
+            for (int i = 0; i < nodes.Length; i++) {
+                nodes[i].Acceleration += Vector2.UnitY * 220f;
                 if (Scene is not null && !Tight)
-                    Nodes[i].Acceleration += SceneAs<Level>().Wind;
-                Nodes[i].UpdateStep();
+                    nodes[i].Acceleration += SceneAs<Level>().Wind;
+                nodes[i].UpdateStep();
             }
 
             if (!startAttached && !endAttached) {
-                for (int i = 1; i < Nodes.Length; i++)
-                    Nodes[i].ConstraintTo(Nodes[i - 1].Position, distanceConstraint, Tight);
-                for (int i = Nodes.Length - 2; i >= 0; i--)
-                    Nodes[i].ConstraintTo(Nodes[i + 1].Position, distanceConstraint, Tight);
+                for (int i = 1; i < nodes.Length; i++)
+                    nodes[i].ConstraintTo(nodes[i - 1].Position, distanceConstraint, Tight);
+                for (int i = nodes.Length - 2; i >= 0; i--)
+                    nodes[i].ConstraintTo(nodes[i + 1].Position, distanceConstraint, Tight);
             } else {
                 if (startAttached) {
-                    for (int i = 1; i < Nodes.Length - (endAttached ? 1 : 0); i++)
-                        Nodes[i].ConstraintTo(Nodes[i - 1].Position, distanceConstraint, Tight);
+                    for (int i = 1; i < nodes.Length - (endAttached ? 1 : 0); i++)
+                        nodes[i].ConstraintTo(nodes[i - 1].Position, distanceConstraint, Tight);
                 }
                 if (endAttached) {
-                    for (int i = Nodes.Length - 2; i >= (startAttached ? 1 : 0); i--)
-                        Nodes[i].ConstraintTo(Nodes[i + 1].Position, distanceConstraint, Tight);
+                    for (int i = nodes.Length - 2; i >= (startAttached ? 1 : 0); i--)
+                        nodes[i].ConstraintTo(nodes[i + 1].Position, distanceConstraint, Tight);
                 }
             }
         }
 
-        public void ShakeImpulse(float strength = 10000f) {
-            for (int i = attachedStartGetter != null ? 1 : 0; i < Nodes.Length - (attachedEndGetter != null ? 1 : 0); i++) {
-                Nodes[i].Acceleration += Util.RandomDir(strength);
+        private void ShakeImpulse() {
+            for (int i = attachedStartGetter != null ? 1 : 0; i < nodes.Length - (attachedEndGetter != null ? 1 : 0); i++) {
+                nodes[i].Acceleration += Util.RandomDir(10000f);
             }
         }
 
         public override void Render() {
             base.Render();
             if (outline) {
-                for (int i = 0; i < Nodes.Length - 1; i++) {
-                    if (Calc.Round(Nodes[i].Position) == Calc.Round(Nodes[i + 1].Position)) {
+                for (int i = 0; i < nodes.Length - 1; i++) {
+                    if (Calc.Round(nodes[i].Position) == Calc.Round(nodes[i + 1].Position)) {
                         continue;
                     }
-                    float yScale = Vector2.Distance(Nodes[i].Position, Nodes[i + 1].Position) / distanceConstraint;
-                    Vector2 mid = (Nodes[i].Position + Nodes[i + 1].Position) * 0.5f;
-                    float angle = Calc.Angle(Nodes[i].Position, Nodes[i + 1].Position) - MathHelper.PiOver2;
-                    segment.DrawOutlineCentered(mid, Color.White, new Vector2(1f, yScale), angle);
+                    float yScale = Vector2.Distance(nodes[i].Position, nodes[i + 1].Position) / distanceConstraint;
+                    Vector2 mid = (nodes[i].Position + nodes[i + 1].Position) * 0.5f;
+                    float angle = Calc.Angle(nodes[i].Position, nodes[i + 1].Position) - MathHelper.PiOver2;
+                    ChainTexture.DrawOutlineCentered(mid, Color.White, new Vector2(1f, yScale), angle);
                 }
             }
-            for (int i = 0; i < Nodes.Length - 1; i++) {
-                if (Calc.Round(Nodes[i].Position) == Calc.Round(Nodes[i + 1].Position)) {
+            for (int i = 0; i < nodes.Length - 1; i++) {
+                if (Calc.Round(nodes[i].Position) == Calc.Round(nodes[i + 1].Position)) {
                     continue;
                 }
-                float yScale = Vector2.Distance(Nodes[i].Position, Nodes[i + 1].Position) / distanceConstraint;
-                Vector2 mid = (Nodes[i].Position + Nodes[i + 1].Position) * 0.5f;
-                float angle = Calc.Angle(Nodes[i].Position, Nodes[i + 1].Position) - MathHelper.PiOver2;
-                segment.DrawCentered(mid, Color.White, new Vector2(1f, yScale), angle);
+                float yScale = Vector2.Distance(nodes[i].Position, nodes[i + 1].Position) / distanceConstraint;
+                Vector2 mid = (nodes[i].Position + nodes[i + 1].Position) * 0.5f;
+                float angle = Calc.Angle(nodes[i].Position, nodes[i + 1].Position) - MathHelper.PiOver2;
+                ChainTexture.DrawCentered(mid, Color.White, new Vector2(1f, yScale), angle);
             }
         }
 
         public static void InitializeTextures() {
-            ChainTexture = GFX.Game["objects/hanginglamp"].GetSubtexture(0, 8, 8, 8);
-        }
-    }
-
-    public struct ChainNode {
-        public Vector2 Position, Velocity, Acceleration;
-
-        public void UpdateStep() {
-            Velocity += Acceleration * Engine.DeltaTime;
-            Position += Velocity * Engine.DeltaTime;
-            Velocity *= 1 - Engine.DeltaTime;
-            Acceleration = Vector2.Zero;
-        }
-
-        public void ConstraintTo(Vector2 to, float distance, bool cancelAcceleration) {
-            if (Vector2.Distance(to, Position) > distance) {
-                Vector2 from = Position;
-                Vector2 dir = from - to;
-                dir.Normalize();
-                Position = to + dir * distance;
-                if (!cancelAcceleration) {
-                    Vector2 accel = Position - from;
-                    accel.X = Calc.Clamp(accel.X, -2f, 2f);
-                    accel.Y = Calc.Clamp(accel.Y, -2f, 2f);
-                    Acceleration += accel * 210f;
-                }
-            }
+            MTexture full = GFX.Game["objects/hanginglamp"];
+            ChainStartTexture = full.GetSubtexture(0, 0, 8, 8);
+            ChainTexture = full.GetSubtexture(0, 8, 8, 8);
         }
     }
 }
