@@ -3,17 +3,19 @@ using Monocle;
 using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper {
     public class ConnectedSolid : Solid {
         public Vector2 GroupBoundsMin, GroupBoundsMax;
         public Vector2 GroupCenter => Position + GroupOffset + (GroupBoundsMax - GroupBoundsMin) / 2f;
 
-        public Hitbox[] Colliders;
+        // AllColliders contains colliders that didn't have a hitbox.
+        public Hitbox[] Colliders, AllColliders;
         public Collider MasterCollider;
 
-        // Auto-tiling stuff.
-        public bool[,] GroupTiles;
+        // Auto-tiling stuff. (AllGroupTiles is similar to AllColliders)
+        public bool[,] GroupTiles, AllGroupTiles;
         private AutoTileData[,] autoTileData;
         private bool wasAutoTiled = false;
 
@@ -22,13 +24,14 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         private struct AutoTileData {
-            public AutoTileData(int x_, int y_, TileType type_) {
-                x = x_;
-                y = y_;
-                type = type_;
+            public readonly int X, Y;
+            public readonly TileType Type;
+
+            public AutoTileData(int x, int y, TileType type) {
+                X = x;
+                Y = y;
+                Type = type;
             }
-            public readonly int x, y;
-            public readonly TileType type;
         }
 
         public Vector2 GroupOffset;
@@ -53,22 +56,45 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void Awake(Scene scene) {
             List<SolidExtension> extensions = new List<SolidExtension>();
-            FindExtensions(this, extensions);
+            FindExtensions(extensions);
 
             GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - Position;
-            Colliders = new Hitbox[extensions.Count + 1];
+            Colliders = new Hitbox[extensions.Count(ext => ext.HasHitbox) + 1];
+            AllColliders = new Hitbox[extensions.Count + 1];
+
+            int j = 0;
             for (int i = 0; i < extensions.Count; i++) {
                 SolidExtension e = extensions[i];
                 Vector2 offset = e.Position - Position;
-                Colliders[i] = new Hitbox(e.Width, e.Height, offset.X, offset.Y);
+                Hitbox hitbox = new Hitbox(e.Width, e.Height, offset.X, offset.Y);
+                if (e.HasHitbox) {
+                    Colliders[j] = hitbox;
+                    j++;
+                }
+                AllColliders[i] = hitbox;
                 e.RemoveSelf();
                 // You don't want disabled Solids hanging around in the level, so you remove them.
             }
-            Colliders[Colliders.Length - 1] = new Hitbox(Collider.Width, Collider.Height);
+
+            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8.0f);
+            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8.0f);
+            GroupTiles = new bool[tWidth + 2, tHeight + 2];
+            AllGroupTiles = new bool[tWidth + 2, tHeight + 2];
+
+            Colliders[Colliders.Length - 1] = (Hitbox) Collider;
+            AllColliders[AllColliders.Length - 1] = (Hitbox) Collider;
+
+            Collider = new ColliderList(AllColliders);
+            for (int x = 0; x < tWidth + 2; x++)
+                for (int y = 0; y < tHeight + 2; y++)
+                    AllGroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
+
             Collider = new ColliderList(Colliders);
+            for (int x = 0; x < tWidth + 2; x++)
+                for (int y = 0; y < tHeight + 2; y++)
+                    GroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
 
             base.Awake(scene);
-
         }
 
         public static Tuple<MTexture[,], MTexture[,]> SetupCustomTileset(string path) {
@@ -87,12 +113,12 @@ namespace Celeste.Mod.CommunalHelper {
             return new Tuple<MTexture[,], MTexture[,]>(overrideEdgeTiles, overrideInCornersTiles);
         }
 
-        private void FindExtensions(ConnectedSolid master, List<SolidExtension> list) {
+        private void FindExtensions(List<SolidExtension> list) {
             foreach (SolidExtension extension in Scene.Tracker.GetEntities<SolidExtension>()) {
                 if (!extension.HasGroup &&
-                    (Scene.CollideCheck(new Rectangle((int) X - 1, (int) Y, (int) Width + 2, (int) master.Height), extension) ||
+                    (Scene.CollideCheck(new Rectangle((int) X - 1, (int) Y, (int) Width + 2, (int) Height), extension) ||
                     Scene.CollideCheck(new Rectangle((int) X, (int) Y - 1, (int) Width, (int) Height + 2), extension))) {
-                    extension.AddToGroupAndFindChildren(extension, master, list);
+                    extension.AddToGroupAndFindChildren(extension, this, list);
                 }
             }
         }
@@ -139,29 +165,27 @@ namespace Celeste.Mod.CommunalHelper {
         /// <param name="innerCorners"> Split tiles from a 16x16 texture, for the inside turns. </param>
         /// <param name="addAsComponent"> Whether all the tiles should be added as components to this entity, therefore rendered automatically. </param>
         public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, bool storeTiles = true, bool addAsComponent = true) {
-
             int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8.0f);
             int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8.0f);
 
             List<Image> res = new List<Image>();
             if (!wasAutoTiled) {
                 autoTileData = new AutoTileData[tWidth, tHeight];
-                GroupTiles = new bool[tWidth + 2, tHeight + 2];
-
-                for (int x = 0; x < tWidth + 2; x++) {
-                    for (int y = 0; y < tHeight + 2; y++) {
-                        GroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
-                    }
-                }
             }
+
             for (int x = 1; x < tWidth + 1; x++) {
                 for (int y = 1; y < tHeight + 1; y++) {
-                    if (GroupTiles[x, y]) {
-                        Image tile = AddTile(GroupTiles, x, y, GroupOffset, edges, innerCorners, storeTiles, wasAutoTiled);
+                    bool uncollidable = AllGroupTiles[x, y] && !GroupTiles[x, y];
+                    bool[,] tiles = uncollidable ? AllGroupTiles : GroupTiles;
+                    if (tiles[x, y]) {
+                        Image tile = AddTile(tiles, x, y, GroupOffset, edges, innerCorners, storeTiles, wasAutoTiled);
                         res.Add(tile);
 
                         if (addAsComponent)
                             Add(tile);
+
+                        if (uncollidable)
+                            tile.Color = Color.Gray;
                     }
                 }
             }
@@ -175,7 +199,6 @@ namespace Celeste.Mod.CommunalHelper {
             AutoTileData tileData;
 
             if (!ignoreTilingLogic) {
-
                 bool up = tiles[x, y - 1];
                 bool down = tiles[x, y + 1];
                 bool left = tiles[x - 1, y];
@@ -191,20 +214,18 @@ namespace Celeste.Mod.CommunalHelper {
                     (Corners) Util.ToBitFlag(upleft, upright, downleft, downright),
                     edges, innerCorners, out tileData);
                 autoTileData[(int) tilePos.X, (int) tilePos.Y] = tileData;
-
             } else {
-
                 tileData = autoTileData[(int) tilePos.X, (int) tilePos.Y];
                 image = new Image(
-                        tileData.type == TileType.InnerCorner ?
-                        innerCorners[tileData.x, tileData.y] :
-                        edges[tileData.x, tileData.y]);
+                        tileData.Type == TileType.InnerCorner ?
+                        innerCorners[tileData.X, tileData.Y] :
+                        edges[tileData.X, tileData.Y]);
             }
 
             image.Position = (tilePos * 8f) + offset;
             if (storeTiles) {
                 Tiles.Add(image);
-                switch (tileData.type) {
+                switch (tileData.Type) {
                     default:
                     case TileType.Filler:
                         FillerTiles.Add(image);
@@ -265,9 +286,9 @@ namespace Celeste.Mod.CommunalHelper {
             }
 
             return new Image(
-                data.type == TileType.InnerCorner ?
-                innerCorners[data.x, data.y] :
-                edges[data.x, data.y]);
+                data.Type == TileType.InnerCorner ?
+                innerCorners[data.X, data.Y] :
+                edges[data.X, data.Y]);
         }
 
         private bool TileCollideWithGroup(int x, int y) {
