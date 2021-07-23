@@ -211,6 +211,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
             }
 
+            if (centeredChain) {
+                Chain.DrawChainLine(new Vector2(X + Width / 2f, startY), new Vector2(X + Width / 2f, Y), chainOutline);
+            } else {
+                Chain.DrawChainLine(new Vector2(X + 3, startY), new Vector2(X + 3, Y), chainOutline);
+                Chain.DrawChainLine(new Vector2(X + Width - 4, startY), new Vector2(X + Width - 4, Y), chainOutline);
+            }
+
             Position += Shake;
             base.Render();
             Position -= Shake;

@@ -239,6 +239,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 ChainTexture.DrawCentered(mid, Color.White, new Vector2(1f, yScale), angle);
             }
         }
+        
+        public static void DrawChainLine(Vector2 from, Vector2 to, bool outline) {
+            Vector2 dir = Vector2.Normalize(to - from);
+            float angle = dir.Angle() - MathHelper.PiOver2;
+            float d = Vector2.Distance(from, to);
+
+            if (outline) {
+                for (float t = d; t >= 0f; t -= 8f) {
+                    ChainTexture.DrawOutlineCentered(Vector2.Lerp(from, to, t / d), Color.White, 1f, angle);
+                }
+                ChainStartTexture.DrawOutline(from + dir * 4, Vector2.One * 4, Color.White, 1f, angle);
+            }
+
+            for (float t = d; t >= 0f; t -= 8f) {
+                ChainTexture.DrawCentered(Vector2.Lerp(from, to, t / d), Color.White, 1f, angle);
+            }
+            ChainStartTexture.Draw(from + dir * 4, Vector2.One * 4, Color.White, 1f, angle);
+        }
 
         public static void InitializeTextures() {
             MTexture full = GFX.Game["objects/hanginglamp"];

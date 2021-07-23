@@ -33,6 +33,48 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        public override void Render() {
+            switch (direction) {
+                case Directions.Down:
+                    if (centeredChain) {
+                        Chain.DrawChainLine(new Vector2(Left + Width / 2f, start.Y), new Vector2(X + Width / 2f, Top), chainOutline);
+                    } else {
+                        Chain.DrawChainLine(new Vector2(Left + 3, start.Y), new Vector2(X + 3, Y), chainOutline);
+                        Chain.DrawChainLine(new Vector2(Left + Width - 4, start.Y), new Vector2(X + Width - 4, Top), chainOutline);
+                    }
+                    break;
+
+                case Directions.Up:
+                    if (centeredChain) {
+                        Chain.DrawChainLine(new Vector2(Left + Width / 2f, start.Y + Height), new Vector2(X + Width / 2f, Bottom), chainOutline);
+                    } else {
+                        Chain.DrawChainLine(new Vector2(Left + 3, start.Y + Height), new Vector2(X + 3, Bottom), chainOutline);
+                        Chain.DrawChainLine(new Vector2(Left + Width - 4, start.Y + Height), new Vector2(X + Width - 4, Bottom), chainOutline);
+                    }
+                    break;
+
+                case Directions.Right:
+                    if (centeredChain) {
+                        Chain.DrawChainLine(new Vector2(start.X, Top + Height / 2f), new Vector2(Left, Top + Height / 2f), chainOutline);
+                    } else {
+                        Chain.DrawChainLine(new Vector2(start.X, Top + 5), new Vector2(Left, Top + 5), chainOutline);
+                        Chain.DrawChainLine(new Vector2(start.X, Top + Height - 4), new Vector2(Left, Top + Height - 4), chainOutline);
+                    }
+                    break;
+
+                case Directions.Left:
+                    if (centeredChain) {
+                        Chain.DrawChainLine(new Vector2(start.X + Width, Top + Height / 2f), new Vector2(Right, Top + Height / 2f), chainOutline);
+                    } else {
+                        Chain.DrawChainLine(new Vector2(start.X + Width, Top + 5), new Vector2(Right, Top + 5), chainOutline);
+                        Chain.DrawChainLine(new Vector2(start.X + Width, Top + Height - 4), new Vector2(Right, Top + Height - 4), chainOutline);
+                    }
+                    break;
+            }
+
+            base.Render();
+        }
+
         #region Hooks
 
         internal static void Load() {
