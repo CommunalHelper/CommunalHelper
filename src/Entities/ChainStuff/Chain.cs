@@ -226,7 +226,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     float yScale = Vector2.Distance(nodes[i].Position, nodes[i + 1].Position) / distanceConstraint;
                     Vector2 mid = (nodes[i].Position + nodes[i + 1].Position) * 0.5f;
                     float angle = Calc.Angle(nodes[i].Position, nodes[i + 1].Position) - MathHelper.PiOver2;
-                    ChainTexture.DrawOutlineCentered(mid, Color.White, new Vector2(1f, yScale), angle);
+                    ChainTexture.DrawOutlineOnlyCentered(mid, new Vector2(1f, yScale), angle);
                 }
             }
             for (int i = 0; i < nodes.Length - 1; i++) {
@@ -247,15 +247,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (outline) {
                 for (float t = d; t >= 0f; t -= 8f) {
-                    ChainTexture.DrawOutlineCentered(Vector2.Lerp(from, to, t / d), Color.White, 1f, angle);
+                    ChainTexture.DrawOutlineOnlyCentered(Vector2.Lerp(from, to, t / d), Vector2.One, angle);
                 }
-                ChainStartTexture.DrawOutline(from + dir * 4, Vector2.One * 4, Color.White, 1f, angle);
+                ChainStartTexture.DrawOutlineOnlyCentered(from + dir * 4f, Vector2.One, angle);
             }
 
             for (float t = d; t >= 0f; t -= 8f) {
                 ChainTexture.DrawCentered(Vector2.Lerp(from, to, t / d), Color.White, 1f, angle);
             }
-            ChainStartTexture.Draw(from + dir * 4, Vector2.One * 4, Color.White, 1f, angle);
+            ChainStartTexture.DrawCentered(from + dir * 4f, Color.White, 1f, angle);
         }
 
         public static void InitializeTextures() {
