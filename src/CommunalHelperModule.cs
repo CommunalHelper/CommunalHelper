@@ -41,6 +41,8 @@ namespace Celeste.Mod.CommunalHelper {
             CustomDreamBlock.Load();
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
 
+            DreamDashCollider.Load();
+
             AbstractPanel.Load();
             // Panel-specific hooks loaded from AbstractPanel.Load
 
@@ -56,10 +58,15 @@ namespace Celeste.Mod.CommunalHelper {
             CassetteJumpFixController.Load();
             // TimedTriggerSpikes hooked in Initialize
 
+            UnderwaterMusicController.Load();
+
             HeartGemShard.Load();
             CustomSummitGem.Load();
 
             CustomBooster.Load();
+
+            DreamJellyfish.Load();
+            DreamJellyfishRenderer.Load();
 
             ChainedKevin.Load();
         }
@@ -76,6 +83,8 @@ namespace Celeste.Mod.CommunalHelper {
             CustomDreamBlock.Unload();
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
+            DreamDashCollider.Unload();
+
             ConnectedSwapBlockHooks.Unhook();
             CustomCassetteBlock.Unhook();
 
@@ -87,10 +96,15 @@ namespace Celeste.Mod.CommunalHelper {
             CassetteJumpFixController.Unload();
             TimedTriggerSpikes.Unload();
 
+            UnderwaterMusicController.Unload();
+
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
 
             CustomBooster.Unload();
+
+            DreamJellyfish.Unload();
+            DreamJellyfishRenderer.Unload();
 
             ChainedKevin.Unload();
         }
@@ -112,6 +126,7 @@ namespace Celeste.Mod.CommunalHelper {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
 
             StationBlock.InitializeParticles();
+            StationBlockTrack.InitializeTextures();
             TrackSwitchBox.InitializeParticles();
 
             DreamTunnelDash.LoadContent();
@@ -127,7 +142,11 @@ namespace Celeste.Mod.CommunalHelper {
             Melvin.InitializeTextures();
             Melvin.InitializeParticles();
 
+            RailedMoveBlock.InitializeTextures();
             DreamBooster.InitializeParticles();
+
+            DreamJellyfish.InitializeTextures();
+            DreamJellyfish.InitializeParticles();
 
             Chain.InitializeTextures();
 
@@ -142,6 +161,13 @@ namespace Celeste.Mod.CommunalHelper {
             if (Extensions.TryGetModule(collabUtilsMeta, out EverestModule collabModule)) {
                 Extensions.CollabUtilsLoaded = true;
                 Extensions.CollabUtils_MiniHeart = collabModule.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart");
+            }
+            EverestModuleMetadata celesteTASMeta = new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.5" };
+            if (Extensions.TryGetModule(celesteTASMeta, out EverestModule tasModule)) {
+                Extensions.CelesteTASLoaded = true;
+                Type t_PlayerStates = tasModule.GetType().Module.GetType("TAS.PlayerStates");
+                Extensions.CelesteTAS_PlayerStates_Register = t_PlayerStates.GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
+                Extensions.CelesteTAS_PlayerStates_Unregister = t_PlayerStates.GetMethod("Unregister", BindingFlags.Public | BindingFlags.Static);
             }
 
             MaxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });

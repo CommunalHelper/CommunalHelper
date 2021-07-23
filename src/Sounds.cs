@@ -19,6 +19,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         public const string game_stationBlock_station_block_seq = "event:/CommunalHelperEvents/game/stationBlock/station_block_seq";
         public const string game_stationBlock_moon_block_seq = "event:/CommunalHelperEvents/game/stationBlock/moon_block_seq";
+        public const string game_stationBlock_force_cue = "event:/CommunalHelperEvents/game/stationBlock/force_cue";
 
         public const string game_trackSwitchBox_smash = "event:/CommunalHelperEvents/game/trackSwitchBox/smash";
 
@@ -56,6 +57,9 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_melvin_impact = "event:/CommunalHelperEvents/game/melvin/impact";
         public const string game_melvin_move_loop = "event:/CommunalHelperEvents/game/melvin/move_loop";
 
+        public const string game_railedMoveBlock_railedmoveblock_move = "event:/CommunalHelperEvents/game/railedMoveBlock/railedmoveblock_move";
+        public const string game_railedMoveBlock_railedmoveblock_impact = "event:/CommunalHelperEvents/game/railedMoveBlock/railedmoveblock_impact";
+
         public const string game_customBoosters_dreamBooster_dreambooster_enter = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter";
         public const string game_customBoosters_dreamBooster_dreambooster_enter_cue = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter_cue";
         public const string game_customBoosters_dreamBooster_dreambooster_move = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_move";
@@ -68,10 +72,12 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_chainedFallingBlock_attenuatedImpacts_ice_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/ice_impact";
 
         public const string game_chain_move = "event:/CommunalHelperEvents/game/chain/move";
+
+        public const string game_dreamJellyfish_jelly_refill = "event:/CommunalHelperEvents/game/dreamJellyfish/jelly_refill";
+        public const string game_dreamJellyfish_jelly_use = "event:/CommunalHelperEvents/game/dreamJellyfish/jelly_use";
     }
 
     public static class CustomBanks {
         public static Bank CommunalHelper = Audio.Banks.Banks["bank:/CommunalHelperBank"];
     }
-
 }
