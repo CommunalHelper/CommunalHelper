@@ -7,6 +7,26 @@ using System.Collections;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamFallingBlock")]
     public class DreamFallingBlock : CustomDreamBlock {
+        private class DreamFallingBlockChainRenderer : Entity {
+            private DreamFallingBlock block;
+
+            public DreamFallingBlockChainRenderer(DreamFallingBlock dreamFallingBlock) {
+                block = dreamFallingBlock;
+                Depth = Depths.FGTerrain + 1;
+            }
+
+            public override void Render() {
+                if (block.chained) {
+                    if (block.centeredChain) {
+                        Chain.DrawChainLine(new Vector2(block.X + block.Width / 2f, block.startY), new Vector2(block.X + block.Width / 2f, block.Y), block.chainOutline);
+                    } else {
+                        Chain.DrawChainLine(new Vector2(block.X + 3, block.startY), new Vector2(block.X + 3, block.Y), block.chainOutline);
+                        Chain.DrawChainLine(new Vector2(block.X + block.Width - 4, block.startY), new Vector2(block.X + block.Width - 4, block.Y), block.chainOutline);
+                    }
+                }
+            }
+        }
+
         public bool Triggered;
         public float FallDelay;
 
@@ -15,6 +35,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool HasStartedFalling { get; private set; }
         private bool hasLanded;
 
+        private DreamFallingBlockChainRenderer chainRenderer;
         private bool chained;
         private bool held;
 
@@ -198,6 +219,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             hasLanded = platform != null;
         }
 
+        public override void Added(Scene scene) {
+            base.Added(scene);
+            if (chained)
+                scene.Add(chainRenderer = new DreamFallingBlockChainRenderer(this));
+        }
+
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            if (chained)
+                chainRenderer.RemoveSelf(); 
+        }
+
         public override void Update() {
             base.Update();
 
@@ -209,13 +242,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (chained && (Triggered || indicatorAtStart) && indicator && !held) {
                 float toY = startY + (chainStopY + Height - startY) * Ease.ExpoOut(pathLerp);
                 Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
-            }
-
-            if (centeredChain) {
-                Chain.DrawChainLine(new Vector2(X + Width / 2f, startY), new Vector2(X + Width / 2f, Y), chainOutline);
-            } else {
-                Chain.DrawChainLine(new Vector2(X + 3, startY), new Vector2(X + 3, Y), chainOutline);
-                Chain.DrawChainLine(new Vector2(X + Width - 4, startY), new Vector2(X + Width - 4, Y), chainOutline);
             }
 
             Position += Shake;
