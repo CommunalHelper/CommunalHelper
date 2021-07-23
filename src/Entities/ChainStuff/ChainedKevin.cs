@@ -110,6 +110,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     amount = chainedKevin.start.Y + chainedKevin.chainLength - self.Y;
                 }
 
+                if (chainStop) {
+                    Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, chainedKevin.Center);
+                }
+
                 return self.MoveVCollideSolidsAndBounds(self.SceneAs<Level>(), amount, thruDashBlocks: true, null, checkBottom: false) || chainStop;
             } else
                 return orig(self, amount);
@@ -126,6 +130,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 } else if (chainedKevin.direction == Directions.Right && target >= chainedKevin.start.X + chainedKevin.chainLength) {
                     chainStop = true;
                     amount = chainedKevin.start.X + chainedKevin.chainLength - self.X;
+                }
+
+                if (chainStop) {
+                    Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, chainedKevin.Center);
                 }
 
                 return self.MoveHCollideSolidsAndBounds(self.SceneAs<Level>(), amount, thruDashBlocks: true) || chainStop;
