@@ -82,7 +82,7 @@ namespace Celeste.Mod.CommunalHelper {
 
                 // Zip Mover's outline, rendered here because of Depth.
                 if (ConnectedZipMover.drawBlackBorder) {
-                    foreach (Hitbox extension in ConnectedZipMover.Colliders) {
+                    foreach (Hitbox extension in ConnectedZipMover.AllColliders) {
                         Draw.HollowRect(new Rectangle(
                             (int) (ConnectedZipMover.X + extension.Left - 1f + ConnectedZipMover.Shake.X),
                             (int) (ConnectedZipMover.Y + extension.Top - 1f + ConnectedZipMover.Shake.Y),

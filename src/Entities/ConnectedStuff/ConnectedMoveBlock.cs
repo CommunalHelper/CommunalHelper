@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper {
-
     [CustomEntity("CommunalHelper/ConnectedMoveBlock")]
     public class ConnectedMoveBlock : ConnectedSolid {
         // Custom Border Entity
@@ -19,7 +18,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             public Border(ConnectedMoveBlock parent) {
                 Parent = parent;
-                Depth = Depths.Player + 1;
+                Depth = parent.BGRenderer.Depth + 1;
             }
 
             public override void Update() {
@@ -30,7 +29,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
 
             public override void Render() {
-                foreach (Hitbox hitbox in Parent.Colliders) {
+                foreach (Hitbox hitbox in Parent.AllColliders) {
                     Draw.Rect(hitbox.Position + Parent.Position + Parent.Shake - offset, hitbox.Width + 2f, hitbox.Height + 2f, Color.Black);
 
                     float num = Parent.flash * 4f;
@@ -286,12 +285,16 @@ namespace Celeste.Mod.CommunalHelper {
                 yield return 0.2f;
 
                 BreakParticles();
+
                 List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
-                for (int i = 0; i < Width; i += 8) {
-                    for (int j = 0; j < Height; j += 8) {
-                        Vector2 value = new Vector2(i + 4f, j + 4f);
-                        Vector2 pos = value + Position + GroupOffset;
-                        if (CollidePoint(pos)) {
+                int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+                int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+
+                for (int i = 0; i < tWidth; i++) {
+                    for (int j = 0; j < tHeight; j++) {
+                        if (AllGroupTiles[i, j]) {
+                            Vector2 value = new Vector2(i * 8 + 4, j * 8 + 4);
+                            Vector2 pos = value + Position + GroupOffset;
                             MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
                             debris.Add(debris2);
                             Scene.Add(debris2);

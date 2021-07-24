@@ -7,6 +7,30 @@ using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper {
     public class ConnectedSolid : Solid {
+        public class BGTilesRenderer : Entity {
+            private ConnectedSolid solid;
+
+            public List<Image> BGTiles = new List<Image>();
+
+            public BGTilesRenderer(ConnectedSolid solid) {
+                this.solid = solid;
+
+                // Never rendering above solid.
+                Depth = Math.Max(Depths.Player, solid.Depth) + 1;
+            }
+
+            public override void Update() {
+                Visible = solid.Visible;
+                base.Update();
+            }
+
+            public override void Render() {
+                Position = solid.Position + solid.Shake;
+                base.Render();
+            }
+        }
+        public BGTilesRenderer BGRenderer;
+
         public Vector2 GroupBoundsMin, GroupBoundsMax;
         public Vector2 GroupCenter => Position + GroupOffset + (GroupBoundsMax - GroupBoundsMin) / 2f;
 
@@ -76,8 +100,8 @@ namespace Celeste.Mod.CommunalHelper {
                 // You don't want disabled Solids hanging around in the level, so you remove them.
             }
 
-            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8.0f);
-            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8.0f);
+            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
             GroupTiles = new bool[tWidth + 2, tHeight + 2];
             AllGroupTiles = new bool[tWidth + 2, tHeight + 2];
 
@@ -94,7 +118,14 @@ namespace Celeste.Mod.CommunalHelper {
                 for (int y = 0; y < tHeight + 2; y++)
                     GroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
 
+            scene.Add(BGRenderer = new BGTilesRenderer(this));
+
             base.Awake(scene);
+        }
+
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            BGRenderer.RemoveSelf();
         }
 
         public static Tuple<MTexture[,], MTexture[,]> SetupCustomTileset(string path) {
@@ -165,10 +196,16 @@ namespace Celeste.Mod.CommunalHelper {
         /// <param name="innerCorners"> Split tiles from a 16x16 texture, for the inside turns. </param>
         /// <param name="addAsComponent"> Whether all the tiles should be added as components to this entity, therefore rendered automatically. </param>
         public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, bool storeTiles = true, bool addAsComponent = true) {
-            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8.0f);
-            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8.0f);
+            return AutoTile(edges, innerCorners, out _, storeTiles, addAsComponent);
+        }
+
+        public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, out List<Image> bgTiles, bool storeTiles = true, bool addAsComponent = true) {
+            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
             List<Image> res = new List<Image>();
+            bgTiles = new List<Image>();
+
             if (!wasAutoTiled) {
                 autoTileData = new AutoTileData[tWidth, tHeight];
             }
@@ -181,11 +218,18 @@ namespace Celeste.Mod.CommunalHelper {
                         Image tile = AddTile(tiles, x, y, GroupOffset, edges, innerCorners, storeTiles, wasAutoTiled);
                         res.Add(tile);
 
-                        if (addAsComponent)
-                            Add(tile);
+                        if (addAsComponent) {
+                            if (uncollidable) {
+                                BGRenderer.Add(tile);
+                            } else {
+                                Add(tile);
+                            }
+                        }
 
-                        if (uncollidable)
+                        if (uncollidable) {
+                            bgTiles.Add(tile);
                             tile.Color = Color.Gray;
+                        }
                     }
                 }
             }
