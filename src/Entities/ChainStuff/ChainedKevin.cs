@@ -79,8 +79,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void Load() {
             On.Celeste.CrushBlock.ctor_EntityData_Vector2 += CrushBlock_ctor_EntityData_Vector2;
-            IL.Celeste.CrushBlock.ctor_Vector2_float_float_Axes_bool += IL_CrushBlock_ctor_Vector2_float_float_Axes_bool;
-            On.Celeste.CrushBlock.ctor_Vector2_float_float_Axes_bool += On_CrushBlock_ctor_Vector2_float_float_Axes_bool;
+            On.Celeste.CrushBlock.ctor_Vector2_float_float_Axes_bool += CrushBlock_ctor_Vector2_float_float_Axes_bool;
             On.Celeste.CrushBlock.AddImage += CrushBlock_AddImage;
             On.Celeste.CrushBlock.CanActivate += CrushBlock_CanActivate;
             On.Celeste.CrushBlock.MoveHCheck += CrushBlock_MoveHCheck;
@@ -89,8 +88,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void Unload() {
             On.Celeste.CrushBlock.ctor_EntityData_Vector2 -= CrushBlock_ctor_EntityData_Vector2;
-            IL.Celeste.CrushBlock.ctor_Vector2_float_float_Axes_bool -= IL_CrushBlock_ctor_Vector2_float_float_Axes_bool;
-            On.Celeste.CrushBlock.ctor_Vector2_float_float_Axes_bool -= On_CrushBlock_ctor_Vector2_float_float_Axes_bool;
+            On.Celeste.CrushBlock.ctor_Vector2_float_float_Axes_bool -= CrushBlock_ctor_Vector2_float_float_Axes_bool;
             On.Celeste.CrushBlock.AddImage -= CrushBlock_AddImage;
             On.Celeste.CrushBlock.CanActivate -= CrushBlock_CanActivate;
             On.Celeste.CrushBlock.MoveHCheck -= CrushBlock_MoveHCheck;
@@ -151,33 +149,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void CrushBlock_ctor_EntityData_Vector2(On.Celeste.CrushBlock.orig_ctor_EntityData_Vector2 orig, CrushBlock self, EntityData data, Vector2 offset) {
             if (self is ChainedKevin chainedKevin) {
+                chainedKevin.crushBlockData = new DynData<CrushBlock>(chainedKevin);
                 chainedKevin.vectorDirection = (chainedKevin.direction = data.Enum("direction", Directions.Right)).Vector();
                 chainedKevin.centeredChain = data.Bool("centeredChain");
             }
             orig(self, data, offset);
         }
 
-        private static void IL_CrushBlock_ctor_Vector2_float_float_Axes_bool(ILContext il) {
-            ILCursor cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(instr => instr.MatchLdstr("objects/crushblock/block")) &&
-                cursor.TryGotoNext(MoveType.After, instr => instr.MatchStloc(0))) {
-
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<CrushBlock>>(self => {
-                    if (self is ChainedKevin chainedKevin) {
-                        chainedKevin.crushBlockData = new DynData<CrushBlock>(chainedKevin);
-
-                        chainedKevin.idleImages = chainedKevin.crushBlockData.Get<List<Image>>("idleImages");
-                        chainedKevin.activeTopImages = chainedKevin.crushBlockData.Get<List<Image>>("activeTopImages");
-                        chainedKevin.activeRightImages = chainedKevin.crushBlockData.Get<List<Image>>("activeRightImages");
-                        chainedKevin.activeLeftImages = chainedKevin.crushBlockData.Get<List<Image>>("activeLeftImages");
-                        chainedKevin.activeBottomImages = chainedKevin.crushBlockData.Get<List<Image>>("activeBottomImages");
-                    }
-                });
-            }
-        }
-
-        private static void On_CrushBlock_ctor_Vector2_float_float_Axes_bool(On.Celeste.CrushBlock.orig_ctor_Vector2_float_float_Axes_bool orig, CrushBlock self, Vector2 position, float width, float height, Axes axes, bool chillOut) {
+        private static void CrushBlock_ctor_Vector2_float_float_Axes_bool(On.Celeste.CrushBlock.orig_ctor_Vector2_float_float_Axes_bool orig, CrushBlock self, Vector2 position, float width, float height, Axes axes, bool chillOut) {
             if (self is ChainedKevin chainedKevin) {
                 if (chainedKevin.direction == Directions.Down || chainedKevin.direction == Directions.Up)
                     axes = Axes.Vertical;
@@ -189,6 +168,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void CrushBlock_AddImage(On.Celeste.CrushBlock.orig_AddImage orig, CrushBlock self, MTexture idle, int x, int y, int tx, int ty, int borderX, int borderY) {
             if (self is ChainedKevin chainedKevin) {
+                if (chainedKevin.idleImages == null) {
+                    chainedKevin.idleImages = chainedKevin.crushBlockData.Get<List<Image>>("idleImages");
+                    chainedKevin.activeTopImages = chainedKevin.crushBlockData.Get<List<Image>>("activeTopImages");
+                    chainedKevin.activeRightImages = chainedKevin.crushBlockData.Get<List<Image>>("activeRightImages");
+                    chainedKevin.activeLeftImages = chainedKevin.crushBlockData.Get<List<Image>>("activeLeftImages");
+                    chainedKevin.activeBottomImages = chainedKevin.crushBlockData.Get<List<Image>>("activeBottomImages");
+                }
+
                 MTexture subtexture = GFX.Game["objects/CommunalHelper/chainedKevin/block" + chainedKevin.direction].GetSubtexture(tx * 8, ty * 8, 8, 8);
                 Vector2 vector = new Vector2(x * 8, y * 8);
 
