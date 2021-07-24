@@ -151,7 +151,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void CrushBlock_ctor_EntityData_Vector2(On.Celeste.CrushBlock.orig_ctor_EntityData_Vector2 orig, CrushBlock self, EntityData data, Vector2 offset) {
             if (self is ChainedKevin chainedKevin) {
-                chainedKevin.vectorDirection = Util.MoveBlockDirectionToVector(chainedKevin.direction = data.Enum("direction", Directions.Right));
+                chainedKevin.vectorDirection = (chainedKevin.direction = data.Enum("direction", Directions.Right)).Vector();
                 chainedKevin.centeredChain = data.Bool("centeredChain");
             }
             orig(self, data, offset);
