@@ -23,21 +23,23 @@ namespace Celeste.Mod.CommunalHelper {
 
         public const string game_trackSwitchBox_smash = "event:/CommunalHelperEvents/game/trackSwitchBox/smash";
 
-        public const string game_connectedZipMover_moon_zip_mover_finish = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_finish";
-        public const string game_connectedZipMover_moon_zip_mover_return = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_return";
-        public const string game_connectedZipMover_moon_zip_mover_start = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_start";
-        public const string game_connectedZipMover_moon_zip_mover_tick = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_tick";
+        public const string game_zipMover_moon_start = "event:/CommunalHelperEvents/game/zipMover/moon/start";
+        public const string game_zipMover_moon_impact = "event:/CommunalHelperEvents/game/zipMover/moon/impact";
+        public const string game_zipMover_moon_return = "event:/CommunalHelperEvents/game/zipMover/moon/return";
+        public const string game_zipMover_moon_finish = "event:/CommunalHelperEvents/game/zipMover/moon/finish";
+        public const string game_zipMover_moon_tick = "event:/CommunalHelperEvents/game/zipMover/moon/tick";
 
-        public const string game_connectedZipMover_normal_zip_mover_finish = "event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_finish";
-        public const string game_connectedZipMover_normal_zip_mover_return = "event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_return";
-        public const string game_connectedZipMover_normal_zip_mover_start = "event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_start";
-        public const string game_connectedZipMover_normal_zip_mover_tick = "event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_tick";
+        public const string game_zipMover_normal_start = "event:/CommunalHelperEvents/game/zipMover/normal/start";
+        public const string game_zipMover_normal_impact = "event:/CommunalHelperEvents/game/zipMover/normal/impact";
+        public const string game_zipMover_normal_return = "event:/CommunalHelperEvents/game/zipMover/normal/return";
+        public const string game_zipMover_normal_finish = "event:/CommunalHelperEvents/game/zipMover/normal/finish";
+        public const string game_zipMover_normal_tick = "event:/CommunalHelperEvents/game/zipMover/normal/tick";
 
-        public const string game_connectedZipMover_dream_zip_mover_return = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_return";
-        public const string game_connectedZipMover_dream_zip_mover_finish = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_finish";
-        public const string game_connectedZipMover_dream_zip_mover_start = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_start";
-        public const string game_connectedZipMover_dream_zip_mover_tick = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_tick";
-        public const string game_connectedZipMover_dream_zip_mover_arrived = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_arrived";
+        public const string game_dreamZipMover_return = "event:/CommunalHelperEvents/game/dreamZipMover/return";
+        public const string game_dreamZipMover_finish = "event:/CommunalHelperEvents/game/dreamZipMover/finish";
+        public const string game_dreamZipMover_start = "event:/CommunalHelperEvents/game/dreamZipMover/start";
+        public const string game_dreamZipMover_tick = "event:/CommunalHelperEvents/game/dreamZipMover/tick";
+        public const string game_dreamZipMover_impact = "event:/CommunalHelperEvents/game/dreamZipMover/impact";
 
         public const string game_seedCrystalHeart_shards_reform = "event:/CommunalHelperEvents/game/seedCrystalHeart/shards_reform";
         public const string game_seedCrystalHeart_shard_collect = "event:/CommunalHelperEvents/game/seedCrystalHeart/shard_collect";
