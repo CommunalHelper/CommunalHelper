@@ -2,6 +2,7 @@
 * Added Uncollidable Solid Extensions.
 * Added Decorative Chain Entity.
 * Added Chained variants of Falling Block & Dream Falling Block.
+* Added Chained Kevin.
 * Added Force & One Way Station Block Tracks.
 * Added reskinning option to Move Block Redirects.
 * Added Dream Jellyfish.
