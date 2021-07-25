@@ -91,6 +91,12 @@ placements.entities.CommunalHelper/DreamFallingBlock.tooltips.oneUse=Whether the
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.refillCount=Number of dashes the Dream Falling Block should refill (-1 for default).
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.below=Determines whether the Dream Falling Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.noCollide=Whether the Dream Falling Block should go through everything.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.centeredChain=Renders only one chain at the horizontal center of this block.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.chainOutline=Whether the chain of this block should have a black outline.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
+
 
 # -- Dream Move Block --
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
@@ -290,6 +296,23 @@ placements.entities.CommunalHelper/DreamBooster.tooltips.hidePath=Hides the path
 
 # -- Surface Sound Panel --
 placements.entities.CommunalHelper/SurfaceSoundPanel.tooltips.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
+
+
+# -- Chained Falling Block --
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.tiletype=Changes the visual appearance of this block.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.climbFall=Whether the block should start falling when the player is climbing it.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.behind=Whether this entity should appear farther behind in the scene or not.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.centeredChain=Renders only one chain at the horizontal center of this block.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.chainOutline=Whether the chain of this block should have a black outline.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
+
+# -- Chained Kevin
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chillout=Whether the block should have the large face and get tired after being hit.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.direction=The only direction in which this block will travel.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chainOutline=Whether the chain of this block should have a black outline.
 
 
 # -- Surface Sound Panel --

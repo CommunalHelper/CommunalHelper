@@ -67,6 +67,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamJellyfish.Load();
             DreamJellyfishRenderer.Load();
+
+            ChainedKevin.Load();
         }
 
         public override void Unload() {
@@ -103,6 +105,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamJellyfish.Unload();
             DreamJellyfishRenderer.Unload();
+
+            ChainedKevin.Unload();
         }
 
         public override void Initialize() {
@@ -143,6 +147,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamJellyfish.InitializeTextures();
             DreamJellyfish.InitializeParticles();
+
+            Chain.InitializeTextures();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
@@ -265,6 +271,9 @@ namespace Celeste.Mod.CommunalHelper {
             return (x % m + m) % m;
         }
 
+        public static Vector2 RandomDir(float length) {
+            return Calc.AngleToVector(Calc.Random.NextAngle(), length);
+        }
     }
 
     // Don't worry about it
