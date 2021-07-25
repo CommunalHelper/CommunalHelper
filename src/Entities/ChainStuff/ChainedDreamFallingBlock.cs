@@ -26,8 +26,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff {
 
         private DreamFallingBlockChainRenderer chainRenderer;
 
-        private bool held;
-        protected override bool Held => held || base.Held;
+        private bool heldByChain;
+        protected override bool Held => heldByChain || base.Held;
 
         private float chainStopY, startY;
         private bool centeredChain;
@@ -74,8 +74,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff {
         }
 
         public override void Render() {
-
-            if ((Triggered || indicatorAtStart) && indicator && !held) {
+            if ((Triggered || indicatorAtStart) && indicator && !heldByChain) {
                 float toY = startY + (chainStopY + Height - startY) * Ease.ExpoOut(pathLerp);
                 Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
             }
@@ -85,10 +84,10 @@ namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff {
 
         protected override bool ShouldStopFalling() {
             if (hasLanded) {
-                held = Y == chainStopY;
+                heldByChain = Y == chainStopY;
                 return true;
             } else if (Y > chainStopY) {
-                held = true;
+                heldByChain = true;
                 MoveToY(chainStopY, LiftSpeed.Y);
                 return true;
             }
@@ -99,7 +98,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff {
             base.ImpactSfx();
 
             rattle.Stop();
-            if (held) {
+            if (heldByChain) {
                 Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
                 Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, new Vector2(Center.X, startY));
             }
