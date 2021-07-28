@@ -69,6 +69,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfishRenderer.Load();
 
             ChainedKevin.Load();
+
+            MusicSyncedEntities.Load();
         }
 
         public override void Unload() {
@@ -107,6 +109,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfishRenderer.Unload();
 
             ChainedKevin.Unload();
+
+            MusicSyncedEntities.Unload();
         }
 
         public override void Initialize() {
