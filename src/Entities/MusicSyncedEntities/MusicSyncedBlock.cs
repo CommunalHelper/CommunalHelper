@@ -5,13 +5,14 @@ using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/BeepBlock")]
-    public class MusicSyncedBlock : Solid, IMusicSynced {
+    public class MusicSyncedBlock : Solid {
         private float alpha = 0f;
 
         private bool red;
 
         public MusicSyncedBlock(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Width, data.Height, safe: false) {
+            Add(new MusicSync(Tick));
         }
 
         public void Tick(int beat) {

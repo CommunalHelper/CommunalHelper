@@ -17,10 +17,8 @@ namespace Celeste.Mod.CommunalHelper {
             get => musicBeat;
             set {
                 musicBeat = value;
-                foreach (Entity entity in Engine.Scene) {
-                    if (entity is IMusicSynced musicSyncedEntity) {
-                        musicSyncedEntity.Tick(MusicBeat);
-                    }
+                foreach (MusicSync component in Engine.Scene.Tracker.GetComponents<MusicSync>()) {
+                    component.Tick(musicBeat);
                 }
             }
         }
