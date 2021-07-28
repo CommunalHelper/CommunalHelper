@@ -1,3 +1,6 @@
+--1.9.1 (28/07/2021)--
+* Fixed Connected Zip Mover FMOD audio events wrongly routed to gameplay SFX bus.
+
 --1.9.0 (25/07/2021)--
 * Added Uncollidable Solid Extensions.
 * Added Decorative Chain Entity.
