@@ -163,7 +163,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             a.AttachedEndsToSolids(Scene);
             a.ShakeImpulse();
 
-            Scene.Add(b = new Chain( true, nodes.Length / 2, 8, () => middleNode, attachedEndGetter));
+            Scene.Add(b = new Chain(true, nodes.Length / 2, 8, () => middleNode, attachedEndGetter));
             b.AttachedEndsToSolids(Scene);
             b.ShakeImpulse();
 
@@ -239,7 +239,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 ChainTexture.DrawCentered(mid, Color.White, new Vector2(1f, yScale), angle);
             }
         }
-        
+
         public static void DrawChainLine(Vector2 from, Vector2 to, bool outline) {
             Vector2 dir = Vector2.Normalize(to - from);
             float angle = dir.Angle() - MathHelper.PiOver2;

@@ -72,7 +72,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Particles[i].DisabledColor = Color.LightGray * (0.5f + Particles[i].Layer / 2f * 0.5f);
                 Particles[i].DisabledColor.A = 255;
 
-                Particles[i].EnabledColor = Particles[i].Layer  switch {
+                Particles[i].EnabledColor = Particles[i].Layer switch {
                     0 => Calc.Random.Choose(CustomDreamBlock.DreamColors[0], CustomDreamBlock.DreamColors[1], CustomDreamBlock.DreamColors[2]),
                     1 => Calc.Random.Choose(CustomDreamBlock.DreamColors[3], CustomDreamBlock.DreamColors[4], CustomDreamBlock.DreamColors[5]),
                     2 => Calc.Random.Choose(CustomDreamBlock.DreamColors[6], CustomDreamBlock.DreamColors[7], CustomDreamBlock.DreamColors[8]),
@@ -164,7 +164,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static readonly FieldInfo f_Glider_P_Glow = typeof(Glider).GetField("P_Glow", BindingFlags.Public | BindingFlags.Static);
         private static readonly FieldInfo f_Glider_P_GlideUp = typeof(Glider).GetField("P_GlideUp", BindingFlags.Public | BindingFlags.Static);
         private static readonly FieldInfo f_Glider_P_Glide = typeof(Glider).GetField("P_Glide", BindingFlags.Public | BindingFlags.Static);
-        
+
         internal static void Load() {
             On.Celeste.Holdable.Pickup += Holdable_Pickup;
             On.Celeste.Holdable.Check += Holdable_Check;

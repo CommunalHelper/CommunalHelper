@@ -200,22 +200,22 @@ namespace Celeste.Mod.CommunalHelper {
                     startingBroken = AnySetEnabled(BreakerFlags) && !startInvisible;
                     startingByActivator = AnySetEnabled(ActivatorFlags);
                 }
-                
+
                 Audio.Play(SFX.game_04_arrowblock_activate, Position);
                 State = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
                 if (!startingBroken) {
                     foreach (string flag in OnActivateFlags) {
-                    if (flag.Length > 0) 
-                        if (flag.StartsWith("!")) {
-                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
-                        } else if (flag.StartsWith("~")) {
-                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
-                        } else
-                            SceneAs<Level>().Session.SetFlag(flag);
+                        if (flag.Length > 0)
+                            if (flag.StartsWith("!")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
+                            } else if (flag.StartsWith("~")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            } else
+                                SceneAs<Level>().Session.SetFlag(flag);
                     }
-                }else
+                } else
                     State = MovementState.Breaking;
                 yield return 0.2f;
 
@@ -319,7 +319,7 @@ namespace Celeste.Mod.CommunalHelper {
                 Position = startPosition;
                 Visible = Collidable = false;
 
-                if (shouldProcessBreakFlags) 
+                if (shouldProcessBreakFlags)
                     foreach (string flag in OnBreakFlags) {
                         if (flag.Length > 0) {
                             if (flag.StartsWith("!")) {
@@ -525,7 +525,7 @@ namespace Celeste.Mod.CommunalHelper {
             }
         }
 
-        protected bool AnySetEnabled(List<List<string>> sets){
+        protected bool AnySetEnabled(List<List<string>> sets) {
             return sets.Any(s => SetEnabled(s));
         }
 

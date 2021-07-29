@@ -343,7 +343,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         start = newStart;
                     } else {
                         for (i -= 2 - (shouldCancel ? 1 : 0); i > -1; i--) {
-                            
+
                             to = (i == 0) ? start : nodes[i];
 
                             // Goes back to start with a speed that is four times slower.
