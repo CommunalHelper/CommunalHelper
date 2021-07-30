@@ -41,6 +41,8 @@ namespace Celeste.Mod.CommunalHelper {
             CustomDreamBlock.Load();
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
 
+            DreamDashCollider.Load();
+
             AbstractPanel.Load();
             // Panel-specific hooks loaded from AbstractPanel.Load
 
@@ -62,6 +64,11 @@ namespace Celeste.Mod.CommunalHelper {
             CustomSummitGem.Load();
 
             CustomBooster.Load();
+
+            DreamJellyfish.Load();
+            DreamJellyfishRenderer.Load();
+
+            ChainedKevin.Load();
         }
 
         public override void Unload() {
@@ -75,6 +82,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             CustomDreamBlock.Unload();
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
+
+            DreamDashCollider.Unload();
 
             ConnectedSwapBlockHooks.Unhook();
             CustomCassetteBlock.Unhook();
@@ -93,6 +102,11 @@ namespace Celeste.Mod.CommunalHelper {
             CustomSummitGem.Unload();
 
             CustomBooster.Unload();
+
+            DreamJellyfish.Unload();
+            DreamJellyfishRenderer.Unload();
+
+            ChainedKevin.Unload();
         }
 
         public override void Initialize() {
@@ -112,6 +126,7 @@ namespace Celeste.Mod.CommunalHelper {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
 
             StationBlock.InitializeParticles();
+            StationBlockTrack.InitializeTextures();
             TrackSwitchBox.InitializeParticles();
 
             DreamTunnelDash.LoadContent();
@@ -129,6 +144,11 @@ namespace Celeste.Mod.CommunalHelper {
 
             RailedMoveBlock.InitializeTextures();
             DreamBooster.InitializeParticles();
+
+            DreamJellyfish.InitializeTextures();
+            DreamJellyfish.InitializeParticles();
+
+            Chain.InitializeTextures();
 
 
             EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
@@ -251,6 +271,9 @@ namespace Celeste.Mod.CommunalHelper {
             return (x % m + m) % m;
         }
 
+        public static Vector2 RandomDir(float length) {
+            return Calc.AngleToVector(Calc.Random.NextAngle(), length);
+        }
     }
 
     // Don't worry about it

@@ -6,7 +6,6 @@ using System.Collections;
 using static Celeste.Mod.CommunalHelper.Entities.StationBlockTrack;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-
     [CustomEntity("CommunalHelper/TrackSwitchBox")]
     public class TrackSwitchBox : Solid {
         private uint Seed;

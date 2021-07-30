@@ -19,24 +19,27 @@ namespace Celeste.Mod.CommunalHelper {
 
         public const string game_stationBlock_station_block_seq = "event:/CommunalHelperEvents/game/stationBlock/station_block_seq";
         public const string game_stationBlock_moon_block_seq = "event:/CommunalHelperEvents/game/stationBlock/moon_block_seq";
+        public const string game_stationBlock_force_cue = "event:/CommunalHelperEvents/game/stationBlock/force_cue";
 
         public const string game_trackSwitchBox_smash = "event:/CommunalHelperEvents/game/trackSwitchBox/smash";
 
-        public const string game_connectedZipMover_moon_zip_mover_finish = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_finish";
-        public const string game_connectedZipMover_moon_zip_mover_return = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_return";
-        public const string game_connectedZipMover_moon_zip_mover_start = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_start";
-        public const string game_connectedZipMover_moon_zip_mover_tick = "event:/CommunalHelperEvents/game/connectedZipMover/moon_zip_mover_tick";
+        public const string game_zipMover_moon_start = "event:/CommunalHelperEvents/game/zipMover/moon/start";
+        public const string game_zipMover_moon_impact = "event:/CommunalHelperEvents/game/zipMover/moon/impact";
+        public const string game_zipMover_moon_return = "event:/CommunalHelperEvents/game/zipMover/moon/return";
+        public const string game_zipMover_moon_finish = "event:/CommunalHelperEvents/game/zipMover/moon/finish";
+        public const string game_zipMover_moon_tick = "event:/CommunalHelperEvents/game/zipMover/moon/tick";
 
-        public const string game_connectedZipMover_normal_zip_mover_finish = "event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_finish";
-        public const string game_connectedZipMover_normal_zip_mover_return = "event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_return";
-        public const string game_connectedZipMover_normal_zip_mover_start = "event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_start";
-        public const string game_connectedZipMover_normal_zip_mover_tick = "event:/CommunalHelperEvents/game/connectedZipMover/normal_zip_mover_tick";
+        public const string game_zipMover_normal_start = "event:/CommunalHelperEvents/game/zipMover/normal/start";
+        public const string game_zipMover_normal_impact = "event:/CommunalHelperEvents/game/zipMover/normal/impact";
+        public const string game_zipMover_normal_return = "event:/CommunalHelperEvents/game/zipMover/normal/return";
+        public const string game_zipMover_normal_finish = "event:/CommunalHelperEvents/game/zipMover/normal/finish";
+        public const string game_zipMover_normal_tick = "event:/CommunalHelperEvents/game/zipMover/normal/tick";
 
-        public const string game_connectedZipMover_dream_zip_mover_return = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_return";
-        public const string game_connectedZipMover_dream_zip_mover_finish = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_finish";
-        public const string game_connectedZipMover_dream_zip_mover_start = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_start";
-        public const string game_connectedZipMover_dream_zip_mover_tick = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_tick";
-        public const string game_connectedZipMover_dream_zip_mover_arrived = "event:/CommunalHelperEvents/game/dreamZipMover/dream_zip_mover_arrived";
+        public const string game_dreamZipMover_return = "event:/CommunalHelperEvents/game/dreamZipMover/return";
+        public const string game_dreamZipMover_finish = "event:/CommunalHelperEvents/game/dreamZipMover/finish";
+        public const string game_dreamZipMover_start = "event:/CommunalHelperEvents/game/dreamZipMover/start";
+        public const string game_dreamZipMover_tick = "event:/CommunalHelperEvents/game/dreamZipMover/tick";
+        public const string game_dreamZipMover_impact = "event:/CommunalHelperEvents/game/dreamZipMover/impact";
 
         public const string game_seedCrystalHeart_shards_reform = "event:/CommunalHelperEvents/game/seedCrystalHeart/shards_reform";
         public const string game_seedCrystalHeart_shard_collect = "event:/CommunalHelperEvents/game/seedCrystalHeart/shard_collect";
@@ -62,10 +65,21 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_customBoosters_dreamBooster_dreambooster_enter = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter";
         public const string game_customBoosters_dreamBooster_dreambooster_enter_cue = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter_cue";
         public const string game_customBoosters_dreamBooster_dreambooster_move = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_move";
+
+        public const string game_chainedFallingBlock_chain_rattle = "event:/CommunalHelperEvents/game/chainedFallingBlock/chain_rattle";
+        public const string game_chainedFallingBlock_chain_tighten_ceiling = "event:/CommunalHelperEvents/game/chainedFallingBlock/chain_tighten_ceiling";
+        public const string game_chainedFallingBlock_chain_tighten_block = "event:/CommunalHelperEvents/game/chainedFallingBlock/chain_tighten_block";
+        public const string game_chainedFallingBlock_attenuatedImpacts_boss_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/boss_impact";
+        public const string game_chainedFallingBlock_attenuatedImpacts_wood_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/wood_impact";
+        public const string game_chainedFallingBlock_attenuatedImpacts_ice_impact = "event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/ice_impact";
+
+        public const string game_chain_move = "event:/CommunalHelperEvents/game/chain/move";
+
+        public const string game_dreamJellyfish_jelly_refill = "event:/CommunalHelperEvents/game/dreamJellyfish/jelly_refill";
+        public const string game_dreamJellyfish_jelly_use = "event:/CommunalHelperEvents/game/dreamJellyfish/jelly_use";
     }
 
     public static class CustomBanks {
         public static Bank CommunalHelper = Audio.Banks.Banks["bank:/CommunalHelperBank"];
     }
-
 }
