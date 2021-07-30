@@ -1,13 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Entities.DreamStuff;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Monocle;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked]
-    class DreamJellyfishRenderer : Entity {
+    class DreamMaskRenderer : Entity {
 
-        private List<DreamJellyfish> jellies = new List<DreamJellyfish>();
+        private List<DreamMaskComponent> masks = new List<DreamMaskComponent>();
 
         private VirtualRenderTarget renderTarget;
         private BlendState alphaMaskBlendState = new BlendState() {
@@ -21,22 +22,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float animTimer;
 
-        public DreamJellyfishRenderer() {
+        public DreamMaskRenderer() {
             Depth = Depths.Player - 4;
             Tag = Tags.Global | Tags.TransitionUpdate;
             /* 
              * Okay, so this was the only way I could imagine doing this.
              * I was told that using a render target for masking stuff was a bit brutal, but I couldn't find another way.
              */
-            renderTarget = VirtualContent.CreateRenderTarget("communalhelper-dreamjellyfishrenderer", 48, 42);
+            renderTarget = VirtualContent.CreateRenderTarget("communalhelper-dreammaskrenderer", 48, 42);
         }
 
-        public void Track(DreamJellyfish jelly) {
-            jellies.Add(jelly);
+        public void Track(DreamMaskComponent mask) {
+            masks.Add(mask);
         }
 
-        public void Untrack(DreamJellyfish jelly) {
-            jellies.Remove(jelly);
+        public void Untrack(DreamMaskComponent mask) {
+            masks.Remove(mask);
         }
 
         public override void Removed(Scene scene) {
@@ -63,59 +64,59 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Render() {
             Camera camera = SceneAs<Level>().Camera;
 
-            foreach (DreamJellyfish jelly in jellies) {
-                Rectangle jellyBounds = jelly.ParticleBounds;
-                Vector2 pos = jelly.Position + new Vector2(jellyBounds.X, jellyBounds.Y);
+            foreach (DreamMaskComponent mask in masks) {
+                Rectangle bounds = mask.ParticleBounds;
+                Vector2 pos = mask.Position + new Vector2(bounds.X, bounds.Y);
 
                 float left = pos.X;
-                float right = pos.X + jellyBounds.Width;
+                float right = pos.X + bounds.Width;
                 float top = pos.Y;
-                float bottom = pos.Y + jellyBounds.Height;
+                float bottom = pos.Y + bounds.Height;
                 if (right < camera.Left || left > camera.Right || bottom < camera.Top || top > camera.Bottom)
-                    continue; // Skip jelly rendering if it's not on screen.
+                    continue; // Skip rendering if it's not on screen.
 
-                MTexture frame = jelly.CurrentFrame;
+                MTexture frame = mask.CurrentFrame();
 
                 // Outline
-                frame.DrawCentered(jelly.Position + new Vector2(0, -3), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
-                frame.DrawCentered(jelly.Position + new Vector2(0, -5), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
-                frame.DrawCentered(jelly.Position + new Vector2(-1, -4), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
-                frame.DrawCentered(jelly.Position + new Vector2(1, -4), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
+                frame.DrawCentered(mask.Position + new Vector2(0, -3), Color.White, mask.Sprite.Scale, mask.Sprite.Rotation);
+                frame.DrawCentered(mask.Position + new Vector2(0, -5), Color.White, mask.Sprite.Scale, mask.Sprite.Rotation);
+                frame.DrawCentered(mask.Position + new Vector2(-1, -4), Color.White, mask.Sprite.Scale, mask.Sprite.Rotation);
+                frame.DrawCentered(mask.Position + new Vector2(1, -4), Color.White, mask.Sprite.Scale, mask.Sprite.Rotation);
 
                 GameplayRenderer.End();
                 // Here we start drawing on a virtual texture.
                 Engine.Graphics.GraphicsDevice.SetRenderTarget(renderTarget);
-                Engine.Graphics.GraphicsDevice.Clear(Color.Lerp(Color.Black, Color.White, jelly.Flash));
+                Engine.Graphics.GraphicsDevice.Clear(Color.Lerp(Color.Black, Color.White, /*mask.Flash*/0.5f));
 
                 Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, ColorGrade.Effect);
-                for (int i = 0; i < jelly.Particles.Length; i++) {
-                    int layer = jelly.Particles[i].Layer;
+                for (int i = 0; i < mask.Particles.Length; i++) {
+                    int layer = mask.Particles[i].Layer;
 
-                    Vector2 particlePos = jelly.Particles[i].Position;
+                    Vector2 particlePos = mask.Particles[i].Position;
                     particlePos += camera.Position * (0.3f + 0.25f * layer);
                     while (particlePos.X < left) {
-                        particlePos.X += jellyBounds.Width;
+                        particlePos.X += bounds.Width;
                     }
                     while (particlePos.X > right) {
-                        particlePos.X -= jellyBounds.Width;
+                        particlePos.X -= bounds.Width;
                     }
                     while (particlePos.Y < top) {
-                        particlePos.Y += jellyBounds.Height;
+                        particlePos.Y += bounds.Height;
                     }
                     while (particlePos.Y > bottom) {
-                        particlePos.Y -= jellyBounds.Height;
+                        particlePos.Y -= bounds.Height;
                     }
 
-                    Color color = jelly.AllowDreamDash ? jelly.Particles[i].EnabledColor : jelly.Particles[i].DisabledColor;
+                    Color color = mask.EnabledParticleColors() ? mask.Particles[i].EnabledColor : mask.Particles[i].DisabledColor;
                     MTexture mTexture;
                     switch (layer) {
                         case 0: {
-                                int num2 = (int) ((jelly.Particles[i].TimeOffset * 4f + animTimer) % 4f);
+                                int num2 = (int) ((mask.Particles[i].TimeOffset * 4f + animTimer) % 4f);
                                 mTexture = DreamJellyfish.ParticleTextures[3 - num2];
                                 break;
                             }
                         case 1: {
-                                int num = (int) ((jelly.Particles[i].TimeOffset * 2f + animTimer) % 2f);
+                                int num = (int) ((mask.Particles[i].TimeOffset * 2f + animTimer) % 2f);
                                 mTexture = DreamJellyfish.ParticleTextures[1 + num];
                                 break;
                             }
@@ -130,12 +131,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 // We have drawn the dream block background and the stars, and we want to mask it using an alpha mask.
                 // The alpha masks are the same images that Gliders have, only with alpha information, no color, so they overlap the region in which we want the background to be visible.
 
+                // hhhhhhhhhhhh
                 Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, alphaMaskBlendState, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, ColorGrade.Effect);
                 frame.DrawCentered(
-                    new Vector2(-1, 10) + new Vector2(jellyBounds.Width, jellyBounds.Height) / 2f,
+                    new Vector2(-1, 10) + new Vector2(bounds.Width, bounds.Height) / 2f,
                     Color.White,
-                    jelly.Sprite.Scale,
-                    jelly.Sprite.Rotation
+                    mask.Sprite.Scale,
+                    mask.Sprite.Rotation
                 );
                 Draw.SpriteBatch.End();
 
@@ -143,7 +145,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Engine.Graphics.GraphicsDevice.SetRenderTarget(GameplayBuffers.Gameplay);
                 GameplayRenderer.Begin();
                 // Draw Virtual Texture
-                Draw.SpriteBatch.Draw(renderTarget, pos, Color.White);
+                Draw.SpriteBatch.Draw(renderTarget, new Rectangle((int) pos.X, (int) pos.Y, bounds.Width, bounds.Height), Color.White);
             }
         }
 
@@ -159,7 +161,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void LevelLoader_LoadingThread(On.Celeste.LevelLoader.orig_LoadingThread orig, LevelLoader self) {
             orig(self);
-            self.Level.Add(new DreamJellyfishRenderer());
+            self.Level.Add(new DreamMaskRenderer());
         }
 
         #endregion

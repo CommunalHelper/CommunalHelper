@@ -9,6 +9,8 @@ const pos = :(spike(
 )) 
 const data = :(
     type::String="default",
+	dreamDash::Bool=false,
+	dreamVisuals::Bool=false
 )
 const heightData = appendkwargs(pos, :(height::Integer=Maple.defaultSpikeHeight), data)
 const widthData = appendkwargs(pos, :(width::Integer=Maple.defaultSpikeWidth), data)

@@ -66,7 +66,7 @@ namespace Celeste.Mod.CommunalHelper {
             CustomBooster.Load();
 
             DreamJellyfish.Load();
-            DreamJellyfishRenderer.Load();
+            DreamMaskRenderer.Load();
 
             ChainedKevin.Load();
         }
@@ -104,7 +104,7 @@ namespace Celeste.Mod.CommunalHelper {
             CustomBooster.Unload();
 
             DreamJellyfish.Unload();
-            DreamJellyfishRenderer.Unload();
+            DreamMaskRenderer.Unload();
 
             ChainedKevin.Unload();
         }
