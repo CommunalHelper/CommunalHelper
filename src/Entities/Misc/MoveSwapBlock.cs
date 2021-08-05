@@ -74,6 +74,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float moveSpeed;
         private float targetMoveSpeed;
+        private float maxMoveSpeed;
         private float moveAcceleration;
 
         private bool moveSwapPoints;
@@ -95,7 +96,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool swapUpdate;
         private Vector2 swapLiftSpeed;
         private Vector2 moveLiftSpeed;
-        new protected Vector2 LiftSpeed => moveLiftSpeed + swapLiftSpeed;
+        new protected Vector2 LiftSpeed => moveLiftSpeed + (swapBlockData.Get<float>("returnTimer") > 0 ? swapLiftSpeed : Vector2.Zero);
 
         protected DynData<SwapBlock> swapBlockData;
 
@@ -147,7 +148,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             middleOrange.CenterOrigin();
 
             canSteer = data.Bool("canSteer", false);
-            targetMoveSpeed = data.Float("moveSpeed", 60f);
+            maxMoveSpeed = data.Float("moveSpeed", 60f);
             moveAcceleration = data.Float("moveAcceleration", Accel);
             MoveDirection = data.Enum("direction", Directions.Left);
             homeAngle = targetAngle = angle = MoveDirection.Angle();
@@ -199,6 +200,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         // Called via IL Delegate for non-returning blocks ONLY. 
         new public void Update() {
+            // Used to determine when to apply swapLiftSpeed
+            float returnTimer = swapBlockData.Get<float>("returnTimer");
+            if (returnTimer > 0f) {
+                swapBlockData["returnTimer"] = returnTimer - Engine.DeltaTime;
+            }
+
             DisplacementRenderer.Burst burst = swapBlockData.Get<DisplacementRenderer.Burst>("burst");
             if (burst != null) {
                 burst.Position = Center;
@@ -255,6 +262,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             float lerp = swapBlockData.Get<float>("lerp");
             Swapping = (lerp is <= 1f and >= 0f);
             swapBlockData["target"] = swapBlockData.Get<int>("target") ^ 1;
+            swapBlockData["returnTimer"] = 0.8f;
             swapBlockData["burst"] = (Scene as Level).Displacement.AddBurst(Center, 0.2f, 0f, 16f);
             if (lerp >= 0.2f) {
                 swapBlockData["speed"] = maxForwardSpeed;
@@ -292,6 +300,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 ActivateParticles();
                 yield return 0.2f;
 
+                targetMoveSpeed = maxMoveSpeed;
                 moveBlockSfx.Play(CustomSFX.game_redirectMoveBlock_arrowblock_move);
                 moveBlockSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;
