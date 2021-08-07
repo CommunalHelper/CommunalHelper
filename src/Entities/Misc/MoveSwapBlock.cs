@@ -865,7 +865,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 cursor.Emit(OpCodes.Ldloc, loc_Actor);
                 cursor.EmitDelegate<Func<Vector2, Solid, Actor, Vector2>>((liftSpeed, solid, Actor) => {
                     if (solid is MoveSwapBlock block) {
-                        if (block.swapLiftSpeedTimer < Actor.LiftSpeedGraceTime)
+                        if (block.Swapping || (block.swapLiftSpeedTimer < Actor.LiftSpeedGraceTime && Actor.Position.Y < solid.Top))
                             return block.LiftSpeed; // Combined swap and move liftSpeed
                         return block.moveLiftSpeed;
                     }
