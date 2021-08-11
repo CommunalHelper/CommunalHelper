@@ -86,7 +86,6 @@ namespace Celeste.Mod.CommunalHelper {
                 }
                 if (block.redAlpha > 0f) {
                     block.DrawBlock(vector, block.redBgTiles, block.middleRed, Color.Gray * block.redAlpha);
-                    ;
                 }
             }
         }
