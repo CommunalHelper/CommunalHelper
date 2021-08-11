@@ -95,17 +95,17 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                         0 => constA,
                         1 => 2 * constA * progress + constB,
                         2 => 3 * constA * progress * progress + 2 * constB * progress + 1,
-                        3 => (float)(constA * constB * Math.Cos(constB * progress)),
-                        4 => (float)(-constA * constB * Math.Sin(constB * progress)),
-                        5 => (float)(constA * constB * Math.Pow(Math.E, constB * progress)),
-                        6 => (float)(Math.Pow(progress * constA, constB - 1) * constB),
-                        7 => (float)(constB * Math.Cos(moveTime)),
+                        3 => (float) (constA * constB * Math.Cos(constB * progress)),
+                        4 => (float) (-constA * constB * Math.Sin(constB * progress)),
+                        5 => (float) (constA * constB * Math.Pow(Math.E, constB * progress)),
+                        6 => (float) (Math.Pow(progress * constA, constB - 1) * constB),
+                        7 => (float) (constB * Math.Cos(moveTime)),
                         _ => 1
                     };
                     // tan x = y / x
                     // make y negative because y- is up in Celeste
                     // swap x/y if we're vertical
-                    float targetAngle = (float)Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * neg) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * neg));
+                    float targetAngle = (float) Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * neg) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * neg));
                     // and then we resume as normal
                     speed = startingBroken ? 0 : Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
                     angle = targetAngle;

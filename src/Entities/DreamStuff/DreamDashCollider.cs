@@ -36,7 +36,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool Check(Player player) {
             if (Active && Collider is not null && Entity != null &&
                 player.GetData().Data.TryGetValue(Player_canEnterDreamDashCollider, out object canEnter) && canEnter.Equals(true)) {
-                
+
                 Collider collider = Entity.Collider;
 
                 Entity.Collider = Collider;
@@ -58,7 +58,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void DebugRender(Camera camera) {
             if (Collider != null) {
                 Collider collider = Entity.Collider;
-                
+
                 Entity.Collider = Collider;
                 Collider.Render(camera, Active ? ActiveColor : InactiveColor);
                 Entity.Collider = collider;

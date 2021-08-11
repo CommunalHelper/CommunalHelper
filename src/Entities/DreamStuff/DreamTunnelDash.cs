@@ -455,7 +455,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         }
                     }
 
-                    CheckDreamBlock:
+                CheckDreamBlock:
                     if (dashedIntoDreamBlock) {
                         if (new DynData<DreamBlock>(block).Get<bool>("playerHasDreamDash"))
                             player.Die(-dir);
