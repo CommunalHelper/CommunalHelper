@@ -2,18 +2,12 @@ module CommunalHelperDreamCrumbleWallOnRumble
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
-@mapdef Entity "CommunalHelper/DreamCrumbleWallOnRumble" DreamCrumbleWallOnRumble(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool=false,
-    oneUse::Bool=false,
-    refillCount::Integer=-1,
-    below::Bool=false,
-    persistent::Bool=false,
-)
+const entityData = appendkwargs(CustomDreamBlockData, :(
+    permanent::Bool=false,
+))
+@mapdefdata Entity "CommunalHelper/DreamCrumbleWallOnRumble" DreamCrumbleWallOnRumble entityData
 
 const placements = Ahorn.PlacementDict(
     "Dream Crumble Wall On Rumble (Communal Helper)" => Ahorn.EntityPlacement(
