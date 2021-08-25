@@ -2,18 +2,13 @@ module CommunalHelperCassetteMoveBlock
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomCassetteBlockData
 
-@mapdef Entity "CommunalHelper/CassetteMoveBlock" CassetteMoveBlock(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
+const entityData = appendkwargs(CustomCassetteBlockData, :(
     direction::String="Right",
     moveSpeed::Number=60.0,
-    index::Integer=0,
-    tempo::Number=1.0,
-    customColor="",
-)
+))
+@mapdefdata Entity "CommunalHelper/CassetteMoveBlock" CassetteMoveBlock entityData
 
 const placements = Ahorn.PlacementDict(
     "Cassette Move Block ($index - $color) (Communal Helper)" => Ahorn.EntityPlacement(

@@ -11,4 +11,14 @@ const CustomDreamBlockData = :(dreamblock(
     below::Bool=false,
 ))
 
+const CustomCassetteBlockData = :(cassetteblock(
+    x::Integer,
+    y::Integer,
+    width::Integer=Maple.defaultBlockWidth,
+    height::Integer=Maple.defaultBlockHeight,
+    index::Integer=0,
+    tempo::Number=1.0,
+    customColor="",
+))
+
 end
