@@ -121,8 +121,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Awake(Scene scene) {
             base.Awake(scene);
 
-            Console.WriteLine("test");
-
             if (!HasGroup) {
                 /* Setup group */
                 MasterOfGroup = true;
