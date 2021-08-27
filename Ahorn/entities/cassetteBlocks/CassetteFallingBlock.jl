@@ -2,16 +2,9 @@ module CommunalHelperCassetteFallingBlock
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomCassetteBlockData
 
-@mapdef Entity "CommunalHelper/CassetteFallingBlock" CassetteFallingBlock(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
-    index::Integer=0,
-    tempo::Number=1.0,
-    customColor="",
-)
+@mapdefdata Entity "CommunalHelper/CassetteFallingBlock" CassetteFallingBlock CustomCassetteBlockData
 
 const placements = Ahorn.PlacementDict(
     "Cassette Falling Block ($index - $color) (Communal Helper)" => Ahorn.EntityPlacement(
