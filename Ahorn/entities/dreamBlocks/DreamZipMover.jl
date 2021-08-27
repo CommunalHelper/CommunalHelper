@@ -18,6 +18,7 @@ using Ahorn.CommunalHelper
     permanent::Bool=false,
     waiting::Bool=false,
     ticking::Bool=false,
+    quickDestroy::Bool=false,
 )
 
 const placements = Ahorn.PlacementDict(

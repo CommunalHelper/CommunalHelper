@@ -13,6 +13,7 @@ using Ahorn.CommunalHelper
     refillCount::Integer=-1,
     below::Bool=false,
     permanent::Bool=false,
+    quickDestroy::Bool=false,
 )
 
 const placements = Ahorn.PlacementDict(

@@ -112,14 +112,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected bool IncludeJumpThrus = false;
 
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) { }
+            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) { }
 
-        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below)
-            : base(position, width, height, featherMode, oneUse, refillCount, below) {
+        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below, bool quickDestroy)
+            : base(position, width, height, featherMode, oneUse, refillCount, below, quickDestroy) {
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
+
+            Console.WriteLine("test");
 
             if (!HasGroup) {
                 /* Setup group */
@@ -657,7 +659,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private IEnumerator ShatterSequence() {
-            yield return 0.28f;
+            if (QuickDestroy) {
+                Collidable = false;
+                foreach (StaticMover entity in staticMovers) {
+                    entity.Entity.Collidable = false;
+                }
+            } else {
+                yield return 0.28f;
+            }
 
             while (ColorLerp < 2.0f) {
                 ColorLerp += Engine.DeltaTime * 10.0f;
@@ -665,7 +674,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             ColorLerp = 1.0f;
-            yield return 0.05f;
+            if (!QuickDestroy) {
+                yield return 0.05f;
+            }
 
             if (MasterOfGroup) {
                 Level level = SceneAs<Level>();
