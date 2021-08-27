@@ -20,7 +20,6 @@ using Ahorn.CommunalHelper
     indicator::Bool=false,
     indicatorAtStart::Bool=false,
     chained::Bool=false,
-    quickDestroy::Bool=false,
 )
 
 const placements = Ahorn.PlacementDict(

@@ -24,7 +24,6 @@ using Ahorn.CommunalHelper
     allowReturn::Bool=false,
     moveSound::String="event:/game/general/touchswitch_gate_open",
     finishedSound::String="event:/game/general/touchswitch_gate_finish",
-    quickDestroy::Bool=false,
 )
 
 const placements = Ahorn.PlacementDict()
