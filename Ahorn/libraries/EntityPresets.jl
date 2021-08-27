@@ -9,6 +9,7 @@ const CustomDreamBlockData = :(dreamblock(
     oneUse::Bool=false,
     refillCount::Integer=-1,
     below::Bool=false,
+    quickDestroy::Bool=false,
 ))
 
 const CustomCassetteBlockData = :(cassetteblock(
