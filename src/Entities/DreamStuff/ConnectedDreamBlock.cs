@@ -112,11 +112,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected bool IncludeJumpThrus = false;
 
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) { }
-
-        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below, bool quickDestroy)
-            : base(position, width, height, featherMode, oneUse, refillCount, below, quickDestroy) {
-        }
+            : base(data, offset) { }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);

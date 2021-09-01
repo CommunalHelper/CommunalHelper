@@ -108,6 +108,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected DynData<DreamBlock> baseData;
 
+        public CustomDreamBlock(EntityData data, Vector2 offset)
+            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) { }
+
         public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below, bool quickDestroy)
             : base(position, width, height, null, false, oneUse, below) {
             baseData = new DynData<DreamBlock>(this);

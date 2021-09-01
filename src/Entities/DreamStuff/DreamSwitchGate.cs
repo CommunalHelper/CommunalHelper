@@ -56,13 +56,10 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public DreamSwitchGate(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data, data.Width, data.Height, data.Nodes[0] + offset, data.Bool("oneUse"), data.Bool("featherMode"), GetRefillCount(data), data.Bool("below"), data.Bool("permanent"), data.Bool("quickDestroy")) { }
+            : base(data, offset) {
 
-        public DreamSwitchGate(Vector2 position, EntityData data, int width, int height, Vector2 node, bool oneUse, bool featherMode, int refillCount, bool below, bool permanent, bool quickDestroy)
-            : base(position, width, height, featherMode, oneUse, refillCount, below, quickDestroy) {
-
-            this.permanent = permanent;
-            this.node = node;
+            permanent = data.Bool("permanent");
+            node = data.Nodes[0] + offset;
 
             isFlagSwitchGate = data.Bool("isFlagSwitchGate");
 

@@ -19,7 +19,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private EntityID id;
 
         public DreamCrumbleWallOnRumble(EntityData data, Vector2 offset, EntityID id)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) {
+            : base(data, offset) {
             this.id = id;
             persistent = data.Bool("persistent");
         }

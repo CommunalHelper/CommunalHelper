@@ -85,7 +85,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public DreamMoveBlock(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) {
+            : base(data, offset) {
             startPosition = Position;
 
             // Backwards Compatibility

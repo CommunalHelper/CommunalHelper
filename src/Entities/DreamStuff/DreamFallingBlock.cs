@@ -20,7 +20,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected virtual bool Held => CollideCheck<Platform>(Position + new Vector2(0f, 1f));
 
         public DreamFallingBlock(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) {
+            : base(data, offset) {
             noCollide = data.Bool("noCollide", false);
 
             Add(new Coroutine(Sequence()));
