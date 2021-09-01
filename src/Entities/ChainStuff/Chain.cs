@@ -159,11 +159,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 middleNode = nodes[nodes.Length / 2].Position;
 
             Chain a, b;
-            Scene.Add(a = new Chain(true, nodes.Length / 2, 8, () => middleNode, attachedStartGetter));
+            Scene.Add(a = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedStartGetter));
             a.AttachedEndsToSolids(Scene);
             a.ShakeImpulse();
 
-            Scene.Add(b = new Chain(true, nodes.Length / 2, 8, () => middleNode, attachedEndGetter));
+            Scene.Add(b = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedEndGetter));
             b.AttachedEndsToSolids(Scene);
             b.ShakeImpulse();
 
