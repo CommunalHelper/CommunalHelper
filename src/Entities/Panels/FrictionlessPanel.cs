@@ -15,17 +15,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked]
     public class FrictionlessPanel : AbstractPanel {
 
-        #region Loading
-
-        public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            Directions orientation = entityData.Enum<Directions>("orientation");
-            return new FrictionlessPanel(entityData.Position + offset, GetSize(entityData, orientation), orientation);
-        }
-
-        #endregion
-
-        public FrictionlessPanel(Vector2 position, float size, Directions orientation)
-            : base(position, size, orientation, false) {
+        public FrictionlessPanel(EntityData data, Vector2 offset)
+            : base(data, offset) {
             Depth = Depths.FakeWalls - 10;
         }
 

@@ -42,6 +42,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected Level level;
 
+        public AbstractPanel(EntityData data, Vector2 offset)
+            : this(data.Position + offset, GetSize(data, data.Enum<Directions>("orientation")), data.Enum<Directions>("orientation"), data.Bool("overrideAllowStaticMovers")) { }
+
         public AbstractPanel(Vector2 position, float size, Directions orientation, bool overrideAllowStaticMovers)
             : base(position) {
             Depth = Depths.FakeWalls;
