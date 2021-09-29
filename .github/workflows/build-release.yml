@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    
+
     - name: Download Everest stripped lib
       uses: coloursofnoise/get-azure-pipelines-artifact@v0.0.3
       with:
@@ -37,7 +37,7 @@ jobs:
         path: src/bin/Debug/net452
 
     - name: Create mod zip
-      run: zip -r CommunalHelper.zip Ahorn/* Audio Graphics src/bin/Debug/net452 everest.yaml
+      run: zip -qq -r CommunalHelper.zip Ahorn/* Audio Graphics src/bin/Debug/net452 everest.yaml
 
     - name: Upload release asset
       id: upload
@@ -55,7 +55,7 @@ jobs:
           -T "CommunalHelper.zip" | jq '.browser_download_url' | grep -Po 'github.com\/.*?\.zip')
         echo "::set-output name=DOWNLOAD_URL::$DOWNLOAD_URL"
 
-    - name: update release description
+    - name: Update release description
       env:
         RELEASE_BODY: ${{ github.event.release.body }}
       run: |
@@ -68,3 +68,17 @@ jobs:
             --arg body "$RELEASE_BODY" \
             --arg url ${{ steps.upload.outputs.DOWNLOAD_URL }} \
             '{body: "\($body)\r\n\r\n[Install CommunalHelper.zip](https://0x0a.de/twoclick/?\($url))"}')"
+
+    - name: Publish discord webhook
+      env:
+        RELEASE_BODY: ${{ github.event.release.body }}
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      run: |
+        curl \
+          -X POST \
+          -H "Content-Type: application/json" \
+          "$DISCORD_WEBHOOK" \
+          -d "$(jq -n \
+            --arg body "$RELEASE_BODY" \
+            --arg url ${{ steps.upload.outputs.DOWNLOAD_URL }} \
+            '{embeds: [{title: "Install CommunalHelper.zip", url: "https://0x0a.de/twoclick/?\($url)", description: $body}]}')"
