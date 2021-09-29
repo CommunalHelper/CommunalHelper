@@ -1,4 +1,4 @@
-name: build-release
+name: Package and Publish
 on:
   release:
     types: [published]
