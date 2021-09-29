@@ -1,3 +1,31 @@
+--upcoming (??/??/????)--
+* Added Frictionless Panel
+* Added DashCollision Panel
+* Added Bouncy Panel
+
+--1.9.2 (08/07/2021)--
+* Fixed Delete Mode MoveBlockRedirect Ahorn plugin
+* Fixed LiftSpeed grace time for MoveSwapBlock
+
+--1.9.1 (28/07/2021)--
+* Fixed Connected Zip Mover FMOD audio events wrongly routed to gameplay SFX bus.
+
+--1.9.0 (25/07/2021)--
+* Added Uncollidable Solid Extensions.
+* Added Decorative Chain Entity.
+* Added Chained variants of Falling Block & Dream Falling Block.
+* Added Chained Kevin.
+* Added Force & One Way Station Block Tracks.
+* Added reskinning option to Move Block Redirects.
+* Added Dream Jellyfish.
+* Added Railed Move Block.
+* Added Underwater Music Controller.
+* Fixed Move Swap Block liftspeed issues.
+* Fixed Move Block Redirects static mover desync and delete mode not working.
+* Fixed Zip Mover type sound issues.
+* Fixed Connected Move Block & Equation Move Block rendering issues in Ahorn.
+* Communal Helper custom Player states are now registered with CelesteTAS.
+
 --1.8.4 (17/06/2021)--
 * [Silent] Added Equation Move Blocks.
 * [Silent] Added flag options for Connected & Equation Move Blocks.
