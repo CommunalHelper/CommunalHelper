@@ -95,17 +95,17 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                         0 => constA,
                         1 => 2 * constA * progress + constB,
                         2 => 3 * constA * progress * progress + 2 * constB * progress + 1,
-                        3 => (float)(constA * constB * Math.Cos(constB * progress)),
-                        4 => (float)(-constA * constB * Math.Sin(constB * progress)),
-                        5 => (float)(constA * constB * Math.Pow(Math.E, constB * progress)),
-                        6 => (float)(Math.Pow(progress * constA, constB - 1) * constB),
-                        7 => (float)(constB * Math.Cos(moveTime)),
+                        3 => (float) (constA * constB * Math.Cos(constB * progress)),
+                        4 => (float) (-constA * constB * Math.Sin(constB * progress)),
+                        5 => (float) (constA * constB * Math.Pow(Math.E, constB * progress)),
+                        6 => (float) (Math.Pow(progress * constA, constB - 1) * constB),
+                        7 => (float) (constB * Math.Cos(moveTime)),
                         _ => 1
                     };
                     // tan x = y / x
                     // make y negative because y- is up in Celeste
                     // swap x/y if we're vertical
-                    float targetAngle = (float)Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * neg) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * neg));
+                    float targetAngle = (float) Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * neg) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * neg));
                     // and then we resume as normal
                     speed = startingBroken ? 0 : Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
                     angle = targetAngle;
@@ -156,12 +156,16 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                 yield return 0.2f;
 
                 BreakParticles();
+
                 List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
-                for (int i = 0; i < Width; i += 8) {
-                    for (int j = 0; j < Height; j += 8) {
-                        Vector2 value = new Vector2(i + 4f, j + 4f);
-                        Vector2 pos = value + Position + GroupOffset;
-                        if (CollidePoint(pos)) {
+                int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+                int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+
+                for (int i = 0; i < tWidth; i++) {
+                    for (int j = 0; j < tHeight; j++) {
+                        if (AllGroupTiles[i, j]) {
+                            Vector2 value = new Vector2(i * 8 + 4, j * 8 + 4);
+                            Vector2 pos = value + Position + GroupOffset;
                             MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
                             debris.Add(debris2);
                             Scene.Add(debris2);

@@ -12,13 +12,10 @@ using System.Collections.Generic;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper {
-
     [CustomEntity("CommunalHelper/ConnectedSwapBlock")]
     [Tracked(false)]
     public class ConnectedSwapBlock : ConnectedSolid {
-
         private class PathRenderer : Entity {
-
             private ConnectedSwapBlock block;
             private float timer;
 
@@ -38,6 +35,7 @@ namespace Celeste.Mod.CommunalHelper {
                 float scale = 0.5f * (0.5f + ((float) Math.Sin(timer) + 1f) * 0.25f);
                 DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, Color.White * scale);
             }
+
             private void DrawBlockStyle(Vector2 pos, float width, float height, MTexture[,] ninSlice, Color color) {
                 int num = (int) (width / 8f);
                 int num2 = (int) (height / 8f);
@@ -60,6 +58,40 @@ namespace Celeste.Mod.CommunalHelper {
                 }
             }
         }
+
+        // yeah we do need to do this because of how swap blocks are rendered.
+        private class ConnectedSwapBlockBGTilesRenderer : Entity {
+            private ConnectedSwapBlock block;
+
+            public ConnectedSwapBlockBGTilesRenderer(ConnectedSwapBlock block) {
+                this.block = block;
+                Depth = Depths.Player + 1;
+            }
+
+            public override void Render() {
+                Vector2 vector = block.Position + block.Shake;
+                if (block.lerp != block.target && block.speed > 0f) {
+                    Vector2 value = (block.end - block.start).SafeNormalize();
+                    if (block.target == 1) {
+                        value *= -1f;
+                    }
+                    float num = block.speed / block.maxForwardSpeed;
+                    float num2 = 16f * num;
+                    for (int i = 2; i < num2; i += 2) {
+                        block.DrawBlock(vector + value * i, block.greenBgTiles, block.middleGreen, Color.Gray * (1f - i / num2));
+                    }
+                }
+                if (block.redAlpha < 1f) {
+                    block.DrawBlock(vector, block.greenBgTiles, block.middleGreen, Color.Gray);
+                }
+                if (block.redAlpha > 0f) {
+                    block.DrawBlock(vector, block.redBgTiles, block.middleRed, Color.Gray * block.redAlpha);
+                }
+            }
+        }
+
+        private PathRenderer path;
+        private ConnectedSwapBlockBGTilesRenderer bgTiles;
 
         public Vector2 Direction;
         public bool Swapping;
@@ -90,7 +122,7 @@ namespace Celeste.Mod.CommunalHelper {
 
         private MTexture[,] nineSliceTarget = new MTexture[3, 3];
 
-        private List<Image> greenTiles, redTiles;
+        private List<Image> greenTiles, redTiles, greenBgTiles, redBgTiles;
 
         private Sprite middleGreen;
         private Sprite middleRed;
@@ -163,16 +195,19 @@ namespace Celeste.Mod.CommunalHelper {
              * change the original width and height of this entity, because 
              * of how the game handles multiple colliders, and adds them.
              */
-            scene.Add(new PathRenderer(this));
+            scene.Add(path = new PathRenderer(this));
 
             base.Awake(scene);
             if (Theme == SwapBlock.Themes.Normal) {
-                greenTiles = AutoTile(customGreenTextures ? customGreenEdgeTiles : GreenEdgeTiles, customGreenTextures ? customGreenInnerCornerTiles : GreenInnerCornerTiles, false, false);
-                redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : RedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : RedInnerCornerTiles, false, false);
+                greenTiles = AutoTile(customGreenTextures ? customGreenEdgeTiles : GreenEdgeTiles, customGreenTextures ? customGreenInnerCornerTiles : GreenInnerCornerTiles, out greenBgTiles, false, false);
+                redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : RedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : RedInnerCornerTiles, out redBgTiles, false, false);
             } else {
-                greenTiles = AutoTile(customGreenTextures ? customGreenEdgeTiles : MoonGreenEdgeTiles, customGreenTextures ? customGreenInnerCornerTiles : MoonGreenInnerCornerTiles, false, false);
-                redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : MoonRedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : MoonRedInnerCornerTiles, false, false);
+                greenTiles = AutoTile(customGreenTextures ? customGreenEdgeTiles : MoonGreenEdgeTiles, customGreenTextures ? customGreenInnerCornerTiles : MoonGreenInnerCornerTiles, out greenBgTiles, false, false);
+                redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : MoonRedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : MoonRedInnerCornerTiles, out redBgTiles, false, false);
             }
+
+            greenTiles.RemoveAll(image => greenBgTiles.Contains(image));
+            redTiles.RemoveAll(image => redBgTiles.Contains(image));
 
             Add(middleRed);
             Add(middleGreen);
@@ -183,12 +218,17 @@ namespace Celeste.Mod.CommunalHelper {
             int x2 = (int) MathHelper.Max(GroupBoundsMax.X, offset.X + GroupBoundsMax.X);
             int y2 = (int) MathHelper.Max(GroupBoundsMax.Y, offset.Y + GroupBoundsMax.Y);
             moveRect = new Rectangle(x1, y1, x2 - x1, y2 - y1);
+
+            scene.Add(bgTiles = new ConnectedSwapBlockBGTilesRenderer(this));
         }
 
         public override void Removed(Scene scene) {
             base.Removed(scene);
             Audio.Stop(moveSfx);
             Audio.Stop(returnSfx);
+
+            bgTiles.RemoveSelf();
+            path.RemoveSelf();
         }
 
         public override void SceneEnd(Scene scene) {

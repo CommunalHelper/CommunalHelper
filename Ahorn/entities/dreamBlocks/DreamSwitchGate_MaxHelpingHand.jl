@@ -2,16 +2,9 @@ module CommunalHelperDreamFlagSwitchGate
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
-@mapdef Entity "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate" DreamFlagSwitchGate(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool=false,
-    oneUse::Bool=false,
-    refillCount::Integer=-1,
-    below::Bool=false,
+const entityData = appendkwargs(CustomDreamBlockData, :(
     persistent::Bool=false,
     flag::String="flag_touch_switch",
     icon::String="vanilla",
@@ -24,7 +17,8 @@ using Ahorn.CommunalHelper
     allowReturn::Bool=false,
     moveSound::String="event:/game/general/touchswitch_gate_open",
     finishedSound::String="event:/game/general/touchswitch_gate_finish",
-)
+))
+@mapdefdata Entity "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate" DreamFlagSwitchGate entityData
 
 const placements = Ahorn.PlacementDict()
 

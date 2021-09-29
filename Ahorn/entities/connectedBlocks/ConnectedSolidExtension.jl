@@ -8,12 +8,20 @@ using Ahorn.CommunalHelper
     y::Integer,
     width::Integer=16,
     height::Integer=16,
+    collidable::Bool=true,
 )
 
 const placements = Ahorn.PlacementDict(
     "Connected Solid Extension (Communal Helper)" => Ahorn.EntityPlacement(
         SolidExtension,
         "rectangle",
+    ),
+    "Connected Solid Extension (Uncollidable) (Communal Helper)" => Ahorn.EntityPlacement(
+        SolidExtension,
+        "rectangle",
+        Dict{String, Any}(
+            "collidable" => false,
+        ),
     ),
 )
 
@@ -29,14 +37,15 @@ function Ahorn.selection(entity::SolidExtension)
     return Ahorn.Rectangle(x, y, width, height)
 end
 
-const block = "objects/CommunalHelper/connectedZipMover/extension_outline"
+const blockCollidable = "objects/CommunalHelper/connectedZipMover/extension_outline"
+const blockUncollidable = "objects/CommunalHelper/connectedZipMover/extension_outline_alt"
 
 const connectTo = [
     "CommunalHelper/SolidExtension",
     "CommunalHelper/ConnectedZipMover",
     "CommunalHelper/ConnectedSwapBlock",
     "CommunalHelper/ConnectedMoveBlock",
-	"CommunalHelper/EquationMoveBlock",
+    "CommunalHelper/EquationMoveBlock",
 ]
 
 # Gets rectangles from Solid Extensions & Connected Solids
@@ -60,12 +69,14 @@ function getSolidRectangles(room::Maple.Room)
 end
 
 function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::SolidExtension, room::Maple.Room)
-    rects = getSolidRectangles(room)
-
     x, y = Ahorn.position(entity)
+    
+    rects = getSolidRectangles(room)
 
     width = Int(get(entity.data, "width", 32))
     height = Int(get(entity.data, "height", 32))
+
+    block = Bool(get(entity.data, "collidable", true)) ? blockCollidable : blockUncollidable
 
     tileWidth = ceil(Int, width / 8)
     tileHeight = ceil(Int, height / 8)

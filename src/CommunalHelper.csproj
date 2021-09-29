@@ -15,8 +15,8 @@
   </ItemDefinitionGroup>
 
   <ItemGroup>
-    <PackageReference Include="MonoMod" Version="21.4.2.3" />
-    <PackageReference Include="MonoMod.RuntimeDetour" Version="21.01.11.01">
+    <PackageReference Include="MonoMod" Version="21.7.22.3" />
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="21.7.22.3">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
@@ -24,7 +24,7 @@
   <ItemGroup>
     <Reference Include="Celeste" HintPath="$(CELESTEGAMEPATH)\Celeste.exe" />
     <Reference Include="MMHOOK_Celeste" HintPath="$(CELESTEGAMEPATH)\MMHOOK_Celeste.dll" />
-      <Reference Include="FNA" HintPath="$(CELESTEGAMEPATH)\FNA.dll" />
+    <Reference Include="FNA" HintPath="$(CELESTEGAMEPATH)\FNA.dll" />
     <Reference Include="YamlDotNet" HintPath="$(CELESTEGAMEPATH)\YamlDotNet.dll" />
     <Reference Include="System.ValueTuple" HintPath="$(CELESTEGAMEPATH)\System.ValueTuple.dll" />
   </ItemGroup>

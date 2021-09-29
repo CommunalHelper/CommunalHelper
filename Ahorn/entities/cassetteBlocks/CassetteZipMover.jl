@@ -2,20 +2,15 @@ module CommunalHelperCassetteZipMover
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomCassetteBlockData
 
-@mapdef Entity "CommunalHelper/CassetteZipMover" CassetteZipMover(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
-    index::Integer=0,
-    tempo::Number=1.0,
+const entityData = appendkwargs(CustomCassetteBlockData, :(
     permanent::Bool=false,
     waiting::Bool=false,
     ticking::Bool=false,
     noReturn::Bool=false,
-    customColor="",
-)
+))
+@mapdefdata Entity "CommunalHelper/CassetteZipMover" CassetteZipMover entityData
 
 const ropeColors = Dict{Int,Ahorn.colorTupleType}(
     1 => (194, 116, 171, 255) ./ 255,

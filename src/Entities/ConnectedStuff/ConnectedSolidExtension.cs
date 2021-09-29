@@ -9,11 +9,15 @@ namespace Celeste.Mod.CommunalHelper {
     public class SolidExtension : Solid {
         public bool HasGroup { get; private set; }
 
-        public SolidExtension(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height) { }
+        public bool HasHitbox { get; private set; }
 
-        public SolidExtension(Vector2 position, int width, int height)
-            : base(position, width, height, safe: false) { }
+        public SolidExtension(EntityData data, Vector2 offset)
+            : this(data.Position + offset, data.Width, data.Height, data.Bool("collidable", true)) { }
+
+        public SolidExtension(Vector2 position, int width, int height, bool collidable)
+            : base(position, width, height, safe: false) {
+            HasHitbox = collidable;
+        }
 
         public void AddToGroupAndFindChildren(SolidExtension from, ConnectedSolid master, List<SolidExtension> extensions) {
             from.HasGroup = true;
@@ -45,8 +49,9 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void Update() {
             base.Update();
-            if (!HasGroup)
-                Collidable = false;
+            if (!HasGroup) {
+                RemoveSelf();
+            }
         }
     }
 }

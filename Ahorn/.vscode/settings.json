@@ -1,0 +1,3 @@
+{
+    "julia.environmentPath": "${env:LocalAppData}\\Ahorn\\env"
+}

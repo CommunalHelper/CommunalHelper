@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Monocle;
 using MonoMod.Utils;
 using System;
@@ -369,5 +370,18 @@ namespace Celeste.Mod.CommunalHelper {
             return pos;
         }
 
+        public static void DrawOutlineOnlyCentered(this MTexture mTexture, Vector2 position, Vector2 scale, float rotation) {
+            float scaleFix = mTexture.ScaleFix;
+            scale *= scaleFix;
+            Rectangle clipRect = mTexture.ClipRect;
+            Vector2 origin = (mTexture.Center - mTexture.DrawOffset) / scaleFix;
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (i != 0 || j != 0) {
+                        Draw.SpriteBatch.Draw(mTexture.Texture.Texture_Safe, position + new Vector2(i, j), clipRect, Color.Black, rotation, origin, scale, SpriteEffects.None, 0f);
+                    }
+                }
+            }
+        }
     }
 }

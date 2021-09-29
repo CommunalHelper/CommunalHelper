@@ -2,18 +2,12 @@ module CommunalHelperDreamSwitchGate
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
-@mapdef Entity "CommunalHelper/DreamSwitchGate" DreamSwitchGate(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool=false,
-    oneUse::Bool=false,
-    refillCount::Integer=-1,
-    below::Bool=false,
+const entityData = appendkwargs(CustomDreamBlockData, :(
     permanent::Bool=false,
-)
+))
+@mapdefdata Entity "CommunalHelper/DreamSwitchGate" DreamSwitchGate entityData
 
 const placements = Ahorn.PlacementDict(
     "Dream Switch Gate (Communal Helper)" => Ahorn.EntityPlacement(
