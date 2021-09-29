@@ -150,6 +150,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             DreamTunnelEntry.Load();
             FrictionlessPanel.Load();
+            BouncyPanel.Load();
         }
 
         internal static void LoadDelayed() {
@@ -186,6 +187,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             DreamTunnelEntry.Unload();
             FrictionlessPanel.Unload();
+            BouncyPanel.Unload();
         }
 
         private static int Platform_GetLandOrStepSoundIndex(Func<Platform, Entity, int> orig, Platform self, Entity entity) {
