@@ -72,9 +72,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private bool PlayerWaitCheck() {
-            if (triggered)
-                return true;
-
             if (PlayerFallCheck())
                 return true;
 
