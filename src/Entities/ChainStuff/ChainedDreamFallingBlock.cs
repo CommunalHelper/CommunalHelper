@@ -69,12 +69,12 @@ namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff {
         public override void Update() {
             base.Update();
 
-            if (Triggered && indicator && !indicatorAtStart)
+            if (HasStartedFalling && indicator && !indicatorAtStart)
                 pathLerp = Calc.Approach(pathLerp, 1f, Engine.DeltaTime * 2f);
         }
 
         public override void Render() {
-            if ((Triggered || indicatorAtStart) && indicator && !heldByChain) {
+            if ((HasStartedFalling || indicatorAtStart) && indicator && !heldByChain) {
                 float toY = startY + (chainStopY + Height - startY) * Ease.ExpoOut(pathLerp);
                 Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
             }

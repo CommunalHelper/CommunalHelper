@@ -42,7 +42,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             while (!Triggered && !HasPlayerRider()) {
                 yield return null;
             }
-            Triggered = true;
 
             while (FallDelay > 0f) {
                 FallDelay -= Engine.DeltaTime;
