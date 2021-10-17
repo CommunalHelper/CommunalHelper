@@ -1,4 +1,10 @@
---upcoming (??/??/????)--
+--1.9.3 (17/10/21)--
+* Added quickDestroy option to Dream Block types.
+* Fix inconsistent chain outlines when broken in half.
+* Fix inconsistent Chained Falling Block shake time with vanilla Falling Blocks. 
+* Revert to old unintentionally modified Dream Falling Block behavior.
+* Refactor shared CassetteBlock, CustomDreamBlock entityData values.
+* Code cleanup.
 
 --1.9.2 (08/07/2021)--
 * Fixed Delete Mode MoveBlockRedirect Ahorn plugin
