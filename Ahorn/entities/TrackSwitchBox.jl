@@ -6,7 +6,7 @@ using ..Ahorn, Maple
     x::Integer,
     y::Integer,
     globalSwitch::Bool=false,
-    float::Bool=true,
+    floaty::Bool=true,
     bounce::Bool=true,
 )
 

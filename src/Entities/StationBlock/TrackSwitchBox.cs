@@ -76,7 +76,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public TrackSwitchBox(EntityData e, Vector2 levelOffset)
-            : this(e.Position + levelOffset, e.Bool("globalSwitch"), e.Bool("float"), e.Bool("bounce")) { }
+            : this(e.Position + levelOffset, e.Bool("globalSwitch"), e.Bool("floaty"), e.Bool("bounce")) { }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);

@@ -232,7 +232,7 @@ placements.entities.CommunalHelper/StationBlockTrack.tooltips.moveMode=This opti
 
 # -- Track Switch Box --
 placements.entities.CommunalHelper/TrackSwitchBox.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
-placements.entities.CommunalHelper/TrackSwitchBox.tooltips.float=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay its place.
+placements.entities.CommunalHelper/TrackSwitchBox.tooltips.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
 placements.entities.CommunalHelper/TrackSwitchBox.tooltips.bounce=Whether the box should bounce away from the player when dashed into.
 
 
