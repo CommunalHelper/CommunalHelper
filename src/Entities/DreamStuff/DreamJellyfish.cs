@@ -39,7 +39,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private DynData<Glider> gliderData;
 
         public Sprite Sprite;
-        public MTexture CurrentFrame => Sprite.GetFrame(Sprite.CurrentAnimationID, Sprite.CurrentAnimationFrame);
 
         public DreamJellyfish(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Bool("bubble"), data.Bool("tutorial")) { }
