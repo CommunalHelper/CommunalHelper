@@ -21,7 +21,7 @@ The current list of included mechanics:
 		<b>Dream Zip Mover</b> has additional <i>"ticking"</i>, <i>"permanent"</i> and <i>"waiting"</i> modes. 
 		<b>Dream Move Block</b> and <b>Falling Block</b> have access to the <i>"no collide"</i> mode, which will allow them to pass through any solids other than Dream Blocks while moving.
 		<b>Dream Flag Switch Gates</b> are a thing after being requested, they require <a href="https://gamebanana.com/gamefiles/11423">max480's Helping Hand</a> to appear in the Ahorn placement list.
-		On 1.9.3, the "<i>quickDestroy</i>" option has been added by @vitellary#1950.
+		On 1.9.3, the "<i>quickDestroy</i>" option was added by @vitellary#1950.
 	</li>
 	<li>
 		<b>Dream Refill</b> -
@@ -60,6 +60,7 @@ The current list of included mechanics:
 	<li>
 		<b>Track Switch Box </b>(and <b>Switch Track Trigger</b>) -
 		A block, similar to the Lightning Breaker Box entity that, when dashed into, switches the track state in the current level (used for <b>Station Block Tracks</b>). If the level is reloaded (player death, etc...), the state is set back to its default value. You can disble this behaviour by ticking on the <i>"globalSwitch"</i> attribute in Ahorn. The <b>Switch Track Trigger </b>is basically the trigger equivalent of this entity, except you can specify the state it switches to, or if it just alternates between the two.
+		On 1.9.4, Earthwise (Kitty-Cats) added the <i>"bounce"</i> and <i>"floaty"</i> options, to disable the bouncing when hit, and the floating behaviour, respectively.
 	</li>
 	<li>
 		<b>Synced Zip Mover Activation Controller</b> -
@@ -172,6 +173,11 @@ The current list of included mechanics:
 		This little controller entity will let you disable the underwater music "muffling" (lowpass). You can also make it not affect the player dash SFX.
 	</li>
 	<li>
+		<b>Core Mode Music Controller</b> -
+		This entity allows you to set a specified list or event parameters to be changed on specified values, depending on the current level's core mode. You can specify parameters using the <i>"params"</i> option, which is a comma-separated list of parameters. Each parameter will be set to one of three values (one for each core mode), which you can change with the <i>"hot"</i>, <i>"cold"</i> and <i>"none"</i> options.
+		The <i>"disable"</i> option makes every controller with the same specified parameters (in order), and disables completely. 
+	</li>
+	<li>
 		<b>Music Param Trigger</b> -
 		A trigger that sets one or more FMOD parameters of the music event to a specific value when entering it. When leaving the trigger, the parameters are set to another specified value.
 		Used to manipulate audio effects only when you are standing in the trigger.
@@ -182,6 +188,6 @@ To use this helper as part of your map, put the text below into the <code>Depend
 <br/>
 <pre>
 - Name: CommunalHelper
-  Version: 1.9.3
+  Version: 1.9.4
 </pre>
 <br/><br/>
