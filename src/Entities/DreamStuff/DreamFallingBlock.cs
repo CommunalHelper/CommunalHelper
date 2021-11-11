@@ -7,7 +7,7 @@ using System.Collections;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamFallingBlock")]
     public class DreamFallingBlock : CustomDreamBlock {
-
+        private bool forceShake;
         public bool Triggered;
         public float FallDelay;
 
@@ -22,6 +22,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public DreamFallingBlock(EntityData data, Vector2 offset)
             : base(data, offset) {
             noCollide = data.Bool("noCollide", false);
+            forceShake = data.Bool("forceShake", false);
 
             Add(new Coroutine(Sequence()));
         }
@@ -29,12 +30,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void OnStaticMoverTrigger(StaticMover sm) => Triggered = true;
 
         private bool PlayerWaitCheck() {
-            if (Triggered) {
+            if (Triggered || forceShake || HasPlayerRider())
                 return true;
-            }
-            if (HasPlayerRider()) {
-                return true;
-            }
             return CollideCheck<Player>(Position - Vector2.UnitX) || CollideCheck<Player>(Position + Vector2.UnitX);
         }
 
