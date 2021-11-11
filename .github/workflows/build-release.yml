@@ -69,6 +69,16 @@ jobs:
             --arg url ${{ steps.upload.outputs.DOWNLOAD_URL }} \
             '{body: "\($body)\r\n\r\n[Install CommunalHelper.zip](https://0x0a.de/twoclick/?\($url))"}')"
 
+    - name: Sync Wiki
+        uses: joeizzard/action-wiki-sync@v1
+        with:
+            username: coloursofnoise
+            access_token: ${{ secrets.GITHUB_TOKEN }}
+            wiki_folder: docs
+            commit_username: 'coloursofnoise'
+            commit_email: 'coloursofthenoise@gmail.com'
+            commit_message: 'action: sync wiki pages'
+
     - name: Publish discord webhook
       env:
         RELEASE_BODY: ${{ github.event.release.body }}
