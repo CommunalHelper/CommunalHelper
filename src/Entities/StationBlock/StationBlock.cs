@@ -403,7 +403,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Vector2 dirSign = Calc.Sign(MoveDir);
                 float f = dirSign.X == -1 || dirSign.Y == -1 ? -1 : 1f;
 
-                bool travel = nextNode != null && currentTrack.CanBeUsed &&
+                bool travel = nextNode != null && CurrentNode != nextNode &&currentTrack.CanBeUsed &&
                     !(currentTrack.OneWayDir.HasValue && currentTrack.OneWayDir.Value == -MoveDir);
 
                 Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
