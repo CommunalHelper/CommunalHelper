@@ -1,3 +1,7 @@
+--1.9.5 (28/11/21)--
+* Fix Station Block killed-liftspeed issue (leniency).
+* Station Blocks can no longer travel to the current node they are located at (bug appeared in 1.9.0).
+
 --1.9.4 (11/11/21)--
 * Added Core Mode Music Controller.
 * Added options to Track Switch Box to disable floating and bouncing behavior.
