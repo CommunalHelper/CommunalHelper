@@ -467,7 +467,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
 
                 solid ??= player.CollideFirst<Solid, DreamBlock>(player.Position + dir);
-                if (solid != null) {
+                if (solid != null && solid.OnDashCollide == null) {
                     DynData<Player> playerData = player.GetData();
                     player.StateMachine.State = StDreamTunnelDash;
                     playerData[Player_solid] = solid;
