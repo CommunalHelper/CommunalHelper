@@ -1,0 +1,84 @@
+name: Package and Publish
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Download Everest stripped lib
+      uses: coloursofnoise/get-azure-pipelines-artifact@v0.0.3
+      with:
+        repository: EverestAPI/Everest
+        definitionId: 3
+        artifact: lib-stripped
+        reasonFilter: 'individualCI'
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    - name: Restore with .NET Core
+      run: dotnet restore
+
+    - name: Build with .NET Core
+      run: dotnet build "/p:Configuration=Debug"
+      env:
+        CELESTEGAMEPATH: ${{ github.workspace }}/lib-stripped
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: main
+        path: src/bin/Debug/net452
+
+    - name: Create mod zip
+      run: zip -qq -r CommunalHelper.zip Ahorn/* Audio Graphics src/bin/Debug/net452 everest.yaml
+
+    - name: Upload release asset
+      id: upload
+      env:
+        UPLOAD_URL: ${{ github.event.release.upload_url }}
+      run: |
+        NAME='?name=CommunalHelper.zip'
+        UPLOAD_URL="${UPLOAD_URL/\{?name,label\}/$NAME}"
+        DOWNLOAD_URL=$(curl \
+          -X POST \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Content-Type: application/zip" \
+          $UPLOAD_URL \
+          -T "CommunalHelper.zip" | jq '.browser_download_url' | grep -Po 'github.com\/.*?\.zip')
+        echo "::set-output name=DOWNLOAD_URL::$DOWNLOAD_URL"
+
+    - name: Update release description
+      env:
+        RELEASE_BODY: ${{ github.event.release.body }}
+      run: |
+        curl \
+          -X PATCH \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          ${{ github.event.release.url }} \
+          -d "$(jq -n \
+            --arg body "$RELEASE_BODY" \
+            --arg url ${{ steps.upload.outputs.DOWNLOAD_URL }} \
+            '{body: "\($body)\r\n\r\n[Install CommunalHelper.zip](https://0x0a.de/twoclick/?\($url))"}')"
+
+    - name: Publish discord webhook
+      env:
+        RELEASE_BODY: ${{ github.event.release.body }}
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      run: |
+        curl \
+          -X POST \
+          -H "Content-Type: application/json" \
+          "$DISCORD_WEBHOOK" \
+          -d "$(jq -n \
+            --arg body "$RELEASE_BODY" \
+            --arg url ${{ steps.upload.outputs.DOWNLOAD_URL }} \
+            '{embeds: [{title: "Install CommunalHelper.zip", url: "https://0x0a.de/twoclick/?\($url)", description: $body}]}')"

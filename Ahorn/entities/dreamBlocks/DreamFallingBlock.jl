@@ -3,24 +3,19 @@ module CommunalHelperDreamFallingBlock
 using ..Ahorn, Maple
 using Ahorn.Cairo
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
-@mapdef Entity "CommunalHelper/DreamFallingBlock" DreamFallingBlock(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool=false,
-    oneUse::Bool=false,
-    refillCount::Integer=-1,
+const entityData = appendkwargs(CustomDreamBlockData, :(
     noCollide::Bool=false,
-    below::Bool=false,
+	forceShake::Bool=false,
     fallDistance::Integer=64,
     centeredChain::Bool=false,
     chainOutline::Bool=true,
     indicator::Bool=false,
     indicatorAtStart::Bool=false,
     chained::Bool=false,
-)
+))
+@mapdefdata Entity "CommunalHelper/DreamFallingBlock" DreamFallingBlock entityData
 
 const placements = Ahorn.PlacementDict(
     "Dream Falling Block (Communal Helper)" => Ahorn.EntityPlacement(

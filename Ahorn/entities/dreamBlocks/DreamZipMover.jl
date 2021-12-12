@@ -2,23 +2,17 @@ module CommunalHelperDreamZipMover
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
-@mapdef Entity "CommunalHelper/DreamZipMover" DreamZipMover(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
-    noReturn::Bool=false,
+const entityData = appendkwargs(CustomDreamBlockData, :(
     dreamAesthetic::Bool=false,
-    featherMode::Bool=false,
-    oneUse::Bool=false,
-    refillCount::Integer=-1,
-    below::Bool=false,
     nodes::Array{Tuple{Integer,Integer},1}=Tuple{Integer,Integer}[],
     permanent::Bool=false,
     waiting::Bool=false,
     ticking::Bool=false,
-)
+    noReturn::Bool=false,
+))
+@mapdefdata Entity "CommunalHelper/DreamZipMover" DreamZipMover entityData
 
 const placements = Ahorn.PlacementDict(
     "Dream Zip Mover (Communal Helper)" => Ahorn.EntityPlacement(

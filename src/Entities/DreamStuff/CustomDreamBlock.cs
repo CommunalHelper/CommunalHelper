@@ -97,6 +97,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected int RefillCount;
         protected bool shattering = false;
         public float ColorLerp = 0.0f;
+        public bool QuickDestroy;
 
         private bool shakeToggle = false;
         private ParticleType shakeParticle;
@@ -107,9 +108,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected DynData<DreamBlock> baseData;
 
-        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below)
+        public CustomDreamBlock(EntityData data, Vector2 offset)
+            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) { }
+
+        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below, bool quickDestroy)
             : base(position, width, height, null, false, oneUse, below) {
             baseData = new DynData<DreamBlock>(this);
+            QuickDestroy = quickDestroy;
             RefillCount = refillCount;
 
             FeatherMode = featherMode;
@@ -380,13 +385,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private IEnumerator ShatterSequence() {
-            yield return 0.28f;
+            if (QuickDestroy) {
+                Collidable = false;
+                foreach (StaticMover entity in staticMovers) {
+                    entity.Entity.Collidable = false;
+                }
+            } else {
+                yield return 0.28f;
+            }
+
             while (ColorLerp < 2.0f) {
                 ColorLerp += Engine.DeltaTime * 10.0f;
                 yield return null;
             }
+
             ColorLerp = 1.0f;
-            yield return 0.05f;
+            if (!QuickDestroy) {
+                yield return 0.05f;
+            }
 
             Level level = SceneAs<Level>();
             level.Shake(.65f);

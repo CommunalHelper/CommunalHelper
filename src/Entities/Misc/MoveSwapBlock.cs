@@ -74,6 +74,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float moveSpeed;
         private float targetMoveSpeed;
+        private float maxMoveSpeed;
         private float moveAcceleration;
 
         private bool moveSwapPoints;
@@ -94,6 +95,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool swapUpdate;
         private Vector2 swapLiftSpeed;
+        /*
+        NECESSARY FOR "PROPER" LIFTSPEED GRACE TIME AFTER SWAPPING
+        Usually this is handled by `Actor.set_LiftSpeed(value)` by checking if `value == Vector2.Zero`
+        However in with this entity the MoveBlock portion keeps moving after the swapping ends, meaning that `value` never equals `Vector2.Zero`
+        The current workaround is to use some janky hooks on Solid.MoveHExact/MoveVExact that compare `swapLiftSpeedTimer` to the `Actor.LiftSpeedGraceTime`,
+        and sets the liftspeed to either `moveLiftSpeed` alone, or `moveLiftSpeed + swapLiftSpeed` accordingly.
+        */
+        private float swapLiftSpeedTimer;
         private Vector2 moveLiftSpeed;
         new protected Vector2 LiftSpeed => moveLiftSpeed + swapLiftSpeed;
 
@@ -147,7 +156,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             middleOrange.CenterOrigin();
 
             canSteer = data.Bool("canSteer", false);
-            targetMoveSpeed = data.Float("moveSpeed", 60f);
+            maxMoveSpeed = data.Float("moveSpeed", 60f);
             moveAcceleration = data.Float("moveAcceleration", Accel);
             MoveDirection = data.Enum("direction", Directions.Left);
             homeAngle = targetAngle = angle = MoveDirection.Angle();
@@ -225,6 +234,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (lerp < previousLerp) {
                     liftSpeed *= -1f;
                 }
+                swapLiftSpeedTimer = 0; // Reset grace timer
                 swapLiftSpeed = liftSpeed;
                 if (Scene.OnInterval(0.02f)) {
                     MoveParticles(difference);
@@ -292,6 +302,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 ActivateParticles();
                 yield return 0.2f;
 
+                targetMoveSpeed = maxMoveSpeed;
                 moveBlockSfx.Play(CustomSFX.game_redirectMoveBlock_arrowblock_move);
                 moveBlockSfx.Param("arrow_stop", 0f);
                 StopPlayerRunIntoAnimation = false;
@@ -622,7 +633,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (!swapUpdate)
                 moveLiftSpeed.X = move / Engine.DeltaTime;
 
-            base.LiftSpeed = LiftSpeed;
             base.MoveHExact(move);
 
             if (moveSwapPoints) {
@@ -641,7 +651,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (!swapUpdate)
                 moveLiftSpeed.Y = move / Engine.DeltaTime;
 
-            base.LiftSpeed = LiftSpeed;
             base.MoveVExact(move);
 
             if (moveSwapPoints) {
@@ -693,6 +702,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.SwapBlock.Update += SwapBlock_Update;
             On.Celeste.SwapBlock.Render += SwapBlock_Render;
             On.Celeste.SwapBlock.DrawBlockStyle += SwapBlock_DrawBlockStyle;
+
+            // Conditionally apply swap liftspeed based on the affected Actor's LiftSpeedGraceTime
+            // "I hate this .-." - coloursofnoise
+            IL.Celeste.Solid.MoveHExact += Solid_MoveHExact;
+            IL.Celeste.Solid.MoveVExact += Solid_MoveVExact;
         }
 
         internal static void Unload() {
@@ -700,6 +714,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.SwapBlock.Update -= SwapBlock_Update;
             On.Celeste.SwapBlock.Render -= SwapBlock_Render;
             On.Celeste.SwapBlock.DrawBlockStyle -= SwapBlock_DrawBlockStyle;
+
+            IL.Celeste.Solid.MoveVExact -= Solid_MoveVExact;
+            IL.Celeste.Solid.MoveHExact -= Solid_MoveHExact;
         }
 
         // Call MoveSwapBlock.Update instead of SwapBlock.Update
@@ -734,8 +751,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.GotoNext(instr => instr.MatchCall<Platform>("MoveTo"));
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate<Func<Vector2, SwapBlock, Vector2>>((liftSpeed, self) => {
-                if (self is MoveSwapBlock block)
+                if (self is MoveSwapBlock block) {
                     block.swapLiftSpeed = liftSpeed;
+                    block.swapLiftSpeedTimer = 0; // Reset grace timer
+                }
                 return liftSpeed;
             });
         }
@@ -761,6 +780,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     block.topPressed = playerTop;
                 }
                 block.UpdateColors();
+
+                if (block.swapLiftSpeedTimer < 20) // if your Actor.LiftSpeedGraceTime is bigger than this, don't
+                    block.swapLiftSpeedTimer += Engine.DeltaTime;
 
                 block.swapUpdate = false; // Set in IL hook
             }
@@ -825,6 +847,59 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     middle.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
                     middle.Render();
                 }
+            }
+        }
+
+        private static void Solid_MoveHExact(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            VariableDefinition loc_Actor = null;
+            foreach (var local in il.Body.Variables) {
+                if (local.VariableType.FullName == "Celeste.Actor") {
+                    loc_Actor = local;
+                    break;
+                }
+            }
+
+            while (cursor.TryGotoNext(instr => instr.MatchCallvirt<Actor>("set_LiftSpeed"))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldloc, loc_Actor);
+                cursor.EmitDelegate<Func<Vector2, Solid, Actor, Vector2>>((liftSpeed, solid, Actor) => {
+                    if (solid is MoveSwapBlock block) {
+                        if (block.Swapping || (block.swapLiftSpeedTimer < Actor.LiftSpeedGraceTime && Actor.Position.Y <= solid.Top))
+                            return block.LiftSpeed; // Combined swap and move liftSpeed
+                        return block.moveLiftSpeed;
+                    }
+                    return liftSpeed;
+                });
+                // No infinite loops
+                cursor.Goto(cursor.Next, MoveType.After);
+            }
+        }
+
+        private static void Solid_MoveVExact(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            VariableDefinition loc_Actor = null;
+            foreach (var local in il.Body.Variables) {
+                if (local.VariableType.FullName == "Celeste.Actor") {
+                    loc_Actor = local;
+                    break;
+                }
+            }
+
+            while (cursor.TryGotoNext(instr => instr.MatchCallvirt<Actor>("set_LiftSpeed"))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldloc, loc_Actor);
+                cursor.EmitDelegate<Func<Vector2, Solid, Actor, Vector2>>((liftSpeed, solid, Actor) => {
+                    if (solid is MoveSwapBlock block) {
+                        if (block.swapLiftSpeedTimer < Actor.LiftSpeedGraceTime) {
+                            return block.LiftSpeed; // Combined swap and move liftSpeed
+                        }
+                        return block.moveLiftSpeed;
+                    }
+                    return liftSpeed;
+                });
+                // No infinite loops
+                cursor.Goto(cursor.Next, MoveType.After);
             }
         }
 

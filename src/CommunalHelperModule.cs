@@ -200,6 +200,12 @@ namespace Celeste.Mod.CommunalHelper {
                 return Level.LoadCustomEntity(entityData, level);
             }
 
+            // Hackfix because backwards compatability for Ahorn plugins
+            if (entityData.Name == "CommunalHelper/DreamFallingBlock" && entityData.Bool("chained")) {
+                entityData.Name = "CommunalHelper/ChainedDreamFallingBlock";
+                return false; // Let the CustomEntity attribute handle it
+            }
+
             // Will be handled later
             if (entityData.Name == "CommunalHelper/ManualCassetteController")
                 return true;

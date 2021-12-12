@@ -7,78 +7,31 @@ using System.Collections;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamFallingBlock")]
     public class DreamFallingBlock : CustomDreamBlock {
-        private class DreamFallingBlockChainRenderer : Entity {
-            private DreamFallingBlock block;
-
-            public DreamFallingBlockChainRenderer(DreamFallingBlock dreamFallingBlock) {
-                block = dreamFallingBlock;
-                Depth = Depths.FGTerrain + 1;
-            }
-
-            public override void Render() {
-                if (block.chained) {
-                    if (block.centeredChain) {
-                        Chain.DrawChainLine(new Vector2(block.X + block.Width / 2f, block.startY), new Vector2(block.X + block.Width / 2f, block.Y), block.chainOutline);
-                    } else {
-                        Chain.DrawChainLine(new Vector2(block.X + 3, block.startY), new Vector2(block.X + 3, block.Y), block.chainOutline);
-                        Chain.DrawChainLine(new Vector2(block.X + block.Width - 4, block.startY), new Vector2(block.X + block.Width - 4, block.Y), block.chainOutline);
-                    }
-                }
-            }
-        }
-
+        private bool forceShake;
         public bool Triggered;
         public float FallDelay;
 
         private bool noCollide;
 
         public bool HasStartedFalling { get; private set; }
-        private bool hasLanded;
+        protected bool hasLanded;
 
-        private DreamFallingBlockChainRenderer chainRenderer;
-        private bool chained;
-        private bool held;
-
-        private float chainStopY, startY;
-        private bool centeredChain;
-        private bool chainOutline;
-
-        private bool indicator, indicatorAtStart;
-        private float pathLerp;
-
-        private SoundSource rattle;
+        protected bool removeWhenOutOfLevel = false;
+        protected virtual bool Held => CollideCheck<Platform>(Position + new Vector2(0f, 1f));
 
         public DreamFallingBlock(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) {
+            : base(data, offset) {
             noCollide = data.Bool("noCollide", false);
-
-            chained = data.Bool("chained");
+            forceShake = data.Bool("forceShake", false);
 
             Add(new Coroutine(Sequence()));
-            if (chained) {
-                startY = Y;
-                chainStopY = startY + data.Int("fallDistance", 64);
-                centeredChain = data.Bool("centeredChain") || Width <= 8;
-                chainOutline = data.Bool("chainOutline", true);
-                indicator = data.Bool("indicator");
-                indicatorAtStart = data.Bool("indicatorAtStart");
-                pathLerp = Util.ToInt(indicatorAtStart);
-                
-                Add(rattle = new SoundSource() {
-                    Position = Vector2.UnitX * Width / 2f
-                });
-            }
         }
 
         public override void OnStaticMoverTrigger(StaticMover sm) => Triggered = true;
 
         private bool PlayerWaitCheck() {
-            if (Triggered) {
+            if (Triggered || forceShake || HasPlayerRider())
                 return true;
-            }
-            if (HasPlayerRider()) {
-                return true;
-            }
             return CollideCheck<Player>(Position - Vector2.UnitX) || CollideCheck<Player>(Position + Vector2.UnitX);
         }
 
@@ -86,7 +39,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             while (!Triggered && !HasPlayerRider()) {
                 yield return null;
             }
-            Triggered = true;
 
             while (FallDelay > 0f) {
                 FallDelay -= Engine.DeltaTime;
@@ -94,7 +46,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             HasStartedFalling = true;
-            Vector2 rattleSoundPos = new Vector2(Center.X, startY);
             while (true) {
                 ShakeSfx();
                 StartShaking();
@@ -114,9 +65,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                     SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + i, Y), Vector2.One * 4f);
                 }
-
-                if (chained)
-                    rattle.Play(CustomSFX.game_chainedFallingBlock_chain_rattle);
+                FallSFX();
 
                 float speed = 0f;
                 float maxSpeed = 160f;
@@ -125,16 +74,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Level level = SceneAs<Level>();
                     speed = Calc.Approach(speed, maxSpeed, 500f * Engine.DeltaTime);
                     MoveV(speed * Engine.DeltaTime);
-                    if (hasLanded) {
-                        held = chained && Y == chainStopY;
+                    if (ShouldStopFalling())
                         break;
-                    } else if (Y > chainStopY && chained) {
-                        held = true;
-                        MoveToY(chainStopY, LiftSpeed.Y);
-                        break;
-                    }
 
-                    if (!chained && Top > level.Bounds.Bottom + 16 || (Top > level.Bounds.Bottom - 1 && CollideCheck<Solid>(Position + new Vector2(0f, 1f)))) {
+                    if (removeWhenOutOfLevel && Top > level.Bounds.Bottom + 16 || (Top > level.Bounds.Bottom - 1 && CollideCheck<Solid>(Position + new Vector2(0f, 1f)))) {
                         Collidable = (Visible = false);
                         yield return 0.2f;
 
@@ -158,13 +101,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 StartShaking();
                 LandParticles();
 
-                if (chained) {
-                    rattle.Stop();
-                    if (held) {
-                        Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_block, TopCenter);
-                        Audio.Play(CustomSFX.game_chainedFallingBlock_chain_tighten_ceiling, rattleSoundPos);
-                    }
-                }
                 yield return 0.2f;
 
                 StopShaking();
@@ -172,11 +108,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     break;
                 }
 
-                while (held) {
-                    yield return null;
-                }
-
-                while (CollideCheck<Platform>(Position + new Vector2(0f, 1f))) {
+                while (Held) {
                     yield return 0.1f;
                 }
 
@@ -219,30 +151,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             hasLanded = platform != null;
         }
 
-        public override void Added(Scene scene) {
-            base.Added(scene);
-            if (chained)
-                scene.Add(chainRenderer = new DreamFallingBlockChainRenderer(this));
-        }
-
-        public override void Removed(Scene scene) {
-            base.Removed(scene);
-            if (chained)
-                chainRenderer.RemoveSelf(); 
-        }
-
-        public override void Update() {
-            base.Update();
-
-            if (chained && Triggered && indicator && !indicatorAtStart)
-                pathLerp = Calc.Approach(pathLerp, 1f, Engine.DeltaTime * 2f);
-        }
-
         public override void Render() {
-            if (chained && (Triggered || indicatorAtStart) && indicator && !held) {
-                float toY = startY + (chainStopY + Height - startY) * Ease.ExpoOut(pathLerp);
-                Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
-            }
 
             Position += Shake;
             base.Render();
@@ -259,10 +168,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        protected virtual bool ShouldStopFalling() => false;
+
         private void ShakeSfx() =>
             Audio.Play(SFX.game_gen_fallblock_shake, Center);
 
-        private void ImpactSfx() =>
+        protected virtual void FallSFX() { }
+
+        protected virtual void ImpactSfx() =>
             Audio.Play(SFX.game_gen_fallblock_impact, BottomCenter);
     }
 }

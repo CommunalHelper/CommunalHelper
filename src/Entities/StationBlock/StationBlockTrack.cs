@@ -39,7 +39,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public bool CanBeUsed => switchState != TrackSwitchState.Off;
 
         private enum MoveMode {
-            None, 
+            None,
             ForwardOneWay, BackwardOneWay,
             ForwardForce, BackwardForce,
         }
@@ -56,7 +56,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool multiBlockTrack = false;
 
         public Vector2? OneWayDir;
-        
+
         private MTexture trackSprite, disabledTrackSprite;
         private List<MTexture> nodeSprite;
 

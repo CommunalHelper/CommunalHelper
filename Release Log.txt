@@ -1,3 +1,28 @@
+--1.9.5 (28/11/21)--
+* Fix Station Block killed-liftspeed issue (leniency).
+* Station Blocks can no longer travel to the current node they are located at (bug appeared in 1.9.0).
+
+--1.9.4 (11/11/21)--
+* Added Core Mode Music Controller.
+* Added options to Track Switch Box to disable floating and bouncing behavior.
+* Added forceShake option to DreamFallingBlock types (legacy option).
+* Fix Dream Jellyfish crash when entering Seeker Barrier.
+
+--1.9.3 (17/10/21)--
+* Added quickDestroy option to Dream Block types.
+* Fix inconsistent chain outlines when broken in half.
+* Fix inconsistent Chained Falling Block shake time with vanilla Falling Blocks. 
+* Revert to old unintentionally modified Dream Falling Block behavior.
+* Refactor shared CassetteBlock, CustomDreamBlock entityData values.
+* Code cleanup.
+
+--1.9.2 (08/07/2021)--
+* Fixed Delete Mode MoveBlockRedirect Ahorn plugin
+* Fixed LiftSpeed grace time for MoveSwapBlock
+
+--1.9.1 (28/07/2021)--
+* Fixed Connected Zip Mover FMOD audio events wrongly routed to gameplay SFX bus.
+
 --1.9.0 (25/07/2021)--
 * Added Uncollidable Solid Extensions.
 * Added Decorative Chain Entity.

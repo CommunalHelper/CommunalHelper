@@ -10,7 +10,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private char tileType;
         private TileGrid tiles;
 
-        private bool triggered;
+        private bool hasStartedFalling;
         private bool climbFall;
         private bool held;
 
@@ -61,7 +61,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void OnStaticMoverTrigger(StaticMover sm) {
-            triggered = true;
+            hasStartedFalling = true;
         }
 
         private bool PlayerFallCheck() {
@@ -72,9 +72,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private bool PlayerWaitCheck() {
-            if (triggered)
-                return true;
-
             if (PlayerFallCheck())
                 return true;
 
@@ -87,10 +84,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private IEnumerator Sequence() {
-            while (!triggered && !PlayerFallCheck()) {
+            while (!hasStartedFalling && !PlayerFallCheck()) {
                 yield return null;
             }
-            triggered = true;
+            hasStartedFalling = true;
 
             Vector2 rattleSoundPos = new Vector2(Center.X, startY);
             while (true) {
@@ -160,7 +157,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (Scene.CollideCheck<Solid>(BottomLeft + new Vector2(i, 3f))) {
                     SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, -(float) Math.PI / 2f);
                     float direction = (!(i < Width / 2f)) ? 0f : ((float) Math.PI);
-                    SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_LandDust, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, direction);;
+                    SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_LandDust, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, direction);
+                    ;
                 }
             }
         }
@@ -198,12 +196,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
 
-            if (triggered && indicator && !indicatorAtStart)
+            if (hasStartedFalling && indicator && !indicatorAtStart)
                 pathLerp = Calc.Approach(pathLerp, 1f, Engine.DeltaTime * 2f);
         }
 
         public override void Render() {
-            if ((triggered || indicatorAtStart) && indicator && !held) {
+            if ((hasStartedFalling || indicatorAtStart) && indicator && !held) {
                 float toY = startY + (chainStopY + Height - startY) * Ease.ExpoOut(pathLerp);
                 Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
             }

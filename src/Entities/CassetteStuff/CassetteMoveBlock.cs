@@ -240,7 +240,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Visible = true;
                 SetDisabledStaticMoversVisibility(true);
                 SetStaticMoversVisible(true);
-                
+
                 if (Collidable)
                     EnableStaticMovers();
                 else {

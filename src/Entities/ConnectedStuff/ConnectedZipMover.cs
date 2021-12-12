@@ -186,41 +186,42 @@ namespace Celeste.Mod.CommunalHelper {
                 backgroundColor = Color.Black;
                 if (theme == Themes.Moon)
                     themePath = "moon";
-            } else switch (theme) {
-                default:
-                case Themes.Normal:
-                    path = "objects/zipmover/light";
-                    id = "objects/zipmover/block";
-                    key = "objects/zipmover/innercog";
-                    corners = "objects/CommunalHelper/zipmover/innerCorners";
-                    cog = GFX.Game["objects/zipmover/cog"];
-                    themePath = "normal";
-                    drawBlackBorder = true;
-                    backgroundColor = Color.Black;
-                    break;
+            } else
+                switch (theme) {
+                    default:
+                    case Themes.Normal:
+                        path = "objects/zipmover/light";
+                        id = "objects/zipmover/block";
+                        key = "objects/zipmover/innercog";
+                        corners = "objects/CommunalHelper/zipmover/innerCorners";
+                        cog = GFX.Game["objects/zipmover/cog"];
+                        themePath = "normal";
+                        drawBlackBorder = true;
+                        backgroundColor = Color.Black;
+                        break;
 
-                case Themes.Moon:
-                    path = "objects/zipmover/moon/light";
-                    id = "objects/zipmover/moon/block";
-                    key = "objects/zipmover/moon/innercog";
-                    corners = "objects/CommunalHelper/zipmover/moon/innerCorners";
-                    cog = GFX.Game["objects/zipmover/moon/cog"];
-                    themePath = "moon";
-                    drawBlackBorder = false;
-                    backgroundColor = Color.Black;
-                    break;
+                    case Themes.Moon:
+                        path = "objects/zipmover/moon/light";
+                        id = "objects/zipmover/moon/block";
+                        key = "objects/zipmover/moon/innercog";
+                        corners = "objects/CommunalHelper/zipmover/moon/innerCorners";
+                        cog = GFX.Game["objects/zipmover/moon/cog"];
+                        themePath = "moon";
+                        drawBlackBorder = false;
+                        backgroundColor = Color.Black;
+                        break;
 
-                case Themes.Cliffside:
-                    path = "objects/CommunalHelper/connectedZipMover/cliffside/light";
-                    id = "objects/CommunalHelper/connectedZipMover/cliffside/block";
-                    key = "objects/CommunalHelper/connectedZipMover/cliffside/innercog";
-                    corners = "objects/CommunalHelper/connectedZipMover/cliffside/innerCorners";
-                    cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
-                    themePath = "normal";
-                    drawBlackBorder = true;
-                    backgroundColor = Calc.HexToColor("171018");
-                    break;
-            }
+                    case Themes.Cliffside:
+                        path = "objects/CommunalHelper/connectedZipMover/cliffside/light";
+                        id = "objects/CommunalHelper/connectedZipMover/cliffside/block";
+                        key = "objects/CommunalHelper/connectedZipMover/cliffside/innercog";
+                        corners = "objects/CommunalHelper/connectedZipMover/cliffside/innerCorners";
+                        cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
+                        themePath = "normal";
+                        drawBlackBorder = true;
+                        backgroundColor = Calc.HexToColor("171018");
+                        break;
+                }
             if (!string.IsNullOrEmpty(colors)) {
                 // Comma seperated list of colors
                 // First is background color, second is main rope color, third is light rope color

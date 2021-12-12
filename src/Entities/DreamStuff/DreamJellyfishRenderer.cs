@@ -64,6 +64,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Camera camera = SceneAs<Level>().Camera;
 
             foreach (DreamJellyfish jelly in jellies) {
+
                 Rectangle jellyBounds = jelly.ParticleBounds;
                 Vector2 pos = jelly.Position + new Vector2(jellyBounds.X, jellyBounds.Y);
 
@@ -74,7 +75,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (right < camera.Left || left > camera.Right || bottom < camera.Top || top > camera.Bottom)
                     continue; // Skip jelly rendering if it's not on screen.
 
-                MTexture frame = jelly.CurrentFrame;
+                MTexture frame = jelly.Sprite.Texture;
 
                 // Outline
                 frame.DrawCentered(jelly.Position + new Vector2(0, -3), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
@@ -110,15 +111,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     MTexture mTexture;
                     switch (layer) {
                         case 0: {
-                                int num2 = (int) ((jelly.Particles[i].TimeOffset * 4f + animTimer) % 4f);
-                                mTexture = DreamJellyfish.ParticleTextures[3 - num2];
-                                break;
-                            }
+                            int num2 = (int) ((jelly.Particles[i].TimeOffset * 4f + animTimer) % 4f);
+                            mTexture = DreamJellyfish.ParticleTextures[3 - num2];
+                            break;
+                        }
                         case 1: {
-                                int num = (int) ((jelly.Particles[i].TimeOffset * 2f + animTimer) % 2f);
-                                mTexture = DreamJellyfish.ParticleTextures[1 + num];
-                                break;
-                            }
+                            int num = (int) ((jelly.Particles[i].TimeOffset * 2f + animTimer) % 2f);
+                            mTexture = DreamJellyfish.ParticleTextures[1 + num];
+                            break;
+                        }
                         default:
                             mTexture = DreamJellyfish.ParticleTextures[2];
                             break;

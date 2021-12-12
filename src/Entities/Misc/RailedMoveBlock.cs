@@ -135,10 +135,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float moveSpeed;
 
-        public RailedMoveBlock(EntityData data, Vector2 offset) 
+        public RailedMoveBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.NodesOffset(offset)[0], data.Enum("steeringMode", SteeringMode.Both), data.Float("speed", 120f)) { }
 
-        public RailedMoveBlock(Vector2 position, int width, int height, Vector2 node, SteeringMode steeringMode, float speed) 
+        public RailedMoveBlock(Vector2 position, int width, int height, Vector2 node, SteeringMode steeringMode, float speed)
             : base(position, width, height, safe: false) {
             start = position;
             target = node;
@@ -193,8 +193,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     int num3 = ((i != 0) ? ((i < tilesWidth - 1) ? 1 : 2) : 0);
                     AddImage(button.GetSubtexture(num3 * 8, 0, 8, 8), new Vector2(i * 8, -4f), 0f, new Vector2(1f, 1f), topButton);
                 }
-            } 
-            
+            }
+
             if (hasSideButtons) {
                 for (int j = 0; j < tilesHeight; j++) {
                     int num4 = ((j != 0) ? ((j < tilesHeight - 1) ? 1 : 2) : 0);
@@ -212,7 +212,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             UpdateColors(fillColor);
-            Add(sfx = new SoundSource() { 
+            Add(sfx = new SoundSource() {
                 Position = new Vector2(width / 2f, Height / 2f)
             });
             sfx.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_move, "arrow_stop", 1f);
@@ -254,7 +254,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bool leftCheck = hasSideButtons && CollideCheck<Player>(Position + new Vector2(-1f, 0f));
             bool rightCheck = hasSideButtons && CollideCheck<Player>(Position + new Vector2(1f, 0f));
             bool topCheck = hasTopButtons && CollideCheck<Player>(Position + new Vector2(0f, -1f));
-            
+
             foreach (Image image in topButton) {
                 image.Y = topCheck ? 2 : 0;
             }

@@ -232,6 +232,8 @@ placements.entities.CommunalHelper/StationBlockTrack.tooltips.moveMode=This opti
 
 # -- Track Switch Box --
 placements.entities.CommunalHelper/TrackSwitchBox.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+placements.entities.CommunalHelper/TrackSwitchBox.tooltips.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
+placements.entities.CommunalHelper/TrackSwitchBox.tooltips.bounce=Whether the box should bounce away from the player when dashed into.
 
 
 # -- Summit Gem --
@@ -315,9 +317,16 @@ placements.entities.CommunalHelper/ChainedKevin.tooltips.direction=The only dire
 placements.entities.CommunalHelper/ChainedKevin.tooltips.chainOutline=Whether the chain of this block should have a black outline.
 
 
-# -- Surface Sound Panel --
+# -- Underwater Music Controller --
 placements.entities.CommunalHelper/UnderwaterMusicController.tooltips.enable=Whether to always enable or always disable underwater sound modifiers.
 placements.entities.CommunalHelper/UnderwaterMusicController.tooltips.dashSFX=Whether to also affect the additional in-water dash sound effect.
+
+# -- Core Mode Music Controller --
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.params=A list of parameters to change depending on the level's core mode (separated by the comma character ',').
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.hot=The values to which the parameters will be set when the core mode is "Hot".
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.cold=The values to which the parameters will be set when the core mode is "Cold".
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.none=The values to which the parameters will be set when the core mode is "None".
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.disable=If this is ticked on, this controller will look for every controller with the same parameter list (in order), and disable it (remove it). It also removes itself afterwards. 
 
 
 # -- Triggers --

@@ -100,7 +100,7 @@ function getTexturesAndColor(entity::MoveBlockRedirect)
     
     deleteBlock = Bool(get(entity.data, "deleteBlock", false))
     if deleteBlock
-        return block, path * "x", overrideColordeleteColor
+        return block, path * "x", overrideColor === nothing ? deleteColor : overrideColor
     end
 
     operation = get(entity.data, "operation", "Add")
