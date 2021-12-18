@@ -1,0 +1,15 @@
+# Dream Refill
+entities.CommunalHelper/DreamRefill.placements.name.normal=Dream Refill
+entities.CommunalHelper/DreamRefill.attributes.description.oneUse=Whether the Dream Refill should be only used once.
+entities.CommunalHelper/DreamRefill.attributes.description.respawnTime=The time taken by the Dream Refill to respawn.
+
+# Dream Jellyfish
+entities.CommunalHelper/DreamJellyfish.placements.name.normal=Dream Jellyfish
+entities.CommunalHelper/DreamJellyfish.placements.name.floating=Dream Jellyfish (Floating)
+entities.CommunalHelper/DreamJellyfish.attributes.description.bubble=Whether the entity should hover in the air before being grabbed.
+entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether the entity should show the usage tutorial.
+
+# Dream Booster
+entities.CommunalHelper/DreamBooster.placements.name.normal=Dream Booster
+entities.CommunalHelper/DreamBooster.placements.name.hiddenpath=Dream Booster (Hidden Path)
+entities.CommunalHelper/DreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.

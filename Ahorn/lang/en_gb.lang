@@ -109,6 +109,11 @@ placements.entities.CommunalHelper/DreamMoveBlock.tooltips.oneUse=Whether the Dr
 
 # -- Dream Refill --
 placements.entities.CommunalHelper/DreamRefill.tooltips.oneUse=Whether the Dream Refill should be only used once.
+placements.entities.CommunalHelper/DreamRefill.tooltips.respawnTime=The time taken by the Dream Refill to respawn.
+
+# -- Dream Jellyfish --
+placements.entities.CommunalHelper/DreamJellyfish.tooltips.bubble=Whether the entity should hover in the air before being grabbed.
+placements.entities.CommunalHelper/DreamJellyfish.tooltips.tutorial=Whether the entity should show the usage tutorial.
 
 # -- Dream Swap Block --
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
