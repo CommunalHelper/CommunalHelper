@@ -1,6 +1,6 @@
 local drawableSprite = require("structs.drawable_sprite")
 local drawableNinePatch = require("structs.drawable_nine_patch")
-local utils = require("utils")
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local stationBlock = {}
 
@@ -69,11 +69,7 @@ local function addBlockSprites(sprites, themeData, entity, button, x, y, w, h)
 
     if button then
         local tileWidth = math.floor(w / 8) - 1
-        local success, r, g, b = utils.parseHexColor(entity.wavedashButtonColor or "ffffff")
-        local color = {1.0, 1.0, 1.0}
-        if success then
-            color = {r, g, b}
-        end
+        local color = communalHelper.hexToColor(entity.wavedashButtonColor or "ffffff")
 
         for i = 0, tileWidth do
             local tx = (i == 0 and 0) or (i == tileWidth and 16) or 8
