@@ -17,7 +17,7 @@ dreamRefill.placements = {
 
 dreamRefill.texture = "objects/CommunalHelper/dreamRefill/idle02"
 
-function dreamRefill.selection(room, entity)
+function dreamRefill.rectangle(room, entity)
     return utils.rectangle(entity.x - 5, entity.y - 5, 10, 10)
 end
 

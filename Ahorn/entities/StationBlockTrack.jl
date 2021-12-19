@@ -103,7 +103,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlockTrac
         Ahorn.drawImage(ctx, nodeSprite, x, y, 0, 0, 8, 8, tint=color)
         Ahorn.drawImage(ctx, nodeSprite, x + width - 8, y, 8, 0, 8, 8, tint=color)
         for i in 0:backwardArrowCount-1
-            Ahorn.drawImage(ctx, arrows, x - 6 - 3 * i, y, 0, 8, 8, 8, tint=color)
+            Ahorn.drawImage(ctx, arrows, x - 6 - 3 * i, y, 0, 0, 8, 8, tint=color)
         end
         for i in 0:forwardArrowCount-1
             Ahorn.drawImage(ctx, arrows, x + width - 2 + 3 * i, y, 8, 0, 8, 8, tint=color)
@@ -118,7 +118,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::StationBlockTrac
         Ahorn.drawImage(ctx, nodeSprite, x, y, 8, 8, 8, 8, tint=color)
         Ahorn.drawImage(ctx, nodeSprite, x, y + height - 8, 0, 8, 8, 8, tint=color)
         for i in 0:backwardArrowCount-1
-            Ahorn.drawImage(ctx, arrows, x, y - 6 - i * 3, 0, 0, 8, 8, tint=color)
+            Ahorn.drawImage(ctx, arrows, x, y - 6 - i * 3, 0, 8, 8, 8, tint=color)
         end
         for i in 0:forwardArrowCount-1
             Ahorn.drawImage(ctx, arrows, x, y + height - 2 + i * 3, 8, 8, 8, 8, tint=color)

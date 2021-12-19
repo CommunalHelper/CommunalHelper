@@ -24,7 +24,7 @@ dreamJellyfish.placements = {
 
 dreamJellyfish.texture = "objects/CommunalHelper/dreamJellyfish/jello"
 
-function dreamJellyfish.selection(room, entity)
+function dreamJellyfish.rectangle(room, entity)
     return utils.rectangle(entity.x - 14, entity.y - 15, 30, 19)
 end
 

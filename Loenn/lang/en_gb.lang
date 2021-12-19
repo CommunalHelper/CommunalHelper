@@ -11,5 +11,56 @@ entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether t
 
 # Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.normal=Dream Booster
-entities.CommunalHelper/DreamBooster.placements.name.hiddenpath=Dream Booster (Hidden Path)
+entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (Hidden Path)
 entities.CommunalHelper/DreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+
+# Summit Gem
+entities.CommunalHelper/CustomSummitGem.placements.name.normal=Custom Summit Gem
+entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines the texture and sound used for this gem (clamped within 0 and 7). Must be unique within a room. To use a custom texture, put it at Graphics/Atlases/Gameplay/collectables/summitgems/$mapSID/$roomName/$index.
+
+# Attached Wall Booster
+entities.CommunalHelper/AttachedWallBooster.placements.name.right=Attached Wall Booster (Right)
+entities.CommunalHelper/AttachedWallBooster.placements.name.left=Attached Wall Booster (Left)
+entities.CommunalHelper/AttachedWallBooster.attributes.description.left=Whether the Wall Booster should attach to the left sides of solids.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Wall Booster should ignore the current Core Mode and be in Ice Mode.
+
+# Station Block
+entities.CommunalHelper/StationBlock.placements.name.normal_pushing=Station Block (Normal, Pushing)
+entities.CommunalHelper/StationBlock.placements.name.normal_pulling=Station Block (Normal, Pulling)
+entities.CommunalHelper/StationBlock.placements.name.moon_pushing=Station Block (Moon, Pushing)
+entities.CommunalHelper/StationBlock.placements.name.moon_pulling=Station Block (Moon, Pulling)
+entities.CommunalHelper/StationBlock.attributes.description.allowWavedash=Whether Wavedashing on top of the Station Block is allowed or not even while it's not moving (doesn't bounce you upwards).
+entities.CommunalHelper/StationBlock.attributes.description.speedFactor=The factor by which the speed of the Station Block is multiplied. This value can only be between 0.1 and 2.
+entities.CommunalHelper/StationBlock.attributes.description.theme=Aspect theme of the Station Block.
+entities.CommunalHelper/StationBlock.attributes.description.behavior=Behavior of the Station Block. Pulling will make it move towards you, and Pushing does the opposite. This changes slightly the appearance of the block, depending on the behavior.
+entities.CommunalHelper/StationBlock.attributes.description.customBlockPath=This is the path you should specify if you're using a custom texture for the block, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>. The block should be a 24x24 texture, that preferably gets tiled correctly. Example: "catapillie/customStationBlock/custom_block", where the texture is located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/custom_block.png. DON'T add the ".png".
+entities.CommunalHelper/StationBlock.attributes.description.customArrowPath=This is the path you should specify if you're using custom textures for the arrow, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>/small, med, or big. There should be 16 sprites for each size, so 48 in total, labeled like so: small00, small01, 02, 03, etc.. up to small15, and same goes for med and big. The first texture is the arrow pointing UP, the fifth pointing RIGHT, the ninth pointing DOWN, and the 13th pointing LEFT, the other sprites in between are the animation going from one direction to another. You can take a look at how Communal Helper has them setup. Example: "catapillie/customStationBlock/arrow", where the arrow textures are located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/arrow/small00, small01... small15, same for med(00 - 15) & big(00 - 15). This should point to a directory, not an image.
+entities.CommunalHelper/StationBlock.attributes.description.customTrackPath=This is the path you should specify if you're using custom textures for the tracks, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>/node.png, trackv.png and trackh.png. There should be 3 textures in the folder you specified in the path, all of size 8x8, called: node.png, trackv.png, and trackh.png. The node.png texture is the point of intersection between tracks. trackv.png and trackh.png are the track horizontal & vertical textures, they should loop over seamlessly. Example: "catapillie/customStationBlock/tracks", where the texture are located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/tracks/node.png, trackv.png and trackh.png. This should point to a directory, not an image.
+entities.CommunalHelper/StationBlock.attributes.description.wavedashButtonColor=The hexadecimal color of the allowed wavedash button indicator when it's not pressed. Must not include the hash (#) symbol!
+entities.CommunalHelper/StationBlock.attributes.description.wavedashButtonPressedColor=The hexadecimal color of the allowed wavedash button indicator when it's pressed. Must not include the hash (#) symbol!
+entities.CommunalHelper/StationBlock.attributes.description.dashCornerCorrection=Makes wallbouncing off of this Station Block less precise (by allowing it up to 4 pixels deep into the block horizontally, dashing from the bottom).
+
+# Station Block Track
+entities.CommunalHelper/StationBlockTrack.placements.name.horiz_none=Station Block Track (Horizontal, No Switching)
+entities.CommunalHelper/StationBlockTrack.placements.name.horiz_on=Station Block Track (Horizontal, Switched On)
+entities.CommunalHelper/StationBlockTrack.placements.name.horiz_off=Station Block Track (Horizontal, Switched Off)
+entities.CommunalHelper/StationBlockTrack.placements.name.verti_none=Station Block Track (Vertical, No Switching)
+entities.CommunalHelper/StationBlockTrack.placements.name.verti_on=Station Block Track (Vertical, Switched On)
+entities.CommunalHelper/StationBlockTrack.placements.name.verti_off=Station Block Track (Vertical, Switched Off)
+entities.CommunalHelper/StationBlockTrack.attributes.description.multiBlockTrack=Whether this set of tracks can support more than one Station Block.
+entities.CommunalHelper/StationBlockTrack.attributes.description.horizontal=Whether the track should be handled as a horizontal one.
+entities.CommunalHelper/StationBlockTrack.attributes.description.trackSwitchState=The starting state of the track. "None" will make it unswitchable. "On" will make it turned on by defaul, and "Off" will make it turned off.
+entities.CommunalHelper/StationBlockTrack.attributes.description.moveMode=This option will determine the behaviour of blocks sitting on this track.\n\n\n- "None" : Changes nothing.\n\n -"ForwardOneWay" : Makes blocks only able to travel along this track if they're moving RIGHT or DOWN.\n\n -"BackwardOneWay" : Makes blocks only able to travel along this track if they're moving LEFT or UP.\n\n -"ForwardForce" : If any block can travel along this track in the RIGHT or DOWN direction, they will be force to. Behaviour from "ForwardOneWay" also applies here.\n\n -"BackwardForce" : If any block can travel along this track in the LEFT or UP direction, they will be force to. Behaviour from "BackwardOneWay" also applies here.
+entities.CommunalHelper/StationBlockTrack.attributes.description.indicator=Whether this track shows an indicator for its specific Move Mode (only "...Force" moves).
+entities.CommunalHelper/StationBlockTrack.attributes.description.indicatorColor=The color of the indicator.
+entities.CommunalHelper/StationBlockTrack.attributes.description.indicatorIncomingColor=The color of the indicator when a station block is moving towards this Track.
+
+# Track Switch Box
+entities.CommunalHelper/TrackSwitchBox.placements.name.normal=Track Switch Box
+entities.CommunalHelper/TrackSwitchBox.placements.name.session=Track Switch Box (Session Switch)
+entities.CommunalHelper/TrackSwitchBox.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+entities.CommunalHelper/TrackSwitchBox.attributes.description.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
+entities.CommunalHelper/TrackSwitchBox.attributes.description.bouncy=Whether the box should bounce away from the player when dashed into.
+
+
+
