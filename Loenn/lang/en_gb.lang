@@ -123,4 +123,45 @@ entities.CommunalHelper/CassetteJumpFixController.attributes.description.off=Tur
 entities.CommunalHelper/ManualCassetteController.placements.name.normal=Manual Cassette Controller
 entities.CommunalHelper/ManualCassetteController.attributes.description.startIndex=The color of Cassette Block that should start activated.
 
+# Underwater Music Controller
+entities.CommunalHelper/UnderwaterMusicController.placements.name.normal=Underwater Music Controller
+entities.CommunalHelper/UnderwaterMusicController.attributes.description.enable=Whether to always enable or always disable underwater sound modifiers.
+entities.CommunalHelper/UnderwaterMusicController.attributes.description.dashSFX=Whether to also affect the additional in-water dash sound effect.
+
+# Timed Trigger Spikes
+entities.CommunalHelper/TimedTriggerSpikesUp.placements.name.up_default=Timed Trigger Spikes (Up, Default)
+entities.CommunalHelper/TimedTriggerSpikesUp.placements.name.up_outline=Timed Trigger Spikes (Up, Outline)
+entities.CommunalHelper/TimedTriggerSpikesUp.placements.name.up_cliffside=Timed Trigger Spikes (Up, Cliffside)
+entities.CommunalHelper/TimedTriggerSpikesUp.placements.name.up_reflection=Timed Trigger Spikes (Up, Reflection)
+entities.CommunalHelper/TimedTriggerSpikesRight.placements.name.right_default=Timed Trigger Spikes (Right, Default)
+entities.CommunalHelper/TimedTriggerSpikesRight.placements.name.right_outline=Timed Trigger Spikes (Right, Outline)
+entities.CommunalHelper/TimedTriggerSpikesRight.placements.name.right_cliffside=Timed Trigger Spikes (Right, Cliffside)
+entities.CommunalHelper/TimedTriggerSpikesRight.placements.name.right_reflection=Timed Trigger Spikes (Right, Reflection)
+entities.CommunalHelper/TimedTriggerSpikesDown.placements.name.down_default=Timed Trigger Spikes (Down, Default)
+entities.CommunalHelper/TimedTriggerSpikesDown.placements.name.down_outline=Timed Trigger Spikes (Down, Outline)
+entities.CommunalHelper/TimedTriggerSpikesDown.placements.name.down_cliffside=Timed Trigger Spikes (Down, Cliffside)
+entities.CommunalHelper/TimedTriggerSpikesDown.placements.name.down_reflection=Timed Trigger Spikes (Down, Reflection)
+entities.CommunalHelper/TimedTriggerSpikesLeft.placements.name.left_default=Timed Trigger Spikes (Left, Default)
+entities.CommunalHelper/TimedTriggerSpikesLeft.placements.name.left_outline=Timed Trigger Spikes (Left, Outline)
+entities.CommunalHelper/TimedTriggerSpikesLeft.placements.name.left_cliffside=Timed Trigger Spikes (Left, Cliffside)
+entities.CommunalHelper/TimedTriggerSpikesLeft.placements.name.left_reflection=Timed Trigger Spikes (Left, Reflection)
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.type=Determines the visual appearance of the spike.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.type=Determines the visual appearance of the spike.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.type=Determines the visual appearance of the spike.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.type=Determines the visual appearance of the spike.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Delay=The delay, in seconds, before the spikes come up, after triggering. Spikes take 0.0667 seconds to come up (4 frames).
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Delay=The delay, in seconds, before the spikes come up, after triggering. Spikes take 0.0667 seconds to come up (4 frames).
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Delay=The delay, in seconds, before the spikes come up, after triggering. Spikes take 0.0667 seconds to come up (4 frames).
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Delay=The delay, in seconds, before the spikes come up, after triggering. Spikes take 0.0667 seconds to come up (4 frames).
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.WaitForPlayer=Setting this to true will make the spike only come up after the player leaves the spike area. Useful for when you need to return to a space in a time limit.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.WaitForPlayer=Setting this to true will make the spike only come up after the player leaves the spike area. Useful for when you need to return to a space in a time limit.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.WaitForPlayer=Setting this to true will make the spike only come up after the player leaves the spike area. Useful for when you need to return to a space in a time limit.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.WaitForPlayer=Setting this to true will make the spike only come up after the player leaves the spike area. Useful for when you need to return to a space in a time limit.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+
+
+
 
