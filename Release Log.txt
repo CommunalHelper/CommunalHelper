@@ -1,5 +1,5 @@
 --1.9.6 (01/01/2022)--
-* Added No Overlay Watch Tower
+* Added No Overlay Watch Tower.
 
 --1.9.5 (28/11/2021)--
 * Fix Station Block killed-liftspeed issue (leniency).
