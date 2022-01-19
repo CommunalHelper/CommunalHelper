@@ -285,11 +285,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float newSpeed = 0f;
 
                 icon = idleIcon;
-                if ((topPressed || bottomPressed) && Input.MoveY.Value != 0) {
+                if ((topPressed || bottomPressed) && HasPlayerRider() && Input.MoveY.Value != 0) {
                     newSpeed = moveSpeed * Input.MoveY.Value * (dir.Y > 0f ? 1f : -1f);
                     newFillColor = MoveBgFill;
                     icon = Input.MoveY.Value == 1 ? DownIcon : UpIcon;
-                } else if ((leftPressed || rightPressed) && Input.MoveX.Value != 0) {
+                } else if ((leftPressed || rightPressed) && HasPlayerClimbing() && Input.MoveX.Value != 0) {
                     newSpeed = moveSpeed * Input.MoveX.Value * (dir.X > 0f ? 1f : -1f);
                     newFillColor = MoveBgFill;
                     icon = Input.MoveX.Value == 1 ? RightIcon : LeftIcon;
