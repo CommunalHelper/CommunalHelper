@@ -254,7 +254,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bool leftCheck = hasSideButtons && CollideCheck<Player>(Position - Vector2.UnitX);
             bool rightCheck = hasSideButtons && CollideCheck<Player>(Position + Vector2.UnitX);
             bool topCheck = hasTopButtons && CollideCheck<Player>(Position - Vector2.UnitY);
-            bool bottomCheck = hasTopButtons && SceneAs<Level>().Session.GetFlag("Xaphan_Helper_Ceiling") && HasPlayerRider();
+            bool bottomCheck = hasTopButtons && CollideCheck<Player>(Position + Vector2.UnitY);
 
             foreach (Image image in topButton) {
                 image.Y = topCheck ? 2 : 0;
