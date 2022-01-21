@@ -89,6 +89,9 @@ placements.entities.CommunalHelper/ConnectedZipMover.tooltips.waiting=Whether th
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.ticking=Whether the Connected Zip Mover should be ticking at each node, forcing the player to reactivate it within a limited amount of time. Will return to initial position if the player doesn't reactivate it, or locks in place completely if "permanent" is on. Only useful if has more than one node.
 placements.entities.CommunalHelper/ConnectedZipMover.tooltips.colors=The background and rope colors for this Connected Zip Mover. Setting this value overrides the default values. This is a comma-seperated list of hex codes; the first is used as ther background color, the second as the main rope color, and the third as the lighter rope color (when present). For the Normal and Moon themes, this is 000000,663931,9b6157 by default; for the Cliffside theme, this is 171018,663931,9b6157 by default.
 
+# -- Connected Solid Extension
+placements.entities.CommunalHelper/SolidExtension.tooltips.collidable=Whether this extension can be collided with. If turned off, the entity will appear darker and in the background, will basically act like background tiles.
+
 
 # -- Dream Falling Block --
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.featherMode=Whether the Dream Falling Block has the Dream Block Feather controls enabled.

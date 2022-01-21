@@ -162,6 +162,7 @@ entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Grouped=S
 entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
 entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
 
-
-
-
+# Connected Solid Extension
+entities.CommunalHelper/SolidExtension.placements.name.collidable=Connected Solid Extension
+entities.CommunalHelper/SolidExtension.placements.name.uncollidable=Connected Solid Extension (Uncollidable)
+entities.CommunalHelper/SolidExtension.attributes.description.collidable=Whether this extension can be collided with. If turned off, the entity will appear darker and in the background, will basically act like background tiles.
