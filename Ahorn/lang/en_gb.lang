@@ -345,3 +345,6 @@ placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.oneUse=Allows for
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.flash=Whether the screen should flash and shake when triggered.
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)
+
+# -- Sound Area Trigger --
+placements.triggers.CommunalHelper/SoundAreaTrigger.tooltips.event=The name of the audio event that plays inside the trigger.
