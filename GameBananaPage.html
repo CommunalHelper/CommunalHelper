@@ -186,12 +186,16 @@ The current list of included mechanics:
        <b>No Overlay Watch Tower</b> - 
        It's a regular watchtower, but it doesn't scale the screen down, and doesn't show any arrow or UI. 
     </li>
+    <li>
+		<b>Sound Area Trigger</b> -
+		This trigger takes in an audio event name and plays it, but makes it only heard when the player is staying inside the trigger. This only works with looping events, as one shot events will not be looped.
+	</li>
 </ul>
 <br/><br/>
 To use this helper as part of your map, put the text below into the <code>Dependencies:</code> section of your everest.yaml:
 <br/>
 <pre>
 - Name: CommunalHelper
-  Version: 1.9.6
+  Version: 1.9.7
 </pre>
 <br/><br/>

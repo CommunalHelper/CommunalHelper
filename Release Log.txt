@@ -1,3 +1,6 @@
+--1.9.7 (22/01/2022)--
+* Added Sound Area Trigger.
+
 --1.9.6 (01/01/2022)--
 * Added No Overlay Watch Tower.
 
