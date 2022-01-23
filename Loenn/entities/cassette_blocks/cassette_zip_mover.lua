@@ -40,40 +40,12 @@ for i = 1, 4 do
     }
 end
 
-local function addNodeSprites(sprites, entity, cogColor, ropeColor, cogTexture, centerX, centerY, centerNodeX, centerNodeY)
-    local nodeCogSprite = drawableSprite.fromTexture(cogTexture, entity)
-    nodeCogSprite:setColor(cogColor)
-
-    nodeCogSprite:setPosition(centerNodeX, centerNodeY)
-    nodeCogSprite:setJustification(0.5, 0.5)
-
-    local points = {centerX, centerY, centerNodeX, centerNodeY}
-    local leftLine = drawableLine.fromPoints(points, ropeColor, 1)
-    local rightLine = drawableLine.fromPoints(points, ropeColor, 1)
-
-    leftLine:setOffset(0, 4.5)
-    rightLine:setOffset(0, -4.5)
-
-    leftLine.depth = 5000
-    rightLine.depth = 5000
-
-    for _, sprite in ipairs(leftLine:getDrawableSprite()) do
-        table.insert(sprites, sprite)
-    end
-
-    for _, sprite in ipairs(rightLine:getDrawableSprite()) do
-        table.insert(sprites, sprite)
-    end
-
-    table.insert(sprites, nodeCogSprite)
-end
-
 function cassetteZipMover.sprite(room, entity)
     local sprites = communalHelper.getCustomCassetteBlockSprites(room, entity)
 
     local x, y = entity.x or 0, entity.y or 0
-    local halfWidth, halfHeight = math.floor(entity.width / 2), math.floor(entity.height / 2)
-
+    local width, height = entity.width or 16, entity.height or 16
+    local halfWidth, halfHeight = math.floor(width / 2), math.floor(height / 2)
     local centerX, centerY = x + halfWidth, y + halfHeight
 
     local color = communalHelper.getCustomCassetteBlockColor(entity)
@@ -82,15 +54,11 @@ function cassetteZipMover.sprite(room, entity)
     local ropeColor = (entity.customColor ~= "" and color) or ropeColors[i + 1] or ropeColors[1]
 
     local nodes = entity.nodes or {{x = 0, y = 0}}
-    local cx, cy = centerX, centerY
-    for _, node in ipairs(nodes) do
-        local centerNodeX, centerNodeY = node.x + halfWidth, node.y + halfHeight
-
-        addNodeSprites(sprites, entity, color, ropeColor, "objects/CommunalHelper/cassetteZipMover/cog", cx, cy, centerNodeX, centerNodeY)
-    
-        cx, cy = centerNodeX, centerNodeY
+    local nodeSprites = communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, "objects/CommunalHelper/cassetteZipMover/cog", color, ropeColor)
+    for _, sprite in ipairs(nodeSprites) do
+        table.insert(sprites, sprite)
     end
-    
+
     if entity.noReturn then
         local cross = drawableSprite.fromTexture("objects/CommunalHelper/cassetteMoveBlock/x")
         cross:setPosition(centerX, centerY)

@@ -1,4 +1,5 @@
 local drawableSprite = require("structs.drawable_sprite")
+local drawableLine = require("structs.drawable_line")
 local connectedEntities = require("helpers.connected_entities")
 local utils = require("utils")
 
@@ -133,7 +134,51 @@ function communalHelper.getCustomCassetteBlockSprites(room, entity)
     return sprites
 end
 
+-- zip movers
 
+local function addNodeSprites(sprites, cogTexture, cogColor, ropeColor, centerX, centerY, centerNodeX, centerNodeY)
+    local nodeCogSprite = drawableSprite.fromTexture(cogTexture)
+    nodeCogSprite:setColor(cogColor)
+
+    nodeCogSprite:setPosition(centerNodeX, centerNodeY)
+    nodeCogSprite:setJustification(0.5, 0.5)
+
+    local points = {centerX, centerY, centerNodeX, centerNodeY}
+    local leftLine = drawableLine.fromPoints(points, ropeColor, 1)
+    local rightLine = drawableLine.fromPoints(points, ropeColor, 1)
+
+    leftLine:setOffset(0, 4.5)
+    rightLine:setOffset(0, -4.5)
+
+    leftLine.depth = 5000
+    rightLine.depth = 5000
+
+    for _, sprite in ipairs(leftLine:getDrawableSprite()) do
+        table.insert(sprites, sprite)
+    end
+
+    for _, sprite in ipairs(rightLine:getDrawableSprite()) do
+        table.insert(sprites, sprite)
+    end
+
+    table.insert(sprites, nodeCogSprite)
+end
+
+function communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, cogTexture, cogColor, ropeColor)
+    local sprites = {}
+
+    local halfWidth, halfHeight = math.floor(width / 2), math.floor(height / 2)
+    local centerX, centerY = x + halfWidth, y + halfHeight
+
+    local cx, cy = centerX, centerY
+    for _, node in ipairs(nodes) do
+        local centerNodeX, centerNodeY = node.x + halfWidth, node.y + halfHeight
+        addNodeSprites(sprites, cogTexture, cogColor, ropeColor, cx, cy, centerNodeX, centerNodeY)
+        cx, cy = centerNodeX, centerNodeY
+    end
+
+    return sprites
+end
 
 
 return communalHelper
