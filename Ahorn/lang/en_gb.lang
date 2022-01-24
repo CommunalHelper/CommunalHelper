@@ -56,6 +56,7 @@ placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.below=Determines
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.featherMode=Whether the Connected Dream Block has the Dream Block Feather controls enabled. Connected Dream Blocks only connect with other dream blocks with the same controls.
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.oneUse=Whether THIS Connected Dream Block should make its entire group shatter upon leaving it.
 placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.refillCount=Number of dashes this group of Connected Dream Blocks should refill (-1 for default).
+placements.entities.CommunalHelper/ConnectedDreamBlock.tooltips.quickDestroy=Makes this Connected Dream Block shatter a little faster.
 
 # -- Connected Move Block --
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.moveSpeed=The speed at which the block moves (accepts any number).
@@ -104,7 +105,7 @@ placements.entities.CommunalHelper/DreamFallingBlock.tooltips.centeredChain=Rend
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.chainOutline=Whether the chain of this block should have a black outline.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
-
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.quickDestroy=Makes this Dream Falling Block shatter a little faster.
 
 # -- Dream Move Block --
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
@@ -114,6 +115,7 @@ placements.entities.CommunalHelper/DreamMoveBlock.tooltips.moveSpeed=The speed a
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.noCollide=Whether the Dream Move Block should go through everything.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.oneUse=Whether the Dream Move Block should shatter upon exit.
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.quickDestroy=Makes this Dream Move Block shatter a little faster.
 
 # -- Dream Refill --
 placements.entities.CommunalHelper/DreamRefill.tooltips.oneUse=Whether the Dream Refill should be only used once.
@@ -129,6 +131,7 @@ placements.entities.CommunalHelper/DreamSwapBlock.tooltips.noReturn=Whether the 
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.featherMode=Whether the Dream Swap Block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.oneUse=Whether the Dream Swap Block should shatter upon exit.
 placements.entities.CommunalHelper/DreamSwapBlock.tooltips.refillCount=Number of dashes the Dream Swap Block should refill (-1 for default).
+placements.entities.CommunalHelper/DreamSwapBlock.tooltips.quickDestroy=Makes this Dream Swap Block shatter a little faster.
 
 # -- Dream Switch Gate --
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
@@ -136,6 +139,7 @@ placements.entities.CommunalHelper/DreamSwitchGate.tooltips.featherMode=Whether 
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.oneUse=Whether the Dream Switch Gate should shatter upon exit.
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.permanent=Whether the Dream Switch Gate should stay at its node permanently after being activated for the entire level.
 placements.entities.CommunalHelper/DreamSwitchGate.tooltips.refillCount=Number of dashes the Dream Switch Block should refill (-1 for default).
+placements.entities.CommunalHelper/DreamSwitchGate.tooltips.quickDestroy=Makes this Dream Switch Gate shatter a little faster.
 
 # -- Dream Flag Switch Gate --
 placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.flag=The session flag this switch gate reacts to. Give the same to multiple touch switches and switch gates to group them.
@@ -151,9 +155,10 @@ placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.a
 placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.moveSound=The sound played by the gate when it starts moving.
 placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.finishedSound=The sound played by the gate when it is done moving.
 placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
-placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
-placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.oneUse=Whether the Dream Switch Gate should shatter upon exit.
-placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.refillCount=Number of dashes the Dream Switch Block should refill (-1 for default).
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.featherMode=Whether the Dream Flag Switch Gate has the Dream Block Feather controls enabled.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.oneUse=Whether the Dream Flag Switch Gate should shatter upon exit.
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.refillCount=Number of dashes the Dream Flag Switch Gate should refill (-1 for default).
+placements.entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.tooltips.quickDestroy=Makes this Dream Flag Switch Gate shatter a little faster.
 
 # -- Dream Zip Mover --
 placements.entities.CommunalHelper/DreamZipMover.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
@@ -166,19 +171,22 @@ placements.entities.CommunalHelper/DreamZipMover.tooltips.doubleRefill=Whether t
 placements.entities.CommunalHelper/DreamZipMover.tooltips.permanent=Whether this block should lock in place after being triggered.
 placements.entities.CommunalHelper/DreamZipMover.tooltips.waiting=Whether this block requires the player to trigger it each node in the path.
 placements.entities.CommunalHelper/DreamZipMover.tooltips.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
+placements.entities.CommunalHelper/DreamZipMover.tooltips.quickDestroy=Makes this Dream Zip Mover shatter a little faster.
 
 # -- Dream Floaty Space Block --
 placements.entities.CommunalHelper/DreamFloatySpaceBlock.tooltips.below=Determines whether this block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamFloatySpaceBlock.tooltips.refillCount=Number of dashes the Dream Floaty Space Block should refill (-1 for default).
 placements.entities.CommunalHelper/DreamFloatySpaceBlock.tooltips.featherMode=Whether this block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamFloatySpaceBlock.tooltips.oneUse=Whether this block should shatter upon exit.
+placements.entities.CommunalHelper/DreamFloatySpaceBlock.tooltips.quickDestroy=Makes this Dream Floaty Space Block shatter a little faster.
 
 # -- Dream Crumble Wall On Rumble --
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.below=Determines whether this block should render in the background or foreground.
-placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.refillCount=Number of dashes the Dream Floaty Space Block should refill (-1 for default).
+placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.refillCount=Number of dashes the Dream Crumble Wall On Rumble should refill (-1 for default).
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.featherMode=Whether this block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.oneUse=Whether this block should shatter upon exit.
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.persistent=Whether this block should remain broken permanently.
+placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.quickDestroy=Makes this Dream Crumble Wall On Rumble shatter a little faster.
 
 # -- Dream Tunnel Entry --
 placements.entities.CommunalHelper/DreamTunnelEntry.tooltips.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.

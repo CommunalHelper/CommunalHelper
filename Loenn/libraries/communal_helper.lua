@@ -1,5 +1,6 @@
 local drawableSprite = require("structs.drawable_sprite")
 local drawableLine = require("structs.drawable_line")
+local drawableRectangle = require("structs.drawable_rectangle")
 local connectedEntities = require("helpers.connected_entities")
 local utils = require("utils")
 
@@ -178,6 +179,17 @@ function communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, cogTe
     end
 
     return sprites
+end
+
+-- dream blocks
+
+function communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather)
+    local fill = feather and {0, 0.5, 0.5} or {0, 0, 0}
+
+    local rectangleSprite = drawableRectangle.fromRectangle("bordered", x, y, width, height, fill, {1, 1, 1})
+    rectangleSprite.depth = 0
+
+    return rectangleSprite
 end
 
 

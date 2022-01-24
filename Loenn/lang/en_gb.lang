@@ -166,3 +166,39 @@ entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Grouped=Se
 entities.CommunalHelper/SolidExtension.placements.name.collidable=Connected Solid Extension
 entities.CommunalHelper/SolidExtension.placements.name.uncollidable=Connected Solid Extension (Uncollidable)
 entities.CommunalHelper/SolidExtension.attributes.description.collidable=Whether this extension can be collided with. If turned off, the entity will appear darker and in the background, will basically act like background tiles.
+
+# Dream Zip Mover
+entities.CommunalHelper/DreamZipMover.placements.name.dream_zip_mover=Dream Zip Mover
+entities.CommunalHelper/DreamZipMover.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/DreamZipMover.attributes.description.noReturn=Whether the Dream Zip Mover should return to its starting point or not.
+entities.CommunalHelper/DreamZipMover.attributes.description.dreamAesthetic=Optional look for this entity, mostly unused, but left there.
+entities.CommunalHelper/DreamZipMover.attributes.description.featherMode=Whether the Dream Zip Mover has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamZipMover.attributes.description.oneUse=Whether the Dream Zip Mover should shatter upon exit.
+entities.CommunalHelper/DreamZipMover.attributes.description.refillCount=Number of dashes the Dream Zip Block should refill (-1 for default).
+entities.CommunalHelper/DreamZipMover.attributes.description.doubleRefill=Whether the Dream Zip Mover should refill two dashes, instead of one.
+entities.CommunalHelper/DreamZipMover.attributes.description.permanent=Whether this block should lock in place after being triggered.
+entities.CommunalHelper/DreamZipMover.attributes.description.waiting=Whether this block requires the player to trigger it each node in the path.
+entities.CommunalHelper/DreamZipMover.attributes.description.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
+entities.CommunalHelper/DreamZipMover.attributes.description.quickDestroy=Makes this Dream Zip Mover shatter a little faster.
+
+# Connected Dream Block
+entities.CommunalHelper/ConnectedDreamBlock.placements.name.normal=Connected Dream Block (Normal)
+entities.CommunalHelper/ConnectedDreamBlock.placements.name.feather=Connected Dream Block (Feather Mode)
+entities.CommunalHelper/ConnectedDreamBlock.placements.name.normal_oneuse=Connected Dream Block (Normal, One Use)
+entities.CommunalHelper/ConnectedDreamBlock.placements.name.feather_oneuse=Connected Dream Block (Feather Mode, One Use)
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.below=Determines whether the Connected Dream Block should render in the background or foreground.
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.featherMode=Whether the Connected Dream Block has the Dream Block Feather controls enabled. Connected Dream Blocks only connect with other dream blocks with the same controls.
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.oneUse=Whether THIS Connected Dream Block should make its entire group shatter upon leaving it.
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.refillCount=Number of dashes this group of Connected Dream Blocks should refill (-1 for default).
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.quickDestroy=Makes this Connected Dream Block shatter a little faster.
+
+# Dream Swap Block
+entities.CommunalHelper/DreamSwapBlock.placements.name.dream_swap_block=Dream Swap Block
+entities.CommunalHelper/DreamSwapBlock.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.noReturn=Whether the Dream Swap Block should return to its starting point or not.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.featherMode=Whether the Dream Swap Block has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.oneUse=Whether the Dream Swap Block should shatter upon exit.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.refillCount=Number of dashes the Dream Swap Block should refill (-1 for default).
+entities.CommunalHelper/DreamSwapBlock.attributes.description.quickDestroy=Makes this Dream Swap Block shatter a little faster.
+
+
