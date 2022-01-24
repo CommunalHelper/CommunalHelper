@@ -13,6 +13,7 @@ const data = :(
     WaitForPlayer::Bool=false,
     Grouped::Bool=false,
     Rainbow::Bool=false,
+    TriggerAlways::Bool=false,
 )
 const heightData = appendkwargs(pos, :(height::Integer=Maple.defaultSpikeHeight), data)
 const widthData = appendkwargs(pos, :(width::Integer=Maple.defaultSpikeWidth), data)
