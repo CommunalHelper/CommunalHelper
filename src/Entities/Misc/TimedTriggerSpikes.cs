@@ -137,14 +137,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private SpikeInfo[] spikes;
         private List<MTexture> spikeTextures;
 
-        private bool dirIndependentTriggering;
+        private bool triggerAlways;
 
 
         public TimedTriggerSpikes(EntityData data, Vector2 offset, Directions dir)
-            : this(data.Position, offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false), data.Bool("Rainbow", false), data.Bool("DirectionIndependentTriggering", false)) {
+            : this(data.Position, offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false), data.Bool("Rainbow", false), data.Bool("TriggerAlways", false)) {
         }
 
-        public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow, bool dirIndependentTriggering)
+        public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow, bool triggerAlways)
             : base(position + offset) {
             if (grouped && !CommunalHelperModule.MaxHelpingHandLoaded) {
                 throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
@@ -161,7 +161,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             this.waitForPlayer = waitForPlayer;
             this.grouped = grouped;
             this.rainbow = rainbow;
-            this.dirIndependentTriggering = dirIndependentTriggering;
+            this.triggerAlways = triggerAlways;
 
             switch (direction) {
                 case Directions.Up:
@@ -277,22 +277,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     //direction
                     switch (direction) {
                         case Directions.Up:
-                            if (player.Speed.Y >= 0f || (!spikes[i].Triggered && dirIndependentTriggering)) {
+                            if (player.Speed.Y >= 0f || (!spikes[i].Triggered && triggerAlways)) {
                                 breakout = !spikes[i].OnPlayer(player, outwards);
                             }
                             break;
                         case Directions.Down:
-                            if (player.Speed.Y <= 0f || (!spikes[i].Triggered && dirIndependentTriggering)) {
+                            if (player.Speed.Y <= 0f || (!spikes[i].Triggered && triggerAlways)) {
                                 breakout = !spikes[i].OnPlayer(player, outwards);
                             }
                             break;
                         case Directions.Left:
-                            if (player.Speed.X >= 0f || (!spikes[i].Triggered && dirIndependentTriggering)) {
+                            if (player.Speed.X >= 0f || (!spikes[i].Triggered && triggerAlways)) {
                                 breakout = !spikes[i].OnPlayer(player, outwards);
                             }
                             break;
                         case Directions.Right:
-                            if (player.Speed.X <= 0f || (!spikes[i].Triggered && dirIndependentTriggering)) {
+                            if (player.Speed.X <= 0f || (!spikes[i].Triggered && triggerAlways)) {
                                 breakout = !spikes[i].OnPlayer(player, outwards);
                             }
                             break;
@@ -307,25 +307,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             minIndex = maxIndex = -1;
             switch (direction) {
                 case Directions.Up:
-                    if (player.Speed.Y >= 0f || dirIndependentTriggering) {
+                    if (player.Speed.Y >= 0f || triggerAlways) {
                         minIndex = (int) ((player.Left - Left) / 8f);
                         maxIndex = (int) ((player.Right - Left) / 8f);
                     }
                     break;
                 case Directions.Down:
-                    if (player.Speed.Y <= 0f || dirIndependentTriggering) {
+                    if (player.Speed.Y <= 0f || triggerAlways) {
                         minIndex = (int) ((player.Left - Left) / 8f);
                         maxIndex = (int) ((player.Right - Left) / 8f);
                     }
                     break;
                 case Directions.Left:
-                    if (player.Speed.X >= 0f || dirIndependentTriggering) {
+                    if (player.Speed.X >= 0f || triggerAlways) {
                         minIndex = (int) ((player.Top - Top) / 8f);
                         maxIndex = (int) ((player.Bottom - Top) / 8f);
                     }
                     break;
                 case Directions.Right:
-                    if (player.Speed.X <= 0f || dirIndependentTriggering) {
+                    if (player.Speed.X <= 0f || triggerAlways) {
                         minIndex = (int) ((player.Top - Top) / 8f);
                         maxIndex = (int) ((player.Bottom - Top) / 8f);
                     }
