@@ -26,11 +26,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public static bool MustApply(Scene scene) {
-            foreach (CassetteJumpFixController controller in scene.Tracker.GetEntities<CassetteJumpFixController>()) {
-                if (controller.enable && !controller.persistent)
-                    return true;
+            int debug = 0;
+            try {
+                foreach (CassetteJumpFixController controller in scene.Tracker.GetEntities<CassetteJumpFixController>()) {
+                    debug = 1;
+                    if (controller.enable && !controller.persistent)
+                        debug = 2;
+                        return true;
+                }
+                debug = 3;
+                return CommunalHelperModule.Session.CassetteJumpFix;
+            } catch (System.NullReferenceException) {
+                Logger.LogDetailed(LogLevel.Error, "CommunalHelper", $"Caught NRE at {debug} in {nameof(MustApply)}");
             }
-            return CommunalHelperModule.Session.CassetteJumpFix;
+            return false;
         }
 
 
