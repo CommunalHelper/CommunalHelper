@@ -163,23 +163,23 @@ namespace Celeste.Mod.CommunalHelper {
             // Hair colors used by CustomDreamBlocks particles
             meta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
             optionalDepLoaders[meta] = module => {
-                Extensions.MoreDashelineLoaded = true;
                 Extensions.MoreDasheline_GetHairColor = module.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) });
+                Extensions.MoreDashelineLoaded = true;
                 Util.Log(LogLevel.Info, "MoreDasheline detected: using MoreDasheline hair colors for CustomDreamBlock particles.");
             };
             // MiniHeart used by SummitGemManager
             meta = new EverestModuleMetadata { Name = "CollabUtils2", VersionString = "1.3.8.1" };
             optionalDepLoaders[meta] = module => {
-                Extensions.CollabUtilsLoaded = true;
                 Extensions.CollabUtils_MiniHeart = module.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart");
+                Extensions.CollabUtilsLoaded = true;
             };
             // Used for registering custom playerstates for display in CelesteTAS
             meta = new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.5" };
             optionalDepLoaders[meta] = module => {
-                Extensions.CelesteTASLoaded = true;
                 Type t_PlayerStates = module.GetType().Module.GetType("TAS.PlayerStates");
                 Extensions.CelesteTAS_PlayerStates_Register = t_PlayerStates.GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
                 Extensions.CelesteTAS_PlayerStates_Unregister = t_PlayerStates.GetMethod("Unregister", BindingFlags.Public | BindingFlags.Static);
+                Extensions.CelesteTASLoaded = true;
             };
             meta = new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" };
             optionalDepLoaders[meta] = module => MaxHelpingHandLoaded = true;
@@ -188,19 +188,30 @@ namespace Celeste.Mod.CommunalHelper {
 
             // Check already loaded modules
             foreach (EverestModuleMetadata dep in optionalDepLoaders.Keys) {
-                if (Extensions.TryGetModule(dep, out EverestModule module))
-                    optionalDepLoaders[dep].Invoke(module);
+                if (Extensions.TryGetModule(dep, out EverestModule module)) {
+                    LoadDependency(module, optionalDepLoaders[dep]);
                     optionalDepLoaders.Remove(dep); // Don't need this anymore
+                }
             }
         }
 
         private void OnRegisterModule(EverestModule module) {
             foreach (EverestModuleMetadata dep in optionalDepLoaders.Keys){
                 if (Extensions.SatisfiesDependency(dep, module.Metadata)) {
-                    optionalDepLoaders[dep].Invoke(module);
+                    LoadDependency(module, optionalDepLoaders[dep]);
                     optionalDepLoaders.Remove(dep); // Don't need this anymore
                     return;
                 }
+            }
+        }
+
+        private void LoadDependency(EverestModule module, Action<EverestModule> loader) {
+            try {
+                loader.Invoke(module);
+            } catch (Exception e) {
+                Util.Log(LogLevel.Error, "Failed loading optional dependency: " + module.Metadata.Name);
+                Console.WriteLine(e.ToString());
+                // Show something on screen to alert user
             }
         }
 
