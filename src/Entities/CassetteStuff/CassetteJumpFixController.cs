@@ -36,10 +36,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
                 debug = 3;
                 return CommunalHelperModule.Session.CassetteJumpFix;
-            } catch (System.NullReferenceException) {
-                Logger.LogDetailed(LogLevel.Error, "CommunalHelper", $"Caught NRE at {debug} in {nameof(MustApply)}");
+            } catch (System.NullReferenceException e) {
+                throw new System.NullReferenceException($"CommunalHelper: Encountered NRE at {debug} in {nameof(MustApply)}", e);
             }
-            return false;
         }
 
 
