@@ -32,7 +32,9 @@ jobs:
     - name: Run Pre-Build Script
       run: |
         VERSION=${TAG_NAME:1}
+        [[ "$VERSION" =~ -.*$ ]] && PRERELEASE=true || PRERELEASE=false
         echo "{VERSION}={$VERSION}" >> $GITHUB_ENV
+        echo "{PRERELEASE}={$PRERELEASE}" >> $GITHUB_ENV
         yq e -i '.[0].Version = strenv(VERSION)' everest.yaml
         awk '/$^/{exit} /--/{next} {print $0 >"changelog.current"}' Release\ Log.txt
 
@@ -57,6 +59,7 @@ jobs:
         name: CommunalHelper ${{ env.VERSION }}
         files: CommunalHelper.zip
         fail_on_unmatched_files: true
+        prerelease: ${{ env.PRERELEASE }}
 
     - name: Update release description
       env:
@@ -74,6 +77,7 @@ jobs:
             '{body: "\($body)\r\n\r\n[Install CommunalHelper.zip](https://0x0a.de/twoclick/?\($url))"}')"
 
     - name: Sync Wiki
+      if: ${{ env.PRERELEASE == false }}
       uses: SwiftDocOrg/github-wiki-publish-action@v1
       with:
         path: docs
