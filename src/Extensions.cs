@@ -88,6 +88,20 @@ namespace Celeste.Mod.CommunalHelper {
             return list;
         }
 
+        public static MethodInfo GetMethod(this Type type, string name, BindingFlags bindingAttr, bool throwOnNull = false) {
+            var method = type.GetMethod(name, bindingAttr);
+            if (throwOnNull && method is null)
+                throw new NullReferenceException($"Could not find method {name} in type {type.FullName}");
+            return method;
+        }
+
+        public static MethodInfo GetMethod(this Type type, string name, Type[] types, bool throwOnNull = false) {
+            var method = type.GetMethod(name, types);
+            if (throwOnNull && method is null)
+                throw new NullReferenceException($"Could not find method {name}({string.Join<Type>(",", types)}) in type {type.FullName}.");
+            return method;
+        }
+
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
 
         internal static bool CelesteTASLoaded;
