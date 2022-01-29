@@ -34,46 +34,50 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void Solid_MoveHExact(ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchCallvirt(out MethodReference method) && method.Name == "Contains"))
-                ;
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldloc, il.Body.Variables.First(v => v.VariableType.Name == "Actor"));
-            cursor.EmitDelegate<Func<bool, Solid, Actor, bool>>((v, solid, actor) => {
-                if (v && actor is Player player && !(player.StateMachine.State == Player.StClimb)) {
-                    DynData<Solid> solidData = new DynData<Solid>(solid);
-                    List<StaticMover> staticMovers = solidData.Get<List<StaticMover>>("staticMovers");
-                    foreach (StaticMover mover in staticMovers) {
-                        if (mover.Entity is FrictionlessPanel panel && 
-                            panel.Orientation == Directions.Up && 
-                            player.CollideCheck(mover.Entity, player.Position + Vector2.UnitY)) {
-                            return false;
+            cursor.Index = -1;
+            if (cursor.TryGotoPrev(MoveType.After, instr => instr.MatchCallvirt(out MethodReference method) && method.Name == "Contains")) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldloc, il.Body.Variables.First(v => v.VariableType.Name == "Actor"));
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.EmitDelegate<Func<bool, Solid, Actor, int, bool>>((v, solid, actor, move) => {
+                    if (v && actor is Player player && !(player.StateMachine.State == Player.StClimb)) {
+                        DynData<Solid> solidData = new DynData<Solid>(solid);
+                        List<StaticMover> staticMovers = solidData.Get<List<StaticMover>>("staticMovers");
+                        foreach (StaticMover mover in staticMovers) {
+                            if (mover.Entity is FrictionlessPanel panel &&
+                                panel.Orientation == Directions.Up &&
+                                player.CollideCheck(mover.Entity, player.Position + new Vector2(move, 1))) {
+                                return false;
+                            }
                         }
                     }
-                }
-                return v;
-            });
+                    return v;
+                });
+            }
         }
 
         private static void Solid_MoveVExact(ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchCallvirt(out MethodReference method) && method.Name == "Contains"))
-                ;
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldloc, il.Body.Variables.First(v => v.VariableType.Name == "Actor"));
-            cursor.EmitDelegate<Func<bool, Solid, Actor, bool>>((v, solid, actor) => {
-                if (v && actor is Player player && player.StateMachine.State == Player.StClimb) {
-                    DynData<Solid> solidData = new DynData<Solid>(solid);
-                    List<StaticMover> staticMovers = solidData.Get<List<StaticMover>>("staticMovers");
-                    foreach (StaticMover mover in staticMovers) {
-                        if (mover.Entity is FrictionlessPanel panel &&
-                            panel.Orientation is Directions.Left or Directions.Right &&
-                            player.CollideCheck(mover.Entity, player.Position + Vector2.UnitX * (int) player.Facing)) {
-                            return false;
+            cursor.Index = -1;
+            if (cursor.TryGotoPrev(MoveType.After, instr => instr.MatchCallvirt(out MethodReference method) && method.Name == "Contains")) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldloc, il.Body.Variables.First(v => v.VariableType.Name == "Actor"));
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.EmitDelegate<Func<bool, Solid, Actor, int, bool>>((v, solid, actor, move) => {
+                    if (v && actor is Player player && player.StateMachine.State == Player.StClimb) {
+                        DynData<Solid> solidData = new DynData<Solid>(solid);
+                        List<StaticMover> staticMovers = solidData.Get<List<StaticMover>>("staticMovers");
+                        foreach (StaticMover mover in staticMovers) {
+                            if (mover.Entity is FrictionlessPanel panel &&
+                                panel.Orientation is Directions.Left or Directions.Right &&
+                                player.CollideCheck(mover.Entity, player.Position + new Vector2((int) player.Facing, move))) {
+                                return false;
+                            }
                         }
                     }
-                }
-                return v;
-            });
+                    return v;
+                });
+            }
         }
 
         #endregion
