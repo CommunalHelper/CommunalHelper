@@ -16,9 +16,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         protected override DashCollisionResults OnDashCollide(Player player, Vector2 dir) {
-            if (!overrideCollision)
-                base.OnDashCollide(player, dir);
-            return dashCollisionOverride;
+            if (CheckDashCollision(player, dir)) {
+                if (!overrideCollision)
+                    base.OnDashCollide(player, dir);
+                return dashCollisionOverride;
+            }
+            return base.OnDashCollide(player, dir);
         }
     }
 }

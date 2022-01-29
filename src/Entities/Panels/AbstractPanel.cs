@@ -66,6 +66,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 OnDestroy = Destroy
             });
 
+            // This can't be handled in Removed() because that's run after the new Scene's panels are added.
+            Add(new TransitionListener {
+                OnOutBegin = Disconnect
+            });
+
             overrideSoundIndex = true;
             surfaceSoundIndex = SurfaceIndex.DreamBlockInactive;
         }
@@ -75,8 +80,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             platform.OnDashCollide = OnDashCollide;
         }
 
+        /// <summary>
+        /// Does not check dash direction or direct collision with the Panel.
+        /// Use CheckDashCollision as needed.
+        /// </summary>
         protected virtual DashCollisionResults OnDashCollide(Player player, Vector2 dir) {
             return platformDashCollide?.Invoke(player, dir) ?? DashCollisionResults.NormalCollision;
+        }
+
+        protected bool CheckDashCollision(Player player, Vector2 dir) {
+            switch (Orientation) {
+                case Directions.Up when dir.Y > 0:
+                case Directions.Down when dir.Y < 0:
+                case Directions.Left when dir.X > 0:
+                case Directions.Right when dir.X < 0:
+                return player.CollideCheck(this, player.Position + dir);
+            }
+            return false;
         }
 
         // Make sure at least one side aligns, and the rest are contained within the solid
@@ -98,7 +118,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Awake(Scene scene) {
             base.Awake(scene);
 
-            if (overrideAllowStaticMovers) {
+            if (overrideAllowStaticMovers && staticMover.Platform is null) {
                 foreach (Entity entity in scene.GetEntitiesByTagMask(Tags.Global | Tags.Persistent)) {
                     if (entity is Solid solid && entity.Scene == scene) {
                         ForceAttachStaticMovers(solid, scene);
@@ -124,18 +144,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Update();
         }
 
-        public override void Removed(Scene scene) {
+        private void Disconnect() {
             if (staticMover.Platform != null && (staticMover.Platform.TagCheck(Tags.Global) || staticMover.Platform.TagCheck(Tags.Persistent))) {
                 List<StaticMover> movers = new DynData<Platform>(staticMover.Platform).Get<List<StaticMover>>("staticMovers");
                 // Iterate backwards so we can remove stuff
                 for (int i = movers.Count - 1; i >= 0; i--) {
                     if (movers[i].Entity is AbstractPanel panel) {
                         movers[i].Platform.OnDashCollide = panel.platformDashCollide;
+                        movers[i].Platform = null;
                         movers.RemoveAt(i);
                     }
                 }
             }
-            base.Removed(scene);
         }
 
         #region Hooks
@@ -226,7 +246,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             DynData<Solid> solidData = null;
             foreach (AbstractPanel panel in scene.Tracker.GetEntities<AbstractPanel>()) {
                 StaticMover staticMover = panel.staticMover;
-                if (staticMover.Entity is AbstractPanel && panel.overrideAllowStaticMovers && staticMover.Platform == null && staticMover.IsRiding(solid)) {
+                if (panel.overrideAllowStaticMovers && staticMover.Platform == null && staticMover.IsRiding(solid)) {
                     solidData ??= new DynData<Solid>(solid);
                     solidData.Get<List<StaticMover>>("staticMovers").Add(staticMover);
                     staticMover.Platform = solid;
