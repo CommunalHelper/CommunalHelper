@@ -24,8 +24,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected StaticMover staticMover;
 
-        protected DashCollision platformDashCollide;
-
         protected bool overrideSoundIndex;
         protected int surfaceSoundIndex;
 
@@ -66,26 +64,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 OnDestroy = Destroy
             });
 
-            // This can't be handled in Removed() because that's run after the new Scene's panels are added.
-            Add(new TransitionListener {
-                OnOutBegin = Disconnect
-            });
-
             overrideSoundIndex = true;
             surfaceSoundIndex = SurfaceIndex.DreamBlockInactive;
         }
 
         protected virtual void OnAttach(Platform platform) {
-            platformDashCollide = platform.OnDashCollide;
-            platform.OnDashCollide = OnDashCollide;
+            platform.OnDashCollide = DelegateHelper.ApplyDashCollisionHook(platform.OnDashCollide, OnDashCollide);
         }
 
         /// <summary>
         /// Does not check dash direction or direct collision with the Panel.
         /// Use CheckDashCollision as needed.
         /// </summary>
-        protected virtual DashCollisionResults OnDashCollide(Player player, Vector2 dir) {
-            return platformDashCollide?.Invoke(player, dir) ?? DashCollisionResults.NormalCollision;
+        protected virtual DashCollisionResults OnDashCollide(DashCollision orig, Player player, Vector2 dir) {
+            return orig(player, dir);
         }
 
         protected bool CheckDashCollision(Player player, Vector2 dir) {
@@ -144,18 +136,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Update();
         }
 
-        private void Disconnect() {
-            if (staticMover.Platform != null && (staticMover.Platform.TagCheck(Tags.Global) || staticMover.Platform.TagCheck(Tags.Persistent))) {
-                List<StaticMover> movers = new DynData<Platform>(staticMover.Platform).Get<List<StaticMover>>("staticMovers");
-                // Iterate backwards so we can remove stuff
-                for (int i = movers.Count - 1; i >= 0; i--) {
-                    if (movers[i].Entity is AbstractPanel panel) {
-                        movers[i].Platform.OnDashCollide = panel.platformDashCollide;
-                        movers[i].Platform = null;
-                        movers.RemoveAt(i);
-                    }
-                }
-            }
+        public override void Removed(Scene scene) {
+            if (staticMover.Platform is not null && (staticMover.Platform.TagCheck(Tags.Global) || staticMover.Platform.TagCheck(Tags.Persistent)))
+                DelegateHelper.RemoveDashCollisionHook(staticMover.Platform.OnDashCollide, OnDashCollide);
+
+            base.Removed(scene);
         }
 
         #region Hooks
@@ -173,24 +158,33 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             BouncyPanel.Load();
         }
 
+        static HashSet<string> hooked = new();
+
+        private static void LogHooked(string fullname) {
+            if (!hooked.Contains(fullname)) {
+                Logger.Log(LogLevel.Info, "CommunalHelper", $"Hooking {fullname} to override when AbstractPanel present.");
+                hooked.Add(fullname);
+            }
+        }
+
         internal static void LoadDelayed() {
             // Land and Step sound are identical
             MethodInfo Platform_GetLandOrStepSoundIndex = typeof(AbstractPanel).GetMethod(nameof(AbstractPanel.Platform_GetLandOrStepSoundIndex), BindingFlags.NonPublic | BindingFlags.Static);
             foreach (MethodInfo method in typeof(Platform).GetMethod("GetLandSoundIndex").GetOverrides(true)) {
-                Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when AbstractPanel present.");
+                LogHooked(method.GetFullName());
                 hook_Platform_GetLandOrStepSoundIndex.Add(
                     new Hook(method, Platform_GetLandOrStepSoundIndex)
                 );
             }
             foreach (MethodInfo method in typeof(Platform).GetMethod("GetStepSoundIndex").GetOverrides(true)) {
-                Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when AbstractPanel present.");
+                LogHooked(method.GetFullName());
                 hook_Platform_GetLandOrStepSoundIndex.Add(
                     new Hook(method, Platform_GetLandOrStepSoundIndex)
                 );
             }
             MethodInfo Platform_GetWallSoundIndex = typeof(AbstractPanel).GetMethod(nameof(AbstractPanel.Platform_GetWallSoundIndex), BindingFlags.NonPublic | BindingFlags.Static);
             foreach (MethodInfo method in typeof(Platform).GetMethod("GetWallSoundIndex").GetOverrides(true)) {
-                Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when AbstractPanel present.");
+                LogHooked(method.GetFullName());
                 hook_Platform_GetWallSoundIndex.Add(
                     new Hook(method, Platform_GetWallSoundIndex)
                 );

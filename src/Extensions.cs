@@ -88,6 +88,9 @@ namespace Celeste.Mod.CommunalHelper {
             return list;
         }
 
+        public static string GetFullName(this MethodInfo method)
+            => $"{method.DeclaringType}.{method.Name}";
+
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
 
         internal static bool CelesteTASLoaded;

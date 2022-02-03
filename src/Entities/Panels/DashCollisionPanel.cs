@@ -15,13 +15,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             dashCollisionOverride = data.Enum("dashCollideResult", DashCollisionResults.NormalCollision);
         }
 
-        protected override DashCollisionResults OnDashCollide(Player player, Vector2 dir) {
+        protected override DashCollisionResults OnDashCollide(DashCollision orig, Player player, Vector2 dir) {
             if (CheckDashCollision(player, dir)) {
                 if (!overrideCollision)
-                    base.OnDashCollide(player, dir);
+                    base.OnDashCollide(orig, player, dir);
                 return dashCollisionOverride;
             }
-            return base.OnDashCollide(player, dir);
+            return base.OnDashCollide(orig, player, dir);
         }
     }
 }
