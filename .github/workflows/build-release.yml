@@ -33,8 +33,8 @@ jobs:
       run: |
         VERSION=${TAG_NAME:1}
         [[ "$VERSION" =~ -.*$ ]] && PRERELEASE=true || PRERELEASE=false
-        echo "{VERSION}={$VERSION}" >> $GITHUB_ENV
-        echo "{PRERELEASE}={$PRERELEASE}" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "PRERELEASE=$PRERELEASE" >> $GITHUB_ENV
         yq e -i '.[0].Version = strenv(VERSION)' everest.yaml
         awk '/$^/{exit} /--/{next} {print $0 >"changelog.current"}' Release\ Log.txt
 
@@ -63,14 +63,14 @@ jobs:
 
     - name: Update release description
       env:
-        RELEASE_URL: ${{ steps.release.outputs.url }}
+        RELEASE_ID: ${{ steps.release.outputs.id }}
         DOWNLOAD_URL: ${{ fromJSON(steps.release.outputs.assets)[0].browser_download_url }}
       run: |
         curl \
           -X PATCH \
           -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          $RELEASE_URL \
+          "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" \
           -d "$(jq -n \
             --rawfile body changelog.current \
             --arg url $DOWNLOAD_URL \
