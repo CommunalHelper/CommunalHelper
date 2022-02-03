@@ -403,7 +403,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Vector2 dirSign = Calc.Sign(MoveDir);
                 float f = dirSign.X == -1 || dirSign.Y == -1 ? -1 : 1f;
 
-                bool travel = nextNode != null && currentTrack.CanBeUsed &&
+                bool travel = nextNode != null && CurrentNode != nextNode &&currentTrack.CanBeUsed &&
                     !(currentTrack.OneWayDir.HasValue && currentTrack.OneWayDir.Value == -MoveDir);
 
                 Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
@@ -422,6 +422,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Vector2 target = nextNode.Center - offset;
 
                     while (t < 1f) {
+                        float tNextUnclamped = t + speedFactor * 2f * Engine.DeltaTime;
                         t = Calc.Approach(t, 1f, speedFactor * 2f * Engine.DeltaTime);
 
                         Percent = Ease.SineIn(t);
@@ -432,13 +433,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             nextNode.ColorLerp = Math.Min(1f, t * 2f);
                         }
 
-                        Vector2 vector = Vector2.Lerp(start, target, Percent);
-                        ScrapeParticlesCheck(vector);
+                        Vector2 to = Vector2.Lerp(start, target, Percent);
+                        ScrapeParticlesCheck(to);
                         if (Scene.OnInterval(0.05f)) {
                             currentTrack.CreateSparks(Center, p_sparks);
                         }
 
-                        MoveTo(vector);
+                        Vector2 toUnclamped = Vector2.Lerp(start, target, Ease.SineIn(tNextUnclamped));
+                        Vector2 theoreticalLiftSpeed = Engine.DeltaTime == 0f ? Vector2.Zero : (toUnclamped - ExactPosition) / Engine.DeltaTime;
+                        MoveToX(to.X, theoreticalLiftSpeed.X);
+                        MoveToY(to.Y, theoreticalLiftSpeed.Y);
                         yield return null;
                     }
 

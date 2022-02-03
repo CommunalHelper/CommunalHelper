@@ -281,6 +281,8 @@ namespace Celeste.Mod.CommunalHelper {
         public static Vector2 RandomDir(float length) {
             return Calc.AngleToVector(Calc.Random.NextAngle(), length);
         }
+
+        public static string StrTrim(string str) => str.Trim();
     }
 
     // Don't worry about it

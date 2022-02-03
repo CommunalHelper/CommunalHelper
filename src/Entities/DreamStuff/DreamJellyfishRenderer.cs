@@ -64,6 +64,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Camera camera = SceneAs<Level>().Camera;
 
             foreach (DreamJellyfish jelly in jellies) {
+
                 Rectangle jellyBounds = jelly.ParticleBounds;
                 Vector2 pos = jelly.Position + new Vector2(jellyBounds.X, jellyBounds.Y);
 
@@ -74,7 +75,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (right < camera.Left || left > camera.Right || bottom < camera.Top || top > camera.Bottom)
                     continue; // Skip jelly rendering if it's not on screen.
 
-                MTexture frame = jelly.CurrentFrame;
+                MTexture frame = jelly.Sprite.Texture;
 
                 // Outline
                 frame.DrawCentered(jelly.Position + new Vector2(0, -3), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);

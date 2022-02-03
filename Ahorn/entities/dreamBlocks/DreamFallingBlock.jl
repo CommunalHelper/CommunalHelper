@@ -7,6 +7,7 @@ using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
 const entityData = appendkwargs(CustomDreamBlockData, :(
     noCollide::Bool=false,
+	forceShake::Bool=false,
     fallDistance::Integer=64,
     centeredChain::Bool=false,
     chainOutline::Bool=true,
