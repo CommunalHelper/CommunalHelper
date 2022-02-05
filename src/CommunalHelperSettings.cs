@@ -4,6 +4,7 @@ namespace Celeste.Mod.CommunalHelper {
     public class CommunalHelperSettings : EverestModuleSettings {
         [SettingName("Settings_DreamTunnel_AlwaysActive")]
         public bool AlwaysActiveDreamRefillCharge { get; set; }
+        public bool DreamDashFeatherMode { get; set; }
 
         [SettingName("Settings_SeekerDash_AlwaysActive")]
         public bool AlwaysActiveSeekerDash { get; set; }
