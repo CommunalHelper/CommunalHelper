@@ -1,14 +1,23 @@
---1.9.5 (28/11/21)--
+--1.9.8 (24/01/2022)--
+* Added TriggerAlways option to timed trigger spikes.
+
+--1.9.7 (22/01/2022)--
+* Added Sound Area Trigger.
+
+--1.9.6 (01/01/2022)--
+* Added No Overlay Watch Tower.
+
+--1.9.5 (28/11/2021)--
 * Fix Station Block killed-liftspeed issue (leniency).
 * Station Blocks can no longer travel to the current node they are located at (bug appeared in 1.9.0).
 
---1.9.4 (11/11/21)--
+--1.9.4 (11/11/2021)--
 * Added Core Mode Music Controller.
 * Added options to Track Switch Box to disable floating and bouncing behavior.
 * Added forceShake option to DreamFallingBlock types (legacy option).
 * Fix Dream Jellyfish crash when entering Seeker Barrier.
 
---1.9.3 (17/10/21)--
+--1.9.3 (17/10/2021)--
 * Added quickDestroy option to Dream Block types.
 * Fix inconsistent chain outlines when broken in half.
 * Fix inconsistent Chained Falling Block shake time with vanilla Falling Blocks. 
