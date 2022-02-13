@@ -11,9 +11,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private string sfx;
 
         public BouncyPanel(EntityData data, Vector2 offset)
-            : base(data.Position + offset, GetSize(data, data.Enum<Directions>("orientation")), data.Enum<Directions>("orientation"), data.Bool("overrideAllowStaticMovers")) {
-                sfx = data.Attr("sfx", SFX.game_assist_dreamblockbounce);
-            }
+            : base(data, offset) {
+            sfx = data.Attr("sfx", SFX.game_assist_dreamblockbounce);
+        }
 
         new internal static void Load() {
             On.Celeste.Player.NormalUpdate += Player_NormalUpdate;

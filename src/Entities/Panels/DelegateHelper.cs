@@ -10,8 +10,6 @@ namespace Celeste.Mod.CommunalHelper {
 
         public delegate DashCollisionResults DashCollisionHook(DashCollision orig, Player player, Vector2 direction);
 
-        public static Dictionary<Platform, List<DashCollisionHook>> hooks;
-
         private static DashCollisionResults DashCollisionDefault(Player player, Vector2 orig)
             => DashCollisionResults.NormalCollision;
 

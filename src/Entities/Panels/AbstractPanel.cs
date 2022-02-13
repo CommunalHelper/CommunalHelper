@@ -24,8 +24,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected StaticMover staticMover;
 
-        protected bool overrideSoundIndex;
-        protected int surfaceSoundIndex;
+        protected int? surfaceSoundIndex = null;
 
         public Vector2 Start => new Vector2(
                 X + (Orientation is Directions.Right or Directions.Down ? Width : 0),
@@ -63,9 +62,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 OnDisable = () => Active = Visible = Collidable = false,
                 OnDestroy = Destroy
             });
-
-            overrideSoundIndex = true;
-            surfaceSoundIndex = SurfaceIndex.DreamBlockInactive;
         }
 
         protected virtual void OnAttach(Platform platform) {
@@ -206,8 +202,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static int Platform_GetLandOrStepSoundIndex(Func<Platform, Entity, int> orig, Platform self, Entity entity) {
             foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers")) {
-                if (sm.Entity is AbstractPanel panel && panel.overrideSoundIndex && panel.Orientation == Directions.Up && entity.CollideCheck(panel, entity.Position + Vector2.UnitY)) {
-                    return panel.surfaceSoundIndex;
+                if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null && panel.Orientation == Directions.Up && entity.CollideCheck(panel, entity.Position + Vector2.UnitY)) {
+                    return (int) panel.surfaceSoundIndex;
                 }
             }
             return orig(self, entity);
@@ -215,12 +211,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static int Platform_GetWallSoundIndex(Func<Platform, Player, int, int> orig, Platform self, Player player, int side) {
             foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers")) {
-                if (sm.Entity is AbstractPanel panel && panel.overrideSoundIndex) {
+                if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null) {
                     if (side == (int) Facings.Left && panel.Orientation == Directions.Right && player.CollideCheck(panel, player.Position - Vector2.UnitX)) {
-                        return panel.surfaceSoundIndex;
+                        return (int) panel.surfaceSoundIndex;
                     }
                     if (side == (int) Facings.Right && panel.Orientation == Directions.Left && player.CollideCheck(panel, player.Position + Vector2.UnitX)) {
-                        return panel.surfaceSoundIndex;
+                        return (int) panel.surfaceSoundIndex;
                     }
                 }
             }
