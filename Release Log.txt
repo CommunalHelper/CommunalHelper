@@ -1,3 +1,9 @@
+--upcoming (??/??/????)--
+* Added Frictionless Panel
+* Added DashCollision Panel
+* Added Bouncy Panel
+* Fix overrideAllowStaticMovers attribute on panels
+
 --1.9.8 (24/01/2022)--
 * Added TriggerAlways option to timed trigger spikes.
 

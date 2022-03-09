@@ -59,6 +59,7 @@ namespace Celeste.Mod.CommunalHelper {
             MoveBlockRedirect.Load();
             MoveBlockRedirectable.Load();
             MoveSwapBlock.Load();
+
             AbstractInputController.Load();
             // Controller-specific hooks loaded from AbstractInputController.Load
             CassetteJumpFixController.Load();
@@ -337,6 +338,8 @@ namespace Celeste.Mod.CommunalHelper {
         public static Vector2 RandomDir(float length) {
             return Calc.AngleToVector(Calc.Random.NextAngle(), length);
         }
+
+        public static string StrTrim(string str) => str.Trim();
     }
 
     // Don't worry about it
