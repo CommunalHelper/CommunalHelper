@@ -59,7 +59,7 @@ jobs:
         name: CommunalHelper ${{ env.VERSION }}
         files: CommunalHelper.zip
         fail_on_unmatched_files: true
-        prerelease: ${{ env.PRERELEASE }}
+        prerelease: ${{ fromJSON(env.PRERELEASE) }}
 
     - name: Update release description
       env:
@@ -77,7 +77,7 @@ jobs:
             '{body: "\($body)\r\n\r\n[Install CommunalHelper.zip](https://0x0a.de/twoclick/?\($url))"}')"
 
     - name: Sync Wiki
-      if: ${{ env.PRERELEASE == false }}
+      if: ${{ !fromJSON(env.PRERELEASE) }}
       uses: SwiftDocOrg/github-wiki-publish-action@v1
       with:
         path: docs
