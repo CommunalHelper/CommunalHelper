@@ -28,6 +28,13 @@ jobs:
     - name: Restore with .NET Core
       run: dotnet restore
 
+    - name: Run Pre-Build Script
+      run: |
+        LATEST_TAG=$(git describe --tags)
+        LATEST_COMMIT=$(git rev-parse --short HEAD)
+        export MOD_VERSION="${LATEST_TAG#v}-$LATEST_COMMIT"
+        yq e -i '.[0].Version = strenv(MOD_VERSION)' everest.yaml
+
     - name: Build with .NET Core
       run: dotnet build "/p:Configuration=Debug"
       env:
