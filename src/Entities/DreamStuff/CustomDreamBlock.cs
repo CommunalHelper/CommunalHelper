@@ -86,10 +86,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static Color DisabledBackColor => (Color) f_DreamBlock_disabledBackColor.GetValue(null);
         private static FieldInfo f_DreamBlock_disabledBackColor = typeof(DreamBlock).GetField("disabledBackColor", BindingFlags.NonPublic | BindingFlags.Static);
 
+        // All dream colors in one array, independent of layer.
+        public static readonly Color[] DreamColors = new Color[9] {
+            Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310"),
+            Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C"),
+            Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64"),
+        };
+
         public bool FeatherMode;
         protected int RefillCount;
         protected bool shattering = false;
         public float ColorLerp = 0.0f;
+        public bool QuickDestroy;
 
         private bool shakeToggle = false;
         private ParticleType shakeParticle;
@@ -100,9 +108,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected DynData<DreamBlock> baseData;
 
-        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below)
+        public CustomDreamBlock(EntityData data, Vector2 offset)
+            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) { }
+
+        public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below, bool quickDestroy)
             : base(position, width, height, null, false, oneUse, below) {
             baseData = new DynData<DreamBlock>(this);
+            QuickDestroy = quickDestroy;
             RefillCount = refillCount;
 
             FeatherMode = featherMode;
@@ -192,9 +204,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     return dashColors[layer];
                 } else {
                     return layer switch {
-                        0 => Calc.Random.Choose(Calc.HexToColor("FFEF11"), Calc.HexToColor("FF00D0"), Calc.HexToColor("08a310")),
-                        1 => Calc.Random.Choose(Calc.HexToColor("5fcde4"), Calc.HexToColor("7fb25e"), Calc.HexToColor("E0564C")),
-                        2 => Calc.Random.Choose(Calc.HexToColor("5b6ee1"), Calc.HexToColor("CC3B3B"), Calc.HexToColor("7daa64")),
+                        0 => Calc.Random.Choose(DreamColors[0], DreamColors[1], DreamColors[2]),
+                        1 => Calc.Random.Choose(DreamColors[3], DreamColors[4], DreamColors[5]),
+                        2 => Calc.Random.Choose(DreamColors[6], DreamColors[7], DreamColors[8]),
                         _ => throw new NotImplementedException()
                     };
                 }
@@ -373,13 +385,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private IEnumerator ShatterSequence() {
-            yield return 0.28f;
+            if (QuickDestroy) {
+                Collidable = false;
+                foreach (StaticMover entity in staticMovers) {
+                    entity.Entity.Collidable = false;
+                }
+            } else {
+                yield return 0.28f;
+            }
+
             while (ColorLerp < 2.0f) {
                 ColorLerp += Engine.DeltaTime * 10.0f;
                 yield return null;
             }
+
             ColorLerp = 1.0f;
-            yield return 0.05f;
+            if (!QuickDestroy) {
+                yield return 0.05f;
+            }
 
             Level level = SceneAs<Level>();
             level.Shake(.65f);

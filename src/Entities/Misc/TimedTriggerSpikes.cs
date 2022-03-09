@@ -108,7 +108,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         // Used to maintain compatibility with Max's Helping Hand RainbowSpinnerColorController
         private static CrystalStaticSpinner crystalSpinner = new CrystalStaticSpinner(Vector2.Zero, false, CrystalColor.Rainbow);
         [MethodImpl(MethodImplOptions.NoInlining)] // No in-lining, method implemented by IL hook
-        public static Color GetHue(Scene scene, Vector2 position) => default;
+        public static Color GetHue(Scene scene, Vector2 position) {
+            Console.Error.Write("NoInlining");
+            throw new NoInliningException();
+        }
 
         private const float RetractTime = 6f;
 
@@ -134,12 +137,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private SpikeInfo[] spikes;
         private List<MTexture> spikeTextures;
 
+        private bool triggerAlways;
+
 
         public TimedTriggerSpikes(EntityData data, Vector2 offset, Directions dir)
-            : this(data.Position, offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false), data.Bool("Rainbow", false)) {
+            : this(data.Position, offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false), data.Bool("Rainbow", false), data.Bool("TriggerAlways", false)) {
         }
 
-        public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow)
+        public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow, bool triggerAlways)
             : base(position + offset) {
             if (grouped && !CommunalHelperModule.MaxHelpingHandLoaded) {
                 throw new Exception("Grouped Timed Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
@@ -156,6 +161,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             this.waitForPlayer = waitForPlayer;
             this.grouped = grouped;
             this.rainbow = rainbow;
+            this.triggerAlways = triggerAlways;
 
             switch (direction) {
                 case Directions.Up:
@@ -265,7 +271,34 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (maxIndex >= 0 && minIndex < spikes.Length) {
                 minIndex = Math.Max(minIndex, 0);
                 maxIndex = Math.Min(maxIndex, spikes.Length - 1);
-                for (int i = minIndex; i <= maxIndex && !spikes[i].OnPlayer(player, outwards); i++) {
+                //attempt to breakout early if player dies
+                bool breakout = false;
+                for (int i = minIndex; i <= maxIndex; i++) {
+                    //direction
+                    switch (direction) {
+                        case Directions.Up:
+                            if (player.Speed.Y >= 0f || (!spikes[i].Triggered && triggerAlways)) {
+                                breakout = !spikes[i].OnPlayer(player, outwards);
+                            }
+                            break;
+                        case Directions.Down:
+                            if (player.Speed.Y <= 0f || (!spikes[i].Triggered && triggerAlways)) {
+                                breakout = !spikes[i].OnPlayer(player, outwards);
+                            }
+                            break;
+                        case Directions.Left:
+                            if (player.Speed.X >= 0f || (!spikes[i].Triggered && triggerAlways)) {
+                                breakout = !spikes[i].OnPlayer(player, outwards);
+                            }
+                            break;
+                        case Directions.Right:
+                            if (player.Speed.X <= 0f || (!spikes[i].Triggered && triggerAlways)) {
+                                breakout = !spikes[i].OnPlayer(player, outwards);
+                            }
+                            break;
+                    }
+                    if (breakout)
+                        break;
                 }
             }
         }
@@ -274,25 +307,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             minIndex = maxIndex = -1;
             switch (direction) {
                 case Directions.Up:
-                    if (player.Speed.Y >= 0f) {
+                    if (player.Speed.Y >= 0f || triggerAlways) {
                         minIndex = (int) ((player.Left - Left) / 8f);
                         maxIndex = (int) ((player.Right - Left) / 8f);
                     }
                     break;
                 case Directions.Down:
-                    if (player.Speed.Y <= 0f) {
+                    if (player.Speed.Y <= 0f || triggerAlways) {
                         minIndex = (int) ((player.Left - Left) / 8f);
                         maxIndex = (int) ((player.Right - Left) / 8f);
                     }
                     break;
                 case Directions.Left:
-                    if (player.Speed.X >= 0f) {
+                    if (player.Speed.X >= 0f || triggerAlways) {
                         minIndex = (int) ((player.Top - Top) / 8f);
                         maxIndex = (int) ((player.Bottom - Top) / 8f);
                     }
                     break;
                 case Directions.Right:
-                    if (player.Speed.X <= 0f) {
+                    if (player.Speed.X <= 0f || triggerAlways) {
                         minIndex = (int) ((player.Top - Top) / 8f);
                         maxIndex = (int) ((player.Bottom - Top) / 8f);
                     }
@@ -363,7 +396,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void LoadDelayed() {
             hook_TimedTriggerSpikes_GetHue = new ILHook(
-                typeof(TimedTriggerSpikes).GetMethod("GetHue"),
+                typeof(TimedTriggerSpikes).GetMethod(nameof(GetHue)),
                 TimedTriggerSpikes_GetHue);
         }
 
@@ -372,7 +405,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static void TimedTriggerSpikes_GetHue(ILContext il) {
-            FieldInfo crystalSpinner = typeof(TimedTriggerSpikes).GetField("crystalSpinner", BindingFlags.NonPublic | BindingFlags.Static);
+            FieldInfo crystalSpinner = typeof(TimedTriggerSpikes).GetField(nameof(TimedTriggerSpikes.crystalSpinner), BindingFlags.NonPublic | BindingFlags.Static);
             il.Instrs.Clear();
 
             ILCursor cursor = new ILCursor(il);

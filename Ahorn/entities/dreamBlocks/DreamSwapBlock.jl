@@ -2,18 +2,12 @@ module CommunalHelperDreamSwapBlock
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
-@mapdef Entity "CommunalHelper/DreamSwapBlock" DreamSwapBlock(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
+const entityData = appendkwargs(CustomDreamBlockData, :(
     noReturn::Bool=false,
-    featherMode::Bool=false,
-    oneUse::Bool=false,
-    refillCount::Integer=-1,
-    below::Bool=false,
-)
+))
+@mapdefdata Entity "CommunalHelper/DreamSwapBlock" DreamSwapBlock entityData
 
 const placements = Ahorn.PlacementDict(
     "Dream Swap Block (Communal Helper)" => Ahorn.EntityPlacement(

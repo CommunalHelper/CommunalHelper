@@ -21,18 +21,19 @@ The current list of included mechanics:
 		<b>Dream Zip Mover</b> has additional <i>"ticking"</i>, <i>"permanent"</i> and <i>"waiting"</i> modes. 
 		<b>Dream Move Block</b> and <b>Falling Block</b> have access to the <i>"no collide"</i> mode, which will allow them to pass through any solids other than Dream Blocks while moving.
 		<b>Dream Flag Switch Gates</b> are a thing after being requested, they require <a href="https://gamebanana.com/gamefiles/11423">max480's Helping Hand</a> to appear in the Ahorn placement list.
+		On 1.9.3, the "<i>quickDestroy</i>" option was added by @vitellary#1950.
 	</li>
 	<li>
-		<b>Dream Refill</b> - 
+		<b>Dream Refill</b> -
 		A special refill that once collected, allows the player to dash through any solid, except for dream blocks which will kill them.
 		You can specify a custom respawn time if you want to, using the <i>"respawnTime"</i> option.
 	</li>
 	<li>
-		<b>Dream Tunnel Entry</b> - 
+		<b>Dream Tunnel Entry</b> -
 		A panel that can be attached to any solid that allows the player to Dream Tunnel through it.
 	</li>
 	<li>
-		<b>Sound Surface Panel</b> - 
+		<b>Sound Surface Panel</b> -
 		A panel that placed on solids that changes the sound that the player makes when climbing or walking on it.
 	</li>
 	<li>
@@ -43,91 +44,94 @@ The current list of included mechanics:
 		Since 1.8.0, all of these types, and a new <b>Custom Cassette Block</b> include a <i>"customColor"</i> option, which is an hexadecimal color code.
 	</li>
 	<li>
-		<b>Connected Zip Mover</b>, <b>Move Block</b> and <b>Swap Block</b>, <b>Connected Solid Extension</b> - 
-		They act like their corresponding vanilla version, but they can have any shape, simply by placing <b>Connected Solid Extensions</b> so that they touch or overlap, and are tiled automatically. They are reskinnable.
+		<b>Connected Zip Mover</b>, <b>Move Block</b> and <b>Swap Block</b>, <b>Connected Solid Extension</b> -
+		They act like their corresponding vanilla version, but they can have any shape, simply by placing <b>Connected Solid Extensions</b> so that they touch or overlap, and are tiled automatically. They are reskinnable. Since 1.9.0, the <i>"collidable"</i> option has been added, and allows you to place uncollidable solid extensions (you will go through them), but still connected the entire solid.
 	</li>
 	<li>
-		<b>Station Block</b> and <b>Tracks</b> - 
+		<b>Station Block</b> and <b>Tracks</b> -
 		A block that sits on a track, and when activated will move along the track to a specific node. 
 		The block is activated by dashing into it, and will either move toward the side that was dashed into, or away from it, based on the <i>"behaviour"</i> option. Now with 1.8.2, he <i>"dashCornerCorrection"</i> option will allow for easier wallbounces, previously way more precise than with most of other solids.
 		Track segments are either vertical or horizontal, and when placed such that their nodes (ends) overlap, will connect to form full, continuous tracks. 
 		The block must be placed directly on top of a track node for it to attach to the track, and when activated can only move in directions that have a track segment leading away from their current node, in that direction. 
 		They are also reskinnable. Since 1.6.0, <b>Station Block Tracks </b>can now be set to be "ON" or "OFF" using the <i>"trackSwitchState"</i> attribute, which will enable / disable them depending on the current state in the level. 
 		A track set to "NONE" will always be active, and is not affected in any way. <b>Station Block</b> now have an <i>"allowWavedash"</i> attribute that allows you to perform a wavedash on them instead of bouncing upwards, and if you want, it also has custom colors using the <i>"wavedashButtonColor"</i> and <i>"wavedashButtonPressedColor"</i> options.
+		Since 1.9.0, <b>Tracks</b> can now act like a one-way barrier for attached <b>Station Blocks</b> and eventually as a force-way track, using the <i>moveMode</i> option list: read Ahorn tooltips for more.
 	</li>
 	<li>
-		<b>Track Switch Box </b>(and <b>Switch Track Trigger</b>) - 
+		<b>Track Switch Box </b>(and <b>Switch Track Trigger</b>) -
 		A block, similar to the Lightning Breaker Box entity that, when dashed into, switches the track state in the current level (used for <b>Station Block Tracks</b>). If the level is reloaded (player death, etc...), the state is set back to its default value. You can disble this behaviour by ticking on the <i>"globalSwitch"</i> attribute in Ahorn. The <b>Switch Track Trigger </b>is basically the trigger equivalent of this entity, except you can specify the state it switches to, or if it just alternates between the two.
+		On 1.9.4, Earthwise (Kitty-Cats) added the <i>"bounce"</i> and <i>"floaty"</i> options, to disable the bouncing when hit, and the floating behaviour, respectively.
 	</li>
 	<li>
-		<b>Synced Zip Mover Activation Controller</b> - 
+		<b>Synced Zip Mover Activation Controller</b> -
 		A controller entity that, when placed into a room, allows <b>Synced Zip Movers</b> (from the <a href="https://gamebanana.com/gamefiles/9807">Adventure Helper</a>) of a specific color to activate whenever the player pressed grab. 
 		If you wish to, you can rebind the key/button of your choice to activate them. 
 		(<u>For map makers</u>: the <b>Custom Bird Tutorial</b> provided by Everest can now correctly display the binding that is used by players, by adding <i>"CommunalHelperSyncedZipMoverBinding"</i> to <i>"Controls"</i> in Ahorn).
 	</li>
 	<li>
-		<b>Manual Cassette Controller</b> - 
+		<b>Manual Cassette Controller</b> -
 		When placed in a room, it will allow the player to manually cycle through cassette block colors using a rebindable button (defaults to Grab).
 		(<u>For map makers</u>: this binding is displayed using <i>"CommunalHelperCycleCassetteBlocksBinding"</i>).
 	</li>
 	<li>
-		<b>Input Flag Controller</b> - 
+		<b>Input Flag Controller</b> -
 		Allows a sequence of flags to be toggled using a key or button binding. 
 		(<u>For map makers</u>: this binding is displayed using <i>"CommunalHelperActivateFlagControllerBinding"</i>).
 	</li>
 	<li>
-		<b>Cassette Jump Fix Controller</b> - 
+		<b>Cassette Jump Fix Controller</b> -
 		A controller entity that makes it impossible to get extra liftspeed from jumping against an appearing Cassette Block.
 	</li>
 	<li>
-		<b>Attached Wall Booster</b> - 
+		<b>Attached Wall Booster</b> -
 		A wall booster that can be attached to a moving solid.
 	</li>
 	<li>
-		<b>Crystal Heart Shards</b> - 
+		<b>Crystal Heart Shards</b> -
 		A crystal heart which is broken into pieces to can be scattered around a room, requiring the player to dash into each piece individually, in order for the heart to reform at a specified location, and allow proper collection. 
 		Also ships with a plugin for a sharded version of the <b>AdventureHelper Custom Heart</b>, which requires <a href="https://gamebanana.com/gamefiles/9807">Adventure Helper v.1.4.4</a> or higher. 
 		If you don't have it installed, this plugin will not show up. 
 	</li>
 	<li>
-		<b>Summit Gems</b> and <b>Summit Gem Manager</b> - 
-		<b>Summit Gems</b> that you can actually use for your map/campaign. 
+		<b>Summit Gems</b> and <b>Summit Gem Manager</b> -
+		<b>Summit Gems</b> that you can actually use for your map/campaign.
 		The <b>Summit Gem Manager</b> entity is placed in the room where it checks if all the specified gems are collected, and moves the Crystal Heart in the room to its own position, with an optional offset. 
-		Two additional custom gem texture/sound options are included, 
+		Two additional custom gem texture/sound options are included,
 		Also works with <a href="https://gamebanana.com/gamefiles/9807">Adventure Helper</a> Custom Hearts, and <a href="https://gamebanana.com/gamefiles/12784">CollabUtils</a> MiniHearts.
 	</li>
 	<li>
-		<b>Move Block Redirect</b> - 
+		<b>Move Block Redirect</b> -
 		An entity that defines an area and a cardinal direction, and if a <b>Move Block</b> enters the said area, will redirect it to move in the specified direction. 
 		For a Move Block and a <b>Move Block Redirect</b> to properly interact, they must have the <i>same width and height</i>, and redirection will only occur once the block fully overlaps with the area. 
 		The Move Block will normally change direction after a short animation, but there is also the option for a <i>"fast redirect"</i>, which will cause the block to immediately change direction without an animation.
 		You can edit the Move Block speed's by using the <i>"modifier"</i> attribute. You can make it add, subtract or multiply the speed by that modifier by selection your <i>"operation"</i> type. The Move Block speed cannot go under 10.
 		Finally, you can also make it not redirect the block, but break it instead, using the <i>"deleteBlock"</i> attribute! There is also a <i>"oneUse"</i> mode if you need it. 
+		Reskinning and recoloring options have been to this entity in 1.9.0.
 	</li>
 	<li>
-		<b>Timed Trigger Spikes</b> - 
+		<b>Timed Trigger Spikes</b> -
 		Basically the same as regular Trigger Spikes, but coming off withing a specified amount of time.
 		They also support a <i>"grouping"</i> attribute, which requires <a href="https://gamebanana.com/gamefiles/11423">max480's Helping Hand</a>, 
 		and a <i>"rainbow"</i> attribute that requires <a href="https://gamebanana.com/gamefiles/12484">Viv's Helper</a>.
 	</li>
 	<li>
-		<b>Move Swap Block</b> - 
+		<b>Move Swap Block</b> -
 		You get it; A Swap Block that'll travel in a specified direction when interacted with. 
 		It can swap positions even when it's travelling, and steering can be enabled. Basically Move Block × Swap Block!
 	</li>
 	<li>
-		<b>Reset State Crystal</b> - 
+		<b>Reset State Crystal</b> -
 		This refill entity will put you back in the default player state when you collect it, essentially getting kicked out of your previous state. 
 		For example, collecting it while being in the feather state will just turn you back to the simple player state.
 	</li>
 	<li>
-		<b>Shielded Refill</b> - 
+		<b>Shielded Refill</b> -
 		Simple green and pink refills that need to be dashed into to be collected, since they're in a bubble. 
 		Not dashing will bounce you off, without regiving you any dash. 
 		You can untick the <i>"bubble repell"</i> mode, and instead of getting bounced off, you'll just go through the bubble, without collecting anything.
 	</li>
 	<li>
-		<b>Melvin</b> - 
+		<b>Melvin</b> -
 		It's a Kevin-like entity, but it wants to kill you. It's completely static, but looks for you on all four sides, until it finds you, no matter how far away you are. When it sees you, it'll basically "dash-attack" towards you, like a Kevin does. Don't worry, it can't see you if you're behind tiles or basically anything that's solid.
 		Seeker Barriers can act as a spot to hide for you, but on top of that, Melvins can't go through them. Use it to your advantage! 
 		You can dash into it like a Kevin, but only on its "weak" sides, which appear red-open. You can select which sides are weak using the <i>"weakTop"</i>, <i>"weakBottom"</i>, <i>"weakLeft"</i> and <i>"weakRight"</i> attributes.
@@ -139,13 +143,52 @@ The current list of included mechanics:
 		The <i>"hidePath"</i> option allows you to hide the segment path of the booster, revealing it when the bubble is entered, which will play an alternative audio sound with a cue. 
 	</li>
 	<li>
-		<b>Player Bubble Region</b> - 
+		<b>Player Bubble Region</b> -
 		A rectangular region that will put the player entering it into the bubble state and move it back to a defined node, following the path of a curve (with a control node).
 	</li>
 	<li>
-		<b>Music Param Trigger</b> - 
+		<b>Chain</b> -
+		This entity is a decorative chain that can be attached to moving or static solids, or not. If both ends are not attached, the chain will immediately disappear. The <i>"extraJoints"</i> option will allow you to make the chain longer without changing the distance between the two ends.
+	</li>
+	<li>
+		<b>Chained Falling Block</b> -
+		This is a regular falling block that will be restrained to fall a maximum distance, specified by the <i>"fallDistance"</i> parameter. The block is visually held by two chains, however you can set it to one chain by ticking on <i>"centeredChain"</i> option, and the <i>"chainOutline"</i> option will let you set whether the chains should have a black outline.
+		There is an indicator that will appear as a black, transparent rectangle covering the area that the block will be able to fall in, and show where it'll stop. You can turn it off by disabling <i>"indicator"</i>. If you wish the indicator to be visible before the block is triggered, enable <i>"indicatorAtStart"</i>.
+		<b>Dream Falling Blocks</b> also support this mechanic.
+	</li>
+	<li>
+		<b>Chained Kevin</b> -
+		This is a one-sided kevin that is constrained to travel a maximum distance, specified by the <i>"chainLength"</i> parameter. This Kevin can only travel in one direction. Like <b>Chained Falling Blocks</b>, you can also use the <i>"chainOutline"</i> and <i>"centeredChain"</i> options.
+	</li>
+	<li>
+		<b>Dream Jellyfish</b> -
+		This is basically the same as regular jellyfishes, but has the dream block appearance, meaning that you can dreamdash through them. You can dash through them while grabbing them, by dashing in one of the three up directions (up or diagonally up), and still regrab it after dreamdashing through it by holding grab. Once you dreamdash through them, you need to let it touch the ground, hit a spring, or do it yourself for it to refill.
+	</li>
+	<li>
+		<b>Railed Move Block</b> -
+		Basically Move Block × Zip Mover. To clarify: this move block is meant to stay on a zip mover track, and only a player can move it by grabbing one of its sides and looking in certain directions. There are different steering modes, which will affect which side you need to grab / stand on to move the block. The horizontal mode will allow you to steer the block by grabbing the left or right side of it and looking left or right. The vertical mode will allow you to do the same by standing on the top side and looking up or crouching. The both mode turns on all three sides. With Xaphan Helper's Magnetic Ceilings, you can grab the bottom as well, and it acts like the top.
+	</li>
+	<li>
+		<b>Underwater Music Controller</b> -
+		This little controller entity will let you disable the underwater music "muffling" (lowpass). You can also make it not affect the player dash SFX.
+	</li>
+	<li>
+		<b>Core Mode Music Controller</b> -
+		This entity allows you to set a specified list or event parameters to be changed on specified values, depending on the current level's core mode. You can specify parameters using the <i>"params"</i> option, which is a comma-separated list of parameters. Each parameter will be set to one of three values (one for each core mode), which you can change with the <i>"hot"</i>, <i>"cold"</i> and <i>"none"</i> options.
+		The <i>"disable"</i> option makes every controller with the same specified parameters (in order), and disables completely. 
+	</li>
+	<li>
+		<b>Music Param Trigger</b> -
 		A trigger that sets one or more FMOD parameters of the music event to a specific value when entering it. When leaving the trigger, the parameters are set to another specified value.
 		Used to manipulate audio effects only when you are standing in the trigger.
+	</li>
+    <li>
+       <b>No Overlay Watch Tower</b> - 
+       It's a regular watchtower, but it doesn't scale the screen down, and doesn't show any arrow or UI. 
+    </li>
+    <li>
+		<b>Sound Area Trigger</b> -
+		This trigger takes in an audio event name and plays it, but makes it only heard when the player is staying inside the trigger. This only works with looping events, as one shot events will not be looped.
 	</li>
 </ul>
 <br/><br/>
@@ -153,6 +196,6 @@ To use this helper as part of your map, put the text below into the <code>Depend
 <br/>
 <pre>
 - Name: CommunalHelper
-  Version: 1.8.4
+  Version: 1.9.7
 </pre>
 <br/><br/>

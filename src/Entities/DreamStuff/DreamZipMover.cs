@@ -26,7 +26,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private MTexture cross;
 
         public DreamZipMover(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below")) {
+            : base(data, offset) {
             start = Position;
             targets = new Vector2[data.Nodes.Length];
             points = new Vector2[data.Nodes.Length + 1];
@@ -150,7 +150,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     to = targets[i];
 
                     // Start shaking.
-                    sfx.Play(CustomSFX.game_connectedZipMover_dream_zip_mover_start);
+                    sfx.Play(CustomSFX.game_dreamZipMover_start);
                     Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                     StartShaking(0.1f);
                     yield return 0.1f;
@@ -164,8 +164,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         yield return null;
                         at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
                         if (at2 > impactSoundOffset && !playedFinishSound) {
+                            Audio.Play(CustomSFX.game_dreamZipMover_impact, Center);
                             playedFinishSound = true;
-                            Audio.Play(CustomSFX.game_connectedZipMover_dream_zip_mover_arrived, Center);
                         }
                         percent = Ease.SineIn(at2);
                         Vector2 vector = Vector2.Lerp(from, to, percent);
@@ -200,7 +200,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             if (tickTime >= 1.0f) {
                                 tickTime = 0.0f;
                                 tickNum++;
-                                Audio.Play(CustomSFX.game_connectedZipMover_dream_zip_mover_tick, Center);
+                                Audio.Play(CustomSFX.game_dreamZipMover_tick, Center);
                                 StartShaking(0.1f);
                             }
                         }
@@ -230,7 +230,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             // Goes back to start with a speed that is four times slower.
                             StopPlayerRunIntoAnimation = false;
                             //streetlight.SetAnimationFrame(2);
-                            sfx.Play(CustomSFX.game_connectedZipMover_dream_zip_mover_return);
+                            sfx.Play(CustomSFX.game_dreamZipMover_return);
                             at2 = 0f;
                             bool playedFinishSound = false;
                             while (at2 < 1f) {
@@ -238,7 +238,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                 at2 = Calc.Approach(at2, 1f, 0.5f * Engine.DeltaTime);
                                 if (at2 > impactSoundOffset && !playedFinishSound) {
                                     playedFinishSound = true;
-                                    Audio.Play(CustomSFX.game_connectedZipMover_dream_zip_mover_finish, Center);
+                                    Audio.Play(CustomSFX.game_dreamZipMover_finish, Center);
                                 }
                                 percent = 1f - Ease.SineIn(at2);
                                 Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
@@ -260,7 +260,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                     // Done, will never be activated again.
                     StartShaking(0.3f);
-                    Audio.Play(CustomSFX.game_connectedZipMover_dream_zip_mover_tick, Center);
+                    Audio.Play(CustomSFX.game_dreamZipMover_tick, Center);
                     SceneAs<Level>().Shake(0.15f);
                     //streetlight.SetAnimationFrame(0);
                     while (true) {

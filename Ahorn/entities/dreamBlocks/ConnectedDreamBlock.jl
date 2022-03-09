@@ -2,17 +2,9 @@ module CommunalHelperConnectedDreamBlock
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
-@mapdef Entity "CommunalHelper/ConnectedDreamBlock" ConnectedDreamBlock(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool=false,
-    oneUse::Bool=false,
-    refillCount::Integer=-1,
-    below::Bool=false,
-)
+@mapdefdata Entity "CommunalHelper/ConnectedDreamBlock" ConnectedDreamBlock CustomDreamBlockData
 
 const placements = Ahorn.PlacementDict(
     "Connected Dream Block (Normal) (Communal Helper)" => Ahorn.EntityPlacement(

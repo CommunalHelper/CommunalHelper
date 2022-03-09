@@ -185,7 +185,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             ILCursor cursor = new ILCursor(il);
             cursor.GotoNext(MoveType.After, instr => instr.MatchLdfld<Player>("onGround"));
             cursor.Emit(cursor.Next.OpCode, cursor.Next.Operand);
-            cursor.Emit(OpCodes.Ldsfld, typeof(DreamTunnelDash).GetField("dreamTunnelDashAttacking", BindingFlags.NonPublic | BindingFlags.Static));
+            cursor.Emit(OpCodes.Ldsfld, typeof(DreamTunnelDash).GetField(nameof(dreamTunnelDashAttacking), BindingFlags.NonPublic | BindingFlags.Static));
             cursor.Next.OpCode = OpCodes.Brtrue;
         }
 
@@ -468,7 +468,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                         }
                     }
 
-                    CheckDreamBlock:
+                CheckDreamBlock:
                     if (dashedIntoDreamBlock) {
                         if (new DynData<DreamBlock>(block).Get<bool>("playerHasDreamDash"))
                             player.Die(-dir);

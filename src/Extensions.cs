@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Monocle;
 using MonoMod.Utils;
 using System;
@@ -87,6 +88,23 @@ namespace Celeste.Mod.CommunalHelper {
             return list;
         }
 
+        public static MethodInfo GetMethod(this Type type, string name, BindingFlags bindingAttr, bool throwOnNull = false) {
+            var method = type.GetMethod(name, bindingAttr);
+            if (throwOnNull && method is null)
+                throw new NullReferenceException($"Could not find method {name} in type {type.FullName}");
+            return method;
+        }
+
+        public static MethodInfo GetMethod(this Type type, string name, Type[] types, bool throwOnNull = false) {
+            var method = type.GetMethod(name, types);
+            if (throwOnNull && method is null)
+                throw new NullReferenceException($"Could not find method {name}({string.Join<Type>(",", types)}) in type {type.FullName}.");
+            return method;
+        }
+
+        public static string GetFullName(this MethodInfo method)
+            => $"{method.DeclaringType}.{method.Name}";
+
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
 
         internal static bool CelesteTASLoaded;
@@ -133,15 +151,13 @@ namespace Celeste.Mod.CommunalHelper {
             return CollabUtilsLoaded ? (Entity) m_FindFirst_MiniHeart.Invoke(list, new object[] { }) : null;
         }
 
+        public static bool SatisfiesDependency(EverestModuleMetadata meta, EverestModuleMetadata dependency) =>
+            meta.Name == dependency.Name && Everest.Loader.VersionSatisfiesDependency(meta.Version, dependency.Version);
+
         // Modified version of Everest.Loader.DependencyLoaded
         public static bool TryGetModule(EverestModuleMetadata meta, out EverestModule module) {
             foreach (EverestModule other in Everest.Modules) {
-                EverestModuleMetadata otherData = other.Metadata;
-                if (otherData.Name != meta.Name)
-                    continue;
-
-                Version version = otherData.Version;
-                if (Everest.Loader.VersionSatisfiesDependency(meta.Version, version)) {
+                if (SatisfiesDependency(meta, other.Metadata)) {
                     module = other;
                     return true;
                 }
@@ -177,7 +193,7 @@ namespace Celeste.Mod.CommunalHelper {
                 return true;
             return false;
         }
-
+        
         // Sort of the inverse of CollideCheckOutside
         public static bool CollideCheckOutsideInside(this Entity self, Entity other, Vector2 at) {
             if (Collide.Check(self, other))
@@ -369,5 +385,18 @@ namespace Celeste.Mod.CommunalHelper {
             return pos;
         }
 
+        public static void DrawOutlineOnlyCentered(this MTexture mTexture, Vector2 position, Vector2 scale, float rotation) {
+            float scaleFix = mTexture.ScaleFix;
+            scale *= scaleFix;
+            Rectangle clipRect = mTexture.ClipRect;
+            Vector2 origin = (mTexture.Center - mTexture.DrawOffset) / scaleFix;
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (i != 0 || j != 0) {
+                        Draw.SpriteBatch.Draw(mTexture.Texture.Texture_Safe, position + new Vector2(i, j), clipRect, Color.Black, rotation, origin, scale, SpriteEffects.None, 0f);
+                    }
+                }
+            }
+        }
     }
 }

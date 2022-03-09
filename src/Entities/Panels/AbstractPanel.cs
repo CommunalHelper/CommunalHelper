@@ -24,10 +24,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected StaticMover staticMover;
 
-        protected DashCollision platformDashCollide;
-
-        protected bool overrideSoundIndex;
-        protected int surfaceSoundIndex;
+        protected int? surfaceSoundIndex = null;
 
         public Vector2 Start => new Vector2(
                 X + (Orientation is Directions.Right or Directions.Down ? Width : 0),
@@ -41,6 +38,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public float Alpha = 1f;
 
         protected Level level;
+
+        public AbstractPanel(EntityData data, Vector2 offset)
+            : this(data.Position + offset, GetSize(data, data.Enum<Directions>("orientation")), data.Enum<Directions>("orientation"), data.Bool("overrideAllowStaticMovers")) { }
 
         public AbstractPanel(Vector2 position, float size, Directions orientation, bool overrideAllowStaticMovers)
             : base(position) {
@@ -62,18 +62,29 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 OnDisable = () => Active = Visible = Collidable = false,
                 OnDestroy = Destroy
             });
-
-            overrideSoundIndex = true;
-            surfaceSoundIndex = SurfaceIndex.DreamBlockInactive;
         }
 
         protected virtual void OnAttach(Platform platform) {
-            platformDashCollide = platform.OnDashCollide;
-            platform.OnDashCollide = OnDashCollide;
+            platform.OnDashCollide = DelegateHelper.ApplyDashCollisionHook(platform.OnDashCollide, OnDashCollide);
         }
 
-        protected virtual DashCollisionResults OnDashCollide(Player player, Vector2 dir) {
-            return platformDashCollide?.Invoke(player, dir) ?? DashCollisionResults.NormalCollision;
+        /// <summary>
+        /// Does not check dash direction or direct collision with the Panel.
+        /// Use CheckDashCollision as needed.
+        /// </summary>
+        protected virtual DashCollisionResults OnDashCollide(DashCollision orig, Player player, Vector2 dir) {
+            return orig(player, dir);
+        }
+
+        protected bool CheckDashCollision(Player player, Vector2 dir) {
+            switch (Orientation) {
+                case Directions.Up when dir.Y > 0:
+                case Directions.Down when dir.Y < 0:
+                case Directions.Left when dir.X > 0:
+                case Directions.Right when dir.X < 0:
+                return player.CollideCheck(this, player.Position + dir);
+            }
+            return false;
         }
 
         // Make sure at least one side aligns, and the rest are contained within the solid
@@ -95,7 +106,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Awake(Scene scene) {
             base.Awake(scene);
 
-            if (overrideAllowStaticMovers) {
+            if (overrideAllowStaticMovers && staticMover.Platform is null) {
                 foreach (Entity entity in scene.GetEntitiesByTagMask(Tags.Global | Tags.Persistent)) {
                     if (entity is Solid solid && entity.Scene == scene) {
                         ForceAttachStaticMovers(solid, scene);
@@ -122,16 +133,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public override void Removed(Scene scene) {
-            if (staticMover.Platform != null && (staticMover.Platform.TagCheck(Tags.Global) || staticMover.Platform.TagCheck(Tags.Persistent))) {
-                List<StaticMover> movers = new DynData<Platform>(staticMover.Platform).Get<List<StaticMover>>("staticMovers");
-                // Iterate backwards so we can remove stuff
-                for (int i = movers.Count - 1; i >= 0; i--) {
-                    if (movers[i].Entity is AbstractPanel panel) {
-                        movers[i].Platform.OnDashCollide = panel.platformDashCollide;
-                        movers.RemoveAt(i);
-                    }
-                }
-            }
+            if (staticMover.Platform is not null && (staticMover.Platform.TagCheck(Tags.Global) || staticMover.Platform.TagCheck(Tags.Persistent)))
+                DelegateHelper.RemoveDashCollisionHook(staticMover.Platform.OnDashCollide, OnDashCollide);
+
             base.Removed(scene);
         }
 
@@ -146,26 +150,37 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.DashBlock.Break_Vector2_Vector2_bool_bool += DashBlock_Break_Vector2_Vector2_bool_bool;
 
             DreamTunnelEntry.Load();
+            FrictionlessPanel.Load();
+            BouncyPanel.Load();
+        }
+
+        static HashSet<string> hooked = new();
+
+        private static void LogHooked(string fullname) {
+            if (!hooked.Contains(fullname)) {
+                Logger.Log(LogLevel.Info, "CommunalHelper", $"Hooking {fullname} to override when AbstractPanel present.");
+                hooked.Add(fullname);
+            }
         }
 
         internal static void LoadDelayed() {
             // Land and Step sound are identical
-            MethodInfo Platform_GetLandOrStepSoundIndex = typeof(AbstractPanel).GetMethod("Platform_GetLandOrStepSoundIndex", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodInfo Platform_GetLandOrStepSoundIndex = typeof(AbstractPanel).GetMethod(nameof(AbstractPanel.Platform_GetLandOrStepSoundIndex), BindingFlags.NonPublic | BindingFlags.Static);
             foreach (MethodInfo method in typeof(Platform).GetMethod("GetLandSoundIndex").GetOverrides(true)) {
-                Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when AbstractPanel present.");
+                LogHooked(method.GetFullName());
                 hook_Platform_GetLandOrStepSoundIndex.Add(
                     new Hook(method, Platform_GetLandOrStepSoundIndex)
                 );
             }
             foreach (MethodInfo method in typeof(Platform).GetMethod("GetStepSoundIndex").GetOverrides(true)) {
-                Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when AbstractPanel present.");
+                LogHooked(method.GetFullName());
                 hook_Platform_GetLandOrStepSoundIndex.Add(
                     new Hook(method, Platform_GetLandOrStepSoundIndex)
                 );
             }
-            MethodInfo Platform_GetWallSoundIndex = typeof(AbstractPanel).GetMethod("Platform_GetWallSoundIndex", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodInfo Platform_GetWallSoundIndex = typeof(AbstractPanel).GetMethod(nameof(AbstractPanel.Platform_GetWallSoundIndex), BindingFlags.NonPublic | BindingFlags.Static);
             foreach (MethodInfo method in typeof(Platform).GetMethod("GetWallSoundIndex").GetOverrides(true)) {
-                Logger.Log(LogLevel.Info, "Communal Helper", $"Hooking {method.DeclaringType}.{method.Name} to override when AbstractPanel present.");
+                LogHooked(method.GetFullName());
                 hook_Platform_GetWallSoundIndex.Add(
                     new Hook(method, Platform_GetWallSoundIndex)
                 );
@@ -181,12 +196,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.DashBlock.Break_Vector2_Vector2_bool_bool -= DashBlock_Break_Vector2_Vector2_bool_bool;
 
             DreamTunnelEntry.Unload();
+            FrictionlessPanel.Unload();
+            BouncyPanel.Unload();
         }
 
         private static int Platform_GetLandOrStepSoundIndex(Func<Platform, Entity, int> orig, Platform self, Entity entity) {
             foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers")) {
-                if (sm.Entity is AbstractPanel panel && panel.overrideSoundIndex && panel.Orientation == Directions.Up && entity.CollideCheck(panel, entity.Position + Vector2.UnitY)) {
-                    return panel.surfaceSoundIndex;
+                if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null && panel.Orientation == Directions.Up && entity.CollideCheck(panel, entity.Position + Vector2.UnitY)) {
+                    return (int) panel.surfaceSoundIndex;
                 }
             }
             return orig(self, entity);
@@ -194,12 +211,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static int Platform_GetWallSoundIndex(Func<Platform, Player, int, int> orig, Platform self, Player player, int side) {
             foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers")) {
-                if (sm.Entity is AbstractPanel panel && panel.overrideSoundIndex) {
+                if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null) {
                     if (side == (int) Facings.Left && panel.Orientation == Directions.Right && player.CollideCheck(panel, player.Position - Vector2.UnitX)) {
-                        return panel.surfaceSoundIndex;
+                        return (int) panel.surfaceSoundIndex;
                     }
                     if (side == (int) Facings.Right && panel.Orientation == Directions.Left && player.CollideCheck(panel, player.Position + Vector2.UnitX)) {
-                        return panel.surfaceSoundIndex;
+                        return (int) panel.surfaceSoundIndex;
                     }
                 }
             }
@@ -219,7 +236,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             DynData<Solid> solidData = null;
             foreach (AbstractPanel panel in scene.Tracker.GetEntities<AbstractPanel>()) {
                 StaticMover staticMover = panel.staticMover;
-                if (staticMover.Entity is AbstractPanel && panel.overrideAllowStaticMovers && staticMover.Platform == null && staticMover.IsRiding(solid)) {
+                if (panel.overrideAllowStaticMovers && staticMover.Platform == null && staticMover.IsRiding(solid)) {
                     solidData ??= new DynData<Solid>(solid);
                     solidData.Get<List<StaticMover>>("staticMovers").Add(staticMover);
                     staticMover.Platform = solid;

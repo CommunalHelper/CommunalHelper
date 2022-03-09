@@ -2,20 +2,14 @@ module CommunalHelperDreamMoveBlock
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
-@mapdef Entity "CommunalHelper/DreamMoveBlock" DreamMoveBlock(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
+const entityData = appendkwargs(CustomDreamBlockData, :(
     direction::String="Right",
     moveSpeed::Number=60.0,
     noCollide::Bool=false,
-    featherMode::Bool=false,
-    oneUse::Bool=false,
-    refillCount::Integer=-1,
-    below::Bool=false,
-)
+))
+@mapdefdata Entity "CommunalHelper/DreamMoveBlock" DreamMoveBlock entityData
 
 const placements = Ahorn.PlacementDict(
     "Dream Move Block ($direction) (Communal Helper)" => Ahorn.EntityPlacement(

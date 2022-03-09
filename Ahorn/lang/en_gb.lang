@@ -91,6 +91,12 @@ placements.entities.CommunalHelper/DreamFallingBlock.tooltips.oneUse=Whether the
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.refillCount=Number of dashes the Dream Falling Block should refill (-1 for default).
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.below=Determines whether the Dream Falling Block should render in the background or foreground.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.noCollide=Whether the Dream Falling Block should go through everything.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.centeredChain=Renders only one chain at the horizontal center of this block.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.chainOutline=Whether the chain of this block should have a black outline.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
+
 
 # -- Dream Move Block --
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
@@ -188,6 +194,13 @@ placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.deleteBlock=Breaks
 placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.operation=The type of operation to apply to the current Move Block speed.
 placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.modifier=The number which with the operation is applied to the Move Block speed.
 placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.oneUse=Whether this Move Block Redirect can only be used once or not.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.reskinFolder=The path to the folder containing custom sprites required for this entity's reskinning. This folder can contain up to 5 files used in code, unless they aren't found which will cause the entity to use the default one.\n\nHere is a list of the files you'd want to have in the folder:\n\n- "block.png" is the outline of the redirect entity. It's 3 tiles wide and tall (24 x 24).\n\n- "arrow.png" is the icon shown for simple redirects, when speed is unaffected.\n\n- "x.png" is the icon shown for delete mode redirects.\n\n- "fast.png" and "slow.png" are the icons shown for redirects that increase or decrease speed respectively.\n\n\nPlease note that these images will be recolored in-game and so they must preferably be close to white/grayscale. If you want to use any color, you can set the Override Color and Overrde Used Color to ffffff, so that the colors are not affected.
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.overrideColor=The hexadecimal color code that, if set, replaces whatever color the block originally has. Must not include the hash (#) symbol!
+placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.overrideUsedColor=The hexadecimal color code that, if set, replaces whatever color the block originally has when it's being used. Must not include the hash (#) symbol!
+
+# -- Railed Move Block --
+placements.entities.CommunalHelper/RailedMoveBlock.tooltips.steeringMode=Represents the way in which you can steer the block using the side buttons.\n\n- "Horizontal" will enable buttons on the left and right side of the block.\n- "Vertical" will enable one button at the top of the block.\n- "Both" will enable the two above.
+placements.entities.CommunalHelper/RailedMoveBlock.tooltips.speed=The maximum speed this block can go at.
 
 
 # -- Shielded Refill --
@@ -215,9 +228,12 @@ placements.entities.CommunalHelper/StationBlock.tooltips.dashCornerCorrection=Ma
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.multiBlockTrack=Whether this set of tracks can support more than one Station Block.
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.horizontal=Whether the track should be handled as a horizontal one.
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.trackSwitchState=The starting state of the track. "None" will make it unswitchable. "On" will make it turned on by defaul, and "Off" will make it turned off.
+placements.entities.CommunalHelper/StationBlockTrack.tooltips.moveMode=This option will determine the behaviour of blocks sitting on this track.\n\n\n- "None" : Changes nothing.\n\n -"ForwardOneWay" : Makes blocks only able to travel along this track if they're moving RIGHT or DOWN.\n\n -"BackwardOneWay" : Makes blocks only able to travel along this track if they're moving LEFT or UP.\n\n -"ForwardForce" : If any block can travel along this track in the RIGHT or DOWN direction, they will be force to. Behaviour from "ForwardOneWay" also applies here.\n\n -"BackwardForce" : If any block can travel along this track in the LEFT or UP direction, they will be force to. Behaviour from "BackwardOneWay" also applies here.
 
 # -- Track Switch Box --
 placements.entities.CommunalHelper/TrackSwitchBox.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+placements.entities.CommunalHelper/TrackSwitchBox.tooltips.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
+placements.entities.CommunalHelper/TrackSwitchBox.tooltips.bounce=Whether the box should bounce away from the player when dashed into.
 
 
 # -- Summit Gem --
@@ -254,18 +270,22 @@ placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Delay=The delay
 placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
 
 
 # -- Input Flag Controller --
@@ -284,6 +304,39 @@ placements.entities.CommunalHelper/DreamBooster.tooltips.hidePath=Hides the path
 placements.entities.CommunalHelper/SurfaceSoundPanel.tooltips.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
 
 
+# -- Chained Falling Block --
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.tiletype=Changes the visual appearance of this block.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.climbFall=Whether the block should start falling when the player is climbing it.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.behind=Whether this entity should appear farther behind in the scene or not.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.centeredChain=Renders only one chain at the horizontal center of this block.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.chainOutline=Whether the chain of this block should have a black outline.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
+
+# -- Chained Kevin
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chillout=Whether the block should have the large face and get tired after being hit.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.direction=The only direction in which this block will travel.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chainOutline=Whether the chain of this block should have a black outline.
+
+
+# -- Underwater Music Controller --
+placements.entities.CommunalHelper/UnderwaterMusicController.tooltips.enable=Whether to always enable or always disable underwater sound modifiers.
+placements.entities.CommunalHelper/UnderwaterMusicController.tooltips.dashSFX=Whether to also affect the additional in-water dash sound effect.
+
+# -- Core Mode Music Controller --
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.params=A list of parameters to change depending on the level's core mode (separated by the comma character ',').
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.hot=The values to which the parameters will be set when the core mode is "Hot".
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.cold=The values to which the parameters will be set when the core mode is "Cold".
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.none=The values to which the parameters will be set when the core mode is "None".
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.disable=If this is ticked on, this controller will look for every controller with the same parameter list (in order), and disable it (remove it). It also removes itself afterwards. 
+
+# -- No Overlay Watch Tower --
+placements.entities.CommunalHelper/NoOverlayLookout.tooltips.summit=Whether the watch tower should zoom on the final node or not. Requires nodes to function, otherwise game will crash.
+placements.entities.CommunalHelper/NoOverlayLookout.tooltips.onlyY=Whether the watch tower can only move vertically. If the watch tower has nodes it will still follow CommunalHelper/NoOverlayLookout
+
+
 # -- Triggers --
 
 # -- Music Param Trigger --
@@ -296,3 +349,6 @@ placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.oneUse=Allows for
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.flash=Whether the screen should flash and shake when triggered.
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)
+
+# -- Sound Area Trigger --
+placements.triggers.CommunalHelper/SoundAreaTrigger.tooltips.event=The name of the audio event that plays inside the trigger.

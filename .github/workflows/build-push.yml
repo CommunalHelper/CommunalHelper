@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - '*'
+    pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Download Everest stripped lib
+      uses: coloursofnoise/get-azure-pipelines-artifact@v0.0.3
+      with:
+        repository: EverestAPI/Everest
+        definitionId: 3
+        artifact: lib-stripped
+        reasonFilter: 'individualCI'
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    - name: Restore with .NET Core
+      run: dotnet restore
+
+    - name: Build with .NET Core
+      run: dotnet build "/p:Configuration=Debug"
+      env:
+        CELESTEGAMEPATH: ${{ github.workspace }}/lib-stripped
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: main
+        path: src/bin/Debug/net452
