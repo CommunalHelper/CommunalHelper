@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
+﻿using Celeste.Mod.CommunalHelper.DashStates;
+using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -39,8 +40,9 @@ namespace Celeste.Mod.CommunalHelper {
             RegisterOptionalDependencies();
             Everest.Events.Everest.OnRegisterModule += OnRegisterModule;
 
+            DashStateRefill.Load();
             DreamTunnelDash.Load();
-            DreamRefill.Load();
+            SeekerDash.Load();
 
             DreamBlockDummy.Load();
 
@@ -84,14 +86,16 @@ namespace Celeste.Mod.CommunalHelper {
 
             Everest.Events.Everest.OnRegisterModule -= OnRegisterModule;
 
+            DashStateRefill.Unload();
             DreamTunnelDash.Unload();
-            DreamRefill.Unload();
-            AbstractPanel.Unload();
+            SeekerDash.Unload();
+
             DreamBlockDummy.Unload();
 
             CustomDreamBlock.Unload();
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
+            AbstractPanel.Unload();
             DreamDashCollider.Unload();
 
             ConnectedSwapBlockHooks.Unhook();
@@ -138,8 +142,9 @@ namespace Celeste.Mod.CommunalHelper {
             StationBlockTrack.InitializeTextures();
             TrackSwitchBox.InitializeParticles();
 
-            DreamTunnelDash.LoadContent();
-            DreamRefill.InitializeParticles();
+            DreamTunnelRefill.InitializeParticles();
+            DreamTunnelDash.InitializeParticles();
+
             DreamMoveBlock.InitializeParticles();
             DreamSwitchGate.InitializeParticles();
 

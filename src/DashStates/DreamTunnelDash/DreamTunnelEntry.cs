@@ -10,7 +10,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using static Celeste.Mod.CommunalHelper.Entities.DreamTunnelDash;
+using static Celeste.Mod.CommunalHelper.DashStates.DreamTunnelDash;
 
 /*
 * Slow routine: Particles spray out from each end diagonally, moving inwards
