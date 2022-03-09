@@ -88,6 +88,9 @@ namespace Celeste.Mod.CommunalHelper {
             return list;
         }
 
+        public static string GetFullName(this MethodInfo method)
+            => $"{method.DeclaringType}.{method.Name}";
+
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
 
         internal static bool CelesteTASLoaded;
@@ -178,7 +181,7 @@ namespace Celeste.Mod.CommunalHelper {
                 return true;
             return false;
         }
-
+        
         // Sort of the inverse of CollideCheckOutside
         public static bool CollideCheckOutsideInside(this Entity self, Entity other, Vector2 at) {
             if (Collide.Check(self, other))
