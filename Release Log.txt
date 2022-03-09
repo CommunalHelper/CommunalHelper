@@ -1,8 +1,13 @@
---upcoming (??/??/????)--
+--1.10.0 (09/03/2022)--
+* Added SeekerDash
+* Added DashStateTrigger
 * Added Frictionless Panel
 * Added DashCollision Panel
 * Added Bouncy Panel
+* Added DreamTunnel FeatherMode preview
 * Fix overrideAllowStaticMovers attribute on panels
+* Properly detect late-loaded optional dependencies
+* Added wiki for in-depth documentation
 
 --1.9.8 (24/01/2022)--
 * Added TriggerAlways option to timed trigger spikes.
