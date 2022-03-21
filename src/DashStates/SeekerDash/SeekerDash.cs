@@ -274,7 +274,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                     Audio.Play(SFX.game_05_seeker_impact_lightwall, self.Position);
                     return DashCollisionResults.Bounce;
                 }
-                return DashCollisionResults.Ignore;
+                return DashCollisionResults.NormalOverride;
             });
         }
 
