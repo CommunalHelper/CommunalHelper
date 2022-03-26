@@ -5,11 +5,27 @@ local utils = require("utils")
 
 local cassetteSwapBlock = {}
 
+local colorNames = {
+    ["0 - Blue"] = 0,
+    ["1 - Rose"] = 1,
+    ["2 - Bright Sun"] = 2,
+    ["3 - Malachite"] = 3
+}
+
+local colors = {
+    "49aaf0",
+    "f049be",
+    "fcdc3a",
+    "38e04e",
+}
+
 cassetteSwapBlock.name = "CommunalHelper/CassetteSwapBlock"
 cassetteSwapBlock.minimumSize = {16, 16}
 cassetteSwapBlock.nodeLimits = {1, 1}
 cassetteSwapBlock.fieldInformation = {
     index = {
+        options = colorNames,
+        editable = false,
         fieldType = "integer",
     },
     customColor = {
@@ -26,7 +42,7 @@ for i = 1, 4 do
             tempo = 1.0,
             width = 16,
             height = 16,
-            customColor = "",
+            customColor = colors[i - 1],
             noReturn = false
         }
     }

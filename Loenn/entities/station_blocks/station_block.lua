@@ -16,6 +16,14 @@ stationBlock.fieldInformation = {
     },
     wavedashButtonPressedColor = {
         fieldType = "color"
+    },
+    theme = {
+        options = themes,
+        editable = false,
+    },
+    behavior = {
+        options = behaviors,
+        editable = false,
     }
 }
 

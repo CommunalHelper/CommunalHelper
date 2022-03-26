@@ -12,10 +12,26 @@ local ropeColors = {
     {128 / 255, 224 / 255, 141 / 255, 1.0},
 }
 
+local colorNames = {
+    ["0 - Blue"] = 0,
+    ["1 - Rose"] = 1,
+    ["2 - Bright Sun"] = 2,
+    ["3 - Malachite"] = 3
+}
+
+local colors = {
+    "49aaf0",
+    "f049be",
+    "fcdc3a",
+    "38e04e",
+}
+
 cassetteZipMover.name = "CommunalHelper/CassetteZipMover"
 cassetteZipMover.minimumSize = {16, 16}
 cassetteZipMover.fieldInformation = {
     index = {
+        options = colorNames,
+        editable = false,
         fieldType = "integer",
     },
     customColor = {
@@ -38,7 +54,7 @@ for i = 1, 4 do
             waiting = false,
             ticking = false,
             noReturn = false,
-            customColor = "",
+            customColor = colors[i - 1],
         }
     }
 end

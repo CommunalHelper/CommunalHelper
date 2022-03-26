@@ -4,7 +4,13 @@ local utils = require("utils")
 local stationBlockTrack = {}
 
 local switchStates = {"None", "On", "Off"}
-local moveModes = {"None", "ForwardOneWay", "BackwardOneWay", "ForwardForce", "BackwardForce"}
+local moveModes = {
+    ["None"] = "None",
+    ["Forward ->"] = "ForwardOneWay",
+    ["Backward <-"] = "BackwardOneWay",
+    ["Force Forward >>>"] = "ForwardForce",
+    ["Force Backward <<<"] = "BackwardForce"
+}
 
 stationBlockTrack.name = "CommunalHelper/StationBlockTrack"
 stationBlockTrack.depth = -5000
@@ -16,6 +22,14 @@ stationBlockTrack.fieldInformation = {
     },
     indicatorIncomingColor = {
         fieldType = "color"
+    },
+    moveMode = {
+        options = moveModes,
+        editable = false
+    },
+    trackSwitchState = {
+        options = switchStates,
+        editable = false,
     }
 }
 
