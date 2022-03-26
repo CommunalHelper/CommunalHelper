@@ -64,10 +64,7 @@ connectedDreamBlock.placements = {
 }
 
 function connectedDreamBlock.sprite(room, entity)
-    local x, y = entity.x or 0, entity.y or 0
-    local width, height = entity.width or 8, entity.height or 8
-
-    return communalHelper.getCustomDreamBlockSprites(x, y, width, height, entity.featherMode)
+    return communalHelper.getCustomDreamBlockSpritesByEntity(entity)
 end
 
 return connectedDreamBlock

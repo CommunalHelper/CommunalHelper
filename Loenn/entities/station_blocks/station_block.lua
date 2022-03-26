@@ -59,7 +59,7 @@ local function getStationBlockThemeData(size, theme, behavior, wavedash)
     }
 end
 
-local function addBlockSprites(sprites, themeData, entity, button, x, y, w, h)
+local function addBlockSprites(sprites, themeData, button, x, y, w, h, wavedashButtonColor)
     local ninePatch = drawableNinePatch.fromTexture(themeData.block, {}, x, y, w, h)
     local blockSprites = ninePatch:getDrawableSprite()
 
@@ -69,7 +69,7 @@ local function addBlockSprites(sprites, themeData, entity, button, x, y, w, h)
 
     if button then
         local tileWidth = math.floor(w / 8) - 1
-        local color = communalHelper.hexToColor(entity.wavedashButtonColor or "ffffff")
+        local color = communalHelper.hexToColor(wavedashButtonColor)
 
         for i = 0, tileWidth do
             local tx = (i == 0 and 0) or (i == tileWidth and 16) or 8
@@ -106,10 +106,11 @@ function stationBlock.sprite(room, entity)
     local theme = string.lower(entity.theme or "Normal")
     local behavior = string.lower(entity.behavior or "Pulling")
     local wavedash = entity.allowWavedash or false
+    local wavedashButtonColor = entity.wavedashButtonColor or "ffffff"
 
     local themeData = getStationBlockThemeData(size, theme, behavior, wavedash)
 
-    addBlockSprites(sprites, themeData, entity, wavedash, x, y, width, height)
+    addBlockSprites(sprites, themeData, wavedash, x, y, width, height, wavedashButtonColor)
     addArrowSprite(sprites, themeData, entity, width, height)
 
     return sprites

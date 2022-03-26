@@ -192,5 +192,12 @@ function communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather)
     return rectangleSprite
 end
 
+function communalHelper.getCustomDreamBlockSpritesByEntity(entity)
+    local x, y = entity.x or 0, entity.y or 0
+    local width, height = entity.width or 8, entity.height or 8
+    local feather = entity.featherMode
+    return communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather)
+end
+
 
 return communalHelper
