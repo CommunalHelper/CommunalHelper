@@ -10,6 +10,9 @@ cassetteMoveBlock.minimumSize = {16, 16}
 cassetteMoveBlock.fieldInformation = {
     index = {
         fieldType = "integer",
+    },
+    customColor = {
+        fieldType = "color",
     }
 }
 

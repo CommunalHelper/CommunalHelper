@@ -7,6 +7,9 @@ cassetteFallingBlock.minimumSize = {16, 16}
 cassetteFallingBlock.fieldInformation = {
     index = {
         fieldType = "integer",
+    },
+    customColor = {
+        fieldType = "color",
     }
 }
 

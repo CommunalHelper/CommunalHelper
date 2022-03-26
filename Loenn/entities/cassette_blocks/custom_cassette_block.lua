@@ -7,6 +7,9 @@ customCassetteBlock.minimumSize = {16, 16}
 customCassetteBlock.fieldInformation = {
     index = {
         fieldType = "integer",
+    },
+    customColor = {
+        fieldType = "color",
     }
 }
 

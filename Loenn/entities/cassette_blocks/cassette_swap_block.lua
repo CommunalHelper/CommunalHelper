@@ -11,6 +11,9 @@ cassetteSwapBlock.nodeLimits = {1, 1}
 cassetteSwapBlock.fieldInformation = {
     index = {
         fieldType = "integer",
+    },
+    customColor = {
+        fieldType = "color",
     }
 }
 

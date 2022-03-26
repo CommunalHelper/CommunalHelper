@@ -17,6 +17,9 @@ cassetteZipMover.minimumSize = {16, 16}
 cassetteZipMover.fieldInformation = {
     index = {
         fieldType = "integer",
+    },
+    customColor = {
+        fieldType = "color",
     }
 }
 cassetteZipMover.nodeVisibility = "never"
