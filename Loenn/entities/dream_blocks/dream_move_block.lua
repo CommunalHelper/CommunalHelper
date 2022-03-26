@@ -1,4 +1,3 @@
-local drawableNinePatch = require("structs.drawable_nine_patch")
 local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
 local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")

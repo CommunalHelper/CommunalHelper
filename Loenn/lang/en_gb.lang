@@ -201,4 +201,17 @@ entities.CommunalHelper/DreamSwapBlock.attributes.description.oneUse=Whether the
 entities.CommunalHelper/DreamSwapBlock.attributes.description.refillCount=Number of dashes the Dream Swap Block should refill (-1 for default).
 entities.CommunalHelper/DreamSwapBlock.attributes.description.quickDestroy=Makes this Dream Swap Block shatter a little faster.
 
+# Dream Move Block
+entities.CommunalHelper/DreamMoveBlock.placements.name.dream_move_block=Dream Move Block
+entities.CommunalHelper/DreamMoveBlock.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.direction=The direction in which the Dream Move Block moves.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.refillCount=Number of dashes the Dream Move Block should refill (-1 for default).
+entities.CommunalHelper/DreamMoveBlock.attributes.description.moveSpeed=The speed at which the Dream Move Block moves (accepts any number).
+entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollide=Whether the Dream Move Block should go through everything.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.oneUse=Whether the Dream Move Block should shatter upon exit.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.quickDestroy=Makes this Dream Move Block shatter a little faster.
+
+
+
 
