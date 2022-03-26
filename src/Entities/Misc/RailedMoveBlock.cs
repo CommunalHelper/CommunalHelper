@@ -110,7 +110,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<Image> topButton = new List<Image>();
         private List<Image> leftButton = new List<Image>();
         private List<Image> rightButton = new List<Image>();
-        private bool leftPressed, rightPressed, topPressed;
+        private bool leftPressed, rightPressed, topPressed, bottomPressed;
 
         private Color fillColor = IdleBgFill;
         public static readonly Color IdleBgFill = Calc.HexToColor("474070");
@@ -251,9 +251,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
 
-            bool leftCheck = hasSideButtons && CollideCheck<Player>(Position + new Vector2(-1f, 0f));
-            bool rightCheck = hasSideButtons && CollideCheck<Player>(Position + new Vector2(1f, 0f));
-            bool topCheck = hasTopButtons && CollideCheck<Player>(Position + new Vector2(0f, -1f));
+            bool leftCheck = hasSideButtons && CollideCheck<Player>(Position - Vector2.UnitX);
+            bool rightCheck = hasSideButtons && CollideCheck<Player>(Position + Vector2.UnitX);
+            bool topCheck = hasTopButtons && CollideCheck<Player>(Position - Vector2.UnitY);
+            bool bottomCheck = hasTopButtons && CollideCheck<Player>(Position + Vector2.UnitY);
 
             foreach (Image image in topButton) {
                 image.Y = topCheck ? 2 : 0;
@@ -265,16 +266,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 image.X = Width + (rightCheck ? (-2) : 0);
             }
 
-            if ((leftCheck && !leftPressed) || (topCheck && !topPressed) || (rightCheck && !rightPressed)) {
+            if ((leftCheck && !leftPressed) || (topCheck && !topPressed) || (rightCheck && !rightPressed) || (bottomCheck && !bottomPressed)) {
                 Audio.Play(SFX.game_04_arrowblock_side_depress, Position);
             }
-            if ((!leftCheck && leftPressed) || (!topCheck && topPressed) || (!rightCheck && rightPressed)) {
+            if ((!leftCheck && leftPressed) || (!topCheck && topPressed) || (!rightCheck && rightPressed) || (!bottomCheck && bottomPressed)) {
                 Audio.Play(SFX.game_04_arrowblock_side_release, Position);
             }
 
             leftPressed = leftCheck;
             rightPressed = rightCheck;
             topPressed = topCheck;
+            bottomPressed = bottomCheck;
 
             Color newFillColor = IdleBgFill;
             showX = false;
@@ -283,11 +285,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float newSpeed = 0f;
 
                 icon = idleIcon;
-                if (hasTopButtons && GetPlayerOnTop() != null && Input.MoveY.Value != 0) {
+                if ((topPressed || bottomPressed) && HasPlayerRider() && Input.MoveY.Value != 0) {
                     newSpeed = moveSpeed * Input.MoveY.Value * (dir.Y > 0f ? 1f : -1f);
                     newFillColor = MoveBgFill;
                     icon = Input.MoveY.Value == 1 ? DownIcon : UpIcon;
-                } else if (hasSideButtons && GetPlayerClimbing() != null && Input.MoveX.Value != 0) {
+                } else if ((leftPressed || rightPressed) && HasPlayerClimbing() && Input.MoveX.Value != 0) {
                     newSpeed = moveSpeed * Input.MoveX.Value * (dir.X > 0f ? 1f : -1f);
                     newFillColor = MoveBgFill;
                     icon = Input.MoveX.Value == 1 ? RightIcon : LeftIcon;

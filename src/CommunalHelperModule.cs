@@ -1,7 +1,9 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
+﻿using Celeste.Mod.CommunalHelper.DashStates;
+using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper {
@@ -21,6 +23,8 @@ namespace Celeste.Mod.CommunalHelper {
         public static SpriteBank SpriteBank => Instance._SpriteBank;
         public SpriteBank _SpriteBank;
 
+        private static Dictionary<EverestModuleMetadata, Action<EverestModule>> optionalDepLoaders;
+        private static bool failedLoadingDeps;
 
         public static bool MaxHelpingHandLoaded { get; private set; }
         public static bool VivHelperLoaded { get; private set; }
@@ -33,8 +37,12 @@ namespace Celeste.Mod.CommunalHelper {
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand += CustomBirdTutorial_OnParseCommand;
 
+            RegisterOptionalDependencies();
+            Everest.Events.Everest.OnRegisterModule += OnRegisterModule;
+
+            DashStateRefill.Load();
             DreamTunnelDash.Load();
-            DreamRefill.Load();
+            SeekerDash.Load();
 
             DreamBlockDummy.Load();
 
@@ -53,6 +61,7 @@ namespace Celeste.Mod.CommunalHelper {
             MoveBlockRedirect.Load();
             MoveBlockRedirectable.Load();
             MoveSwapBlock.Load();
+
             AbstractInputController.Load();
             // Controller-specific hooks loaded from AbstractInputController.Load
             CassetteJumpFixController.Load();
@@ -75,14 +84,18 @@ namespace Celeste.Mod.CommunalHelper {
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand -= CustomBirdTutorial_OnParseCommand;
 
+            Everest.Events.Everest.OnRegisterModule -= OnRegisterModule;
+
+            DashStateRefill.Unload();
             DreamTunnelDash.Unload();
-            DreamRefill.Unload();
-            AbstractPanel.Unload();
+            SeekerDash.Unload();
+
             DreamBlockDummy.Unload();
 
             CustomDreamBlock.Unload();
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
+            AbstractPanel.Unload();
             DreamDashCollider.Unload();
 
             ConnectedSwapBlockHooks.Unhook();
@@ -129,8 +142,9 @@ namespace Celeste.Mod.CommunalHelper {
             StationBlockTrack.InitializeTextures();
             TrackSwitchBox.InitializeParticles();
 
-            DreamTunnelDash.LoadContent();
-            DreamRefill.InitializeParticles();
+            DreamTunnelRefill.InitializeParticles();
+            DreamTunnelDash.InitializeParticles();
+
             DreamMoveBlock.InitializeParticles();
             DreamSwitchGate.InitializeParticles();
 
@@ -149,29 +163,76 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfish.InitializeParticles();
 
             Chain.InitializeTextures();
+        }
 
+        protected override void CreateModMenuSectionHeader(TextMenu menu, bool inGame, FMOD.Studio.EventInstance snapshot) {
+            base.CreateModMenuSectionHeader(menu, inGame, snapshot);
 
-            EverestModuleMetadata moreDashelineMeta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
-            if (Extensions.TryGetModule(moreDashelineMeta, out EverestModule dashelineModule)) {
+            if (failedLoadingDeps) {
+                menu.Add(new TextMenuExt.SubHeaderExt(Dialog.Clean("communalhelper_failedloadingdeps")) {
+                    TextColor = Color.OrangeRed,
+                    HeightExtra = 0f,
+                });
+            }
+        }
+
+        private void RegisterOptionalDependencies() {
+            failedLoadingDeps = false;
+            optionalDepLoaders = new();
+            EverestModuleMetadata meta;
+
+            // Hair colors used by CustomDreamBlocks particles
+            meta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
+            optionalDepLoaders[meta] = module => {
+                Extensions.MoreDasheline_GetHairColor = module.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) }, throwOnNull: true);
                 Extensions.MoreDashelineLoaded = true;
-                Extensions.MoreDasheline_GetHairColor = dashelineModule.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) });
-                Logger.Log("Communal Helper", "MoreDasheline detected: using MoreDasheline hair colors for CustomDreamBlock particles.");
-            }
-            EverestModuleMetadata collabUtilsMeta = new EverestModuleMetadata { Name = "CollabUtils2", VersionString = "1.3.8.1" };
-            if (Extensions.TryGetModule(collabUtilsMeta, out EverestModule collabModule)) {
+                Util.Log(LogLevel.Info, "MoreDasheline detected: using MoreDasheline hair colors for CustomDreamBlock particles.");
+            };
+            // MiniHeart used by SummitGemManager
+            meta = new EverestModuleMetadata { Name = "CollabUtils2", VersionString = "1.3.8.1" };
+            optionalDepLoaders[meta] = module => {
+                Extensions.CollabUtils_MiniHeart = module.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart", ignoreCase: false, throwOnError: true);
                 Extensions.CollabUtilsLoaded = true;
-                Extensions.CollabUtils_MiniHeart = collabModule.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart");
-            }
-            EverestModuleMetadata celesteTASMeta = new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.5" };
-            if (Extensions.TryGetModule(celesteTASMeta, out EverestModule tasModule)) {
+            };
+            // Used for registering custom playerstates for display in CelesteTAS
+            meta = new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.5" };
+            optionalDepLoaders[meta] = module => {
+                Type t_PlayerStates = module.GetType().Module.GetType("TAS.PlayerStates", ignoreCase: false, throwOnError: true);
+                Extensions.CelesteTAS_PlayerStates_Register = t_PlayerStates.GetMethod("Register", BindingFlags.Public | BindingFlags.Static, throwOnNull: true);
+                Extensions.CelesteTAS_PlayerStates_Unregister = t_PlayerStates.GetMethod("Unregister", BindingFlags.Public | BindingFlags.Static, throwOnNull: true);
                 Extensions.CelesteTASLoaded = true;
-                Type t_PlayerStates = tasModule.GetType().Module.GetType("TAS.PlayerStates");
-                Extensions.CelesteTAS_PlayerStates_Register = t_PlayerStates.GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
-                Extensions.CelesteTAS_PlayerStates_Unregister = t_PlayerStates.GetMethod("Unregister", BindingFlags.Public | BindingFlags.Static);
-            }
+            };
+            meta = new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" };
+            optionalDepLoaders[meta] = module => MaxHelpingHandLoaded = true;
+            meta = new EverestModuleMetadata { Name = "VivHelper", VersionString = "1.0.28" };
+            optionalDepLoaders[meta] = module => VivHelperLoaded = true;
 
-            MaxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
-            VivHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "VivHelper", VersionString = "1.0.28" });
+            // Check already loaded modules
+            foreach (EverestModuleMetadata dep in optionalDepLoaders.Keys) {
+                if (Extensions.TryGetModule(dep, out EverestModule module)) {
+                    LoadDependency(module, optionalDepLoaders[dep]);
+                }
+            }
+        }
+
+        private void OnRegisterModule(EverestModule module) {
+            foreach (EverestModuleMetadata dep in optionalDepLoaders.Keys) {
+                if (Extensions.SatisfiesDependency(dep, module.Metadata)) {
+                    LoadDependency(module, optionalDepLoaders[dep]);
+                    return;
+                }
+            }
+        }
+
+        private void LoadDependency(EverestModule module, Action<EverestModule> loader) {
+            try {
+                loader.Invoke(module);
+            } catch (Exception e) {
+                Util.Log(LogLevel.Error, "Failed loading optional dependency: " + module.Metadata.Name);
+                Console.WriteLine(e.ToString());
+                // Show something on screen to alert user
+                failedLoadingDeps = true;
+            }
         }
 
         // Loading "custom" entities
@@ -227,9 +288,11 @@ namespace Celeste.Mod.CommunalHelper {
     }
 
     public static class Util {
-        public static void Log(string str) {
+        public static void Log(LogLevel logLevel, string str) {
             Logger.Log("Communal Helper", str);
         }
+
+        public static void Log(string str) => Log(LogLevel.Debug, str);
 
         public static bool TryGetPlayer(out Player player) {
             player = Engine.Scene?.Tracker?.GetEntity<Player>();
@@ -280,6 +343,8 @@ namespace Celeste.Mod.CommunalHelper {
         public static Vector2 RandomDir(float length) {
             return Calc.AngleToVector(Calc.Random.NextAngle(), length);
         }
+
+        public static string StrTrim(string str) => str.Trim();
     }
 
     // Don't worry about it

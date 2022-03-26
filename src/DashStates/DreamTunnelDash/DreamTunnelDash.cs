@@ -5,9 +5,10 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
+using System.Linq;
 using System.Reflection;
 
-namespace Celeste.Mod.CommunalHelper.Entities {
+namespace Celeste.Mod.CommunalHelper.DashStates {
     public static class DreamTunnelDash {
 
         #region Vanilla Constants
@@ -36,6 +37,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
         private static bool dreamTunnelDashAttacking;
         private static float dreamTunnelDashTimer;
+
+        private static bool nextDashFeather;
+        public static bool NextDashFeather {
+            get { return nextDashFeather || CommunalHelperModule.Settings.DreamDashFeatherMode; }
+            set { nextDashFeather = value; }
+        }
+        public static bool FeatherMode { get; private set; }
 
         private static bool overrideDreamDashCheck;
 
@@ -110,7 +118,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Extensions.UnregisterState(StDreamTunnelDash);
         }
 
-        public static void LoadContent() {
+        public static void InitializeParticles() {
             DreamTrailColors = new Color[]{
                 Calc.HexToColor("FFEF11"),
                 Calc.HexToColor("08A310"),
@@ -149,6 +157,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     self.Speed = self.DashDir = lastAim;
                     self.MoveHExact((int) dir.X, playerData.Get<Collision>("onCollideH"));
                     self.MoveVExact((int) dir.Y, playerData.Get<Collision>("onCollideV"));
+                }
+
+                if (NextDashFeather) {
+                    FeatherMode = true;
+                    NextDashFeather = false;
                 }
             }
             HasDreamTunnelDash = false;
@@ -470,6 +483,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (solid != null) {
                     DynData<Player> playerData = player.GetData();
                     player.StateMachine.State = StDreamTunnelDash;
+                    solid.Components.GetAll<DreamTunnelInteraction>().ToList().ForEach(i => i.OnPlayerEnter(player));
                     playerData[Player_solid] = solid;
                     playerData["dashAttackTimer"] = 0;
                     playerData["gliderBoostTimer"] = 0;
@@ -484,8 +498,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static void DreamTunnelDashBegin(this Player player) {
             DynData<Player> playerData = player.GetData();
 
-            if (playerData["dreamSfxLoop"] == null) {
-                SoundSource dreamSfxLoop = new SoundSource();
+            SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
+            if (dreamSfxLoop == null) {
+                dreamSfxLoop = new SoundSource();
                 player.Add(dreamSfxLoop);
                 playerData["dreamSfxLoop"] = dreamSfxLoop;
             }
@@ -507,7 +522,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             player.Stamina = Player_ClimbMaxStamina;
             playerData["dreamJump"] = false;
             player.Play(SFX.char_mad_dreamblock_enter, null, 0f);
-            player.Loop(playerData.Get<SoundSource>("dreamSfxLoop"), SFX.char_mad_dreamblock_travel);
+            if (FeatherMode)
+                player.Loop(dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
+            else
+                player.Loop(dreamSfxLoop, SFX.char_mad_dreamblock_travel);
         }
 
         private static void DreamTunnelDashEnd(this Player player) {
@@ -523,15 +541,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             player.RefillStamina();
             player.TreatNaive = false;
-            if (playerData[Player_solid] != null) {
+            Solid solid = playerData.Get<Solid>(Player_solid);
+            if (solid != null) {
                 if (player.DashDir.X != 0f) {
                     playerData["jumpGraceTimer"] = 0.1f;
                     playerData["dreamJump"] = true;
                 } else {
                     playerData["jumpGraceTimer"] = 0f;
                 }
-                //player.dreamBlock.OnPlayerExit(player);
-                playerData[Player_solid] = null;
+                solid.Components.GetAll<DreamTunnelInteraction>().ToList().ForEach(i => i.OnPlayerExit(player));
+                solid = null;
             }
             player.Stop(playerData.Get<SoundSource>("dreamSfxLoop"));
             player.Play(SFX.char_mad_dreamblock_exit, null, 0f);
@@ -540,6 +559,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static int DreamTunnelDashUpdate(this Player player) {
             DynData<Player> playerData = player.GetData();
+
+            if (FeatherMode) {
+                Vector2 input = Input.Aim.Value.SafeNormalize();
+                if (input != Vector2.Zero) {
+                    Vector2 vector = player.Speed.SafeNormalize();
+                    if (vector != Vector2.Zero) {
+                        vector = Vector2.Dot(input, vector) != -0.8f ? vector.RotateTowards(input.Angle(), 5f * Engine.DeltaTime) : vector;
+                        vector = vector.CorrectJoystickPrecision();
+                        player.DashDir = vector;
+                        player.Speed = vector * 240f;
+                    }
+                }
+            }
 
             Input.Rumble(RumbleStrength.Light, RumbleLength.Medium);
             Vector2 position = player.Position;

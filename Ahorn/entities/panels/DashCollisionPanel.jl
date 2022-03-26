@@ -1,35 +1,34 @@
-module CommunalHelperSurfaceSoundPanel
+module CommunalHelperDashCollisionPanel
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
-const directions = String["Up", "Left", "Right"]
-
-@mapdef Entity "CommunalHelper/SurfaceSoundPanel" Panel(
+@mapdef Entity "CommunalHelper/DashCollisionPanel" Panel(
     x::Integer,
     y::Integer,
-    soundIndex::Integer=11,
+    dashCollideResult::String="None",
 )
 
 const placements = Ahorn.PlacementDict(
-    "Sound Surface Panel ($dir) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Dash Collision Panel ($dir) (Communal Helper)" => Ahorn.EntityPlacement(
         Panel,
         "rectangle",
         Dict{String,Any}(
             "orientation" => dir,
         ),
-    ) for dir in directions
+    ) for dir in Maple.spike_directions
 )
 
 Ahorn.editingOptions(entity::Panel) = Dict{String,Any}(
-    "orientation" => directions,
-    "soundIndex" => CommunalHelper.surfaceSounds,
+    "orientation" => Maple.spike_directions,
+    "dashCollideResult" => CommunalHelper.dashCollisionResults,
 )
 
 Ahorn.minimumSize(entity::Panel) = 8, 8
 
 const resizeDirections = Dict{String,Tuple{Bool,Bool}}(
     "Up" => (true, false),
+    "Down" => (true, false),
     "Left" => (false, true),
     "Right" => (false, true),
 )

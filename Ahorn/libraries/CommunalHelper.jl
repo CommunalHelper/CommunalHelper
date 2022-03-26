@@ -77,6 +77,15 @@ const surfaceSounds = Dict{String,Integer}(
     "Moon" => 44,
 )
 
+"Celeste.DashCollisionResults"
+const dashCollisionResults = [
+    "Rebound",
+    "NormalCollision",
+    "NormalOverride",
+    "Bounce",
+    "Ignore",
+]
+
 """
     hexToRGBA(hex)
 
