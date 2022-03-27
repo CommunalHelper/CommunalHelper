@@ -228,14 +228,33 @@ entities.CommunalHelper/DreamFallingBlock.attributes.description.indicatorAtStar
 entities.CommunalHelper/DreamFallingBlock.attributes.description.quickDestroy=Makes this Dream Falling Block shatter a little faster.
 
 # Dream Switch Gate
-entities.CommunalHelper/DreamSwitchGate.placements.name.dream_switch_gate=Dream Switch Gateplacements.entities.CommunalHelper/DreamSwitchGate.tooltips.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/DreamSwitchGate.placements.name.dream_switch_gate=Dream Switch Gate
+entities.CommunalHelper/DreamSwitchGate.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.oneUse=Whether the Dream Switch Gate should shatter upon exit.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.permanent=Whether the Dream Switch Gate should stay at its node permanently after being activated for the entire level.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.refillCount=Number of dashes the Dream Switch Block should refill (-1 for default).
 entities.CommunalHelper/DreamSwitchGate.attributes.description.quickDestroy=Makes this Dream Switch Gate shatter a little faster.
 
-
+# Dream Flag Switch Gate
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.placements.name.dream_switch_gate=Dream Flag Switch Gate
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.flag=The session flag this switch gate reacts to. Give the same to multiple touch switches and switch gates to group them.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.icon=The name of the icon for the switch gate (relative to objects/MaxHelpingHand/flagSwitchGate), or "vanilla" for the default one.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.persistent=If enabled, the switch gate will stay open when the player dies or changes rooms.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.inactiveColor=The gate icon colour when not triggered yet.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.activeColor=The gate icon colour when triggered, but the group is not complete yet.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.finishColor=The gate icon colour when the group is complete.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.shakeTime=The time (in seconds) the block spends shaking before starting to move. Vanilla value is 0.5 seconds.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.moveTime=The time (in seconds) the block takes to move to its destination after shaking. Vanilla value is 1.8 seconds.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.moveEased=Whether the block should slow down before reaching its final position. If unchecked, the block will move at constant speed.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.allowReturn=Whether the block should return to its original position if the flag is turned off. Only works if the gate is persistent.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.moveSound=The sound played by the gate when it starts moving.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.finishedSound=The sound played by the gate when it is done moving.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.featherMode=Whether the Dream Flag Switch Gate has the Dream Block Feather controls enabled.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.oneUse=Whether the Dream Flag Switch Gate should shatter upon exit.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.refillCount=Number of dashes the Dream Flag Switch Gate should refill (-1 for default).
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.quickDestroy=Makes this Dream Flag Switch Gate shatter a little faster.
 
 
 
