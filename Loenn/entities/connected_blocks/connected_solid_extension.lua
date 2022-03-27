@@ -43,8 +43,8 @@ local function getSearchPredicate()
             if target._name == name then
                 return true
             end
-            return false
         end
+        return false
     end
 end
 

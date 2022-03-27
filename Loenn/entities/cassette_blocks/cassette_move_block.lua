@@ -7,6 +7,11 @@ local cassetteMoveBlock = {}
 local colorNames = communalHelper.cassetteBlockColorNames
 local colors = communalHelper.cassetteBlockHexColors
 
+local moveSpeeds = {
+    ["Slow"] = 60.0,
+    ["Fast"] = 75.0,
+}
+
 cassetteMoveBlock.name = "CommunalHelper/CassetteMoveBlock"
 cassetteMoveBlock.minimumSize = {16, 16}
 cassetteMoveBlock.fieldInformation = {
@@ -21,6 +26,9 @@ cassetteMoveBlock.fieldInformation = {
     direction = {
         options = enums.move_block_directions,
         editable = false,
+    },
+    moveSpeed = {
+        options = moveSpeeds,
     }
 }
 

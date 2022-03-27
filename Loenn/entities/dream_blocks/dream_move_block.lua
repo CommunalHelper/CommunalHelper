@@ -5,12 +5,20 @@ local communalHelper = require("mods").requireFromPlugin("libraries.communal_hel
 
 local dreamMoveBlock = {}
 
+local moveSpeeds = {
+    ["Slow"] = 60.0,
+    ["Fast"] = 75.0,
+}
+
 dreamMoveBlock.name = "CommunalHelper/DreamMoveBlock"
 dreamMoveBlock.minimumSize = {16, 16}
 dreamMoveBlock.fieldInformation = {
     direction = {
         options = enums.move_block_directions,
         editable = false,
+    },
+    moveSpeed = {
+        options = moveSpeeds,
     }
 }
 

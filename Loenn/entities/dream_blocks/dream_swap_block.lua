@@ -36,7 +36,7 @@ local trailNinePatchOptions = {
 }
 local trailDepth = 8999
 
-local function addTrailSprites(sprites, nodes, x, y, nodeX, nodeY, width, height, trailTexture)
+local function addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, trailTexture)
     local drawWidth, drawHeight = math.abs(x - nodeX) + width, math.abs(y - nodeY) + height
 
     x, y = math.min(x, nodeX), math.min(y, nodeY)
@@ -76,7 +76,7 @@ function dreamSwapBlock.sprite(room, entity)
 
     local sprites = {}
 
-    addTrailSprites(sprites, nodes, x, y, nodeX, nodeY, width, height, "objects/swapblock/target")
+    addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, "objects/swapblock/target")
     addBlockSprites(sprites, x, y, width, height, noReturn, feather)
 
     return sprites
