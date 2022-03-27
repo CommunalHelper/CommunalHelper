@@ -248,5 +248,45 @@ function communalHelper.getCustomDreamBlockSpritesByEntity(entity)
     return communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather)
 end
 
+-- panels
+
+communalHelper.panelDirectionsOmitDown = {
+    "Up", "Left", "Right"
+}
+
+communalHelper.panelDirections = {
+    "Up", "Down", "Left", "Right"
+}
+
+function communalHelper.getPanelSprite(entity, color)
+    local x, y = entity.x or 0, entity.y or 0
+    local width, height = entity.width or 8, entity.height or 8
+
+    local orientation = entity.orientation or "Up"
+    local down = orientation == "Down"
+    local left = orientation == "Left"
+    local right = orientation == "Right"
+    local vertical = left or right
+
+    local rect = drawableRectangle.fromRectangle("fill", x, y, vertical and 8 or width, vertical and height or 8, color or {1.0, 0.5, 0.0, 0.4}):getDrawableSprite()
+    local border = drawableRectangle.fromRectangle("fill", right and (x + 7) or x, down and (y + 7) or y, vertical and 1 or width, vertical and height or 1):getDrawableSprite()
+
+    return {rect, border}
+end
+
+function communalHelper.fixAndGetPanelRectangle(entity)
+    local orientation = entity.orientation or "Up"
+    local left = orientation == "Left"
+    local right = orientation == "Right"
+    local vertical = left or right
+
+    if vertical then
+        entity.width = 8
+    else
+        entity.height = 8
+    end
+
+    return utils.rectangle(entity.x or 0, entity.y or 0, entity.width or 8, entity.height or 8)
+end
 
 return communalHelper

@@ -146,9 +146,12 @@ end
 
 function stationBlockTrack.rectangle(room, entity)
     if entity.horizontal then
-        return utils.rectangle(entity.x, entity.y, entity.width or 24, 8)
+        entity.height = 8
+    else
+        entity.width = 8
     end
-    return utils.rectangle(entity.x, entity.y, 8, entity.height or 24)
+
+    return utils.rectangle(entity.x, entity.y, entity.width or 24, entity.height or 24)
 end
 
 return stationBlockTrack

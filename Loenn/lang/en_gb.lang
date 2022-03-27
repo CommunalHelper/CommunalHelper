@@ -321,8 +321,37 @@ entities.CommunalHelper/EquationMoveBlock.tooltips.idleColor=The color of the ar
 entities.CommunalHelper/EquationMoveBlock.tooltips.pressedColor=The color of the arrow when moving.
 entities.CommunalHelper/EquationMoveBlock.tooltips.breakColor=The color of the arrow when breaking.
 
+# Bouncy Panel
+entities.CommunalHelper/BouncyPanel.placements.name.up=Bouncy Panel (Up)
+entities.CommunalHelper/BouncyPanel.placements.name.left=Bouncy Panel (Left)
+entities.CommunalHelper/BouncyPanel.placements.name.right=Bouncy Panel (Right)
+###### MISSING TOOLTIPS!
 
+# Dash Collision Panel
+entities.CommunalHelper/DashCollisionPanel.placements.name.up=Dash Collision Panel (Up)
+entities.CommunalHelper/DashCollisionPanel.placements.name.down=Dash Collision Panel (Down)
+entities.CommunalHelper/DashCollisionPanel.placements.name.left=Dash Collision Panel (Left)
+entities.CommunalHelper/DashCollisionPanel.placements.name.right=Dash Collision Panel (Right)
+###### MISSING TOOLTIPS!
 
+# Dream Tunnel Entry
+entities.CommunalHelper/DreamTunnelEntry.placements.name.up=Dream Tunnel Entry (Up)
+entities.CommunalHelper/DreamTunnelEntry.placements.name.down=Dream Tunnel Entry (Down)
+entities.CommunalHelper/DreamTunnelEntry.placements.name.left=Dream Tunnel Entry (Left)
+entities.CommunalHelper/DreamTunnelEntry.placements.name.right=Dream Tunnel Entry (Right)
+entities.CommunalHelper/DreamTunnelEntry.attributes.description.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
+entities.CommunalHelper/DreamTunnelEntry.attributes.description.orientation=The way this Dream Tunnel Entry faces.
+entities.CommunalHelper/DreamTunnelEntry.attributes.description.depth=The depth value for this entity. Used to make it render below or above other entities.
 
+# Frictionless Panel
+entities.CommunalHelper/FrictionlessPanel.placements.name.up=Frictionless Panel (Up)
+entities.CommunalHelper/FrictionlessPanel.placements.name.left=Frictionless Panel (Left)
+entities.CommunalHelper/FrictionlessPanel.placements.name.right=Frictionless Panel (Right)
+###### MISSING TOOLTIPS!
 
-
+# Surface Sound Panel
+entities.CommunalHelper/SurfaceSoundPanel.placements.name.up=Surface Sound Panel (Up)
+entities.CommunalHelper/SurfaceSoundPanel.placements.name.left=Surface Sound Panel (Left)
+entities.CommunalHelper/SurfaceSoundPanel.placements.name.right=Surface Sound Panel (Right)
+entities.CommunalHelper/SurfaceSoundPanel.attributes.description.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
+###### MISSING 1 TOOLTIP!
