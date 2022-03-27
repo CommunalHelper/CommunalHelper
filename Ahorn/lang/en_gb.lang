@@ -185,7 +185,7 @@ placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.below=Deter
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.refillCount=Number of dashes the Dream Crumble Wall On Rumble should refill (-1 for default).
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.featherMode=Whether this block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.oneUse=Whether this block should shatter upon exit.
-placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.persistent=Whether this block should remain broken permanently.
+placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.permanent=Whether this block should remain broken permanently.
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.quickDestroy=Makes this Dream Crumble Wall On Rumble shatter a little faster.
 
 # -- Dream Tunnel Entry --

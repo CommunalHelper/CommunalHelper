@@ -264,8 +264,14 @@ entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.featherMode
 entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.oneUse=Whether this block should shatter upon exit.
 entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.quickDestroy=Makes this Dream Floaty Space Block shatter a little faster.
 
-
-
+# Dream Crumble Wall On Rumble
+entities.CommunalHelper/DreamCrumbleWallOnRumble.placements.name.dream_crumble_wall_on_rumble=Dream Crumble Wall On Rumble
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.below=Determines whether this block should render in the background or foreground.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.refillCount=Number of dashes the Dream Crumble Wall On Rumble should refill (-1 for default).
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.featherMode=Whether this block has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.oneUse=Whether this block should shatter upon exit.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.permanent=Whether this block should remain broken permanently.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.quickDestroy=Makes this Dream Crumble Wall On Rumble shatter a little faster.
 
 
 
