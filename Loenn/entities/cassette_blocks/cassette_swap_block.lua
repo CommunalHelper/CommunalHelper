@@ -5,6 +5,9 @@ local utils = require("utils")
 
 local cassetteSwapBlock = {}
 
+local colorNames = communalHelper.cassetteBlockColorNames
+local colors = communalHelper.cassetteBlockHexColors
+
 cassetteSwapBlock.name = "CommunalHelper/CassetteSwapBlock"
 cassetteSwapBlock.minimumSize = {16, 16}
 cassetteSwapBlock.nodeLimits = {1, 1}

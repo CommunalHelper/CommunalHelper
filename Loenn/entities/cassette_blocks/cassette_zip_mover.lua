@@ -4,6 +4,9 @@ local utils = require("utils")
 
 local cassetteZipMover = {}
 
+local colorNames = communalHelper.cassetteBlockColorNames
+local colors = communalHelper.cassetteBlockHexColors
+
 local ropeColors = {
     {110 / 255, 189 / 255, 245 / 255, 1.0},
     {194 / 255, 116 / 255, 171 / 255, 1.0},
