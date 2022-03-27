@@ -256,6 +256,13 @@ entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.descriptio
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.refillCount=Number of dashes the Dream Flag Switch Gate should refill (-1 for default).
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.quickDestroy=Makes this Dream Flag Switch Gate shatter a little faster.
 
+# Dream Floaty Space Block
+entities.CommunalHelper/DreamFloatySpaceBlock.placements.name.dream_floaty_space_block=Dream Floaty Space Block
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.below=Determines whether this block should render in the background or foreground.
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.refillCount=Number of dashes the Dream Floaty Space Block should refill (-1 for default).
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.featherMode=Whether this block has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.oneUse=Whether this block should shatter upon exit.
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.quickDestroy=Makes this Dream Floaty Space Block shatter a little faster.
 
 
 
