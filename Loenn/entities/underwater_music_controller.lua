@@ -6,7 +6,7 @@ underwaterMusicController.texture = "objects/CommunalHelper/underwaterMusicContr
 
 underwaterMusicController.placements = {
     {
-        name = "normal",
+        name = "controller",
         data = {
             enable = false,
             dashSFX = false,

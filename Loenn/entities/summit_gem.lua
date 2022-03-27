@@ -5,7 +5,7 @@ summitGem.depth = 0
 
 summitGem.placements = {
     {
-        name = "normal",
+        name = "summit_gem",
         data = {
             index = 0
         }

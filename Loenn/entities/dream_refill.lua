@@ -7,7 +7,7 @@ dreamRefill.depth = -100
 
 dreamRefill.placements = {
     {
-        name = "normal",
+        name = "dream_refill",
         data = {
             oneUse = false,
             respawnTime = 2.5

@@ -39,7 +39,7 @@ end
 
 dreamFlagSwitchGate.placements = {
     {
-        name = "dream_switch_gate",
+        name = "dream_flag_switch_gate",
         data = {
             width = 16,
             height = 16,

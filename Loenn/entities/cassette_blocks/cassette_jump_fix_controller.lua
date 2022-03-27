@@ -6,7 +6,7 @@ cassetteJumpFixController.texture = "objects/CommunalHelper/cassetteJumpFixContr
 
 cassetteJumpFixController.placements = {
     {
-        name = "normal",
+        name = "controller",
         data = {
             persistent = false,
             off = false,

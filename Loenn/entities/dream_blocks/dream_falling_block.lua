@@ -17,7 +17,7 @@ dreamFallingBlock.ignoredFields = {
 
 dreamFallingBlock.placements = {
     {
-        name = "dream_falling_block_normal",
+        name = "normal",
         placementType = "rectangle",
         data = {
             width = 16,
@@ -33,7 +33,7 @@ dreamFallingBlock.placements = {
         }
     },
     {
-        name = "dream_falling_block_chained",
+        name = "chained",
         placementType = "rectangle",
         data = {
             width = 16,

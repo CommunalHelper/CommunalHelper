@@ -8,7 +8,7 @@ cassetteJumpFixController.texture = string.format("objects/CommunalHelper/manual
 
 cassetteJumpFixController.placements = {
     {
-        name = "normal",
+        name = "controller",
         data = {
             startIndex = 0
         }

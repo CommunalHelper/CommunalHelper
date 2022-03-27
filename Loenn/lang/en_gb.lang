@@ -1,5 +1,5 @@
 # Dream Refill
-entities.CommunalHelper/DreamRefill.placements.name.normal=Dream Refill
+entities.CommunalHelper/DreamRefill.placements.name.dream_refill=Dream Refill
 entities.CommunalHelper/DreamRefill.attributes.description.oneUse=Whether the Dream Refill should be only used once.
 entities.CommunalHelper/DreamRefill.attributes.description.respawnTime=The time taken by the Dream Refill to respawn.
 
@@ -15,7 +15,7 @@ entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (
 entities.CommunalHelper/DreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
 
 # Summit Gem
-entities.CommunalHelper/CustomSummitGem.placements.name.normal=Custom Summit Gem
+entities.CommunalHelper/CustomSummitGem.placements.name.summit_gem=Custom Summit Gem
 entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines the texture and sound used for this gem (clamped within 0 and 7). Must be unique within a room. To use a custom texture, put it at Graphics/Atlases/Gameplay/collectables/summitgems/$mapSID/$roomName/$index.
 
 # Attached Wall Booster
@@ -115,16 +115,16 @@ entities.CommunalHelper/CassetteSwapBlock.attributes.description.tempo=The tempo
 entities.CommunalHelper/CassetteSwapBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
 
 # Cassette Jump Fix Controller
-entities.CommunalHelper/CassetteJumpFixController.placements.name.normal=Cassette Jump Fix Controller
+entities.CommunalHelper/CassetteJumpFixController.placements.name.controller=Cassette Jump Fix Controller
 entities.CommunalHelper/CassetteJumpFixController.attributes.description.persistent=Whether the controller should apply for the entire level, only applies to the current room if this is turned off.
 entities.CommunalHelper/CassetteJumpFixController.attributes.description.off=Turns off the fix, regardless of the persistent option.
 
 # Manual Cassette Controller
-entities.CommunalHelper/ManualCassetteController.placements.name.normal=Manual Cassette Controller
+entities.CommunalHelper/ManualCassetteController.placements.name.controller=Manual Cassette Controller
 entities.CommunalHelper/ManualCassetteController.attributes.description.startIndex=The color of Cassette Block that should start activated.
 
 # Underwater Music Controller
-entities.CommunalHelper/UnderwaterMusicController.placements.name.normal=Underwater Music Controller
+entities.CommunalHelper/UnderwaterMusicController.placements.name.controller=Underwater Music Controller
 entities.CommunalHelper/UnderwaterMusicController.attributes.description.enable=Whether to always enable or always disable underwater sound modifiers.
 entities.CommunalHelper/UnderwaterMusicController.attributes.description.dashSFX=Whether to also affect the additional in-water dash sound effect.
 
@@ -213,8 +213,8 @@ entities.CommunalHelper/DreamMoveBlock.attributes.description.oneUse=Whether the
 entities.CommunalHelper/DreamMoveBlock.attributes.description.quickDestroy=Makes this Dream Move Block shatter a little faster.
 
 # Dream Falling Block
-entities.CommunalHelper/DreamFallingBlock.placements.name.dream_falling_block_normal=Dream Falling Block
-entities.CommunalHelper/DreamFallingBlock.placements.name.dream_falling_block_chained=Dream Falling Block (Chained)
+entities.CommunalHelper/DreamFallingBlock.placements.name.normal=Dream Falling Block
+entities.CommunalHelper/DreamFallingBlock.placements.name.chained=Dream Falling Block (Chained)
 entities.CommunalHelper/DreamFallingBlock.attributes.description.featherMode=Whether the Dream Falling Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.oneUse=Whether the Dream Falling Block should shatter upon exit.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.refillCount=Number of dashes the Dream Falling Block should refill (-1 for default).
@@ -237,7 +237,7 @@ entities.CommunalHelper/DreamSwitchGate.attributes.description.refillCount=Numbe
 entities.CommunalHelper/DreamSwitchGate.attributes.description.quickDestroy=Makes this Dream Switch Gate shatter a little faster.
 
 # Dream Flag Switch Gate
-entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.placements.name.dream_switch_gate=Dream Flag Switch Gate
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.placements.name.dream_flag_switch_gate=Dream Flag Switch Gate
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.flag=The session flag this switch gate reacts to. Give the same to multiple touch switches and switch gates to group them.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.icon=The name of the icon for the switch gate (relative to objects/MaxHelpingHand/flagSwitchGate), or "vanilla" for the default one.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.persistent=If enabled, the switch gate will stay open when the player dies or changes rooms.
