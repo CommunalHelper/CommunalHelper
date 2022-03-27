@@ -1,6 +1,13 @@
+local mods = require("mods")
+
+-- this entity plugin can only be shown with max's helping hand loaded
+if not mods.hasLoadedMod("MaxHelpingHand") then
+    return
+end
+
 local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
-local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
+local communalHelper = mods.requireFromPlugin("libraries.communal_helper")
 
 local dreamFlagSwitchGate = {}
 
