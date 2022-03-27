@@ -1,23 +1,11 @@
 local drawableSprite = require("structs.drawable_sprite")
+local enums = require("consts.celeste_enums")
 local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local cassetteMoveBlock = {}
 
-local directions = {"Up", "Down", "Left", "Right"}
-
-local colorNames = {
-    ["0 - Blue"] = 0,
-    ["1 - Rose"] = 1,
-    ["2 - Bright Sun"] = 2,
-    ["3 - Malachite"] = 3
-}
-
-local colors = {
-    "49aaf0",
-    "f049be",
-    "fcdc3a",
-    "38e04e",
-}
+local colorNames = communalHelper.cassetteBlockColorNames
+local colors = communalHelper.cassetteBlockHexColors
 
 cassetteMoveBlock.name = "CommunalHelper/CassetteMoveBlock"
 cassetteMoveBlock.minimumSize = {16, 16}
@@ -31,7 +19,7 @@ cassetteMoveBlock.fieldInformation = {
         fieldType = "color",
     },
     direction = {
-        options = directions,
+        options = enums.move_block_directions,
         editable = false,
     }
 }

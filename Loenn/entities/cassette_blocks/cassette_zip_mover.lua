@@ -1,5 +1,4 @@
 local drawableSprite = require("structs.drawable_sprite")
-local drawableLine = require("structs.drawable_line")
 local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 local utils = require("utils")
 
@@ -10,20 +9,6 @@ local ropeColors = {
     {194 / 255, 116 / 255, 171 / 255, 1.0},
     {227 / 255, 214 / 255, 148 / 255, 1.0},
     {128 / 255, 224 / 255, 141 / 255, 1.0},
-}
-
-local colorNames = {
-    ["0 - Blue"] = 0,
-    ["1 - Rose"] = 1,
-    ["2 - Bright Sun"] = 2,
-    ["3 - Malachite"] = 3
-}
-
-local colors = {
-    "49aaf0",
-    "f049be",
-    "fcdc3a",
-    "38e04e",
 }
 
 cassetteZipMover.name = "CommunalHelper/CassetteZipMover"

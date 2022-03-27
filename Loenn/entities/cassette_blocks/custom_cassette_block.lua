@@ -2,19 +2,8 @@ local communalHelper = require("mods").requireFromPlugin("libraries.communal_hel
 
 local customCassetteBlock = {}
 
-local colorNames = {
-    ["0 - Blue"] = 0,
-    ["1 - Rose"] = 1,
-    ["2 - Bright Sun"] = 2,
-    ["3 - Malachite"] = 3
-}
-
-local colors = {
-    "49aaf0",
-    "f049be",
-    "fcdc3a",
-    "38e04e",
-}
+local colorNames = communalHelper.cassetteBlockColorNames
+local colors = communalHelper.cassetteBlockHexColors
 
 customCassetteBlock.name = "CommunalHelper/CustomCassetteBlock"
 customCassetteBlock.minimumSize = {16, 16}

@@ -1,16 +1,15 @@
 local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
+local enums = require("consts.celeste_enums")
 local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local dreamMoveBlock = {}
-
-local directions = {"Up", "Down", "Left", "Right"}
 
 dreamMoveBlock.name = "CommunalHelper/DreamMoveBlock"
 dreamMoveBlock.minimumSize = {16, 16}
 dreamMoveBlock.fieldInformation = {
     direction = {
-        options = directions,
+        options = enums.move_block_directions,
         editable = false,
     }
 }

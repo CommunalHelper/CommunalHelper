@@ -19,11 +19,24 @@ end
 
 -- cassette blocks
 
-local cassetteBlockColors = {
+communalHelper.cassetteBlockColors = {
     {73 / 255, 170 / 255, 240 / 255},
     {240 / 255, 73 / 255, 190 / 255},
     {252 / 255, 220 / 255, 58 / 255},
     {56 / 255, 224 / 255, 78 / 255},
+}
+communalHelper.cassetteBlockColorNames = {
+    ["0 - Blue"] = 0,
+    ["1 - Rose"] = 1,
+    ["2 - Bright Sun"] = 2,
+    ["3 - Malachite"] = 3
+}
+
+communalHelper.cassetteBlockHexColors = {
+    "49aaf0",
+    "f049be",
+    "fcdc3a",
+    "38e04e",
 }
 
 local function getSearchPredicate(entity)
@@ -103,7 +116,7 @@ end
 
 function communalHelper.getCustomCassetteBlockColor(entity)
     local index = entity.index or 0
-    return (entity.customColor ~= "" and communalHelper.hexToColor(entity.customColor)) or cassetteBlockColors[index + 1] or cassetteBlockColors[1]
+    return (entity.customColor ~= "" and communalHelper.hexToColor(entity.customColor)) or communalHelper.cassetteBlockColors[index + 1] or communalHelper.cassetteBlockColors[1]
 end
 
 function communalHelper.getCustomCassetteBlockSprites(room, entity)
