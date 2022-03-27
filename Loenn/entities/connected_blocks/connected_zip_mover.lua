@@ -11,7 +11,7 @@ local themes = {
 }
 
 connectedZipMover.name = "CommunalHelper/ConnectedZipMover"
-connectedZipMover.depth = 5000
+connectedZipMover.depth = 4999
 connectedZipMover.minimumSize = {16, 16}
 connectedZipMover.nodeVisibility = "never"
 connectedZipMover.nodeLimits = {1, -1}
