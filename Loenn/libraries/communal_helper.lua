@@ -1,6 +1,7 @@
 local drawableSprite = require("structs.drawable_sprite")
 local drawableLine = require("structs.drawable_line")
 local drawableRectangle = require("structs.drawable_rectangle")
+local drawableNinePatch = require("structs.drawable_nine_patch")
 local connectedEntities = require("helpers.connected_entities")
 local utils = require("utils")
 
@@ -192,6 +193,41 @@ function communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, cogTe
     end
 
     return sprites
+end
+
+-- swap block
+
+local trailNinePatchOptions = {
+    mode = "fill",
+    borderMode = "repeat",
+    useRealSize = true
+}
+
+function communalHelper.getTrailSprites(x, y, nodeX, nodeY, width, height, trailTexture, trailColor, trailDepth)
+    local sprites = {}
+
+    local drawWidth, drawHeight = math.abs(x - nodeX) + width, math.abs(y - nodeY) + height
+    x, y = math.min(x, nodeX), math.min(y, nodeY)
+
+    local frameNinePatch = drawableNinePatch.fromTexture(trailTexture, trailNinePatchOptions, x, y, drawWidth, drawHeight)
+    local frameSprites = frameNinePatch:getDrawableSprite()
+
+    local depth = trailDepth or 8999
+    local color = trailColor or {1, 1, 1, 1}
+    for _, sprite in ipairs(frameSprites) do
+        sprite.depth = depth
+        sprite:setColor(color)
+
+        table.insert(sprites, sprite)
+    end
+
+    return sprites
+end
+
+function communalHelper.addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, trailTexture, trailColor, trailDepth)
+    for _, sprite in ipairs(communalHelper.getTrailSprites(x, y, nodeX, nodeY, width, height, trailTexture, trailColor, trailDepth)) do
+        table.insert(sprites, sprite)
+    end
 end
 
 -- dream blocks

@@ -1,4 +1,3 @@
-local drawableNinePatch = require("structs.drawable_nine_patch")
 local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
 local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
@@ -29,28 +28,6 @@ dreamSwapBlock.placements = {
     }
 }
 
-local trailNinePatchOptions = {
-    mode = "fill",
-    borderMode = "repeat",
-    useRealSize = true
-}
-local trailDepth = 8999
-
-local function addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, trailTexture)
-    local drawWidth, drawHeight = math.abs(x - nodeX) + width, math.abs(y - nodeY) + height
-
-    x, y = math.min(x, nodeX), math.min(y, nodeY)
-
-    local frameNinePatch = drawableNinePatch.fromTexture(trailTexture, trailNinePatchOptions, x, y, drawWidth, drawHeight)
-    local frameSprites = frameNinePatch:getDrawableSprite()
-
-    for _, sprite in ipairs(frameSprites) do
-        sprite.depth = trailDepth
-
-        table.insert(sprites, sprite)
-    end
-end
-
 local function addBlockSprites(sprites, x, y, width, height, noReturn, feather)
     local halfWidth, halfHeight = math.floor(width / 2), math.floor(height / 2)
     local centerX, centerY = x + halfWidth, y + halfHeight
@@ -76,7 +53,7 @@ function dreamSwapBlock.sprite(room, entity)
 
     local sprites = {}
 
-    addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, "objects/swapblock/target")
+    communalHelper.addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, "objects/swapblock/target")
     addBlockSprites(sprites, x, y, width, height, noReturn, feather)
 
     return sprites

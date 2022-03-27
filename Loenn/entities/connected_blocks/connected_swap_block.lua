@@ -1,8 +1,8 @@
-local drawableNinePatch = require("structs.drawable_nine_patch")
 local connectedEntities = require("helpers.connected_entities")
 local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
 local enums = require("consts.celeste_enums")
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local connectedSwapBlock = {}
 
@@ -147,21 +147,6 @@ local trailNinePatchOptions = {
     useRealSize = true
 }
 
-local function addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, trailTexture)
-    local drawWidth, drawHeight = math.abs(x - nodeX) + width, math.abs(y - nodeY) + height
-
-    x, y = math.min(x, nodeX), math.min(y, nodeY)
-
-    local frameNinePatch = drawableNinePatch.fromTexture(trailTexture, trailNinePatchOptions, x, y, drawWidth, drawHeight)
-    local frameSprites = frameNinePatch:getDrawableSprite()
-
-    for _, sprite in ipairs(frameSprites) do
-        sprite.depth = 8999
-
-        table.insert(sprites, sprite)
-    end
-end
-
 local function addBlockSprites(sprites, room, entity, w, h, tw, th, themeData)
     local relevantBlocks = utils.filter(getSearchPredicate(), room.entities)
     connectedEntities.appendIfMissing(relevantBlocks, entity)
@@ -194,7 +179,7 @@ function connectedSwapBlock.sprite(room, entity)
 
     local sprites = {}
 
-    addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, themeData.path)
+    communalHelper.addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, themeData.path)
     addBlockSprites(sprites, room, entity, width, height, tileWidth, tileHeight, themeData)
 
     return sprites

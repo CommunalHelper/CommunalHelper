@@ -82,8 +82,16 @@ local function getBlockSprites(room, entity)
 end
 
 function cassetteSwapBlock.sprite(room, entity)
+    local x, y = entity.x or 0, entity.y or 0
+    local nodes = entity.nodes or {}
+    local nodeX, nodeY = nodes[1].x or x, nodes[1].y or y
+    local width, height = entity.width or 8, entity.height or 8
+
     local sprites = getBlockSprites(room, entity)
-    addTrailSprites(sprites, entity, "objects/swapblock/target", communalHelper.getCustomCassetteBlockColor(entity))
+
+    local color = communalHelper.getCustomCassetteBlockColor(entity)
+    communalHelper.addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, "objects/swapblock/target", color)
+
     return sprites
 end
 
