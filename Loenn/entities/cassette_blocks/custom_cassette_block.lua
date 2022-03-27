@@ -27,7 +27,7 @@ for i = 1, 4 do
             tempo = 1.0,
             width = 16,
             height = 16,
-            customColor = colors[i - 1]
+            customColor = colors[i]
         }
     }
 end

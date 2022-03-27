@@ -42,7 +42,7 @@ for i = 1, 4 do
             waiting = false,
             ticking = false,
             noReturn = false,
-            customColor = colors[i - 1],
+            customColor = colors[i],
         }
     }
 end
