@@ -381,4 +381,29 @@ entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicatorAtSt
 entities.CommunalHelper/Chain.placements.name.chain=Chain
 ###### MISSING TOOLTIPS!
 
+# Core Mode Music Controller
+entities.CommunalHelper/CoreModeMusicController.placements.name.enable=Core Mode Music Controller
+entities.CommunalHelper/CoreModeMusicController.placements.name.disable=Core Mode Music Controller (Disable)
+entities.CommunalHelper/CoreModeMusicController.attributes.description.params=A list of parameters to change depending on the level's core mode (separated by the comma character ',').
+entities.CommunalHelper/CoreModeMusicController.attributes.description.hot=The values to which the parameters will be set when the core mode is "Hot".
+entities.CommunalHelper/CoreModeMusicController.attributes.description.cold=The values to which the parameters will be set when the core mode is "Cold".
+entities.CommunalHelper/CoreModeMusicController.attributes.description.none=The values to which the parameters will be set when the core mode is "None".
+entities.CommunalHelper/CoreModeMusicController.attributes.description.disable=If this is ticked on, this controller will look for every controller with the same parameter list (in order), and disable it (remove it). It also removes itself afterwards. 
+
+# Heart Gem Shards
+entities.CommunalHelper/CrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards)
+entities.CommunalHelper/CrystalHeart.attributes.description.removeCameraTriggers=Whether the heart should remove camera triggers onces its triggered.
+
+# Heart Gem Shards, Aventure Helper
+entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards) [Adventure Helper]
+###### MISSING TOOLTIPS!
+
+# Input Flag Controller
+entities.CommunalHelper/InputFlagController.placements.name.controller=Input Flag Controller
+entities.CommunalHelper/InputFlagController.attributes.description.flags=Multiple flags can be separated by commas, and sequences of flags can be separated by semi-colons.
+entities.CommunalHelper/InputFlagController.attributes.description.toggle=If enabled, flags will be toggled and the sequence will loop. If disabled, flags will be enable once.
+entities.CommunalHelper/InputFlagController.attributes.description.resetFlags=If enabled, all specified flags will be disabled upon leaving the room this entity is in.
+entities.CommunalHelper/InputFlagController.attributes.description.delay=The minimum delay in seconds between inputs.
+entities.CommunalHelper/InputFlagController.attributes.description.grabOverride=Overrides the user's button binding to use the grab bind instead.
+
 
