@@ -416,4 +416,18 @@ placements.entities.CommunalHelper/Melvin.tooltips.weakBottom=Whether this Melvi
 placements.entities.CommunalHelper/Melvin.tooltips.weakLeft=Whether this Melvin can be dashed into from the left.
 placements.entities.CommunalHelper/Melvin.tooltips.weakRight=Whether this Melvin can be dashed into from the right.
 
+# Move Block Redirect
+entities.CommunalHelper/MoveBlockRedirect.placements.name.normal=Move Block Redirect
+entities.CommunalHelper/MoveBlockRedirect.placements.name.one_use=Move Block Redirect (One Use)
+entities.CommunalHelper/MoveBlockRedirect.placements.name.delete=Move Block Redirect (Delete)
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.direction=Determines the direction the Move Block moves after being redirected.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.fastRedirect=Skips the redirect animation.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.deleteBlock=Breaks the Move Block that goes through.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.operation=The type of operation to apply to the current Move Block speed.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.modifier=The number with which the operation is applied to the Move Block speed.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.oneUse=Whether this Move Block Redirect can only be used once or not.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.reskinFolder=The path to the folder containing custom sprites required for this entity's reskinning. This folder can contain up to 5 files used in code, unless they aren't found which will cause the entity to use the default one.\n\nHere is a list of the files you'd want to have in the folder:\n\n- "block.png" is the outline of the redirect entity. It's 3 tiles wide and tall (24 x 24).\n\n- "arrow.png" is the icon shown for simple redirects, when speed is unaffected.\n\n- "x.png" is the icon shown for delete mode redirects.\n\n- "fast.png" and "slow.png" are the icons shown for redirects that increase or decrease speed respectively.\n\n\nPlease note that these images will be recolored in-game and so they must preferably be close to white/grayscale. If you want to use any color, you can set the Override Color and Overrde Used Color to ffffff, so that the colors are not affected.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.overrideColor=The hexadecimal color code that, if set, replaces whatever color the block originally has. Must not include the hash (#) symbol!
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.overrideUsedColor=The hexadecimal color code that, if set, replaces whatever color the block originally has when it's being used. Must not include the hash (#) symbol!
+
 

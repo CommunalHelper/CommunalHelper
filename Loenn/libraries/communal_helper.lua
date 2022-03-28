@@ -9,9 +9,9 @@ local communalHelper = {}
 
 -- utils
 
-function communalHelper.hexToColor(hex)
+function communalHelper.hexToColor(hex, default)
     local success, r, g, b, a = utils.parseHexColor(hex)
-    local color = {1.0, 1.0, 1.0, 1.0}
+    local color = default or {1.0, 1.0, 1.0, 1.0}
     if success then
         color = {r, g, b, a}
     end

@@ -1,4 +1,3 @@
-local drawableNinePatch = require("structs.drawable_nine_patch")
 local drawableRectangle = require("structs.drawable_rectangle")
 local drawableSprite = require("structs.drawable_sprite")
 
