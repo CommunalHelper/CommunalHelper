@@ -63,7 +63,7 @@ function dreamFallingBlock.sprite(room, entity)
 
     if entity.chained then
         local fallDistance = entity.fallDistance or 16
-        local rect = drawableRectangle.fromRectangle("bordered", x, y, width, height + fallDistance, {0, 0, 0, 0}, {1, 1, 1})
+        local rect = drawableRectangle.fromRectangle("line", x, y, width, height + fallDistance, {1, 1, 1, 1})
         rect.depth = 0
         table.insert(sprites, rect)
     end
