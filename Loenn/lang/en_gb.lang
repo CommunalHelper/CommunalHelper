@@ -430,4 +430,13 @@ entities.CommunalHelper/MoveBlockRedirect.attributes.description.reskinFolder=Th
 entities.CommunalHelper/MoveBlockRedirect.attributes.description.overrideColor=The hexadecimal color code that, if set, replaces whatever color the block originally has. Must not include the hash (#) symbol!
 entities.CommunalHelper/MoveBlockRedirect.attributes.description.overrideUsedColor=The hexadecimal color code that, if set, replaces whatever color the block originally has when it's being used. Must not include the hash (#) symbol!
 
-
+# Move Swap Block
+entities.CommunalHelper/MoveSwapBlock.placements.name.move_swap_block=Move Swap Block
+entities.CommunalHelper/MoveSwapBlock.attributes.description.canSteer=Whether the Move Swap Block can be moved by the player.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.direction=The direction the Move Swap Block moves in upon activation.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.freezeOnSwap=Whether the block will continue moving while swapping.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.moveAcceleration=The speed at which the block will move upon activation.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.moveSpeed=The maximum speed of the block while moving.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.returns=Whether the block will return after swapping.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.swapSpeedMultiplier=The speed multiplier for swapping.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.theme=Unsupported by this entity!
