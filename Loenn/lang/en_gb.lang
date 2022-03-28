@@ -366,6 +366,16 @@ entities.CommunalHelper/ChainedKevin.attributes.description.chainLength=The leng
 entities.CommunalHelper/ChainedKevin.attributes.description.direction=The only direction in which this block will travel.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
 
+# Chained Falling Block
+entities.CommunalHelper/ChainedFallingBlock.placements.name.chained_falling_block=Falling Block (Chained)
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.tiletype=Changes the visual appearance of this block.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.climbFall=Whether the block should start falling when the player is climbing it.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.behind=Whether this entity should appear farther behind in the scene or not.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.centeredChain=Renders only one chain at the horizontal center of this block.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 
 
 
