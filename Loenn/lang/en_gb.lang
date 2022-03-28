@@ -355,3 +355,18 @@ entities.CommunalHelper/SurfaceSoundPanel.placements.name.left=Surface Sound Pan
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.right=Surface Sound Panel (Right)
 entities.CommunalHelper/SurfaceSoundPanel.attributes.description.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
 ###### MISSING 1 TOOLTIP!
+
+# Chained Kevin
+entities.CommunalHelper/ChainedKevin.placements.name.up=Kevin (Chained, Up)
+entities.CommunalHelper/ChainedKevin.placements.name.down=Kevin (Chained, Down)
+entities.CommunalHelper/ChainedKevin.placements.name.left=Kevin (Chained, Left)
+entities.CommunalHelper/ChainedKevin.placements.name.right=Kevin (Chained, Right)
+entities.CommunalHelper/ChainedKevin.attributes.description.chillout=Whether the block should have the large face and get tired after being hit.
+entities.CommunalHelper/ChainedKevin.attributes.description.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
+entities.CommunalHelper/ChainedKevin.attributes.description.direction=The only direction in which this block will travel.
+entities.CommunalHelper/ChainedKevin.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
+
+
+
+
+
