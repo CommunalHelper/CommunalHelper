@@ -406,4 +406,14 @@ entities.CommunalHelper/InputFlagController.attributes.description.resetFlags=If
 entities.CommunalHelper/InputFlagController.attributes.description.delay=The minimum delay in seconds between inputs.
 entities.CommunalHelper/InputFlagController.attributes.description.grabOverride=Overrides the user's button binding to use the grab bind instead.
 
+# Melvin
+entities.CommunalHelper/Melvin.placements.name.strong=Melvin (All Strong)
+entities.CommunalHelper/Melvin.placements.name.weak=Melvin (All Weak)
+entities.CommunalHelper/Melvin.placements.name.horiz_weak=Melvin (Horizontally Weak)
+entities.CommunalHelper/Melvin.placements.name.verti_weak=Melvin (Vertically Weak)
+placements.entities.CommunalHelper/Melvin.tooltips.weakTop=Whether this Melvin can be dashed into from above.
+placements.entities.CommunalHelper/Melvin.tooltips.weakBottom=Whether this Melvin can be dashed into from below.
+placements.entities.CommunalHelper/Melvin.tooltips.weakLeft=Whether this Melvin can be dashed into from the left.
+placements.entities.CommunalHelper/Melvin.tooltips.weakRight=Whether this Melvin can be dashed into from the right.
+
 
