@@ -377,6 +377,8 @@ entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainOutline=
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 
-
+# Chain
+entities.CommunalHelper/Chain.placements.name.chain=Chain
+###### MISSING TOOLTIPS!
 
 
