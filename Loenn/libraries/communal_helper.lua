@@ -151,7 +151,7 @@ end
 
 -- zip movers
 
-local function addNodeSprites(sprites, cogTexture, cogColor, ropeColor, centerX, centerY, centerNodeX, centerNodeY)
+local function addNodeSprites(sprites, cogTexture, cogColor, ropeColor, centerX, centerY, centerNodeX, centerNodeY, depth)
     local nodeCogSprite = drawableSprite.fromTexture(cogTexture)
     nodeCogSprite:setColor(cogColor)
 
@@ -165,8 +165,8 @@ local function addNodeSprites(sprites, cogTexture, cogColor, ropeColor, centerX,
     leftLine:setOffset(0, 4.5)
     rightLine:setOffset(0, -4.5)
 
-    leftLine.depth = 5000
-    rightLine.depth = 5000
+    leftLine.depth = depth
+    rightLine.depth = depth
 
     for _, sprite in ipairs(leftLine:getDrawableSprite()) do
         table.insert(sprites, sprite)
@@ -179,16 +179,18 @@ local function addNodeSprites(sprites, cogTexture, cogColor, ropeColor, centerX,
     table.insert(sprites, nodeCogSprite)
 end
 
-function communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, cogTexture, cogColor, ropeColor)
+function communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, cogTexture, cogColor, ropeColor, pathDepth)
     local sprites = {}
 
     local halfWidth, halfHeight = math.floor(width / 2), math.floor(height / 2)
     local centerX, centerY = x + halfWidth, y + halfHeight
 
+    local depth = pathDepth or 5000
+
     local cx, cy = centerX, centerY
     for _, node in ipairs(nodes) do
         local centerNodeX, centerNodeY = node.x + halfWidth, node.y + halfHeight
-        addNodeSprites(sprites, cogTexture, cogColor, ropeColor, cx, cy, centerNodeX, centerNodeY)
+        addNodeSprites(sprites, cogTexture, cogColor, ropeColor, cx, cy, centerNodeX, centerNodeY, depth)
         cx, cy = centerNodeX, centerNodeY
     end
 

@@ -440,3 +440,35 @@ entities.CommunalHelper/MoveSwapBlock.attributes.description.moveSpeed=The maxim
 entities.CommunalHelper/MoveSwapBlock.attributes.description.returns=Whether the block will return after swapping.
 entities.CommunalHelper/MoveSwapBlock.attributes.description.swapSpeedMultiplier=The speed multiplier for swapping.
 entities.CommunalHelper/MoveSwapBlock.attributes.description.theme=Unsupported by this entity!
+
+# Player Bubble Region
+entities.CommunalHelper/PlayerBubbleRegion.placements.name.player_bubble_region=Player Bubble Region
+
+# No Overlay Lookout
+entities.CommunalHelper/NoOverlayLookout.placements.name.watchtower=Watchtower (No Overlay)
+entities.CommunalHelper/NoOverlayLookout.attributes.description.summit=Whether the watch tower should zoom on the final node or not. Requires nodes to function, otherwise game will crash.
+entities.CommunalHelper/NoOverlayLookout.attributes.description.onlyY=Whether the watch tower can only move vertically. If the watch tower has nodes it will still follow CommunalHelper/NoOverlayLookout
+
+# Railed Move Block
+entities.CommunalHelper/RailedMoveBlock.placements.name.horizontal=Railed Move Block (Horizontal)
+entities.CommunalHelper/RailedMoveBlock.placements.name.vertical=Railed Move Block (Vertical)
+entities.CommunalHelper/RailedMoveBlock.placements.name.both=Railed Move Block (Both)
+entities.CommunalHelper/RailedMoveBlock.attributes.description.steeringMode=Represents the way in which you can steer the block using the side buttons.\n\n- "Horizontal" will enable buttons on the left and right side of the block.\n- "Vertical" will enable one button at the top of the block.\n- "Both" will enable the two above.
+entities.CommunalHelper/RailedMoveBlock.attributes.description.speed=The maximum speed this block can go at.
+
+# Reset State Crystal
+entities.CommunalHelper/ResetStateCrystal.placements.name.reset_state_crystal=Reset State Crystal
+entities.CommunalHelper/ResetStateCrystal.attributes.description.oneUse=Whether the crystal should reappear after being collected.
+
+# Synced Zip Mover Activation Controller
+entities.CommunalHelper/SyncedZipMoverActivationController.placements.name.controller=Synced Zip Mover Activation Controller
+entities.CommunalHelper/SyncedZipMoverActivationController.attributes.description.zipMoverSpeedMultiplier=Speed Multiplier for the controlled Zip Movers.
+entities.CommunalHelper/SyncedZipMoverActivationController.attributes.description.colorCode=Target color code.
+
+# Summit Gem Manager
+entities.CommunalHelper/CustomSummitGemManager.placements.name.summit_gem_manager=Summit Gem Manager
+entities.CommunalHelper/CustomSummitGemManager.attributes.description.gemIds=Comma separated list of gemIDs. ID format is $mapSID/$roomName/$index. If no mapSID is provided, the current map will be used.
+entities.CommunalHelper/CustomSummitGemManager.attributes.description.melody=NOT Comma separated list of numbers from 0-7 for a custom melody during collection. Defaults to the gem index if not provided.
+entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffset=Determines where the crystal heart will move to relative to this summit gem manager once all gems are collected.
+
+
