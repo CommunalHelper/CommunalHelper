@@ -471,4 +471,23 @@ entities.CommunalHelper/CustomSummitGemManager.attributes.description.gemIds=Com
 entities.CommunalHelper/CustomSummitGemManager.attributes.description.melody=NOT Comma separated list of numbers from 0-7 for a custom melody during collection. Defaults to the gem index if not provided.
 entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffset=Determines where the crystal heart will move to relative to this summit gem manager once all gems are collected.
 
+# Dash State Trigger
+triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
+###### MISSING TOOLTIPS!
 
+# Music Param Trigger
+triggers.CommunalHelper/MusicParamTrigger.placements.name.trigger=Music Paramater
+triggers.CommunalHelper/MusicParamTrigger.attributes.description.enterValue=The value to which the parameter(s) are set when the player is touching the trigger.
+triggers.CommunalHelper/MusicParamTrigger.attributes.description.exitValue=The value to which the parameter(s) are set when the player is outside the trigger.
+triggers.CommunalHelper/MusicParamTrigger.attributes.description.param=The name of the affected parameters. You can specify more than one parameter by separating them with a comma (,).
+
+# Sound Area Trigger
+triggers.CommunalHelper/SoundAreaTrigger.placements.name.trigger=Sound Area
+triggers.CommunalHelper/SoundAreaTrigger.attributes.description.event=The name of the audio event that plays inside the trigger.
+
+# Switch Track Trigger
+triggers.CommunalHelper/TrackSwitchTrigger.placements.name.trigger=Track Switch
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.oneUse=Allows for only one use of this trigger.
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.flash=Whether the screen should flash and shake when triggered.
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)
