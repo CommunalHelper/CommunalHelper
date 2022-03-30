@@ -25,7 +25,7 @@ dreamCrumbleWallOnRumble.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            permanant = false
+            persistent = false
         }
     }
 }

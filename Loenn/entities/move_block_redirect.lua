@@ -116,7 +116,7 @@ local function getMoveBlockRedirectThemeData(entity)
             return {icon = path .. "fast", color = communalHelper.hexToColor(overrideColorHex, fastColor)}
         end
     elseif operation == "Subtract" then
-        if modifier ~= 0 then
+        if modifier ~= 0.0 then
             return {icon = path .. "slow", color = communalHelper.hexToColor(overrideColorHex, slowColor)}
         end
     elseif operation == "Multiply" then
