@@ -1,3 +1,5 @@
+mods.CommunalHelper.name=Communal Helper
+
 # Dream Refill
 entities.CommunalHelper/DreamRefill.placements.name.dream_refill=Dream Refill
 entities.CommunalHelper/DreamRefill.attributes.description.oneUse=Whether the Dream Refill should be only used once.
@@ -161,6 +163,10 @@ entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Grouped=Sett
 entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
 entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
 entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Rainbow=Makes these spikes rainbow.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Rainbow=Makes these spikes rainbow.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Rainbow=Makes these spikes rainbow.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Rainbow=Makes these spikes rainbow.
 
 # Connected Solid Extension
 entities.CommunalHelper/SolidExtension.placements.name.collidable=Connected Solid Extension
@@ -270,7 +276,7 @@ entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.below=De
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.refillCount=Number of dashes the Dream Crumble Wall On Rumble should refill (-1 for default).
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.featherMode=Whether this block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.oneUse=Whether this block should shatter upon exit.
-entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.permanent=Whether this block should remain broken permanently.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.persistent=Whether this block should remain broken permanently.
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.quickDestroy=Makes this Dream Crumble Wall On Rumble shatter a little faster.
 
 # Connected Zip Mover
@@ -313,26 +319,37 @@ entities.CommunalHelper/EquationMoveBlock.placements.name.left=Equation Move Blo
 entities.CommunalHelper/EquationMoveBlock.placements.name.right=Equation Move Block (Right)
 entities.CommunalHelper/EquationMoveBlock.placements.name.reskinnable=Equation Move Block (Reskinnable)
 entities.CommunalHelper/EquationMoveBlock.placements.name.flag_controlled=Equation Move Block (Flag-controlled)
-entities.CommunalHelper/EquationMoveBlock.tooltips.equation=The equation used by the Equation Move Block.\n0: y = ax\n1: y = ax^2 + bx\n2: y = ax^3 + bx^2 + x\n3: y = a*sin bx\n4: y = a*cos bx\n5: y = ae^bx\n6: y = ax^b\n7: elliptic, x-scale = a, y-scale = b
-entities.CommunalHelper/EquationMoveBlock.tooltips.moveSpeed=The speed at which the block moves (accepts any number).
-entities.CommunalHelper/EquationMoveBlock.tooltips.direction=The direction in which the Connected Move Block should travel.
-entities.CommunalHelper/EquationMoveBlock.tooltips.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).\nFor adding arrow textures, name the texture for tiles "tileset.png", the arrow textures "arrowXX.png" (00 thru 08), and the breaking "X" sprite as "x.png".
-entities.CommunalHelper/EquationMoveBlock.tooltips.idleColor=The color of the arrow when not moving.
-entities.CommunalHelper/EquationMoveBlock.tooltips.pressedColor=The color of the arrow when moving.
-entities.CommunalHelper/EquationMoveBlock.tooltips.breakColor=The color of the arrow when breaking.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.equation=The equation used by the Equation Move Block.\n0: y = ax\n1: y = ax^2 + bx\n2: y = ax^3 + bx^2 + x\n3: y = a*sin bx\n4: y = a*cos bx\n5: y = ae^bx\n6: y = ax^b\n7: elliptic, x-scale = a, y-scale = b
+entities.CommunalHelper/EquationMoveBlock.attributes.description.moveSpeed=The speed at which the block moves (accepts any number).
+entities.CommunalHelper/EquationMoveBlock.attributes.description.direction=The direction in which the Connected Move Block should travel.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).\nFor adding arrow textures, name the texture for tiles "tileset.png", the arrow textures "arrowXX.png" (00 thru 08), and the breaking "X" sprite as "x.png".
+entities.CommunalHelper/EquationMoveBlock.attributes.description.idleColor=The color of the arrow when not moving.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.pressedColor=The color of the arrow when moving.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.activatorFlags=The flags which activate this Equation Move Block.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.breakerFlags=The flags which break this Equation Move Block.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.barrierBlocksFlags=Whether Seeker Barriers make this block ignore 'on break' flags.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.constantA=The value of the A constant used in this block's moving equation.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.constantB=The value of the B constant used in this block's moving equation.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.onActivateFlags=Flags set when this block is activated.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.onBreakFlags=Flags set when this block is broken.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.waitForFlags=Makes this block start off invisible and waiting for flags to become visible (and collidable).
 
 # Bouncy Panel
 entities.CommunalHelper/BouncyPanel.placements.name.up=Bouncy Panel (Up)
 entities.CommunalHelper/BouncyPanel.placements.name.left=Bouncy Panel (Left)
 entities.CommunalHelper/BouncyPanel.placements.name.right=Bouncy Panel (Right)
-###### MISSING TOOLTIPS!
+entities.CommunalHelper/BouncyPanel.attributes.description.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
+entities.CommunalHelper/BouncyPanel.attributes.description.orientation=The way this Bouncy Panel faces.
+entities.CommunalHelper/BouncyPanel.attributes.description.sfx=The sound that plays when the player bounces off this panel.
 
 # Dash Collision Panel
 entities.CommunalHelper/DashCollisionPanel.placements.name.up=Dash Collision Panel (Up)
 entities.CommunalHelper/DashCollisionPanel.placements.name.down=Dash Collision Panel (Down)
 entities.CommunalHelper/DashCollisionPanel.placements.name.left=Dash Collision Panel (Left)
 entities.CommunalHelper/DashCollisionPanel.placements.name.right=Dash Collision Panel (Right)
-###### MISSING TOOLTIPS!
+entities.CommunalHelper/DashCollisionPanel.attributes.description.orientation=The way this Dash Collision Panel faces.
+entities.CommunalHelper/DashCollisionPanel.attributes.description.dashCollideResult=The type of collision result returned when the player dashes into the solid on which this panel is placed.
 
 # Dream Tunnel Entry
 entities.CommunalHelper/DreamTunnelEntry.placements.name.up=Dream Tunnel Entry (Up)
@@ -347,14 +364,14 @@ entities.CommunalHelper/DreamTunnelEntry.attributes.description.depth=The depth 
 entities.CommunalHelper/FrictionlessPanel.placements.name.up=Frictionless Panel (Up)
 entities.CommunalHelper/FrictionlessPanel.placements.name.left=Frictionless Panel (Left)
 entities.CommunalHelper/FrictionlessPanel.placements.name.right=Frictionless Panel (Right)
-###### MISSING TOOLTIPS!
+entities.CommunalHelper/FrictionlessPanel.attributes.description.orientation=The way this Frictionless Panel faces.
 
 # Surface Sound Panel
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.up=Surface Sound Panel (Up)
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.left=Surface Sound Panel (Left)
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.right=Surface Sound Panel (Right)
 entities.CommunalHelper/SurfaceSoundPanel.attributes.description.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
-###### MISSING 1 TOOLTIP!
+entities.CommunalHelper/SurfaceSoundPanel.attributes.description.soundIndex=The index associated with the surface sounds played on this panel.
 
 # Chained Kevin
 entities.CommunalHelper/ChainedKevin.placements.name.up=Kevin (Chained, Up)
@@ -364,6 +381,7 @@ entities.CommunalHelper/ChainedKevin.placements.name.right=Kevin (Chained, Right
 entities.CommunalHelper/ChainedKevin.attributes.description.chillout=Whether the block should have the large face and get tired after being hit.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
 entities.CommunalHelper/ChainedKevin.attributes.description.direction=The only direction in which this block will travel.
+entities.CommunalHelper/ChainedKevin.attributes.description.centeredChain=Renders only one chain at the horizontal or vertical center of this block, depending on the direction.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
 
 # Chained Falling Block
@@ -379,7 +397,8 @@ entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicatorAtSt
 
 # Chain
 entities.CommunalHelper/Chain.placements.name.chain=Chain
-###### MISSING TOOLTIPS!
+entities.CommunalHelper/Chain.attributes.description.outline=Whether this chain has an outline (black).
+entities.CommunalHelper/Chain.attributes.description.extraJoints=The additional 'chain nodes' this chain has. Used to make the chain longer without distancing the endpoints of the chain any further away from eachother.
 
 # Core Mode Music Controller
 entities.CommunalHelper/CoreModeMusicController.placements.name.enable=Core Mode Music Controller
@@ -396,7 +415,8 @@ entities.CommunalHelper/CrystalHeart.attributes.description.removeCameraTriggers
 
 # Heart Gem Shards, Aventure Helper
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards) [Adventure Helper]
-###### MISSING TOOLTIPS!
+entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.color=Determines the glow and particle color of the heart as well as its tint if no sprite path is set.
+entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.path=If set, determines what sprite will be used for the heart. The hitbox is not altered! If not set, the fake heart's white heart will be tinted.\nThe sprites of the default 4 hearts are treated differently and they will take the behavior of those. They are the following:\n* 'heartgem0' : A-side, Blue\n* 'heartgem1' : B-side, Red\n* 'heartgem2' : C-side, Gold\n* 'heartgem3' : Farewell, White
 
 # Input Flag Controller
 entities.CommunalHelper/InputFlagController.placements.name.controller=Input Flag Controller
@@ -411,10 +431,10 @@ entities.CommunalHelper/Melvin.placements.name.strong=Melvin (All Strong)
 entities.CommunalHelper/Melvin.placements.name.weak=Melvin (All Weak)
 entities.CommunalHelper/Melvin.placements.name.horiz_weak=Melvin (Horizontally Weak)
 entities.CommunalHelper/Melvin.placements.name.verti_weak=Melvin (Vertically Weak)
-placements.entities.CommunalHelper/Melvin.tooltips.weakTop=Whether this Melvin can be dashed into from above.
-placements.entities.CommunalHelper/Melvin.tooltips.weakBottom=Whether this Melvin can be dashed into from below.
-placements.entities.CommunalHelper/Melvin.tooltips.weakLeft=Whether this Melvin can be dashed into from the left.
-placements.entities.CommunalHelper/Melvin.tooltips.weakRight=Whether this Melvin can be dashed into from the right.
+entities.CommunalHelper/Melvin.attributes.description.weakTop=Whether this Melvin can be dashed into from above.
+entities.CommunalHelper/Melvin.attributes.description.weakBottom=Whether this Melvin can be dashed into from below.
+entities.CommunalHelper/Melvin.attributes.description.weakLeft=Whether this Melvin can be dashed into from the left.
+entities.CommunalHelper/Melvin.attributes.description.weakRight=Whether this Melvin can be dashed into from the right.
 
 # Move Block Redirect
 entities.CommunalHelper/MoveBlockRedirect.placements.name.normal=Move Block Redirect
@@ -473,7 +493,8 @@ entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffse
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
-###### MISSING TOOLTIPS!
+triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
+triggers.CommunalHelper/DashStateTrigger.attributes.description.mode=The changing mode. 'Trigger' changes the dash state when the player enters the trigger. 'OneUse' makes this trigger remove itself when used. 'Field' makes it change the dash state constantly while the player is inside. 
 
 # Music Param Trigger
 triggers.CommunalHelper/MusicParamTrigger.placements.name.trigger=Music Paramater

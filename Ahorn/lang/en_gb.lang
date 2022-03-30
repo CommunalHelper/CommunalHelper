@@ -185,7 +185,7 @@ placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.below=Deter
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.refillCount=Number of dashes the Dream Crumble Wall On Rumble should refill (-1 for default).
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.featherMode=Whether this block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.oneUse=Whether this block should shatter upon exit.
-placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.permanent=Whether this block should remain broken permanently.
+placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.persistent=Whether this block should remain broken permanently.
 placements.entities.CommunalHelper/DreamCrumbleWallOnRumble.tooltips.quickDestroy=Makes this Dream Crumble Wall On Rumble shatter a little faster.
 
 # -- Dream Tunnel Entry --
@@ -207,6 +207,9 @@ placements.entities.CommunalHelper/MoveSwapBlock.tooltips.swapSpeedMultiplier=Th
 # -- Heart Gem Shards --
 placements.entities.CommunalHelper/CrystalHeart.tooltips.removeCameraTriggers=Whether the heart should remove camera triggers onces its triggered.
 
+# -- Heart Gem Shards, Adventure Helper --
+placements.entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.tooltips.color=Determines the glow and particle color of the heart as well as its tint if no sprite path is set.
+placements.entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.tooltips.path=If set, determines what sprite will be used for the heart. The hitbox is not altered! If not set, the fake heart's white heart will be tinted.\nThe sprites of the default 4 hearts are treated differently and they will take the behavior of those. They are the following:\n* 'heartgem0' : A-side, Blue\n* 'heartgem1' : B-side, Red\n* 'heartgem2' : C-side, Gold\n* 'heartgem3' : Farewell, White
 
 # -- Move Block Redirect --
 placements.entities.CommunalHelper/MoveBlockRedirect.tooltips.direction=Determines the direction the Move Block moves after being redirected.
@@ -295,21 +298,25 @@ placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.WaitForPlayer=S
 placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
 placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Rainbow=Makes these spikes rainbow.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Rainbow=Makes these spikes rainbow.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Rainbow=Makes these spikes rainbow.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Rainbow=Makes these spikes rainbow.
 
 
 # -- Input Flag Controller --
@@ -326,7 +333,24 @@ placements.entities.CommunalHelper/DreamBooster.tooltips.hidePath=Hides the path
 
 # -- Surface Sound Panel --
 placements.entities.CommunalHelper/SurfaceSoundPanel.tooltips.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
+placements.entities.CommunalHelper/SurfaceSoundPanel.tooltips.soundIndex=The index associated with the surface sounds played on this panel.
 
+# -- Bouncy Panel --
+placements.entities.CommunalHelper/BouncyPanel.tooltips.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
+placements.entities.CommunalHelper/BouncyPanel.tooltips.orientation=The way this Bouncy Panel faces.
+placements.entities.CommunalHelper/BouncyPanel.tooltips.sfx=The sound that plays when the player bounces off this panel.
+
+# -- Dash Collision Panel --
+placements.entities.CommunalHelper/DashCollisionPanel.tooltips.orientation=The way this Dash Collision Panel faces.
+placements.entities.CommunalHelper/DashCollisionPanel.tooltips.dashCollideResult=The type of collision result returned when the player dashes into the solid on which this panel is placed.
+
+# -- Frictionless Panel --
+placements.entities.CommunalHelper/FrictionlessPanel.tooltips.orientation=The way this Frictionless Panel faces.
+
+
+# -- Chain --
+placements.entities.CommunalHelper/Chain.tooltips.outline=Whether this chain has an outline (black).
+placements.entities.CommunalHelper/Chain.tooltips.extraJoints=The additional 'chain nodes' this chain has. Used to make the chain longer without distancing the endpoints of the chain any further away from eachother.
 
 # -- Chained Falling Block --
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.tiletype=Changes the visual appearance of this block.
@@ -342,6 +366,7 @@ placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicatorAtStart
 placements.entities.CommunalHelper/ChainedKevin.tooltips.chillout=Whether the block should have the large face and get tired after being hit.
 placements.entities.CommunalHelper/ChainedKevin.tooltips.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
 placements.entities.CommunalHelper/ChainedKevin.tooltips.direction=The only direction in which this block will travel.
+placements.entities.CommunalHelper/ChainedKevin.tooltips.centeredChain=Renders only one chain at the horizontal or vertical center of this block, depending on the direction.
 placements.entities.CommunalHelper/ChainedKevin.tooltips.chainOutline=Whether the chain of this block should have a black outline.
 
 
@@ -362,6 +387,10 @@ placements.entities.CommunalHelper/NoOverlayLookout.tooltips.onlyY=Whether the w
 
 
 # -- Triggers --
+
+# -- Dash State Trigger --
+placements.triggers.CommunalHelper/DashStateTrigger.tooltips.dashState=The dash state to set.
+placements.triggers.CommunalHelper/DashStateTrigger.tooltips.mode=The changing mode.\n'Trigger' changes the dash state when the player enters the trigger.\n'OneUse' makes this trigger remove itself when used.\n'Field' makes it change the dash state constantly while the player is inside. 
 
 # -- Music Param Trigger --
 placements.triggers.CommunalHelper/MusicParamTrigger.tooltips.enterValue=The value to which the parameter(s) are set when the player is touching the trigger.
