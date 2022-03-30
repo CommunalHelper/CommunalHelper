@@ -3,6 +3,11 @@ local communalHelper = require("mods").requireFromPlugin("libraries.communal_hel
 local connectedDreamBlock = {}
 
 connectedDreamBlock.name = "CommunalHelper/ConnectedDreamBlock"
+connectedDreamBlock.fieldInformation = {
+    refillCount = {
+        fieldType = "integer"
+    }
+}
 
 function connectedDreamBlock.depth(room, entity)
     return entity.below and 5000 or -11000
@@ -19,7 +24,7 @@ connectedDreamBlock.placements = {
             oneUse = false,
             refillCount = -1,
             below = false,
-            quickDestroy = false,
+            quickDestroy = false
         }
     },
     {
@@ -32,7 +37,7 @@ connectedDreamBlock.placements = {
             oneUse = false,
             refillCount = -1,
             below = false,
-            quickDestroy = false,
+            quickDestroy = false
         }
     },
     {
@@ -45,7 +50,7 @@ connectedDreamBlock.placements = {
             oneUse = true,
             refillCount = -1,
             below = false,
-            quickDestroy = false,
+            quickDestroy = false
         }
     },
     {
@@ -58,7 +63,7 @@ connectedDreamBlock.placements = {
             oneUse = true,
             refillCount = -1,
             below = false,
-            quickDestroy = false,
+            quickDestroy = false
         }
     }
 }

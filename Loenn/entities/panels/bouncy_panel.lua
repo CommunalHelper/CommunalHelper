@@ -10,7 +10,7 @@ bouncyPanel.canResize = {true, true}
 bouncyPanel.fieldInformation = {
     orientation = {
         editable = false,
-        options = directions,
+        options = directions
     }
 }
 
@@ -24,7 +24,7 @@ for i, direction in ipairs(directions) do
             height = 8,
             orientation = direction,
             overrideAllowStaticMovers = false,
-            sfx = "event:/game/general/assist_dreamblockbounce",
+            sfx = "event:/game/general/assist_dreamblockbounce"
         }
     }
 end

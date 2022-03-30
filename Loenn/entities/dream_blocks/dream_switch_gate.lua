@@ -8,6 +8,11 @@ dreamSwitchGate.name = "CommunalHelper/DreamSwitchGate"
 dreamSwitchGate.nodeLimits = {1, 1}
 dreamSwitchGate.nodeLineRenderType = "line"
 dreamSwitchGate.minimumSize = {16, 16}
+dreamSwitchGate.fieldInformation = {
+    refillCount = {
+        fieldType = "integer"
+    }
+}
 
 function dreamSwitchGate.depth(room, entity)
     return entity.below and 5000 or -11000
@@ -24,7 +29,7 @@ dreamSwitchGate.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            permanent = false,
+            permanent = false
         }
     }
 }
@@ -34,11 +39,11 @@ local function addBlockSprites(sprites, x, y, width, height, feather)
     local centerX, centerY = x + halfWidth, y + halfHeight
 
     table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather))
-    
+
     local icon = drawableSprite.fromTexture("objects/switchgate/icon00")
     icon:setPosition(centerX, centerY)
     icon.depth = -1
-    
+
     table.insert(sprites, icon)
 end
 

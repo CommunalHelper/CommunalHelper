@@ -7,6 +7,11 @@ local dreamSwapBlock = {}
 dreamSwapBlock.name = "CommunalHelper/DreamSwapBlock"
 dreamSwapBlock.nodeLimits = {1, 1}
 dreamSwapBlock.minimumSize = {16, 16}
+dreamSwapBlock.fieldInformation = {
+    refillCount = {
+        fieldType = "integer"
+    }
+}
 
 function dreamSwapBlock.depth(room, entity)
     return entity.below and 5000 or -11000
@@ -23,7 +28,7 @@ dreamSwapBlock.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            noReturn = false,
+            noReturn = false
         }
     }
 }
@@ -33,7 +38,7 @@ local function addBlockSprites(sprites, x, y, width, height, noReturn, feather)
     local centerX, centerY = x + halfWidth, y + halfHeight
 
     table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather))
-    
+
     if noReturn then
         local cross = drawableSprite.fromTexture("objects/CommunalHelper/dreamMoveBlock/x")
         cross:setPosition(centerX, centerY)

@@ -19,7 +19,7 @@ heartGemShards.placements = {
         name = "heart_gem_shards",
         data = {
             color = "00a81f",
-            path = "",
+            path = ""
         }
     }
 }

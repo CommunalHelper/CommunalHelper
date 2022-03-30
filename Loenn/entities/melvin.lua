@@ -16,7 +16,7 @@ melvin.placements = {
             weakTop = false,
             weakRight = false,
             weakBottom = false,
-            weakLeft = false,
+            weakLeft = false
         }
     },
     {
@@ -27,7 +27,7 @@ melvin.placements = {
             weakTop = true,
             weakRight = true,
             weakBottom = true,
-            weakLeft = true,
+            weakLeft = true
         }
     },
     {
@@ -38,7 +38,7 @@ melvin.placements = {
             weakTop = false,
             weakRight = true,
             weakBottom = false,
-            weakLeft = true,
+            weakLeft = true
         }
     },
     {
@@ -49,7 +49,7 @@ melvin.placements = {
             weakTop = true,
             weakRight = false,
             weakBottom = true,
-            weakLeft = false,
+            weakLeft = false
         }
     }
 }
@@ -128,13 +128,12 @@ local function addBorderTiles(sprites, x, y, width, height, weakTop, weakBottom,
     bottomrightSprite:addPosition(x + width - 8, y + height - 8)
     table.insert(sprites, bottomrightSprite)
 
-    
     -- EDGES
     local top = weakTop and weakTiles or strongTiles
     local bottom = weakBottom and weakTiles or strongTiles
     local left = weakLeft and weakTiles or strongTiles
     local right = weakRight and weakTiles or strongTiles
-    
+
     local w = math.floor(width / 8) - 2
     local h = math.floor(height / 8) - 2
 

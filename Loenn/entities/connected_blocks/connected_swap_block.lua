@@ -12,8 +12,8 @@ connectedSwapBlock.minimumSize = {16, 16}
 connectedSwapBlock.nodeLimits = {1, 1}
 connectedSwapBlock.fieldInformation = {
     theme = {
-        editable = false,
-        options = enums.swap_block_themes
+        options = enums.swap_block_themes,
+        editable = false
     }
 }
 
@@ -26,7 +26,7 @@ connectedSwapBlock.placements = {
             height = 16,
             theme = "Normal",
             customGreenBlockTexture = "",
-            customRedBlockTexture = "",
+            customRedBlockTexture = ""
         }
     },
     {
@@ -37,7 +37,7 @@ connectedSwapBlock.placements = {
             height = 16,
             theme = "Normal",
             customGreenBlockTexture = "CommunalHelper/customConnectedBlock/customConnectedBlock",
-            customRedBlockTexture = "CommunalHelper/customConnectedBlock/customConnectedBlock",
+            customRedBlockTexture = "CommunalHelper/customConnectedBlock/customConnectedBlock"
         }
     }
 }
@@ -79,25 +79,18 @@ local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
     else
         if closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 8, 0
-
         elseif closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 8, 16
-
         elseif closedLeft and not closedRight and closedUp and closedDown then
             quadX, quadY = 16, 8
-
         elseif not closedLeft and closedRight and closedUp and closedDown then
             quadX, quadY = 0, 8
-
         elseif closedLeft and not closedRight and not closedUp and closedDown then
             quadX, quadY = 16, 0
-
         elseif not closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 0, 0
-
         elseif not closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 0, 16
-
         elseif closedLeft and not closedRight and closedUp and not closedDown then
             quadX, quadY = 16, 16
         end
@@ -128,7 +121,7 @@ local function getConnectedSwapBlockThemeData(entity)
             inner = full,
             path = path,
             mid = mid,
-            txOffset = 24,
+            txOffset = 24
         }
     end
 
@@ -137,15 +130,9 @@ local function getConnectedSwapBlockThemeData(entity)
         inner = "objects/CommunalHelper/connectedSwapBlock/" .. themePath .. "innerCornersRed",
         path = path,
         mid = mid,
-        txOffset = 0,
+        txOffset = 0
     }
 end
-
-local trailNinePatchOptions = {
-    mode = "fill",
-    borderMode = "repeat",
-    useRealSize = true
-}
 
 local function addBlockSprites(sprites, room, entity, w, h, tw, th, themeData)
     local relevantBlocks = utils.filter(getSearchPredicate(), room.entities)

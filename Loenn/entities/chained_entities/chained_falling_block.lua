@@ -4,7 +4,16 @@ local fakeTilesHelper = require("helpers.fake_tiles")
 local chainedFallingBlock = {}
 
 chainedFallingBlock.name = "CommunalHelper/ChainedFallingBlock"
-chainedFallingBlock.fieldInformation = fakeTilesHelper.getFieldInformation("tiletype")
+chainedFallingBlock.fieldInformation = {
+    tiletype = {
+        options = fakeTilesHelper.getTilesOptions(),
+        editable = false
+    },
+    fallDistance = {
+        minimumValue = 0,
+        fieldType = "integer"
+    }
+}
 
 function chainedFallingBlock.depth(room, entity)
     return entity.behind and 5000 or 0
@@ -22,7 +31,7 @@ chainedFallingBlock.placements = {
         centeredChain = false,
         chainOutline = true,
         indicator = false,
-        indicatorAtStart = false,
+        indicatorAtStart = false
     }
 }
 

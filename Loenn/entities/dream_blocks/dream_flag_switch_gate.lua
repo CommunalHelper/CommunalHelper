@@ -12,7 +12,16 @@ local communalHelper = mods.requireFromPlugin("libraries.communal_helper")
 local dreamFlagSwitchGate = {}
 
 local bundledIcons = {
-    "vanilla", "tall", "triangle", "circle", "diamond", "double", "heart", "square", "wide", "winged"
+    "vanilla",
+    "tall",
+    "triangle",
+    "circle",
+    "diamond",
+    "double",
+    "heart",
+    "square",
+    "wide",
+    "winged"
 }
 
 dreamFlagSwitchGate.name = "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate"
@@ -30,13 +39,16 @@ dreamFlagSwitchGate.fieldInformation = {
         fieldType = "color"
     },
     icon = {
-        options = bundledIcons,
+        options = bundledIcons
     },
     moveSound = {
         options = {"event:/game/general/touchswitch_gate_open"}
     },
     finishedSound = {
         options = {"event:/game/general/touchswitch_gate_finish"}
+    },
+    refillCount = {
+        fieldType = "integer"
     }
 }
 
@@ -66,7 +78,7 @@ dreamFlagSwitchGate.placements = {
             moveEased = true,
             allowReturn = false,
             moveSound = "event:/game/general/touchswitch_gate_open",
-            finishedSound = "event:/game/general/touchswitch_gate_finish",
+            finishedSound = "event:/game/general/touchswitch_gate_finish"
         }
     }
 }
@@ -76,10 +88,10 @@ local function addBlockSprites(sprites, x, y, width, height, feather, icon)
     local centerX, centerY = x + halfWidth, y + halfHeight
 
     table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather))
-    
+
     local iconResource = "objects/switchgate/icon00"
     if icon ~= "vanilla" then
-        iconResource = "objects/MaxHelpingHand/flagSwitchGate/" .. icon .."/icon00"
+        iconResource = "objects/MaxHelpingHand/flagSwitchGate/" .. icon .. "/icon00"
     end
 
     local iconSprite = drawableSprite.fromTexture(iconResource)

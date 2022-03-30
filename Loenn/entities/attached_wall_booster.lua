@@ -43,7 +43,7 @@ function attachedWallBooster.sprite(room, entity)
 
     for i = 2, tileHeight - 1 do
         local middleSprite = drawableSprite.fromTexture(middleTexture, entity)
-        
+
         middleSprite:addPosition(offsetX, (i - 1) * 8)
         middleSprite:setScale(scaleX, 1)
         middleSprite:setJustification(0.0, 0.0)

@@ -1,6 +1,6 @@
 local drawableRectangle = require("structs.drawable_rectangle")
-local drawableSprite = require("structs.drawable_sprite")
 local drawableLine = require("structs.drawable_line")
+local drawableSprite = require("structs.drawable_sprite")
 
 local playerBubbleRegion = {}
 
@@ -14,7 +14,7 @@ playerBubbleRegion.placements = {
         name = "player_bubble_region",
         data = {
             width = 24,
-            height = 24,
+            height = 24
         }
     }
 }

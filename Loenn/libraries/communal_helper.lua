@@ -1,9 +1,9 @@
-local drawableSprite = require("structs.drawable_sprite")
 local drawableLine = require("structs.drawable_line")
 local drawableRectangle = require("structs.drawable_rectangle")
+local drawableSprite = require("structs.drawable_sprite")
 local drawableNinePatch = require("structs.drawable_nine_patch")
-local connectedEntities = require("helpers.connected_entities")
 local utils = require("utils")
+local connectedEntities = require("helpers.connected_entities")
 
 local communalHelper = {}
 
@@ -24,8 +24,9 @@ communalHelper.cassetteBlockColors = {
     {73 / 255, 170 / 255, 240 / 255},
     {240 / 255, 73 / 255, 190 / 255},
     {252 / 255, 220 / 255, 58 / 255},
-    {56 / 255, 224 / 255, 78 / 255},
+    {56 / 255, 224 / 255, 78 / 255}
 }
+
 communalHelper.cassetteBlockColorNames = {
     ["0 - Blue"] = 0,
     ["1 - Rose"] = 1,
@@ -37,7 +38,7 @@ communalHelper.cassetteBlockHexColors = {
     "49aaf0",
     "f049be",
     "fcdc3a",
-    "38e04e",
+    "38e04e"
 }
 
 local function getSearchPredicate(entity)
@@ -62,41 +63,30 @@ local function getTileSprite(entity, x, y, frame, color, depth, rectangles)
     if completelyClosed then
         if not hasAdjacent(entity, drawX + 8, drawY - 8, rectangles) then
             quadX, quadY = 24, 0
-
         elseif not hasAdjacent(entity, drawX - 8, drawY - 8, rectangles) then
             quadX, quadY = 24, 8
-
         elseif not hasAdjacent(entity, drawX + 8, drawY + 8, rectangles) then
             quadX, quadY = 24, 16
-
         elseif not hasAdjacent(entity, drawX - 8, drawY + 8, rectangles) then
             quadX, quadY = 24, 24
-
         else
             quadX, quadY = 8, 8
         end
     else
         if closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 8, 0
-
         elseif closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 8, 16
-
         elseif closedLeft and not closedRight and closedUp and closedDown then
             quadX, quadY = 16, 8
-
         elseif not closedLeft and closedRight and closedUp and closedDown then
             quadX, quadY = 0, 8
-
         elseif closedLeft and not closedRight and not closedUp and closedDown then
             quadX, quadY = 16, 0
-
         elseif not closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 0, 0
-
         elseif not closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 0, 16
-
         elseif closedLeft and not closedRight and closedUp and not closedDown then
             quadX, quadY = 16, 16
         end
@@ -253,11 +243,16 @@ end
 -- panels
 
 communalHelper.panelDirectionsOmitDown = {
-    "Up", "Left", "Right"
+    "Up",
+    "Left",
+    "Right"
 }
 
 communalHelper.panelDirections = {
-    "Up", "Down", "Left", "Right"
+    "Up",
+    "Down",
+    "Left",
+    "Right"
 }
 
 function communalHelper.getPanelSprite(entity, color)

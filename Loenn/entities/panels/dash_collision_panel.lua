@@ -8,7 +8,7 @@ local dashCollisionResults = {
     "NormalCollision",
     "NormalOverride",
     "Bounce",
-    "Ignore",
+    "Ignore"
 }
 
 dashCollisionPanel.name = "CommunalHelper/DashCollisionPanel"
@@ -17,11 +17,11 @@ dashCollisionPanel.canResize = {true, true}
 dashCollisionPanel.fieldInformation = {
     dashCollideResult = {
         editable = false,
-        options = dashCollisionResults,
+        options = dashCollisionResults
     },
     orientation = {
         editable = false,
-        options = directions,
+        options = directions
     }
 }
 
@@ -34,7 +34,7 @@ for i, direction in ipairs(directions) do
             width = 8,
             height = 8,
             orientation = direction,
-            dashCollideResult = "None",
+            dashCollideResult = "None"
         }
     }
 end

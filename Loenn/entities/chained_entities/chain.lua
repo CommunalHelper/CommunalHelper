@@ -1,17 +1,23 @@
 local drawing = require("utils.drawing")
-local utils = require("utils")
 local drawableLine = require("structs.drawable_line")
+local utils = require("utils")
 
 local chain = {}
 
 chain.name = "CommunalHelper/Chain"
 chain.nodeLimits = {1, 1}
+chain.fieldInformation = {
+    extraJoints = {
+        minimumValue = 0,
+        fieldType = "integer"
+    }
+}
 
 chain.placements = {
     name = "chain",
     data = {
         extraJoints = 0,
-        outline = true,
+        outline = true
     }
 }
 

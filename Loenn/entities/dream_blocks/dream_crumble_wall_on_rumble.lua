@@ -3,6 +3,11 @@ local communalHelper = require("mods").requireFromPlugin("libraries.communal_hel
 local dreamCrumbleWallOnRumble = {}
 
 dreamCrumbleWallOnRumble.name = "CommunalHelper/DreamCrumbleWallOnRumble"
+dreamCrumbleWallOnRumble.fieldInformation = {
+    refillCount = {
+        fieldType = "integer"
+    }
+}
 
 function dreamCrumbleWallOnRumble.depth(room, entity)
     return entity.below and 5000 or -11000
@@ -20,7 +25,7 @@ dreamCrumbleWallOnRumble.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            permanant = false,
+            permanant = false
         }
     }
 }

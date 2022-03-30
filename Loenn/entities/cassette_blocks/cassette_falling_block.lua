@@ -11,10 +11,13 @@ cassetteFallingBlock.fieldInformation = {
     index = {
         options = colorNames,
         editable = false,
-        fieldType = "integer",
+        fieldType = "integer"
     },
     customColor = {
-        fieldType = "color",
+        fieldType = "color"
+    },
+    tempo = {
+        minimumValue = 0.0
     }
 }
 

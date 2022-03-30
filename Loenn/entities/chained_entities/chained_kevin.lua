@@ -1,6 +1,6 @@
-local drawableNinePatch = require("structs.drawable_nine_patch")
 local drawableRectangle = require("structs.drawable_rectangle")
 local drawableSprite = require("structs.drawable_sprite")
+local drawableNinePatch = require("structs.drawable_nine_patch")
 local enums = require("consts.celeste_enums")
 
 local chainedKevin = {}
@@ -13,29 +13,36 @@ chainedKevin.minimumSize = {24, 24}
 chainedKevin.fieldInformation = {
     direction = {
         options = directions,
-        editable = false,
+        editable = false
+    },
+    chainLength = {
+        minimumValue = 0,
+        fieldType = "integer"
     }
 }
 
 chainedKevin.placements = {}
 for _, direction in pairs(directions) do
-    table.insert(chainedKevin.placements, {
-        name = string.lower(direction),
-        data = {
-            width = 24,
-            height = 24,
-            chillout = false,
-            chainLength = 64,
-            direction = direction,
-            chainOutline = true,
-            centeredChain = false,
+    table.insert(
+        chainedKevin.placements,
+        {
+            name = string.lower(direction),
+            data = {
+                width = 24,
+                height = 24,
+                chillout = false,
+                chainLength = 64,
+                direction = direction,
+                chainOutline = true,
+                centeredChain = false
+            }
         }
-    })
+    )
 end
 
 local ninePatchOptions = {
     mode = "border",
-    borderMode = "random",
+    borderMode = "random"
 }
 
 local kevinColor = {98 / 255, 34 / 255, 43 / 255}

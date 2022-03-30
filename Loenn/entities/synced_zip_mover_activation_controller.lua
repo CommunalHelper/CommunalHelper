@@ -6,16 +6,18 @@ syncedZipMoverActivationController.texture = "objects/CommunalHelper/syncedZipMo
 syncedZipMoverActivationController.fieldInformation = {
     colorCode = {
         fieldType = "color"
+    },
+    zipMoverSpeedMultiplier = {
+        minimumValue = 0.0
     }
 }
-
 
 syncedZipMoverActivationController.placements = {
     {
         name = "controller",
         data = {
             colorCode = "ff00ff",
-            zipMoverSpeedMultiplier = 1.0,
+            zipMoverSpeedMultiplier = 1.0
         }
     }
 }

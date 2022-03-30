@@ -10,14 +10,14 @@ dreamJellyfish.placements = {
         name = "normal",
         data = {
             bubble = false,
-            tutorial = false,
+            tutorial = false
         }
     },
     {
         name = "floating",
         data = {
             bubble = true,
-            tutorial = false,
+            tutorial = false
         }
     }
 }

@@ -9,7 +9,10 @@ dreamTunnelEntry.canResize = {true, true}
 dreamTunnelEntry.fieldInformation = {
     orientation = {
         editable = false,
-        options = directions,
+        options = directions
+    },
+    depth = {
+        fieldType = "integer"
     }
 }
 
@@ -27,7 +30,7 @@ for i, direction in ipairs(directions) do
             height = 8,
             orientation = direction,
             overrideAllowStaticMovers = false,
-            depth = -13000,
+            depth = -13000
         }
     }
 end

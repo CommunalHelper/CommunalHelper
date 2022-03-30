@@ -12,7 +12,7 @@ heartGemShards.placements = {
     {
         name = "heart_gem_shards",
         data = {
-            removeCameraTriggers = false,
+            removeCameraTriggers = false
         }
     }
 }

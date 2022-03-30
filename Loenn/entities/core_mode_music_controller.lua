@@ -4,8 +4,7 @@ coreModeMusicController.name = "CommunalHelper/CoreModeMusicController"
 coreModeMusicController.depth = -1000000
 
 function coreModeMusicController.texture(room, entity)
-    return entity.disable and "objects/CommunalHelper/coreModeMusicController/iconDisable"
-                          or "objects/CommunalHelper/coreModeMusicController/iconEnable"
+    return entity.disable and "objects/CommunalHelper/coreModeMusicController/iconDisable" or "objects/CommunalHelper/coreModeMusicController/iconEnable"
 end
 
 coreModeMusicController.placements = {

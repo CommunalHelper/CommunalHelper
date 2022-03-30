@@ -1,6 +1,6 @@
 local drawableSprite = require("structs.drawable_sprite")
-local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 local utils = require("utils")
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local cassetteZipMover = {}
 
@@ -11,23 +11,26 @@ local ropeColors = {
     {110 / 255, 189 / 255, 245 / 255, 1.0},
     {194 / 255, 116 / 255, 171 / 255, 1.0},
     {227 / 255, 214 / 255, 148 / 255, 1.0},
-    {128 / 255, 224 / 255, 141 / 255, 1.0},
+    {128 / 255, 224 / 255, 141 / 255, 1.0}
 }
 
 cassetteZipMover.name = "CommunalHelper/CassetteZipMover"
 cassetteZipMover.minimumSize = {16, 16}
+cassetteZipMover.nodeLimits = {1, -1}
+cassetteZipMover.nodeVisibility = "never"
 cassetteZipMover.fieldInformation = {
     index = {
         options = colorNames,
         editable = false,
-        fieldType = "integer",
+        fieldType = "integer"
     },
     customColor = {
-        fieldType = "color",
+        fieldType = "color"
+    },
+    tempo = {
+        minimumValue = 0.0
     }
 }
-cassetteZipMover.nodeVisibility = "never"
-cassetteZipMover.nodeLimits = {1, -1}
 
 cassetteZipMover.placements = {}
 for i = 1, 4 do
@@ -42,7 +45,7 @@ for i = 1, 4 do
             waiting = false,
             ticking = false,
             noReturn = false,
-            customColor = colors[i],
+            customColor = colors[i]
         }
     }
 end

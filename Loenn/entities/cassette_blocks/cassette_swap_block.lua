@@ -1,6 +1,6 @@
 local drawableSprite = require("structs.drawable_sprite")
-local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 local utils = require("utils")
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local cassetteSwapBlock = {}
 
@@ -14,10 +14,13 @@ cassetteSwapBlock.fieldInformation = {
     index = {
         options = colorNames,
         editable = false,
-        fieldType = "integer",
+        fieldType = "integer"
     },
     customColor = {
-        fieldType = "color",
+        fieldType = "color"
+    },
+    tempo = {
+        minimumValue = 0.0
     }
 }
 

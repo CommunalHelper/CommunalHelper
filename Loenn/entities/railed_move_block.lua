@@ -1,13 +1,15 @@
-local drawableNinePatch = require("structs.drawable_nine_patch")
 local drawableRectangle = require("structs.drawable_rectangle")
 local drawableSprite = require("structs.drawable_sprite")
+local drawableNinePatch = require("structs.drawable_nine_patch")
 local utils = require("utils")
 local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local railedMoveBlock = {}
 
 local steeringModes = {
-    "Horizontal", "Vertical", "Both"
+    "Horizontal",
+    "Vertical",
+    "Both"
 }
 
 railedMoveBlock.name = "CommunalHelper/RailedMoveBlock"
@@ -19,6 +21,9 @@ railedMoveBlock.fieldInformation = {
     steeringMode = {
         options = steeringModes,
         editable = false
+    },
+    speed = {
+        minimumValue = 0.0
     }
 }
 
@@ -30,7 +35,7 @@ for i, steeringMode in ipairs(steeringModes) do
             width = 16,
             height = 16,
             steeringMode = steeringMode,
-            speed = 120.0,
+            speed = 120.0
         }
     }
 end
@@ -49,12 +54,12 @@ local buttonTexture = "objects/moveBlock/button"
 local arrowTextures = {
     horizontal = "objects/CommunalHelper/railedMoveBlock/h",
     vertical = "objects/CommunalHelper/railedMoveBlock/v",
-    both = "objects/CommunalHelper/railedMoveBlock/both",
+    both = "objects/CommunalHelper/railedMoveBlock/both"
 }
 local steeringFrameTextures = {
     horizontal = "objects/moveBlock/base_v",
     vertical = "objects/moveBlock/base_h",
-    both = "objects/CommunalHelper/railedMoveBlock/base_both",
+    both = "objects/CommunalHelper/railedMoveBlock/base_both"
 }
 
 -- How far the button peeks out of the block and offset to keep it in the "socket"

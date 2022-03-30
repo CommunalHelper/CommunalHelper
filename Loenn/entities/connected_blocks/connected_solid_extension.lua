@@ -1,6 +1,6 @@
-local connectedEntities = require("helpers.connected_entities")
 local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
+local connectedEntities = require("helpers.connected_entities")
 
 local connectedSolidExtension = {}
 
@@ -24,7 +24,7 @@ connectedSolidExtension.placements = {
         data = {
             width = 16,
             height = 16,
-            collidable = false,
+            collidable = false
         }
     }
 }
@@ -34,8 +34,11 @@ local connectTo = {
     "CommunalHelper/ConnectedZipMover",
     "CommunalHelper/ConnectedSwapBlock",
     "CommunalHelper/ConnectedMoveBlock",
-    "CommunalHelper/EquationMoveBlock",
+    "CommunalHelper/EquationMoveBlock"
 }
+
+local frame = "objects/CommunalHelper/connectedZipMover/extension_outline"
+local frameAlt = "objects/CommunalHelper/connectedZipMover/extension_outline_alt"
 
 local function getSearchPredicate()
     return function(target)
@@ -84,25 +87,18 @@ local function getTileSprite(entity, x, y, frame, rectangles)
     else
         if closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 8, 0
-
         elseif closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 8, 16
-
         elseif closedLeft and not closedRight and closedUp and closedDown then
             quadX, quadY = 16, 8
-
         elseif not closedLeft and closedRight and closedUp and closedDown then
             quadX, quadY = 0, 8
-
         elseif closedLeft and not closedRight and not closedUp and closedDown then
             quadX, quadY = 16, 0
-
         elseif not closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 0, 0
-
         elseif not closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 0, 16
-
         elseif closedLeft and not closedRight and closedUp and not closedDown then
             quadX, quadY = 16, 16
         end
@@ -117,9 +113,6 @@ local function getTileSprite(entity, x, y, frame, rectangles)
         return sprite
     end
 end
-
-local frame = "objects/CommunalHelper/connectedZipMover/extension_outline"
-local frameAlt = "objects/CommunalHelper/connectedZipMover/extension_outline_alt"
 
 function connectedSolidExtension.sprite(room, entity)
     local sprites = {}
@@ -145,6 +138,5 @@ function connectedSolidExtension.sprite(room, entity)
 
     return sprites
 end
-
 
 return connectedSolidExtension

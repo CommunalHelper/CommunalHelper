@@ -19,11 +19,14 @@ stationBlock.fieldInformation = {
     },
     theme = {
         options = themes,
-        editable = false,
+        editable = false
     },
     behavior = {
         options = behaviors,
-        editable = false,
+        editable = false
+    },
+    speedFactor = {
+        minimumValue = 0.0
     }
 }
 
@@ -56,14 +59,14 @@ local function getStationBlockThemeData(size, theme, behavior, wavedash)
     local moon = theme == "moon"
     local pushing = behavior == "pushing"
 
-    local block = (pushing and "alt_" or "") .. (moon and "moon_" or "") .. "block"  .. (wavedash and "_button" or "")
-    
+    local block = (pushing and "alt_" or "") .. (moon and "moon_" or "") .. "block" .. (wavedash and "_button" or "")
+
     local arrowDir = moon and (pushing and "altMoonArrow" or "moonArrow") or (pushing and "altArrow" or "arrow")
     local arrowFrame = (size <= 16 and "small00") or (size <= 24 and "med00") or "big00"
 
     return {
         block = "objects/CommunalHelper/stationBlock/blocks/" .. block,
-        arrow = "objects/CommunalHelper/stationBlock/" .. arrowDir .. "/" .. arrowFrame,
+        arrow = "objects/CommunalHelper/stationBlock/" .. arrowDir .. "/" .. arrowFrame
     }
 end
 

@@ -1,14 +1,14 @@
-local connectedEntities = require("helpers.connected_entities")
-local drawableSprite = require("structs.drawable_sprite")
 local drawableRectangle = require("structs.drawable_rectangle")
+local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
 local enums = require("consts.celeste_enums")
+local connectedEntities = require("helpers.connected_entities")
 
 local connectedMoveBlock = {}
 
 local moveSpeeds = {
     ["Slow"] = 60.0,
-    ["Fast"] = 75.0,
+    ["Fast"] = 75.0
 }
 
 local arrowTextures = {
@@ -24,10 +24,11 @@ connectedMoveBlock.minimumSize = {16, 16}
 connectedMoveBlock.fieldInformation = {
     direction = {
         options = enums.move_block_directions,
-        editable = false,
+        editable = false
     },
     moveSpeed = {
         options = moveSpeeds,
+        minimumValue = 0.0
     },
     idleColor = {
         fieldType = "color"
@@ -88,9 +89,11 @@ connectedMoveBlock.placements[6] = {
         onActivateFlags = "",
         onBreakFlags = "",
         barrierBlocksFlags = false,
-        waitForFlags = false,
+        waitForFlags = false
     }
 }
+
+local highlightColor = {59 / 255, 50 / 255, 101 / 255}
 
 local function getSearchPredicate()
     return function(target)
@@ -129,25 +132,18 @@ local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
     else
         if closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 8, 0
-
         elseif closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 8, 16
-
         elseif closedLeft and not closedRight and closedUp and closedDown then
             quadX, quadY = 16, 8
-
         elseif not closedLeft and closedRight and closedUp and closedDown then
             quadX, quadY = 0, 8
-
         elseif closedLeft and not closedRight and not closedUp and closedDown then
             quadX, quadY = 16, 0
-
         elseif not closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 0, 0
-
         elseif not closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 0, 16
-
         elseif closedLeft and not closedRight and closedUp and not closedDown then
             quadX, quadY = 16, 16
         end
@@ -170,18 +166,16 @@ local function getConnectedMoveBlockThemeData(entity)
         return {
             block = full,
             inner = full,
-            txOffset = 24,
+            txOffset = 24
         }
     end
 
     return {
         block = "objects/moveBlock/base",
         inner = "objects/CommunalHelper/connectedMoveBlock/innerCorners",
-        txOffset = 0,
+        txOffset = 0
     }
 end
-
-local highlightColor = {59 / 255, 50 / 255, 101 / 255}
 
 function connectedMoveBlock.sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0

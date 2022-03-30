@@ -7,7 +7,7 @@ local dreamMoveBlock = {}
 
 local moveSpeeds = {
     ["Slow"] = 60.0,
-    ["Fast"] = 75.0,
+    ["Fast"] = 75.0
 }
 
 dreamMoveBlock.name = "CommunalHelper/DreamMoveBlock"
@@ -15,10 +15,14 @@ dreamMoveBlock.minimumSize = {16, 16}
 dreamMoveBlock.fieldInformation = {
     direction = {
         options = enums.move_block_directions,
-        editable = false,
+        editable = false
     },
     moveSpeed = {
         options = moveSpeeds,
+        minimumValue = 0.0
+    },
+    refillCount = {
+        fieldType = "integer"
     }
 }
 
@@ -39,7 +43,7 @@ dreamMoveBlock.placements = {
             quickDestroy = false,
             direction = "Right",
             moveSpeed = 60.0,
-            noCollide = false,
+            noCollide = false
         }
     }
 }
@@ -59,7 +63,7 @@ function dreamMoveBlock.sprite(room, entity)
     local sprites = {}
 
     table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather))
-    
+
     local direction = string.lower(entity.direction)
     local arrowTexture = arrowTextures[direction] or arrowTextures["right"]
 

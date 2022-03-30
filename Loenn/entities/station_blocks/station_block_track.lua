@@ -15,7 +15,6 @@ local moveModes = {
 stationBlockTrack.name = "CommunalHelper/StationBlockTrack"
 stationBlockTrack.depth = -5000
 stationBlockTrack.minimumSize = {24, 24}
-stationBlockTrack.canResize = {true, true}
 stationBlockTrack.fieldInformation = {
     indicatorColor = {
         fieldType = "color"
@@ -29,7 +28,7 @@ stationBlockTrack.fieldInformation = {
     },
     trackSwitchState = {
         options = switchStates,
-        editable = false,
+        editable = false
     }
 }
 
@@ -92,7 +91,7 @@ local function addMoveModeIndicatorSprites(sprites, entity, width, height, moveM
 
         table.insert(sprites, arrowSprite)
     end
-end 
+end
 
 local function addTrackSprites(sprites, entity, horiz, color, width, height, ty, ox, oy)
     local nodeFromSprite = drawableSprite.fromTexture(nodesTexture, entity)
@@ -108,7 +107,7 @@ local function addTrackSprites(sprites, entity, horiz, color, width, height, ty,
 
     table.insert(sprites, nodeFromSprite)
     table.insert(sprites, nodeToSprite)
-    
+
     local size = math.floor((horiz and width or height) / 8)
     local trackTexture = horiz and hTrackTexture or vTrackTexture
 

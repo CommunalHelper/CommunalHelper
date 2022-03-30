@@ -1,14 +1,14 @@
-local connectedEntities = require("helpers.connected_entities")
-local drawableSprite = require("structs.drawable_sprite")
 local drawableRectangle = require("structs.drawable_rectangle")
-local utils = require("utils")
+local drawableSprite = require("structs.drawable_sprite")
 local enums = require("consts.celeste_enums")
+local utils = require("utils")
+local connectedEntities = require("helpers.connected_entities")
 
 local equationMoveBlock = {}
 
 local moveSpeeds = {
     ["Slow"] = 60.0,
-    ["Fast"] = 75.0,
+    ["Fast"] = 75.0
 }
 
 local arrowTextures = {
@@ -26,21 +26,22 @@ local equations = {
     ["4: y = a*cos bx"] = 4,
     ["5: y = ae^bx"] = 5,
     ["6: y = ax^b"] = 6,
-    ["7: x-scale = a, y-scale = b (elliptic)"] = 7,
+    ["7: x-scale = a, y-scale = b (elliptic)"] = 7
 }
 
 equationMoveBlock.name = "CommunalHelper/EquationMoveBlock"
 equationMoveBlock.depth = -1
 equationMoveBlock.minimumSize = {16, 16}
-equationMoveBlock.nodeVisibility = "never"
 equationMoveBlock.nodeLimits = {1, -1}
+equationMoveBlock.nodeVisibility = "never"
 equationMoveBlock.fieldInformation = {
     direction = {
         options = enums.move_block_directions,
-        editable = false,
+        editable = false
     },
     moveSpeed = {
         options = moveSpeeds,
+        minimumValue = 0.0
     },
     idleColor = {
         fieldType = "color"
@@ -52,8 +53,8 @@ equationMoveBlock.fieldInformation = {
         fieldType = "color"
     },
     equation = {
-        editable = false,
         options = equations,
+        editable = false
     }
 }
 
@@ -73,15 +74,14 @@ for i, direction in ipairs(enums.move_block_directions) do
             moveSpeed = 60.0,
             customBlockTexture = "",
             equation = 3,
-            constantA = 10,
+            constantA = 10.0,
             constantB = 0.05,
             idleColor = "474070",
             pressedColor = "30b335",
-            breakColor = "cc2541",
+            breakColor = "cc2541"
         }
     }
 end
-
 equationMoveBlock.placements[5] = {
     name = "reskinnable",
     placementType = "rectangle",
@@ -96,7 +96,7 @@ equationMoveBlock.placements[5] = {
         constantB = 0.05,
         idleColor = "474070",
         pressedColor = "30b335",
-        breakColor = "cc2541",
+        breakColor = "cc2541"
     }
 }
 equationMoveBlock.placements[6] = {
@@ -119,9 +119,11 @@ equationMoveBlock.placements[6] = {
         onActivateFlags = "",
         onBreakFlags = "",
         barrierBlocksFlags = false,
-        waitForFlags = false,
+        waitForFlags = false
     }
 }
+
+local highlightColor = {59 / 255, 50 / 255, 101 / 255}
 
 local function getSearchPredicate()
     return function(target)
@@ -160,25 +162,18 @@ local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
     else
         if closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 8, 0
-
         elseif closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 8, 16
-
         elseif closedLeft and not closedRight and closedUp and closedDown then
             quadX, quadY = 16, 8
-
         elseif not closedLeft and closedRight and closedUp and closedDown then
             quadX, quadY = 0, 8
-
         elseif closedLeft and not closedRight and not closedUp and closedDown then
             quadX, quadY = 16, 0
-
         elseif not closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 0, 0
-
         elseif not closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 0, 16
-
         elseif closedLeft and not closedRight and closedUp and not closedDown then
             quadX, quadY = 16, 16
         end
@@ -201,18 +196,16 @@ local function getConnectedMoveBlockThemeData(entity)
         return {
             block = full,
             inner = full,
-            txOffset = 24,
+            txOffset = 24
         }
     end
 
     return {
         block = "objects/moveBlock/base",
         inner = "objects/CommunalHelper/connectedMoveBlock/innerCorners",
-        txOffset = 0,
+        txOffset = 0
     }
 end
-
-local highlightColor = {59 / 255, 50 / 255, 101 / 255}
 
 function equationMoveBlock.sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0

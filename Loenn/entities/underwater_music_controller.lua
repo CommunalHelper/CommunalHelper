@@ -9,7 +9,7 @@ underwaterMusicController.placements = {
         name = "controller",
         data = {
             enable = false,
-            dashSFX = false,
+            dashSFX = false
         }
     }
 }

@@ -9,7 +9,7 @@ local colors = communalHelper.cassetteBlockHexColors
 
 local moveSpeeds = {
     ["Slow"] = 60.0,
-    ["Fast"] = 75.0,
+    ["Fast"] = 75.0
 }
 
 cassetteMoveBlock.name = "CommunalHelper/CassetteMoveBlock"
@@ -18,17 +18,21 @@ cassetteMoveBlock.fieldInformation = {
     index = {
         options = colorNames,
         editable = false,
-        fieldType = "integer",
+        fieldType = "integer"
     },
     customColor = {
-        fieldType = "color",
+        fieldType = "color"
     },
     direction = {
         options = enums.move_block_directions,
-        editable = false,
+        editable = false
     },
     moveSpeed = {
         options = moveSpeeds,
+        minimumValue = 0.0
+    },
+    tempo = {
+        minimumValue = 0.0
     }
 }
 
@@ -63,7 +67,7 @@ function cassetteMoveBlock.sprite(room, entity)
 
     local direction = string.lower(entity.direction)
     local arrowTexture = arrowTextures[direction] or arrowTextures["right"]
-    
+
     local arrowSprite = drawableSprite.fromTexture(arrowTexture, entity)
     arrowSprite:addPosition(math.floor(width / 2), math.floor(height / 2))
     arrowSprite:setColor(color)

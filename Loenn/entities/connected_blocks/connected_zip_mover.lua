@@ -1,24 +1,26 @@
-local connectedEntities = require("helpers.connected_entities")
-local drawableSprite = require("structs.drawable_sprite")
 local drawableRectangle = require("structs.drawable_rectangle")
+local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
+local connectedEntities = require("helpers.connected_entities")
 local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local connectedZipMover = {}
 
 local themes = {
-    "Normal", "Moon", "Cliffside"
+    "Normal",
+    "Moon",
+    "Cliffside"
 }
 
 connectedZipMover.name = "CommunalHelper/ConnectedZipMover"
 connectedZipMover.depth = 4999
 connectedZipMover.minimumSize = {16, 16}
-connectedZipMover.nodeVisibility = "never"
 connectedZipMover.nodeLimits = {1, -1}
+connectedZipMover.nodeVisibility = "never"
 connectedZipMover.fieldInformation = {
     theme = {
-        editable = false,
-        options = themes
+        options = themes,
+        editable = false
     }
 }
 
@@ -39,6 +41,8 @@ for i, theme in ipairs(themes) do
         }
     }
 end
+
+local zipMoverRoleColor = {102 / 255, 57 / 255, 49 / 255}
 
 local function getSearchPredicate()
     return function(target)
@@ -77,25 +81,18 @@ local function getTileSprite(entity, x, y, block, inner, rectangles)
     else
         if closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 8, 0
-
         elseif closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 8, 16
-
         elseif closedLeft and not closedRight and closedUp and closedDown then
             quadX, quadY = 16, 8
-
         elseif not closedLeft and closedRight and closedUp and closedDown then
             quadX, quadY = 0, 8
-
         elseif closedLeft and not closedRight and not closedUp and closedDown then
             quadX, quadY = 16, 0
-
         elseif not closedLeft and closedRight and not closedUp and closedDown then
             quadX, quadY = 0, 0
-
         elseif not closedLeft and closedRight and closedUp and not closedDown then
             quadX, quadY = 0, 16
-
         elseif closedLeft and not closedRight and closedUp and not closedDown then
             quadX, quadY = 16, 16
         end
@@ -116,8 +113,8 @@ local function getConnectedZipMoverThemeData(entity)
     local cliffside = theme == "cliffside"
     local folder = cliffside and "CommunalHelper/connectedZipMover" or "zipmover"
     local themePath = (theme == "normal") and "" or (theme .. "/")
-    
-    local customSkin = entity. customSkin or ""
+
+    local customSkin = entity.customSkin or ""
     if customSkin ~= "" then
         return {
             block = customSkin .. "/block",
@@ -126,7 +123,7 @@ local function getConnectedZipMoverThemeData(entity)
             inner = customSkin .. "/innerCorners"
         }
     end
-    
+
     return {
         block = "objects/" .. folder .. "/" .. themePath .. "block",
         light = "objects/" .. folder .. "/" .. themePath .. "light01",
@@ -134,8 +131,6 @@ local function getConnectedZipMoverThemeData(entity)
         inner = "objects/" .. ((cliffside and "" or "CommunalHelper/") .. folder) .. "/" .. themePath .. "innerCorners"
     }
 end
-
-local zipMoverRoleColor = {102 / 255, 57 / 255, 49 / 255}
 
 function connectedZipMover.sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0
@@ -166,7 +161,7 @@ function connectedZipMover.sprite(room, entity)
             end
         end
     end
-    
+
     local lightsSprite = drawableSprite.fromTexture(themeData.light, entity)
     lightsSprite:addPosition(math.floor(width / 2), 0)
     lightsSprite:setJustification(0.5, 0.0)

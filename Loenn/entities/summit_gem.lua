@@ -8,14 +8,16 @@ local summitGemNames = {
     ["4 - Golden Ridge"] = 4,
     ["5 - Mirror Temple"] = 5,
     ["6 - Custom Blue Star Gem"] = 6,
-    ["7 - Custom Red Triangle Gem"] = 7,
+    ["7 - Custom Red Triangle Gem"] = 7
 }
 
 summitGem.name = "CommunalHelper/CustomSummitGem"
 summitGem.depth = 0
 summitGem.fieldInformation = {
     index = {
-        options = summitGemNames
+        options = summitGemNames,
+        minimumValue = 0,
+        fieldType = "integer"
     }
 }
 

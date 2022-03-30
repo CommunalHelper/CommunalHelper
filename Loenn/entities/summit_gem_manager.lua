@@ -60,7 +60,7 @@ summitGemManager.placements = {
         data = {
             gemIds = "",
             melody = "",
-            heartOffset = "0.0,0.0",
+            heartOffset = "0.0,0.0"
         }
     }
 }

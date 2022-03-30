@@ -3,6 +3,11 @@ local communalHelper = require("mods").requireFromPlugin("libraries.communal_hel
 local dreamFloatySpaceBlock = {}
 
 dreamFloatySpaceBlock.name = "CommunalHelper/DreamFloatySpaceBlock"
+dreamFloatySpaceBlock.fieldInformation = {
+    refillCount = {
+        fieldType = "integer"
+    }
+}
 
 function dreamFloatySpaceBlock.depth(room, entity)
     return entity.below and 5000 or -11000
@@ -19,7 +24,7 @@ dreamFloatySpaceBlock.placements = {
             oneUse = false,
             refillCount = -1,
             below = false,
-            quickDestroy = false,
+            quickDestroy = false
         }
     }
 }

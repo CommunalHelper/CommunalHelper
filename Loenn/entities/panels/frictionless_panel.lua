@@ -9,8 +9,8 @@ frictionlessPanel.depth = -10001
 frictionlessPanel.canResize = {true, true}
 frictionlessPanel.fieldInformation = {
     orientation = {
-        editable = false,
         options = directions,
+        editable = false
     }
 }
 
@@ -22,7 +22,7 @@ for i, direction in ipairs(directions) do
         data = {
             width = 8,
             height = 8,
-            orientation = direction,
+            orientation = direction
         }
     }
 end

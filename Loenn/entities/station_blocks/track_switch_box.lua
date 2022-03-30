@@ -1,5 +1,5 @@
-local drawableSprite = require("structs.drawable_sprite")
 local drawableRectangle = require("structs.drawable_rectangle")
+local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
 
 local trackSwitchBox = {}
@@ -13,7 +13,7 @@ trackSwitchBox.placements = {
         data = {
             globalSwitch = false,
             floaty = true,
-            bouncy = true,
+            bouncy = true
         }
     },
     {
@@ -21,7 +21,7 @@ trackSwitchBox.placements = {
         data = {
             globalSwitch = true,
             floaty = true,
-            bouncy = true,
+            bouncy = true
         }
     }
 }

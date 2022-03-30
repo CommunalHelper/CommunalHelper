@@ -10,11 +10,12 @@ surfaceSoundPanel.depth = -10001
 surfaceSoundPanel.canResize = {true, true}
 surfaceSoundPanel.fieldInformation = {
     orientation = {
-        editable = false,
         options = directions,
+        editable = false
     },
     soundIndex = {
-        options = enums.tileset_sound_ids
+        options = enums.tileset_sound_ids,
+        fieldType = "integer"
     }
 }
 
@@ -27,7 +28,7 @@ for i, direction in ipairs(directions) do
             width = 8,
             height = 8,
             orientation = direction,
-            soundIndex = 11,
+            soundIndex = 11
         }
     }
 end

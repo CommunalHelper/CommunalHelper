@@ -1,17 +1,16 @@
 local modes = {
     "OneUse",
     "Trigger",
-    "Field",
+    "Field"
 }
 
 local dashStates = {
     "DreamTunnel",
-    "SeekerDash",
+    "SeekerDash"
 }
 
 return {
     name = "CommunalHelper/DashStateTrigger",
-
     fieldInformation = {
         mode = {
             editable = false,
@@ -22,12 +21,11 @@ return {
             options = dashStates
         }
     },
-
     placements = {
         name = "trigger",
         data = {
             mode = "Trigger",
-            dashState = "DreamTunnel",
+            dashState = "DreamTunnel"
         }
     }
 }

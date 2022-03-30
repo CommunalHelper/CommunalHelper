@@ -12,7 +12,7 @@ inputFlagController.placements = {
             toggle = true,
             resetFlags = false,
             delay = 0.0,
-            grabOverride = false,
+            grabOverride = false
         }
     }
 }

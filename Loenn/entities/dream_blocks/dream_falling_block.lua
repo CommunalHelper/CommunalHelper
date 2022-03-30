@@ -4,6 +4,15 @@ local communalHelper = require("mods").requireFromPlugin("libraries.communal_hel
 local dreamFallingBlock = {}
 
 dreamFallingBlock.name = "CommunalHelper/DreamFallingBlock"
+dreamFallingBlock.fieldInformation = {
+    refillCount = {
+        fieldType = "integer"
+    },
+    fallDistance = {
+        minimumValue = 0,
+        fieldType = "integer"
+    }
+}
 
 function dreamFallingBlock.depth(room, entity)
     return entity.below and 5000 or -11000
@@ -12,7 +21,7 @@ end
 -- let's not show the 'chained' field (which is needed in the c# side of the entity)
 -- you get to chose whether this falling block is chained the the placements
 dreamFallingBlock.ignoredFields = {
-    "chained",
+    "chained"
 }
 
 dreamFallingBlock.placements = {
@@ -28,8 +37,8 @@ dreamFallingBlock.placements = {
             below = false,
             quickDestroy = false,
             noCollide = false,
-	        forceShake = false,
-            chained = false,
+            forceShake = false,
+            chained = false
         }
     },
     {
@@ -44,13 +53,13 @@ dreamFallingBlock.placements = {
             below = false,
             quickDestroy = false,
             noCollide = false,
-	        forceShake = false,
+            forceShake = false,
             fallDistance = 64,
             centeredChain = false,
             chainOutline = true,
             indicator = false,
             indicatorAtStart = false,
-            chained = true,
+            chained = true
         }
     }
 }

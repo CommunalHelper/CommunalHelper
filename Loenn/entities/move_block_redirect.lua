@@ -1,5 +1,5 @@
-local drawableNinePatch = require("structs.drawable_nine_patch")
 local drawableSprite = require("structs.drawable_sprite")
+local drawableNinePatch = require("structs.drawable_nine_patch")
 local enums = require("consts.celeste_enums")
 local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
@@ -13,12 +13,12 @@ moveBlockRedirect.depth = -8500
 moveBlockRedirect.minimumSize = {16, 16}
 moveBlockRedirect.fieldInformation = {
     direction = {
-        editable = false,
-        options = directions
+        options = directions,
+        editable = false
     },
     operation = {
-        editable = false,
-        options = operations
+        options = operations,
+        editable = false
     },
     modifier = {
         minimumValue = 0.0
@@ -39,7 +39,7 @@ moveBlockRedirect.placements = {
             operation = "Add",
             reskinFolder = "",
             overrideColor = "",
-            overrideUsedColor = "",
+            overrideUsedColor = ""
         }
     },
     {
@@ -55,7 +55,7 @@ moveBlockRedirect.placements = {
             operation = "Add",
             reskinFolder = "",
             overrideColor = "",
-            overrideUsedColor = "",
+            overrideUsedColor = ""
         }
     },
     {
@@ -71,7 +71,7 @@ moveBlockRedirect.placements = {
             operation = "Add",
             reskinFolder = "",
             overrideColor = "",
-            overrideUsedColor = "",
+            overrideUsedColor = ""
         }
     }
 }
@@ -88,7 +88,7 @@ local rotations = {
     ["Up"] = math.pi * 1.5,
     ["Right"] = 0,
     ["Down"] = math.pi / 2,
-    ["Left"] = math.pi,
+    ["Left"] = math.pi
 }
 
 local function getMoveBlockRedirectThemeData(entity)

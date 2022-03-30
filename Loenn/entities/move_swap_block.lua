@@ -11,12 +11,21 @@ moveSwapBlock.minimumSize = {16, 16}
 moveSwapBlock.nodeLimits = {1, 1}
 moveSwapBlock.fieldInformation = {
     theme = {
-        editable = false,
+        editable = false
         --options = enums.swap_block_themes -- Move Swap Blocks don't have the 'Moon' theme
     },
     direction = {
         editable = false,
         options = enums.move_block_directions
+    },
+    moveSpeed = {
+        minimumValue = 0.0
+    },
+    moveAcceleration = {
+        minimumValue = 0.0
+    },
+    swapSpeedMultiplier = {
+        minimumValue = 0.0
     }
 }
 
@@ -33,7 +42,7 @@ moveSwapBlock.placements = {
             freezeOnSwap = true,
             moveSpeed = 60.0,
             moveAcceleration = 300.0,
-            swapSpeedMultiplier = 1.0,
+            swapSpeedMultiplier = 1.0
         }
     }
 }
@@ -59,7 +68,7 @@ local middleSpriteData = {
     ["Up"] = {rot = 0, ox = 0, oy = -1},
     ["Right"] = {rot = math.pi / 2, ox = 1, oy = 0},
     ["Down"] = {rot = math.pi, ox = 0, oy = 1},
-    ["Left"] = {rot = math.pi / 2 * 3, ox = -1, oy = 0},
+    ["Left"] = {rot = math.pi / 2 * 3, ox = -1, oy = 0}
 }
 
 local nodeFrameColor = {1.0, 1.0, 1.0, 0.7}

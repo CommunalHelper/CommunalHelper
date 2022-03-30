@@ -8,6 +8,11 @@ dreamZipMover.name = "CommunalHelper/DreamZipMover"
 dreamZipMover.minimumSize = {16, 16}
 dreamZipMover.nodeVisibility = "never"
 dreamZipMover.nodeLimits = {1, -1}
+dreamZipMover.fieldInformation = {
+    refillCount = {
+        fieldType = "integer"
+    }
+}
 
 function dreamZipMover.depth(room, entity)
     return entity.below and 5000 or -11000
@@ -29,7 +34,7 @@ dreamZipMover.placements = {
             permanent = false,
             waiting = false,
             ticking = false,
-            noReturn = false,
+            noReturn = false
         }
     }
 }
