@@ -1,18 +1,17 @@
-module CommunalHelperSurfaceSoundPanel
+module CommunalHelperFrictionlessPanel
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
 
 const directions = String["Up", "Left", "Right"]
 
-@mapdef Entity "CommunalHelper/SurfaceSoundPanel" Panel(
+@mapdef Entity "CommunalHelper/FrictionlessPanel" Panel(
     x::Integer,
     y::Integer,
-    soundIndex::Integer=11,
 )
 
 const placements = Ahorn.PlacementDict(
-    "Sound Surface Panel ($dir) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Frictionless Panel ($dir) (Communal Helper)" => Ahorn.EntityPlacement(
         Panel,
         "rectangle",
         Dict{String,Any}(
@@ -23,7 +22,6 @@ const placements = Ahorn.PlacementDict(
 
 Ahorn.editingOptions(entity::Panel) = Dict{String,Any}(
     "orientation" => directions,
-    "soundIndex" => CommunalHelper.surfaceSounds,
 )
 
 Ahorn.minimumSize(entity::Panel) = 8, 8

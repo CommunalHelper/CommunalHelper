@@ -10,7 +10,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using static Celeste.Mod.CommunalHelper.Entities.DreamTunnelDash;
+using static Celeste.Mod.CommunalHelper.DashStates.DreamTunnelDash;
 
 /*
 * Slow routine: Particles spray out from each end diagonally, moving inwards
@@ -87,7 +87,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             };
         }
 
-        protected override DashCollisionResults OnDashCollide(Player player, Vector2 dir) {
+        protected override DashCollisionResults OnDashCollide(DashCollision orig, Player player, Vector2 dir) {
             // Correct position/ignore if only partially intersecting
             // Have to use `player.DashDir` instead of `dir` because we need the actual dash direction, not the collision direction
             if (PlayerHasDreamDash) {
@@ -129,7 +129,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         break;
                 }
             }
-            return base.OnDashCollide(player, dir);
+            return base.OnDashCollide(orig, player, dir);
         }
 
         private bool TryCollidePlayer(Player player, Vector2 offset, Vector2 dir) {

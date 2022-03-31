@@ -44,7 +44,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             melody = Array.ConvertAll(data.Attr("melody").ToCharArray(), chr => (chr - '0'));
 
             gems = new List<Gem>();
-            string[] ids = data.Attr("gemIds").Split(',');
+            string[] ids = data.Attr("gemIds").Split(',').Select(Util.StrTrim).ToArray();
             if (ids.Length < data.Nodes.Length)
                 throw new IndexOutOfRangeException("The number of supplied SummitGemManager IDs needs to match the number of nodes!");
             int idx = 0;

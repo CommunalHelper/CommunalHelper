@@ -270,18 +270,22 @@ placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Delay=The delay
 placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesUp.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesLeft.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesDown.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Delay=The delay, in seconds, before the spikes come up, after triggering.\nSpikes take 0.0667 seconds to come up (4 frames).
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.WaitForPlayer=Setting this to true will make the spike only come up after the player\nleaves the spike area. Useful for when you need to return to a space in a time limit.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in\nthe line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an\nerror in its absence.
 placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a\nnormal spike, but cannot be animated.
+placements.entities.CommunalHelper/TimedTriggerSpikesRight.tooltips.TriggerAlways=Spikes will activate their timers regardless of player direction movement. For instance, moving through a one way panel or platform will still cause them to activate when you pass through.
 
 
 # -- Input Flag Controller --
@@ -328,6 +332,10 @@ placements.entities.CommunalHelper/CoreModeMusicController.tooltips.cold=The val
 placements.entities.CommunalHelper/CoreModeMusicController.tooltips.none=The values to which the parameters will be set when the core mode is "None".
 placements.entities.CommunalHelper/CoreModeMusicController.tooltips.disable=If this is ticked on, this controller will look for every controller with the same parameter list (in order), and disable it (remove it). It also removes itself afterwards. 
 
+# -- No Overlay Watch Tower --
+placements.entities.CommunalHelper/NoOverlayLookout.tooltips.summit=Whether the watch tower should zoom on the final node or not. Requires nodes to function, otherwise game will crash.
+placements.entities.CommunalHelper/NoOverlayLookout.tooltips.onlyY=Whether the watch tower can only move vertically. If the watch tower has nodes it will still follow CommunalHelper/NoOverlayLookout
+
 
 # -- Triggers --
 
@@ -341,3 +349,6 @@ placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.oneUse=Allows for
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.flash=Whether the screen should flash and shake when triggered.
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)
+
+# -- Sound Area Trigger --
+placements.triggers.CommunalHelper/SoundAreaTrigger.tooltips.event=The name of the audio event that plays inside the trigger.
