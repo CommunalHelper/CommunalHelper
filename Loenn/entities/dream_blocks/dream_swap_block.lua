@@ -33,11 +33,11 @@ dreamSwapBlock.placements = {
     }
 }
 
-local function addBlockSprites(sprites, x, y, width, height, noReturn, feather)
+local function addBlockSprites(sprites, x, y, width, height, noReturn, feather, oneUse)
     local halfWidth, halfHeight = math.floor(width / 2), math.floor(height / 2)
     local centerX, centerY = x + halfWidth, y + halfHeight
 
-    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather))
+    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather, oneUse))
 
     if noReturn then
         local cross = drawableSprite.fromTexture("objects/CommunalHelper/dreamMoveBlock/x")
@@ -55,11 +55,12 @@ function dreamSwapBlock.sprite(room, entity)
     local nodeX, nodeY = nodes[1].x or x, nodes[1].y or y
     local noReturn = entity.noReturn
     local feather = entity.featherMode
+    local oneUse = entity.oneUse
 
     local sprites = {}
 
     communalHelper.addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, "objects/swapblock/target")
-    addBlockSprites(sprites, x, y, width, height, noReturn, feather)
+    addBlockSprites(sprites, x, y, width, height, noReturn, feather, oneUse)
 
     return sprites
 end
@@ -71,10 +72,11 @@ function dreamSwapBlock.nodeSprite(room, entity)
     local nodeX, nodeY = nodes[1].x or x, nodes[1].y or y
     local noReturn = entity.noReturn
     local feather = entity.featherMode
+    local oneUse = entity.oneUse
 
     local sprites = {}
 
-    addBlockSprites(sprites, nodeX, nodeY, width, height, noReturn, feather)
+    addBlockSprites(sprites, nodeX, nodeY, width, height, noReturn, feather, oneUse)
 
     return sprites
 end

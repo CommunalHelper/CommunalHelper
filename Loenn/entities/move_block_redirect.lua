@@ -22,6 +22,12 @@ moveBlockRedirect.fieldInformation = {
     },
     modifier = {
         minimumValue = 0.0
+    },
+    overrideColor = {
+        fieldType = "color"
+    },
+    overrideUsedColor = {
+        fieldType = "color"
     }
 }
 
@@ -36,10 +42,7 @@ moveBlockRedirect.placements = {
             deleteBlock = false,
             oneUse = false,
             modifier = 0.0,
-            operation = "Add",
-            reskinFolder = "",
-            overrideColor = "",
-            overrideUsedColor = ""
+            operation = "Add"
         }
     },
     {
@@ -52,10 +55,7 @@ moveBlockRedirect.placements = {
             deleteBlock = false,
             oneUse = true,
             modifier = 0.0,
-            operation = "Add",
-            reskinFolder = "",
-            overrideColor = "",
-            overrideUsedColor = ""
+            operation = "Add"
         }
     },
     {
@@ -68,10 +68,23 @@ moveBlockRedirect.placements = {
             deleteBlock = true,
             oneUse = false,
             modifier = 0.0,
+            operation = "Add"
+        }
+    },
+    {
+        name = "reskinnable",
+        data = {
+            width = 16,
+            height = 16,
+            direction = "Up",
+            fastRedirect = false,
+            deleteBlock = false,
+            oneUse = false,
+            modifier = 0.0,
             operation = "Add",
             reskinFolder = "",
-            overrideColor = "",
-            overrideUsedColor = ""
+            overrideColor = "ffffff",
+            overrideUsedColor = "ffffff"
         }
     }
 }

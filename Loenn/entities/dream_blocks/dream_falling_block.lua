@@ -20,8 +20,11 @@ end
 
 -- let's not show the 'chained' field (which is needed in the c# side of the entity)
 -- you get to chose whether this falling block is chained the the placements
+-- also, because of this, we need to explicitly ignore other options hidden by default
 dreamFallingBlock.ignoredFields = {
-    "chained"
+    "chained",
+    "id",
+    "name"
 }
 
 dreamFallingBlock.placements = {
@@ -77,7 +80,7 @@ function dreamFallingBlock.sprite(room, entity)
         table.insert(sprites, rect)
     end
 
-    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, entity.featherMode))
+    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, entity.featherMode, entity.oneUse))
 
     return sprites
 end

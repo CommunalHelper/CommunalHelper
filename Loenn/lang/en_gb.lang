@@ -175,7 +175,7 @@ entities.CommunalHelper/SolidExtension.attributes.description.collidable=Whether
 
 # Dream Zip Mover
 entities.CommunalHelper/DreamZipMover.placements.name.dream_zip_mover=Dream Zip Mover
-entities.CommunalHelper/DreamZipMover.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/DreamZipMover.attributes.description.below=Determines whether the Dream Move Block should render below foreground tiles.
 entities.CommunalHelper/DreamZipMover.attributes.description.noReturn=Whether the Dream Zip Mover should return to its starting point or not.
 entities.CommunalHelper/DreamZipMover.attributes.description.dreamAesthetic=Optional look for this entity, mostly unused, but left there.
 entities.CommunalHelper/DreamZipMover.attributes.description.featherMode=Whether the Dream Zip Mover has the Dream Block Feather controls enabled.
@@ -192,7 +192,7 @@ entities.CommunalHelper/ConnectedDreamBlock.placements.name.normal=Connected Dre
 entities.CommunalHelper/ConnectedDreamBlock.placements.name.feather=Connected Dream Block (Feather Mode)
 entities.CommunalHelper/ConnectedDreamBlock.placements.name.normal_oneuse=Connected Dream Block (Normal, One Use)
 entities.CommunalHelper/ConnectedDreamBlock.placements.name.feather_oneuse=Connected Dream Block (Feather Mode, One Use)
-entities.CommunalHelper/ConnectedDreamBlock.attributes.description.below=Determines whether the Connected Dream Block should render in the background or foreground.
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.below=Determines whether the Connected Dream Block should render below foreground tiles.
 entities.CommunalHelper/ConnectedDreamBlock.attributes.description.featherMode=Whether the Connected Dream Block has the Dream Block Feather controls enabled. Connected Dream Blocks only connect with other dream blocks with the same controls.
 entities.CommunalHelper/ConnectedDreamBlock.attributes.description.oneUse=Whether THIS Connected Dream Block should make its entire group shatter upon leaving it.
 entities.CommunalHelper/ConnectedDreamBlock.attributes.description.refillCount=Number of dashes this group of Connected Dream Blocks should refill (-1 for default).
@@ -200,7 +200,7 @@ entities.CommunalHelper/ConnectedDreamBlock.attributes.description.quickDestroy=
 
 # Dream Swap Block
 entities.CommunalHelper/DreamSwapBlock.placements.name.dream_swap_block=Dream Swap Block
-entities.CommunalHelper/DreamSwapBlock.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.below=Determines whether the Dream Swap Block should render below foreground tiles.
 entities.CommunalHelper/DreamSwapBlock.attributes.description.noReturn=Whether the Dream Swap Block should return to its starting point or not.
 entities.CommunalHelper/DreamSwapBlock.attributes.description.featherMode=Whether the Dream Swap Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamSwapBlock.attributes.description.oneUse=Whether the Dream Swap Block should shatter upon exit.
@@ -209,11 +209,11 @@ entities.CommunalHelper/DreamSwapBlock.attributes.description.quickDestroy=Makes
 
 # Dream Move Block
 entities.CommunalHelper/DreamMoveBlock.placements.name.dream_move_block=Dream Move Block
-entities.CommunalHelper/DreamMoveBlock.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.below=Determines whether the Dream Move Block should render below foreground tiles.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.direction=The direction in which the Dream Move Block moves.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.refillCount=Number of dashes the Dream Move Block should refill (-1 for default).
 entities.CommunalHelper/DreamMoveBlock.attributes.description.moveSpeed=The speed at which the Dream Move Block moves (accepts any number).
-entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollide=Whether the Dream Move Block should go through everything.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollide=Whether the Dream Move Block should go through solids.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.oneUse=Whether the Dream Move Block should shatter upon exit.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.quickDestroy=Makes this Dream Move Block shatter a little faster.
@@ -224,22 +224,22 @@ entities.CommunalHelper/DreamFallingBlock.placements.name.chained=Dream Falling 
 entities.CommunalHelper/DreamFallingBlock.attributes.description.featherMode=Whether the Dream Falling Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.oneUse=Whether the Dream Falling Block should shatter upon exit.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.refillCount=Number of dashes the Dream Falling Block should refill (-1 for default).
-entities.CommunalHelper/DreamFallingBlock.attributes.description.below=Determines whether the Dream Falling Block should render in the background or foreground.
-entities.CommunalHelper/DreamFallingBlock.attributes.description.noCollide=Whether the Dream Falling Block should go through everything.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.below=Determines whether the Dream Falling Block should render below foreground tiles.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.noCollide=Whether the Dream Falling Block should go through solids.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
 entities.CommunalHelper/DreamFallingBlock.attributes.description.centeredChain=Renders only one chain at the horizontal center of this block.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
-entities.CommunalHelper/DreamFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.quickDestroy=Makes this Dream Falling Block shatter a little faster.
 
 # Dream Switch Gate
 entities.CommunalHelper/DreamSwitchGate.placements.name.dream_switch_gate=Dream Switch Gate
-entities.CommunalHelper/DreamSwitchGate.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/DreamSwitchGate.attributes.description.below=Determines whether the Dream Switch Gate should render below foreground tiles.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.oneUse=Whether the Dream Switch Gate should shatter upon exit.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.permanent=Whether the Dream Switch Gate should stay at its node permanently after being activated for the entire level.
-entities.CommunalHelper/DreamSwitchGate.attributes.description.refillCount=Number of dashes the Dream Switch Block should refill (-1 for default).
+entities.CommunalHelper/DreamSwitchGate.attributes.description.refillCount=Number of dashes the Dream Switch Gate should refill (-1 for default).
 entities.CommunalHelper/DreamSwitchGate.attributes.description.quickDestroy=Makes this Dream Switch Gate shatter a little faster.
 
 # Dream Flag Switch Gate
@@ -256,7 +256,7 @@ entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.descriptio
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.allowReturn=Whether the block should return to its original position if the flag is turned off. Only works if the gate is persistent.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.moveSound=The sound played by the gate when it starts moving.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.finishedSound=The sound played by the gate when it is done moving.
-entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.below=Determines whether the Dream Move Block should render in the background or foreground.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.below=Determines whether the Dream Flag Switch Gate should render below foreground tiles.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.featherMode=Whether the Dream Flag Switch Gate has the Dream Block Feather controls enabled.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.oneUse=Whether the Dream Flag Switch Gate should shatter upon exit.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.refillCount=Number of dashes the Dream Flag Switch Gate should refill (-1 for default).
@@ -392,7 +392,7 @@ entities.CommunalHelper/ChainedFallingBlock.attributes.description.behind=Whethe
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.centeredChain=Renders only one chain at the horizontal center of this block.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
-entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 
 # Chain
@@ -440,6 +440,7 @@ entities.CommunalHelper/Melvin.attributes.description.weakRight=Whether this Mel
 entities.CommunalHelper/MoveBlockRedirect.placements.name.normal=Move Block Redirect
 entities.CommunalHelper/MoveBlockRedirect.placements.name.one_use=Move Block Redirect (One Use)
 entities.CommunalHelper/MoveBlockRedirect.placements.name.delete=Move Block Redirect (Delete)
+entities.CommunalHelper/MoveBlockRedirect.placements.name.reskinnable=Move Block Redirect (Reskinnable)
 entities.CommunalHelper/MoveBlockRedirect.attributes.description.direction=Determines the direction the Move Block moves after being redirected.
 entities.CommunalHelper/MoveBlockRedirect.attributes.description.fastRedirect=Skips the redirect animation.
 entities.CommunalHelper/MoveBlockRedirect.attributes.description.deleteBlock=Breaks the Move Block that goes through.

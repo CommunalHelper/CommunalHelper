@@ -65,6 +65,9 @@ local eye = "objects/CommunalHelper/melvin/eye/idle_small00"
 local kevinColor = {98 / 255, 34 / 255, 43 / 255}
 
 local function addBorderTiles(sprites, x, y, width, height, weakTop, weakBottom, weakLeft, weakRight)
+    -- set the randomness seed based off this entity
+    math.randomseed(x, y)
+
     -- CORNERS
     local topleft = strongTiles
     local topright = strongTiles

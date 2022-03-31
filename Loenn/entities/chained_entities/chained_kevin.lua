@@ -59,6 +59,9 @@ function chainedKevin.sprite(room, entity)
     local giant = height >= 48 and width >= 48 and chillout
     local faceTexture = giant and giantFaceTexture or smallFaceTexture
 
+    -- set the randomness seed based off this entity
+    math.randomseed(x, y)
+
     local frameTexture = "objects/CommunalHelper/chainedKevin/block" .. direction
     local ninePatch = drawableNinePatch.fromTexture(frameTexture, ninePatchOptions, x, y, width, height)
 

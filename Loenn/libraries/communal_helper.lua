@@ -224,10 +224,14 @@ end
 
 -- dream blocks
 
-function communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather)
-    local fill = feather and {0, 0.5, 0.5} or {0, 0, 0}
+local featherColor = {0, 0.5, 0.5}
+local oneUseColor = {178 / 255, 34 / 255, 34 / 255}
 
-    local rectangleSprite = drawableRectangle.fromRectangle("bordered", x, y, width, height, fill, {1, 1, 1})
+function communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather, oneUse)
+    local fill = feather and featherColor or {0, 0, 0}
+    local border = oneUse and oneUseColor or {1, 1, 1}
+
+    local rectangleSprite = drawableRectangle.fromRectangle("bordered", x, y, width, height, fill, border)
     rectangleSprite.depth = 0
 
     return rectangleSprite
@@ -237,7 +241,8 @@ function communalHelper.getCustomDreamBlockSpritesByEntity(entity)
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 8, entity.height or 8
     local feather = entity.featherMode
-    return communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather)
+    local oneUse = entity.oneUse
+    return communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather, oneUse)
 end
 
 -- panels

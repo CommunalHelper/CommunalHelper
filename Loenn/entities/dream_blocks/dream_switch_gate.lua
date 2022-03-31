@@ -34,11 +34,11 @@ dreamSwitchGate.placements = {
     }
 }
 
-local function addBlockSprites(sprites, x, y, width, height, feather)
+local function addBlockSprites(sprites, x, y, width, height, feather, oneUse)
     local halfWidth, halfHeight = math.floor(width / 2), math.floor(height / 2)
     local centerX, centerY = x + halfWidth, y + halfHeight
 
-    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather))
+    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather, oneUse))
 
     local icon = drawableSprite.fromTexture("objects/switchgate/icon00")
     icon:setPosition(centerX, centerY)
@@ -51,10 +51,11 @@ function dreamSwitchGate.sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 16, entity.height or 16
     local feather = entity.featherMode
+    local oneUse = entity.oneUse
 
     local sprites = {}
 
-    addBlockSprites(sprites, x, y, width, height, feather)
+    addBlockSprites(sprites, x, y, width, height, feather, oneUse)
 
     return sprites
 end
@@ -65,10 +66,11 @@ function dreamSwitchGate.nodeSprite(room, entity)
     local nodes = entity.nodes or {}
     local nodeX, nodeY = nodes[1].x or x, nodes[1].y or y
     local feather = entity.featherMode
+    local oneUse = entity.oneUse
 
     local sprites = {}
 
-    addBlockSprites(sprites, nodeX, nodeY, width, height, feather)
+    addBlockSprites(sprites, nodeX, nodeY, width, height, feather, oneUse)
 
     return sprites
 end

@@ -59,10 +59,11 @@ function dreamMoveBlock.sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 16, entity.height or 16
     local feather = entity.featherMode
+    local oneUse = entity.oneUse
 
     local sprites = {}
 
-    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather))
+    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather, oneUse))
 
     local direction = string.lower(entity.direction)
     local arrowTexture = arrowTextures[direction] or arrowTextures["right"]

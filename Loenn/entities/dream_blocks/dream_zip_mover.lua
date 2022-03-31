@@ -68,7 +68,7 @@ function dreamZipMover.sprite(room, entity)
         table.insert(sprites, cross)
     end
 
-    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, entity.featherMode))
+    table.insert(sprites, communalHelper.getCustomDreamBlockSprites(x, y, width, height, entity.featherMode, entity.oneUse))
 
     return sprites
 end
