@@ -16,7 +16,7 @@ const placements = Ahorn.PlacementDict(
     "Core Mode Music Controller (Communal Helper)" => Ahorn.EntityPlacement(
         Controller,
     ),
-    "Core Mode Music Controller (Communal Helper) (Disable)" => Ahorn.EntityPlacement(
+    "Core Mode Music Controller (Disable) (Communal Helper)" => Ahorn.EntityPlacement(
         Controller,
         "point",
         Dict{String, Any}(
