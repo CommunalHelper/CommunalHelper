@@ -6,10 +6,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     public static class MusicSyncedEntities {
         internal static void Load() {
             On.Celeste.Audio.SetMusic += Audio_SetMusic;
+
+            BeepBlockRenderer.Load();
         }
 
         internal static void Unload() {
             On.Celeste.Audio.SetMusic -= Audio_SetMusic;
+
+            BeepBlockRenderer.Unload();
         }
 
         private static bool Audio_SetMusic(On.Celeste.Audio.orig_SetMusic orig, string path, bool startPlaying, bool allowFadeOut) {

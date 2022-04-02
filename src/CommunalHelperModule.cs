@@ -79,6 +79,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             ChainedKevin.Load();
 
+            // Music Synced Entities hooked in MusicSyncedEntities.Load
             MusicSyncedEntities.Load();
         }
 
@@ -123,6 +124,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             ChainedKevin.Unload();
 
+            // Music Synced Entities unhooked in MusicSyncedEntities.Load
             MusicSyncedEntities.Unload();
         }
 
