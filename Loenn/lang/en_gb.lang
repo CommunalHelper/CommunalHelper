@@ -1,0 +1,515 @@
+mods.CommunalHelper.name=Communal Helper
+
+# Dream Refill
+entities.CommunalHelper/DreamRefill.placements.name.dream_refill=Dream Refill
+entities.CommunalHelper/DreamRefill.attributes.description.oneUse=Whether the Dream Refill should be only used once.
+entities.CommunalHelper/DreamRefill.attributes.description.respawnTime=The time taken by the Dream Refill to respawn.
+
+# Dream Jellyfish
+entities.CommunalHelper/DreamJellyfish.placements.name.normal=Dream Jellyfish
+entities.CommunalHelper/DreamJellyfish.placements.name.floating=Dream Jellyfish (Floating)
+entities.CommunalHelper/DreamJellyfish.attributes.description.bubble=Whether the entity should hover in the air before being grabbed.
+entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether the entity should show the usage tutorial.
+
+# Dream Booster
+entities.CommunalHelper/DreamBooster.placements.name.normal=Dream Booster
+entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (Hidden Path)
+entities.CommunalHelper/DreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+
+# Summit Gem
+entities.CommunalHelper/CustomSummitGem.placements.name.summit_gem=Custom Summit Gem
+entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines the texture and sound used for this gem (clamped within 0 and 7). Must be unique within a room. To use a custom texture, put it at Graphics/Atlases/Gameplay/collectables/summitgems/$mapSID/$roomName/$index.
+
+# Attached Wall Booster
+entities.CommunalHelper/AttachedWallBooster.placements.name.right=Attached Wall Booster (Right)
+entities.CommunalHelper/AttachedWallBooster.placements.name.left=Attached Wall Booster (Left)
+entities.CommunalHelper/AttachedWallBooster.attributes.description.left=Whether the Wall Booster should attach to the left sides of solids.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Wall Booster should ignore the current Core Mode and be in Ice Mode.
+
+# Station Block
+entities.CommunalHelper/StationBlock.placements.name.normal_pushing=Station Block (Normal, Pushing)
+entities.CommunalHelper/StationBlock.placements.name.normal_pulling=Station Block (Normal, Pulling)
+entities.CommunalHelper/StationBlock.placements.name.moon_pushing=Station Block (Moon, Pushing)
+entities.CommunalHelper/StationBlock.placements.name.moon_pulling=Station Block (Moon, Pulling)
+entities.CommunalHelper/StationBlock.attributes.description.allowWavedash=Whether Wavedashing on top of the Station Block is allowed or not even while it's not moving (doesn't bounce you upwards).
+entities.CommunalHelper/StationBlock.attributes.description.speedFactor=The factor by which the speed of the Station Block is multiplied. This value can only be between 0.1 and 2.
+entities.CommunalHelper/StationBlock.attributes.description.theme=Aspect theme of the Station Block.
+entities.CommunalHelper/StationBlock.attributes.description.behavior=Behavior of the Station Block. Pulling will make it move towards you, and Pushing does the opposite. This changes slightly the appearance of the block, depending on the behavior.
+entities.CommunalHelper/StationBlock.attributes.description.customBlockPath=This is the path you should specify if you're using a custom texture for the block, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>. The block should be a 24x24 texture, that preferably gets tiled correctly. Example: "catapillie/customStationBlock/custom_block", where the texture is located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/custom_block.png. DON'T add the ".png".
+entities.CommunalHelper/StationBlock.attributes.description.customArrowPath=This is the path you should specify if you're using custom textures for the arrow, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>/small, med, or big. There should be 16 sprites for each size, so 48 in total, labeled like so: small00, small01, 02, 03, etc.. up to small15, and same goes for med and big. The first texture is the arrow pointing UP, the fifth pointing RIGHT, the ninth pointing DOWN, and the 13th pointing LEFT, the other sprites in between are the animation going from one direction to another. You can take a look at how Communal Helper has them setup. Example: "catapillie/customStationBlock/arrow", where the arrow textures are located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/arrow/small00, small01... small15, same for med(00 - 15) & big(00 - 15). This should point to a directory, not an image.
+entities.CommunalHelper/StationBlock.attributes.description.customTrackPath=This is the path you should specify if you're using custom textures for the tracks, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>/node.png, trackv.png and trackh.png. There should be 3 textures in the folder you specified in the path, all of size 8x8, called: node.png, trackv.png, and trackh.png. The node.png texture is the point of intersection between tracks. trackv.png and trackh.png are the track horizontal & vertical textures, they should loop over seamlessly. Example: "catapillie/customStationBlock/tracks", where the texture are located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/tracks/node.png, trackv.png and trackh.png. This should point to a directory, not an image.
+entities.CommunalHelper/StationBlock.attributes.description.wavedashButtonColor=The hexadecimal color of the allowed wavedash button indicator when it's not pressed. Must not include the hash (#) symbol!
+entities.CommunalHelper/StationBlock.attributes.description.wavedashButtonPressedColor=The hexadecimal color of the allowed wavedash button indicator when it's pressed. Must not include the hash (#) symbol!
+entities.CommunalHelper/StationBlock.attributes.description.dashCornerCorrection=Makes wallbouncing off of this Station Block less precise (by allowing it up to 4 pixels deep into the block horizontally, dashing from the bottom).
+
+# Station Block Track
+entities.CommunalHelper/StationBlockTrack.placements.name.horiz_none=Station Block Track (Horizontal, No Switching)
+entities.CommunalHelper/StationBlockTrack.placements.name.horiz_on=Station Block Track (Horizontal, Switched On)
+entities.CommunalHelper/StationBlockTrack.placements.name.horiz_off=Station Block Track (Horizontal, Switched Off)
+entities.CommunalHelper/StationBlockTrack.placements.name.verti_none=Station Block Track (Vertical, No Switching)
+entities.CommunalHelper/StationBlockTrack.placements.name.verti_on=Station Block Track (Vertical, Switched On)
+entities.CommunalHelper/StationBlockTrack.placements.name.verti_off=Station Block Track (Vertical, Switched Off)
+entities.CommunalHelper/StationBlockTrack.attributes.description.multiBlockTrack=Whether this set of tracks can support more than one Station Block.
+entities.CommunalHelper/StationBlockTrack.attributes.description.horizontal=Whether the track should be handled as a horizontal one.
+entities.CommunalHelper/StationBlockTrack.attributes.description.trackSwitchState=The starting state of the track. "None" will make it unswitchable. "On" will make it turned on by defaul, and "Off" will make it turned off.
+entities.CommunalHelper/StationBlockTrack.attributes.description.moveMode=This option will determine the behaviour of blocks sitting on this track.\n\n\n- "None" : Changes nothing.\n\n -"ForwardOneWay" : Makes blocks only able to travel along this track if they're moving RIGHT or DOWN.\n\n -"BackwardOneWay" : Makes blocks only able to travel along this track if they're moving LEFT or UP.\n\n -"ForwardForce" : If any block can travel along this track in the RIGHT or DOWN direction, they will be force to. Behaviour from "ForwardOneWay" also applies here.\n\n -"BackwardForce" : If any block can travel along this track in the LEFT or UP direction, they will be force to. Behaviour from "BackwardOneWay" also applies here.
+entities.CommunalHelper/StationBlockTrack.attributes.description.indicator=Whether this track shows an indicator for its specific Move Mode (only "...Force" moves).
+entities.CommunalHelper/StationBlockTrack.attributes.description.indicatorColor=The color of the indicator.
+entities.CommunalHelper/StationBlockTrack.attributes.description.indicatorIncomingColor=The color of the indicator when a station block is moving towards this Track.
+
+# Track Switch Box
+entities.CommunalHelper/TrackSwitchBox.placements.name.normal=Track Switch Box
+entities.CommunalHelper/TrackSwitchBox.placements.name.session=Track Switch Box (Session Switch)
+entities.CommunalHelper/TrackSwitchBox.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+entities.CommunalHelper/TrackSwitchBox.attributes.description.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
+entities.CommunalHelper/TrackSwitchBox.attributes.description.bouncy=Whether the box should bounce away from the player when dashed into.
+
+# Custom Cassette Block
+entities.CommunalHelper/CustomCassetteBlock.placements.name.cassette_block_0=Custom Cassette Block (0 - Blue)
+entities.CommunalHelper/CustomCassetteBlock.placements.name.cassette_block_1=Custom Cassette Block (1 - Rose)
+entities.CommunalHelper/CustomCassetteBlock.placements.name.cassette_block_2=Custom Cassette Block (2 - Bright Sun)
+entities.CommunalHelper/CustomCassetteBlock.placements.name.cassette_block_3=Custom Cassette Block (3 - Malachite)
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.index=The color of the Custom Cassette Block.
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.tempo=The tempo of the cassette music in the room.
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+
+# Cassette Falling Block
+entities.CommunalHelper/CassetteFallingBlock.placements.name.cassette_block_0=Cassette Falling Block (0 - Blue)
+entities.CommunalHelper/CassetteFallingBlock.placements.name.cassette_block_1=Cassette Falling Block (1 - Rose)
+entities.CommunalHelper/CassetteFallingBlock.placements.name.cassette_block_2=Cassette Falling Block (2 - Bright Sun)
+entities.CommunalHelper/CassetteFallingBlock.placements.name.cassette_block_3=Cassette Falling Block (3 - Malachite)
+entities.CommunalHelper/CassetteFallingBlock.attributes.description.index=The color of the Cassette Falling Block.
+entities.CommunalHelper/CassetteFallingBlock.attributes.description.tempo=The tempo of the cassette music in the room.
+entities.CommunalHelper/CassetteFallingBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+
+# Cassette Zip Mover
+entities.CommunalHelper/CassetteZipMover.placements.name.cassette_block_0=Cassette Zip Mover (0 - Blue)
+entities.CommunalHelper/CassetteZipMover.placements.name.cassette_block_1=Cassette Zip Mover (1 - Rose)
+entities.CommunalHelper/CassetteZipMover.placements.name.cassette_block_2=Cassette Zip Mover (2 - Bright Sun)
+entities.CommunalHelper/CassetteZipMover.placements.name.cassette_block_3=Cassette Zip Mover (3 - Malachite)
+entities.CommunalHelper/CassetteZipMover.attributes.description.index=The color of the Cassette Zip Mover.
+entities.CommunalHelper/CassetteZipMover.attributes.description.tempo=The tempo of the cassette music in the room.
+entities.CommunalHelper/CassetteZipMover.attributes.description.noReturn=Whether the Cassette Zip Mover should return to its starting point or not.
+entities.CommunalHelper/CassetteZipMover.attributes.description.permanent=Whether this block should lock in place after being triggered.
+entities.CommunalHelper/CassetteZipMover.attributes.description.waiting=Whether this block requires the player to trigger it each node in the path.
+entities.CommunalHelper/CassetteZipMover.attributes.description.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
+entities.CommunalHelper/CassetteZipMover.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+
+# Cassette Move Block
+entities.CommunalHelper/CassetteMoveBlock.placements.name.cassette_block_0=Cassette Move Block (0 - Blue)
+entities.CommunalHelper/CassetteMoveBlock.placements.name.cassette_block_1=Cassette Move Block (1 - Rose)
+entities.CommunalHelper/CassetteMoveBlock.placements.name.cassette_block_2=Cassette Move Block (2 - Bright Sun)
+entities.CommunalHelper/CassetteMoveBlock.placements.name.cassette_block_3=Cassette Move Block (3 - Malachite)
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.direction=The direction in which the Cassette Move Block moves.
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.moveSpeed=The speed at which the block moves (accepts any number).
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.index=The color of the Cassette Move Block.
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.tempo=The tempo of the cassette music in the room.
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+
+# Cassette Swap Block
+entities.CommunalHelper/CassetteSwapBlock.placements.name.cassette_block_0=Cassette Swap Block (0 - Blue)
+entities.CommunalHelper/CassetteSwapBlock.placements.name.cassette_block_1=Cassette Swap Block (1 - Rose)
+entities.CommunalHelper/CassetteSwapBlock.placements.name.cassette_block_2=Cassette Swap Block (2 - Bright Sun)
+entities.CommunalHelper/CassetteSwapBlock.placements.name.cassette_block_3=Cassette Swap Block (3 - Malachite)
+entities.CommunalHelper/CassetteSwapBlock.attributes.description.noReturn=Whether Cassette Swap Block should return to its starting point or not.
+entities.CommunalHelper/CassetteSwapBlock.attributes.description.index=The color of the Cassette Swap Block.
+entities.CommunalHelper/CassetteSwapBlock.attributes.description.tempo=The tempo of the cassette music in the room.
+entities.CommunalHelper/CassetteSwapBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+
+# Cassette Jump Fix Controller
+entities.CommunalHelper/CassetteJumpFixController.placements.name.controller=Cassette Jump Fix Controller
+entities.CommunalHelper/CassetteJumpFixController.attributes.description.persistent=Whether the controller should apply for the entire level, only applies to the current room if this is turned off.
+entities.CommunalHelper/CassetteJumpFixController.attributes.description.off=Turns off the fix, regardless of the persistent option.
+
+# Manual Cassette Controller
+entities.CommunalHelper/ManualCassetteController.placements.name.controller=Manual Cassette Controller
+entities.CommunalHelper/ManualCassetteController.attributes.description.startIndex=The color of Cassette Block that should start activated.
+
+# Underwater Music Controller
+entities.CommunalHelper/UnderwaterMusicController.placements.name.controller=Underwater Music Controller
+entities.CommunalHelper/UnderwaterMusicController.attributes.description.enable=Whether to always enable or always disable underwater sound modifiers.
+entities.CommunalHelper/UnderwaterMusicController.attributes.description.dashSFX=Whether to also affect the additional in-water dash sound effect.
+
+# Timed Trigger Spikes
+entities.CommunalHelper/TimedTriggerSpikesUp.placements.name.up_default=Timed Trigger Spikes (Up, Default)
+entities.CommunalHelper/TimedTriggerSpikesUp.placements.name.up_outline=Timed Trigger Spikes (Up, Outline)
+entities.CommunalHelper/TimedTriggerSpikesUp.placements.name.up_cliffside=Timed Trigger Spikes (Up, Cliffside)
+entities.CommunalHelper/TimedTriggerSpikesUp.placements.name.up_reflection=Timed Trigger Spikes (Up, Reflection)
+entities.CommunalHelper/TimedTriggerSpikesRight.placements.name.right_default=Timed Trigger Spikes (Right, Default)
+entities.CommunalHelper/TimedTriggerSpikesRight.placements.name.right_outline=Timed Trigger Spikes (Right, Outline)
+entities.CommunalHelper/TimedTriggerSpikesRight.placements.name.right_cliffside=Timed Trigger Spikes (Right, Cliffside)
+entities.CommunalHelper/TimedTriggerSpikesRight.placements.name.right_reflection=Timed Trigger Spikes (Right, Reflection)
+entities.CommunalHelper/TimedTriggerSpikesDown.placements.name.down_default=Timed Trigger Spikes (Down, Default)
+entities.CommunalHelper/TimedTriggerSpikesDown.placements.name.down_outline=Timed Trigger Spikes (Down, Outline)
+entities.CommunalHelper/TimedTriggerSpikesDown.placements.name.down_cliffside=Timed Trigger Spikes (Down, Cliffside)
+entities.CommunalHelper/TimedTriggerSpikesDown.placements.name.down_reflection=Timed Trigger Spikes (Down, Reflection)
+entities.CommunalHelper/TimedTriggerSpikesLeft.placements.name.left_default=Timed Trigger Spikes (Left, Default)
+entities.CommunalHelper/TimedTriggerSpikesLeft.placements.name.left_outline=Timed Trigger Spikes (Left, Outline)
+entities.CommunalHelper/TimedTriggerSpikesLeft.placements.name.left_cliffside=Timed Trigger Spikes (Left, Cliffside)
+entities.CommunalHelper/TimedTriggerSpikesLeft.placements.name.left_reflection=Timed Trigger Spikes (Left, Reflection)
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.type=Determines the visual appearance of the spike.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.type=Determines the visual appearance of the spike.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.type=Determines the visual appearance of the spike.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.type=Determines the visual appearance of the spike.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Delay=The delay, in seconds, before the spikes come up, after triggering. Spikes take 0.0667 seconds to come up (4 frames).
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Delay=The delay, in seconds, before the spikes come up, after triggering. Spikes take 0.0667 seconds to come up (4 frames).
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Delay=The delay, in seconds, before the spikes come up, after triggering. Spikes take 0.0667 seconds to come up (4 frames).
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Delay=The delay, in seconds, before the spikes come up, after triggering. Spikes take 0.0667 seconds to come up (4 frames).
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.WaitForPlayer=Setting this to true will make the spike only come up after the player leaves the spike area. Useful for when you need to return to a space in a time limit.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.WaitForPlayer=Setting this to true will make the spike only come up after the player leaves the spike area. Useful for when you need to return to a space in a time limit.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.WaitForPlayer=Setting this to true will make the spike only come up after the player leaves the spike area. Useful for when you need to return to a space in a time limit.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.WaitForPlayer=Setting this to true will make the spike only come up after the player leaves the spike area. Useful for when you need to return to a space in a time limit.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered. "Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Rainbow=Makes these spikes rainbow.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Rainbow=Makes these spikes rainbow.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Rainbow=Makes these spikes rainbow.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Rainbow=Makes these spikes rainbow.
+
+# Connected Solid Extension
+entities.CommunalHelper/SolidExtension.placements.name.collidable=Connected Solid Extension
+entities.CommunalHelper/SolidExtension.placements.name.uncollidable=Connected Solid Extension (Uncollidable)
+entities.CommunalHelper/SolidExtension.attributes.description.collidable=Whether this extension can be collided with. If turned off, the entity will appear darker and in the background, will basically act like background tiles.
+
+# Dream Zip Mover
+entities.CommunalHelper/DreamZipMover.placements.name.dream_zip_mover=Dream Zip Mover
+entities.CommunalHelper/DreamZipMover.attributes.description.below=Determines whether the Dream Move Block should render below foreground tiles.
+entities.CommunalHelper/DreamZipMover.attributes.description.noReturn=Whether the Dream Zip Mover should return to its starting point or not.
+entities.CommunalHelper/DreamZipMover.attributes.description.dreamAesthetic=Optional look for this entity, mostly unused, but left there.
+entities.CommunalHelper/DreamZipMover.attributes.description.featherMode=Whether the Dream Zip Mover has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamZipMover.attributes.description.oneUse=Whether the Dream Zip Mover should shatter upon exit.
+entities.CommunalHelper/DreamZipMover.attributes.description.refillCount=Number of dashes the Dream Zip Block should refill (-1 for default).
+entities.CommunalHelper/DreamZipMover.attributes.description.doubleRefill=Whether the Dream Zip Mover should refill two dashes, instead of one.
+entities.CommunalHelper/DreamZipMover.attributes.description.permanent=Whether this block should lock in place after being triggered.
+entities.CommunalHelper/DreamZipMover.attributes.description.waiting=Whether this block requires the player to trigger it each node in the path.
+entities.CommunalHelper/DreamZipMover.attributes.description.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
+entities.CommunalHelper/DreamZipMover.attributes.description.quickDestroy=Makes this Dream Zip Mover shatter a little faster.
+
+# Connected Dream Block
+entities.CommunalHelper/ConnectedDreamBlock.placements.name.normal=Connected Dream Block (Normal)
+entities.CommunalHelper/ConnectedDreamBlock.placements.name.feather=Connected Dream Block (Feather Mode)
+entities.CommunalHelper/ConnectedDreamBlock.placements.name.normal_oneuse=Connected Dream Block (Normal, One Use)
+entities.CommunalHelper/ConnectedDreamBlock.placements.name.feather_oneuse=Connected Dream Block (Feather Mode, One Use)
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.below=Determines whether the Connected Dream Block should render below foreground tiles.
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.featherMode=Whether the Connected Dream Block has the Dream Block Feather controls enabled. Connected Dream Blocks only connect with other dream blocks with the same controls.
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.oneUse=Whether THIS Connected Dream Block should make its entire group shatter upon leaving it.
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.refillCount=Number of dashes this group of Connected Dream Blocks should refill (-1 for default).
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.quickDestroy=Makes this Connected Dream Block shatter a little faster.
+
+# Dream Swap Block
+entities.CommunalHelper/DreamSwapBlock.placements.name.dream_swap_block=Dream Swap Block
+entities.CommunalHelper/DreamSwapBlock.attributes.description.below=Determines whether the Dream Swap Block should render below foreground tiles.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.noReturn=Whether the Dream Swap Block should return to its starting point or not.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.featherMode=Whether the Dream Swap Block has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.oneUse=Whether the Dream Swap Block should shatter upon exit.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.refillCount=Number of dashes the Dream Swap Block should refill (-1 for default).
+entities.CommunalHelper/DreamSwapBlock.attributes.description.quickDestroy=Makes this Dream Swap Block shatter a little faster.
+
+# Dream Move Block
+entities.CommunalHelper/DreamMoveBlock.placements.name.dream_move_block=Dream Move Block
+entities.CommunalHelper/DreamMoveBlock.attributes.description.below=Determines whether the Dream Move Block should render below foreground tiles.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.direction=The direction in which the Dream Move Block moves.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.refillCount=Number of dashes the Dream Move Block should refill (-1 for default).
+entities.CommunalHelper/DreamMoveBlock.attributes.description.moveSpeed=The speed at which the Dream Move Block moves (accepts any number).
+entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollide=Whether the Dream Move Block should go through solids.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.oneUse=Whether the Dream Move Block should shatter upon exit.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.quickDestroy=Makes this Dream Move Block shatter a little faster.
+
+# Dream Falling Block
+entities.CommunalHelper/DreamFallingBlock.placements.name.normal=Dream Falling Block
+entities.CommunalHelper/DreamFallingBlock.placements.name.chained=Dream Falling Block (Chained)
+entities.CommunalHelper/DreamFallingBlock.attributes.description.featherMode=Whether the Dream Falling Block has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.oneUse=Whether the Dream Falling Block should shatter upon exit.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.refillCount=Number of dashes the Dream Falling Block should refill (-1 for default).
+entities.CommunalHelper/DreamFallingBlock.attributes.description.below=Determines whether the Dream Falling Block should render below foreground tiles.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.noCollide=Whether the Dream Falling Block should go through solids.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+entities.CommunalHelper/DreamFallingBlock.attributes.description.centeredChain=Renders only one chain at the horizontal center of this block.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.quickDestroy=Makes this Dream Falling Block shatter a little faster.
+
+# Dream Switch Gate
+entities.CommunalHelper/DreamSwitchGate.placements.name.dream_switch_gate=Dream Switch Gate
+entities.CommunalHelper/DreamSwitchGate.attributes.description.below=Determines whether the Dream Switch Gate should render below foreground tiles.
+entities.CommunalHelper/DreamSwitchGate.attributes.description.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamSwitchGate.attributes.description.oneUse=Whether the Dream Switch Gate should shatter upon exit.
+entities.CommunalHelper/DreamSwitchGate.attributes.description.permanent=Whether the Dream Switch Gate should stay at its node permanently after being activated for the entire level.
+entities.CommunalHelper/DreamSwitchGate.attributes.description.refillCount=Number of dashes the Dream Switch Gate should refill (-1 for default).
+entities.CommunalHelper/DreamSwitchGate.attributes.description.quickDestroy=Makes this Dream Switch Gate shatter a little faster.
+
+# Dream Flag Switch Gate
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.placements.name.dream_flag_switch_gate=Dream Flag Switch Gate
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.flag=The session flag this switch gate reacts to. Give the same to multiple touch switches and switch gates to group them.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.icon=The name of the icon for the switch gate (relative to objects/MaxHelpingHand/flagSwitchGate), or "vanilla" for the default one.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.persistent=If enabled, the switch gate will stay open when the player dies or changes rooms.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.inactiveColor=The gate icon colour when not triggered yet.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.activeColor=The gate icon colour when triggered, but the group is not complete yet.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.finishColor=The gate icon colour when the group is complete.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.shakeTime=The time (in seconds) the block spends shaking before starting to move. Vanilla value is 0.5 seconds.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.moveTime=The time (in seconds) the block takes to move to its destination after shaking. Vanilla value is 1.8 seconds.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.moveEased=Whether the block should slow down before reaching its final position. If unchecked, the block will move at constant speed.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.allowReturn=Whether the block should return to its original position if the flag is turned off. Only works if the gate is persistent.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.moveSound=The sound played by the gate when it starts moving.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.finishedSound=The sound played by the gate when it is done moving.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.below=Determines whether the Dream Flag Switch Gate should render below foreground tiles.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.featherMode=Whether the Dream Flag Switch Gate has the Dream Block Feather controls enabled.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.oneUse=Whether the Dream Flag Switch Gate should shatter upon exit.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.refillCount=Number of dashes the Dream Flag Switch Gate should refill (-1 for default).
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.quickDestroy=Makes this Dream Flag Switch Gate shatter a little faster.
+
+# Dream Floaty Space Block
+entities.CommunalHelper/DreamFloatySpaceBlock.placements.name.dream_floaty_space_block=Dream Floaty Space Block
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.below=Determines whether this block should render in the background or foreground.
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.refillCount=Number of dashes the Dream Floaty Space Block should refill (-1 for default).
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.featherMode=Whether this block has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.oneUse=Whether this block should shatter upon exit.
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.quickDestroy=Makes this Dream Floaty Space Block shatter a little faster.
+
+# Dream Crumble Wall On Rumble
+entities.CommunalHelper/DreamCrumbleWallOnRumble.placements.name.dream_crumble_wall_on_rumble=Dream Crumble Wall On Rumble
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.below=Determines whether this block should render in the background or foreground.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.refillCount=Number of dashes the Dream Crumble Wall On Rumble should refill (-1 for default).
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.featherMode=Whether this block has the Dream Block Feather controls enabled.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.oneUse=Whether this block should shatter upon exit.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.persistent=Whether this block should remain broken permanently.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.quickDestroy=Makes this Dream Crumble Wall On Rumble shatter a little faster.
+
+# Connected Zip Mover
+entities.CommunalHelper/ConnectedZipMover.placements.name.normal=Connected Zip Mover (Normal)
+entities.CommunalHelper/ConnectedZipMover.placements.name.moon=Connected Zip Mover (Moon)
+entities.CommunalHelper/ConnectedZipMover.placements.name.cliffside=Connected Zip Mover (Cliffside)
+entities.CommunalHelper/ConnectedZipMover.attributes.description.customBlockTexture=Legacy. Replace this zip mover and use Custom Skin instead. The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
+entities.CommunalHelper/ConnectedZipMover.attributes.description.customSkin=The path to a directory with custom textures for this Connected Zip Mover. This is relative to Graphics/Atlases/Gameplay. If set, this overrides the Theme option. Setting the Cliffside theme is equivalent to setting this field to objects/CommunalHelper/connectedZipMover/cliffside, and customising Colors to match.
+entities.CommunalHelper/ConnectedZipMover.attributes.description.theme=If Custom Skin is not set, this determines the appearance of the Connected Zip Mover. This also determines the sounds used. The Cliffside theme is a custom theme.
+entities.CommunalHelper/ConnectedZipMover.attributes.description.permanent=Whether the Connected Zip Mover should stay completely static after stopping.
+entities.CommunalHelper/ConnectedZipMover.attributes.description.waiting=Whether the Connected Zip Mover should wait for the player at each node. Only useful if has more than one node.
+entities.CommunalHelper/ConnectedZipMover.attributes.description.ticking=Whether the Connected Zip Mover should be ticking at each node, forcing the player to reactivate it within a limited amount of time. Will return to initial position if the player doesn't reactivate it, or locks in place completely if "permanent" is on. Only useful if has more than one node.
+entities.CommunalHelper/ConnectedZipMover.attributes.description.colors=The background and rope colors for this Connected Zip Mover. Setting this value overrides the default values. This is a comma-seperated list of hex codes; the first is used as ther background color, the second as the main rope color, and the third as the lighter rope color (when present). For the Normal and Moon themes, this is 000000,663931,9b6157 by default; for the Cliffside theme, this is 171018,663931,9b6157 by default.
+
+# Connected Swap Block
+entities.CommunalHelper/ConnectedSwapBlock.placements.name.normal=Connected Swap Block
+entities.CommunalHelper/ConnectedSwapBlock.placements.name.reskinnable=Connected Swap Block (Reskinnable)
+entities.CommunalHelper/ConnectedSwapBlock.attributes.description.customGreenBlockTexture=The path to the custom green variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
+entities.CommunalHelper/ConnectedSwapBlock.attributes.description.customRedBlockTexture=The path to the custom red variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
+entities.CommunalHelper/ConnectedSwapBlock.attributes.description.theme=The appearance of the Connected Swap Block.
+
+# Connected Move Block
+entities.CommunalHelper/ConnectedMoveBlock.placements.name.up=Connected Move Block (Up)
+entities.CommunalHelper/ConnectedMoveBlock.placements.name.down=Connected Move Block (Down)
+entities.CommunalHelper/ConnectedMoveBlock.placements.name.left=Connected Move Block (Left)
+entities.CommunalHelper/ConnectedMoveBlock.placements.name.right=Connected Move Block (Right)
+entities.CommunalHelper/ConnectedMoveBlock.placements.name.reskinnable=Connected Move Block (Reskinnable)
+entities.CommunalHelper/ConnectedMoveBlock.placements.name.flag_controlled=Connected Move Block (Flag-controlled)
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.moveSpeed=The speed at which the block moves (accepts any number).
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.direction=The direction in which the Connected Move Block should travel.
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).\nFor adding arrow textures, name the texture for tiles "tileset.png", the arrow textures "arrowXX.png" (00 thru 08), and the breaking "X" sprite as "x.png".
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.idleColor=The color of the arrow when not moving.
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.pressedColor=The color of the arrow when moving.
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.
+
+# Equation Move Block
+entities.CommunalHelper/EquationMoveBlock.placements.name.up=Equation Move Block (Up)
+entities.CommunalHelper/EquationMoveBlock.placements.name.down=Equation Move Block (Down)
+entities.CommunalHelper/EquationMoveBlock.placements.name.left=Equation Move Block (Left)
+entities.CommunalHelper/EquationMoveBlock.placements.name.right=Equation Move Block (Right)
+entities.CommunalHelper/EquationMoveBlock.placements.name.reskinnable=Equation Move Block (Reskinnable)
+entities.CommunalHelper/EquationMoveBlock.placements.name.flag_controlled=Equation Move Block (Flag-controlled)
+entities.CommunalHelper/EquationMoveBlock.attributes.description.equation=The equation used by the Equation Move Block.\n0: y = ax\n1: y = ax^2 + bx\n2: y = ax^3 + bx^2 + x\n3: y = a*sin bx\n4: y = a*cos bx\n5: y = ae^bx\n6: y = ax^b\n7: elliptic, x-scale = a, y-scale = b
+entities.CommunalHelper/EquationMoveBlock.attributes.description.moveSpeed=The speed at which the block moves (accepts any number).
+entities.CommunalHelper/EquationMoveBlock.attributes.description.direction=The direction in which the Connected Move Block should travel.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).\nFor adding arrow textures, name the texture for tiles "tileset.png", the arrow textures "arrowXX.png" (00 thru 08), and the breaking "X" sprite as "x.png".
+entities.CommunalHelper/EquationMoveBlock.attributes.description.idleColor=The color of the arrow when not moving.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.pressedColor=The color of the arrow when moving.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.activatorFlags=The flags which activate this Equation Move Block.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.breakerFlags=The flags which break this Equation Move Block.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.barrierBlocksFlags=Whether Seeker Barriers make this block ignore 'on break' flags.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.constantA=The value of the A constant used in this block's moving equation.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.constantB=The value of the B constant used in this block's moving equation.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.onActivateFlags=Flags set when this block is activated.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.onBreakFlags=Flags set when this block is broken.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.waitForFlags=Makes this block start off invisible and waiting for flags to become visible (and collidable).
+
+# Bouncy Panel
+entities.CommunalHelper/BouncyPanel.placements.name.up=Bouncy Panel (Up)
+entities.CommunalHelper/BouncyPanel.placements.name.left=Bouncy Panel (Left)
+entities.CommunalHelper/BouncyPanel.placements.name.right=Bouncy Panel (Right)
+entities.CommunalHelper/BouncyPanel.attributes.description.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
+entities.CommunalHelper/BouncyPanel.attributes.description.orientation=The way this Bouncy Panel faces.
+entities.CommunalHelper/BouncyPanel.attributes.description.sfx=The sound that plays when the player bounces off this panel.
+
+# Dash Collision Panel
+entities.CommunalHelper/DashCollisionPanel.placements.name.up=Dash Collision Panel (Up)
+entities.CommunalHelper/DashCollisionPanel.placements.name.down=Dash Collision Panel (Down)
+entities.CommunalHelper/DashCollisionPanel.placements.name.left=Dash Collision Panel (Left)
+entities.CommunalHelper/DashCollisionPanel.placements.name.right=Dash Collision Panel (Right)
+entities.CommunalHelper/DashCollisionPanel.attributes.description.orientation=The way this Dash Collision Panel faces.
+entities.CommunalHelper/DashCollisionPanel.attributes.description.dashCollideResult=The type of collision result returned when the player dashes into the solid on which this panel is placed.
+
+# Dream Tunnel Entry
+entities.CommunalHelper/DreamTunnelEntry.placements.name.up=Dream Tunnel Entry (Up)
+entities.CommunalHelper/DreamTunnelEntry.placements.name.down=Dream Tunnel Entry (Down)
+entities.CommunalHelper/DreamTunnelEntry.placements.name.left=Dream Tunnel Entry (Left)
+entities.CommunalHelper/DreamTunnelEntry.placements.name.right=Dream Tunnel Entry (Right)
+entities.CommunalHelper/DreamTunnelEntry.attributes.description.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
+entities.CommunalHelper/DreamTunnelEntry.attributes.description.orientation=The way this Dream Tunnel Entry faces.
+entities.CommunalHelper/DreamTunnelEntry.attributes.description.depth=The depth value for this entity. Used to make it render below or above other entities.
+
+# Frictionless Panel
+entities.CommunalHelper/FrictionlessPanel.placements.name.up=Frictionless Panel (Up)
+entities.CommunalHelper/FrictionlessPanel.placements.name.left=Frictionless Panel (Left)
+entities.CommunalHelper/FrictionlessPanel.placements.name.right=Frictionless Panel (Right)
+entities.CommunalHelper/FrictionlessPanel.attributes.description.orientation=The way this Frictionless Panel faces.
+
+# Surface Sound Panel
+entities.CommunalHelper/SurfaceSoundPanel.placements.name.up=Surface Sound Panel (Up)
+entities.CommunalHelper/SurfaceSoundPanel.placements.name.left=Surface Sound Panel (Left)
+entities.CommunalHelper/SurfaceSoundPanel.placements.name.right=Surface Sound Panel (Right)
+entities.CommunalHelper/SurfaceSoundPanel.attributes.description.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
+entities.CommunalHelper/SurfaceSoundPanel.attributes.description.soundIndex=The index associated with the surface sounds played on this panel.
+
+# Chained Kevin
+entities.CommunalHelper/ChainedKevin.placements.name.up=Kevin (Chained, Up)
+entities.CommunalHelper/ChainedKevin.placements.name.down=Kevin (Chained, Down)
+entities.CommunalHelper/ChainedKevin.placements.name.left=Kevin (Chained, Left)
+entities.CommunalHelper/ChainedKevin.placements.name.right=Kevin (Chained, Right)
+entities.CommunalHelper/ChainedKevin.attributes.description.chillout=Whether the block should have the large face and get tired after being hit.
+entities.CommunalHelper/ChainedKevin.attributes.description.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
+entities.CommunalHelper/ChainedKevin.attributes.description.direction=The only direction in which this block will travel.
+entities.CommunalHelper/ChainedKevin.attributes.description.centeredChain=Renders only one chain at the horizontal or vertical center of this block, depending on the direction.
+entities.CommunalHelper/ChainedKevin.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
+
+# Chained Falling Block
+entities.CommunalHelper/ChainedFallingBlock.placements.name.chained_falling_block=Falling Block (Chained)
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.tiletype=Changes the visual appearance of this block.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.climbFall=Whether the block should start falling when the player is climbing it.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.behind=Whether this entity should appear farther behind in the scene or not.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.centeredChain=Renders only one chain at the horizontal center of this block.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
+
+# Chain
+entities.CommunalHelper/Chain.placements.name.chain=Chain
+entities.CommunalHelper/Chain.attributes.description.outline=Whether this chain has an outline (black).
+entities.CommunalHelper/Chain.attributes.description.extraJoints=The additional 'chain nodes' this chain has. Used to make the chain longer without distancing the endpoints of the chain any further away from eachother.
+
+# Core Mode Music Controller
+entities.CommunalHelper/CoreModeMusicController.placements.name.enable=Core Mode Music Controller
+entities.CommunalHelper/CoreModeMusicController.placements.name.disable=Core Mode Music Controller (Disable)
+entities.CommunalHelper/CoreModeMusicController.attributes.description.params=A list of parameters to change depending on the level's core mode (separated by the comma character ',').
+entities.CommunalHelper/CoreModeMusicController.attributes.description.hot=The values to which the parameters will be set when the core mode is "Hot".
+entities.CommunalHelper/CoreModeMusicController.attributes.description.cold=The values to which the parameters will be set when the core mode is "Cold".
+entities.CommunalHelper/CoreModeMusicController.attributes.description.none=The values to which the parameters will be set when the core mode is "None".
+entities.CommunalHelper/CoreModeMusicController.attributes.description.disable=If this is ticked on, this controller will look for every controller with the same parameter list (in order), and disable it (remove it). It also removes itself afterwards. 
+
+# Heart Gem Shards
+entities.CommunalHelper/CrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards)
+entities.CommunalHelper/CrystalHeart.attributes.description.removeCameraTriggers=Whether the heart should remove camera triggers onces its triggered.
+
+# Heart Gem Shards, Aventure Helper
+entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards) [Adventure Helper]
+entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.color=Determines the glow and particle color of the heart as well as its tint if no sprite path is set.
+entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.path=If set, determines what sprite will be used for the heart. The hitbox is not altered! If not set, the fake heart's white heart will be tinted.\nThe sprites of the default 4 hearts are treated differently and they will take the behavior of those. They are the following:\n* 'heartgem0' : A-side, Blue\n* 'heartgem1' : B-side, Red\n* 'heartgem2' : C-side, Gold\n* 'heartgem3' : Farewell, White
+
+# Input Flag Controller
+entities.CommunalHelper/InputFlagController.placements.name.controller=Input Flag Controller
+entities.CommunalHelper/InputFlagController.attributes.description.flags=Multiple flags can be separated by commas, and sequences of flags can be separated by semi-colons.
+entities.CommunalHelper/InputFlagController.attributes.description.toggle=If enabled, flags will be toggled and the sequence will loop. If disabled, flags will be enable once.
+entities.CommunalHelper/InputFlagController.attributes.description.resetFlags=If enabled, all specified flags will be disabled upon leaving the room this entity is in.
+entities.CommunalHelper/InputFlagController.attributes.description.delay=The minimum delay in seconds between inputs.
+entities.CommunalHelper/InputFlagController.attributes.description.grabOverride=Overrides the user's button binding to use the grab bind instead.
+
+# Melvin
+entities.CommunalHelper/Melvin.placements.name.strong=Melvin (All Strong)
+entities.CommunalHelper/Melvin.placements.name.weak=Melvin (All Weak)
+entities.CommunalHelper/Melvin.placements.name.horiz_weak=Melvin (Horizontally Weak)
+entities.CommunalHelper/Melvin.placements.name.verti_weak=Melvin (Vertically Weak)
+entities.CommunalHelper/Melvin.attributes.description.weakTop=Whether this Melvin can be dashed into from above.
+entities.CommunalHelper/Melvin.attributes.description.weakBottom=Whether this Melvin can be dashed into from below.
+entities.CommunalHelper/Melvin.attributes.description.weakLeft=Whether this Melvin can be dashed into from the left.
+entities.CommunalHelper/Melvin.attributes.description.weakRight=Whether this Melvin can be dashed into from the right.
+
+# Move Block Redirect
+entities.CommunalHelper/MoveBlockRedirect.placements.name.normal=Move Block Redirect
+entities.CommunalHelper/MoveBlockRedirect.placements.name.one_use=Move Block Redirect (One Use)
+entities.CommunalHelper/MoveBlockRedirect.placements.name.delete=Move Block Redirect (Delete)
+entities.CommunalHelper/MoveBlockRedirect.placements.name.reskinnable=Move Block Redirect (Reskinnable)
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.direction=Determines the direction the Move Block moves after being redirected.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.fastRedirect=Skips the redirect animation.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.deleteBlock=Breaks the Move Block that goes through.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.operation=The type of operation to apply to the current Move Block speed.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.modifier=The number with which the operation is applied to the Move Block speed.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.oneUse=Whether this Move Block Redirect can only be used once or not.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.reskinFolder=The path to the folder containing custom sprites required for this entity's reskinning. This folder can contain up to 5 files used in code, unless they aren't found which will cause the entity to use the default one.\n\nHere is a list of the files you'd want to have in the folder:\n\n- "block.png" is the outline of the redirect entity. It's 3 tiles wide and tall (24 x 24).\n\n- "arrow.png" is the icon shown for simple redirects, when speed is unaffected.\n\n- "x.png" is the icon shown for delete mode redirects.\n\n- "fast.png" and "slow.png" are the icons shown for redirects that increase or decrease speed respectively.\n\n\nPlease note that these images will be recolored in-game and so they must preferably be close to white/grayscale. If you want to use any color, you can set the Override Color and Overrde Used Color to ffffff, so that the colors are not affected.
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.overrideColor=The hexadecimal color code that, if set, replaces whatever color the block originally has. Must not include the hash (#) symbol!
+entities.CommunalHelper/MoveBlockRedirect.attributes.description.overrideUsedColor=The hexadecimal color code that, if set, replaces whatever color the block originally has when it's being used. Must not include the hash (#) symbol!
+
+# Move Swap Block
+entities.CommunalHelper/MoveSwapBlock.placements.name.move_swap_block=Move Swap Block
+entities.CommunalHelper/MoveSwapBlock.attributes.description.canSteer=Whether the Move Swap Block can be moved by the player.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.direction=The direction the Move Swap Block moves in upon activation.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.freezeOnSwap=Whether the block will continue moving while swapping.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.moveAcceleration=The speed at which the block will move upon activation.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.moveSpeed=The maximum speed of the block while moving.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.returns=Whether the block will return after swapping.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.swapSpeedMultiplier=The speed multiplier for swapping.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.theme=Unsupported by this entity!
+
+# Player Bubble Region
+entities.CommunalHelper/PlayerBubbleRegion.placements.name.player_bubble_region=Player Bubble Region
+
+# No Overlay Lookout
+entities.CommunalHelper/NoOverlayLookout.placements.name.watchtower=Watchtower (No Overlay)
+entities.CommunalHelper/NoOverlayLookout.attributes.description.summit=Whether the watch tower should zoom on the final node or not. Requires nodes to function, otherwise game will crash.
+entities.CommunalHelper/NoOverlayLookout.attributes.description.onlyY=Whether the watch tower can only move vertically. If the watch tower has nodes it will still follow CommunalHelper/NoOverlayLookout
+
+# Railed Move Block
+entities.CommunalHelper/RailedMoveBlock.placements.name.horizontal=Railed Move Block (Horizontal)
+entities.CommunalHelper/RailedMoveBlock.placements.name.vertical=Railed Move Block (Vertical)
+entities.CommunalHelper/RailedMoveBlock.placements.name.both=Railed Move Block (Both)
+entities.CommunalHelper/RailedMoveBlock.attributes.description.steeringMode=Represents the way in which you can steer the block using the side buttons.\n\n- "Horizontal" will enable buttons on the left and right side of the block.\n- "Vertical" will enable one button at the top of the block.\n- "Both" will enable the two above.
+entities.CommunalHelper/RailedMoveBlock.attributes.description.speed=The maximum speed this block can go at.
+
+# Reset State Crystal
+entities.CommunalHelper/ResetStateCrystal.placements.name.reset_state_crystal=Reset State Crystal
+entities.CommunalHelper/ResetStateCrystal.attributes.description.oneUse=Whether the crystal should reappear after being collected.
+
+# Synced Zip Mover Activation Controller
+entities.CommunalHelper/SyncedZipMoverActivationController.placements.name.controller=Synced Zip Mover Activation Controller
+entities.CommunalHelper/SyncedZipMoverActivationController.attributes.description.zipMoverSpeedMultiplier=Speed Multiplier for the controlled Zip Movers.
+entities.CommunalHelper/SyncedZipMoverActivationController.attributes.description.colorCode=Target color code.
+
+# Summit Gem Manager
+entities.CommunalHelper/CustomSummitGemManager.placements.name.summit_gem_manager=Summit Gem Manager
+entities.CommunalHelper/CustomSummitGemManager.attributes.description.gemIds=Comma separated list of gemIDs. ID format is $mapSID/$roomName/$index. If no mapSID is provided, the current map will be used.
+entities.CommunalHelper/CustomSummitGemManager.attributes.description.melody=NOT Comma separated list of numbers from 0-7 for a custom melody during collection. Defaults to the gem index if not provided.
+entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffset=Determines where the crystal heart will move to relative to this summit gem manager once all gems are collected.
+
+# Dash State Trigger
+triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
+triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
+triggers.CommunalHelper/DashStateTrigger.attributes.description.mode=The changing mode. 'Trigger' changes the dash state when the player enters the trigger. 'OneUse' makes this trigger remove itself when used. 'Field' makes it change the dash state constantly while the player is inside. 
+
+# Music Param Trigger
+triggers.CommunalHelper/MusicParamTrigger.placements.name.trigger=Music Paramater
+triggers.CommunalHelper/MusicParamTrigger.attributes.description.enterValue=The value to which the parameter(s) are set when the player is touching the trigger.
+triggers.CommunalHelper/MusicParamTrigger.attributes.description.exitValue=The value to which the parameter(s) are set when the player is outside the trigger.
+triggers.CommunalHelper/MusicParamTrigger.attributes.description.param=The name of the affected parameters. You can specify more than one parameter by separating them with a comma (,).
+
+# Sound Area Trigger
+triggers.CommunalHelper/SoundAreaTrigger.placements.name.trigger=Sound Area
+triggers.CommunalHelper/SoundAreaTrigger.attributes.description.event=The name of the audio event that plays inside the trigger.
+
+# Switch Track Trigger
+triggers.CommunalHelper/TrackSwitchTrigger.placements.name.trigger=Track Switch
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.oneUse=Allows for only one use of this trigger.
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.flash=Whether the screen should flash and shake when triggered.
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)

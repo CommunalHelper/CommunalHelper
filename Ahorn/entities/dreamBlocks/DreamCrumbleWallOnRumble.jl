@@ -5,7 +5,7 @@ using Ahorn.CommunalHelper
 using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
 const entityData = appendkwargs(CustomDreamBlockData, :(
-    permanent::Bool=false,
+    persistent::Bool=false,
 ))
 @mapdefdata Entity "CommunalHelper/DreamCrumbleWallOnRumble" DreamCrumbleWallOnRumble entityData
 
