@@ -5,7 +5,6 @@ using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public abstract class CustomBooster : Booster {
-
         protected DynData<Booster> BoosterData;
 
         public ParticleType P_CustomAppear, P_CustomBurst;
