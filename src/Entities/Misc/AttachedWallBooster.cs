@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.Entities;
-using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -10,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/AttachedWallBooster")]
-    [Tracked(false)]
+    [TrackedAs(typeof(WallBooster))]
     public class AttachedWallBooster : WallBooster {
         public Vector2 Shake = Vector2.Zero;
 
@@ -66,37 +65,43 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
-        private const float WallBoosterSpeed = -160f;
-
-        private static float attachedWallBoosterCurrentSpeed = 0f;
-        private static bool attachedWallBoosting = false;
-        private static EventInstance conveyorLoopSfx;
-        private static float playerWallBoostTimer = 0f;
+        private const string Player_attachedWallBoosterCurrentSpeed = "communalHelperAttachedWallBoosterCurrentSpeed";
+        private const string Player_attachedWallBoosterLiftSpeedTimer = "communalHelperAttachedWallBoosterLiftSpeedTimer";
 
         internal static void Hook() {
             On.Celeste.Player.ClimbBegin += Player_ClimbBegin;
-            On.Celeste.Player.ClimbUpdate += Player_ClimbUpdate;
             IL.Celeste.Player.ClimbUpdate += Player_ClimbUpdate;
-            On.Celeste.Player.ClimbEnd += Player_ClimbEnd;
             On.Celeste.Player.ClimbJump += Player_ClimbJump;
             On.Celeste.Player.WallJump += Player_WallJump;
+
+            On.Celeste.Player.ctor += Player_ctor;
             On.Celeste.Player.Update += Player_Update;
         }
 
         internal static void Unhook() {
             On.Celeste.Player.ClimbBegin -= Player_ClimbBegin;
-            On.Celeste.Player.ClimbUpdate -= Player_ClimbUpdate;
             IL.Celeste.Player.ClimbUpdate -= Player_ClimbUpdate;
-            On.Celeste.Player.ClimbEnd -= Player_ClimbEnd;
             On.Celeste.Player.ClimbJump -= Player_ClimbJump;
             On.Celeste.Player.WallJump -= Player_WallJump;
+            On.Celeste.Player.ctor -= Player_ctor;
             On.Celeste.Player.Update -= Player_Update;
+        }
+
+        private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
+            orig(self, position, spriteMode);
+
+            DynData<Player> data = self.GetData();
+            data[Player_attachedWallBoosterCurrentSpeed] = 0f;
+            data[Player_attachedWallBoosterLiftSpeedTimer] = 0f;
         }
 
         private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
             orig(self);
-            if (playerWallBoostTimer > 0)
-                playerWallBoostTimer -= Engine.DeltaTime;
+
+            DynData<Player> data = self.GetData();
+            float timer = (float) data[Player_attachedWallBoosterLiftSpeedTimer];
+            if (timer > 0)
+                data[Player_attachedWallBoosterLiftSpeedTimer] = Calc.Approach(timer, 0f, Engine.DeltaTime);
         }
 
         private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir) {
@@ -110,63 +115,39 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static void PlayerWallBoost(Player player) {
-            if (playerWallBoostTimer > 0) {
-                player.LiftSpeed += Vector2.UnitY * Calc.Max(attachedWallBoosterCurrentSpeed, -80f);
-                attachedWallBoosterCurrentSpeed = playerWallBoostTimer = 0f;
-            }
-        }
+            DynData<Player> data = player.GetData();
 
-        private static void Player_ClimbEnd(On.Celeste.Player.orig_ClimbEnd orig, Player self) {
-            orig(self);
-            if (attachedWallBoosting) {
-                attachedWallBoosting = false;
-                conveyorLoopSfx.setParameterValue("end", 1f);
-                conveyorLoopSfx.release();
+            float timer = (float) data[Player_attachedWallBoosterLiftSpeedTimer];
+            float currentSpeed = (float) data[Player_attachedWallBoosterCurrentSpeed];
+
+            if (timer > 0 && currentSpeed < 0) {
+                player.LiftSpeed += Vector2.UnitY * Calc.Max(currentSpeed, -80f);
+                data[Player_attachedWallBoosterCurrentSpeed] = data[Player_attachedWallBoosterLiftSpeedTimer] = 0f;
             }
         }
 
         private static void Player_ClimbBegin(On.Celeste.Player.orig_ClimbBegin orig, Player self) {
             orig(self);
-            attachedWallBoosterCurrentSpeed = 0f;
-            attachedWallBoosting = false;
-        }
-
-        private static int Player_ClimbUpdate(On.Celeste.Player.orig_ClimbUpdate orig, Player self) {
-            if (self.AttachedWallBoosterCheck()) {
-                if (!attachedWallBoosting) {
-                    attachedWallBoosting = true;
-                    attachedWallBoosterCurrentSpeed = self.Speed.Y;
-                    conveyorLoopSfx = Audio.Play(SFX.game_09_conveyor_activate, self.Position, "end", 0f);
-                }
-                playerWallBoostTimer = .25f;
-                Audio.Position(conveyorLoopSfx, self.Position);
-
-                attachedWallBoosterCurrentSpeed = Calc.Approach(attachedWallBoosterCurrentSpeed, WallBoosterSpeed, 600f * Engine.DeltaTime);
-                self.Speed.Y = attachedWallBoosterCurrentSpeed;
-
-                Input.Rumble(RumbleStrength.Light, RumbleLength.Short);
-            } else if (attachedWallBoosting) {
-                attachedWallBoosting = false;
-                conveyorLoopSfx.setParameterValue("end", 1f);
-                conveyorLoopSfx.release();
-            }
-
-            int ret = orig(self);
-
-            if (attachedWallBoosting) {
-                // This is unset during orig so we have to set it here instead
-                self.GetData()["wallBoosting"] = true;
-            }
-
-            return ret;
+            self.GetData()[Player_attachedWallBoosterLiftSpeedTimer] = 0f;
         }
 
         private static void Player_ClimbUpdate(ILContext il) {
             ILCursor cursor = new ILCursor(il);
+
             cursor.GotoNext(instr => instr.MatchLdstr(SFX.char_mad_grab_letgo));
             cursor.GotoNext(MoveType.After, instr => instr.Match(OpCodes.Brfalse_S));
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate<Action<Player>>(PlayerWallBoost);
+
+            cursor.GotoNext(instr => instr.MatchLdstr(SFX.game_09_conveyor_activate));
+            cursor.GotoNext(instr => instr.MatchMul());
+            cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Stfld);
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Player>>(self => {
+                DynData<Player> data = self.GetData();
+                data[Player_attachedWallBoosterCurrentSpeed] = self.Speed.Y;
+                data[Player_attachedWallBoosterLiftSpeedTimer] = .25f;    
+            });
         }
 
         #endregion
