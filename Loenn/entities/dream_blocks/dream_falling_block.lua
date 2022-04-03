@@ -23,8 +23,8 @@ end
 -- also, because of this, we need to explicitly ignore other options hidden by default
 dreamFallingBlock.ignoredFields = {
     "chained",
-    "id",
-    "name"
+    "_id",
+    "_name"
 }
 
 dreamFallingBlock.placements = {
