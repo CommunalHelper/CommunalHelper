@@ -126,6 +126,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CurvedDreamBooster")]
     public class DreamBoosterCurve : DreamBooster {
         private readonly BakedCurve curve;
+        private float travel = 0;
+
+        public readonly Vector2 EndingSpeed;
 
         public DreamBoosterCurve(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveMode>("curve"), !data.Bool("hidePath")) { }
@@ -133,6 +136,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public DreamBoosterCurve(Vector2 position, Vector2[] nodes, CurveMode mode, bool showPath)
             : base(position, showPath) {
             curve = new BakedCurve(nodes, mode, 24);
+            EndingSpeed = Calc.SafeNormalize(curve.GetByDistance(curve.Length) - curve.GetByDistance(curve.Length - 1f), 240);
+        }
+
+        public Vector2 Travel(out bool end) {
+            travel += 240f * Engine.DeltaTime; // booster speed constant
+            end = travel >= curve.Length;
+            return curve.GetByDistance(travel);
+        }
+
+        protected override void OnPlayerEnter(Player player) {
+            base.OnPlayerEnter(player);
+            travel = 0f;
+            player.Speed = Vector2.Zero;
+            Console.WriteLine("yo");
         }
 
         public override void Render() {

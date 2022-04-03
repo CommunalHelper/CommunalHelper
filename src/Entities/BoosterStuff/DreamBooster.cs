@@ -86,11 +86,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 for (int i = 0; i < 20; i++) {
                     booster.SceneAs<Level>().ParticlesBG.Emit(DreamBooster.P_BurstExplode, 1, player.Center, new Vector2(3f, 3f), angle + Calc.Random.NextFloat());
                 }
+
+            }
+            if (self is DreamBoosterCurve curve) {
+                float angle = curve.EndingSpeed.Angle() - 0.5f;
+                for (int i = 0; i < 20; i++) {
+                    curve.SceneAs<Level>().ParticlesBG.Emit(DreamBooster.P_BurstExplode, 1, player.Center, new Vector2(3f, 3f), angle + Calc.Random.NextFloat());
+                }
             }
         }
 
         private static int Player_RedDashUpdate(On.Celeste.Player.orig_RedDashUpdate orig, Player self) {
-            DreamBoosterSegment dreamBooster = self.LastBooster as DreamBoosterSegment;
+            DreamBooster dreamBooster = self.LastBooster as DreamBooster;
             if (dreamBooster != null) {
                 bool inSolid = self.CollideCheck<Solid>();
 
@@ -100,10 +107,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     self.LastBooster.Ch9HubTransition = true;
 
                 dreamBooster.LoopingSfxParam("dream_tunnel", Util.ToInt(inSolid));
-                if (Vector2.Distance(self.Center, dreamBooster.Start) >= dreamBooster.Length) {
-                    self.Position = dreamBooster.Target;
-                    self.SceneAs<Level>().DirectionalShake(dreamBooster.Dir, 0.175f);
-                    return 0;
+
+                if (dreamBooster is DreamBoosterSegment segment) {
+                    if (Vector2.Distance(self.Center, segment.Start) >= segment.Length) {
+                        self.Position = segment.Target;
+                        self.SceneAs<Level>().DirectionalShake(segment.Dir, 0.175f);
+                        return 0;
+                    }
+                }
+
+                if (dreamBooster is DreamBoosterCurve curve) {
+                    Vector2 prev = self.Position;
+                    Vector2 next = curve.Travel(out bool end);
+                    self.MoveToX(next.X);
+                    self.MoveToY(next.Y + 8f);
+                    if (end) {
+                        self.Speed = curve.EndingSpeed;
+                        return 0;
+                    }
                 }
             }
 
@@ -136,13 +157,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             while (origEnum.MoveNext())
                 yield return origEnum.Current;
 
-            if (currentBooster is DreamBoosterSegment booster) {
+            if (currentBooster is DreamBoosterSegment segment) {
                 DynData<Player> playerData = new DynData<Player>(self);
-                self.Speed = ((Vector2) (playerData["gliderBoostDir"] = self.DashDir = booster.Dir)) * 240f;
+                self.Speed = ((Vector2) (playerData["gliderBoostDir"] = self.DashDir = segment.Dir)) * 240f;
                 self.SceneAs<Level>().DirectionalShake(self.DashDir, 0.2f);
                 if (self.DashDir.X != 0f) {
                     self.Facing = (Facings) Math.Sign(self.DashDir.X);
                 }
+                yield break;
             }
         }
 
