@@ -1,20 +1,23 @@
+--1.11.1 (03/04/2022)--
+* Fix Attached Wall Booster sound and behavior bugs.
+
 --1.11.0 (02/04/2022)--
 * Lönn support.
 * Fix various tooltips + missing tooltips.
 
 --1.10.0 (09/03/2022)--
-* Added SeekerDash.
-* Added DashStateTrigger.
+* Added Seeker Dash.
+* Added Dash State Trigger.
 * Added Frictionless Panel.
-* Added DashCollision Panel.
+* Added Dash Collision Panel.
 * Added Bouncy Panel.
-* Added DreamTunnel FeatherMode preview.
+* Added Dream Tunnel featherMode preview.
 * Fix overrideAllowStaticMovers attribute on panels.
 * Properly detect late-loaded optional dependencies.
 * Added wiki for in-depth documentation.
 
 --1.9.8 (24/01/2022)--
-* Added TriggerAlways option to timed trigger spikes.
+* Added triggerAlways option to Timed Trigger Spikes.
 
 --1.9.7 (22/01/2022)--
 * Added Sound Area Trigger.
