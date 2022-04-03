@@ -16,6 +16,10 @@ entities.CommunalHelper/DreamBooster.placements.name.normal=Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (Hidden Path)
 entities.CommunalHelper/DreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
 
+# Curved Dream Booster
+entities.CommunalHelper/CurvedDreamBooster.placements.name.quadratic=Dream Booster (Quadratic Curve)
+entities.CommunalHelper/CurvedDreamBooster.placements.name.cubic=Dream Booster (Cubic Curve)
+
 # Summit Gem
 entities.CommunalHelper/CustomSummitGem.placements.name.summit_gem=Custom Summit Gem
 entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines the texture and sound used for this gem (clamped within 0 and 7). Must be unique within a room. To use a custom texture, put it at Graphics/Atlases/Gameplay/collectables/summitgems/$mapSID/$roomName/$index.
