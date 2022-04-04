@@ -1,3 +1,6 @@
+--1.11.2 (04/04/2022)--
+* Fix 1.11.1 bugfix undesired side effects on vanilla Wall Boosters.
+
 --1.11.1 (03/04/2022)--
 * Fix Attached Wall Booster sound and behavior bugs.
 
