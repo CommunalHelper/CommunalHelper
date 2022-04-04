@@ -67,12 +67,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private const string Player_attachedWallBoosterCurrentSpeed = "communalHelperAttachedWallBoosterCurrentSpeed";
         private const string Player_attachedWallBoosterLiftSpeedTimer = "communalHelperAttachedWallBoosterLiftSpeedTimer";
+        private const string Player_lastWallBooster = "communalHelperLastWallBooster";
 
         internal static void Hook() {
             On.Celeste.Player.ClimbBegin += Player_ClimbBegin;
             IL.Celeste.Player.ClimbUpdate += Player_ClimbUpdate;
             On.Celeste.Player.ClimbJump += Player_ClimbJump;
             On.Celeste.Player.WallJump += Player_WallJump;
+            On.Celeste.Player.WallBoosterCheck += Player_WallBoosterCheck;
 
             On.Celeste.Player.ctor += Player_ctor;
             On.Celeste.Player.Update += Player_Update;
@@ -83,8 +85,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IL.Celeste.Player.ClimbUpdate -= Player_ClimbUpdate;
             On.Celeste.Player.ClimbJump -= Player_ClimbJump;
             On.Celeste.Player.WallJump -= Player_WallJump;
+            On.Celeste.Player.WallBoosterCheck -= Player_WallBoosterCheck;
+
             On.Celeste.Player.ctor -= Player_ctor;
             On.Celeste.Player.Update -= Player_Update;
+        }
+
+        private static WallBooster Player_WallBoosterCheck(On.Celeste.Player.orig_WallBoosterCheck orig, Player self) {
+            WallBooster entity = orig(self);
+            self.GetData()[Player_lastWallBooster] = entity;
+            return entity;
         }
 
         private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
@@ -120,7 +130,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             float timer = (float) data[Player_attachedWallBoosterLiftSpeedTimer];
             float currentSpeed = (float) data[Player_attachedWallBoosterCurrentSpeed];
 
-            if (timer > 0 && currentSpeed < 0) {
+            if (timer > 0 && currentSpeed < 0 && data[Player_lastWallBooster] is AttachedWallBooster) {
                 player.LiftSpeed += Vector2.UnitY * Calc.Max(currentSpeed, -80f);
                 data[Player_attachedWallBoosterCurrentSpeed] = data[Player_attachedWallBoosterLiftSpeedTimer] = 0f;
             }
@@ -146,7 +156,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.EmitDelegate<Action<Player>>(self => {
                 DynData<Player> data = self.GetData();
                 data[Player_attachedWallBoosterCurrentSpeed] = self.Speed.Y;
-                data[Player_attachedWallBoosterLiftSpeedTimer] = .25f;    
+                data[Player_attachedWallBoosterLiftSpeedTimer] = .25f;
             });
         }
 
