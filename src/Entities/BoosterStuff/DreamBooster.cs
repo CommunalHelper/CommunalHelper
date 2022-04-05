@@ -119,7 +119,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (dreamBooster is DreamBoosterCurve curve) {
                     Vector2 prev = self.Position;
                     Vector2 next = curve.Travel(out bool end);
-                    self.MoveToX(next.X);
+                    self.MoveToX(next.X - 4f);
                     self.MoveToY(next.Y + 8f);
                     if (end) {
                         self.Speed = curve.EndingSpeed;
