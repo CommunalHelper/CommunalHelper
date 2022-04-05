@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.CommunalHelper.DashStates;
-using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -10,6 +9,32 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public abstract class DreamBooster : CustomBooster {
+        public abstract class PathRendererBase<T> : Entity where T : DreamBooster  {
+            public readonly T Booster;
+
+            public float Alpha;
+            public float Percent = 1f;
+
+            private float rainbowLerp;
+            protected Color CurrentRainbowColor { get; private set; }
+
+            public PathRendererBase(float alpha, T booster) {
+                Booster = booster;
+                Alpha = Percent = alpha;
+
+                Depth = Depths.DreamBlocks + 1;
+            }
+
+            public void ResetRainbow()
+                => CurrentRainbowColor = Util.ColorArrayLerp(rainbowLerp = Calc.Random.Range(0, 8), DreamColors);
+
+            public override void Update() {
+                base.Update();
+                if (Booster.BoostingPlayer)
+                    CurrentRainbowColor = Util.ColorArrayLerp(rainbowLerp += Engine.DeltaTime * 8f, DreamColors);
+            }
+        }
+
         public static ParticleType P_BurstExplode;
 
         public static readonly Color BurstColor = Calc.HexToColor("19233b");
@@ -30,6 +55,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public DreamBooster(Vector2 position, bool showPath)
             : base (position, redBoost: true) {
+            Depth = Depths.DreamBlocks;
+
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
             SetParticleColors(BurstColor, AppearColor);
             SetSoundEvent(
