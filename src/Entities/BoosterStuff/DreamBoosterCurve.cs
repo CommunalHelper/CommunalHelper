@@ -76,10 +76,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public static Vector2 GetCurveDerivative(Vector2 a, Vector2 b, Vector2 c, float t) {
             float fa = 2 * t - 2;
-            float fb = -2 * t + 1;
-            float tc = 2 * t;
+            float fb = -4 * t + 2;
+            float fc = 2 * t;
 
-            return (fa * a) + (fb * b) + (tc * c);
+            return (fa * a) + (fb * b) + (fc * c);
         }
 
         // cubic bézier
@@ -146,7 +146,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 point = GetCurvePoint(points[i], points[i + 1], points[i + 2], points[i + 3], percent);
                 derivative = GetCurveDerivative(points[i], points[i + 1], points[i + 2], points[i + 3], percent);
             } else {
-                point = GetCurveDerivative(points[i], points[i + 1], points[i + 2], percent);
+                point = GetCurvePoint(points[i], points[i + 1], points[i + 2], percent);
                 derivative = GetCurveDerivative(points[i], points[i + 1], points[i + 2], percent);
             }
         }
@@ -155,7 +155,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             => GetPoint(SolveForTGivenDistance(distance));
 
         public Vector2 GetDerivativeByDistance(float distance)
-            => GetPoint(SolveForTGivenDistance(distance));
+            => GetDerivative(SolveForTGivenDistance(distance));
 
         public void GetAllByDistance(float distance, out Vector2 point, out Vector2 derivative)
             => GetAll(SolveForTGivenDistance(distance), out point, out derivative);
@@ -241,12 +241,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Vector2 lineOffset = perp * lineLength;
 
                 // Single perpendicular short segments
-                Draw.Line(pos + lineOffset, pos - lineOffset, color * Alpha);
+                //Draw.Line(pos + lineOffset, pos - lineOffset, color * Alpha);
 
                 // "Arrow" style
-                //Vector2 arrowOffset = -dir * lineLength;
-                //Draw.Line(pos, pos - lineOffset + arrowOffset, color * Alpha);
-                //Draw.Line(pos + lineOffset + arrowOffset, pos, color * Alpha);
+                Vector2 arrowOffset = -dir * lineLength;
+                Draw.Line(pos, pos - lineOffset + arrowOffset, color * Alpha);
+                Draw.Line(pos + lineOffset + arrowOffset, pos, color * Alpha);
             }
         }
 
