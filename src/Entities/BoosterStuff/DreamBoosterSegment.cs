@@ -65,10 +65,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.OnPlayerEnter(player);
             pathRenderer.ResetRainbow();
             if (!showPath)
-                Add(new Coroutine(HiddenPathReact()));
+                Add(new Coroutine(RevealPathRoutine()));
         }
 
-        private IEnumerator HiddenPathReact() {
+        private IEnumerator RevealPathRoutine() {
             float duration = 0.5f;
             float timer = 0f;
 

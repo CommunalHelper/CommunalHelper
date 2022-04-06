@@ -198,22 +198,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             private readonly Node[] nodes;
-            private readonly Node last;
+            private Node last;
 
             public PathRenderer(float alpha, DreamBoosterCurve booster)
                 : base(alpha, booster) {
                 float sep = 6f;
                 nodes = new Node[(int)Math.Ceiling(booster.curve.Length / sep)];
 
-                Vector2 point, derivative;
-                for (int i = 0; i < nodes.Length - 1; i++) {
+                for (int i = 0; i < nodes.Length; i++) {
                     float d = i * sep;
-                    booster.curve.GetAllByDistance(d, out point, out derivative);
+                    booster.curve.GetAllByDistance(d, out Vector2 point, out Vector2 derivative);
                     nodes[i] = new Node(d, Calc.Round(point), Calc.SafeNormalize(derivative));
                 }
+            }
 
-                booster.curve.GetAll(booster.curve.CurveCount, out point, out derivative);
-                last = new Node(booster.curve.Length, point, Calc.SafeNormalize(derivative));
+            public void SetLastNode(float distance, Vector2 point, Vector2 derivative) {
+                last = new Node(distance, Calc.Round(point), Calc.SafeNormalize(derivative));
             }
 
             public override void Render() {
@@ -222,9 +222,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Color color = Booster.BoostingPlayer ? CurrentRainbowColor : Color.White;
 
                 Util.TryGetPlayer(out Player player);
-                foreach (Node node in nodes)
-                   DrawPathLine(node.Position, node.Dir, node.Perp, node.Distance, player, color);
-                DrawPathLine(last.Position, last.Dir, last.Perp, last.Distance, null, color);
+
+                for (int i = 0; i < nodes.Length * Percent; i++) {
+                    Node node = nodes[i];
+                    DrawPathLine(node.Position, node.Dir, node.Perp, node.Distance, player, color);
+                }
+                if (Percent != 0)
+                    DrawPathLine(last.Position, last.Dir, last.Perp, last.Distance, null, color);
             }
         }
 
@@ -270,12 +274,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             travel = 0f;
             player.Speed = Vector2.Zero;
             if (!showPath)
-                Add(new Coroutine(HiddenPathReact()));
+                Add(new Coroutine(RevealPathRoutine()));
         }
 
-        private IEnumerator HiddenPathReact() {
-            float duration = 0.5f;
-            float timer = 0f;
+        private IEnumerator RevealPathRoutine() {
+            float distance = 0f;
 
             showPath = true;
             SetSoundEvent(
@@ -284,12 +287,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 false);
 
             ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
-            while (timer < duration) {
-                timer += Engine.DeltaTime;
-                pathRenderer.Alpha = pathRenderer.Percent = Math.Min(Ease.SineOut(timer / duration), 1);
+            while (distance < curve.Length) {
+                pathRenderer.Alpha = Calc.Approach(pathRenderer.Alpha, 1f, Engine.DeltaTime);
+                pathRenderer.Percent = distance / curve.Length;
+                distance = Calc.Approach(distance, curve.Length, Engine.DeltaTime * 360);
+
+                curve.GetAllByDistance(distance, out Vector2 point, out Vector2 derivative);
+                pathRenderer.SetLastNode(distance, point, derivative);
+
+                particlesBG.Emit(DreamParticles[Calc.Random.Range(0, 8)], 2, point, Vector2.One * 2f, (-derivative).Angle());
                 yield return null;
             }
-            pathRenderer.Percent = 1f;
         }
     }
 }
