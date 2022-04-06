@@ -107,6 +107,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
             IL.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
             On.Celeste.Booster.BoostRoutine -= Booster_BoostRoutine;
+            On.Celeste.Booster.PlayerBoosted -= Booster_PlayerBoosted;
             On.Celeste.Actor.MoveH -= Actor_MoveH;
             On.Celeste.Actor.MoveV -= Actor_MoveV;
             On.Celeste.Player.OnCollideH -= Player_OnCollideH;
@@ -118,10 +119,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
             IL.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
             On.Celeste.Booster.BoostRoutine += Booster_BoostRoutine;
+            On.Celeste.Booster.PlayerBoosted += Booster_PlayerBoosted;
             On.Celeste.Actor.MoveH += Actor_MoveH;
             On.Celeste.Actor.MoveV += Actor_MoveV;
             On.Celeste.Player.OnCollideH += Player_OnCollideH;
             On.Celeste.Player.OnCollideV += Player_OnCollideV;
+        }
+
+        private static void Booster_PlayerBoosted(On.Celeste.Booster.orig_PlayerBoosted orig, Booster self, Player player, Vector2 direction) {
+            orig(self, player, Vector2.Zero);
         }
 
         private static IEnumerator Booster_BoostRoutine(On.Celeste.Booster.orig_BoostRoutine orig, Booster self, Player player, Vector2 dir) {
@@ -168,7 +174,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (dreamBooster is DreamBoosterCurve curve) {
                     Vector2 prev = self.Position;
                     Vector2 next = curve.Travel(out bool end);
-                    self.MoveToX(next.X - 4f);
+                    self.MoveToX(next.X - self.DashDir.X * 4);
                     self.MoveToY(next.Y + 8f);
                     if (end) {
                         self.Speed = curve.EndingSpeed;
