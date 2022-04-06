@@ -272,7 +272,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.OnPlayerEnter(player);
             pathRenderer.ResetRainbow();
             travel = 0f;
-            player.Speed = Vector2.Zero;
             if (!showPath)
                 Add(new Coroutine(RevealPathRoutine()));
         }
