@@ -287,7 +287,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 false);
 
             ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
-            while (distance < curve.Length) {
+            while (distance <= curve.Length) {
                 pathRenderer.Alpha = Calc.Approach(pathRenderer.Alpha, 1f, Engine.DeltaTime);
                 pathRenderer.Percent = distance / curve.Length;
                 distance = Calc.Approach(distance, curve.Length, Engine.DeltaTime * 360);
@@ -298,6 +298,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 particlesBG.Emit(DreamParticles[Calc.Random.Range(0, 8)], 2, point, Vector2.One * 2f, (-derivative).Angle());
                 yield return null;
             }
+            pathRenderer.Percent = 1f;
         }
     }
 }
