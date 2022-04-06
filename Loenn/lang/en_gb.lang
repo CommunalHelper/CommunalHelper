@@ -17,7 +17,9 @@ entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (
 entities.CommunalHelper/DreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
 
 # Curved Dream Booster
+entities.CommunalHelper/CurvedDreamBooster.placements.name.quadratic_hidden_path=Dream Booster (Hidden Path, Quadratic Curve)
 entities.CommunalHelper/CurvedDreamBooster.placements.name.quadratic=Dream Booster (Quadratic Curve)
+entities.CommunalHelper/CurvedDreamBooster.placements.name.cubic_hidden_path=Dream Booster (Hidden Path, Cubic Curve)
 entities.CommunalHelper/CurvedDreamBooster.placements.name.cubic=Dream Booster (Cubic Curve)
 
 # Summit Gem

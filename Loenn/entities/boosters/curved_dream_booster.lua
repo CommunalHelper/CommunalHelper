@@ -24,13 +24,29 @@ curvedDreamBooster.placements = {
     {
         name = "quadratic",
         data = {
-            curve = "Quadratic"
+            curve = "Quadratic",
+            hidePath = false
+        }
+    },
+    {
+        name = "quadratic_hidden_path",
+        data = {
+            curve = "Quadratic",
+            hidePath = true
         }
     },
     {
         name = "cubic",
         data = {
-            curve = "Cubic"
+            curve = "Cubic",
+            hidePath = false
+        }
+    },
+    {
+        name = "cubic_hidden_path",
+        data = {
+            curve = "Cubic",
+            hidePath = true
         }
     }
 }
