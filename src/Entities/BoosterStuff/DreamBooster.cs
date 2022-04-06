@@ -33,6 +33,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (Booster.BoostingPlayer)
                     CurrentRainbowColor = Util.ColorArrayLerp(rainbowLerp += Engine.DeltaTime * 8f, DreamColors);
             }
+
+            public void DrawPathLine(Vector2 pos, Vector2 dir, Vector2 perp, float offset, Player player, Color lerp) {
+                float sin = (float) Math.Sin(offset + Scene.TimeActive * 6f) * 0.3f + 1f;
+
+                float highlight = .25f;
+                if (player != null) {
+                    float dSquared = Vector2.DistanceSquared(player.Center, pos);
+                    highlight = dSquared <= 6400f ? Calc.ClampedMap((float)Math.Sqrt(dSquared), 0, 80) : 1;
+                }   
+
+                float lineHighlight = (1 - highlight) * 2.5f + 0.75f;
+                float alphaHighlight = 1 - Calc.Clamp(highlight, 0.01f, 0.8f);
+                Color color = Color.Lerp(Color.White, lerp, 1 - highlight) * alphaHighlight;
+
+                float lineLength = lineHighlight * sin;
+                Vector2 lineOffset = perp * lineLength;
+
+                // "Arrow" style
+                Vector2 arrowOffset = -dir * lineLength;
+                Draw.Line(pos, pos - lineOffset + arrowOffset, color * Alpha);
+                Draw.Line(pos + lineOffset + arrowOffset, pos, color * Alpha);
+            }
         }
 
         public static ParticleType P_BurstExplode;

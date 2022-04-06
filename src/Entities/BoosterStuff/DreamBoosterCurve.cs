@@ -18,7 +18,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private readonly int resolution;
 
         private readonly CurveMode mode;
-        private readonly int curveCount;
+        public readonly int CurveCount;
         public readonly float Length;
 
         public BakedCurve(Vector2[] nodes, CurveMode mode, int resolution) {
@@ -28,7 +28,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int m = (int) mode;
             int l = nodes.Length - 1;
             int max = l - (l % m);
-            curveCount = max / m;
+            CurveCount = max / m;
 
             points = new Vector2[max + 1];
             for (int i = 0; i <= max; i++)
@@ -36,13 +36,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             float step = 1f / resolution;
 
-            lut = new float[curveCount * resolution + 1];
+            lut = new float[CurveCount * resolution + 1];
 
             Vector2 prev = points[0];
             lut[0] = 0f;
             int index = 0;
             if (mode == CurveMode.Cubic) {
-                for (float t = step; t < curveCount; t += step) {
+                for (float t = step; t < CurveCount; t += step) {
                     float percent = t % 1;
                     int i = (int) Math.Floor(t) * 3;
 
@@ -52,7 +52,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
                 Length += Vector2.Distance(prev, points[points.Length - 1]);
             } else {
-                for (float t = step; t < curveCount; t += step) {
+                for (float t = step; t < CurveCount; t += step) {
                     float percent = t % 1;
                     int i = (int) Math.Floor(t) * 2;
 
@@ -62,7 +62,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
                 Length += Vector2.Distance(prev, points[points.Length - 1]);
             }
-            lut[curveCount * resolution] = Length;
+            lut[CurveCount * resolution] = Length;
         }
 
         // quadratic bézier
@@ -109,7 +109,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int m = (int) mode;
             float percent = t % 1;
             int i = Math.Max(0, (int) Math.Floor(t) * m);
-            if (t >= curveCount) {
+            if (t >= CurveCount) {
                 percent++;
                 i -= m;
             }
@@ -123,7 +123,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int m = (int) mode;
             float percent = t % 1;
             int i = Math.Max(0, (int) Math.Floor(t) * m);
-            if (t >= curveCount) {
+            if (t >= CurveCount) {
                 percent++;
                 i -= m;
             }
@@ -137,7 +137,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int m = (int) mode;
             float percent = t % 1;
             int i = Math.Max(0, (int) Math.Floor(t) * m);
-            if (t >= curveCount) {
+            if (t >= CurveCount) {
                 percent++;
                 i -= m;
             }
@@ -203,16 +203,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public PathRenderer(float alpha, DreamBoosterCurve booster)
                 : base(alpha, booster) {
                 float sep = 6f;
-                nodes = new Node[(int)Math.Floor(booster.curve.Length / sep)];
+                nodes = new Node[(int)Math.Ceiling(booster.curve.Length / sep)];
 
                 Vector2 point, derivative;
                 for (int i = 0; i < nodes.Length - 1; i++) {
                     float d = i * sep;
                     booster.curve.GetAllByDistance(d, out point, out derivative);
-                    nodes[i] = new Node(d, point, Calc.SafeNormalize(derivative));
+                    nodes[i] = new Node(d, Calc.Round(point), Calc.SafeNormalize(derivative));
                 }
 
-                booster.curve.GetAll(1f, out point, out derivative);
+                booster.curve.GetAll(booster.curve.CurveCount, out point, out derivative);
                 last = new Node(booster.curve.Length, point, Calc.SafeNormalize(derivative));
             }
 
@@ -223,30 +223,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Util.TryGetPlayer(out Player player);
                 foreach (Node node in nodes)
-                    DrawPathLine(node, player, color);
-            }
-
-            private void DrawPathLine(Node node, Player player, Color lerp) {
-                Vector2 pos = node.Position,
-                        dir = node.Dir,
-                        perp = node.Perp;
-                float sin = (float) Math.Sin(node.Distance + Scene.TimeActive * 6f) * 0.3f + 1f;
-
-                float highlight = player == null ? 0.25f : Calc.ClampedMap(Vector2.Distance(player.Center, pos), 0, 80);
-                float lineHighlight = (1 - highlight) * 2.5f + 0.75f;
-                float alphaHighlight = 1 - Calc.Clamp(highlight, 0.01f, 0.8f);
-                Color color = Color.Lerp(Color.White, lerp, 1 - highlight) * alphaHighlight;
-
-                float lineLength = lineHighlight * sin;
-                Vector2 lineOffset = perp * lineLength;
-
-                // Single perpendicular short segments
-                //Draw.Line(pos + lineOffset, pos - lineOffset, color * Alpha);
-
-                // "Arrow" style
-                Vector2 arrowOffset = -dir * lineLength;
-                Draw.Line(pos, pos - lineOffset + arrowOffset, color * Alpha);
-                Draw.Line(pos + lineOffset + arrowOffset, pos, color * Alpha);
+                   DrawPathLine(node.Position, node.Dir, node.Perp, node.Distance, player, color);
+                DrawPathLine(last.Position, last.Dir, last.Perp, last.Distance, null, color);
             }
         }
 

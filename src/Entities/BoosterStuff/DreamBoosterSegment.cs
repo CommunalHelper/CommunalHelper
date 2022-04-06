@@ -23,30 +23,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Color color = Booster.BoostingPlayer ? CurrentRainbowColor : Color.White;
 
                 Util.TryGetPlayer(out Player player);
+
                 for (float f = 0f; f < Booster.Length * Percent; f += 6f)
-                    DrawPathLine(f, player, color);
-                DrawPathLine(Booster.Length * Percent - Booster.Length % 6, null, Color.White);
-            }
-
-            private void DrawPathLine(float linePos, Player player, Color lerp) {
-                Vector2 pos = Booster.Start + Booster.Dir * linePos;
-                float sin = (float) Math.Sin(linePos + Scene.TimeActive * 6f) * 0.3f + 1f;
-
-                float highlight = player == null ? 0.25f : Calc.ClampedMap(Vector2.Distance(player.Center, pos), 0, 80);
-                float lineHighlight = (1 - highlight) * 2.5f + 0.75f;
-                float alphaHighlight = 1 - Calc.Clamp(highlight, 0.01f, 0.8f);
-                Color color = Color.Lerp(Color.White, lerp, 1 - highlight) * alphaHighlight;
-
-                float lineLength = lineHighlight * sin;
-                Vector2 lineOffset = perp * lineLength;
-
-                // Single perpendicular short segments
-                //Draw.Line(pos + lineOffset, pos - lineOffset, color * Alpha);
-
-                // "Arrow" style
-                Vector2 arrowOffset = -Booster.Dir * lineLength;
-                Draw.Line(pos, pos - lineOffset + arrowOffset, color * Alpha);
-                Draw.Line(pos + lineOffset + arrowOffset, pos, color * Alpha);
+                    DrawPathLine(Calc.Round(Booster.Start + Booster.Dir * f), Booster.Dir, perp, f, player, color);
+                DrawPathLine(Calc.Round(Booster.Target), Booster.Dir, perp, Booster.Length, null, color);
             }
         }
 
