@@ -324,4 +324,13 @@ function communalHelper.getCubicCurve(start, stop, controlA, controlB, resolutio
     return res
 end
 
+-- dream boosters
+
+communalHelper.dreamBoosterPathStyles = {
+    ["Arrows"] = "Arrow",
+    ["Perpendicular lines"] = "Line",
+    ["Dotted line"] = "DottedLine",
+    ["Points"] = "Point"
+}
+
 return communalHelper

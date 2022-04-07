@@ -9,6 +9,13 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public abstract class DreamBooster : CustomBooster {
+        public enum PathStyle {
+            Arrow,
+            Line,
+            DottedLine,
+            Point
+        }
+
         public abstract class PathRendererBase<T> : Entity where T : DreamBooster  {
             public readonly T Booster;
 
@@ -45,15 +52,43 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 float lineHighlight = (1 - highlight) * 2.5f + 0.75f;
                 float alphaHighlight = 1 - Calc.Clamp(highlight, 0.01f, 0.8f);
-                Color color = Color.Lerp(Color.White, lerp, 1 - highlight) * alphaHighlight;
+                Color color = Color.Lerp(Color.White, lerp, 1 - highlight) * alphaHighlight * Alpha;
 
-                float lineLength = lineHighlight * sin;
-                Vector2 lineOffset = perp * lineLength;
+                switch (Booster.Style) {
+                    case PathStyle.Point: {
+                        Draw.Point(pos + dir * sin * 0.5f, color);
+                        break;
+                    }
 
-                // "Arrow" style
-                Vector2 arrowOffset = -dir * lineLength;
-                Draw.Line(pos, pos - lineOffset + arrowOffset, color * Alpha);
-                Draw.Line(pos + lineOffset + arrowOffset, pos, color * Alpha);
+                    case PathStyle.DottedLine: {
+                        float lineLength = lineHighlight * sin;
+                        if (lineLength < 1f)
+                            Draw.Point(pos, color);
+                        else
+                            Draw.Line(pos, pos + dir * lineLength, color * Alpha);
+                        break;
+                    }
+
+                    case PathStyle.Line: {
+                        float lineLength = lineHighlight * sin;
+                        Vector2 lineOffset = perp * lineLength;
+                        Draw.Line(pos + lineOffset, pos - lineOffset, color * Alpha);
+                        break;
+                    }
+
+                    case PathStyle.Arrow:
+                    default: {
+                        float lineLength = lineHighlight * sin;
+                        Vector2 lineOffset = perp * lineLength;
+                        if (lineLength < 1f) {
+                            Draw.Point(pos, color);
+                        } else {
+                            Draw.Line(pos, pos - lineOffset + -dir * lineLength, color);
+                            Draw.Line(pos, pos + lineOffset + -dir * (lineLength - 1), color);
+                        }
+                        break;
+                    }
+                }
             }
         }
 
@@ -75,9 +110,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         };
         public static readonly ParticleType[] DreamParticles = new ParticleType[8];
 
-        public DreamBooster(Vector2 position, bool showPath)
+        protected readonly PathStyle Style;
+
+        public DreamBooster(Vector2 position, bool showPath, PathStyle style)
             : base (position, redBoost: true) {
             Depth = Depths.DreamBlocks;
+
+            Style = style;
 
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
             SetParticleColors(BurstColor, AppearColor);

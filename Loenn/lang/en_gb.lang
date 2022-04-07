@@ -15,12 +15,15 @@ entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether t
 entities.CommunalHelper/DreamBooster.placements.name.normal=Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (Hidden Path)
 entities.CommunalHelper/DreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+entities.CommunalHelper/DreamBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
 
 # Curved Dream Booster
 entities.CommunalHelper/CurvedDreamBooster.placements.name.quadratic_hidden_path=Dream Booster (Hidden Path, Quadratic Curve)
 entities.CommunalHelper/CurvedDreamBooster.placements.name.quadratic=Dream Booster (Quadratic Curve)
 entities.CommunalHelper/CurvedDreamBooster.placements.name.cubic_hidden_path=Dream Booster (Hidden Path, Cubic Curve)
 entities.CommunalHelper/CurvedDreamBooster.placements.name.cubic=Dream Booster (Cubic Curve)
+entities.CommunalHelper/CurvedDreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+entities.CommunalHelper/CurvedDreamBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
 
 # Summit Gem
 entities.CommunalHelper/CustomSummitGem.placements.name.summit_gem=Custom Summit Gem

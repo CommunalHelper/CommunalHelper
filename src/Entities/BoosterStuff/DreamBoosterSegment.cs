@@ -37,10 +37,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public Vector2 Start, Target, Dir;
 
         public DreamBoosterSegment(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Nodes[0] + offset, !data.Bool("hidePath")) { }
+            : this(data.Position + offset, data.Nodes[0] + offset, !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow)) { }
 
-        public DreamBoosterSegment(Vector2 position, Vector2 node, bool showPath)
-            : base(position, showPath) {
+        public DreamBoosterSegment(Vector2 position, Vector2 node, bool showPath, PathStyle style)
+            : base(position, showPath, style) {
             Target = node;
             Dir = Calc.SafeNormalize(Target - Position);
             Length = Vector2.Distance(position, Target);

@@ -241,10 +241,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public readonly Vector2 EndingSpeed;
 
         public DreamBoosterCurve(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveMode>("curve"), !data.Bool("hidePath")) { }
+            : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveMode>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow)) { }
         
-        public DreamBoosterCurve(Vector2 position, Vector2[] nodes, CurveMode mode, bool showPath)
-            : base(position, showPath) {
+        public DreamBoosterCurve(Vector2 position, Vector2[] nodes, CurveMode mode, bool showPath, PathStyle style)
+            : base(position, showPath, style) {
             this.showPath = showPath;
             curve = new BakedCurve(nodes, mode, 24);
             EndingSpeed = Calc.SafeNormalize(curve.GetPointByDistance(curve.Length) - curve.GetPointByDistance(curve.Length - 1f), 240);

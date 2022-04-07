@@ -14,6 +14,12 @@ curvedDreamBooster.ignoredFields = {
     "_name",
     "_id"
 }
+curvedDreamBooster.fieldInformation = {
+    pathStyle = {
+        options = communalHelper.dreamBoosterPathStyles,
+        editable = false
+    }
+}
 
 function curvedDreamBooster.nodeLimits(room, entity)
     local min = entity.curve == "Cubic" and 3 or 2
@@ -25,28 +31,32 @@ curvedDreamBooster.placements = {
         name = "quadratic",
         data = {
             curve = "Quadratic",
-            hidePath = false
+            hidePath = false,
+            pathStyle = "Arrow"
         }
     },
     {
         name = "quadratic_hidden_path",
         data = {
             curve = "Quadratic",
-            hidePath = true
+            hidePath = true,
+            pathStyle = "Arrow"
         }
     },
     {
         name = "cubic",
         data = {
             curve = "Cubic",
-            hidePath = false
+            hidePath = false,
+            pathStyle = "Arrow"
         }
     },
     {
         name = "cubic_hidden_path",
         data = {
             curve = "Cubic",
-            hidePath = true
+            hidePath = true,
+            pathStyle = "Arrow"
         }
     }
 }
