@@ -6,6 +6,7 @@ using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
 using System.Collections;
+using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public abstract class DreamBooster : CustomBooster {
@@ -193,6 +194,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static int Player_RedDashUpdate(On.Celeste.Player.orig_RedDashUpdate orig, Player self) {
             DreamBooster dreamBooster = self.LastBooster as DreamBooster;
             if (dreamBooster != null) {
+                DynData<Player> data = self.GetData();
+
                 bool inSolid = self.CollideCheck<Solid>();
 
                 // Prevent the player from jumping or dashing out of the DreamBooster. May be reset in IL hook below.
@@ -214,8 +217,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Vector2 prev = self.Position;
                     Vector2 next = curve.Travel(out bool end);
                     self.Speed = Vector2.Zero;
-                    self.MoveToX(next.X);
-                    self.MoveToY(next.Y + 8f);
+                    self.MoveToX(next.X, (Collision) data["onCollideH"]);
+                    self.MoveToY(next.Y + 8f, (Collision) data["onCollideV"]);
                     if (end) {
                         self.Speed = curve.EndingSpeed;
                         return 0;
@@ -304,11 +307,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return orig(self, moveV, onCollide, pusher);
         }
 
-        private static void Player_OnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player self, CollisionData data) =>
-            Player_OnCollide(new Action<Player, CollisionData>(orig), self, data);
+        private static void Player_OnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player self, CollisionData data)
+            => Player_OnCollide(new Action<Player, CollisionData>(orig), self, data);
 
-        private static void Player_OnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player self, CollisionData data) =>
-            Player_OnCollide(new Action<Player, CollisionData>(orig), self, data);
+        private static void Player_OnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player self, CollisionData data)
+            => Player_OnCollide(new Action<Player, CollisionData>(orig), self, data);
 
         private static void Player_OnCollide(Action<Player, CollisionData> orig, Player self, CollisionData data) {
             if (dreamBoostMove) {
