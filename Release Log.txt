@@ -1,3 +1,79 @@
+--1.11.2 (04/04/2022)--
+* Fix 1.11.1 bugfix undesired side effects on vanilla Wall Boosters.
+
+--1.11.1 (03/04/2022)--
+* Fix Attached Wall Booster sound and behavior bugs.
+
+--1.11.0 (02/04/2022)--
+* Lönn support.
+* Fix various tooltips + missing tooltips.
+
+--1.10.0 (09/03/2022)--
+* Added Seeker Dash.
+* Added Dash State Trigger.
+* Added Frictionless Panel.
+* Added Dash Collision Panel.
+* Added Bouncy Panel.
+* Added Dream Tunnel featherMode preview.
+* Fix overrideAllowStaticMovers attribute on panels.
+* Properly detect late-loaded optional dependencies.
+* Added wiki for in-depth documentation.
+
+--1.9.8 (24/01/2022)--
+* Added triggerAlways option to Timed Trigger Spikes.
+
+--1.9.7 (22/01/2022)--
+* Added Sound Area Trigger.
+
+--1.9.6 (01/01/2022)--
+* Added No Overlay Watch Tower.
+
+--1.9.5 (28/11/2021)--
+* Fix Station Block killed-liftspeed issue (leniency).
+* Station Blocks can no longer travel to the current node they are located at (bug appeared in 1.9.0).
+
+--1.9.4 (11/11/2021)--
+* Added Core Mode Music Controller.
+* Added options to Track Switch Box to disable floating and bouncing behavior.
+* Added forceShake option to DreamFallingBlock types (legacy option).
+* Fix Dream Jellyfish crash when entering Seeker Barrier.
+
+--1.9.3 (17/10/2021)--
+* Added quickDestroy option to Dream Block types.
+* Fix inconsistent chain outlines when broken in half.
+* Fix inconsistent Chained Falling Block shake time with vanilla Falling Blocks. 
+* Revert to old unintentionally modified Dream Falling Block behavior.
+* Refactor shared CassetteBlock, CustomDreamBlock entityData values.
+* Code cleanup.
+
+--1.9.2 (08/07/2021)--
+* Fixed Delete Mode MoveBlockRedirect Ahorn plugin
+* Fixed LiftSpeed grace time for MoveSwapBlock
+
+--1.9.1 (28/07/2021)--
+* Fixed Connected Zip Mover FMOD audio events wrongly routed to gameplay SFX bus.
+
+--1.9.0 (25/07/2021)--
+* Added Uncollidable Solid Extensions.
+* Added Decorative Chain Entity.
+* Added Chained variants of Falling Block & Dream Falling Block.
+* Added Chained Kevin.
+* Added Force & One Way Station Block Tracks.
+* Added reskinning option to Move Block Redirects.
+* Added Dream Jellyfish.
+* Added Railed Move Block.
+* Added Underwater Music Controller.
+* Fixed Move Swap Block liftspeed issues.
+* Fixed Move Block Redirects static mover desync and delete mode not working.
+* Fixed Zip Mover type sound issues.
+* Fixed Connected Move Block & Equation Move Block rendering issues in Ahorn.
+* Communal Helper custom Player states are now registered with CelesteTAS.
+
+--1.8.4 (17/06/2021)--
+* [Silent] Added Equation Move Blocks.
+* [Silent] Added flag options for Connected & Equation Move Blocks.
+* Fixed Station Block issue concerning dash corner correction.
+
 --1.8.3 (07/06/2021)--
 * Fixed another Linux-related crash.
 
@@ -123,4 +199,3 @@
 * Added Dream Zip Mover.
 * Added Dream Move Block.
 * Added Dream Swap Block.
-

@@ -37,6 +37,19 @@ placements["Equation Move Block (Beta) (Reskinnable) (Communal Helper)"] = Ahorn
     ),
 )
 
+placements["Equation Move Block (Beta) (Flag-controlled) (Communal Helper)"] = Ahorn.EntityPlacement(
+    EquationMoveBlock,
+    "rectangle",
+    Dict{String,Any}(
+        "activatorFlags" => "_pressed",
+		"breakerFlags" => "_obstructed",
+		"onActivateFlags" => "",
+		"onBreakFlags" => "",
+		"barrierBlocksFlags" => false,
+		"waitForFlags" => false,
+    ),
+)
+
 Ahorn.editingOptions(entity::EquationMoveBlock) = Dict{String,Any}(
     "direction" => Maple.move_block_directions,
     "moveSpeed" => Dict{String,Number}(
@@ -108,8 +121,8 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::EquationMoveBlock, 
     end
 
     arrowSprite = arrowSprite.sprite
-    block = typeof(block) == Ahorn.SpriteHolder ? block.sprite : 
-    innerCorners = typeof(innerCorners) == Ahorn.Sprite ? innerCorners.sprite : innerCorners
+    block = typeof(block) == Ahorn.SpriteHolder ? block.sprite : block
+    innerCorners = typeof(innerCorners) == Ahorn.SpriteHolder ? innerCorners.sprite : innerCorners
 
     rects = getExtensionRectangles(room)
     rect = Ahorn.Rectangle(x, y, width, height)

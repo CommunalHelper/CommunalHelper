@@ -2,17 +2,9 @@ module CommunalHelperDreamFloatySpaceBlock
 
 using ..Ahorn, Maple
 using Ahorn.CommunalHelper
+using Ahorn.CommunalHelperEntityPresets: CustomDreamBlockData
 
-@mapdef Entity "CommunalHelper/DreamFloatySpaceBlock" DreamFloatySpaceBlock(
-    x::Integer,
-    y::Integer,
-    width::Integer=Maple.defaultBlockWidth,
-    height::Integer=Maple.defaultBlockHeight,
-    featherMode::Bool=false,
-    oneUse::Bool=false,
-    refillCount::Integer=-1,
-    below::Bool=false,
-)
+@mapdefdata Entity "CommunalHelper/DreamFloatySpaceBlock" DreamFloatySpaceBlock CustomDreamBlockData
 
 const placements = Ahorn.PlacementDict(
     "Dream Floaty Space Block (Communal Helper)" => Ahorn.EntityPlacement(

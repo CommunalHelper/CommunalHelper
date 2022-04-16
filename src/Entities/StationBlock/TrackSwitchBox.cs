@@ -6,7 +6,6 @@ using System.Collections;
 using static Celeste.Mod.CommunalHelper.Entities.StationBlockTrack;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-
     [CustomEntity("CommunalHelper/TrackSwitchBox")]
     public class TrackSwitchBox : Solid {
         private uint Seed;
@@ -21,6 +20,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float sink;
         private bool canSwitch = true;
+        private bool canFloat = true;
+        private bool canBounce = true;
 
         private float shakeCounter;
         private bool smashParticles = false;
@@ -43,12 +44,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool spikesLeft, spikesRight, spikesUp, spikesDown;
 
-        public TrackSwitchBox(Vector2 position, bool global)
+        public TrackSwitchBox(Vector2 position, bool global, bool canFloat, bool canBounce)
             : base(position, 32f, 32f, safe: true) {
 
             colorLerp = (LocalTrackSwitchState = CommunalHelperModule.Session.TrackInitialState) == TrackSwitchState.On ? 0f : 1f;
 
             this.global = global;
+            this.canFloat = canFloat;
+            this.canBounce = canBounce;
 
             SurfaceSoundIndex = SurfaceIndex.ZipMover;
             start = Position;
@@ -73,7 +76,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public TrackSwitchBox(EntityData e, Vector2 levelOffset)
-            : this(e.Position + levelOffset, e.Bool("globalSwitch")) { }
+            : this(e.Position + levelOffset, e.Bool("globalSwitch"), e.Bool("floaty"), e.Bool("bounce")) { }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
@@ -182,8 +185,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 sink = Calc.Approach(sink, flag ? 1 : 0, 2f * Engine.DeltaTime);
                 sine.Rate = MathHelper.Lerp(1f, 0.5f, sink);
                 Vector2 vector = start;
-                vector.Y += sink * 6f + sine.Value * MathHelper.Lerp(4f, 2f, sink);
-                vector += bounce.Value * bounceDir * 12f;
+                if (canFloat) {
+                    vector.Y += sink * 6f + sine.Value * MathHelper.Lerp(4f, 2f, sink);
+                }
+                if (canBounce) {
+                    vector += bounce.Value * bounceDir * 12f;
+                }
                 MoveToX(vector.X);
                 MoveToY(vector.Y);
                 if (smashParticles) {

@@ -22,7 +22,7 @@ const placements = Ahorn.PlacementDict(
 )
 
 Ahorn.editingOptions(entity::Panel) = Dict{String,Any}(
-    "orientation" => Maple.spike_directions,
+    "orientation" => directions,
     "soundIndex" => CommunalHelper.surfaceSounds,
 )
 

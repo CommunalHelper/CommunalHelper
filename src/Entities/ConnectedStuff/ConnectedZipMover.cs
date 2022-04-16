@@ -82,7 +82,7 @@ namespace Celeste.Mod.CommunalHelper {
 
                 // Zip Mover's outline, rendered here because of Depth.
                 if (ConnectedZipMover.drawBlackBorder) {
-                    foreach (Hitbox extension in ConnectedZipMover.Colliders) {
+                    foreach (Hitbox extension in ConnectedZipMover.AllColliders) {
                         Draw.HollowRect(new Rectangle(
                             (int) (ConnectedZipMover.X + extension.Left - 1f + ConnectedZipMover.Shake.X),
                             (int) (ConnectedZipMover.Y + extension.Top - 1f + ConnectedZipMover.Shake.Y),
@@ -125,7 +125,7 @@ namespace Celeste.Mod.CommunalHelper {
         private Vector2[] targets, originalNodes;
 
         // Sounds
-        private SoundSource sfx, altSfx;
+        private SoundSource sfx;
 
         // Lightning.
         private BloomPoint bloom;
@@ -186,41 +186,42 @@ namespace Celeste.Mod.CommunalHelper {
                 backgroundColor = Color.Black;
                 if (theme == Themes.Moon)
                     themePath = "moon";
-            } else switch (theme) {
-                default:
-                case Themes.Normal:
-                    path = "objects/zipmover/light";
-                    id = "objects/zipmover/block";
-                    key = "objects/zipmover/innercog";
-                    corners = "objects/CommunalHelper/zipmover/innerCorners";
-                    cog = GFX.Game["objects/zipmover/cog"];
-                    themePath = "normal";
-                    drawBlackBorder = true;
-                    backgroundColor = Color.Black;
-                    break;
+            } else
+                switch (theme) {
+                    default:
+                    case Themes.Normal:
+                        path = "objects/zipmover/light";
+                        id = "objects/zipmover/block";
+                        key = "objects/zipmover/innercog";
+                        corners = "objects/CommunalHelper/zipmover/innerCorners";
+                        cog = GFX.Game["objects/zipmover/cog"];
+                        themePath = "normal";
+                        drawBlackBorder = true;
+                        backgroundColor = Color.Black;
+                        break;
 
-                case Themes.Moon:
-                    path = "objects/zipmover/moon/light";
-                    id = "objects/zipmover/moon/block";
-                    key = "objects/zipmover/moon/innercog";
-                    corners = "objects/CommunalHelper/zipmover/moon/innerCorners";
-                    cog = GFX.Game["objects/zipmover/moon/cog"];
-                    themePath = "moon";
-                    drawBlackBorder = false;
-                    backgroundColor = Color.Black;
-                    break;
+                    case Themes.Moon:
+                        path = "objects/zipmover/moon/light";
+                        id = "objects/zipmover/moon/block";
+                        key = "objects/zipmover/moon/innercog";
+                        corners = "objects/CommunalHelper/zipmover/moon/innerCorners";
+                        cog = GFX.Game["objects/zipmover/moon/cog"];
+                        themePath = "moon";
+                        drawBlackBorder = false;
+                        backgroundColor = Color.Black;
+                        break;
 
-                case Themes.Cliffside:
-                    path = "objects/CommunalHelper/connectedZipMover/cliffside/light";
-                    id = "objects/CommunalHelper/connectedZipMover/cliffside/block";
-                    key = "objects/CommunalHelper/connectedZipMover/cliffside/innercog";
-                    corners = "objects/CommunalHelper/connectedZipMover/cliffside/innerCorners";
-                    cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
-                    themePath = "normal";
-                    drawBlackBorder = true;
-                    backgroundColor = Calc.HexToColor("171018");
-                    break;
-            }
+                    case Themes.Cliffside:
+                        path = "objects/CommunalHelper/connectedZipMover/cliffside/light";
+                        id = "objects/CommunalHelper/connectedZipMover/cliffside/block";
+                        key = "objects/CommunalHelper/connectedZipMover/cliffside/innercog";
+                        corners = "objects/CommunalHelper/connectedZipMover/cliffside/innerCorners";
+                        cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
+                        themePath = "normal";
+                        drawBlackBorder = true;
+                        backgroundColor = Calc.HexToColor("171018");
+                        break;
+                }
             if (!string.IsNullOrEmpty(colors)) {
                 // Comma seperated list of colors
                 // First is background color, second is main rope color, third is light rope color
@@ -267,9 +268,6 @@ namespace Celeste.Mod.CommunalHelper {
 
             Add(sfx = new SoundSource() {
                 Position = new Vector2(Width, Height) / 2f
-            });
-            Add(altSfx = new SoundSource() {
-                Position = sfx.Position
             });
         }
 
@@ -403,7 +401,7 @@ namespace Celeste.Mod.CommunalHelper {
                     to = targets[i];
 
                     // Start shaking.
-                    sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_start");
+                    sfx.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/start");
                     Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                     StartShaking(0.1f);
                     yield return 0.1f;
@@ -431,6 +429,7 @@ namespace Celeste.Mod.CommunalHelper {
 
                     // Arrived, will wait for 0.5 secs.
                     StartShaking(0.2f);
+                    Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/impact", Center);
                     streetlight.SetAnimationFrame(((waits && !last) || (ticking && !last) || (permanent && last)) ? 1 : 2);
                     Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                     SceneAs<Level>().Shake();
@@ -451,7 +450,7 @@ namespace Celeste.Mod.CommunalHelper {
                             if (tickTime >= 1.0f) {
                                 tickTime = 0.0f;
                                 tickNum++;
-                                sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_tick");
+                                Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/tick", Center);
                                 StartShaking(0.1f);
                             }
                         }
@@ -475,7 +474,7 @@ namespace Celeste.Mod.CommunalHelper {
                         // Goes back to start with a speed that is four times slower.
                         StopPlayerRunIntoAnimation = false;
                         streetlight.SetAnimationFrame(2);
-                        sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_return");
+                        sfx.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/return");
                         at2 = 0f;
                         while (at2 < 1f) {
                             yield return null;
@@ -489,7 +488,7 @@ namespace Celeste.Mod.CommunalHelper {
                         }
 
                         StartShaking(0.2f);
-                        altSfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_finish");
+                        Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/finish", Center);
                     }
 
                     StopPlayerRunIntoAnimation = true;
@@ -501,8 +500,8 @@ namespace Celeste.Mod.CommunalHelper {
 
                     // Done, will never be activated again.
                     StartShaking(0.3f);
-                    altSfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_finish");
-                    sfx.Play("event:/CommunalHelperEvents/game/connectedZipMover/" + themePath + "_zip_mover_tick");
+                    Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/finish", Center);
+                    Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/tick", Center);
                     SceneAs<Level>().Shake(0.15f);
                     streetlight.SetAnimationFrame(0);
                     while (true) {

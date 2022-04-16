@@ -148,7 +148,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private float percent = 0f;
 
         private SoundSource sfx = new SoundSource();
-        private SoundSource altSfx = new SoundSource();
 
         /// <summary>
         /// Entity nodes with start Position as the first element
@@ -174,8 +173,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             sfx.Position = new Vector2(Width, Height) / 2f;
             Add(sfx);
-            altSfx.Position = sfx.Position;
-            Add(altSfx);
         }
 
         public CassetteZipMover(EntityData data, Vector2 offset, EntityID id)
@@ -276,7 +273,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     to = nodes[i];
 
                     // Start shaking.
-                    sfx.Play(CustomSFX.game_connectedZipMover_normal_zip_mover_start);
+                    sfx.Play(CustomSFX.game_zipMover_normal_start);
                     Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                     StartShaking(0.1f);
                     yield return 0.1f;
@@ -302,6 +299,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                     // Arrived, will wait for 0.5 secs.
                     StartShaking(0.2f);
+                    Audio.Play(CustomSFX.game_zipMover_normal_impact, Center);
                     //streetlight.SetAnimationFrame(((waits && !last) || (ticking && !last) || (permanent && last)) ? 1 : 2);
                     Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                     SceneAs<Level>().Shake();
@@ -322,7 +320,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             if (tickTime >= 1.0f) {
                                 tickTime = 0.0f;
                                 tickNum++;
-                                sfx.Play(CustomSFX.game_connectedZipMover_normal_zip_mover_tick);
+                                sfx.Play(CustomSFX.game_zipMover_normal_tick);
                                 StartShaking(0.1f);
                             }
                         }
@@ -345,13 +343,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         start = newStart;
                     } else {
                         for (i -= 2 - (shouldCancel ? 1 : 0); i > -1; i--) {
-                            
+
                             to = (i == 0) ? start : nodes[i];
 
                             // Goes back to start with a speed that is four times slower.
                             StopPlayerRunIntoAnimation = false;
                             //streetlight.SetAnimationFrame(2);
-                            sfx.Play(CustomSFX.game_connectedZipMover_normal_zip_mover_return);
+                            sfx.Play(CustomSFX.game_zipMover_normal_return);
                             at2 = 0f;
                             while (at2 < 1f) {
                                 yield return null;
@@ -366,7 +364,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             }
 
                             StartShaking(0.2f);
-                            altSfx.Play(CustomSFX.game_connectedZipMover_normal_zip_mover_finish);
+                            Audio.Play(CustomSFX.game_zipMover_normal_finish, Center);
                         }
                     }
                     StopPlayerRunIntoAnimation = true;
@@ -378,8 +376,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                     // Done, will never be activated again.
                     StartShaking(0.3f);
-                    altSfx.Play(CustomSFX.game_connectedZipMover_normal_zip_mover_finish);
-                    sfx.Play(CustomSFX.game_connectedZipMover_normal_zip_mover_tick);
+                    Audio.Play(CustomSFX.game_zipMover_normal_finish, Center);
+                    Audio.Play(CustomSFX.game_zipMover_normal_tick, Center);
                     SceneAs<Level>().Shake(0.15f);
                     //streetlight.SetAnimationFrame(0);
                     while (true) {

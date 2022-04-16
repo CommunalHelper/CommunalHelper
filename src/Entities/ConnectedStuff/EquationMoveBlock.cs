@@ -31,18 +31,43 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
         }
 
         protected override IEnumerator Controller() {
+            // If we're waiting for flags before becoming visible, start off invisible.
+            bool startInvisible = false;
+            if (WaitForFlags) {
+                yield return null;
+                startInvisible = AnySetEnabled(BreakerFlags) && WaitForFlags;
+            }
+            if (startInvisible)
+                Visible = Collidable = false;
             while (true) {
+                bool startingBroken = false, startingByActivator = false;
+                curMoveCheck = false;
                 triggered = false;
                 State = MovementState.Idling;
-                moveTime = 0;
-                while (!triggered && !HasPlayerRider()) {
+                while (!triggered && !startingByActivator && !startingBroken) {
+                    if (startInvisible && !AnySetEnabled(BreakerFlags)) {
+                        goto Rebuild;
+                    }
                     yield return null;
+                    startingBroken = AnySetEnabled(BreakerFlags) && !startInvisible;
+                    startingByActivator = AnySetEnabled(ActivatorFlags);
                 }
 
                 Audio.Play(SFX.game_04_arrowblock_activate, Position);
                 State = MovementState.Moving;
                 StartShaking(0.2f);
                 ActivateParticles();
+                if (!startingBroken)
+                    foreach (string flag in OnActivateFlags) {
+                        if (flag.Length > 0) {
+                            if (flag.StartsWith("!")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
+                            } else if (flag.StartsWith("~")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            } else
+                                SceneAs<Level>().Session.SetFlag(flag);
+                        }
+                    }
                 yield return 0.2f;
 
                 targetSpeed = moveSpeed;
@@ -70,19 +95,19 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                         0 => constA,
                         1 => 2 * constA * progress + constB,
                         2 => 3 * constA * progress * progress + 2 * constB * progress + 1,
-                        3 => (float)(constA * constB * Math.Cos(constB * progress)),
-                        4 => (float)(-constA * constB * Math.Sin(constB * progress)),
-                        5 => (float)(constA * constB * Math.Pow(Math.E, constB * progress)),
-                        6 => (float)(Math.Pow(progress * constA, constB - 1) * constB),
-                        7 => (float)(constB * Math.Cos(moveTime)),
+                        3 => (float) (constA * constB * Math.Cos(constB * progress)),
+                        4 => (float) (-constA * constB * Math.Sin(constB * progress)),
+                        5 => (float) (constA * constB * Math.Pow(Math.E, constB * progress)),
+                        6 => (float) (Math.Pow(progress * constA, constB - 1) * constB),
+                        7 => (float) (constB * Math.Cos(moveTime)),
                         _ => 1
                     };
                     // tan x = y / x
                     // make y negative because y- is up in Celeste
                     // swap x/y if we're vertical
-                    float targetAngle = (float)Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * neg) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * neg));
+                    float targetAngle = (float) Math.Atan2((Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? (-ygrad * neg) : xgrad, (Direction is MoveBlock.Directions.Left or MoveBlock.Directions.Right) ? xgrad : (-ygrad * neg));
                     // and then we resume as normal
-                    speed = Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
+                    speed = startingBroken ? 0 : Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
                     angle = targetAngle;
                     Vector2 vec = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                     bool moveCheck = MoveCheck(vec.XComp()) || MoveCheck(vec.YComp());
@@ -98,7 +123,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                     Vector2 move = Position - start;
                     SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
 
-                    if (moveCheck) {
+                    curMoveCheck = moveCheck;
+
+                    if (startingBroken || AnySetEnabled(BreakerFlags) || targetAngle == double.NaN) {
                         moveSfx.Param("arrow_stop", 1f);
                         crashResetTimer = 0.1f;
                         if (!(crashTimer > 0f)) {
@@ -129,12 +156,16 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                 yield return 0.2f;
 
                 BreakParticles();
+
                 List<MoveBlockDebris> debris = new List<MoveBlockDebris>();
-                for (int i = 0; i < Width; i += 8) {
-                    for (int j = 0; j < Height; j += 8) {
-                        Vector2 value = new Vector2(i + 4f, j + 4f);
-                        Vector2 pos = value + Position + GroupOffset;
-                        if (CollidePoint(pos)) {
+                int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+                int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+
+                for (int i = 0; i < tWidth; i++) {
+                    for (int j = 0; j < tHeight; j++) {
+                        if (AllGroupTiles[i, j]) {
+                            Vector2 value = new Vector2(i * 8 + 4, j * 8 + 4);
+                            Vector2 pos = value + Position + GroupOffset;
                             MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
                             debris.Add(debris2);
                             Scene.Add(debris2);
@@ -143,14 +174,39 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                 }
                 MoveStaticMovers(startPosition - Position);
                 DisableStaticMovers();
+
+                bool shouldProcessBreakFlags = true;
+                if (BarrierBlocksFlags) {
+                    bool colliding = false;
+                    foreach (SeekerBarrier entity in Scene.Tracker.GetEntities<SeekerBarrier>()) {
+                        entity.Collidable = true;
+                        colliding |= CollideCheck(entity);
+                        entity.Collidable = false;
+                    }
+                    shouldProcessBreakFlags = !colliding;
+                }
+
                 Position = startPosition;
                 Visible = Collidable = false;
+
+                if (shouldProcessBreakFlags)
+                    foreach (string flag in OnBreakFlags) {
+                        if (flag.Length > 0) {
+                            if (flag.StartsWith("!")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), false);
+                            } else if (flag.StartsWith("~")) {
+                                SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            } else
+                                SceneAs<Level>().Session.SetFlag(flag);
+                        }
+                    }
+                curMoveCheck = false;
                 yield return 2.2f;
 
                 foreach (MoveBlockDebris item in debris) {
                     item.StopMoving();
                 }
-                while (CollideCheck<Actor>() || CollideCheck<Solid>()) {
+                while (CollideCheck<Actor>() || CollideCheck<Solid>() || AnySetEnabled(BreakerFlags)) {
                     yield return null;
                 }
 
@@ -173,8 +229,10 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                 foreach (MoveBlockDebris item4 in debris) {
                     item4.RemoveSelf();
                 }
+            Rebuild:
                 Audio.Play(SFX.game_04_arrowblock_reappear, Position);
                 Visible = true;
+                Collidable = true;
                 EnableStaticMovers();
                 speed = targetSpeed = 0f;
                 angle = targetAngle = homeAngle;
@@ -182,6 +240,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                 fillColor = idleBgFill;
                 UpdateColors();
                 flash = 1f;
+                startInvisible = false;
             }
         }
     }
