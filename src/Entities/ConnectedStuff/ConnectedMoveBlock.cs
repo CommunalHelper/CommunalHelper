@@ -30,7 +30,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             public override void Render() {
                 foreach (Hitbox hitbox in Parent.AllColliders) {
-                    Draw.Rect(hitbox.Position + Parent.Position + Parent.Shake - offset, hitbox.Width + 2f, hitbox.Height + 2f, Color.Black);
+                    if (Parent.outline)
+                        Draw.Rect(hitbox.Position + Parent.Position + Parent.Shake - offset, hitbox.Width + 2f, hitbox.Height + 2f, Color.Black);
 
                     float num = Parent.flash * 4f;
                     if (Parent.flash > 0f) {
@@ -108,6 +109,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         protected bool curMoveCheck = false;
 
+        private readonly bool outline;
+
         public ConnectedMoveBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f)) {
             idleBgFill = Util.TryParseColor(data.Attr("idleColor", "474070"));
@@ -165,6 +168,8 @@ namespace Celeste.Mod.CommunalHelper {
             OnBreakFlags.AddRange(data.Attr("onBreakFlags", "").Split(','));
             BarrierBlocksFlags = data.Bool("barrierBlocksFlags", false);
             WaitForFlags = data.Bool("waitForFlags", false);
+
+            outline = data.Bool("outline", true);
         }
 
         public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
