@@ -1,3 +1,7 @@
+--1.11.3 (30/04/2022)--
+* Fix Connected Move Block types not responding to static movers trigerring.
+* Add outline option to Connected Move Block and Equation Move Block.
+
 --1.11.2 (04/04/2022)--
 * Fix 1.11.1 bugfix undesired side effects on vanilla Wall Boosters.
 
