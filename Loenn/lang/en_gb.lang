@@ -311,6 +311,7 @@ entities.CommunalHelper/ConnectedMoveBlock.attributes.description.customBlockTex
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.idleColor=The color of the arrow when not moving.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.pressedColor=The color of the arrow when moving.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.outline=Gives this Move Block an outline.
 
 # Equation Move Block
 entities.CommunalHelper/EquationMoveBlock.placements.name.up=Equation Move Block (Up)
@@ -326,6 +327,7 @@ entities.CommunalHelper/EquationMoveBlock.attributes.description.customBlockText
 entities.CommunalHelper/EquationMoveBlock.attributes.description.idleColor=The color of the arrow when not moving.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.pressedColor=The color of the arrow when moving.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.outline=Gives this Equation Move Block an outline.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.activatorFlags=The flags which activate this Equation Move Block.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.breakerFlags=The flags which break this Equation Move Block.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.barrierBlocksFlags=Whether Seeker Barriers make this block ignore 'on break' flags.
