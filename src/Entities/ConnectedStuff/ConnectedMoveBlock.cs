@@ -182,6 +182,11 @@ namespace Celeste.Mod.CommunalHelper {
             Add(new LightOcclude(0.5f));
         }
 
+        public override void OnStaticMoverTrigger(StaticMover sm) {
+            base.OnStaticMoverTrigger(sm);
+            triggered = true;
+        }
+
         protected virtual IEnumerator Controller() {
             // If we're waiting for flags before becoming visible, start off invisible.
             bool startInvisible = AnySetEnabled(BreakerFlags) && WaitForFlags;
