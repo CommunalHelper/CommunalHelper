@@ -159,8 +159,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private static void LevelLoader_LoadingThread(On.Celeste.LevelLoader.orig_LoadingThread orig, LevelLoader self) {
+            self.Level.Add(new DreamJellyfishRenderer()); // must add before calling orig, has shown to possibly crash otherwise.
             orig(self);
-            self.Level.Add(new DreamJellyfishRenderer());
         }
 
         #endregion
