@@ -189,7 +189,11 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void OnStaticMoverTrigger(StaticMover sm) {
             base.OnStaticMoverTrigger(sm);
-            triggered = true;
+
+            // If this move block has the "_pressed" flag, meaning it can be manually activated by the player,
+            // then it will be activated by a static mover being triggered.
+            if (ActivatorFlags.Any(set => set.Any(flag => flag == "_pressed")))
+                triggered = true;
         }
 
         protected virtual IEnumerator Controller() {
