@@ -130,8 +130,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             float timer = (float) data[Player_attachedWallBoosterLiftSpeedTimer];
             float currentSpeed = (float) data[Player_attachedWallBoosterCurrentSpeed];
 
+            /*
+             * So...
+             * We want to apply an additionnal Y liftspeed boost to the player, when it is jumping from an AttachedWallBooster.
+             * The issue is that, because AttachedWallBoosters ARE WallBoosters, the boost is already applied like for vanilla WallBoosters.
+             * So why would we need an additionnal boost? Well, since AttachedWallBoosters are attached, they can move with the entity they are bound to
+             * ... in which case, if the block is moving, the applied liftspeed to the player by the wall booster is completely cancelled.
+             * Liftspeed doesn't take into account whatever previous liftspeed the actor had, it just replaces it.
+             * When I was applying the liftspeed boost to the player, I wasn't checking if the player had already gotten it's wall booster boost,
+             * which caused a double boost effect (indeed, -160px Y speed, instead of -80px).
+             * Checking that a player is jumping from an AttachedWallBooster, that its wallbooster speed is still active,
+             * and MOST IMPORTANTLY that its Y liftspeed is positive or zero, is enough to know if we should apply an additional liftspeed Y boost.
+             * 
+             * Wall booster boosts now work with moving blocks.
+             */
             if (timer > 0 && currentSpeed < 0 && data[Player_lastWallBooster] is AttachedWallBooster) {
-                player.LiftSpeed += Vector2.UnitY * Calc.Max(currentSpeed, -80f);
+                if (player.LiftSpeed.Y >= 0)
+                    player.LiftSpeed += Vector2.UnitY * Calc.Max(currentSpeed, -80f);
+
                 data[Player_attachedWallBoosterCurrentSpeed] = data[Player_attachedWallBoosterLiftSpeedTimer] = 0f;
             }
         }
