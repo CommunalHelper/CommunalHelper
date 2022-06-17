@@ -284,14 +284,13 @@ namespace Celeste.Mod.CommunalHelper {
 
         private IEnumerator Sequence() {
             // Infinite.
-            Vector2 start = Position;
             while (true) {
                 if (!HasPlayerRider()) {
                     yield return null;
                     continue;
                 }
 
-                Vector2 from = start;
+                Vector2 from = Nodes[0];
                 Vector2 to;
                 float at2;
 
@@ -328,7 +327,7 @@ namespace Celeste.Mod.CommunalHelper {
                             SpawnScrapeParticles();
                     }
 
-                    bool last = (i == Nodes.Length - 1);
+                    bool last = i == Nodes.Length - 1;
 
                     // Arrived, will wait for 0.5 secs.
                     StartShaking(0.2f);
@@ -371,8 +370,8 @@ namespace Celeste.Mod.CommunalHelper {
                 }
 
                 if (!permanent) {
-                    for (i -= 2 - (shouldCancel ? 1 : 0); i > -2; i--) {
-                        to = (i == -1) ? start : Nodes[i];
+                    for (i -= 2 - (shouldCancel ? 1 : 0); i >= 0; i--) {
+                        to = Nodes[i];
 
                         // Goes back to start with a speed that is four times slower.
                         StopPlayerRunIntoAnimation = false;
@@ -386,7 +385,7 @@ namespace Celeste.Mod.CommunalHelper {
                             Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
                             MoveTo(position);
                         }
-                        if (i != -1) {
+                        if (i != 0) {
                             from = Nodes[i];
                         }
 
