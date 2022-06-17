@@ -14,7 +14,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         MTexture Cog { get; }
 
-        void DrawBlackBorder();
+        void DrawBorder();
     }
 
     public class ZipMoverPathRenderer : Entity {
@@ -168,7 +168,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (seg.Seen)
                     seg.DrawCogs(zipMover.Percent, zipMover.Cog, zipMover.RopeColor, zipMover.RopeLightColor);
 
-            zipMover.DrawBlackBorder();
+            zipMover.DrawBorder();
         }
     }
 }

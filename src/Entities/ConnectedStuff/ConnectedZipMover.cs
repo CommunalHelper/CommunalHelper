@@ -281,7 +281,7 @@ namespace Celeste.Mod.CommunalHelper {
             Position = originalPosition;
         }
 
-        public void DrawBlackBorder() {
+        public void DrawBorder() {
             if (drawBlackBorder)
                 foreach (Hitbox extension in AllColliders)
                     Draw.HollowRect(new Rectangle(
