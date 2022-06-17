@@ -20,6 +20,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public bool Seen { get; set; }
 
             private readonly Vector2 from, to;
+            private readonly Vector2 dir, twodir, perp;
+            private float length;
+
+            private readonly Vector2 lineStartA, lineStartB; 
+            private readonly Vector2 lineEndA, lineEndB; 
+
             public Rectangle Bounds { get; }
 
             private readonly Vector2 sparkAdd;
@@ -33,6 +39,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Segment(Vector2 from, Vector2 to) {
                 this.from = from;
                 this.to = to;
+
+                dir = (to - from).SafeNormalize();
+                twodir = 2 * dir;
+                perp = dir.Perpendicular();
+                length = Vector2.Distance(from, to);
+
+                Vector2 threeperp = 3 * perp;
+                Vector2 minusfourperp = -4 * perp;
+
+                lineStartA = from + threeperp;
+                lineStartB = from + minusfourperp;
+                lineEndA = to + threeperp;
+                lineEndB = to + minusfourperp;
 
                 sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
                 float angle = (from - to).Angle();
@@ -54,24 +73,40 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 level.ParticlesBG.Emit(ZipMover.P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirEndB);
             }
 
-            public void DrawCogs(float percent, Vector2 offset, MTexture cog, Color rope, Color lightRope, Color cogColor) {
-                Vector2 vector = (to - from).SafeNormalize();
-                Vector2 value = vector.Perpendicular() * 3f;
-                Vector2 value2 = -vector.Perpendicular() * 4f;
-
+            public void DrawCogs(float percent, MTexture cog, Color rope, Color lightRope) {
                 float rotation = percent * MathHelper.TwoPi;
-                Draw.Line(from + value + offset, to + value + offset, rope);
-                Draw.Line(from + value2 + offset, to + value2 + offset, rope);
+                Draw.Line(lineStartA, lineEndA, rope);
+                Draw.Line(lineStartB, lineEndB, rope);
 
-                for (float num = 4f - percent * eightPi % 4f; num < (to - from).Length(); num += 4f) {
-                    Vector2 value3 = from + value + vector.Perpendicular() + vector * num;
-                    Vector2 value4 = to + value2 - vector * num;
-                    Draw.Line(value3 + offset, value3 + vector * 2f + offset, lightRope);
-                    Draw.Line(value4 + offset, value4 - vector * 2f + offset, lightRope);
+                for (float d = 4f - percent * eightPi % 4f; d < length; d += 4f) {
+                    Vector2 teethA = lineStartA + perp + dir * d;
+                    Vector2 teethB = lineEndB - dir * d;
+                    Draw.Line(teethA, teethA + twodir, lightRope);
+                    Draw.Line(teethB, teethB - twodir, lightRope);
                 }
 
-                cog.DrawCentered(from + offset, cogColor, 1f, rotation);
-                cog.DrawCentered(to + offset, cogColor, 1f, rotation);
+                cog.DrawCentered(from, Color.White, 1f, rotation);
+                cog.DrawCentered(to, Color.White, 1f, rotation);
+            }
+
+            public void DrawShadow(float percent, MTexture cog) {
+                float rotation = percent * MathHelper.TwoPi;
+
+                Vector2 startA = lineStartA + Vector2.UnitY;
+                Vector2 endB = lineEndB + Vector2.UnitY;
+
+                Draw.Line(startA, lineEndA + Vector2.UnitY, Color.Black);
+                Draw.Line(lineStartB + Vector2.UnitY, endB, Color.Black);
+
+                for (float d = 4f - percent * eightPi % 4f; d < length; d += 4f) {
+                    Vector2 teethA = startA + perp + dir * d;
+                    Vector2 teethB = endB - dir * d;
+                    Draw.Line(teethA, teethA + twodir, Color.Black);
+                    Draw.Line(teethB, teethB - twodir, Color.Black);
+                }
+
+                cog.DrawCentered(from + Vector2.UnitY, Color.Black, 1f, rotation);
+                cog.DrawCentered(to + Vector2.UnitY, Color.Black, 1f, rotation);
             }
         }
 
@@ -125,11 +160,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             foreach (Segment seg in segments)
                 if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
-                    seg.DrawCogs(zipMover.Percent, Vector2.One, zipMover.Cog, Color.Black, Color.Black, Color.Black);
+                    seg.DrawShadow(zipMover.Percent, zipMover.Cog);
 
             foreach (Segment seg in segments)
                 if (seg.Seen)
-                    seg.DrawCogs(zipMover.Percent, Vector2.Zero, zipMover.Cog, zipMover.RopeColor, zipMover.RopeLightColor, Color.White);
+                    seg.DrawCogs(zipMover.Percent, zipMover.Cog, zipMover.RopeColor, zipMover.RopeLightColor);
         }
     }
 }
