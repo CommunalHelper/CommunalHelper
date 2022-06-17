@@ -4,6 +4,9 @@ using Monocle;
 namespace Celeste.Mod.CommunalHelper.Entities {
     public interface IMultiNodeZipMover {
         float Percent { get; set;  }
+
+        void DrawCog(Vector2 node, float rotation);
+
         void DrawBorder();
     }
 
@@ -18,8 +21,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private readonly Vector2 lineStartA, lineStartB; 
             private readonly Vector2 lineEndA, lineEndB;
 
-            private readonly bool first;
-
             public Rectangle Bounds { get; }
 
             private readonly Vector2 sparkAdd;
@@ -30,7 +31,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             const float piOverEight = MathHelper.PiOver4 / 2f;
             const float eightPi = 4 * MathHelper.TwoPi;
 
-            public Segment(Vector2 from, Vector2 to, bool last) {
+            public Segment(Vector2 from, Vector2 to) {
                 this.from = from;
                 this.to = to;
 
@@ -46,8 +47,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 lineStartB = from + minusfourperp;
                 lineEndA = to + threeperp;
                 lineEndB = to + minusfourperp;
-
-                this.first = last;
 
                 sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
                 float angle = (from - to).Angle();
@@ -69,8 +68,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 level.ParticlesBG.Emit(ZipMover.P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirEndB);
             }
 
-            public void DrawCogs(float percent, MTexture cog, Color rope, Color lightRope) {
-                float rotation = percent * MathHelper.TwoPi;
+            public void Render(float percent, Color rope, Color lightRope) {
                 Draw.Line(lineStartA, lineEndA, rope);
                 Draw.Line(lineStartB, lineEndB, rope);
 
@@ -80,15 +78,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Draw.Line(teethA, teethA + twodir, lightRope);
                     Draw.Line(teethB, teethB - twodir, lightRope);
                 }
-
-                cog.DrawCentered(from, Color.White, 1f, rotation);
-                if (first)
-                    cog.DrawCentered(to, Color.White, 1f, rotation);
             }
 
-            public void DrawShadow(float percent, MTexture cog) {
-                float rotation = percent * MathHelper.TwoPi;
-
+            public void RenderShadow(float percent) {
                 Vector2 startA = lineStartA + Vector2.UnitY;
                 Vector2 endB = lineEndB + Vector2.UnitY;
 
@@ -101,10 +93,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Draw.Line(teethA, teethA + twodir, Color.Black);
                     Draw.Line(teethB, teethB - twodir, Color.Black);
                 }
-
-                cog.DrawCentered(from + Vector2.UnitY, Color.Black, 1f, rotation);
-                if (first)
-                    cog.DrawCentered(to + Vector2.UnitY, Color.Black, 1f, rotation);
             }
         }
 
@@ -115,21 +103,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private Level level;
 
-        private readonly MTexture cog;
         private readonly Color color, lightColor;
 
-        public ZipMoverPathRenderer(IMultiNodeZipMover zipMover, int width, int height, Vector2[] nodes, MTexture cog, Color color, Color lightColor, int depth = Depths.BGDecals) {
+        private readonly Vector2[] nodes;
+
+        public ZipMoverPathRenderer(IMultiNodeZipMover zipMover, int width, int height, Vector2[] nodes, Color color, Color lightColor, int depth = Depths.BGDecals) {
             this.zipMover = zipMover;
+
+            this.nodes = new Vector2[nodes.Length];
 
             Vector2 offset = new(width / 2f, height / 2f);
 
-            Vector2 prev = nodes[0] + offset;
+            Vector2 prev = this.nodes[0] = nodes[0] + offset;
             Vector2 min = prev, max = prev;
 
             segments = new Segment[nodes.Length - 1];
             for (int i = 0; i < segments.Length; ++i) {
-                Vector2 node = nodes[i + 1] + offset;
-                segments[i] = new(node, prev, i == 0);
+                Vector2 node = this.nodes[i + 1] = nodes[i + 1] + offset;
+                segments[i] = new(node, prev);
 
                 min = Util.Min(min, node);
                 max = Util.Max(max, node);
@@ -140,7 +131,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bounds = new((int) min.X, (int) min.Y, (int) (max.X - min.X), (int)(max.Y - min.Y));
             bounds.Inflate(10, 10);
 
-            this.cog = cog;
             this.color = color;
             this.lightColor = lightColor;
 
@@ -165,11 +155,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             foreach (Segment seg in segments)
                 if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
-                    seg.DrawShadow(zipMover.Percent, cog);
+                    seg.RenderShadow(zipMover.Percent);
 
             foreach (Segment seg in segments)
                 if (seg.Seen)
-                    seg.DrawCogs(zipMover.Percent, cog, color, lightColor);
+                    seg.Render(zipMover.Percent, color, lightColor);
+
+            float rotation = zipMover.Percent * MathHelper.TwoPi;
+            foreach (Vector2 node in nodes) {
+                zipMover.DrawCog(node, rotation);
+            }
 
             zipMover.DrawBorder();
         }

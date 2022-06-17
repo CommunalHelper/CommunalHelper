@@ -23,8 +23,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool noReturn;
         private MTexture cross;
 
+        private MTexture cog;
+
         private static readonly Color ropeColor = Calc.HexToColor("663931");
         private static readonly Color ropeLightColor = Calc.HexToColor("9b6157");
+        private static MTexture cogNormal, cogDream, cogDisabled, cogWhite;
 
         public float Percent { get; set; }
 
@@ -46,13 +49,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Position = new Vector2(Width / 2f, Height / 2f)
             });
             cross = GFX.Game["objects/CommunalHelper/dreamMoveBlock/x"];
+
+            UpdateCogTexture();
         }
+
+        private void UpdateCogTexture()
+            => cog = dreamAesthetic ? (PlayerHasDreamDash ? cogDream : cogDisabled) : cogNormal;
 
         public override void Added(Scene scene) {
             base.Added(scene);
 
-            MTexture cog = GFX.Game["objects/zipmover/cog"];
-            scene.Add(pathRenderer = new ZipMoverPathRenderer(this, (int)Width, (int)Height, nodes, cog, ropeColor, ropeLightColor));
+            scene.Add(pathRenderer = new ZipMoverPathRenderer(this, (int)Width, (int)Height, nodes, ropeColor, ropeLightColor));
         }
 
         public override void Removed(Scene scene) {
@@ -271,6 +278,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             sfx.Stop();
         }
 
+        public override void Update() {
+            base.Update();
+            UpdateCogTexture();
+        }
+
         public void DrawBorder() { }
+
+        public void DrawCog(Vector2 node, float rotation) {
+            cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
+            cog.DrawCentered(node, Color.White, 1f, rotation);
+        }
+
+        internal static void InitializeTextures() {
+            cogNormal = GFX.Game["objects/zipmover/cog"];
+            cogDream = GFX.Game["objects/CommunalHelper/dreamZipMover/cog"];
+            cogDisabled = GFX.Game["objects/CommunalHelper/dreamZipMover/disabledCog"];
+            cogWhite = GFX.Game["objects/CommunalHelper/dreamZipMover/cogWhite"];
+        }
     }
 }

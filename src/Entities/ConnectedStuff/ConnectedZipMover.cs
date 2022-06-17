@@ -188,7 +188,7 @@ namespace Celeste.Mod.CommunalHelper {
             base.Added(scene);
 
             // Creating the Path Renderer.
-            scene.Add(zipMoverPathRenderer = new(this, MasterWidth, MasterHeight, nodes, cog, ropeColor, ropeLightColor, depth: Depths.SolidsBelow));
+            scene.Add(zipMoverPathRenderer = new(this, MasterWidth, MasterHeight, nodes, ropeColor, ropeLightColor, depth: Depths.SolidsBelow));
         }
 
         public override void Removed(Scene scene) {
@@ -289,6 +289,11 @@ namespace Celeste.Mod.CommunalHelper {
                         (int) extension.Width + 2,
                         (int) extension.Height + 2),
                         Color.Black);
+        }
+
+        public void DrawCog(Vector2 node, float rotation) {
+            cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
+            cog.DrawCentered(node, Color.White, 1f, rotation);
         }
 
         private IEnumerator Sequence() {

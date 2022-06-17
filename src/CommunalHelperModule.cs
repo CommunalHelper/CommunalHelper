@@ -145,6 +145,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamTunnelRefill.InitializeParticles();
             DreamTunnelDash.InitializeParticles();
 
+            DreamZipMover.InitializeTextures();
             DreamMoveBlock.InitializeParticles();
             DreamSwitchGate.InitializeParticles();
 
