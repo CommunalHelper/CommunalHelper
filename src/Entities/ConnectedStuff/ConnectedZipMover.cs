@@ -22,7 +22,7 @@ namespace Celeste.Mod.CommunalHelper {
         private List<MTexture> innerCogs;
         private MTexture temp = new MTexture();
 
-        private bool drawBlackBorder;
+        private readonly bool drawBlackBorder;
 
         // Sounds
         private SoundSource sfx;
@@ -31,7 +31,6 @@ namespace Celeste.Mod.CommunalHelper {
         private BloomPoint bloom;
 
         // The instance of the PathRenderer Class defined above.
-        //private PathRenderer pathRenderer;
         private ZipMoverPathRenderer zipMoverPathRenderer;
 
         private bool permanent;
@@ -280,6 +279,17 @@ namespace Celeste.Mod.CommunalHelper {
 
             base.Render();
             Position = originalPosition;
+        }
+
+        public void DrawBlackBorder() {
+            if (drawBlackBorder)
+                foreach (Hitbox extension in AllColliders)
+                    Draw.HollowRect(new Rectangle(
+                        (int) (X + extension.Left - 1f + Shake.X),
+                        (int) (Y + extension.Top - 1f + Shake.Y),
+                        (int) extension.Width + 2,
+                        (int) extension.Height + 2),
+                        Color.Black);
         }
 
         private IEnumerator Sequence() {
