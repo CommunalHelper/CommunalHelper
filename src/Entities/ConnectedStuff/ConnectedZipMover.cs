@@ -41,14 +41,13 @@ namespace Celeste.Mod.CommunalHelper {
         private string themePath;
         private Color backgroundColor;
 
-        // IMultiNodeZipMover implementation
-        public Vector2[] Nodes { get; }
+        private readonly Vector2[] nodes;
+
+        private readonly Color ropeColor = Calc.HexToColor("663931");
+        private readonly Color ropeLightColor = Calc.HexToColor("9b6157");
+        private readonly MTexture cog;
+
         public float Percent { get; set; }
-        float IMultiNodeZipMover.Width => MasterWidth;
-        float IMultiNodeZipMover.Height => MasterHeight;
-        public Color RopeColor { get; set; } = Calc.HexToColor("663931");
-        public Color RopeLightColor { get; set; } = Calc.HexToColor("9b6157");
-        public MTexture Cog { get; }
 
         public ConnectedZipMover(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.NodesWithPosition(offset),
@@ -64,7 +63,7 @@ namespace Celeste.Mod.CommunalHelper {
             : base(position, width, height, safe: false) {
             Depth = Depths.FGTerrain + 1;
 
-            Nodes = nodes;
+            this.nodes = nodes;
 
             theme = themes;
             permanent = perm;
@@ -88,7 +87,7 @@ namespace Celeste.Mod.CommunalHelper {
                 id = customSkin + "/block";
                 key = customSkin + "/innercog";
                 corners = customSkin + "/innerCorners";
-                Cog = GFX.Game[customSkin + "/cog"];
+                cog = GFX.Game[customSkin + "/cog"];
                 themePath = "normal";
                 backgroundColor = Color.Black;
                 if (theme == Themes.Moon)
@@ -101,7 +100,7 @@ namespace Celeste.Mod.CommunalHelper {
                         id = "objects/zipmover/block";
                         key = "objects/zipmover/innercog";
                         corners = "objects/CommunalHelper/zipmover/innerCorners";
-                        Cog = GFX.Game["objects/zipmover/cog"];
+                        cog = GFX.Game["objects/zipmover/cog"];
                         themePath = "normal";
                         drawBlackBorder = true;
                         backgroundColor = Color.Black;
@@ -112,7 +111,7 @@ namespace Celeste.Mod.CommunalHelper {
                         id = "objects/zipmover/moon/block";
                         key = "objects/zipmover/moon/innercog";
                         corners = "objects/CommunalHelper/zipmover/moon/innerCorners";
-                        Cog = GFX.Game["objects/zipmover/moon/cog"];
+                        cog = GFX.Game["objects/zipmover/moon/cog"];
                         themePath = "moon";
                         drawBlackBorder = false;
                         backgroundColor = Color.Black;
@@ -123,7 +122,7 @@ namespace Celeste.Mod.CommunalHelper {
                         id = "objects/CommunalHelper/connectedZipMover/cliffside/block";
                         key = "objects/CommunalHelper/connectedZipMover/cliffside/innercog";
                         corners = "objects/CommunalHelper/connectedZipMover/cliffside/innerCorners";
-                        Cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
+                        cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
                         themePath = "normal";
                         drawBlackBorder = true;
                         backgroundColor = Calc.HexToColor("171018");
@@ -137,10 +136,10 @@ namespace Celeste.Mod.CommunalHelper {
                     backgroundColor = Calc.HexToColor(colorList[0]);
                 }
                 if (colorList.Length > 1) {
-                    RopeColor = Calc.HexToColor(colorList[1]);
+                    ropeColor = Calc.HexToColor(colorList[1]);
                 }
                 if (colorList.Length > 2) {
-                    RopeLightColor = Calc.HexToColor(colorList[2]);
+                    ropeLightColor = Calc.HexToColor(colorList[2]);
                 }
             }
 
@@ -189,7 +188,7 @@ namespace Celeste.Mod.CommunalHelper {
             base.Added(scene);
 
             // Creating the Path Renderer.
-            scene.Add(zipMoverPathRenderer = new(this, depth: Depths.SolidsBelow));
+            scene.Add(zipMoverPathRenderer = new(this, MasterWidth, MasterHeight, nodes, cog, ropeColor, ropeLightColor, depth: Depths.SolidsBelow));
         }
 
         public override void Removed(Scene scene) {
@@ -300,15 +299,15 @@ namespace Celeste.Mod.CommunalHelper {
                     continue;
                 }
 
-                Vector2 from = Nodes[0];
+                Vector2 from = nodes[0];
                 Vector2 to;
                 float at2;
 
                 // Player is riding.
                 bool shouldCancel = false;
                 int i;
-                for (i = 1; i < Nodes.Length; i++) {
-                    to = Nodes[i];
+                for (i = 1; i < nodes.Length; i++) {
+                    to = nodes[i];
 
                     // Start shaking.
                     sfx.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/start");
@@ -337,7 +336,7 @@ namespace Celeste.Mod.CommunalHelper {
                             SpawnScrapeParticles();
                     }
 
-                    bool last = i == Nodes.Length - 1;
+                    bool last = i == nodes.Length - 1;
 
                     // Arrived, will wait for 0.5 secs.
                     StartShaking(0.2f);
@@ -348,7 +347,7 @@ namespace Celeste.Mod.CommunalHelper {
                     StopPlayerRunIntoAnimation = true;
                     yield return 0.5f;
 
-                    from = Nodes[i];
+                    from = nodes[i];
 
                     if (ticking && !last) {
                         float tickTime = 0.0f;
@@ -381,7 +380,7 @@ namespace Celeste.Mod.CommunalHelper {
 
                 if (!permanent) {
                     for (i -= 2 - (shouldCancel ? 1 : 0); i >= 0; i--) {
-                        to = Nodes[i];
+                        to = nodes[i];
 
                         // Goes back to start with a speed that is four times slower.
                         StopPlayerRunIntoAnimation = false;
@@ -396,7 +395,7 @@ namespace Celeste.Mod.CommunalHelper {
                             MoveTo(position);
                         }
                         if (i != 0) {
-                            from = Nodes[i];
+                            from = nodes[i];
                         }
 
                         StartShaking(0.2f);

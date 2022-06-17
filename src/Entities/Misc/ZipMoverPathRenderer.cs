@@ -3,17 +3,7 @@ using Monocle;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public interface IMultiNodeZipMover {
-        Vector2[] Nodes { get; }
         float Percent { get; set;  }
-
-        float Width { get; }
-        float Height { get; }
-
-        Color RopeColor { get; }
-        Color RopeLightColor { get; }
-
-        MTexture Cog { get; }
-
         void DrawBorder();
     }
 
@@ -119,17 +109,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private Level level;
 
-        public ZipMoverPathRenderer(IMultiNodeZipMover zipMover, int depth = Depths.BGDecals) {
+        private readonly MTexture cog;
+        private readonly Color color, lightColor;
+
+        public ZipMoverPathRenderer(IMultiNodeZipMover zipMover, int width, int height, Vector2[] nodes, MTexture cog, Color color, Color lightColor, int depth = Depths.BGDecals) {
             this.zipMover = zipMover;
 
-            Vector2 offset = new(zipMover.Width / 2f, zipMover.Height / 2f);
+            Vector2 offset = new(width / 2f, height / 2f);
 
-            Vector2 prev = zipMover.Nodes[0] + offset;
+            Vector2 prev = nodes[0] + offset;
             Vector2 min = prev, max = prev;
 
-            segments = new Segment[zipMover.Nodes.Length - 1];
+            segments = new Segment[nodes.Length - 1];
             for (int i = 0; i < segments.Length; ++i) {
-                Vector2 node = zipMover.Nodes[i + 1] + offset;
+                Vector2 node = nodes[i + 1] + offset;
                 segments[i] = new(prev, node);
 
                 min = Util.Min(min, node);
@@ -140,6 +133,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             bounds = new((int) min.X, (int) min.Y, (int) (max.X - min.X), (int)(max.Y - min.Y));
             bounds.Inflate(10, 10);
+
+            this.cog = cog;
+            this.color = color;
+            this.lightColor = lightColor;
 
             Depth = depth;
         }
@@ -162,11 +159,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             foreach (Segment seg in segments)
                 if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
-                    seg.DrawShadow(zipMover.Percent, zipMover.Cog);
+                    seg.DrawShadow(zipMover.Percent, cog);
 
             foreach (Segment seg in segments)
                 if (seg.Seen)
-                    seg.DrawCogs(zipMover.Percent, zipMover.Cog, zipMover.RopeColor, zipMover.RopeLightColor);
+                    seg.DrawCogs(zipMover.Percent, cog, color, lightColor);
 
             zipMover.DrawBorder();
         }
