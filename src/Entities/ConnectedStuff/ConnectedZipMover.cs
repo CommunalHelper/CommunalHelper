@@ -117,10 +117,8 @@ namespace Celeste.Mod.CommunalHelper {
         private Sprite streetlight;
         private List<MTexture> innerCogs;
         private MTexture temp = new MTexture();
-        private MTexture cog;
 
         private bool drawBlackBorder;
-        private float percent;
 
         // Sounds
         private SoundSource sfx;
@@ -132,9 +130,6 @@ namespace Celeste.Mod.CommunalHelper {
         //private PathRenderer pathRenderer;
         private ZipMoverPathRenderer zipMoverPathRenderer;
 
-        private Color ropeColor = Calc.HexToColor("663931");
-        private Color ropeLightColor = Calc.HexToColor("9b6157");
-
         private bool permanent;
         private bool waits;
         private bool ticking;
@@ -143,7 +138,14 @@ namespace Celeste.Mod.CommunalHelper {
         private string themePath;
         private Color backgroundColor;
 
+        // IMultiNodeZipMover implementation
         public Vector2[] Nodes { get; }
+        public float Percent { get; set; }
+        float IMultiNodeZipMover.Width => MasterWidth;
+        float IMultiNodeZipMover.Height => MasterHeight;
+        public Color RopeColor { get; set; } = Calc.HexToColor("663931");
+        public Color RopeLightColor { get; set; } = Calc.HexToColor("9b6157");
+        public MTexture Cog { get; }
 
         public ConnectedZipMover(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.NodesWithPosition(offset),
@@ -183,7 +185,7 @@ namespace Celeste.Mod.CommunalHelper {
                 id = customSkin + "/block";
                 key = customSkin + "/innercog";
                 corners = customSkin + "/innerCorners";
-                cog = GFX.Game[customSkin + "/cog"];
+                Cog = GFX.Game[customSkin + "/cog"];
                 themePath = "normal";
                 backgroundColor = Color.Black;
                 if (theme == Themes.Moon)
@@ -196,7 +198,7 @@ namespace Celeste.Mod.CommunalHelper {
                         id = "objects/zipmover/block";
                         key = "objects/zipmover/innercog";
                         corners = "objects/CommunalHelper/zipmover/innerCorners";
-                        cog = GFX.Game["objects/zipmover/cog"];
+                        Cog = GFX.Game["objects/zipmover/cog"];
                         themePath = "normal";
                         drawBlackBorder = true;
                         backgroundColor = Color.Black;
@@ -207,7 +209,7 @@ namespace Celeste.Mod.CommunalHelper {
                         id = "objects/zipmover/moon/block";
                         key = "objects/zipmover/moon/innercog";
                         corners = "objects/CommunalHelper/zipmover/moon/innerCorners";
-                        cog = GFX.Game["objects/zipmover/moon/cog"];
+                        Cog = GFX.Game["objects/zipmover/moon/cog"];
                         themePath = "moon";
                         drawBlackBorder = false;
                         backgroundColor = Color.Black;
@@ -218,7 +220,7 @@ namespace Celeste.Mod.CommunalHelper {
                         id = "objects/CommunalHelper/connectedZipMover/cliffside/block";
                         key = "objects/CommunalHelper/connectedZipMover/cliffside/innercog";
                         corners = "objects/CommunalHelper/connectedZipMover/cliffside/innerCorners";
-                        cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
+                        Cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
                         themePath = "normal";
                         drawBlackBorder = true;
                         backgroundColor = Calc.HexToColor("171018");
@@ -232,10 +234,10 @@ namespace Celeste.Mod.CommunalHelper {
                     backgroundColor = Calc.HexToColor(colorList[0]);
                 }
                 if (colorList.Length > 1) {
-                    ropeColor = Calc.HexToColor(colorList[1]);
+                    RopeColor = Calc.HexToColor(colorList[1]);
                 }
                 if (colorList.Length > 2) {
-                    ropeLightColor = Calc.HexToColor(colorList[2]);
+                    RopeLightColor = Calc.HexToColor(colorList[2]);
                 }
             }
 
@@ -285,7 +287,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             // Creating the Path Renderer.
             //scene.Add(pathRenderer = new PathRenderer(this));
-            scene.Add(zipMoverPathRenderer = new(Depths.SolidsBelow));
+            scene.Add(zipMoverPathRenderer = new(this, depth: Depths.SolidsBelow));
         }
 
         public override void Removed(Scene scene) {
@@ -330,7 +332,7 @@ namespace Celeste.Mod.CommunalHelper {
             for (int i = 4; i <= h + 4; i += 8) {
                 int num3 = num;
                 for (int j = 4; j <= w + 4; j += 8) {
-                    int index = (int) (Util.Mod((num2 + num * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
+                    int index = (int) (Util.Mod((num2 + num * Percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
                     MTexture mTexture = innerCogs[index];
                     Rectangle rectangle = new Rectangle(0, 0, mTexture.Width, mTexture.Height);
                     Vector2 zero = Vector2.Zero;
@@ -411,8 +413,8 @@ namespace Celeste.Mod.CommunalHelper {
                     while (at2 < 1f) {
                         yield return null;
                         at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
-                        percent = Ease.SineIn(at2);
-                        Vector2 vector = Vector2.Lerp(from, to, percent);
+                        Percent = Ease.SineIn(at2);
+                        Vector2 vector = Vector2.Lerp(from, to, Percent);
 
                         if (Scene.OnInterval(0.1f)) {
                             //pathRenderer.CreateSparks();
@@ -479,7 +481,7 @@ namespace Celeste.Mod.CommunalHelper {
                         while (at2 < 1f) {
                             yield return null;
                             at2 = Calc.Approach(at2, 1f, 0.5f * Engine.DeltaTime);
-                            percent = 1f - Ease.SineIn(at2);
+                            Percent = 1f - Ease.SineIn(at2);
                             Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
                             MoveTo(position);
                         }
