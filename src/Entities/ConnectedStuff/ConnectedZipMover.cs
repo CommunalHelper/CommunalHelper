@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -7,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper {
     [CustomEntity("CommunalHelper/ConnectedZipMover")]
-    public class ConnectedZipMover : ConnectedSolid {
+    public class ConnectedZipMover : ConnectedSolid, IMultiNodeZipMover {
         public enum Themes {
             Normal,
             Moon,
@@ -15,101 +16,101 @@ namespace Celeste.Mod.CommunalHelper {
         }
         public Themes theme;
 
-        private class PathRenderer : Entity {
-            public ConnectedZipMover ConnectedZipMover;
-            private MTexture cog;
-
-            private Vector2 from;
-            private Vector2 to;
-            private Vector2 sparkAdd;
-
-            private float sparkDirFromA;
-            private float sparkDirFromB;
-            private float sparkDirToA;
-            private float sparkDirToB;
-
-            public PathRenderer(ConnectedZipMover advancedZipMover) {
-                Depth = Depths.SolidsBelow;
-                ConnectedZipMover = advancedZipMover;
-                from = GetNodeFrom(ConnectedZipMover.start);
-                sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
-                float angle = (from - to).Angle();
-                sparkDirFromA = angle + (float) Math.PI / 8f;
-                sparkDirFromB = angle - (float) Math.PI / 8f;
-                sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
-                sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
-                cog = advancedZipMover.cog;
-            }
-
-            public void CreateSparks() {
-                from = GetNodeFrom(ConnectedZipMover.start);
-                for (int i = 0; i < ConnectedZipMover.targets.Length; i++) {
-                    to = GetNodeFrom(ConnectedZipMover.targets[i]);
-                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromA);
-                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromB);
-                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
-                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
-                    from = GetNodeFrom(ConnectedZipMover.targets[i]);
-                }
-            }
-
-            private Vector2 GetNodeFrom(Vector2 node) {
-                return node + new Vector2(ConnectedZipMover.MasterWidth / 2f, ConnectedZipMover.MasterHeight / 2f);
-            }
-
-            public override void Render() {
-                /* 
-				 * We actually go through two FOR loops. 
-				 * Because otherwise the "shadows" would pass over the
-				 * previously drawn cogs, which would look a bit weird.
-				 */
-
-                // Draw behind, the "shadow", sort of.
-                from = GetNodeFrom(ConnectedZipMover.start);
-                for (int i = 0; i < ConnectedZipMover.targets.Length; i++) {
-                    to = GetNodeFrom(ConnectedZipMover.targets[i]);
-                    DrawCogs(Vector2.UnitY, Color.Black);
-                    from = GetNodeFrom(ConnectedZipMover.targets[i]);
-                }
-
-                // Draw the actual cogs, coloured, above.
-                from = GetNodeFrom(ConnectedZipMover.start);
-                for (int i = 0; i < ConnectedZipMover.targets.Length; i++) {
-                    to = GetNodeFrom(ConnectedZipMover.targets[i]);
-                    DrawCogs(Vector2.Zero);
-                    from = GetNodeFrom(ConnectedZipMover.targets[i]);
-                }
-
-                // Zip Mover's outline, rendered here because of Depth.
-                if (ConnectedZipMover.drawBlackBorder) {
-                    foreach (Hitbox extension in ConnectedZipMover.AllColliders) {
-                        Draw.HollowRect(new Rectangle(
-                            (int) (ConnectedZipMover.X + extension.Left - 1f + ConnectedZipMover.Shake.X),
-                            (int) (ConnectedZipMover.Y + extension.Top - 1f + ConnectedZipMover.Shake.Y),
-                            (int) extension.Width + 2,
-                            (int) extension.Height + 2),
-                            Color.Black);
-                    }
-                }
-            }
-
-            private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
-                Vector2 vector = (to - from).SafeNormalize();
-                Vector2 value = vector.Perpendicular() * 3f;
-                Vector2 value2 = -vector.Perpendicular() * 4f;
-                float rotation = ConnectedZipMover.percent * (float) Math.PI * 2f;
-                Draw.Line(from + value + offset, to + value + offset, colorOverride ?? ConnectedZipMover.ropeColor);
-                Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? ConnectedZipMover.ropeColor);
-                for (float num = 4f - ConnectedZipMover.percent * (float) Math.PI * 8f % 4f; num < (to - from).Length(); num += 4f) {
-                    Vector2 value3 = from + value + vector.Perpendicular() + vector * num;
-                    Vector2 value4 = to + value2 - vector * num;
-                    Draw.Line(value3 + offset, value3 + vector * 2f + offset, colorOverride ?? ConnectedZipMover.ropeLightColor);
-                    Draw.Line(value4 + offset, value4 - vector * 2f + offset, colorOverride ?? ConnectedZipMover.ropeLightColor);
-                }
-                cog.DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
-                cog.DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
-            }
-        }
+        //private class PathRenderer : Entity {
+        //    public ConnectedZipMover ConnectedZipMover;
+        //    private MTexture cog;
+        //
+        //    private Vector2 from;
+        //    private Vector2 to;
+        //    private Vector2 sparkAdd;
+        //
+        //    private float sparkDirFromA;
+        //    private float sparkDirFromB;
+        //    private float sparkDirToA;
+        //    private float sparkDirToB;
+        //
+        //    public PathRenderer(ConnectedZipMover advancedZipMover) {
+        //        Depth = Depths.SolidsBelow;
+        //        ConnectedZipMover = advancedZipMover;
+        //        from = GetNodeFrom(ConnectedZipMover.start);
+        //        sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
+        //        float angle = (from - to).Angle();
+        //        sparkDirFromA = angle + (float) Math.PI / 8f;
+        //        sparkDirFromB = angle - (float) Math.PI / 8f;
+        //        sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
+        //        sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
+        //        cog = advancedZipMover.cog;
+        //    }
+        //
+        //    public void CreateSparks() {
+        //        from = GetNodeFrom(ConnectedZipMover.start);
+        //        for (int i = 0; i < ConnectedZipMover.targets.Length; i++) {
+        //            to = GetNodeFrom(ConnectedZipMover.targets[i]);
+        //            SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromA);
+        //            SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromB);
+        //            SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
+        //            SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
+        //            from = GetNodeFrom(ConnectedZipMover.targets[i]);
+        //        }
+        //    }
+        //
+        //    private Vector2 GetNodeFrom(Vector2 node) {
+        //        return node + new Vector2(ConnectedZipMover.MasterWidth / 2f, ConnectedZipMover.MasterHeight / 2f);
+        //    }
+        //
+        //    public override void Render() {
+        //        /* 
+		//		 * We actually go through two FOR loops. 
+		//		 * Because otherwise the "shadows" would pass over the
+		//		 * previously drawn cogs, which would look a bit weird.
+		//		 */
+        //
+        //        // Draw behind, the "shadow", sort of.
+        //        from = GetNodeFrom(ConnectedZipMover.start);
+        //        for (int i = 0; i < ConnectedZipMover.targets.Length; i++) {
+        //            to = GetNodeFrom(ConnectedZipMover.targets[i]);
+        //            DrawCogs(Vector2.UnitY, Color.Black);
+        //            from = GetNodeFrom(ConnectedZipMover.targets[i]);
+        //        }
+        //
+        //        // Draw the actual cogs, coloured, above.
+        //        from = GetNodeFrom(ConnectedZipMover.start);
+        //        for (int i = 0; i < ConnectedZipMover.targets.Length; i++) {
+        //            to = GetNodeFrom(ConnectedZipMover.targets[i]);
+        //            DrawCogs(Vector2.Zero);
+        //            from = GetNodeFrom(ConnectedZipMover.targets[i]);
+        //        }
+        //
+        //        // Zip Mover's outline, rendered here because of Depth.
+        //        if (ConnectedZipMover.drawBlackBorder) {
+        //            foreach (Hitbox extension in ConnectedZipMover.AllColliders) {
+        //                Draw.HollowRect(new Rectangle(
+        //                    (int) (ConnectedZipMover.X + extension.Left - 1f + ConnectedZipMover.Shake.X),
+        //                    (int) (ConnectedZipMover.Y + extension.Top - 1f + ConnectedZipMover.Shake.Y),
+        //                    (int) extension.Width + 2,
+        //                    (int) extension.Height + 2),
+        //                    Color.Black);
+        //            }
+        //        }
+        //    }
+        //
+        //    private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
+        //        Vector2 vector = (to - from).SafeNormalize();
+        //        Vector2 value = vector.Perpendicular() * 3f;
+        //        Vector2 value2 = -vector.Perpendicular() * 4f;
+        //        float rotation = ConnectedZipMover.percent * (float) Math.PI * 2f;
+        //        Draw.Line(from + value + offset, to + value + offset, colorOverride ?? ConnectedZipMover.ropeColor);
+        //        Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? ConnectedZipMover.ropeColor);
+        //        for (float num = 4f - ConnectedZipMover.percent * (float) Math.PI * 8f % 4f; num < (to - from).Length(); num += 4f) {
+        //            Vector2 value3 = from + value + vector.Perpendicular() + vector * num;
+        //            Vector2 value4 = to + value2 - vector * num;
+        //            Draw.Line(value3 + offset, value3 + vector * 2f + offset, colorOverride ?? ConnectedZipMover.ropeLightColor);
+        //            Draw.Line(value4 + offset, value4 - vector * 2f + offset, colorOverride ?? ConnectedZipMover.ropeLightColor);
+        //        }
+        //        cog.DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
+        //        cog.DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
+        //    }
+        //}
 
         private MTexture[,] edges = new MTexture[3, 3];
         private MTexture[,] innerCorners = new MTexture[2, 2];
@@ -119,10 +120,7 @@ namespace Celeste.Mod.CommunalHelper {
         private MTexture cog;
 
         private bool drawBlackBorder;
-        private Vector2 start;
         private float percent;
-
-        private Vector2[] targets, originalNodes;
 
         // Sounds
         private SoundSource sfx;
@@ -131,7 +129,8 @@ namespace Celeste.Mod.CommunalHelper {
         private BloomPoint bloom;
 
         // The instance of the PathRenderer Class defined above.
-        private PathRenderer pathRenderer;
+        //private PathRenderer pathRenderer;
+        private ZipMoverPathRenderer zipMoverPathRenderer;
 
         private Color ropeColor = Calc.HexToColor("663931");
         private Color ropeLightColor = Calc.HexToColor("9b6157");
@@ -144,8 +143,10 @@ namespace Celeste.Mod.CommunalHelper {
         private string themePath;
         private Color backgroundColor;
 
+        public Vector2[] Nodes { get; }
+
         public ConnectedZipMover(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes,
+            : this(data.Position + offset, data.Width, data.Height, data.NodesWithPosition(offset),
                   data.Enum("theme", Themes.Normal),
                   data.Bool("permanent"),
                   data.Bool("waiting"),
@@ -158,15 +159,16 @@ namespace Celeste.Mod.CommunalHelper {
             : base(position, width, height, safe: false) {
             Depth = Depths.FGTerrain + 1;
 
-            start = Position;
-            targets = new Vector2[nodes.Length];
+            Nodes = nodes;
+
             theme = themes;
-            originalNodes = nodes;
             permanent = perm;
             this.waits = waits;
             this.ticking = ticking;
+
             seq = new Coroutine(Sequence());
             Add(seq);
+
             Add(new LightOcclude());
 
             string path;
@@ -281,20 +283,16 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Added(Scene scene) {
             base.Added(scene);
 
-            // Offset the points to their position, relative to the room's position.
-            Rectangle bounds = SceneAs<Level>().Bounds;
-            Vector2 levelOffset = new Vector2(bounds.Left, bounds.Top);
-            for (int i = 0; i < originalNodes.Length; i++) {
-                targets[i] = originalNodes[i] + levelOffset;
-            }
-
             // Creating the Path Renderer.
-            scene.Add(pathRenderer = new PathRenderer(this));
+            //scene.Add(pathRenderer = new PathRenderer(this));
+            scene.Add(zipMoverPathRenderer = new(Depths.SolidsBelow));
         }
 
         public override void Removed(Scene scene) {
-            scene.Remove(pathRenderer);
-            pathRenderer = null;
+            //scene.Remove(pathRenderer);
+            //pathRenderer = null;
+            scene.Remove(zipMoverPathRenderer);
+            zipMoverPathRenderer = null;
             base.Removed(scene);
         }
 
@@ -397,8 +395,8 @@ namespace Celeste.Mod.CommunalHelper {
                 // Player is riding.
                 bool shouldCancel = false;
                 int i;
-                for (i = 0; i < targets.Length; i++) {
-                    to = targets[i];
+                for (i = 1; i < Nodes.Length; i++) {
+                    to = Nodes[i];
 
                     // Start shaking.
                     sfx.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/start");
@@ -416,8 +414,10 @@ namespace Celeste.Mod.CommunalHelper {
                         percent = Ease.SineIn(at2);
                         Vector2 vector = Vector2.Lerp(from, to, percent);
 
-                        if (Scene.OnInterval(0.1f))
-                            pathRenderer.CreateSparks();
+                        if (Scene.OnInterval(0.1f)) {
+                            //pathRenderer.CreateSparks();
+                            zipMoverPathRenderer.CreateSparks();                        
+                        }
 
                         MoveTo(vector);
 
@@ -425,7 +425,7 @@ namespace Celeste.Mod.CommunalHelper {
                             SpawnScrapeParticles();
                     }
 
-                    bool last = (i == targets.Length - 1);
+                    bool last = (i == Nodes.Length - 1);
 
                     // Arrived, will wait for 0.5 secs.
                     StartShaking(0.2f);
@@ -436,7 +436,7 @@ namespace Celeste.Mod.CommunalHelper {
                     StopPlayerRunIntoAnimation = true;
                     yield return 0.5f;
 
-                    from = targets[i];
+                    from = Nodes[i];
 
                     if (ticking && !last) {
                         float tickTime = 0.0f;
@@ -469,7 +469,7 @@ namespace Celeste.Mod.CommunalHelper {
 
                 if (!permanent) {
                     for (i -= 2 - (shouldCancel ? 1 : 0); i > -2; i--) {
-                        to = (i == -1) ? start : targets[i];
+                        to = (i == -1) ? start : Nodes[i];
 
                         // Goes back to start with a speed that is four times slower.
                         StopPlayerRunIntoAnimation = false;
@@ -484,7 +484,7 @@ namespace Celeste.Mod.CommunalHelper {
                             MoveTo(position);
                         }
                         if (i != -1) {
-                            from = targets[i];
+                            from = Nodes[i];
                         }
 
                         StartShaking(0.2f);
