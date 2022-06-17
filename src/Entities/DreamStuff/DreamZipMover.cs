@@ -186,7 +186,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             yield return null;
                             //streetlight.SetAnimationFrame(1 - (int) Math.Round(tickTime));
 
-
                             tickTime = Calc.Approach(tickTime, 1f, Engine.DeltaTime);
                             if (tickTime >= 1.0f) {
                                 tickTime = 0.0f;

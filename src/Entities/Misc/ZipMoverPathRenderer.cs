@@ -16,7 +16,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private float length;
 
             private readonly Vector2 lineStartA, lineStartB; 
-            private readonly Vector2 lineEndA, lineEndB; 
+            private readonly Vector2 lineEndA, lineEndB;
+
+            private readonly bool first;
 
             public Rectangle Bounds { get; }
 
@@ -28,7 +30,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             const float piOverEight = MathHelper.PiOver4 / 2f;
             const float eightPi = 4 * MathHelper.TwoPi;
 
-            public Segment(Vector2 from, Vector2 to) {
+            public Segment(Vector2 from, Vector2 to, bool last) {
                 this.from = from;
                 this.to = to;
 
@@ -44,6 +46,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 lineStartB = from + minusfourperp;
                 lineEndA = to + threeperp;
                 lineEndB = to + minusfourperp;
+
+                this.first = last;
 
                 sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
                 float angle = (from - to).Angle();
@@ -78,7 +82,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
 
                 cog.DrawCentered(from, Color.White, 1f, rotation);
-                cog.DrawCentered(to, Color.White, 1f, rotation);
+                if (first)
+                    cog.DrawCentered(to, Color.White, 1f, rotation);
             }
 
             public void DrawShadow(float percent, MTexture cog) {
@@ -98,7 +103,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
 
                 cog.DrawCentered(from + Vector2.UnitY, Color.Black, 1f, rotation);
-                cog.DrawCentered(to + Vector2.UnitY, Color.Black, 1f, rotation);
+                if (first)
+                    cog.DrawCentered(to + Vector2.UnitY, Color.Black, 1f, rotation);
             }
         }
 
@@ -123,7 +129,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             segments = new Segment[nodes.Length - 1];
             for (int i = 0; i < segments.Length; ++i) {
                 Vector2 node = nodes[i + 1] + offset;
-                segments[i] = new(prev, node);
+                segments[i] = new(node, prev, i == 0);
 
                 min = Util.Min(min, node);
                 max = Util.Max(max, node);
