@@ -16,102 +16,6 @@ namespace Celeste.Mod.CommunalHelper {
         }
         public Themes theme;
 
-        //private class PathRenderer : Entity {
-        //    public ConnectedZipMover ConnectedZipMover;
-        //    private MTexture cog;
-        //
-        //    private Vector2 from;
-        //    private Vector2 to;
-        //    private Vector2 sparkAdd;
-        //
-        //    private float sparkDirFromA;
-        //    private float sparkDirFromB;
-        //    private float sparkDirToA;
-        //    private float sparkDirToB;
-        //
-        //    public PathRenderer(ConnectedZipMover advancedZipMover) {
-        //        Depth = Depths.SolidsBelow;
-        //        ConnectedZipMover = advancedZipMover;
-        //        from = GetNodeFrom(ConnectedZipMover.start);
-        //        sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
-        //        float angle = (from - to).Angle();
-        //        sparkDirFromA = angle + (float) Math.PI / 8f;
-        //        sparkDirFromB = angle - (float) Math.PI / 8f;
-        //        sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
-        //        sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
-        //        cog = advancedZipMover.cog;
-        //    }
-        //
-        //    public void CreateSparks() {
-        //        from = GetNodeFrom(ConnectedZipMover.start);
-        //        for (int i = 0; i < ConnectedZipMover.targets.Length; i++) {
-        //            to = GetNodeFrom(ConnectedZipMover.targets[i]);
-        //            SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromA);
-        //            SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromB);
-        //            SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
-        //            SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
-        //            from = GetNodeFrom(ConnectedZipMover.targets[i]);
-        //        }
-        //    }
-        //
-        //    private Vector2 GetNodeFrom(Vector2 node) {
-        //        return node + new Vector2(ConnectedZipMover.MasterWidth / 2f, ConnectedZipMover.MasterHeight / 2f);
-        //    }
-        //
-        //    public override void Render() {
-        //        /* 
-		//		 * We actually go through two FOR loops. 
-		//		 * Because otherwise the "shadows" would pass over the
-		//		 * previously drawn cogs, which would look a bit weird.
-		//		 */
-        //
-        //        // Draw behind, the "shadow", sort of.
-        //        from = GetNodeFrom(ConnectedZipMover.start);
-        //        for (int i = 0; i < ConnectedZipMover.targets.Length; i++) {
-        //            to = GetNodeFrom(ConnectedZipMover.targets[i]);
-        //            DrawCogs(Vector2.UnitY, Color.Black);
-        //            from = GetNodeFrom(ConnectedZipMover.targets[i]);
-        //        }
-        //
-        //        // Draw the actual cogs, coloured, above.
-        //        from = GetNodeFrom(ConnectedZipMover.start);
-        //        for (int i = 0; i < ConnectedZipMover.targets.Length; i++) {
-        //            to = GetNodeFrom(ConnectedZipMover.targets[i]);
-        //            DrawCogs(Vector2.Zero);
-        //            from = GetNodeFrom(ConnectedZipMover.targets[i]);
-        //        }
-        //
-        //        // Zip Mover's outline, rendered here because of Depth.
-        //        if (ConnectedZipMover.drawBlackBorder) {
-        //            foreach (Hitbox extension in ConnectedZipMover.AllColliders) {
-        //                Draw.HollowRect(new Rectangle(
-        //                    (int) (ConnectedZipMover.X + extension.Left - 1f + ConnectedZipMover.Shake.X),
-        //                    (int) (ConnectedZipMover.Y + extension.Top - 1f + ConnectedZipMover.Shake.Y),
-        //                    (int) extension.Width + 2,
-        //                    (int) extension.Height + 2),
-        //                    Color.Black);
-        //            }
-        //        }
-        //    }
-        //
-        //    private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
-        //        Vector2 vector = (to - from).SafeNormalize();
-        //        Vector2 value = vector.Perpendicular() * 3f;
-        //        Vector2 value2 = -vector.Perpendicular() * 4f;
-        //        float rotation = ConnectedZipMover.percent * (float) Math.PI * 2f;
-        //        Draw.Line(from + value + offset, to + value + offset, colorOverride ?? ConnectedZipMover.ropeColor);
-        //        Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? ConnectedZipMover.ropeColor);
-        //        for (float num = 4f - ConnectedZipMover.percent * (float) Math.PI * 8f % 4f; num < (to - from).Length(); num += 4f) {
-        //            Vector2 value3 = from + value + vector.Perpendicular() + vector * num;
-        //            Vector2 value4 = to + value2 - vector * num;
-        //            Draw.Line(value3 + offset, value3 + vector * 2f + offset, colorOverride ?? ConnectedZipMover.ropeLightColor);
-        //            Draw.Line(value4 + offset, value4 - vector * 2f + offset, colorOverride ?? ConnectedZipMover.ropeLightColor);
-        //        }
-        //        cog.DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
-        //        cog.DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
-        //    }
-        //}
-
         private MTexture[,] edges = new MTexture[3, 3];
         private MTexture[,] innerCorners = new MTexture[2, 2];
         private Sprite streetlight;
@@ -286,13 +190,10 @@ namespace Celeste.Mod.CommunalHelper {
             base.Added(scene);
 
             // Creating the Path Renderer.
-            //scene.Add(pathRenderer = new PathRenderer(this));
             scene.Add(zipMoverPathRenderer = new(this, depth: Depths.SolidsBelow));
         }
 
         public override void Removed(Scene scene) {
-            //scene.Remove(pathRenderer);
-            //pathRenderer = null;
             scene.Remove(zipMoverPathRenderer);
             zipMoverPathRenderer = null;
             base.Removed(scene);
