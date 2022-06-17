@@ -6,18 +6,16 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamZipMover")]
-    public class DreamZipMover : CustomDreamBlock {
-
-        private PathRenderer pathRenderer;
+    public class DreamZipMover : CustomDreamBlock, IMultiNodeZipMover {
+        private ZipMoverPathRenderer pathRenderer;
 
         private const float impactSoundOffset = 0.92f;
 
         private Vector2 start;
-        private float percent = 0f;
 
         private SoundSource sfx;
 
-        private Vector2[] targets, points, originalNodes;
+        private Vector2[] nodes;
         private bool permanent;
         private bool waits;
         private bool ticking;
@@ -25,14 +23,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool noReturn;
         private MTexture cross;
 
+        private static readonly Color ropeColor = Calc.HexToColor("663931");
+        private static readonly Color ropeLightColor = Calc.HexToColor("9b6157");
+
+        public float Percent { get; set; }
+
         public DreamZipMover(EntityData data, Vector2 offset)
             : base(data, offset) {
             start = Position;
-            targets = new Vector2[data.Nodes.Length];
-            points = new Vector2[data.Nodes.Length + 1];
-            points[0] = Position;
-
-            originalNodes = data.Nodes;
+            nodes = data.NodesWithPosition(offset);
 
             noReturn = data.Bool("noReturn");
             dreamAesthetic = data.Bool("dreamAesthetic");
@@ -52,15 +51,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Added(Scene scene) {
             base.Added(scene);
 
-            // Offset the points to their position, relative to the room's position.
-            Rectangle bounds = SceneAs<Level>().Bounds;
-            Vector2 levelOffset = new Vector2(bounds.Left, bounds.Top);
-            for (int i = 0; i < originalNodes.Length; i++) {
-                targets[i] = originalNodes[i] + levelOffset;
-                points[i + 1] = targets[i];
-            }
-
-            scene.Add(pathRenderer = new PathRenderer(this, dreamAesthetic));
+            MTexture cog = GFX.Game["objects/zipmover/cog"];
+            scene.Add(pathRenderer = new ZipMoverPathRenderer(this, (int)Width, (int)Height, nodes, cog, ropeColor, ropeLightColor));
         }
 
         public override void Removed(Scene scene) {
@@ -132,22 +124,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private IEnumerator Sequence() {
             // Infinite.
-            Vector2 start = Position;
             while (true) {
                 if (!HasPlayerRider()) {
                     yield return null;
                     continue;
                 }
 
-                Vector2 from = start;
+                Vector2 from = nodes[0];
                 Vector2 to;
                 float at2;
 
                 // Player is riding.
                 bool shouldCancel = false;
                 int i;
-                for (i = 0; i < targets.Length; i++) {
-                    to = targets[i];
+                for (i = 1; i < nodes.Length; i++) {
+                    to = nodes[i];
 
                     // Start shaking.
                     sfx.Play(CustomSFX.game_dreamZipMover_start);
@@ -167,8 +158,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             Audio.Play(CustomSFX.game_dreamZipMover_impact, Center);
                             playedFinishSound = true;
                         }
-                        percent = Ease.SineIn(at2);
-                        Vector2 vector = Vector2.Lerp(from, to, percent);
+                        Percent = Ease.SineIn(at2);
+                        Vector2 vector = Vector2.Lerp(from, to, Percent);
                         ScrapeParticlesCheck(to);
                         if (Scene.OnInterval(0.1f)) {
                             pathRenderer.CreateSparks();
@@ -176,7 +167,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         MoveTo(vector);
                     }
 
-                    bool last = (i == targets.Length - 1);
+                    bool last = (i == nodes.Length - 1);
 
                     // Arrived, will wait for 0.5 secs.
                     StartShaking(0.2f);
@@ -186,7 +177,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     StopPlayerRunIntoAnimation = true;
                     yield return 0.5f;
 
-                    from = targets[i];
+                    from = nodes[i];
 
                     if (ticking && !last) {
                         float tickTime = 0.0f;
@@ -220,12 +211,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (!permanent) {
 
                     if (noReturn) {
-                        ReverseNodes(out Vector2 newStart);
-                        start = this.start = newStart;
+                        ReverseNodes(/*out Vector2 newStart*/);
+                        //start = this.start = newStart;
                     } else {
 
-                        for (i -= 2 - (shouldCancel ? 1 : 0); i > -2; i--) {
-                            to = (i == -1) ? start : targets[i];
+                        for (i -= 2 - (shouldCancel ? 1 : 0); i >= 0; i--) {
+                            to = nodes[i];
 
                             // Goes back to start with a speed that is four times slower.
                             StopPlayerRunIntoAnimation = false;
@@ -240,12 +231,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                                     playedFinishSound = true;
                                     Audio.Play(CustomSFX.game_dreamZipMover_finish, Center);
                                 }
-                                percent = 1f - Ease.SineIn(at2);
+                                Percent = 1f - Ease.SineIn(at2);
                                 Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
                                 MoveTo(position);
                             }
-                            if (i != -1) {
-                                from = targets[i];
+                            if (i != 0) {
+                                from = nodes[i];
                             }
 
                             StartShaking(0.2f);
@@ -270,12 +261,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        private void ReverseNodes(out Vector2 newStart) {
-            Array.Reverse(points);
-            for (int i = 0; i < points.Length - 1; i++) {
-                targets[i] = points[i + 1];
-            }
-            newStart = points[0];
+        private void ReverseNodes() {
+            Array.Reverse(nodes);
         }
 
         protected override void OneUseDestroy() {
@@ -285,145 +272,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             sfx.Stop();
         }
 
-        private class PathRenderer : Entity {
-            public DreamZipMover DreamZipMover;
-            private MTexture cog;
-            private MTexture disabledCog;
-            private MTexture cogWhite;
-
-            private Vector2 from;
-            private Vector2 to;
-
-            private Vector2 sparkAdd;
-            private float sparkDirFromA;
-            private float sparkDirFromB;
-            private float sparkDirToA;
-            private float sparkDirToB;
-
-            private static readonly Color ropeColor = Calc.HexToColor("663931");
-            private static readonly Color ropeLightColor = Calc.HexToColor("9b6157");
-
-            private static Color[] activeDreamColors = new Color[9];
-            private static Color[] disabledDreamColors = new Color[4];
-
-            private bool dreamAesthetic;
-
-            static PathRenderer() {
-                activeDreamColors[0] = Calc.HexToColor("FFEF11");
-                activeDreamColors[1] = Calc.HexToColor("FF00D0");
-                activeDreamColors[2] = Calc.HexToColor("08a310");
-                activeDreamColors[3] = Calc.HexToColor("5fcde4");
-                activeDreamColors[4] = Calc.HexToColor("7fb25e");
-                activeDreamColors[5] = Calc.HexToColor("E0564C");
-                activeDreamColors[6] = Calc.HexToColor("5b6ee1");
-                activeDreamColors[7] = Calc.HexToColor("CC3B3B");
-                activeDreamColors[8] = Calc.HexToColor("7daa64");
-
-                disabledDreamColors[0] = Color.LightGray * 0.5f;
-                disabledDreamColors[1] = Color.LightGray * 0.75f;
-                disabledDreamColors[2] = Color.LightGray * 1;
-                disabledDreamColors[3] = Color.LightGray * 0.75f;
-            }
-
-            public PathRenderer(DreamZipMover dreamZipMover, bool dreamAesthetic) {
-                Depth = Depths.BGDecals;
-                DreamZipMover = dreamZipMover;
-                this.dreamAesthetic = dreamAesthetic;
-                from = DreamZipMover.start + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
-                to = DreamZipMover.targets[0] + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
-                sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
-                float angle = (from - to).Angle();
-                sparkDirFromA = angle + (float) Math.PI / 8f;
-                sparkDirFromB = angle - (float) Math.PI / 8f;
-                sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
-                sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
-                cog = GFX.Game[dreamAesthetic ? "objects/CommunalHelper/dreamZipMover/cog" : "objects/zipmover/cog"];
-                disabledCog = dreamAesthetic ? GFX.Game["objects/CommunalHelper/dreamZipMover/disabledCog"] : cog; // Kinda iffy, but whatever
-                cogWhite = GFX.Game["objects/CommunalHelper/dreamZipMover/cogWhite"];
-            }
-
-            public void CreateSparks() {
-                from = GetNodeFrom(DreamZipMover.start);
-                for (int i = 0; i < DreamZipMover.targets.Length; i++) {
-                    to = GetNodeFrom(DreamZipMover.targets[i]);
-                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromA);
-                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, from - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirFromB);
-                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToA);
-                    SceneAs<Level>().ParticlesBG.Emit(ZipMover.P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirToB);
-                    from = GetNodeFrom(DreamZipMover.targets[i]);
-                }
-            }
-
-            private Vector2 GetNodeFrom(Vector2 node) {
-                return node + new Vector2(DreamZipMover.Width / 2f, DreamZipMover.Height / 2f);
-            }
-
-            public override void Render() {
-                /* 
-				 * We actually go through two FOR loops. 
-				 * Because otherwise the "shadows" would pass over the
-				 * previously drawn cogs, which would look a bit weird.
-				 */
-
-                // Draw behind, the "shadow", sort of.
-                from = GetNodeFrom(DreamZipMover.start);
-                for (int i = 0; i < DreamZipMover.targets.Length; i++) {
-                    to = GetNodeFrom(DreamZipMover.targets[i]);
-                    DrawCogs(Vector2.UnitY, Color.Black);
-                    from = GetNodeFrom(DreamZipMover.targets[i]);
-                }
-
-                // Draw the actual cogs, coloured, above.
-                from = GetNodeFrom(DreamZipMover.start);
-                for (int i = 0; i < DreamZipMover.targets.Length; i++) {
-                    to = GetNodeFrom(DreamZipMover.targets[i]);
-                    DrawCogs(Vector2.Zero);
-                    from = GetNodeFrom(DreamZipMover.targets[i]);
-                }
-            }
-
-            private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
-                bool playerHasDreamDash = DreamZipMover.PlayerHasDreamDash;
-
-                float colorLerp = DreamZipMover.ColorLerp;
-                Color colorLerpTarget = DreamZipMover.ActiveLineColor;
-                Vector2 travelDir = (to - from).SafeNormalize();
-                Vector2 hOffset1 = travelDir.Perpendicular() * 3f;
-                Vector2 hOffset2 = -travelDir.Perpendicular() * 4f;
-                float rotation = -DreamZipMover.percent * (float) Math.PI * 2f;
-
-                Color dreamRopeColor = playerHasDreamDash ? colorLerpTarget : DreamZipMover.DisabledLineColor;
-                Color color = Color.Lerp(dreamAesthetic ? dreamRopeColor : ropeColor, colorLerpTarget, colorLerp);
-
-                Draw.Line(from + hOffset1 + offset, to + hOffset1 + offset, colorOverride ?? color);
-                Draw.Line(from + hOffset2 + offset, to + hOffset2 + offset, colorOverride ?? color);
-                float dist = (to - from).Length();
-                float shiftProgress = DreamZipMover.percent * (float) Math.PI * 8f;
-                for (float lengthProgress = shiftProgress % 4f; lengthProgress < dist; lengthProgress += 4f) {
-                    Vector2 value3 = from + hOffset1 + travelDir.Perpendicular() + travelDir * lengthProgress;
-                    Vector2 value4 = to + hOffset2 - travelDir * lengthProgress;
-
-                    Color lightColor = ropeLightColor;
-                    if (dreamAesthetic) {
-                        if (playerHasDreamDash)
-                            lightColor = activeDreamColors[(int) Util.Mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 9f)];
-                        else
-                            lightColor = disabledDreamColors[(int) Util.Mod((float) Math.Round((lengthProgress - shiftProgress) / 4f), 4f)];
-                    }
-                    lightColor = Color.Lerp(lightColor, colorLerpTarget, colorLerp);
-                    Draw.Line(value3 + offset, value3 + travelDir * 2f + offset, colorOverride ?? lightColor);
-                    Draw.Line(value4 + offset, value4 - travelDir * 2f + offset, colorOverride ?? lightColor);
-                }
-
-                (playerHasDreamDash ? cog : disabledCog).DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
-                (playerHasDreamDash ? cog : disabledCog).DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
-                if (colorLerp > 0f && !colorOverride.HasValue) {
-                    Color tempColor = Color.Lerp(Color.Transparent, colorLerpTarget, colorLerp);
-                    cogWhite.DrawCentered(from + offset, tempColor, 1f, rotation);
-                    cogWhite.DrawCentered(to + offset, tempColor, 1f, rotation);
-                }
-            }
-        }
-
+        public void DrawBorder() { }
     }
 }
