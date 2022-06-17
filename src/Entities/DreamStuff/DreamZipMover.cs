@@ -6,8 +6,196 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamZipMover")]
-    public class DreamZipMover : CustomDreamBlock, IMultiNodeZipMover {
-        private ZipMoverPathRenderer pathRenderer;
+    public class DreamZipMover : CustomDreamBlock {
+        public class PathRenderer : Entity {
+            private class Segment {
+                public bool Seen { get; set; }
+
+                private readonly Vector2 from, to;
+                private readonly Vector2 dir, twodir, perp;
+                private float length;
+
+                private readonly Vector2 lineStartA, lineStartB;
+                private readonly Vector2 lineEndA, lineEndB;
+
+                public Rectangle Bounds { get; }
+
+                private readonly Vector2 sparkAdd;
+
+                private readonly float sparkDirStartA, sparkDirStartB;
+                private readonly float sparkDirEndA, sparkDirEndB;
+
+                const float piOverEight = MathHelper.PiOver4 / 2f;
+                const float eightPi = 4 * MathHelper.TwoPi;
+
+                public Segment(Vector2 from, Vector2 to) {
+                    this.from = from;
+                    this.to = to;
+
+                    dir = (to - from).SafeNormalize();
+                    twodir = 2 * dir;
+                    perp = dir.Perpendicular();
+                    length = Vector2.Distance(from, to);
+
+                    Vector2 threeperp = 3 * perp;
+                    Vector2 minusfourperp = -4 * perp;
+
+                    lineStartA = from + threeperp;
+                    lineStartB = from + minusfourperp;
+                    lineEndA = to + threeperp;
+                    lineEndB = to + minusfourperp;
+
+                    sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
+                    float angle = (from - to).Angle();
+                    sparkDirStartA = angle + piOverEight;
+                    sparkDirStartB = angle - piOverEight;
+                    sparkDirEndA = angle + MathHelper.Pi - piOverEight;
+                    sparkDirEndB = angle + MathHelper.Pi + piOverEight;
+
+                    Rectangle b = Util.Rectangle(from, to);
+                    b.Inflate(10, 10);
+
+                    Bounds = b;
+                }
+
+                public void Spark(Level level) {
+                    level.ParticlesBG.Emit(ZipMover.P_Sparks, from + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirStartA);
+                    level.ParticlesBG.Emit(ZipMover.P_Sparks, from - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirStartB);
+                    level.ParticlesBG.Emit(ZipMover.P_Sparks, to + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirEndA);
+                    level.ParticlesBG.Emit(ZipMover.P_Sparks, to - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDirEndB);
+                }
+
+                public void Render(DreamZipMover zipMover, Color rope) {
+                    Draw.Line(lineStartA, lineEndA, rope);
+                    Draw.Line(lineStartB, lineEndB, rope);
+
+                    float shiftProgress = zipMover.Percent * eightPi;
+                    for (float d = shiftProgress % 4f; d < length; d += 4f) {
+                        Vector2 teethA = lineStartA + perp + dir * d;
+                        Vector2 teethB = lineEndB - dir * d;
+
+                        Color color = zipMover.dreamAesthetic ?
+                                        (zipMover.PlayerHasDreamDash ?
+                                            activeDreamColors[(int) Util.Mod((float) Math.Round((d - shiftProgress) / 4f), 9f)] :
+                                            disabledDreamColors[(int) Util.Mod((float) Math.Round((d - shiftProgress) / 4f), 4f)]
+                                        ) : ropeLightColor;
+                        Draw.Line(teethA, teethA + twodir, color);
+                        Draw.Line(teethB, teethB - twodir, color);
+                    }
+                }
+
+                public void RenderShadow(float percent) {
+                    Vector2 startA = lineStartA + Vector2.UnitY;
+                    Vector2 endB = lineEndB + Vector2.UnitY;
+
+                    Draw.Line(startA, lineEndA + Vector2.UnitY, Color.Black);
+                    Draw.Line(lineStartB + Vector2.UnitY, endB, Color.Black);
+
+                    for (float d = 4f - percent * eightPi % 4f; d < length; d += 4f) {
+                        Vector2 teethA = startA + perp + dir * d;
+                        Vector2 teethB = endB - dir * d;
+                        Draw.Line(teethA, teethA + twodir, Color.Black);
+                        Draw.Line(teethB, teethB - twodir, Color.Black);
+                    }
+                }
+            }
+
+            private readonly Rectangle bounds;
+            private readonly Segment[] segments;
+
+            private readonly DreamZipMover zipMover;
+
+            private Level level;
+
+            private readonly Vector2[] nodes;
+
+            private static readonly Color[] activeDreamColors = new Color[9];
+            private static readonly Color[] disabledDreamColors = new Color[4];
+
+            static PathRenderer() {
+                activeDreamColors[0] = Calc.HexToColor("FFEF11");
+                activeDreamColors[1] = Calc.HexToColor("FF00D0");
+                activeDreamColors[2] = Calc.HexToColor("08a310");
+                activeDreamColors[3] = Calc.HexToColor("5fcde4");
+                activeDreamColors[4] = Calc.HexToColor("7fb25e");
+                activeDreamColors[5] = Calc.HexToColor("E0564C");
+                activeDreamColors[6] = Calc.HexToColor("5b6ee1");
+                activeDreamColors[7] = Calc.HexToColor("CC3B3B");
+                activeDreamColors[8] = Calc.HexToColor("7daa64");
+
+                disabledDreamColors[0] = Color.LightGray * 0.5f;
+                disabledDreamColors[1] = Color.LightGray * 0.75f;
+                disabledDreamColors[2] = Color.LightGray * 1;
+                disabledDreamColors[3] = Color.LightGray * 0.75f;
+            }
+
+            public PathRenderer(DreamZipMover zipMover, Vector2[] nodes) {
+                this.zipMover = zipMover;
+
+                this.nodes = new Vector2[nodes.Length];
+
+                Vector2 offset = new(zipMover.Width / 2f, zipMover.Height / 2f);
+
+                Vector2 prev = this.nodes[0] = nodes[0] + offset;
+                Vector2 min = prev, max = prev;
+
+                segments = new Segment[nodes.Length - 1];
+                for (int i = 0; i < segments.Length; ++i) {
+                    Vector2 node = this.nodes[i + 1] = nodes[i + 1] + offset;
+                    segments[i] = new(node, prev);
+
+                    min = Util.Min(min, node);
+                    max = Util.Max(max, node);
+
+                    prev = node;
+                }
+
+                bounds = new((int) min.X, (int) min.Y, (int) (max.X - min.X), (int) (max.Y - min.Y));
+                bounds.Inflate(10, 10);
+
+                Depth = Depths.SolidsBelow;
+            }
+
+            public override void Added(Scene scene) {
+                base.Added(scene);
+                level = scene as Level;
+            }
+
+            public void CreateSparks() {
+                foreach (Segment seg in segments)
+                    seg.Spark(level);
+            }
+
+            public override void Render() {
+                Rectangle cameraBounds = level.Camera.GetBounds();
+
+                if (!cameraBounds.Intersects(bounds))
+                    return;
+
+                Color dreamRopeColor = zipMover.PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
+                Color color = Color.Lerp(zipMover.dreamAesthetic ? dreamRopeColor : ropeColor, ActiveLineColor, zipMover.ColorLerp);
+
+                foreach (Segment seg in segments)
+                    if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
+                        seg.RenderShadow(zipMover.Percent);
+
+                foreach (Segment seg in segments)
+                    if (seg.Seen)
+                        seg.Render(zipMover, color);
+
+                float rotation = zipMover.Percent * MathHelper.TwoPi;
+                foreach (Vector2 node in nodes) {
+                    zipMover.cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
+                    if (zipMover.ColorLerp > 0f)
+                        cogWhite.DrawCentered(node, Color.Lerp(Color.Transparent, ActiveLineColor, zipMover.ColorLerp), 1f, rotation);
+                    else
+                        zipMover.cog.DrawCentered(node, Color.White, 1f, rotation);
+                }
+
+                zipMover.DrawBorder();
+            }
+        }
+        private PathRenderer pathRenderer;
 
         private const float impactSoundOffset = 0.92f;
 
@@ -59,7 +247,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Added(Scene scene) {
             base.Added(scene);
 
-            scene.Add(pathRenderer = new ZipMoverPathRenderer(this, (int)Width, (int)Height, nodes, ropeColor, ropeLightColor));
+            scene.Add(pathRenderer = new(this, nodes));
         }
 
         public override void Removed(Scene scene) {
@@ -169,7 +357,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         Vector2 vector = Vector2.Lerp(from, to, Percent);
                         ScrapeParticlesCheck(to);
                         if (Scene.OnInterval(0.1f)) {
-                            pathRenderer.CreateSparks();
+                            //pathRenderer.CreateSparks();
                         }
                         MoveTo(vector);
                     }
