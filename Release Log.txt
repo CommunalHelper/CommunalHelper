@@ -1,3 +1,8 @@
+--1.11.6 (18/06/2022)--
+* Added legacyBoost option to Attached Wall Boosters, ON by default.
+* Rewrote & optimized zip mover path rendering code.
+* Code cleanup & tweaks.
+
 --1.11.5 (12/06/2022)--
 * Fix Attached Wall Booster doubled Y liftspeed boost.
 
