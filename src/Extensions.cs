@@ -398,5 +398,14 @@ namespace Celeste.Mod.CommunalHelper {
                 }
             }
         }
+
+        public static Rectangle GetBounds(this Camera camera) {
+            int top = (int) camera.Top;
+            int bottom = (int) camera.Bottom;
+            int left = (int) camera.Left;
+            int right = (int) camera.Right;
+
+            return new(left, top, right - left, bottom - top);
+        }
     }
 }
