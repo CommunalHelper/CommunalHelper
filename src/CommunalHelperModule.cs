@@ -142,6 +142,8 @@ namespace Celeste.Mod.CommunalHelper {
             StationBlockTrack.InitializeTextures();
             TrackSwitchBox.InitializeParticles();
 
+            CassetteZipMover.InitializeTextures();
+
             DreamTunnelRefill.InitializeParticles();
             DreamTunnelDash.InitializeParticles();
 
