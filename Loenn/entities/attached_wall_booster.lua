@@ -14,7 +14,8 @@ attachedWallBooster.placements = {
         data = {
             height = 8,
             left = true,
-            notCoreMode = false
+            notCoreMode = false,
+            legacyBoost = true
         }
     },
     {
@@ -23,7 +24,8 @@ attachedWallBooster.placements = {
         data = {
             height = 8,
             left = false,
-            notCoreMode = false
+            notCoreMode = false,
+            legacyBoost = true
         }
     }
 }

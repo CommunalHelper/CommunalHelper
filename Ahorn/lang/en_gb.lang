@@ -7,8 +7,9 @@
 # -- Entities --
 
 # -- Attached Wall Booster --
-placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the Wall Booster should attach to the left sides of solids.
-placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whether the Wall Booster should ignore the current Core Mode and be in Ice Mode.
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the Attached Wall Booster should attach to the left sides of solids.
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode.
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.legacyBoost=Makes this Attached Wall Booster apply the expected speed boost to the player.\nIf disabled, the vertical boost is applied twice if the player isn't moving horizontally, due to a bug that was accidentally introduced in 1.11.2.\nAlso, if disabled, this entity is reskinned with a variant of the wall booster textures.
 
 
 # -- Custom Cassette Block --

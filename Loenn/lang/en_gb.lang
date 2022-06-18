@@ -23,8 +23,9 @@ entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines 
 # Attached Wall Booster
 entities.CommunalHelper/AttachedWallBooster.placements.name.right=Attached Wall Booster (Right)
 entities.CommunalHelper/AttachedWallBooster.placements.name.left=Attached Wall Booster (Left)
-entities.CommunalHelper/AttachedWallBooster.attributes.description.left=Whether the Wall Booster should attach to the left sides of solids.
-entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Wall Booster should ignore the current Core Mode and be in Ice Mode.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.left=Whether the Attached Wall Booster should attach to the left sides of solids.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.legacyBoost=Makes this Attached Wall Booster apply the expected speed boost to the player.\nIf disabled, the vertical boost is applied twice if the player isn't moving horizontally, due to a bug that was accidentally introduced in 1.11.2.\nAlso, if disabled, this entity is reskinned with a variant of the wall booster textures.
 
 # Station Block
 entities.CommunalHelper/StationBlock.placements.name.normal_pushing=Station Block (Normal, Pushing)

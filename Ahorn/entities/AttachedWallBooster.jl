@@ -9,6 +9,7 @@ using ..Ahorn, Maple
     height::Integer=8,
     left::Bool=false,
     notCoreMode::Bool=false,
+    legacyBoost::Bool=true,
 )
 
 const placements = Ahorn.PlacementDict(

@@ -13,11 +13,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     public class AttachedWallBooster : WallBooster {
         public Vector2 Shake = Vector2.Zero;
 
-        private DynData<WallBooster> baseData;
+        private readonly DynData<WallBooster> baseData;
+
+        private readonly bool legacyBoost;
 
         public AttachedWallBooster(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Height, data.Bool("left"), data.Bool("notCoreMode")) {
             baseData = new DynData<WallBooster>(this);
+
+            legacyBoost = data.Bool("legacyBoost", true);
 
             Remove(Get<StaticMover>());
             Add(new StaticMover {
@@ -144,8 +148,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
              * 
              * Wall booster boosts now work with moving blocks.
              */
-            if (timer > 0 && currentSpeed < 0 && data[Player_lastWallBooster] is AttachedWallBooster) {
-                if (player.LiftSpeed.Y >= 0)
+            if (timer > 0 && currentSpeed < 0 && data[Player_lastWallBooster] is AttachedWallBooster wb) {
+                if (player.LiftSpeed.Y >= 0 || !wb.legacyBoost)
                     player.LiftSpeed += Vector2.UnitY * Calc.Max(currentSpeed, -80f);
 
                 data[Player_attachedWallBoosterCurrentSpeed] = data[Player_attachedWallBoosterLiftSpeedTimer] = 0f;
