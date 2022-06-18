@@ -15,13 +15,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private readonly DynData<WallBooster> baseData;
 
-        private readonly bool legacyBoost;
+        private bool legacyBoost;
 
         public AttachedWallBooster(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Height, data.Bool("left"), data.Bool("notCoreMode")) {
+            : base(data, offset) {
             baseData = new DynData<WallBooster>(this);
-
-            legacyBoost = data.Bool("legacyBoost", true);
 
             Remove(Get<StaticMover>());
             Add(new StaticMover {
@@ -74,6 +72,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private const string Player_lastWallBooster = "communalHelperLastWallBooster";
 
         internal static void Hook() {
+            On.Celeste.WallBooster.ctor_EntityData_Vector2 += Mod_WallBooster_ctor_EntityData_Vector2;
+            IL.Celeste.WallBooster.BuildSprite += Mod_WallBooster_BuildSprite;
+
             On.Celeste.Player.ClimbBegin += Player_ClimbBegin;
             IL.Celeste.Player.ClimbUpdate += Player_ClimbUpdate;
             On.Celeste.Player.ClimbJump += Player_ClimbJump;
@@ -85,6 +86,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         internal static void Unhook() {
+            On.Celeste.WallBooster.ctor_EntityData_Vector2 -= Mod_WallBooster_ctor_EntityData_Vector2;
+            IL.Celeste.WallBooster.BuildSprite -= Mod_WallBooster_BuildSprite;
+
             On.Celeste.Player.ClimbBegin -= Player_ClimbBegin;
             IL.Celeste.Player.ClimbUpdate -= Player_ClimbUpdate;
             On.Celeste.Player.ClimbJump -= Player_ClimbJump;
@@ -93,6 +97,33 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             On.Celeste.Player.ctor -= Player_ctor;
             On.Celeste.Player.Update -= Player_Update;
+        }
+
+        private static void Mod_WallBooster_ctor_EntityData_Vector2(On.Celeste.WallBooster.orig_ctor_EntityData_Vector2 orig, WallBooster self, EntityData data, Vector2 offset) {
+            if (self is AttachedWallBooster wb)
+                wb.legacyBoost = data.Bool("legacyBoost", true);
+
+            orig(self, data, offset);
+        }
+
+        private static void Mod_WallBooster_BuildSprite(ILContext il) {
+            ILCursor cursor = new(il);
+
+            cursor.GotoNext(MoveType.After, instr => instr.MatchLdloc(2));
+
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<string, WallBooster, string>>((id, wallBooster) => {
+                bool alt = wallBooster is AttachedWallBooster wb && !wb.legacyBoost;
+
+                if (alt)
+                    id = id switch {
+                        "WallBoosterTop" => "BadAttachedWallBoosterTop",
+                        "WallBoosterBottom" => "BadAttachedWallBoosterBottom",
+                        _ => id,
+                    };
+
+                return id;
+            });
         }
 
         private static WallBooster Player_WallBoosterCheck(On.Celeste.Player.orig_WallBoosterCheck orig, Player self) {
