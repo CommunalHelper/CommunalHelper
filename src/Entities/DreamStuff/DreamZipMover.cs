@@ -7,6 +7,8 @@ using System.Collections;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/DreamZipMover")]
     public class DreamZipMover : CustomDreamBlock {
+        private const float impactSoundOffset = 0.92f;
+
         public class PathRenderer : Entity {
             private class Segment {
                 public bool Seen { get; set; }
@@ -69,10 +71,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Draw.Line(lineStartA, lineEndA, rope);
                     Draw.Line(lineStartB, lineEndB, rope);
 
-                    float shiftProgress = zipMover.Percent * eightPi;
+                    float shiftProgress = zipMover.percent * eightPi;
                     for (float d = shiftProgress % 4f; d < length; d += 4f) {
-                        Vector2 teethA = lineStartA + perp + dir * d;
-                        Vector2 teethB = lineEndB - dir * d;
+                        Vector2 pos = dir * d;
+                        Vector2 teethA = lineStartA + perp + pos;
+                        Vector2 teethB = lineEndB - pos;
 
                         Color color = zipMover.dreamAesthetic ?
                                         (zipMover.PlayerHasDreamDash ?
@@ -92,8 +95,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Draw.Line(lineStartB + Vector2.UnitY, endB, Color.Black);
 
                     for (float d = 4f - percent * eightPi % 4f; d < length; d += 4f) {
-                        Vector2 teethA = startA + perp + dir * d;
-                        Vector2 teethB = endB - dir * d;
+                        Vector2 pos = dir * d;
+                        Vector2 teethA = startA + perp + pos;
+                        Vector2 teethB = endB - pos;
                         Draw.Line(teethA, teethA + twodir, Color.Black);
                         Draw.Line(teethB, teethB - twodir, Color.Black);
                     }
@@ -177,13 +181,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 foreach (Segment seg in segments)
                     if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
-                        seg.RenderShadow(zipMover.Percent);
+                        seg.RenderShadow(zipMover.percent);
 
                 foreach (Segment seg in segments)
                     if (seg.Seen)
                         seg.Render(zipMover, color);
 
-                float rotation = zipMover.Percent * MathHelper.TwoPi;
+                float rotation = zipMover.percent * MathHelper.TwoPi;
                 foreach (Vector2 node in nodes) {
                     zipMover.cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
                     if (zipMover.ColorLerp > 0f)
@@ -197,31 +201,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
         private PathRenderer pathRenderer;
 
-        private const float impactSoundOffset = 0.92f;
+        private readonly SoundSource sfx;
 
-        private Vector2 start;
+        private readonly Vector2[] nodes;
+        private readonly bool permanent;
+        private readonly bool waits;
+        private readonly bool ticking;
+        private readonly bool dreamAesthetic;
+        private readonly bool noReturn;
 
-        private SoundSource sfx;
-
-        private Vector2[] nodes;
-        private bool permanent;
-        private bool waits;
-        private bool ticking;
-        private bool dreamAesthetic;
-        private bool noReturn;
-        private MTexture cross;
-
+        private readonly MTexture cross;
         private MTexture cog;
 
         private static readonly Color ropeColor = Calc.HexToColor("663931");
         private static readonly Color ropeLightColor = Calc.HexToColor("9b6157");
         private static MTexture cogNormal, cogDream, cogDisabled, cogWhite;
 
-        public float Percent { get; set; }
+        private float percent;
 
         public DreamZipMover(EntityData data, Vector2 offset)
             : base(data, offset) {
-            start = Position;
             nodes = data.NodesWithPosition(offset);
 
             noReturn = data.Bool("noReturn");
@@ -259,61 +258,64 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Render() {
             Vector2 position = Position;
             Position += Shake;
+
             base.Render();
-            if (noReturn) {
+
+            if (noReturn)
                 cross.DrawCentered(Center + baseData.Get<Vector2>("shake"));
-            }
+
             Position = position;
         }
 
         private void ScrapeParticlesCheck(Vector2 to) {
+            const float threePiOverFour = 3f * MathHelper.Pi / 4f;
+            const float piOverFour = MathHelper.PiOver4;
+
             if (!Scene.OnInterval(0.03f))
                 return;
 
             bool movingV = to.Y != ExactPosition.Y;
             bool movingH = to.X != ExactPosition.X;
+
             if (movingV && !movingH) {
                 int dir = Math.Sign(to.Y - ExactPosition.Y);
                 Vector2 collisionPoint = (dir != 1) ? TopLeft : BottomLeft;
                 int particleOffset = 4;
-                if (dir == 1) {
+
+                if (dir == 1)
                     particleOffset = Math.Min((int) Height - 12, 20);
-                }
+
                 int particleHeight = (int) Height;
-                if (dir == -1) {
+                if (dir == -1)
                     particleHeight = Math.Max(16, (int) Height - 16);
-                }
-                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(-2f, dir * -2))) {
-                    for (int i = particleOffset; i < particleHeight; i += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(0f, i + dir * 2f), (dir == 1) ? (-(float) Math.PI / 4f) : ((float) Math.PI / 4f));
-                    }
-                }
-                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(Width + 2f, dir * -2))) {
-                    for (int i = particleOffset; i < particleHeight; i += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopRight + new Vector2(-1f, i + dir * 2f), (dir == 1) ? ((float) Math.PI * -3f / 4f) : ((float) Math.PI * 3f / 4f));
-                    }
-                }
+
+                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(-2f, dir * -2)))
+                    for (int i = particleOffset; i < particleHeight; i += 8)
+                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(0f, i + dir * 2f), (dir == 1) ? -piOverFour : piOverFour);
+
+                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(Width + 2f, dir * -2)))
+                    for (int i = particleOffset; i < particleHeight; i += 8)
+                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopRight + new Vector2(-1f, i + dir * 2f), (dir == 1) ? -threePiOverFour : threePiOverFour);
+
             } else if (movingH && !movingV) {
                 int dir = Math.Sign(to.X - ExactPosition.X);
                 Vector2 collisionPoint = (dir != 1) ? TopLeft : TopRight;
                 int particleOffset = 4;
-                if (dir == 1) {
+
+                if (dir == 1)
                     particleOffset = Math.Min((int) Width - 12, 20);
-                }
+
                 int particleWidth = (int) Width;
-                if (dir == -1) {
+                if (dir == -1)
                     particleWidth = Math.Max(16, (int) Width - 16);
-                }
-                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(dir * -2, -2f))) {
-                    for (int i = particleOffset; i < particleWidth; i += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(i + dir * 2f, -1f), (dir == 1) ? ((float) Math.PI * 3f / 4f) : ((float) Math.PI / 4f));
-                    }
-                }
-                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(dir * -2, Height + 2f))) {
-                    for (int i = particleOffset; i < particleWidth; i += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, BottomLeft + new Vector2(i + dir * 2f, 0f), (dir == 1) ? ((float) Math.PI * -3f / 4f) : (-(float) Math.PI / 4f));
-                    }
-                }
+
+                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(dir * -2, -2f)))
+                    for (int i = particleOffset; i < particleWidth; i += 8)
+                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(i + dir * 2f, -1f), (dir == 1) ? threePiOverFour : piOverFour);
+
+                if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(dir * -2, Height + 2f)))
+                    for (int i = particleOffset; i < particleWidth; i += 8)
+                        SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, BottomLeft + new Vector2(i + dir * 2f, 0f), (dir == 1) ? -threePiOverFour : -piOverFour);
             }
         }
 
@@ -327,7 +329,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Vector2 from = nodes[0];
                 Vector2 to;
-                float at2;
+                float at;
 
                 // Player is riding.
                 bool shouldCancel = false;
@@ -342,31 +344,30 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     yield return 0.1f;
 
                     // Start moving towards the target.
-                    //streetlight.SetAnimationFrame(3);
                     StopPlayerRunIntoAnimation = false;
-                    at2 = 0f;
+                    at = 0f;
                     bool playedFinishSound = false;
-                    while (at2 < 1f) {
+                    while (at < 1f) {
                         yield return null;
-                        at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
-                        if (at2 > impactSoundOffset && !playedFinishSound) {
+                        at = Calc.Approach(at, 1f, 2f * Engine.DeltaTime);
+                        if (at > impactSoundOffset && !playedFinishSound) {
                             Audio.Play(CustomSFX.game_dreamZipMover_impact, Center);
                             playedFinishSound = true;
                         }
-                        Percent = Ease.SineIn(at2);
-                        Vector2 vector = Vector2.Lerp(from, to, Percent);
+                        percent = Ease.SineIn(at);
+                        Vector2 vector = Vector2.Lerp(from, to, percent);
                         ScrapeParticlesCheck(to);
-                        if (Scene.OnInterval(0.1f)) {
-                            //pathRenderer.CreateSparks();
-                        }
+
+                        if (Scene.OnInterval(0.1f))
+                            pathRenderer?.CreateSparks();
+
                         MoveTo(vector);
                     }
 
-                    bool last = (i == nodes.Length - 1);
+                    bool last = i == nodes.Length - 1;
 
                     // Arrived, will wait for 0.5 secs.
                     StartShaking(0.2f);
-                    //streetlight.SetAnimationFrame(((waits && !last) || (ticking && !last) || (permanent && last)) ? 1 : 2);
                     Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                     SceneAs<Level>().Shake();
                     StopPlayerRunIntoAnimation = true;
@@ -379,7 +380,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         int tickNum = 0;
                         while (!HasPlayerRider() && tickNum < 5) {
                             yield return null;
-                            //streetlight.SetAnimationFrame(1 - (int) Math.Round(tickTime));
 
                             tickTime = Calc.Approach(tickTime, 1f, Engine.DeltaTime);
                             if (tickTime >= 1.0f) {
@@ -395,68 +395,56 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             break;
                         }
                     } else if (waits && !last) {
-                        //streetlight.SetAnimationFrame(1);
-                        while (!HasPlayerRider()) {
+                        while (!HasPlayerRider())
                             yield return null;
-                        }
                     }
                 }
 
                 if (!permanent) {
-
                     if (noReturn) {
-                        ReverseNodes(/*out Vector2 newStart*/);
-                        //start = this.start = newStart;
+                        Array.Reverse(nodes);
                     } else {
-
                         for (i -= 2 - (shouldCancel ? 1 : 0); i >= 0; i--) {
                             to = nodes[i];
 
                             // Goes back to start with a speed that is four times slower.
                             StopPlayerRunIntoAnimation = false;
-                            //streetlight.SetAnimationFrame(2);
                             sfx.Play(CustomSFX.game_dreamZipMover_return);
-                            at2 = 0f;
+                            at = 0f;
                             bool playedFinishSound = false;
-                            while (at2 < 1f) {
+                            while (at < 1f) {
                                 yield return null;
-                                at2 = Calc.Approach(at2, 1f, 0.5f * Engine.DeltaTime);
-                                if (at2 > impactSoundOffset && !playedFinishSound) {
+                                at = Calc.Approach(at, 1f, 0.5f * Engine.DeltaTime);
+                                percent = 1f - Ease.SineIn(at);
+
+                                Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at));
+                                MoveTo(position);
+
+                                if (at > impactSoundOffset && !playedFinishSound) {
                                     playedFinishSound = true;
                                     Audio.Play(CustomSFX.game_dreamZipMover_finish, Center);
                                 }
-                                Percent = 1f - Ease.SineIn(at2);
-                                Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
-                                MoveTo(position);
                             }
-                            if (i != 0) {
+
+                            if (i != 0)
                                 from = nodes[i];
-                            }
 
                             StartShaking(0.2f);
                         }
                     }
                     StopPlayerRunIntoAnimation = true;
 
-                    // Done, will not actiavte for 0.5 secs.
-                    //streetlight.SetAnimationFrame(1);
+                    // Done, will not activate for 0.5 secs.
                     yield return 0.5f;
                 } else {
-
                     // Done, will never be activated again.
                     StartShaking(0.3f);
                     Audio.Play(CustomSFX.game_dreamZipMover_tick, Center);
                     SceneAs<Level>().Shake(0.15f);
-                    //streetlight.SetAnimationFrame(0);
-                    while (true) {
+                    while (true)
                         yield return null;
-                    }
                 }
             }
-        }
-
-        private void ReverseNodes() {
-            Array.Reverse(nodes);
         }
 
         protected override void OneUseDestroy() {

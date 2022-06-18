@@ -71,8 +71,9 @@ namespace Celeste.Mod.CommunalHelper {
                     Draw.Line(lineStartB, lineEndB, rope);
 
                     for (float d = 4f - percent * eightPi % 4f; d < length; d += 4f) {
-                        Vector2 teethA = lineStartA + perp + dir * d;
-                        Vector2 teethB = lineEndB - dir * d;
+                        Vector2 pos = dir * d;
+                        Vector2 teethA = lineStartA + perp + pos;
+                        Vector2 teethB = lineEndB - pos;
                         Draw.Line(teethA, teethA + twodir, lightRope);
                         Draw.Line(teethB, teethB - twodir, lightRope);
                     }
@@ -86,8 +87,9 @@ namespace Celeste.Mod.CommunalHelper {
                     Draw.Line(lineStartB + Vector2.UnitY, endB, Color.Black);
 
                     for (float d = 4f - percent * eightPi % 4f; d < length; d += 4f) {
-                        Vector2 teethA = startA + perp + dir * d;
-                        Vector2 teethB = endB - dir * d;
+                        Vector2 pos = dir * d;
+                        Vector2 teethA = startA + perp + pos;
+                        Vector2 teethB = endB - pos;
                         Draw.Line(teethA, teethA + twodir, Color.Black);
                         Draw.Line(teethB, teethB - twodir, Color.Black);
                     }
@@ -153,13 +155,13 @@ namespace Celeste.Mod.CommunalHelper {
 
                 foreach (Segment seg in segments)
                     if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
-                        seg.RenderShadow(zipMover.Percent);
+                        seg.RenderShadow(zipMover.percent);
 
                 foreach (Segment seg in segments)
                     if (seg.Seen)
-                        seg.Render(zipMover.Percent, color, lightColor);
+                        seg.Render(zipMover.percent, color, lightColor);
 
-                float rotation = zipMover.Percent * MathHelper.TwoPi;
+                float rotation = zipMover.percent * MathHelper.TwoPi;
                 foreach (Vector2 node in nodes) {
                     zipMover.cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
                     zipMover.cog.DrawCentered(node, Color.White, 1f, rotation);
@@ -168,33 +170,30 @@ namespace Celeste.Mod.CommunalHelper {
                 zipMover.DrawBorder();
             }
         }
-        private PathRenderer zipMoverPathRenderer;
+        private PathRenderer pathRenderer;
 
         public enum Themes {
             Normal,
             Moon,
             Cliffside
         }
-        public Themes theme;
+        public readonly Themes theme;
 
-        private MTexture[,] edges = new MTexture[3, 3];
-        private MTexture[,] innerCorners = new MTexture[2, 2];
-        private Sprite streetlight;
-        private List<MTexture> innerCogs;
-        private MTexture temp = new MTexture();
+        private readonly MTexture[,] edges = new MTexture[3, 3];
+        private readonly MTexture[,] innerCorners = new MTexture[2, 2];
+        private readonly Sprite streetlight;
+        private readonly List<MTexture> innerCogs;
+        private readonly MTexture temp = new MTexture();
 
         private readonly bool drawBlackBorder;
 
-        // Sounds
-        private SoundSource sfx;
+        private readonly SoundSource sfx;
+        private readonly BloomPoint bloom;
 
-        // Lightning.
-        private BloomPoint bloom;
-
-        private bool permanent;
-        private bool waits;
-        private bool ticking;
-        public Coroutine seq;
+        private readonly bool permanent;
+        private readonly bool waits;
+        private readonly bool ticking;
+        private readonly Coroutine seq;
 
         private string themePath;
         private Color backgroundColor;
@@ -205,7 +204,7 @@ namespace Celeste.Mod.CommunalHelper {
         private readonly Color ropeLightColor = Calc.HexToColor("9b6157");
         private readonly MTexture cog;
 
-        public float Percent { get; set; }
+        private float percent;
 
         public ConnectedZipMover(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Width, data.Height, data.NodesWithPosition(offset),
@@ -217,29 +216,23 @@ namespace Celeste.Mod.CommunalHelper {
                   data.Attr("colors").Trim(),
                   data.Attr("customBlockTexture").Trim()) { }
 
-        public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes themes, bool perm, bool waits, bool ticking, string customSkin, string colors, string legacyCustomTexture)
+        public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes theme, bool permanent, bool waits, bool ticking, string customSkin, string colors, string legacyCustomTexture)
             : base(position, width, height, safe: false) {
             Depth = Depths.FGTerrain + 1;
 
             this.nodes = nodes;
 
-            theme = themes;
-            permanent = perm;
+            this.theme = theme;
+            this.permanent = permanent;
             this.waits = waits;
             this.ticking = ticking;
 
-            seq = new Coroutine(Sequence());
-            Add(seq);
-
+            Add(seq = new Coroutine(Sequence()));
             Add(new LightOcclude());
-
-            string path;
-            string id;
-            string key;
-            string corners;
 
             SurfaceSoundIndex = SurfaceIndex.Girder;
 
+            string path, id, key, corners;
             if (!string.IsNullOrEmpty(customSkin)) {
                 path = customSkin + "/light";
                 id = customSkin + "/block";
@@ -248,10 +241,10 @@ namespace Celeste.Mod.CommunalHelper {
                 cog = GFX.Game[customSkin + "/cog"];
                 themePath = "normal";
                 backgroundColor = Color.Black;
-                if (theme == Themes.Moon)
+                if (this.theme == Themes.Moon)
                     themePath = "moon";
-            } else
-                switch (theme) {
+            } else {
+                switch (this.theme) {
                     default:
                     case Themes.Normal:
                         path = "objects/zipmover/light";
@@ -286,28 +279,27 @@ namespace Celeste.Mod.CommunalHelper {
                         backgroundColor = Calc.HexToColor("171018");
                         break;
                 }
+            }
+
             if (!string.IsNullOrEmpty(colors)) {
                 // Comma seperated list of colors
                 // First is background color, second is main rope color, third is light rope color
                 string[] colorList = colors.Split(',');
-                if (colorList.Length > 0) {
+                if (colorList.Length > 0)
                     backgroundColor = Calc.HexToColor(colorList[0]);
-                }
-                if (colorList.Length > 1) {
+                if (colorList.Length > 1)
                     ropeColor = Calc.HexToColor(colorList[1]);
-                }
-                if (colorList.Length > 2) {
+                if (colorList.Length > 2)
                     ropeLightColor = Calc.HexToColor(colorList[2]);
-                }
             }
 
             innerCogs = GFX.Game.GetAtlasSubtextures(key);
             streetlight = new Sprite(GFX.Game, path);
+            streetlight.Active = false;
+            streetlight.Position = new Vector2(Width / 2f - streetlight.Width / 2f, 0f);
             streetlight.Add("frames", "", 1f);
             streetlight.Play("frames");
-            streetlight.Active = false;
             streetlight.SetAnimationFrame(1);
-            streetlight.Position = new Vector2(Width / 2f - streetlight.Width / 2f, 0f);
             Add(bloom = new BloomPoint(1f, 6f) {
                 Position = new Vector2(Width / 2f, 4f)
             });
@@ -317,17 +309,13 @@ namespace Celeste.Mod.CommunalHelper {
                 edges = customTiles.Item1;
                 innerCorners = customTiles.Item2;
             } else {
-                for (int i = 0; i < 3; i++) {
-                    for (int j = 0; j < 3; j++) {
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
                         edges[i, j] = GFX.Game[id].GetSubtexture(i * 8, j * 8, 8, 8);
-                    }
-                }
 
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
+                for (int i = 0; i < 2; i++)
+                    for (int j = 0; j < 2; j++)
                         innerCorners[i, j] = GFX.Game[corners].GetSubtexture(i * 8, j * 8, 8, 8);
-                    }
-                }
             }
 
             Add(sfx = new SoundSource() {
@@ -345,13 +333,12 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Added(Scene scene) {
             base.Added(scene);
 
-            // Creating the Path Renderer.
-            scene.Add(zipMoverPathRenderer = new(this, nodes, ropeColor, ropeLightColor));
+            scene.Add(pathRenderer = new(this, nodes, ropeColor, ropeLightColor));
         }
 
         public override void Removed(Scene scene) {
-            scene.Remove(zipMoverPathRenderer);
-            zipMoverPathRenderer = null;
+            scene.Remove(pathRenderer);
+            pathRenderer = null;
             base.Removed(scene);
         }
 
@@ -370,16 +357,14 @@ namespace Celeste.Mod.CommunalHelper {
                 if (theme == Themes.Moon) {
                     Draw.Rect(extension.Left + 2f + X, extension.Top + Y, extension.Width - 4f, extension.Height, backgroundColor);
                     Draw.Rect(extension.Left + X, extension.Top + 2f + Y, extension.Width, extension.Height - 4f, backgroundColor);
-                    foreach (Image t in InnerCornerTiles) {
+                    foreach (Image t in InnerCornerTiles)
                         Draw.Rect(t.X + X, t.Y + Y, 8, 8, backgroundColor);
-                    }
-                } else {
+                } else
                     Draw.Rect(extension.Left + X, extension.Top + Y, extension.Width, extension.Height, backgroundColor);
-                }
             }
 
-            int num = 1;
-            float num2 = 0f;
+            int n = 1;
+            float rot = 0f;
             int count = innerCogs.Count;
 
             float w = GroupBoundsMax.X - GroupBoundsMin.X;
@@ -387,9 +372,9 @@ namespace Celeste.Mod.CommunalHelper {
             Vector2 offset = new Vector2(-8, -8) + GroupOffset;
 
             for (int i = 4; i <= h + 4; i += 8) {
-                int num3 = num;
+                int oldN = n;
                 for (int j = 4; j <= w + 4; j += 8) {
-                    int index = (int) (Util.Mod((num2 + num * Percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
+                    int index = (int) (Util.Mod((rot + n * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
                     MTexture mTexture = innerCogs[index];
                     Rectangle rectangle = new Rectangle(0, 0, mTexture.Width, mTexture.Height);
                     Vector2 zero = Vector2.Zero;
@@ -423,15 +408,16 @@ namespace Celeste.Mod.CommunalHelper {
                         }
 
                         mTexture = mTexture.GetSubtexture(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height, temp);
-                        mTexture.DrawCentered(Position + new Vector2(j, i) + zero + offset, Color.White * ((num < 0) ? 0.5f : 1f));
+                        mTexture.DrawCentered(Position + new Vector2(j, i) + zero + offset, Color.White * ((n < 0) ? 0.5f : 1f));
                     }
 
-                    num = -num;
-                    num2 += (float) Math.PI / 3f;
+                    n *= -1;
+                    rot += MathHelper.Pi / 3f;
                 }
-                if (num3 == num) {
-                    num = -num;
-                }
+
+                // Ensures the checkboard pattern for innercogs
+                if (oldN == n)
+                    n *= -1;
             }
 
             base.Render();
@@ -459,7 +445,7 @@ namespace Celeste.Mod.CommunalHelper {
 
                 Vector2 from = nodes[0];
                 Vector2 to;
-                float at2;
+                float at;
 
                 // Player is riding.
                 bool shouldCancel = false;
@@ -476,17 +462,15 @@ namespace Celeste.Mod.CommunalHelper {
                     // Start moving towards the target.
                     streetlight.SetAnimationFrame(3);
                     StopPlayerRunIntoAnimation = false;
-                    at2 = 0f;
-                    while (at2 < 1f) {
+                    at = 0f;
+                    while (at < 1f) {
                         yield return null;
-                        at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
-                        Percent = Ease.SineIn(at2);
-                        Vector2 vector = Vector2.Lerp(from, to, Percent);
+                        at = Calc.Approach(at, 1f, 2f * Engine.DeltaTime);
+                        percent = Ease.SineIn(at);
+                        Vector2 vector = Vector2.Lerp(from, to, percent);
 
-                        if (Scene.OnInterval(0.1f)) {
-                            //pathRenderer.CreateSparks();
-                            zipMoverPathRenderer.CreateSparks();                        
-                        }
+                        if (Scene.OnInterval(0.1f))
+                            pathRenderer.CreateSparks();
 
                         MoveTo(vector);
 
@@ -518,7 +502,7 @@ namespace Celeste.Mod.CommunalHelper {
                             tickTime = Calc.Approach(tickTime, 1f, Engine.DeltaTime);
                             if (tickTime >= 1.0f) {
                                 tickTime = 0.0f;
-                                tickNum++;
+                                ++tickNum;
                                 Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/tick", Center);
                                 StartShaking(0.1f);
                             }
@@ -530,9 +514,8 @@ namespace Celeste.Mod.CommunalHelper {
                         }
                     } else if (waits && !last) {
                         streetlight.SetAnimationFrame(1);
-                        while (!HasPlayerRider()) {
+                        while (!HasPlayerRider())
                             yield return null;
-                        }
                     }
                 }
 
@@ -544,17 +527,18 @@ namespace Celeste.Mod.CommunalHelper {
                         StopPlayerRunIntoAnimation = false;
                         streetlight.SetAnimationFrame(2);
                         sfx.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/return");
-                        at2 = 0f;
-                        while (at2 < 1f) {
+                        at = 0f;
+                        while (at < 1f) {
                             yield return null;
-                            at2 = Calc.Approach(at2, 1f, 0.5f * Engine.DeltaTime);
-                            Percent = 1f - Ease.SineIn(at2);
-                            Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at2));
+                            at = Calc.Approach(at, 1f, 0.5f * Engine.DeltaTime);
+                            percent = 1f - Ease.SineIn(at);
+
+                            Vector2 position = Vector2.Lerp(from, to, Ease.SineIn(at));
                             MoveTo(position);
                         }
-                        if (i != 0) {
+
+                        if (i != 0)
                             from = nodes[i];
-                        }
 
                         StartShaking(0.2f);
                         Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/finish", Center);
@@ -562,20 +546,18 @@ namespace Celeste.Mod.CommunalHelper {
 
                     StopPlayerRunIntoAnimation = true;
 
-                    // Done, will not actiavte for 0.5 secs.
+                    // Done, will not activate for 0.5 secs.
                     streetlight.SetAnimationFrame(1);
                     yield return 0.5f;
                 } else {
-
                     // Done, will never be activated again.
                     StartShaking(0.3f);
                     Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/finish", Center);
                     Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/tick", Center);
                     SceneAs<Level>().Shake(0.15f);
                     streetlight.SetAnimationFrame(0);
-                    while (true) {
+                    while (true)
                         yield return null;
-                    }
                 }
             }
         }
