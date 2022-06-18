@@ -296,10 +296,10 @@ namespace Celeste.Mod.CommunalHelper {
             innerCogs = GFX.Game.GetAtlasSubtextures(key);
             streetlight = new Sprite(GFX.Game, path);
             streetlight.Active = false;
-            streetlight.Position = new Vector2(Width / 2f - streetlight.Width / 2f, 0f);
             streetlight.Add("frames", "", 1f);
             streetlight.Play("frames");
             streetlight.SetAnimationFrame(1);
+            streetlight.Position = new Vector2(Width / 2f - streetlight.Width / 2f, 0f);
             Add(bloom = new BloomPoint(1f, 6f) {
                 Position = new Vector2(Width / 2f, 4f)
             });
