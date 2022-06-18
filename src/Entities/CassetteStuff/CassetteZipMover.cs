@@ -7,143 +7,6 @@ using System.Collections;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CassetteZipMover")]
     public class CassetteZipMover : CustomCassetteBlock {
-        //private class PathRenderer : Entity {
-        //    public CassetteZipMover zipMover;
-        //
-        //    private Color ropeColor = Calc.HexToColor("bfcfde");
-        //    private Color ropeLightColor = Calc.HexToColor("ffffff");
-        //    private Color ropeColorPressed = Calc.HexToColor("324e69");
-        //    private Color ropeLightColorPressed = Calc.HexToColor("667da5");
-        //    private Color undersideColor;
-        //
-        //    private MTexture cog;
-        //    private MTexture cogPressed;
-        //    private MTexture cogWhite;
-        //    private Vector2 from;
-        //    private Vector2 to;
-        //
-        //    private ParticleType sparkParticle;
-        //    private ParticleType sparkParticlePressed;
-        //
-        //    public PathRenderer(CassetteZipMover zipMover) {
-        //        Depth = Depths.BGDecals;
-        //        this.zipMover = zipMover;
-        //
-        //        cog = GFX.Game["objects/CommunalHelper/cassetteZipMover/cog"];
-        //        cogPressed = GFX.Game["objects/CommunalHelper/cassetteZipMover/cogPressed"];
-        //        cogWhite = GFX.Game["objects/CommunalHelper/cassetteZipMover/cogWhite"];
-        //
-        //        ropeColor = ropeColor.Mult(zipMover.color);
-        //        ropeLightColor = ropeLightColor.Mult(zipMover.color);
-        //        ropeColorPressed = ropeColorPressed.Mult(zipMover.color);
-        //        ropeLightColorPressed = ropeLightColorPressed.Mult(zipMover.color);
-        //        undersideColor = ropeColorPressed;
-        //
-        //        sparkParticle = new ParticleType(ZipMover.P_Sparks) { Color = ropeLightColor };
-        //        sparkParticlePressed = new ParticleType(ZipMover.P_Sparks) { Color = ropeLightColorPressed };
-        //    }
-        //
-        //    public void CreateSparks() {
-        //        ParticleType particle = zipMover.Collidable ? sparkParticle : sparkParticlePressed;
-        //        ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
-        //
-        //        // First Node
-        //        Vector2 node = GetNodeFrom(zipMover.start, true);
-        //        Vector2 next = GetNodeFrom(zipMover.nodes[1], true);
-        //
-        //        float angle = Calc.Angle(node, next);
-        //        float sparkDir = angle + Calc.QuarterCircle;
-        //        Vector2 sparkAdd = Calc.AngleToVector(sparkDir, 5f);
-        //
-        //        particlesBG.Emit(particle, node + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.EighthCircle);
-        //        particlesBG.Emit(particle, node - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.HalfCircle - Calc.EighthCircle);
-        //
-        //        // Mid Nodes
-        //        for (int i = 2; i < zipMover.nodes.Length; i++) {
-        //            node = next;
-        //            next = GetNodeFrom(zipMover.nodes[i], true);
-        //
-        //            // Half-way angle between previous and next nodes
-        //            float lastAngle = angle;
-        //            angle = Calc.Angle(node, next);
-        //            sparkDir = Calc.AngleLerp(lastAngle, angle, 0.5f) - Calc.QuarterCircle;
-        //            sparkAdd = Calc.AngleToVector(sparkDir, 5f);
-        //
-        //            particlesBG.Emit(particle, node + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir);
-        //            particlesBG.Emit(particle, node - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.HalfCircle);
-        //        }
-        //
-        //        // Last Node
-        //        node = next;
-        //
-        //        sparkDir = angle - Calc.QuarterCircle;
-        //        sparkAdd = Calc.AngleToVector(sparkDir, 5f);
-        //
-        //        particlesBG.Emit(particle, node + sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.EighthCircle);
-        //        particlesBG.Emit(particle, node - sparkAdd + Calc.Random.Range(-Vector2.One, Vector2.One), sparkDir + Calc.HalfCircle - Calc.EighthCircle);
-        //    }
-        //
-        //    private Vector2 GetNodeFrom(Vector2 node, bool offsetBlockHeight = false) {
-        //        Vector2 ret = node + new Vector2(zipMover.Width / 2f, zipMover.Height / 2f);
-        //        if (offsetBlockHeight) {
-        //            ret += zipMover.blockOffset;
-        //        }
-        //        return ret;
-        //    }
-        //
-        //    public override void Update() {
-        //        base.Update();
-        //        Depth = zipMover.Collidable ? Depths.BGDecals : Depths.BGDecals + 10;
-        //    }
-        //
-        //    public override void Render() {
-        //        int blockHeight = zipMover.blockHeight;
-        //        // Draw the "drop shadow" when active
-        //        if (blockHeight != 0) {
-        //            from = GetNodeFrom(zipMover.start);
-        //            for (int j = 1; j < zipMover.nodes.Length; j++) {
-        //                for (int i = 1; i <= blockHeight; ++i) {
-        //                    to = GetNodeFrom(zipMover.nodes[j]);
-        //                    DrawCogs(Vector2.UnitY * i, undersideColor);
-        //                    from = to;
-        //                }
-        //            }
-        //        }
-        //
-        //        from = GetNodeFrom(zipMover.start);
-        //        for (int j = 1; j < zipMover.nodes.Length; j++) {
-        //            to = GetNodeFrom(zipMover.nodes[j]);
-        //            DrawCogs(zipMover.blockOffset);
-        //            from = to;
-        //        }
-        //    }
-        //
-        //    private void DrawCogs(Vector2 offset, Color? colorOverride = null) {
-        //        bool pressed = !zipMover.Collidable;
-        //        Color blockColor = zipMover.color;
-        //        Vector2 vector = (to - from).SafeNormalize();
-        //        Vector2 value = vector.Perpendicular() * 3f;
-        //        Vector2 value2 = -vector.Perpendicular() * 4f;
-        //        float rotation = zipMover.percent * (float) Math.PI * 2f;
-        //
-        //        Color color = pressed ? ropeColorPressed : ropeColor;
-        //        Color lightColor = pressed ? ropeLightColorPressed : ropeLightColor;
-        //        Draw.Line(from + value + offset, to + value + offset, colorOverride ?? color);
-        //        Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? color);
-        //        for (float num = 4f - zipMover.percent * (float) Math.PI * 8f % 4f; num < (to - from).Length(); num += 4f) {
-        //            Vector2 value3 = from + value + vector.Perpendicular() + vector * num;
-        //            Vector2 value4 = to + value2 - vector * num;
-        //            Draw.Line(value3 + offset, value3 + vector * 2f + offset, colorOverride ?? lightColor);
-        //            Draw.Line(value4 + offset, value4 - vector * 2f + offset, colorOverride ?? lightColor);
-        //        }
-        //        MTexture cogTex = colorOverride.HasValue ? cogWhite : pressed ? cogPressed : cog;
-        //        cogTex.DrawCentered(from + offset, colorOverride ?? blockColor, 1f, rotation);
-        //        cogTex.DrawCentered(to + offset, colorOverride ?? blockColor, 1f, rotation);
-        //    }
-        //}
-        //
-        //private PathRenderer pathRenderer;
-
         public class PathRenderer : Entity {
             private static Color baseRopeColor = Calc.HexToColor("bfcfde");
             private static Color baseRopeLightColor = Calc.HexToColor("ffffff");
@@ -311,12 +174,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                         seg.Render(zipMover.percent, zipMover.blockOffset, color, lightColor);
 
                 float rotation = zipMover.percent * MathHelper.TwoPi;
+                MTexture cogTex = on ? cog : cogPressed;
                 foreach (Vector2 node in nodes) {
                     for (int i = 1; i <= zipMover.blockHeight; ++i) {
                         Vector2 o = new(0, i + zipMover.blockOffset.Y);
-                        cog.DrawCentered(node + o, undersideColor, 1f, rotation);
+                        cogWhite.DrawCentered(node + o, undersideColor, 1f, rotation);
                     }
-                    cog.DrawCentered(node + zipMover.blockOffset, zipMover.color, 1f, rotation);
+                    cogTex.DrawCentered(node + zipMover.blockOffset, zipMover.color, 1f, rotation);
                 }
             }
         }
