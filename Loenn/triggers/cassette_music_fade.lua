@@ -1,11 +1,11 @@
-local directions = {"leftToRight", "topToBottom"}
+local loennEnums = require("consts.celeste_enums")
 
 return {
     name = "CommunalHelper/CassetteMusicFadeTrigger",
     fieldInformation = {
         direction = {
             editable = false,
-            options = directions
+            options = loennEnums.music_fade_trigger_directions
         }
     },
     placements = {
