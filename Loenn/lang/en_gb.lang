@@ -501,7 +501,7 @@ triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The da
 triggers.CommunalHelper/DashStateTrigger.attributes.description.mode=The changing mode. 'Trigger' changes the dash state when the player enters the trigger. 'OneUse' makes this trigger remove itself when used. 'Field' makes it change the dash state constantly while the player is inside. 
 
 # Music Param Trigger
-triggers.CommunalHelper/MusicParamTrigger.placements.name.trigger=Music Paramater
+triggers.CommunalHelper/MusicParamTrigger.placements.name.trigger=Music Parameter
 triggers.CommunalHelper/MusicParamTrigger.attributes.description.enterValue=The value to which the parameter(s) are set when the player is touching the trigger.
 triggers.CommunalHelper/MusicParamTrigger.attributes.description.exitValue=The value to which the parameter(s) are set when the player is outside the trigger.
 triggers.CommunalHelper/MusicParamTrigger.attributes.description.param=The name of the affected parameters. You can specify more than one parameter by separating them with a comma (,).
@@ -516,3 +516,10 @@ triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.oneUse=Allows 
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.flash=Whether the screen should flash and shake when triggered.
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)
+
+# Cassette Music Fade Trigger
+triggers.CommunalHelper/CassetteMusicFadeTrigger.placements.name.trigger=Cassette Music Fade
+triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.fadeA=Determines the parameter value at the start of the fade.
+triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.fadeB=Determines the parameter value at the end of the fade.
+triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.param=The name of the affected parameter. Uses "fade" if left blank.
+triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.direction=The direction the music fades in.
