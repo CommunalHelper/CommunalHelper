@@ -274,6 +274,11 @@ The current list of included mechanics:
         This trigger takes in an audio event name and plays it, but makes it only heard when the player is staying
         inside the trigger. This only works with looping events, as one shot events will not be looped.
     </li>
+    <li>
+        <b>Cassette Music Fade Trigger</b> -
+        Similarly to a classic Music Fade Trigger, this trigger controls a given parameter of the current cassette music.
+        It defaults to changing the "fade" parameter, which controls the volume of the cassette music.
+    </li>
 </ul>
 <br /><br />
 To use this helper as part of your map, put the text below into the <code>Dependencies:</code> section of your
@@ -281,6 +286,6 @@ everest.yaml:
 <br />
 <pre>
 - Name: CommunalHelper
-  Version: 1.11.7
+  Version: 1.12.0
 </pre>
 <br /><br />

@@ -1,3 +1,6 @@
+--1.12.0 (25/06/2022)--
+* Added Cassette Music Fade trigger.
+
 --1.11.7 (18/06/2022)--
 * Fixed wrong image width for custom Attached Wall Booster textures. 
 
