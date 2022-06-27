@@ -412,5 +412,5 @@ placements.triggers.CommunalHelper/SoundAreaTrigger.tooltips.event=The name of t
 # -- Cassette Music Fade Trigger --
 placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.fadeA=Determines the parameter value at the start of the fade.
 placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.fadeB=Determines the parameter value at the end of the fade.
-placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.param=The name of the affected parameter. Uses "fade" if left blank.
+placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.parameter=The name of the affected parameter. Uses "fade" if left blank.
 placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.direction=The direction the music fades in.

@@ -9,7 +9,7 @@ using ..Ahorn, Maple
     height::Integer=Maple.defaultTriggerHeight,
     fadeA::Number=0.0,
     fadeB::Number=1.0,
-    param::String="",
+    parameter::String="",
     direction::String="leftToRight"
 )
 
