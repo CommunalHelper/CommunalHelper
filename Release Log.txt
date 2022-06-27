@@ -1,3 +1,6 @@
+--1.12.1 (27/06/2022)--
+* Renamed Cassette Music Fade trigger 'param' option to 'parameter'.
+
 --1.12.0 (25/06/2022)--
 * Added Cassette Music Fade trigger.
 
