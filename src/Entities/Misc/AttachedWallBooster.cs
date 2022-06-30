@@ -179,7 +179,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
              * 
              * Wall booster boosts now work with moving blocks.
              */
-            if (timer > 0 && currentSpeed < 0 && data[Player_lastWallBooster] is AttachedWallBooster wb) {
+            if (timer > 0 && currentSpeed < 0 && data[Player_lastWallBooster] is AttachedWallBooster wb && wb.IceMode) {
                 if (player.LiftSpeed.Y >= 0 || !wb.legacyBoost)
                     player.LiftSpeed += Vector2.UnitY * Calc.Max(currentSpeed, -80f);
 
