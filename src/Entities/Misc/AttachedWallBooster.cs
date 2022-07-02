@@ -174,7 +174,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
              * Liftspeed doesn't take into account whatever previous liftspeed the actor had, it just replaces it.
              * When I was applying the liftspeed boost to the player, I wasn't checking if the player had already gotten it's wall booster boost,
              * which caused a double boost effect (indeed, -160px Y speed, instead of -80px).
-             * Checking that a player is jumping from an AttachedWallBooster, that its wallbooster speed is still active,
+             * Checking that a player is jumping from an AttachedWallBooster, that its wallbooster speed is still active, that it isn't an Ice Wall,
              * and MOST IMPORTANTLY that its Y liftspeed is positive or zero, is enough to know if we should apply an additional liftspeed Y boost.
              * 
              * Wall booster boosts now work with moving blocks.
