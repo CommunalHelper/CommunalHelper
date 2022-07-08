@@ -8,6 +8,7 @@ const directions = String["Up", "Left", "Right"]
 @mapdef Entity "CommunalHelper/SurfaceSoundPanel" Panel(
     x::Integer,
     y::Integer,
+    overrideAllowStaticMovers=false,
     soundIndex::Integer=11,
 )
 

@@ -28,7 +28,8 @@ for i, direction in ipairs(directions) do
             width = 8,
             height = 8,
             orientation = direction,
-            soundIndex = 11
+            overrideAllowStaticMovers = false
+            soundIndex = 11,
         }
     }
 end
