@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Sprites>
+
+    <BadAttachedWallBoosterTop path="objects/" start="hot">
+        <Loop id="hot" path="CommunalHelper/attachedWallBooster/fireTop" frames="0-7" delay="0.035"/>
+        <Anim id="ice" path="wallBooster/iceTop" frames="0*10" delay="0.08" goto="ice,ice,ice,ice,ice,iceShine"/>
+        <Anim id="iceShine" path="wallBooster/iceTop" frames="0-4" delay="0.08" goto="ice"/>
+    </BadAttachedWallBoosterTop>
+    
+    <BadAttachedWallBoosterBottom path="objects/" start="hot">
+        <Loop id="hot" path="CommunalHelper/attachedWallBooster/fireBottom" frames="0-7" delay="0.035"/>
+        <Anim id="ice" path="wallBooster/iceBottom" frames="0*10" delay="0.08" goto="ice,ice,ice,ice,ice,iceShine"/>
+        <Anim id="iceShine" path="wallBooster/iceBottom" frames="0-4" delay="0.08" goto="ice"/>
+    </BadAttachedWallBoosterBottom>
+
+</Sprites>

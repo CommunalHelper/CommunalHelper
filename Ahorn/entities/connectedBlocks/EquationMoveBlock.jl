@@ -17,6 +17,7 @@ using Ahorn.CommunalHelper
 	idleColor::String="474070",
     pressedColor::String="30b335",
     breakColor::String="cc2541",
+    ouline::Bool=true,
 )
 
 const placements = Ahorn.PlacementDict(

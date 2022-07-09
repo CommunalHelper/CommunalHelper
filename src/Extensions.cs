@@ -88,6 +88,23 @@ namespace Celeste.Mod.CommunalHelper {
             return list;
         }
 
+        public static MethodInfo GetMethod(this Type type, string name, BindingFlags bindingAttr, bool throwOnNull = false) {
+            var method = type.GetMethod(name, bindingAttr);
+            if (throwOnNull && method is null)
+                throw new NullReferenceException($"Could not find method {name} in type {type.FullName}");
+            return method;
+        }
+
+        public static MethodInfo GetMethod(this Type type, string name, Type[] types, bool throwOnNull = false) {
+            var method = type.GetMethod(name, types);
+            if (throwOnNull && method is null)
+                throw new NullReferenceException($"Could not find method {name}({string.Join<Type>(",", types)}) in type {type.FullName}.");
+            return method;
+        }
+
+        public static string GetFullName(this MethodInfo method)
+            => $"{method.DeclaringType}.{method.Name}";
+
         // Dream Tunnel Dash related extension methods located in DreamTunnelDash.cs
 
         internal static bool CelesteTASLoaded;
@@ -134,15 +151,13 @@ namespace Celeste.Mod.CommunalHelper {
             return CollabUtilsLoaded ? (Entity) m_FindFirst_MiniHeart.Invoke(list, new object[] { }) : null;
         }
 
+        public static bool SatisfiesDependency(EverestModuleMetadata meta, EverestModuleMetadata dependency) =>
+            meta.Name == dependency.Name && Everest.Loader.VersionSatisfiesDependency(meta.Version, dependency.Version);
+
         // Modified version of Everest.Loader.DependencyLoaded
         public static bool TryGetModule(EverestModuleMetadata meta, out EverestModule module) {
             foreach (EverestModule other in Everest.Modules) {
-                EverestModuleMetadata otherData = other.Metadata;
-                if (otherData.Name != meta.Name)
-                    continue;
-
-                Version version = otherData.Version;
-                if (Everest.Loader.VersionSatisfiesDependency(meta.Version, version)) {
+                if (SatisfiesDependency(meta, other.Metadata)) {
                     module = other;
                     return true;
                 }
@@ -178,7 +193,7 @@ namespace Celeste.Mod.CommunalHelper {
                 return true;
             return false;
         }
-
+        
         // Sort of the inverse of CollideCheckOutside
         public static bool CollideCheckOutsideInside(this Entity self, Entity other, Vector2 at) {
             if (Collide.Check(self, other))
@@ -382,6 +397,15 @@ namespace Celeste.Mod.CommunalHelper {
                     }
                 }
             }
+        }
+
+        public static Rectangle GetBounds(this Camera camera) {
+            int top = (int) camera.Top;
+            int bottom = (int) camera.Bottom;
+            int left = (int) camera.Left;
+            int right = (int) camera.Right;
+
+            return new(left, top, right - left, bottom - top);
         }
     }
 }

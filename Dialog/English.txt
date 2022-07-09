@@ -1,0 +1,2 @@
+communalhelper_failedloadingdeps=Failed loading optional dependencies.
+Send your log.txt to a CommunalHelper maintainer.

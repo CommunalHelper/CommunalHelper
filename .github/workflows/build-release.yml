@@ -31,11 +31,11 @@ jobs:
 
     - name: Run Pre-Build Script
       run: |
-        VERSION=${TAG_NAME:1}
-        [[ "$VERSION" =~ -.*$ ]] && PRERELEASE=true || PRERELEASE=false
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        export MOD_VERSION=${TAG_NAME#v}
+        [[ "$MOD_VERSION" =~ -.*$ ]] && PRERELEASE=true || PRERELEASE=false
+        echo "MOD_VERSION=$MOD_VERSION" >> $GITHUB_ENV
         echo "PRERELEASE=$PRERELEASE" >> $GITHUB_ENV
-        yq e -i '.[0].Version = strenv(VERSION)' everest.yaml
+        yq e -i '.[0].Version = strenv(MOD_VERSION)' everest.yaml
         awk '/$^/{exit} /--/{next} {print $0 >"changelog.current"}' Release\ Log.txt
 
     - name: Build with .NET Core
@@ -50,16 +50,16 @@ jobs:
         path: src/bin/Debug/net452
 
     - name: Create mod zip
-      run: zip -qq -r CommunalHelper.zip Ahorn/* Audio Graphics src/bin/Debug/net452 everest.yaml
+      run: zip -qq -r CommunalHelper.zip Ahorn/* Loenn Audio Dialog Graphics src/bin/Debug/net452 everest.yaml
 
     - name: Create Release
       id: release
       uses: softprops/action-gh-release@58fa4b7a8863f6beaf115a49196308842b8b0f06
       with:
-        name: CommunalHelper ${{ env.VERSION }}
+        name: CommunalHelper ${{ env.MOD_VERSION }}
         files: CommunalHelper.zip
         fail_on_unmatched_files: true
-        prerelease: ${{ env.PRERELEASE }}
+        prerelease: ${{ fromJSON(env.PRERELEASE) }}
 
     - name: Update release description
       env:
@@ -77,7 +77,7 @@ jobs:
             '{body: "\($body)\r\n\r\n[Install CommunalHelper.zip](https://0x0a.de/twoclick/?\($url))"}')"
 
     - name: Sync Wiki
-      if: ${{ env.PRERELEASE == false }}
+      if: ${{ !fromJSON(env.PRERELEASE) }}
       uses: SwiftDocOrg/github-wiki-publish-action@v1
       with:
         path: docs

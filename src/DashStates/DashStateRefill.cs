@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -11,106 +10,50 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 
-namespace Celeste.Mod.CommunalHelper.Entities {
-    [CustomEntity("CommunalHelper/DreamRefill")]
-    public class DreamRefill : Refill {
+namespace Celeste.Mod.CommunalHelper.DashStates {
+    public abstract class DashStateRefill : Refill {
 
-        public new static ParticleType[] P_Shatter;
-        private int shatterParticleIndex = 0;
-        public new static ParticleType[] P_Regen;
-        private int regenParticleIndex = 0;
-        public new static ParticleType[] P_Glow;
-        private int glowParticleIndex = 0;
-
-        public static void InitializeParticles() {
-
-            P_Shatter = new ParticleType[] { Refill.P_Shatter, null, null, null };
-            P_Regen = new ParticleType[] { Refill.P_Regen, null, null, null };
-            ;
-            P_Glow = new ParticleType[] { Refill.P_Glow, null, null, null };
-            ;
-            ParticleType[][] particles = new ParticleType[][] { P_Shatter, P_Regen, P_Glow };
-
-            for (int i = 0; i < 3; ++i) {
-                ParticleType particle = new ParticleType(particles[i][0]);
-                particle.ColorMode = ParticleType.ColorModes.Choose;
-
-                particles[i][0] = new ParticleType(particle) {
-                    Color = Calc.HexToColor("FFEF11"),
-                    Color2 = Calc.HexToColor("FF00D0")
-                };
-
-                particles[i][1] = new ParticleType(particle) {
-                    Color = Calc.HexToColor("08a310"),
-                    Color2 = Calc.HexToColor("5fcde4")
-                };
-
-                particles[i][2] = new ParticleType(particle) {
-                    Color = Calc.HexToColor("7fb25e"),
-                    Color2 = Calc.HexToColor("E0564C")
-                };
-
-                particles[i][3] = new ParticleType(particle) {
-                    Color = Calc.HexToColor("5b6ee1"),
-                    Color2 = Calc.HexToColor("CC3B3B")
-                };
-            }
-        }
-
-        private DynData<Refill> baseData;
+        protected string TouchSFX = CustomSFX.game_dreamRefill_dream_refill_touch;
+        protected string ReturnSFX = CustomSFX.game_dreamRefill_dream_refill_return;
 
         private float respawnTime;
 
-        public DreamRefill(EntityData data, Vector2 offset)
-            : base(data.Position + offset, false, data.Bool("oneUse")) {
-            baseData = new DynData<Refill>(this);
+        protected DynData<Refill> baseData;
 
-            Get<PlayerCollider>().OnCollide = OnPlayer;
+        protected DashStateRefill(EntityData data, Vector2 offset)
+            : base(data, offset) {
+            baseData = new DynData<Refill>(this);
 
             respawnTime = data.Float("respawnTime", 2.5f); // default is 2.5 sec.
 
-            Remove(baseData.Get<Sprite>("sprite"));
-            Sprite sprite = new Sprite(GFX.Game, "objects/CommunalHelper/dreamRefill/idle");
-            sprite.AddLoop("idle", "", 0.1f);
-            sprite.Play("idle");
-            sprite.CenterOrigin();
-            baseData["sprite"] = sprite;
-            Add(sprite);
+            Get<PlayerCollider>().OnCollide = OnPlayer;
 
-        }
-
-        private void EmitGlowParticles() {
-            baseData.Get<Level>("level").ParticlesFG.Emit(P_Glow[glowParticleIndex], 1, Position, Vector2.One * 5f);
-            ++glowParticleIndex;
-            glowParticleIndex %= 4;
-        }
-
-        private void EmitShatterParticles(float angle) {
-            for (int i = 0; i < 5; ++i) {
-                baseData.Get<Level>("level").ParticlesFG.Emit(P_Shatter[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle - (float) Math.PI / 2f);
-                ++shatterParticleIndex;
-                shatterParticleIndex %= 4;
+            if (TryCreateCustomSprite(out Sprite sprite)) {
+                Remove(baseData.Get<Sprite>("sprite"));
+                Add(sprite);
+                baseData["sprite"] = sprite;
             }
-            for (int i = 0; i < 5; ++i) {
-                baseData.Get<Level>("level").ParticlesFG.Emit(P_Shatter[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle + (float) Math.PI / 2f);
-                ++shatterParticleIndex;
-                shatterParticleIndex %= 4;
-            }
-        }
 
-        private void EmitRegenParticles() {
-            for (int i = 0; i < 16; ++i) {
-                baseData.Get<Level>("level").ParticlesFG.Emit(P_Regen[regenParticleIndex], 1, Position, Vector2.One * 2f);
-                ++regenParticleIndex;
-                regenParticleIndex %= 4;
+            if (TryCreateCustomOutline(out Sprite outline)) {
+                Remove(baseData.Get<Sprite>("outline"));
+                Add(outline);
+                baseData["outline"] = outline;
             }
+
+            if (TryCreateCustomFlash(out Sprite flash)) {
+                Remove(baseData.Get<Sprite>("flash"));
+                Add(flash);
+                baseData["flash"] = flash;
+            }
+
         }
 
         private void OnPlayer(Player player) {
-            if (player.RefillDash() || player.Stamina < 20f || !DreamTunnelDash.HasDreamTunnelDash) {
+            if (CanActivate(player)) {
+                player.RefillDash();
                 player.RefillStamina();
-                DreamTunnelDash.HasDreamTunnelDash = true;
-                Audio.Play(CustomSFX.game_dreamRefill_dream_refill_touch, Position);
+                Activated(player);
+                Audio.Play(TouchSFX, Position);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 Collidable = false;
                 Add(new Coroutine((IEnumerator) m_Refill_RefillRoutine.Invoke(this, new object[] { player })));
@@ -118,9 +61,45 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        protected abstract bool CanActivate(Player player);
+
+        protected abstract void Activated(Player player);
+
+        protected virtual bool TryCreateCustomSprite(out Sprite sprite) {
+            sprite = null;
+            return false;
+        }
+
+        protected virtual bool TryCreateCustomOutline(out Sprite sprite) {
+            sprite = null;
+            return false;
+        }
+
+        protected virtual bool TryCreateCustomFlash(out Sprite sprite) {
+            sprite = null;
+            return false;
+        }
+
+        protected virtual void EmitGlowParticles() {
+            Level level = baseData.Get<Level>("level");
+            level.ParticlesFG.Emit(baseData.Get<ParticleType>("p_glow"), 1, Position, Vector2.One * 5f);
+        }
+
+        protected virtual void EmitShatterParticles(float angle) {
+            Level level = baseData.Get<Level>("level");
+            ParticleType p_shatter = baseData.Get<ParticleType>("p_shatter");
+            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, angle - Calc.QuarterCircle);
+            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, angle + Calc.QuarterCircle);
+        }
+
+        protected virtual void EmitRegenParticles() {
+            Level level = baseData.Get<Level>("level");
+            level.ParticlesFG.Emit(baseData.Get<ParticleType>("p_regen"), 16, Position, Vector2.One * 2f);
+        }
+
         #region Hooks
 
-        private static TypeInfo t_DreamRefill = typeof(DreamRefill).GetTypeInfo();
+        private static TypeInfo t_DashStateRefill = typeof(DashStateRefill).GetTypeInfo();
         private static MethodInfo m_Refill_RefillRoutine = typeof(Refill).GetMethod("RefillRoutine", BindingFlags.NonPublic | BindingFlags.Instance);
         private static ILHook hook_Refill_RefillRoutine;
 
@@ -158,21 +137,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             */
             // But this works fine:
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Isinst, t_DreamRefill);
+            cursor.Emit(OpCodes.Isinst, t_DashStateRefill);
             cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
             cursor.Emit(OpCodes.Pop);
             cursor.Emit(OpCodes.Ldstr, CustomSFX.game_dreamRefill_dream_refill_return);
-
         }
 
-        private static void PatchRefillParticles(ILContext il, Action<DreamRefill> method) {
+        private static void PatchRefillParticles(ILContext il, Action<DashStateRefill> method) {
             ILCursor cursor = new ILCursor(il);
 
             cursor.GotoNext(instr => instr.Next.MatchLdfld<Refill>("level"));
 
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate<Func<Refill, bool>>(r => {
-                if (r is DreamRefill refill) {
+                if (r is DashStateRefill refill) {
                     method.Invoke(refill);
                     return true;
                 }
@@ -198,7 +176,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.Emit(OpCodes.Ldfld, f_player);
 
             cursor.EmitDelegate<Func<Refill, Player, bool>>((r, player) => {
-                if (r is DreamRefill refill) {
+                if (r is DashStateRefill refill) {
                     refill.EmitShatterParticles(player.Speed.Angle());
                     return true;
                 }

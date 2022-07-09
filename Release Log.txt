@@ -1,5 +1,51 @@
+--1.12.1 (27/06/2022)--
+* Renamed Cassette Music Fade trigger 'param' option to 'parameter'.
+
+--1.12.0 (25/06/2022)--
+* Added Cassette Music Fade trigger.
+
+--1.11.7 (18/06/2022)--
+* Fixed wrong image width for custom Attached Wall Booster textures. 
+
+--1.11.6 (18/06/2022)--
+* Added legacyBoost option to Attached Wall Boosters, ON by default.
+* Rewrote & optimized zip mover path rendering code.
+* Code cleanup & tweaks.
+
+--1.11.5 (12/06/2022)--
+* Fix Attached Wall Booster doubled Y liftspeed boost.
+
+--1.11.4 (11/06/2022)--
+* Change flag-controlled Connected Move Blocks activation from static movers.
+* Add single Renderer entities before LevelLoader.LoadingThread to avoid potential crashes.
+
+--1.11.3 (30/04/2022)--
+* Fix Connected Move Block types not responding to static movers trigerring.
+* Add outline option to Connected Move Block and Equation Move Block.
+
+--1.11.2 (04/04/2022)--
+* Fix 1.11.1 bugfix undesired side effects on vanilla Wall Boosters.
+
+--1.11.1 (03/04/2022)--
+* Fix Attached Wall Booster sound and behavior bugs.
+
+--1.11.0 (02/04/2022)--
+* Lönn support.
+* Fix various tooltips + missing tooltips.
+
+--1.10.0 (09/03/2022)--
+* Added Seeker Dash.
+* Added Dash State Trigger.
+* Added Frictionless Panel.
+* Added Dash Collision Panel.
+* Added Bouncy Panel.
+* Added Dream Tunnel featherMode preview.
+* Fix overrideAllowStaticMovers attribute on panels.
+* Properly detect late-loaded optional dependencies.
+* Added wiki for in-depth documentation.
+
 --1.9.8 (24/01/2022)--
-* Added TriggerAlways option to timed trigger spikes.
+* Added triggerAlways option to Timed Trigger Spikes.
 
 --1.9.7 (22/01/2022)--
 * Added Sound Area Trigger.
