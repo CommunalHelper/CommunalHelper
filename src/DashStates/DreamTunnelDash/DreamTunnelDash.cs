@@ -482,7 +482,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 solid ??= player.CollideFirst<Solid, DreamBlock>(player.Position + dir);
                 // Don't dash through if it has a dash collide action, unless it's a farewell floaty block
                 // or a DashBlock which is only breakable by a Kevin (canDash is false)
-                if (solid != null && (!CommunalHelperModule.Settings.DreamTunnelIgnoresCollidables 
+                if (solid != null && (!CommunalHelperModule.Settings.DreamTunnelIgnoreCollidables 
                     || solid.OnDashCollide == null 
                     || solid is FloatySpaceBlock 
                     || (solid is DashBlock b && !new DynData<DashBlock>(b).Get<bool>("canDash")))) {
