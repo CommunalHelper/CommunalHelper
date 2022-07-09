@@ -1,2 +1,6 @@
 communalhelper_failedloadingdeps=Failed loading optional dependencies.
 Send your log.txt to a CommunalHelper maintainer.
+
+SETTINGS_DREAMTUNNEL_ALWAYSACTIVE= Always Active Dream Tunnel
+SETTINGS_DREAMTUNNEL_FEATHERMODE= Dream Tunnel Feather Mode
+SETTINGS_DREAMTUNNEL_IGNORECOLLECTIBLES= Dream Tunnel Ignore Collectibles

@@ -407,5 +407,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             return new(left, top, right - left, bottom - top);
         }
+
+        public static TextMenuExt.OptionSubMenu Add(this TextMenuExt.OptionSubMenu menu, string label, params TextMenu.Item[] items)
+            => menu.Add(label, new List<TextMenu.Item>(items));
     }
 }

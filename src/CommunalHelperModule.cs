@@ -179,6 +179,13 @@ namespace Celeste.Mod.CommunalHelper {
             }
         }
 
+        internal static bool SavingSettings { get; private set; }
+        public override void SaveSettings() {
+            SavingSettings = true;
+            base.SaveSettings();
+            SavingSettings = false;
+        }
+
         private void RegisterOptionalDependencies() {
             failedLoadingDeps = false;
             optionalDepLoaders = new();
