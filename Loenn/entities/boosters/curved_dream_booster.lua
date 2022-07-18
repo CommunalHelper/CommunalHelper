@@ -111,10 +111,9 @@ local function getCurveSprites(entity)
                 local a = template.points[1 + i * 2]
                 local b = template.points[3 + i * 2]
                 local c = template.points[2 + i * 2]
+
                 local points = drawing.getSimpleCurve({a.x, a.y}, {b.x, b.y}, {c.x, c.y}, 24)
-                for _, line in ipairs(drawableLine.fromPoints(points):getDrawableSprite()) do
-                    table.insert(sprites, line)
-                end
+                table.insert(sprites, drawableLine.fromPoints(points))
 
                 table.insert(sprites, drawableLine.fromPoints({a.x, a.y, c.x + 0.5, c.y + 0.5}, controlLineColor))
                 table.insert(sprites, drawableLine.fromPoints({b.x, b.y, c.x + 0.5, c.y + 0.5}, controlLineColor))
@@ -125,10 +124,9 @@ local function getCurveSprites(entity)
                 local ca = template.points[2 + i * 3]
                 local cb = template.points[3 + i * 3]
                 local b = template.points[4 + i * 3]
+
                 local points = communalHelper.getCubicCurve({a.x, a.y}, {b.x, b.y}, {ca.x, ca.y}, {cb.x, cb.y}, 24)
-                for _, line in ipairs(drawableLine.fromPoints(points):getDrawableSprite()) do
-                    table.insert(sprites, line)
-                end
+                table.insert(sprites, drawableLine.fromPoints(points))
 
                 table.insert(sprites, drawableLine.fromPoints({a.x, a.y, ca.x + 0.5, ca.y + 0.5}, controlLineColor))
                 table.insert(sprites, drawableLine.fromPoints({b.x, b.y, cb.x + 0.5, cb.y + 0.5}, controlLineColor))
