@@ -419,8 +419,10 @@
     <recolorableStrawberryFruit path="collectables/CommunalHelper/recolorableBerry/fruit" start="idle">
         <Center />
 
-        <Loop id="idle" path="" delay=".1" frames="0-6,0-6,0-6,0-6,0-7" />
+        <Loop id="idle" path="" delay=".1" frames="0-6,0-6,0-6,0-6,0-6,14" />
         <Loop id="noFlash" path="" delay=".1" frames="0-6" />
+        <Loop id="idleBroken" path="" delay=".1" frames="7-13,7-13,7-13,7-13,7-13,14" />
+        <Loop id="noFlashBroken" path="" delay=".1" frames="7-13" />
         <Anim id="hidden" path="" delay=".1" frames="7" />
     </recolorableStrawberryFruit>
     

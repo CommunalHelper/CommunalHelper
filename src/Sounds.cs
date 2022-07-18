@@ -77,6 +77,9 @@ namespace Celeste.Mod.CommunalHelper {
 
         public const string game_dreamJellyfish_jelly_refill = "event:/CommunalHelperEvents/game/dreamJellyfish/jelly_refill";
         public const string game_dreamJellyfish_jelly_use = "event:/CommunalHelperEvents/game/dreamJellyfish/jelly_use";
+
+        public const string game_berries_redless_break = "event:/CommunalHelperEvents/game/berries/redless/break";
+        public const string game_berries_redless_warning = "event:/CommunalHelperEvents/game/berries/redless/warning";
     }
 
     public static class CustomBanks {
