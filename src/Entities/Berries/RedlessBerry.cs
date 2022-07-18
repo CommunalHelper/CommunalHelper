@@ -14,6 +14,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
 
         private readonly EntityID id;
 
+        private Vector2 start;
+
         private float safeLerp = 1f, safeLerpTarget = 1f;
         private float brokenLerp = 0f;
         private float shaking;
@@ -45,6 +47,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             });
 
             Add(sfx);
+
+            start = Position;
         }
 
         public override void Added(Scene scene) {
@@ -100,7 +104,19 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             Depth = Depths.Top;
         }
 
+        private void Reset() {
+            Depth = Depths.Pickups;
+            fruit.Play("idle", restart: true);
+            overlay.Play("idle", restart: true);
+            broken = false;
+            Collidable = true;
+            sfx.Play(CustomSFX.game_berries_redless_warning);
+        }
+
         private void Detach() {
+            if (collected)
+                return;
+
             fruit.Play("idleBroken", restart: true);
             fruit.SetAnimationFrame(35);
             overlay.Play("idle", restart: true);
@@ -116,6 +132,23 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             safeLerpTarget = brokenLerp = 1f;
             shaking = 1f;
             broken = true;
+
+            Alarm.Set(this, .45f, () => {
+                Vector2 difference = (start - Position).SafeNormalize();
+                float distance = Vector2.Distance(Position, start);
+                float scaleFactor = Calc.ClampedMap(distance, 16f, 120f, 16f, 96f);
+
+                Vector2 control = start + difference * 16f + difference.Perpendicular() * scaleFactor * Calc.Random.Choose(1, -1);
+                SimpleCurve curve = new SimpleCurve(Position, start, control);
+
+                Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.SineOut, MathHelper.Max(distance / 100f, .4f), start: true);
+                tween.OnUpdate = tween => {
+                    Position = curve.GetPoint(tween.Eased);
+                };
+                tween.OnComplete = _ => Reset();
+                Add(tween);
+            });
+
         }
 
         public void OnCollect() {
@@ -128,7 +161,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             Color safeColor = Color.Lerp(PulseColorA, PulseColorB, Calc.SineMap(Scene.TimeActive * 16f, 0f, 1f));
             Color warnColor = Color.Lerp(PulseColorA, WarnColor, Calc.SineMap(Scene.TimeActive * 60f, 0f, 1f));
             Color result = Color.Lerp(warnColor, safeColor, Ease.CubeOut(safeLerp));
-            if (broken) {
+            if (brokenLerp > 0f) {
                 Color brokenColor = Color.Lerp(BrokenColorA, BrokenColorB, Ease.CubeOut(Calc.SineMap(Scene.TimeActive * 12f, 0f, 1f)));
                 result = Color.Lerp(result, brokenColor, brokenLerp);
             }
