@@ -9,8 +9,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public Action<Vector2> OnDreamDash;
 
-        // This is actually unused in the base game, but exists in the normal DashListener, so it may as well be here.
-        public Action OnSet;
+        // This is actually unused in the base game, but exists in the normal DashListener
+        // Commented out here and written here for fun I guess.
+
+        // public Action OnSet;
 
         public DreamDashListener()
             : base(active: false, visible: false) {

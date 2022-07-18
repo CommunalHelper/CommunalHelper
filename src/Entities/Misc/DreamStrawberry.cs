@@ -20,7 +20,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
          * Hope someone finds this super niche excuse for an entity useful
          */
 
-        private MethodInfo OriginalOnDash;
+        // Original OnDash method from Celeste.Strawberry
+        private static readonly MethodInfo m_Strawberry_OnDash = typeof(Strawberry).GetMethod("OnDash", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
 
         public static Color[] DreamTrailColors = new Color[] {
             Calc.HexToColor("FFEF11"),
@@ -30,7 +31,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Calc.HexToColor("E0564C")
         };
 
-        public static DynamicData dreamStrawberrySpriteData;
+        public DynamicData dreamStrawberryData;
 
         public static int DreamTrailColorIndex = 0;
 
@@ -39,8 +40,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // I'd love to say I wrote this, but this is 100% stolen from SC2020 Source
             // Whoever wrote this piece of code so I do not have to, you're my bestie
 
-            // This is the original OnDash method
-            OriginalOnDash = typeof(Strawberry).GetMethod("OnDash", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
+            //OriginalOnDash = typeof(Strawberry).GetMethod("OnDash", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
 
             // Removes any default DashListeners from the strawberry as we do not want to use those
             foreach (Component comp in Components.ToArray()) {
@@ -54,7 +54,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 OnDreamDash = new Action<Vector2>(OnDreamBerryDash)
             });
 
-            dreamStrawberrySpriteData = DynamicData.For(this);
+            dreamStrawberryData = DynamicData.For/*e*/(this);
         }
 
         #region Bad Code
@@ -104,24 +104,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             // Creates and updates the dream trail
             if (Scene.OnInterval(0.1f))
-                CreateDreamTrail(this);
+                CreateDreamTrail();
         }
 
         // Calls the original OnDash from our DreamDashListener
         public void OnDreamBerryDash(Vector2 dir) {
-            OriginalOnDash.Invoke(this, new object[] { dir });
+            m_Strawberry_OnDash.Invoke(this, new object[] { dir });
         }
 
         // Code to create a trail for the berry to make it separate from normal berries
-        public static void CreateTrail(DreamStrawberry berry, Color color) {
-            Sprite berrySprite = dreamStrawberrySpriteData.Get<Sprite>("sprite");
+        public void CreateDreamTrail() {
+            Sprite berrySprite = dreamStrawberryData.Get<Sprite>("sprite");
             Vector2 scale = new Vector2(Math.Abs(berrySprite.Scale.X), berrySprite.Scale.Y);
-            TrailManager.Add(berry, scale, color);
-        }
-
-        // Actually creates the dream trail
-        public static void CreateDreamTrail(DreamStrawberry berry) {
-            CreateTrail(berry, DreamTrailColors[DreamTrailColorIndex]);
+            TrailManager.Add(this, scale, DreamTrailColors[DreamTrailColorIndex]);
             ++DreamTrailColorIndex;
             DreamTrailColorIndex %= 5;
         }
