@@ -54,7 +54,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 OnDreamDash = new Action<Vector2>(OnDreamBerryDash)
             });
 
-            dreamStrawberryData = DynamicData.For/*e*/(this);
+            dreamStrawberryData = DynamicData.For(this);
         }
 
         #region Bad Code
