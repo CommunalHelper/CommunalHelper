@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Monocle;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             AlphaDestinationBlend = Blend.Zero,
         };
 
+        private readonly Rectangle jellyBounds = DreamJellyfish.ParticleBounds;
+
         private float animTimer;
 
         public DreamJellyfishRenderer() {
@@ -28,7 +31,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
              * Okay, so this was the only way I could imagine doing this.
              * I was told that using a render target for masking stuff was a bit brutal, but I couldn't find another way.
              */
-            renderTarget = VirtualContent.CreateRenderTarget("communalhelper-dreamjellyfishrenderer", 48, 42);
+            renderTarget = VirtualContent.CreateRenderTarget("communalhelper-dreamjellyfishrenderer", 48, 60);
         }
 
         public void Track(DreamJellyfish jelly) {
@@ -64,8 +67,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Camera camera = SceneAs<Level>().Camera;
 
             foreach (DreamJellyfish jelly in jellies) {
-
-                Rectangle jellyBounds = jelly.ParticleBounds;
                 Vector2 pos = jelly.Position + new Vector2(jellyBounds.X, jellyBounds.Y);
 
                 float left = pos.X;
@@ -75,13 +76,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (right < camera.Left || left > camera.Right || bottom < camera.Top || top > camera.Bottom)
                     continue; // Skip jelly rendering if it's not on screen.
 
+                bool inverted = jelly.GetGravity() == GravityType.Inverted;
+
                 MTexture frame = jelly.Sprite.Texture;
+                Vector2 scale = jelly.Sprite.Scale;
+                float rotation = jelly.Sprite.Rotation;
+                int yOffset = 0;
+
+                if (inverted) {
+                    scale.Y *= -1f;
+                    rotation *= -1f;
+                    yOffset = 8;
+                }
 
                 // Outline
-                frame.DrawCentered(jelly.Position + new Vector2(0, -3), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
-                frame.DrawCentered(jelly.Position + new Vector2(0, -5), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
-                frame.DrawCentered(jelly.Position + new Vector2(-1, -4), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
-                frame.DrawCentered(jelly.Position + new Vector2(1, -4), Color.White, jelly.Sprite.Scale, jelly.Sprite.Rotation);
+                frame.DrawCentered(jelly.Position + new Vector2(0, yOffset - 3), Color.White, scale, rotation);
+                frame.DrawCentered(jelly.Position + new Vector2(0, yOffset - 5), Color.White, scale, rotation);
+                frame.DrawCentered(jelly.Position + new Vector2(-1, yOffset - 4), Color.White, scale, rotation);
+                frame.DrawCentered(jelly.Position + new Vector2(1, yOffset - 4), Color.White, scale, rotation);
 
                 GameplayRenderer.End();
                 // Here we start drawing on a virtual texture.
@@ -133,10 +145,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, alphaMaskBlendState, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, ColorGrade.Effect);
                 frame.DrawCentered(
-                    new Vector2(-1, 10) + new Vector2(jellyBounds.Width, jellyBounds.Height) / 2f,
+                    new Vector2(-1, 1) + new Vector2(jellyBounds.Width, jellyBounds.Height) / 2f,
                     Color.White,
-                    jelly.Sprite.Scale,
-                    jelly.Sprite.Rotation
+                    scale,
+                    rotation
                 );
                 Draw.SpriteBatch.End();
 
@@ -144,6 +156,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Engine.Graphics.GraphicsDevice.SetRenderTarget(GameplayBuffers.Gameplay);
                 GameplayRenderer.Begin();
                 // Draw Virtual Texture
+                pos.Y += yOffset;
                 Draw.SpriteBatch.Draw(renderTarget, pos, Color.White);
             }
         }
