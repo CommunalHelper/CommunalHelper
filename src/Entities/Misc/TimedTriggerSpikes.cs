@@ -199,10 +199,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             // GravityHelper listener to enable inverted ledge blocks & safe ground blockers
-            Add(GravityHelper.CreatePlayerGravityListener?.Invoke((_, value, _) => {
+            Component listener = GravityHelper.CreatePlayerGravityListener?.Invoke((_, value, _) => {
                 bool active = direction == Directions.Up ^ value == (int) GravityType.Inverted;
                 safeGroundBlocker.Blocking = ledgeBlocker.Blocking = active;
-            }));
+            });
+            if (listener is not null)
+                Add(listener);
 
             Add(new PlayerCollider(OnCollide));
             Add(new StaticMover {

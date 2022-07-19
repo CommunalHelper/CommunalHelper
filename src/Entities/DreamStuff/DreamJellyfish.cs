@@ -59,10 +59,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper)
             // So let's add a listener that does this for us.
-            Add(GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) => {
+            Component listener = GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) => {
                 bool inverted = value == (int) GravityType.Inverted;
                 dreamDashCollider.Collider.Position.Y = inverted ? 1 : -18; // a bit hacky
-            }));
+            });
+            if (listener is not null)
+                Add(listener);
         }
 
         public override void Awake(Scene scene) {
