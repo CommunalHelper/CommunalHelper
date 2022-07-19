@@ -41,4 +41,11 @@ namespace Celeste.Mod.CommunalHelper.Imports {
         public static Action<Action> ExecuteOverride;
         public static Func<IDisposable> WithOverride;
     }
+
+    public enum GravityType {
+        None = -1,
+        Normal = 0,
+        Inverted,
+        Toggle,
+    }
 }

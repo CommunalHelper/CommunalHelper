@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -271,30 +272,33 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (maxIndex >= 0 && minIndex < spikes.Length) {
                 minIndex = Math.Max(minIndex, 0);
                 maxIndex = Math.Min(maxIndex, spikes.Length - 1);
+
                 //attempt to breakout early if player dies
                 bool breakout = false;
                 for (int i = minIndex; i <= maxIndex; i++) {
+
+                    // we need to flip the vertical speed if the player is inverted, just for the check
+                    float ySpeed = player.Speed.Y;
+                    if (player.GetGravity() == GravityType.Inverted)
+                        ySpeed *= -1f;
+
                     //direction
                     switch (direction) {
                         case Directions.Up:
-                            if (player.Speed.Y >= 0f || (!spikes[i].Triggered && triggerAlways)) {
+                            if (ySpeed >= 0f || (!spikes[i].Triggered && triggerAlways))
                                 breakout = !spikes[i].OnPlayer(player, outwards);
-                            }
                             break;
                         case Directions.Down:
-                            if (player.Speed.Y <= 0f || (!spikes[i].Triggered && triggerAlways)) {
+                            if (ySpeed <= 0f || (!spikes[i].Triggered && triggerAlways))
                                 breakout = !spikes[i].OnPlayer(player, outwards);
-                            }
                             break;
                         case Directions.Left:
-                            if (player.Speed.X >= 0f || (!spikes[i].Triggered && triggerAlways)) {
+                            if (player.Speed.X >= 0f || (!spikes[i].Triggered && triggerAlways))
                                 breakout = !spikes[i].OnPlayer(player, outwards);
-                            }
                             break;
                         case Directions.Right:
-                            if (player.Speed.X <= 0f || (!spikes[i].Triggered && triggerAlways)) {
+                            if (player.Speed.X <= 0f || (!spikes[i].Triggered && triggerAlways))
                                 breakout = !spikes[i].OnPlayer(player, outwards);
-                            }
                             break;
                     }
                     if (breakout)
