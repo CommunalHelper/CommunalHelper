@@ -234,8 +234,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool UpSafeBlockCheck(Player player) {
             int dir = 8 * (int) player.Facing;
-            int left = (int) ((player.Left + dir - Left) / 4f);
-            int right = (int) ((player.Right + dir - Left) / 4f);
+            int left = (int) ((player.Left + dir - Left) / 8f);
+            int right = (int) ((player.Right + dir - Left) / 8f);
 
             if (right < 0 || left >= spikes.Length)
                 return false;
