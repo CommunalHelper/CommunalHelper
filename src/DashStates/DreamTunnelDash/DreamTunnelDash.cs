@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -539,6 +540,11 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 player.Loop(dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
             else
                 player.Loop(dreamSfxLoop, SFX.char_mad_dreamblock_travel);
+
+            // Allows DreamDashListener to also work from here, as this is basically a dream block, right?
+            foreach (DreamDashListener component in player.Scene.Tracker.GetComponents<DreamDashListener>()) {
+                component.OnDreamDash?.Invoke(player.DashDir);
+            }
         }
 
         private static void DreamTunnelDashEnd(this Player player) {

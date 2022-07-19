@@ -78,6 +78,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfishRenderer.Load();
 
             ChainedKevin.Load();
+
+            DreamDashListener.Load();
         }
 
         public override void Unload() {
@@ -120,6 +122,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfishRenderer.Unload();
 
             ChainedKevin.Unload();
+
+            DreamDashListener.Unload();
         }
 
         public override void Initialize() {
