@@ -2,6 +2,7 @@
 using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.ModInterop;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -78,6 +79,12 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfishRenderer.Load();
 
             ChainedKevin.Load();
+
+            #region Imports
+
+            typeof(Imports.GravityHelper).ModInterop();
+
+            #endregion
         }
 
         public override void Unload() {
