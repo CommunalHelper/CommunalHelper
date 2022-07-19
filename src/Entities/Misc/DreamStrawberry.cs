@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod;
 using MonoMod.Utils;
 using System;
 using System.Reflection;
@@ -36,12 +37,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static int DreamTrailColorIndex = 0;
 
         public DreamStrawberry(EntityData data, Vector2 offset, EntityID id) : base(FixData(data), offset, id) {
-
-            // I'd love to say I wrote this, but this is 100% stolen from SC2020 Source
-            // Whoever wrote this piece of code so I do not have to, you're my bestie
-
-            //OriginalOnDash = typeof(Strawberry).GetMethod("OnDash", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
-
             // Removes any default DashListeners from the strawberry as we do not want to use those
             foreach (Component comp in Components.ToArray()) {
                 if (comp is DashListener)

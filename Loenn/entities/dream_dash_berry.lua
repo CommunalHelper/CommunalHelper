@@ -1,7 +1,7 @@
 local dreamDashBerry = {}
 
 dreamDashBerry.name = "CommunalHelper/DreamStrawberry"
-dreamDashBerry.texture = "collectables/strawberry/wings01"
+dreamDashBerry.texture = "collectables/dreamberry/wings01"
 dreamDashBerry.depth = -100
 dreamDashBerry.fieldInformation = {
     order = {
