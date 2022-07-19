@@ -279,7 +279,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                     // we need to flip the vertical speed if the player is inverted, just for the check
                     float ySpeed = player.Speed.Y;
-                    if (player.GetGravity() == GravityType.Inverted)
+                    if (GravityHelper.IsPlayerInverted?.Invoke() ?? false)
                         ySpeed *= -1f;
 
                     //direction
