@@ -23,6 +23,8 @@ namespace Celeste.Mod.CommunalHelper {
         public static SpriteBank SpriteBank => Instance._SpriteBank;
         public SpriteBank _SpriteBank;
 
+        public static Atlas Cloudscape { get; private set; }
+
         private static Dictionary<EverestModuleMetadata, Action<EverestModule>> optionalDepLoaders;
         private static bool failedLoadingDeps;
 
@@ -124,6 +126,8 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Unload();
 
             DreamDashListener.Unload();
+
+            Cloudscape.Dispose();
         }
 
         public override void Initialize() {
@@ -170,6 +174,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfish.InitializeParticles();
 
             Chain.InitializeTextures();
+
+            Cloudscape = Extensions.LoadAtlasFromMod("CommunalHelper:/Graphics/Atlases/CommunalHelper/Cloudscape/atlas", Atlas.AtlasDataFormat.CrunchXml);
         }
 
         protected override void CreateModMenuSectionHeader(TextMenu menu, bool inGame, FMOD.Studio.EventInstance snapshot) {
