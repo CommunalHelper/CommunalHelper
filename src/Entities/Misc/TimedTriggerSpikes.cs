@@ -164,30 +164,47 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             this.rainbow = rainbow;
             this.triggerAlways = triggerAlways;
 
+            SafeGroundBlocker safeGroundBlocker = null;
+            LedgeBlocker ledgeBlocker = null;
+
             switch (direction) {
                 case Directions.Up:
                     outwards = new Vector2(0f, -1f);
                     Collider = new Hitbox(size, 3f, 0f, -3f);
-                    Add(new SafeGroundBlocker());
-                    Add(new LedgeBlocker(UpSafeBlockCheck));
+                    Add(safeGroundBlocker = new SafeGroundBlocker());
+                    Add(ledgeBlocker = new LedgeBlocker(UpSafeBlockCheck));
                     break;
+
                 case Directions.Down:
                     outwards = new Vector2(0f, 1f);
                     Collider = new Hitbox(size, 3f);
+                    // note: we set Blocking = false, set to true only using GravityHelper
+                    Add(safeGroundBlocker = new SafeGroundBlocker() { Blocking = false });
+                    Add(ledgeBlocker = new LedgeBlocker(UpSafeBlockCheck) { Blocking = false });
                     break;
+
                 case Directions.Left:
                     outwards = new Vector2(-1f, 0f);
                     Collider = new Hitbox(3f, size, -3f);
-                    Add(new SafeGroundBlocker());
-                    Add(new LedgeBlocker(SideSafeBlockCheck));
+                    Add(safeGroundBlocker = new SafeGroundBlocker());
+                    Add(ledgeBlocker = new LedgeBlocker(SideSafeBlockCheck));
                     break;
+
                 case Directions.Right:
                     outwards = new Vector2(1f, 0f);
                     Collider = new Hitbox(3f, size);
-                    Add(new SafeGroundBlocker());
-                    Add(new LedgeBlocker(SideSafeBlockCheck));
+                    Add(safeGroundBlocker = new SafeGroundBlocker());
+                    Add(ledgeBlocker = new LedgeBlocker(SideSafeBlockCheck));
                     break;
             }
+
+            // GravityHelper listener to enable inverted ledge blocks & safe ground blockers
+            Add(GravityHelper.CreatePlayerGravityListener((_, value, _) => {
+                Console.WriteLine(direction  + " " + (GravityType) value);
+                bool active = direction == Directions.Up ^ value == (int) GravityType.Inverted;
+                Console.WriteLine(active);
+                safeGroundBlocker.Blocking = ledgeBlocker.Blocking = active;
+            }));
 
             Add(new PlayerCollider(OnCollide));
             Add(new StaticMover {
