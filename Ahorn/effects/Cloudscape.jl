@@ -17,6 +17,15 @@ using ..Ahorn, Maple
     lightningMinDuration::Number=0.5,
     lightningMaxDuration::Number=1.0,
     lightningIntensity::Number=0.4,
+    offsetX::Number=0.0,
+    offsetY::Number=0.0,
+    parallaxX::Number=0.05,
+    parallaxY::Number=0.05,
+    innerDensity::Number=1.0,
+    outerDensity::Number=1.0,
+    innerRotation::Number=0.002,
+    outerRotation::Number=0.2,
+    rotationExponent::Number=2.0
 )
 
 placements = Cloudscape

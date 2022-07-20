@@ -10,10 +10,10 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
     public class Cloudscape : Backdrop {
         public const string ID = "CommunalHelper/Cloudscape";
 
-        private static MTexture[] cloudTextures;
-
         private const int LEVEL_OF_DETAIL = 16;
         private const int STRIPE_SIZE = sizeof(float) * 5 + sizeof(byte) * 4;
+
+        private static MTexture[] cloudTextures;
 
         private class WarpedCloud {
             private readonly Cloudscape backdrop;
@@ -73,15 +73,18 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
         }
 
         private class Ring {
-            public readonly Mesh<VertexPositionColorTexture> Mesh = new(GFX.FxTexture);
+            public readonly Mesh<VertexPositionColorTexture> Mesh;
 
             private float rotation;
-            public float RotationalVelocity;
+            private readonly float rotationSpeed;
 
             private Matrix matrix;
 
-            public Ring(Cloudscape backdrop, float radius, Color color, List<WarpedCloud> clouds) {
+            public Ring(Cloudscape backdrop, float radius, Color color, List<WarpedCloud> clouds, float speed, float density) {
                 rotation = Calc.Random.NextFloat(MathHelper.TwoPi);
+                rotationSpeed = speed;
+
+                Mesh = new(GFX.FxTexture);
 
                 float angle = 0f;
                 while (angle < MathHelper.TwoPi) {
@@ -108,14 +111,14 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
                         }
                     }
 
-                    angle += centralAngle;
+                    angle += centralAngle / density;
                 }
 
                 Mesh.Bake();
             }
 
             public void Update(Matrix translation) {
-                rotation += RotationalVelocity * Engine.DeltaTime;
+                rotation += rotationSpeed * Engine.DeltaTime;
                 matrix = Matrix.CreateRotationZ(rotation) * translation;
             }
 
@@ -131,6 +134,8 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
 
         private VirtualRenderTarget buffer;
         private Matrix matrix;
+
+        private readonly Vector2 offset, parallax;
 
         public bool Lightning;
         private readonly float lightningMinDelay, lightningMaxDelay;
@@ -153,7 +158,13 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             MathHelper.Max(0, child.AttrFloat("lightningMaxDelay", 40.0f)),
             MathHelper.Max(0, child.AttrFloat("lightningMinDuration", 0.5f)),
             MathHelper.Max(0, child.AttrFloat("lightningMaxDuration", 1.0f)),
-            MathHelper.Clamp(child.AttrFloat("lightningIntensity", 0.5f), 0f, 1f)
+            MathHelper.Clamp(child.AttrFloat("lightningIntensity", 0.5f), 0f, 1f),
+            child.AttrFloat("offsetX"), child.AttrFloat("offsetY"),
+            child.AttrFloat("parallaxX", 0.05f), child.AttrFloat("parallaxY", 0.05f),
+            MathHelper.Clamp(child.AttrFloat("innerDensity", 1f), 0f, 2f),
+            MathHelper.Clamp(child.AttrFloat("outerDensity", 1f), 0f, 2f),
+            child.AttrFloat("innerRotation", 0.002f), child.AttrFloat("outerRotation", 0.2f),
+            MathHelper.Max(child.AttrFloat("rotationExponent", 2f), 1f)
         ) { }
 
         public Cloudscape(
@@ -166,9 +177,17 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
                 Color lightningFlashColor,
                 float lightningMinDelay, float lightningMaxDelay,
                 float lightningMinDuration, float lightningMaxDuration,
-                float lightningIntensity
+                float lightningIntensity,
+                float offsetX, float offsetY,
+                float parallaxX, float parallaxY,
+                float innerDensity, float outerDensity,
+                float innerRotation, float outerRotation,
+                float rotationExponent
             ) : base() {
             this.sky = sky;
+
+            offset = new(offsetX, offsetY);
+            parallax = new(parallaxX, parallaxY);
 
             Lightning = lightning;
             this.lightningMinDelay = lightningMinDelay;
@@ -181,7 +200,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
 
             Calc.PushRandom(seed.GetHashCode());
 
-            rings = new Ring[count];
+            List<Ring> rings = new();
             List<WarpedCloud> clouds = new();
 
             int vertexCount = 0, triangleCount = 0;
@@ -189,24 +208,31 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             float a = MathHelper.Min(innerRadius, outerRadius);
             float b = MathHelper.Max(innerRadius, outerRadius);
             float d = b - a;
+            float dRotation = outerRotation - innerRotation;
             for (int i = 0; i < count; i++) {
                 float percent = (float) i / count;
-                Color color = Util.ColorArrayLerp(percent * (colors.Length - 1), colors);
 
+                Color color = Util.ColorArrayLerp(percent * (colors.Length - 1), colors);
                 float radius = a + d * percent;
-                Ring ring = new(this, radius, color, clouds);
-                ring.RotationalVelocity = (float) Math.Pow(radius * 0.001f, 2f);
+                float speed = dRotation * (float) Math.Pow(percent, rotationExponent) + innerRotation;
+                float density = MathHelper.Lerp(innerDensity, outerDensity, percent);
+
+                if (density == 0)
+                    continue;
+
+                Ring ring = new(this, radius, color, clouds, speed, density);
 
                 vertexCount += ring.Mesh.VertexCount;
                 triangleCount += ring.Mesh.Triangles;
 
-                rings[i] = ring;
+                rings.Add(ring);
             }
 
+            this.rings = rings.ToArray();
             this.clouds = clouds.ToArray();
 
             float bytes = STRIPE_SIZE * vertexCount;
-            Util.Log(LogLevel.Info, $"Cloudscape mesh baked:");
+            Util.Log(LogLevel.Info, $"Cloudscape meshes baked:");
             Util.Log(LogLevel.Info, $"  * {vertexCount} vertices and {triangleCount} triangles ({triangleCount * 3} indices)");
             Util.Log(LogLevel.Info, $"  * Size of {bytes * 1e-3} kB = {bytes * 1e-6} MB ({bytes}o)");
 
@@ -217,8 +243,8 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             base.Update(scene);
 
             if (Visible) {
-                Vector2 parallax = -(scene as Level).Camera.Position * 0.05f;
-                matrix = Matrix.CreateTranslation(parallax.X, parallax.Y, 0);
+                Vector2 pos = offset - (scene as Level).Camera.Position * parallax;
+                matrix = Matrix.CreateTranslation(pos.X, pos.Y, 0);
 
                 foreach (Ring ring in rings)
                     ring.Update(matrix);
