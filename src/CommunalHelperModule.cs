@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.DashStates;
+﻿using Celeste.Mod.CommunalHelper.Backdrops;
+using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -23,7 +24,7 @@ namespace Celeste.Mod.CommunalHelper {
         public static SpriteBank SpriteBank => Instance._SpriteBank;
         public SpriteBank _SpriteBank;
 
-        public static Atlas Cloudscape { get; private set; }
+        public static Atlas CloudscapeAtlas { get; private set; }
 
         private static Dictionary<EverestModuleMetadata, Action<EverestModule>> optionalDepLoaders;
         private static bool failedLoadingDeps;
@@ -38,6 +39,7 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Load() {
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand += CustomBirdTutorial_OnParseCommand;
+            Everest.Events.Level.OnLoadBackdrop += Level_OnLoadBackdrop;
 
             RegisterOptionalDependencies();
             Everest.Events.Everest.OnRegisterModule += OnRegisterModule;
@@ -87,6 +89,7 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Unload() {
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand -= CustomBirdTutorial_OnParseCommand;
+            Everest.Events.Level.OnLoadBackdrop -= Level_OnLoadBackdrop;
 
             Everest.Events.Everest.OnRegisterModule -= OnRegisterModule;
 
@@ -127,7 +130,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamDashListener.Unload();
 
-            Cloudscape.Dispose();
+            CloudscapeAtlas.Dispose();
         }
 
         public override void Initialize() {
@@ -145,6 +148,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void LoadContent(bool firstLoad) {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
+
+            CloudscapeAtlas = Extensions.LoadAtlasFromMod("CommunalHelper:/Graphics/Atlases/CommunalHelper/Cloudscape/atlas", Atlas.AtlasDataFormat.CrunchXml);
 
             StationBlock.InitializeParticles();
             StationBlockTrack.InitializeTextures();
@@ -175,7 +180,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             Chain.InitializeTextures();
 
-            Cloudscape = Extensions.LoadAtlasFromMod("CommunalHelper:/Graphics/Atlases/CommunalHelper/Cloudscape/atlas", Atlas.AtlasDataFormat.CrunchXml);
+            Cloudscape.InitializeTextures();
         }
 
         protected override void CreateModMenuSectionHeader(TextMenu menu, bool inGame, FMOD.Studio.EventInstance snapshot) {
@@ -302,6 +307,17 @@ namespace Celeste.Mod.CommunalHelper {
 
             if (command == "CommunalHelperActivateFlagControllerBinding")
                 return Settings.ActivateFlagController.Button;
+
+            return null;
+        }
+
+        // Loading custom backdrops
+        // When the [CustomBackdrop] attributes becomes available to use in Everest, this will be removed.
+        private static Backdrop Level_OnLoadBackdrop(MapData map, BinaryPacker.Element child, BinaryPacker.Element above) {
+            string name = child.Name;
+
+            if (name.Equals(Cloudscape.ID, StringComparison.OrdinalIgnoreCase))
+                return new Cloudscape(child);
 
             return null;
         }

@@ -9,7 +9,7 @@ namespace Celeste.Mod.CommunalHelper.Utils {
     /// Was originally written for another mod.
     /// </summary>
     /// <typeparam name="T">The <see cref="IVertexType"/> used in this mesh.</typeparam>
-    public abstract class Mesh<T> : IDisposable where T : struct, IVertexType {
+    public class Mesh<T> : IDisposable where T : struct, IVertexType {
         private List<T> _vertices = new();
         private List<int> _indices = new();
 
