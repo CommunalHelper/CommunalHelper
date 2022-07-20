@@ -122,13 +122,10 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             public void Render() {
                 Mesh.Celeste_DrawVertices(matrix);
             }
-
-            public void DisposeMesh()
-                => Mesh.Dispose();
         }
 
         private readonly Ring[] rings;
-        private readonly List<WarpedCloud> clouds = new();
+        private readonly WarpedCloud[] clouds;
 
         private readonly Color sky;
 
@@ -185,6 +182,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             Calc.PushRandom(seed.GetHashCode());
 
             rings = new Ring[count];
+            List<WarpedCloud> clouds = new();
 
             int vertexCount = 0, triangleCount = 0;
 
@@ -204,6 +202,8 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
 
                 rings[i] = ring;
             }
+
+            this.clouds = clouds.ToArray();
 
             float bytes = STRIPE_SIZE * vertexCount;
             Util.Log(LogLevel.Info, $"Cloudscape mesh baked:");
@@ -260,7 +260,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
 
             if (rings != null)
                 foreach (Ring ring in rings)
-                    ring.DisposeMesh();
+                    ring.Mesh.Dispose();
         }
 
         internal static void InitializeTextures() {
