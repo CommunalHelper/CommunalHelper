@@ -6,11 +6,11 @@ using System.Reflection;
 namespace Celeste.Mod.CommunalHelper {
     // This class was moved from CommunalHelperModule, so let's keep the same namespace.
     public static class Util {
-        public static void Log(LogLevel logLevel, string str) {
-            Logger.Log("Communal Helper", str);
-        }
+        public static void Log(LogLevel logLevel, string str)
+            => Logger.Log(logLevel, "Communal Helper", str);
 
-        public static void Log(string str) => Log(LogLevel.Debug, str);
+        public static void Log(string str)
+            => Log(LogLevel.Debug, str);
 
         public static bool TryGetPlayer(out Player player) {
             player = Engine.Scene?.Tracker?.GetEntity<Player>();
