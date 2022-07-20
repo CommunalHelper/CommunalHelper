@@ -80,6 +80,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             ChainedKevin.Load();
 
+            DreamDashListener.Load();
+
             #region Imports
 
             typeof(Imports.GravityHelper).ModInterop();
@@ -127,6 +129,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfishRenderer.Unload();
 
             ChainedKevin.Unload();
+
+            DreamDashListener.Unload();
         }
 
         public override void Initialize() {
