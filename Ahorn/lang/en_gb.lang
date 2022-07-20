@@ -241,6 +241,7 @@ placements.entities.CommunalHelper/ResetStateCrystal.tooltips.oneUse=Whether the
 
 # -- Station Block --
 placements.entities.CommunalHelper/StationBlock.tooltips.allowWavedash=Whether Wavedashing on top of the Station Block is allowed or not even while it's not moving (doesn't bounce you upwards).
+placements.entities.CommunalHelper/StationBlock.tooltips.allowWavedash=Similarly to the allowWavedash option, allows an inverted player to wavedash on the Station Block.
 placements.entities.CommunalHelper/StationBlock.tooltips.speedFactor=The factor by which the speed of the Station Block is multiplied. This value can only be between 0.1 and 2.
 placements.entities.CommunalHelper/StationBlock.tooltips.theme=Aspect theme of the Station Block.
 placements.entities.CommunalHelper/StationBlock.tooltips.behavior=Behavior of the Station Block. Pulling will make it move towards you, and Pushing does the opposite. This changes slightly the appearance of the block, depending on the behavior.
