@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Monocle;
 using static Celeste.Mod.CommunalHelper.DashStates.SeekerDash;
 
 namespace Celeste.Mod.CommunalHelper.DashStates {
@@ -14,6 +15,14 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
         protected override bool CanActivate(Player player) {
             return !HasSeekerDash;
+        }
+
+        protected override bool TryCreateCustomSprite(out Sprite sprite) {
+            sprite = new Sprite(GFX.Game, "objects/CommunalHelper/seekerDashRefill/idle");
+            sprite.AddLoop("idle", "", 0.1f);
+            sprite.Play("idle");
+            sprite.CenterOrigin();
+            return true;
         }
     }
 }
