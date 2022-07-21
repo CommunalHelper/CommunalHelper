@@ -34,10 +34,10 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 baseData["sprite"] = sprite;
             }
 
-            if (TryCreateCustomOutline(out Sprite outline)) {
-                Remove(baseData.Get<Sprite>("outline"));
-                Add(outline);
+            if (TryCreateCustomOutline(out Image outline)) {
+                Remove(baseData.Get<Image>("outline"));
                 baseData["outline"] = outline;
+                Add(outline);
             }
 
             if (TryCreateCustomFlash(out Sprite flash)) {
@@ -45,7 +45,6 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 Add(flash);
                 baseData["flash"] = flash;
             }
-
         }
 
         private void OnPlayer(Player player) {
@@ -70,8 +69,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             return false;
         }
 
-        protected virtual bool TryCreateCustomOutline(out Sprite sprite) {
-            sprite = null;
+        protected virtual bool TryCreateCustomOutline(out Image image) {
+            image = null;
             return false;
         }
 

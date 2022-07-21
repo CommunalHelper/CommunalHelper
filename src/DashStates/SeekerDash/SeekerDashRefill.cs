@@ -24,5 +24,13 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             sprite.CenterOrigin();
             return true;
         }
+
+        protected override bool TryCreateCustomOutline(out Image image) {
+            image = new(GFX.Game["objects/CommunalHelper/seekerDashRefill/outline"]) {
+                Visible = false,
+            };
+            image.CenterOrigin();
+            return true;
+        }
     }
 }
