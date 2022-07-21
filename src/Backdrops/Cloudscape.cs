@@ -15,6 +15,77 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
 
         private static MTexture[] cloudTextures;
 
+        public class Options {
+            public int Seed { get; set; } = 0;
+
+            public Color[] Colors { get; set; }
+                = new[] { Calc.HexToColor("6d8ada"), Calc.HexToColor("aea0c1"), Calc.HexToColor("d9cbbc") };
+            public Color Sky { get; set; } = Calc.HexToColor("4f9af7");
+
+            public float InnerRadius { get; set; } = 40.0f;
+            public float OuterRadius { get; set; } = 400.0f;
+            public int Count { get; set; } = 24;
+
+            public bool Lightning { get; set; } = false;
+
+            public Color[] LightningColors { get; set; }
+                = new[] { Calc.HexToColor("384bc8"), Calc.HexToColor("7a50d0"), Calc.HexToColor("c84ddd"), Calc.HexToColor("3397e2") };
+            public Color LightningFlashColor { get; set; } = Color.White;
+
+            public float LightningMinDelay { get; set; } = 5.0f;
+            public float LightningMaxDelay { get; set; } = 40.0f;
+            public float LightningMinDuration { get; set; } = 0.5f;
+            public float LightningMaxDuration { get; set; } = 1.0f;
+            public float LightningIntensity { get; set; } = 0.4f;
+
+            public Vector2 Offset { get; set; } = Vector2.Zero;
+            public Vector2 Parallax { get; set; } = Vector2.One * 0.05f;
+
+            public float InnerDensity { get; set; } = 1.0f;
+            public float OuterDensity { get; set; } = 1.0f;
+            public float InnerRotation { get; set; } = 0.002f;
+            public float OuterRotation { get; set; } = 0.2f;
+            public float RotationExponent { get; set; } = 2.0f;
+
+            public Options() { }
+
+            public Options(BinaryPacker.Element child) {
+                Seed = child.Attr("seed").GetHashCode();
+
+                Colors = child.Attr("colors", "6d8ada,aea0c1,d9cbbc")
+                              .Split(',')
+                              .Select(str => Calc.HexToColor(str.Trim()))
+                              .ToArray();
+                Sky = Calc.HexToColor(child.Attr("bgColor", "4f9af7").Trim());
+
+                InnerRadius = MathHelper.Max(child.AttrFloat("innerRadius", 40f), 10);
+                OuterRadius = child.AttrFloat("outerRadius", 400f);
+                Count = child.AttrInt("rings", 24);
+
+                Lightning = child.AttrBool("lightning", false);
+                LightningColors = child.Attr("lightningColors", "384bc8,7a50d0,c84ddd,3397e2")
+                                       .Split(',')
+                                       .Select(str => Calc.HexToColor(str.Trim()))
+                                       .ToArray();
+                LightningFlashColor = Calc.HexToColor(child.Attr("lightningFlashColor").Trim());
+
+                LightningMinDelay = MathHelper.Max(child.AttrFloat("lightningMinDelay", 5.0f), 0);
+                LightningMaxDelay = MathHelper.Max(child.AttrFloat("lightningMaxDelay", 40.0f), 0);
+                LightningMinDuration = MathHelper.Max(child.AttrFloat("lightningMinDuration", 0.5f), 0);
+                LightningMaxDuration = MathHelper.Max(child.AttrFloat("lightningMaxDuration", 1.0f), 0);
+                LightningIntensity = MathHelper.Clamp(child.AttrFloat("lightningIntensity", 0.5f), 0f, 1f);
+
+                Offset = new Vector2(child.AttrFloat("offsetX"), child.AttrFloat("offsetY"));
+                Parallax = new Vector2(child.AttrFloat("parallaxX", 0.05f), child.AttrFloat("parallaxY", 0.05f));
+
+                InnerDensity = MathHelper.Clamp(child.AttrFloat("innerDensity", 1f), 0f, 2f);
+                OuterDensity = MathHelper.Clamp(child.AttrFloat("outerDensity", 1f), 0f, 2f);
+                InnerRotation = child.AttrFloat("innerRotation", 0.002f);
+                OuterRotation = child.AttrFloat("outerRotation", 0.2f);
+                RotationExponent = MathHelper.Max(child.AttrFloat("rotationExponent", 2f), 1f);
+            }
+        }
+
         private class WarpedCloud {
             private readonly Cloudscape backdrop;
             private readonly Mesh<VertexPositionColorTexture> mesh;
@@ -144,78 +215,43 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
         private readonly Color[] lightningColors;
         private readonly Color lightningFlashColor;
 
-        public Cloudscape(BinaryPacker.Element child) : this(
-            child.Attr("seed"),
-            child.Attr("colors").Split(',').Select(str => Calc.HexToColor(str.Trim())).ToArray(),
-            Calc.HexToColor(child.Attr("bgColor").Trim()),
-            MathHelper.Max(10, child.AttrFloat("innerRadius", 40f)),
-            child.AttrFloat("outerRadius", 400f),
-            child.AttrInt("rings", 24),
-            child.AttrBool("lightning"),
-            child.Attr("lightningColors").Split(',').Select(str => Calc.HexToColor(str.Trim())).ToArray(),
-            Calc.HexToColor(child.Attr("lightningFlashColor").Trim()),
-            MathHelper.Max(0, child.AttrFloat("lightningMinDelay", 5.0f)),
-            MathHelper.Max(0, child.AttrFloat("lightningMaxDelay", 40.0f)),
-            MathHelper.Max(0, child.AttrFloat("lightningMinDuration", 0.5f)),
-            MathHelper.Max(0, child.AttrFloat("lightningMaxDuration", 1.0f)),
-            MathHelper.Clamp(child.AttrFloat("lightningIntensity", 0.5f), 0f, 1f),
-            child.AttrFloat("offsetX"), child.AttrFloat("offsetY"),
-            child.AttrFloat("parallaxX", 0.05f), child.AttrFloat("parallaxY", 0.05f),
-            MathHelper.Clamp(child.AttrFloat("innerDensity", 1f), 0f, 2f),
-            MathHelper.Clamp(child.AttrFloat("outerDensity", 1f), 0f, 2f),
-            child.AttrFloat("innerRotation", 0.002f), child.AttrFloat("outerRotation", 0.2f),
-            MathHelper.Max(child.AttrFloat("rotationExponent", 2f), 1f)
-        ) { }
+        public Cloudscape(BinaryPacker.Element child)
+            : this(new Options()) { }
 
-        public Cloudscape(
-                string seed,
-                Color[] colors, Color sky,
-                float innerRadius, float outerRadius,
-                int count,
-                bool lightning,
-                Color[] lightningColors,
-                Color lightningFlashColor,
-                float lightningMinDelay, float lightningMaxDelay,
-                float lightningMinDuration, float lightningMaxDuration,
-                float lightningIntensity,
-                float offsetX, float offsetY,
-                float parallaxX, float parallaxY,
-                float innerDensity, float outerDensity,
-                float innerRotation, float outerRotation,
-                float rotationExponent
-            ) : base() {
-            this.sky = sky;
+        public Cloudscape(Options options) : base() {
+            sky = options.Sky;
 
-            offset = new(offsetX, offsetY);
-            parallax = new(parallaxX, parallaxY);
+            offset = options.Offset;
+            parallax = options.Parallax;
 
-            Lightning = lightning;
-            this.lightningMinDelay = lightningMinDelay;
-            this.lightningMaxDelay = lightningMaxDelay;
-            this.lightningMinDuration = lightningMinDuration;
-            this.lightningMaxDuration = lightningMaxDuration;
-            this.lightningIntensity = lightningIntensity;
-            this.lightningColors = lightningColors;
-            this.lightningFlashColor = lightningFlashColor;
+            Lightning = options.Lightning;
+            lightningMinDelay = options.LightningMinDelay;
+            lightningMaxDelay = options.LightningMaxDelay;
+            lightningMinDuration = options.LightningMinDuration;
+            lightningMaxDuration = options.LightningMaxDuration;
+            lightningIntensity = options.LightningIntensity;
+            lightningColors = options.LightningColors;
+            lightningFlashColor = options.LightningFlashColor;
 
-            Calc.PushRandom(seed.GetHashCode());
+            Calc.PushRandom(options.Seed);
 
             List<Ring> rings = new();
             List<WarpedCloud> clouds = new();
 
             int vertexCount = 0, triangleCount = 0;
 
-            float a = MathHelper.Min(innerRadius, outerRadius);
-            float b = MathHelper.Max(innerRadius, outerRadius);
+            int count = options.Count;
+            float a = MathHelper.Min(options.InnerRadius, options.OuterRadius);
+            float b = MathHelper.Max(options.InnerRadius, options.OuterRadius);
             float d = b - a;
-            float dRotation = outerRotation - innerRotation;
+            float dRotation = options.OuterRotation - options.InnerRotation;
             for (int i = 0; i < count; i++) {
                 float percent = (float) i / count;
 
-                Color color = Util.ColorArrayLerp(percent * (colors.Length - 1), colors);
+                Color color = Util.ColorArrayLerp(percent * (options.Colors.Length - 1), options.Colors);
                 float radius = a + d * percent;
-                float speed = dRotation * (float) Math.Pow(percent, rotationExponent) + innerRotation;
-                float density = MathHelper.Lerp(innerDensity, outerDensity, percent);
+                float speed = dRotation * (float) Math.Pow(percent, options.RotationExponent) + options.InnerRotation;
+                float density = MathHelper.Lerp(options.InnerDensity, options.OuterDensity, percent);
 
                 if (density == 0)
                     continue;
