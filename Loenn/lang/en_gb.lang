@@ -482,7 +482,7 @@ entities.CommunalHelper/RailedMoveBlock.attributes.description.speed=The maximum
 
 # Reset State Crystal
 entities.CommunalHelper/ResetStateCrystal.placements.name.reset_state_crystal=Reset State Crystal
-entities.CommunalHelper/ResetStateCrystal.attributes.description.oneUse=Whether the crystal should reappear after being collected.
+entities.CommunalHelper/ResetStateCrystal.attributes.description.oneUse=Whether the crystal should permanently disappear after being collected.
 
 # Synced Zip Mover Activation Controller
 entities.CommunalHelper/SyncedZipMoverActivationController.placements.name.controller=Synced Zip Mover Activation Controller
@@ -499,6 +499,10 @@ entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffse
 entities.CommunalHelper/DreamStrawberry.placements.name.dream_dash_berry=Dream Strawberry
 entities.CommunalHelper/DreamStrawberry.attributes.description.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
 entities.CommunalHelper/DreamStrawberry.attributes.description.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+
+# Seeker Dash Refill
+entities.CommunalHelper/SeekerDashRefill.placements.name.seeker_dash_refill=Seeker Dash Refill
+entities.CommunalHelper/SeekerDashRefill.attributes.description.oneUse=Whether the crystal should permanently disappear after being collected.
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
