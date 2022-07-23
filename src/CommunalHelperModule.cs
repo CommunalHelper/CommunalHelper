@@ -44,6 +44,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamTunnelDash.Load();
             SeekerDash.Load();
 
+            ElytraState.Load();
+
             DreamBlockDummy.Load();
 
             CustomDreamBlock.Load();
@@ -91,6 +93,8 @@ namespace Celeste.Mod.CommunalHelper {
             DashStateRefill.Unload();
             DreamTunnelDash.Unload();
             SeekerDash.Unload();
+
+            ElytraState.Unload();
 
             DreamBlockDummy.Unload();
 
