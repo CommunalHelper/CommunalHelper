@@ -5,6 +5,8 @@ using System;
 namespace Celeste.Mod.CommunalHelper.DashStates {
     // Not meant to be added on something that isn't Player
     public class PlayerSeekerHair : Component {
+        private static MTexture[] seekerHairSegments;
+
         // Couldn't find a better name
         private class Braid {
             private readonly Vector2[] nodes = new Vector2[7];
@@ -51,9 +53,9 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             }
 
             public void RenderOutline() {
-                MTexture hair = GFX.Game[PlayerHair.Hair];
                 for (int i = 0; i < nodes.Length; i++) {
                     Vector2 scale = GetHairScale(i);
+                    MTexture hair = seekerHairSegments[i % seekerHairSegments.Length];
                     hair.DrawCentered(nodes[i] + Vector2.UnitX, Color.Black, scale);
                     hair.DrawCentered(nodes[i] - Vector2.UnitX, Color.Black, scale);
                     hair.DrawCentered(nodes[i] + Vector2.UnitY, Color.Black, scale);
@@ -62,9 +64,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             }
 
             public void Render() {
-                MTexture hair = GFX.Game[PlayerHair.Hair];
                 for (int i = 0; i < nodes.Length; i++)
-                    hair.DrawCentered(nodes[i], Seeker.TrailColor, GetHairScale(i));
+                    seekerHairSegments[i % seekerHairSegments.Length].DrawCentered(nodes[i], Seeker.TrailColor, GetHairScale(i));
             }
 
             private Vector2 GetHairScale(int index)
@@ -96,12 +97,14 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         }
 
         public override void Render() {
-            foreach (Braid braid in braids) {
+            foreach (Braid braid in braids)
                 braid.RenderOutline();
-            }
-            foreach (Braid braid in braids) {
+            foreach (Braid braid in braids)
                 braid.Render();
-            }
+        }
+
+        internal static void InitializeTextures() {
+            seekerHairSegments = GFX.Game.GetAtlasSubtextures("characters/player/CommunalHelper/seekerhair").ToArray();
         }
     }
 }
