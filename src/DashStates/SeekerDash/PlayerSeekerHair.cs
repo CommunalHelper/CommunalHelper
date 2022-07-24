@@ -6,8 +6,10 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
     // Not meant to be added on something that isn't Player
     public class PlayerSeekerHair : Component {
         private static MTexture[] seekerHairSegments;
-        private static readonly Color SeekerHairColorA = Calc.HexToColor("2f4c35");
-        private static readonly Color SeekerHairColorB = Calc.HexToColor("697740");
+        private static readonly Color[] SeekerHairColors = new[] {
+            Calc.HexToColor("2f4c35"),
+            Calc.HexToColor("697740"),
+        };
 
         // Couldn't find a better name
         private class Braid {
@@ -67,7 +69,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
             public void Render() {
                 for (int i = 0; i < nodes.Length; i++) {
-                    Color color = Color.Lerp(SeekerHairColorA, SeekerHairColorB, (float) i / (nodes.Length - 1));
+                    float lerp = (float) i / (nodes.Length - 1) + Engine.Scene.TimeActive * 0.75f;
+                    Color color = Util.ColorArrayLerp(lerp, SeekerHairColors);
                     seekerHairSegments[i % seekerHairSegments.Length].DrawCentered(nodes[i], color, GetHairScale(i));
                 }
             }
@@ -89,6 +92,11 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             Visible = SeekerDash.HasSeekerDash || SeekerDash.SeekerAttacking;
             base.Update();
 
+            AfterUpdate();
+        }
+
+        // This is required, because we want the hair to update 
+        public void AfterUpdate() {
             Player player = Entity as Player;
             PlayerSprite sprite = player.Sprite;
             int facing = (int) player.Facing;
