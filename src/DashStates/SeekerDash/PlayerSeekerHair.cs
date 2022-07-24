@@ -72,9 +72,9 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         }
 
         private readonly Braid[] braids = new Braid[] {
-            new(Calc.AngleToVector(-.3f, 2f)),
-            new(Calc.AngleToVector(.2f, 2f)),
-            new(Calc.AngleToVector(.7f, 2f)),
+            new(Calc.AngleToVector(-.8f, 2f)),
+            new(Calc.AngleToVector(-.2f, 2f)),
+            new(Calc.AngleToVector( .3f, 2f)),
         };
 
         public PlayerSeekerHair()
@@ -98,6 +98,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         public override void Render() {
             foreach (Braid braid in braids) {
                 braid.RenderOutline();
+            }
+            foreach (Braid braid in braids) {
                 braid.Render();
             }
         }
