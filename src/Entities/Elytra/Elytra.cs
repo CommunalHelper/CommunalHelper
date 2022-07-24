@@ -35,6 +35,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void OnPlayer(Player player) {
+            if (player.StateMachine.State == ElytraState.St)
+                return;
+
             bool wasInFeatherState = player.StateMachine.State == Player.StStarFly;
             Audio.Play(wasInFeatherState ? SFX.game_06_feather_renew : SFX.game_06_feather_get, Position);
             player.StateMachine.State = ElytraState.St;
