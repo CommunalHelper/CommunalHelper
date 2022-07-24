@@ -39,7 +39,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             On.Celeste.Player.ctor += Player_ctor;
             hook_Player_get_CanDash = new Hook(
                 typeof(Player).GetProperty("CanDash").GetGetMethod(),
-                typeof(SeekerDash).GetMethod("Player_get_CanDash", BindingFlags.NonPublic | BindingFlags.Static));
+                typeof(SeekerDash).GetMethod(nameof(Player_get_CanDash), BindingFlags.NonPublic | BindingFlags.Static));
             On.Celeste.Player.DashBegin += Player_DashBegin;
             IL.Celeste.Player.DashUpdate += Player_DashUpdate;
             On.Celeste.Player.DashEnd += Player_DashEnd;
@@ -103,7 +103,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                     bool collidable = entity.Collidable;
                     entity.Collidable = true;
                     if (self.CollideCheck(entity)) {
-                        // Tiny bit of feel-good leniancy
+                        // Tiny bit of feel-good leniency
                         Vector2 aim = self.GetData().Get<Vector2>("lastAim").Sign();
                         if (!self.CollideCheck(entity, self.Position + aim)) {
                             self.MoveHExact((int) aim.X);
