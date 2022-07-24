@@ -7,8 +7,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
     [CustomEntity("CommunalHelper/SeekerDashRefill")]
     class SeekerDashRefill : DashStateRefill {
         public SeekerDashRefill(EntityData data, Vector2 offset) 
-            : base(data, offset) {
-        }
+            : base(data, offset) { }
 
         protected override void Activated(Player player) =>
             DashStates.SeekerDash.SetEnabled(true);

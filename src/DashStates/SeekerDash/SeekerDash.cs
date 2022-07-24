@@ -51,6 +51,9 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             // Rendering
             On.Celeste.Player.GetCurrentTrailColor += Player_GetCurrentTrailColor;
 
+            // Player Seeker Hair
+            IL.Celeste.Player.ctor += IL_Player_ctor;
+
             // Interactions
             On.Celeste.DashBlock.OnDashed += DashBlock_OnDashed;
             On.Celeste.TempleCrackedBlock.ctor_EntityID_Vector2_float_float_bool += TempleCrackedBlock_ctor_EntityID_Vector2_float_float_bool;
@@ -75,6 +78,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
             On.Celeste.Player.GetCurrentTrailColor -= Player_GetCurrentTrailColor;
 
+            IL.Celeste.Player.ctor -= IL_Player_ctor;
+
             On.Celeste.DashBlock.OnDashed -= DashBlock_OnDashed;
             On.Celeste.TempleCrackedBlock.ctor_EntityID_Vector2_float_float_bool -= TempleCrackedBlock_ctor_EntityID_Vector2_float_float_bool;
             On.Celeste.SeekerBarrier.ctor_Vector2_float_float -= SeekerBarrier_ctor_Vector2_float_float;
@@ -87,10 +92,18 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
         #region Hooks
 
-        // Initialize dash state
+        // Initialize dash state & add Player Seeker Hair
         private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
             orig(self, position, spriteMode);
             HasSeekerDash = seekerDashAttacking = seekerDashLaunched = launchPossible = false;
+        }
+
+        private static void IL_Player_ctor(ILContext il) {
+            ILCursor cursor = new(il);
+
+            cursor.GotoNext(MoveType.After, instr => instr.MatchStfld<Player>(nameof(Player.Sprite)));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Player>>(player => player.Add(new PlayerSeekerHair()));
         }
 
         // Prevent dash if HasSeekerDash and inside SeekerBarrier
