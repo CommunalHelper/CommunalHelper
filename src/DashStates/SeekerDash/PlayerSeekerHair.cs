@@ -25,7 +25,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 this.direction = direction;
             }
 
-            public void Simulate(Vector2 from, int facing) {
+            public void Simulate(Vector2 from, int facing, bool motion) {
                 nodes[0] = from;
 
                 wave += Engine.DeltaTime * 4f * angleSpeed;
@@ -45,8 +45,10 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 const float stepSq = step * step;
 
                 for (int i = 1; i < nodes.Length; i++) {
-                    float speed = (1f - (float) i / nodes.Length * 0.5f) * 64f;
-                    nodes[i] = Calc.Approach(nodes[i], target, speed * Engine.DeltaTime);
+                    if (motion) {
+                        float speed = (1f - (float) i / nodes.Length * 0.5f) * 64f;
+                        nodes[i] = Calc.Approach(nodes[i], target, speed * Engine.DeltaTime);
+                    }
 
                     if (Vector2.DistanceSquared(nodes[i], current) > stepSq)
                         nodes[i] = current + (nodes[i] - current).SafeNormalize() * step;
@@ -95,8 +97,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             AfterUpdate();
         }
 
-        // This is required, because we want the hair to update 
-        public void AfterUpdate() {
+        // This is required, because we want the hair to update during transitions
+        public void AfterUpdate(bool motion = true) {
             Player player = Entity as Player;
             PlayerSprite sprite = player.Sprite;
             int facing = (int) player.Facing;
@@ -105,7 +107,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             Vector2 hairPosition = player.Sprite.RenderPosition + new Vector2(0f, -9f * sprite.Scale.Y) + hairOffset;
 
             foreach (Braid braid in braids)
-                braid.Simulate(hairPosition, (int) player.Facing);
+                braid.Simulate(hairPosition, (int) player.Facing, motion);
         }
 
         public override void Render() {
