@@ -6,10 +6,12 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
     // Not meant to be added on something that isn't Player
     public class PlayerSeekerHair : Component {
         private static MTexture[] seekerHairSegments;
+        private static readonly Color SeekerHairColorA = Calc.HexToColor("2f4c35");
+        private static readonly Color SeekerHairColorB = Calc.HexToColor("697740");
 
         // Couldn't find a better name
         private class Braid {
-            private readonly Vector2[] nodes = new Vector2[7];
+            private readonly Vector2[] nodes = new Vector2[9];
             private readonly Vector2 direction;
 
             private float wave = Calc.Random.NextAngle();
@@ -38,7 +40,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 Vector2 current = nodes[0];
 
                 const float step = 3;
-                const float stepSq = step * 2f;
+                const float stepSq = step * step;
 
                 for (int i = 1; i < nodes.Length; i++) {
                     float speed = (1f - (float) i / nodes.Length * 0.5f) * 64f;
@@ -54,7 +56,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
             public void RenderOutline() {
                 for (int i = 0; i < nodes.Length; i++) {
-                    Vector2 scale = GetHairScale(i);
+                    float scale = GetHairScale(i);
                     MTexture hair = seekerHairSegments[i % seekerHairSegments.Length];
                     hair.DrawCentered(nodes[i] + Vector2.UnitX, Color.Black, scale);
                     hair.DrawCentered(nodes[i] - Vector2.UnitX, Color.Black, scale);
@@ -64,12 +66,14 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             }
 
             public void Render() {
-                for (int i = 0; i < nodes.Length; i++)
-                    seekerHairSegments[i % seekerHairSegments.Length].DrawCentered(nodes[i], Seeker.TrailColor, GetHairScale(i));
+                for (int i = 0; i < nodes.Length; i++) {
+                    Color color = Color.Lerp(SeekerHairColorA, SeekerHairColorB, (float) i / (nodes.Length - 1));
+                    seekerHairSegments[i % seekerHairSegments.Length].DrawCentered(nodes[i], color, GetHairScale(i));
+                }
             }
 
-            private Vector2 GetHairScale(int index)
-                => new Vector2(0.25f + (1f - (float) index / nodes.Length) * 0.75f);
+            private float GetHairScale(int index)
+                => 0.25f + (1f - (float) index / nodes.Length) * 0.75f;
         }
 
         private readonly Braid[] braids = new Braid[] {
