@@ -12,6 +12,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     public class RedlessBerry : Entity, IStrawberry {
         private static readonly Color PulseColorA = Calc.HexToColor("FDBF47");
         private static readonly Color PulseColorB = Calc.HexToColor("FE9130");
+        private static readonly Color PulseColorGhostA = Calc.HexToColor("5952A1");
+        private static readonly Color PulseColorGhostB = Calc.HexToColor("6569B4");
         private static readonly Color BrokenColorA = Calc.HexToColor("E4242D");
         private static readonly Color BrokenColorB = Calc.HexToColor("252B42");
         private static readonly Color WarnColor = Color.Red;
@@ -40,6 +42,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private readonly bool winged;
         private bool flyingAway;
         private float flapSpeed;
+
+        private bool ghost;
 
         private float collectTimer;
 
@@ -92,7 +96,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Added(Scene scene) {
             base.Added(scene);
 
-            // TODO: alternative sprite when SaveData.Instance.CheckStrawberry(ID) returns true
+            ghost = SaveData.Instance.CheckStrawberry(info.ID);
+
             fruit = CommunalHelperModule.SpriteBank.Create("recolorableStrawberryFruit");
             overlay = CommunalHelperModule.SpriteBank.Create("recolorableStrawberryOverlay");
             Add(fruit, overlay);
@@ -116,8 +121,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 fruit.Position.Y = overlay.Position.Y = v * 2f;
             }));
 
-            // TODO: alpha must be .5f if berry is a ghost
-            Add(bloom = new BloomPoint(1f, 12f));
+            float bloomAlpha = ghost ? .5f : 1f;
+            Add(bloom = new BloomPoint(bloomAlpha, 12f));
             if ((scene as Level).Session.BloomBaseAdd > .1f)
                 bloom.Alpha *= 0.5f;
             
@@ -271,9 +276,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void UpdateColor() {
-            Color safeColor = Color.Lerp(PulseColorA, PulseColorB, Calc.SineMap(Scene.TimeActive * 16f, 0f, 1f));
-            Color warnColor = Color.Lerp(PulseColorA, WarnColor, Calc.SineMap(Scene.TimeActive * 60f, 0f, 1f));
+            Color pulseA = ghost ? PulseColorGhostA : PulseColorA;
+            Color pulseB = ghost ? PulseColorGhostB : PulseColorB;
+
+            Color safeColor = Color.Lerp(pulseA, pulseB, Calc.SineMap(Scene.TimeActive * 16f, 0f, 1f));
+            Color warnColor = Color.Lerp(pulseA, WarnColor, Calc.SineMap(Scene.TimeActive * 60f, 0f, 1f));
             Color result = Color.Lerp(warnColor, safeColor, Ease.CubeOut(safeLerp));
+
             if (brokenLerp > 0f) {
                 Color brokenColor = Color.Lerp(BrokenColorA, BrokenColorB, Ease.CubeOut(Calc.SineMap(Scene.TimeActive * 12f, 0f, 1f)));
                 result = Color.Lerp(result, brokenColor, brokenLerp);
