@@ -64,8 +64,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.GotoNext(MoveType.Before, instr => instr.OpCode == OpCodes.Callvirt);
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate<Func<Vector2, PlayerHair, Vector2>>((pos, hair) => {
-                Player player = hair.Entity as Player;
-                if (player.StateMachine.State != St)
+                if (hair.Entity is not Player player || player.StateMachine.State != St)
                     return pos;
 
                 PlayerSprite sprite = player.Sprite;
