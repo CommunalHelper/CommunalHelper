@@ -76,7 +76,8 @@ for i, direction in ipairs(enums.move_block_directions) do
             constantB = 0.05,
             idleColor = "474070",
             pressedColor = "30b335",
-            breakColor = "cc2541"
+            breakColor = "cc2541",
+            outline = true
         }
     }
 end
@@ -94,7 +95,8 @@ equationMoveBlock.placements[5] = {
         constantB = 0.05,
         idleColor = "474070",
         pressedColor = "30b335",
-        breakColor = "cc2541"
+        breakColor = "cc2541",
+        outline = true
     }
 }
 equationMoveBlock.placements[6] = {
@@ -112,6 +114,7 @@ equationMoveBlock.placements[6] = {
         idleColor = "474070",
         pressedColor = "30b335",
         breakColor = "cc2541",
+        outline = true,
         activatorFlags = "_pressed",
         breakerFlags = "_obstructed",
         onActivateFlags = "",

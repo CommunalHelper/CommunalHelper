@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -480,7 +481,12 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 }
 
                 solid ??= player.CollideFirst<Solid, DreamBlock>(player.Position + dir);
-                if (solid != null) {
+                // Don't dash through if it has a dash collide action, unless it's a farewell floaty block
+                // or a DashBlock which is only breakable by a Kevin (canDash is false)
+                if (solid != null && (!CommunalHelperModule.Settings.DreamTunnelIgnoreCollidables 
+                    || solid.OnDashCollide == null 
+                    || solid is FloatySpaceBlock 
+                    || (solid is DashBlock b && !new DynData<DashBlock>(b).Get<bool>("canDash")))) {
                     DynData<Player> playerData = player.GetData();
                     player.StateMachine.State = StDreamTunnelDash;
                     solid.Components.GetAll<DreamTunnelInteraction>().ToList().ForEach(i => i.OnPlayerEnter(player));
@@ -488,6 +494,14 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                     playerData["dashAttackTimer"] = 0;
                     playerData["gliderBoostTimer"] = 0;
                     return true;
+                } else if (solid is DashSwitch) {
+                    // Why is this necesarry? Good question!
+                    // I don't know the answer, but for some reason, Celeste registers
+                    // dashing into a button upwards as colliding with both the button and the
+                    // tile behind it. In order to prevent this from making you dash
+                    // through a wall after hitting a button, I disable the dream
+                    // tunnel after hitting a button.
+                    dreamTunnelDashAttacking = false;
                 }
             }
             return false;
@@ -526,6 +540,11 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 player.Loop(dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
             else
                 player.Loop(dreamSfxLoop, SFX.char_mad_dreamblock_travel);
+
+            // Allows DreamDashListener to also work from here, as this is basically a dream block, right?
+            foreach (DreamDashListener component in player.Scene.Tracker.GetComponents<DreamDashListener>()) {
+                component.OnDreamDash?.Invoke(player.DashDir);
+            }
         }
 
         private static void DreamTunnelDashEnd(this Player player) {

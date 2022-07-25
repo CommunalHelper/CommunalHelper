@@ -78,6 +78,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfishRenderer.Load();
 
             ChainedKevin.Load();
+
+            DreamDashListener.Load();
         }
 
         public override void Unload() {
@@ -120,6 +122,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfishRenderer.Unload();
 
             ChainedKevin.Unload();
+
+            DreamDashListener.Unload();
         }
 
         public override void Initialize() {
@@ -142,9 +146,12 @@ namespace Celeste.Mod.CommunalHelper {
             StationBlockTrack.InitializeTextures();
             TrackSwitchBox.InitializeParticles();
 
+            CassetteZipMover.InitializeTextures();
+
             DreamTunnelRefill.InitializeParticles();
             DreamTunnelDash.InitializeParticles();
 
+            DreamZipMover.InitializeTextures();
             DreamMoveBlock.InitializeParticles();
             DreamSwitchGate.InitializeParticles();
 
@@ -174,6 +181,13 @@ namespace Celeste.Mod.CommunalHelper {
                     HeightExtra = 0f,
                 });
             }
+        }
+
+        internal static bool SavingSettings { get; private set; }
+        public override void SaveSettings() {
+            SavingSettings = true;
+            base.SaveSettings();
+            SavingSettings = false;
         }
 
         private void RegisterOptionalDependencies() {
@@ -345,6 +359,18 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public static string StrTrim(string str) => str.Trim();
+
+        public static Vector2 Min(Vector2 a, Vector2 b)
+            => new(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y));
+
+        public static Vector2 Max(Vector2 a, Vector2 b)
+            => new(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y));
+
+        public static Rectangle Rectangle(Vector2 a, Vector2 b) {
+            Vector2 min = Min(a, b);
+            Vector2 size = Max(a, b) - min;
+            return new((int) min.X, (int) min.Y, (int) size.X, (int) size.Y);
+        }
     }
 
     // Don't worry about it

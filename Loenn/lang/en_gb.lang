@@ -32,8 +32,9 @@ entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines 
 # Attached Wall Booster
 entities.CommunalHelper/AttachedWallBooster.placements.name.right=Attached Wall Booster (Right)
 entities.CommunalHelper/AttachedWallBooster.placements.name.left=Attached Wall Booster (Left)
-entities.CommunalHelper/AttachedWallBooster.attributes.description.left=Whether the Wall Booster should attach to the left sides of solids.
-entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Wall Booster should ignore the current Core Mode and be in Ice Mode.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.left=Whether the Attached Wall Booster should attach to the left sides of solids.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.legacyBoost=Makes this Attached Wall Booster apply the expected speed boost to the player.\nIf disabled, the vertical boost is applied twice if the player isn't moving horizontally, due to a bug that was accidentally introduced in 1.11.2.\nAlso, if disabled, this entity is reskinned with a variant of the wall booster textures.
 
 # Station Block
 entities.CommunalHelper/StationBlock.placements.name.normal_pushing=Station Block (Normal, Pushing)
@@ -320,6 +321,7 @@ entities.CommunalHelper/ConnectedMoveBlock.attributes.description.customBlockTex
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.idleColor=The color of the arrow when not moving.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.pressedColor=The color of the arrow when moving.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.outline=Gives this Move Block an outline.
 
 # Equation Move Block
 entities.CommunalHelper/EquationMoveBlock.placements.name.up=Equation Move Block (Up)
@@ -335,6 +337,7 @@ entities.CommunalHelper/EquationMoveBlock.attributes.description.customBlockText
 entities.CommunalHelper/EquationMoveBlock.attributes.description.idleColor=The color of the arrow when not moving.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.pressedColor=The color of the arrow when moving.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.outline=Gives this Equation Move Block an outline.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.activatorFlags=The flags which activate this Equation Move Block.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.breakerFlags=The flags which break this Equation Move Block.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.barrierBlocksFlags=Whether Seeker Barriers make this block ignore 'on break' flags.
@@ -501,13 +504,18 @@ entities.CommunalHelper/CustomSummitGemManager.attributes.description.gemIds=Com
 entities.CommunalHelper/CustomSummitGemManager.attributes.description.melody=NOT Comma separated list of numbers from 0-7 for a custom melody during collection. Defaults to the gem index if not provided.
 entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffset=Determines where the crystal heart will move to relative to this summit gem manager once all gems are collected.
 
+# Dream Strawberry
+entities.CommunalHelper/DreamStrawberry.placements.name.dream_dash_berry=Dream Strawberry
+entities.CommunalHelper/DreamStrawberry.attributes.description.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+entities.CommunalHelper/DreamStrawberry.attributes.description.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
 triggers.CommunalHelper/DashStateTrigger.attributes.description.mode=The changing mode. 'Trigger' changes the dash state when the player enters the trigger. 'OneUse' makes this trigger remove itself when used. 'Field' makes it change the dash state constantly while the player is inside. 
 
 # Music Param Trigger
-triggers.CommunalHelper/MusicParamTrigger.placements.name.trigger=Music Paramater
+triggers.CommunalHelper/MusicParamTrigger.placements.name.trigger=Music Parameter
 triggers.CommunalHelper/MusicParamTrigger.attributes.description.enterValue=The value to which the parameter(s) are set when the player is touching the trigger.
 triggers.CommunalHelper/MusicParamTrigger.attributes.description.exitValue=The value to which the parameter(s) are set when the player is outside the trigger.
 triggers.CommunalHelper/MusicParamTrigger.attributes.description.param=The name of the affected parameters. You can specify more than one parameter by separating them with a comma (,).
@@ -522,3 +530,10 @@ triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.oneUse=Allows 
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.flash=Whether the screen should flash and shake when triggered.
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)
+
+# Cassette Music Fade Trigger
+triggers.CommunalHelper/CassetteMusicFadeTrigger.placements.name.trigger=Cassette Music Fade
+triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.fadeA=Determines the parameter value at the start of the fade.
+triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.fadeB=Determines the parameter value at the end of the fade.
+triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.parameter=The name of the affected parameter. Uses "fade" if left blank.
+triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.direction=The direction the music fades in.

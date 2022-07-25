@@ -7,7 +7,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
-
     [CustomEntity("CommunalHelper/EquationMoveBlock")]
     class EquationMoveBlock : ConnectedMoveBlock {
 

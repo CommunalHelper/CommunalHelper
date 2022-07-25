@@ -7,8 +7,9 @@
 # -- Entities --
 
 # -- Attached Wall Booster --
-placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the Wall Booster should attach to the left sides of solids.
-placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whether the Wall Booster should ignore the current Core Mode and be in Ice Mode.
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the Attached Wall Booster should attach to the left sides of solids.
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode.
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.legacyBoost=Makes this Attached Wall Booster apply the expected speed boost to the player.\nIf disabled, the vertical boost is applied twice if the player isn't moving horizontally, due to a bug that was accidentally introduced in 1.11.2.\nAlso, if disabled, this entity is reskinned with a variant of the wall booster textures.
 
 
 # -- Custom Cassette Block --
@@ -65,6 +66,7 @@ placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.customBlockTextur
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.idleColor=The color of the arrow when not moving.
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.pressedColor=The color of the arrow when moving.
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.breakColor=The color of the arrow when breaking.
+placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.outline=Gives this Move Block an outline.
 
 
 # -- Equation Move Block --
@@ -75,6 +77,7 @@ placements.entities.CommunalHelper/EquationMoveBlock.tooltips.customBlockTexture
 placements.entities.CommunalHelper/EquationMoveBlock.tooltips.idleColor=The color of the arrow when not moving.
 placements.entities.CommunalHelper/EquationMoveBlock.tooltips.pressedColor=The color of the arrow when moving.
 placements.entities.CommunalHelper/EquationMoveBlock.tooltips.breakColor=The color of the arrow when breaking.
+placements.entities.CommunalHelper/EquationMoveBlock.tooltips.outline=Gives this Equation Move Block an outline.
 
 # -- Connected Swap Block --
 placements.entities.CommunalHelper/ConnectedSwapBlock.tooltips.customGreenBlockTexture=The path to the custom green variant texture for the Connected Swap Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).
@@ -385,6 +388,10 @@ placements.entities.CommunalHelper/CoreModeMusicController.tooltips.disable=If t
 placements.entities.CommunalHelper/NoOverlayLookout.tooltips.summit=Whether the watch tower should zoom on the final node or not. Requires nodes to function, otherwise game will crash.
 placements.entities.CommunalHelper/NoOverlayLookout.tooltips.onlyY=Whether the watch tower can only move vertically. If the watch tower has nodes it will still follow CommunalHelper/NoOverlayLookout
 
+# Dream Strawberry
+placements.entities.CommunalHelper/DreamStrawberry.tooltips.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+placements.entities.CommunalHelper/DreamStrawberry.tooltips.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+
 
 # -- Triggers --
 
@@ -405,3 +412,9 @@ placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.mode=Specific swi
 
 # -- Sound Area Trigger --
 placements.triggers.CommunalHelper/SoundAreaTrigger.tooltips.event=The name of the audio event that plays inside the trigger.
+
+# -- Cassette Music Fade Trigger --
+placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.fadeA=Determines the parameter value at the start of the fade.
+placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.fadeB=Determines the parameter value at the end of the fade.
+placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.parameter=The name of the affected parameter. Uses "fade" if left blank.
+placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.direction=The direction the music fades in.

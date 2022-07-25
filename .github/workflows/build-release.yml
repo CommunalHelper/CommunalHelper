@@ -50,7 +50,7 @@ jobs:
         path: src/bin/Debug/net452
 
     - name: Create mod zip
-      run: zip -qq -r CommunalHelper.zip Ahorn/* Audio Dialog Graphics src/bin/Debug/net452 everest.yaml
+      run: zip -qq -r CommunalHelper.zip Ahorn/* Loenn Audio Dialog Graphics src/bin/Debug/net452 everest.yaml
 
     - name: Create Release
       id: release

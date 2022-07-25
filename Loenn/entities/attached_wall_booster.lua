@@ -14,7 +14,8 @@ attachedWallBooster.placements = {
         data = {
             height = 8,
             left = true,
-            notCoreMode = false
+            notCoreMode = false,
+            legacyBoost = true
         }
     },
     {
@@ -23,7 +24,8 @@ attachedWallBooster.placements = {
         data = {
             height = 8,
             left = false,
-            notCoreMode = false
+            notCoreMode = false,
+            legacyBoost = true
         }
     }
 }
@@ -31,6 +33,8 @@ attachedWallBooster.placements = {
 local topTexture = "objects/wallBooster/fireTop00"
 local middleTexture = "objects/wallBooster/fireMid00"
 local bottomTexture = "objects/wallBooster/fireBottom00"
+local topTextureAlt = "objects/CommunalHelper/attachedWallBooster/fireTop00"
+local bottomTextureAlt = "objects/CommunalHelper/attachedWallBooster/fireBottom00"
 
 function attachedWallBooster.sprite(room, entity)
     local sprites = {}
@@ -51,8 +55,9 @@ function attachedWallBooster.sprite(room, entity)
         table.insert(sprites, middleSprite)
     end
 
-    local topSprite = drawableSprite.fromTexture(topTexture, entity)
-    local bottomSprite = drawableSprite.fromTexture(bottomTexture, entity)
+    local legacyBoost = entity.legacyBoost
+    local topSprite = drawableSprite.fromTexture(legacyBoost and topTexture or topTextureAlt, entity)
+    local bottomSprite = drawableSprite.fromTexture(legacyBoost and bottomTexture or bottomTextureAlt, entity)
 
     topSprite:addPosition(offsetX, 0)
     topSprite:setScale(scaleX, 1)

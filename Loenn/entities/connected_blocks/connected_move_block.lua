@@ -54,7 +54,8 @@ for i, direction in ipairs(enums.move_block_directions) do
             customBlockTexture = "",
             idleColor = "474070",
             pressedColor = "30b335",
-            breakColor = "cc2541"
+            breakColor = "cc2541",
+            outline = true
         }
     }
 end
@@ -69,7 +70,8 @@ connectedMoveBlock.placements[5] = {
         customBlockTexture = "CommunalHelper/customConnectedBlock/customConnectedBlock",
         idleColor = "474070",
         pressedColor = "30b335",
-        breakColor = "cc2541"
+        breakColor = "cc2541",
+        outline = true
     }
 }
 connectedMoveBlock.placements[6] = {
@@ -84,6 +86,7 @@ connectedMoveBlock.placements[6] = {
         idleColor = "474070",
         pressedColor = "30b335",
         breakColor = "cc2541",
+        outline = true,
         activatorFlags = "_pressed",
         breakerFlags = "_obstructed",
         onActivateFlags = "",
