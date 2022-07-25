@@ -10,6 +10,9 @@ function trim(str) {
 
 function value(str) {
     val = substr(str,index(str,"=")+1)
+    gsub(/\\n/, "\n", val)
+    gsub(/</, "\\&lt;", val)
+    gsub(/>/, "\\&gt;", val)
     return trim(val)
 }
 
