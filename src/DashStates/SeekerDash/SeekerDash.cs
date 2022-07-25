@@ -129,11 +129,12 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                     entity.Collidable = true;
                     if (self.CollideCheck(entity)) {
                         // Tiny bit of feel-good leniency
-                        Vector2 aim = self.GetData().Get<Vector2>("lastAim").Sign();
+                        Vector2 aim = self.GetData().Get<Vector2>("lastAim").Sign() * 5;
                         if (!self.CollideCheck(entity, self.Position + aim)) {
+                            Console.WriteLine("yo");
+                            entity.Collidable = collidable;
                             self.MoveHExact((int) aim.X);
                             self.MoveVExact((int) aim.Y);
-                            entity.Collidable = collidable;
                             return true;
                         }
 
