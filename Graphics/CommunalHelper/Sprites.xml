@@ -414,7 +414,7 @@
         <Loop id="fallLoop" path="fallLoop" delay="0.06"/>
         <Anim id="death" path="death" delay="0.06"/>
     </dreamJellyfish>
-    
+
     <!--RecolorableStrawberry-->
     <recolorableStrawberryFruit path="collectables/CommunalHelper/recolorableBerry/fruit" start="idle">
         <Center />
@@ -423,22 +423,24 @@
         <Loop id="noFlash" path="" delay=".1" frames="0-6" />
         <Loop id="idleBroken" path="" delay=".1" frames="7-13,7-13,7-13,7-13,7-13,14" />
         <Loop id="noFlashBroken" path="" delay=".1" frames="7-13" />
+        <Loop id="flap" path="_wings" delay=".08" frames="0-8,0-8,0-7,9" />
         <Anim id="hidden" path="" delay=".1" frames="7" />
     </recolorableStrawberryFruit>
-    
+
     <recolorableStrawberryOverlay path="collectables/" start="idle">
         <Center />
 
         <Loop id="idle" path="CommunalHelper/recolorableBerry/leaves" delay=".1" frames="0-6,0-6,0-6,0-6,0-7" />
         <Loop id="noFlash" path="CommunalHelper/recolorableBerry/leaves" delay=".1" frames="0-6" />
+        <Loop id="flap" path="CommunalHelper/recolorableBerry/leaves_wings" delay=".08" frames="0-8,0-8,0-7,9" />
         <Anim id="collect" path="CommunalHelper/recolorableBerry/leaves" delay=".07" frames="7-11"/>
         <Anim id="fade0" path="normal" delay=".08" frames="12-14,14*10,15-19"/>
         <Anim id="fade1" path="normal" delay=".07" frames="20-22,22*10,23-26"/>
         <Anim id="fade2" path="normal" delay=".07" frames="28-30,30*10,31-34"/>
         <Anim id="fade3" path="normal" delay=".07" frames="36-38,38*10,39-42"/>
         <Anim id="fade4" path="normal" delay=".07" frames="44-46,46*10,47-50"/>
-	    <Anim id="fade5" path="normal" delay=".07" frames="52,53,54,53,54,53,54,53,54,53,54,53,54-59"/>
-	    <Anim id="fade_wow" path="wow/normal" delay=".1" frames="52-66"/>
+        <Anim id="fade5" path="normal" delay=".07" frames="52,53,54,53,54,53,54,53,54,53,54,53,54-59"/>
+        <Anim id="fade_wow" path="wow/normal" delay=".1" frames="52-66"/>
     </recolorableStrawberryOverlay>
 
 </Sprites>

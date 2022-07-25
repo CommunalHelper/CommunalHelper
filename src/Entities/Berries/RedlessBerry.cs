@@ -1,6 +1,8 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using System;
+using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/RedlessBerry")]
@@ -31,6 +33,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private readonly Info info;
 
         private readonly bool persistent, persisted;
+        private readonly bool winged;
+        private bool flyingAway;
+        private float flapSpeed;
+
+        private float collectTimer;
 
         private float safeLerp = 1f, safeLerpTarget = 1f;
         private float brokenLerp = 0f;
@@ -52,16 +59,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private readonly SoundSource breakSfx = new();
 
         public RedlessBerry(EntityData data, Vector2 offset, EntityID id)
-            : this(data.Position + offset, id, data.Bool("persistent")) {
+            : this(data.Position + offset, id, data.Bool("persistent"), data.Bool("winged")) {
             info = new(id, Position);
         }
 
-        public RedlessBerry(Vector2 position, EntityID id, bool persistent = false)
+        public RedlessBerry(Vector2 position, EntityID id, bool persistent = false, bool winged = false)
             : base(position) {
             Depth = Depths.Pickups;
             Collider = new Hitbox(14f, 14f, -7f, -7f);
 
-            this.persistent = persistent;
+            this.persistent = persistent && !winged;
+            this.winged = winged;
 
             Add(new PlayerCollider(OnPlayer));
             Add(follower = new(id, null, OnLoseLeader) {
@@ -72,7 +80,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public RedlessBerry(Player player, Info info)
-            : this(player.Position + new Vector2(-12 * (int) player.Facing, -8f), info.ID, true) {
+            : this(player.Position + new Vector2(-12 * (int) player.Facing, -8f), info.ID, true, false) {
             persisted = true;
             this.info = info;
         }
@@ -84,6 +92,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             fruit = CommunalHelperModule.SpriteBank.Create("recolorableStrawberryFruit");
             overlay = CommunalHelperModule.SpriteBank.Create("recolorableStrawberryOverlay");
             Add(fruit, overlay);
+
+            if (winged) {
+                fruit.Play("flap");
+                overlay.Play("flap");
+            }
 
             fruit.OnFrameChange = OnAnimate;
 
@@ -113,8 +126,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 OnPlayer(player);
         }
 
-        private void OnAnimate(string _) {
-            if (fruit.CurrentAnimationFrame == 35) {
+        private void OnAnimate(string id) {
+            if (!flyingAway && id == "flap" && fruit.CurrentAnimationFrame % 9 == 4) {
+                Audio.Play("event:/game/general/strawberry_wingflap", Position);
+                flapSpeed = -50f;
+            }
+
+            int pulseFrame = winged ? 25 : 35;
+            if (fruit.CurrentAnimationFrame == pulseFrame) {
                 lightTween.Start();
                 shakeWiggler.Start();
                 Audio.Play(SFX.game_gen_strawberry_pulse, Position);
@@ -129,6 +148,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Collidable = false;
             player.Leader.GainFollower(follower);
             Depth = Depths.Top;
+
+            if (winged) {
+                fruit.Play("idle");
+                overlay.Play("idle");
+            }
 
             if (!persisted) {
                 Audio.Play(SFX.game_gen_strawberry_touch, Position);
@@ -153,7 +177,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void OnLoseLeader() {
-            if (persistent && Util.TryGetPlayer(out Player player) && player.Dead)
+            if (collected || (persistent && Util.TryGetPlayer(out Player player) && player.Dead))
                 return;
             Detach();
         }
@@ -168,10 +192,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 CommunalHelperModule.Session.RedlessBerries.Remove(info);
             }
 
-            fruit.Play("idleBroken", restart: true);
-            fruit.SetAnimationFrame(35);
-            overlay.Play("idle", restart: true);
-            overlay.SetAnimationFrame(35);
+            if (!winged) {
+                fruit.Play("idleBroken", restart: true);
+                fruit.SetAnimationFrame(35);
+                overlay.Play("idle", restart: true);
+                overlay.SetAnimationFrame(35);
+            }
 
             breakSfx.Play(CustomSFX.game_berries_redless_break);
             sfx.Stop();
@@ -183,6 +209,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             safeLerpTarget = brokenLerp = 1f;
             shaking = 1f;
             broken = true;
+
+            if (winged)
+                return;
 
             Vector2 start = info.Start;
             Alarm.Set(this, .45f, () => {
@@ -202,10 +231,34 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             });
         }
 
+        private void FlyAway() {
+            Collidable = false;
+            Depth = Depths.Top;
+            Add(new Coroutine(FlyAwayRoutine()));
+            flyingAway = true;
+        }
+
         public void OnCollect() {
             if (collected)
                 return;
             collected = true;
+
+            int collectIndex = 0;
+            collected = true;
+            if (follower.Leader is not null) {
+                Player obj = follower.Leader.Entity as Player;
+                collectIndex = obj.StrawberryCollectIndex++;
+                obj.StrawberryCollectResetTimer = 2.5f;
+                follower.Leader.LoseFollower(follower);
+            }
+
+            SaveData.Instance.AddStrawberry(info.ID, false);
+
+            Session session = (Scene as Level).Session;
+            session.DoNotLoad.Add(info.ID);
+            session.Strawberries.Add(info.ID);
+            session.UpdateLevelStartDashes();
+            Add(new Coroutine(CollectRoutine(collectIndex)));
         }
 
         private void UpdateColor() {
@@ -223,10 +276,49 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
 
-            if (follower.Leader?.Entity is Player player) {
-                safeLerpTarget = Calc.ClampedMap(player.Stamina, 20f, Player.ClimbMaxStamina);
-                if (player.Stamina < Player.ClimbTiredThreshold)
-                    follower.Leader.LoseFollower(follower);
+            if (!collected) {
+                if (follower.Leader?.Entity is Player player) {
+                    safeLerpTarget = Calc.ClampedMap(player.Stamina, 20f, Player.ClimbMaxStamina);
+                    if (player.Stamina < Player.ClimbTiredThreshold) {
+                        follower.Leader.LoseFollower(follower);
+                        if (winged) {
+                            FlyAway();
+                        }
+                    }
+
+                    if (winged && follower.DelayTimer <= 0f && StrawberryRegistry.IsFirstStrawberry(this)) {
+                        bool collecting = !player.StrawberriesBlocked && player.OnSafeGround && player.StateMachine.State != Player.StIntroJump;
+                        if (collecting) {
+                            collectTimer += Engine.DeltaTime;
+                            if (collectTimer > 0.15f)
+                                OnCollect();
+                        } else
+                            collectTimer = Math.Min(collectTimer, 0f);
+                    }
+                } else {
+                    if (winged) {
+                        Y += flapSpeed * Engine.DeltaTime;
+                        if (flyingAway) {
+                            if (Y < SceneAs<Level>().Bounds.Top - 16)
+                                RemoveSelf();
+                        } else {
+                            flapSpeed = Calc.Approach(flapSpeed, 20f, 170f * Engine.DeltaTime);
+                            if (Y < info.Start.Y - 5f)
+                                Y = info.Start.Y - 5f;
+                            else if (Y > info.Start.Y + 5f)
+                                Y = info.Start.Y + 5f;
+
+                            bool hasPlayer = Util.TryGetPlayer(out player);
+                            if (hasPlayer) {
+                                safeLerpTarget = Calc.ClampedMap(player.Stamina, 20f, Player.ClimbMaxStamina);
+                                if (player.Stamina < Player.ClimbTiredThreshold) {
+                                    Detach();
+                                    FlyAway();
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             if (!broken)
@@ -245,6 +337,40 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Position += offset;
             base.Render();
             Position = original;
+        }
+
+        private IEnumerator FlyAwayRoutine() {
+            rotateWiggler.Start();
+            flapSpeed = -200f;
+
+            Tween tween = Tween.Create(Tween.TweenMode.Oneshot, Ease.CubeOut, 0.25f, start: true);
+            tween.OnUpdate = t => flapSpeed = MathHelper.Lerp(-200f, 0f, t.Eased);
+            Add(tween);
+            yield return 0.1f;
+
+            Audio.Play(SFX.game_gen_strawberry_laugh, Position);
+            yield return 0.2f;
+
+            if (!follower.HasLeader)
+                Audio.Play(SFX.game_gen_strawberry_flyaway, Position);
+
+            tween = Tween.Create(Tween.TweenMode.Oneshot, null, 0.5f, start: true);
+            tween.OnUpdate = t =>  flapSpeed = MathHelper.Lerp(0f, -200f, t.Eased);
+            Add(tween);
+        }
+
+        private IEnumerator CollectRoutine(int collectIndex) {
+            Tag = Tags.TransitionUpdate;
+            Depth = Depths.FormationSequences - 10;
+            Audio.Play(SFX.game_gen_strawberry_get, Position, "colour", 0, "count", collectIndex);
+            Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
+            fruit.Play("hidden");
+            overlay.Play("collect");
+            while (overlay.Animating)
+                yield return null;
+
+            Scene.Add(new StrawberryPoints(Position, false, collectIndex, false));
+            RemoveSelf();
         }
 
         #region Hooks

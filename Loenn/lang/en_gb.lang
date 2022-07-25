@@ -497,7 +497,8 @@ entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffse
 
 # Redless Berry
 entities.CommunalHelper/RedlessBerry.placements.name.redless_berry=Redless Berry
-entities.CommunalHelper/RedlessBerry.attributes.description.persistent=Whether this Redless berry stays with the player, even throughout deaths.
+entities.CommunalHelper/RedlessBerry.attributes.description.persistent=Whether this Redless Berry stays with the player, even throughout deaths.
+entities.CommunalHelper/RedlessBerry.attributes.description.winged=Makes this Redless Berry winged, meaning that it won't appear if the player was tired at some point in the session. 
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State

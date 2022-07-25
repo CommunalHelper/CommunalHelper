@@ -10,7 +10,8 @@ redlessBerry.placements = {
     {
         name = "redless_berry",
         data = {
-            persistent = false
+            persistent = false,
+            winged = false
         }
     }
 }
