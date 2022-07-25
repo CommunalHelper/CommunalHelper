@@ -13,6 +13,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         public HashSet<RedlessBerry.Info> RedlessBerries { get; set; } = new();
 
+        public bool PlayerWasTired { get; set; } = false;
+
         public CommunalHelperSession() {
             SummitGems = new SortedSet<string>(StringComparer.InvariantCulture);
         }

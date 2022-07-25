@@ -128,6 +128,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (persisted && Util.TryGetPlayer(out Player player))
                 OnPlayer(player);
+
+            if (winged && CommunalHelperModule.Session.PlayerWasTired)
+                RemoveSelf();
         }
 
         private void OnAnimate(string id) {
@@ -384,10 +387,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void Hook() {
             On.Celeste.Level.LoadLevel += Mod_Level_LoadLevel;
+            On.Celeste.Player.Update += Player_Update;
         }
 
         internal static void Unhook() {
-            On.Celeste.Level.LoadLevel += Mod_Level_LoadLevel;
+            On.Celeste.Level.LoadLevel -= Mod_Level_LoadLevel;
+            On.Celeste.Player.Update -= Player_Update;
         }
 
         private static void Mod_Level_LoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
@@ -399,6 +404,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     self.Add(new RedlessBerry(player, info));
                 }
             }
+        }
+
+        private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
+            orig(self);
+
+            CommunalHelperSession session = CommunalHelperModule.Session;
+            if (self.Stamina < Player.ClimbTiredThreshold && !session.PlayerWasTired)
+                session.PlayerWasTired = true;
         }
 
         #endregion
