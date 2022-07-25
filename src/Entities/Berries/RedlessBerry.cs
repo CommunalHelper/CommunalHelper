@@ -32,6 +32,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
         private readonly Info info;
 
+        internal bool Given; // given by command
+
         private readonly bool persistent, persisted;
         private readonly bool winged;
         private bool flyingAway;
@@ -210,7 +212,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             shaking = 1f;
             broken = true;
 
-            if (winged)
+            if (winged || Given)
                 return;
 
             Vector2 start = info.Start;
@@ -234,6 +236,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private void FlyAway() {
             Collidable = false;
             Depth = Depths.Top;
+            Console.WriteLine("yo");
             Add(new Coroutine(FlyAwayRoutine()));
             flyingAway = true;
         }
@@ -281,9 +284,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     safeLerpTarget = Calc.ClampedMap(player.Stamina, 20f, Player.ClimbMaxStamina);
                     if (player.Stamina < Player.ClimbTiredThreshold) {
                         follower.Leader.LoseFollower(follower);
-                        if (winged) {
-                            FlyAway();
-                        }
+                        if (winged || Given)
+                            FlyAway(); // OnLoseFollower takes care of detaching, so just fly away.
                     }
 
                     if (winged && follower.DelayTimer <= 0f && StrawberryRegistry.IsFirstStrawberry(this)) {
@@ -296,12 +298,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             collectTimer = Math.Min(collectTimer, 0f);
                     }
                 } else {
-                    if (winged) {
+                    if (winged || Given) {
                         Y += flapSpeed * Engine.DeltaTime;
                         if (flyingAway) {
                             if (Y < SceneAs<Level>().Bounds.Top - 16)
                                 RemoveSelf();
-                        } else {
+                        } else if (!Given) {
                             flapSpeed = Calc.Approach(flapSpeed, 20f, 170f * Engine.DeltaTime);
                             if (Y < info.Start.Y - 5f)
                                 Y = info.Start.Y - 5f;
