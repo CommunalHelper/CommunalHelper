@@ -48,7 +48,7 @@ function humanize(str) {
 
 /placements.name/ {
     if (name != value($0)) {
-        print "### " value($0)
+        print "- ### " value($0)
     }
 }
 
