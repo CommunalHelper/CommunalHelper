@@ -79,6 +79,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             ChainedKevin.Load();
 
+            DreamDashListener.Load();
+
             RedlessBerry.Hook();
         }
 
@@ -122,6 +124,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfishRenderer.Unload();
 
             ChainedKevin.Unload();
+
+            DreamDashListener.Unload();
 
             RedlessBerry.Unhook();
         }

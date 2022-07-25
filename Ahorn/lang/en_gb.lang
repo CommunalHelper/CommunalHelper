@@ -388,6 +388,10 @@ placements.entities.CommunalHelper/CoreModeMusicController.tooltips.disable=If t
 placements.entities.CommunalHelper/NoOverlayLookout.tooltips.summit=Whether the watch tower should zoom on the final node or not. Requires nodes to function, otherwise game will crash.
 placements.entities.CommunalHelper/NoOverlayLookout.tooltips.onlyY=Whether the watch tower can only move vertically. If the watch tower has nodes it will still follow CommunalHelper/NoOverlayLookout
 
+# Dream Strawberry
+placements.entities.CommunalHelper/DreamStrawberry.tooltips.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+placements.entities.CommunalHelper/DreamStrawberry.tooltips.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+
 
 # -- Triggers --
 

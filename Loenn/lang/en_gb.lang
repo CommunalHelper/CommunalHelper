@@ -500,6 +500,11 @@ entities.CommunalHelper/RedlessBerry.placements.name.redless_berry=Redless Berry
 entities.CommunalHelper/RedlessBerry.attributes.description.persistent=Whether this Redless Berry stays with the player, even throughout deaths.
 entities.CommunalHelper/RedlessBerry.attributes.description.winged=Makes this Redless Berry winged, meaning that it won't appear if the player was tired at some point in the session. 
 
+# Dream Strawberry
+entities.CommunalHelper/DreamStrawberry.placements.name.dream_dash_berry=Dream Strawberry
+entities.CommunalHelper/DreamStrawberry.attributes.description.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+entities.CommunalHelper/DreamStrawberry.attributes.description.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
