@@ -58,9 +58,14 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 }
             }
 
-            public void RenderOutline() {
+            public void RenderOutline(float threshold) {
+                threshold *= nodes.Length;
                 for (int i = 0; i < nodes.Length; i++) {
-                    float scale = GetHairScale(i);
+                    float scale = Calc.ClampedMap(threshold - i, 0, 1);
+                    if (scale == 0)
+                        continue;
+                    scale *= GetHairScale(i);
+
                     MTexture hair = seekerHairSegments[i % seekerHairSegments.Length];
                     hair.DrawCentered(nodes[i] + Vector2.UnitX, Color.Black, scale);
                     hair.DrawCentered(nodes[i] - Vector2.UnitX, Color.Black, scale);
@@ -69,11 +74,17 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 }
             }
 
-            public void Render() {
+            public void Render(float threshold) {
+                threshold *= nodes.Length;
                 for (int i = 0; i < nodes.Length; i++) {
+                    float scale = Calc.ClampedMap(threshold - i, 0, 1);
+                    if (scale == 0)
+                        continue;
+                    scale *= GetHairScale(i);
+
                     float lerp = (float) i / (nodes.Length - 1) + Engine.Scene.TimeActive * 0.75f;
                     Color color = Util.ColorArrayLerp(lerp, SeekerHairColors);
-                    seekerHairSegments[i % seekerHairSegments.Length].DrawCentered(nodes[i], color, GetHairScale(i));
+                    seekerHairSegments[i % seekerHairSegments.Length].DrawCentered(nodes[i], color, scale);
                 }
             }
 
@@ -87,13 +98,14 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             new(Calc.AngleToVector( .3f, 2f)),
         };
 
+        private float lerp;
+
         public PlayerSeekerHair()
             : base(active: true, visible: true) { }
 
         public override void Update() {
-            Visible = SeekerDash.HasSeekerDash || SeekerDash.SeekerAttacking;
+            lerp = Calc.Approach(lerp, SeekerDash.HasSeekerDash ? 1 : 0, Engine.DeltaTime * 3f);
             base.Update();
-
             AfterUpdate();
         }
 
@@ -112,9 +124,9 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
         public override void Render() {
             foreach (Braid braid in braids)
-                braid.RenderOutline();
+                braid.RenderOutline(lerp);
             foreach (Braid braid in braids)
-                braid.Render();
+                braid.Render(lerp);
         }
 
         internal static void InitializeTextures() {
