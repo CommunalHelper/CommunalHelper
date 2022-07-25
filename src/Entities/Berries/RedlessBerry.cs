@@ -33,6 +33,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
         private Tween lightTween;
 
         private readonly SoundSource sfx = new(CustomSFX.game_berries_redless_warning);
+        private readonly SoundSource breakSfx = new();
 
         public RedlessBerry(EntityData data, Vector2 offset, EntityID id)
             : base(data.Position + offset) {
@@ -46,7 +47,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
                 FollowDelay = .3f
             });
 
-            Add(sfx);
+            Add(sfx, breakSfx);
 
             start = Position;
         }
@@ -122,7 +123,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             overlay.Play("idle", restart: true);
             overlay.SetAnimationFrame(35);
 
-            sfx.Play(CustomSFX.game_berries_redless_break);
+            breakSfx.Play(CustomSFX.game_berries_redless_break);
+            sfx.Stop();
             (Scene as Level).Displacement.AddBurst(Position, .6f, 4f, 28f, .1f);
 
             shakeWiggler.Start();
