@@ -184,14 +184,12 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         
         // Make SeekerBarriers collidable if seekerDashAttacking, handle cooldowns
         private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
-            bool seesBarriers = HasSeekerDash || seekerDashAttacking;
-            if (seesBarriers)
-                self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = e is PlayerSeekerBarrier || seekerDashAttacking);
+            bool seesBarriers = HasSeekerDash || SeekerAttacking;
+            self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = (e is PlayerSeekerBarrier barrier && (seesBarriers || barrier.WavedashTime > 0)) || SeekerAttacking);
 
             orig(self);
 
-            if (seesBarriers)
-                self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = false);
+            self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = false);
 
             DynData<Player> playerData = self.GetData();
 
@@ -296,6 +294,16 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             orig(self, position, width, height);
 
             self.OnDashCollide = new DashCollision((player, dir) => {
+                // Allow for more lenient wallbounces against seeker barriers
+                if ((player.Left >= self.Right - 5f || player.Right < self.Left + 5f) && Math.Abs(dir.Y) == 1)
+                    return DashCollisionResults.NormalCollision;
+
+                // Allow wavedashes
+                if (self is PlayerSeekerBarrier barrier && dir.Y > 0) {
+                    barrier.WavedashTime = PlayerSeekerBarrier.WavedashLeniencyTimer;
+                    return DashCollisionResults.NormalCollision;
+                }
+
                 if (seekerDashAttacking) {
                     Vector2 origin = dir.X > 0 ? player.CenterRight : dir.X < 0 ? player.CenterLeft : dir.Y > 0 ? player.BottomCenter : player.TopCenter;
                     self.SceneAs<Level>().Particles.Emit(Seeker.P_HitWall, 12, origin, new Vector2(dir.Y, dir.X) * 4f, (-dir).Angle());

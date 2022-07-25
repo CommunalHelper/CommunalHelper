@@ -16,6 +16,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private float speedFactor = UncollidableParticleSpeedFactor;
 
+        // about 6 frames
+        public const float WavedashLeniencyTimer = 0.1f;
+        public float WavedashTime;
+
         public PlayerSeekerBarrier(EntityData data, Vector2 offset)
             : base(data, offset) {
             SurfaceSoundIndex = SurfaceIndex.AuroraGlass;
@@ -25,6 +29,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bool collidable = SeekerDash.HasSeekerDash || SeekerDash.SeekerAttacking;
             float targetSpeed = collidable ? CollidableParticleSpeedFactor : UncollidableParticleSpeedFactor;
             speedFactor = Calc.Approach(speedFactor, targetSpeed, Engine.DeltaTime * (collidable ? 0.5f : 4.0f));
+
+            WavedashTime = Calc.Approach(WavedashTime, 0f, Engine.DeltaTime);
 
             base.Update();
         }
