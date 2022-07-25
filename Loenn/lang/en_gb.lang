@@ -504,6 +504,9 @@ entities.CommunalHelper/DreamStrawberry.attributes.description.order=Manually de
 entities.CommunalHelper/SeekerDashRefill.placements.name.seeker_dash_refill=Seeker Dash Refill
 entities.CommunalHelper/SeekerDashRefill.attributes.description.oneUse=Whether the crystal should permanently disappear after being collected.
 
+# Player Seeker Barrier
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.player_seeker_barrier=Player Seeker Barrier
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.

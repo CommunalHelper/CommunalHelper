@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -183,12 +184,13 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         
         // Make SeekerBarriers collidable if seekerDashAttacking, handle cooldowns
         private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
-            if (seekerDashAttacking)
-                self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = true);
+            bool seesBarriers = HasSeekerDash || seekerDashAttacking;
+            if (seesBarriers)
+                self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = e is PlayerSeekerBarrier || seekerDashAttacking);
 
             orig(self);
 
-            if (seekerDashAttacking)
+            if (seesBarriers)
                 self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = false);
 
             DynData<Player> playerData = self.GetData();
@@ -292,6 +294,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         // Add DashCollision component to SeekerBarriers for seekerDashAttacking
         private static void SeekerBarrier_ctor_Vector2_float_float(On.Celeste.SeekerBarrier.orig_ctor_Vector2_float_float orig, SeekerBarrier self, Vector2 position, float width, float height) {
             orig(self, position, width, height);
+
             self.OnDashCollide = new DashCollision((player, dir) => {
                 if (seekerDashAttacking) {
                     Vector2 origin = dir.X > 0 ? player.CenterRight : dir.X < 0 ? player.CenterLeft : dir.Y > 0 ? player.BottomCenter : player.TopCenter;

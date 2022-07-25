@@ -80,6 +80,9 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Load();
 
             DreamDashListener.Load();
+
+            PlayerSeekerBarrier.Hook();
+            PlayerSeekerBarrierRenderer.Hook();
         }
 
         public override void Unload() {
@@ -124,6 +127,9 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Unload();
 
             DreamDashListener.Unload();
+
+            PlayerSeekerBarrier.Unhook();
+            PlayerSeekerBarrierRenderer.Unhook();
         }
 
         public override void Initialize() {
