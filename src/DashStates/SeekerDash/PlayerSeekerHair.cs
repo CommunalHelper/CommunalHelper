@@ -19,7 +19,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             private float wave = Calc.Random.NextAngle();
             private float angleSpeed = 1f;
 
-            private readonly float spasmInterval = Calc.Random.NextFloat(6f);
+            private readonly float spasmInterval = Calc.Random.NextFloat(6f) + 4f;
 
             public Braid(Vector2 direction) {
                 this.direction = direction;
