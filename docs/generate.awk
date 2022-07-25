@@ -34,6 +34,7 @@ function humanize(str) {
 
 /^#/ {
     name = substr($0, 3)
+    delete attributes
     printID = 1
     print "## " name
 }
@@ -56,5 +57,9 @@ function humanize(str) {
 }
 
 /attributes.description/ {
-    print "**" humanize(key($0)) "**: " value($0) "\n"
+    attr = key($0)
+    if (!(attr in attributes)) {
+        print "**" humanize(attr) "**: " value($0) "\n"
+    }
+    attributes[attr] = 1
 }
