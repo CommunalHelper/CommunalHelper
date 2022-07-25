@@ -1,4 +1,6 @@
-﻿using Celeste.Mod.Entities;
+﻿
+using Celeste.Mod.CommunalHelper.Triggers;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -256,6 +258,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             SaveData.Instance.AddStrawberry(info.ID, false);
+            CommunalHelperModule.Session.RedlessBerries.Remove(info);
 
             Session session = (Scene as Level).Session;
             session.DoNotLoad.Add(info.ID);
@@ -288,8 +291,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             FlyAway(); // OnLoseFollower takes care of detaching, so just fly away.
                     }
 
-                    if (winged && follower.DelayTimer <= 0f && StrawberryRegistry.IsFirstStrawberry(this)) {
-                        bool collecting = !player.StrawberriesBlocked && player.OnSafeGround && player.StateMachine.State != Player.StIntroJump;
+                    if (follower.DelayTimer <= 0f && StrawberryRegistry.IsFirstStrawberry(this)) {
+                        bool collecting = !player.StrawberriesBlocked && player.StateMachine.State != Player.StIntroJump;
+                        collecting &= (winged && player.OnSafeGround) || player.CollideCheck<RedlessBerryCollectionTrigger>() || (Scene as Level).Completed;
+
                         if (collecting) {
                             collectTimer += Engine.DeltaTime;
                             if (collectTimer > 0.15f)
