@@ -16,7 +16,7 @@ local fruitTexture = "collectables/CommunalHelper/recolorableBerry/fruit00"
 local leavesTexture = "collectables/CommunalHelper/recolorableBerry/leaves00"
 
 -- will be changed in the future
-local color = {1.0, 1.0, 1.0, 1.0}
+local color = {253 / 255, 191 / 255, 71 / 255, 255 / 255}
 
 function redlessBerry.sprite(room, entity)
     local sprites = {}
