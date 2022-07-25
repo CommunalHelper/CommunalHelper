@@ -495,6 +495,9 @@ entities.CommunalHelper/CustomSummitGemManager.attributes.description.gemIds=Com
 entities.CommunalHelper/CustomSummitGemManager.attributes.description.melody=NOT Comma separated list of numbers from 0-7 for a custom melody during collection. Defaults to the gem index if not provided.
 entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffset=Determines where the crystal heart will move to relative to this summit gem manager once all gems are collected.
 
+# Redless Berry
+entities.CommunalHelper/RedlessBerry.placements.name.redless_berry=Redless Berry
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
