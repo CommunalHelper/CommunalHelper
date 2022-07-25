@@ -7,7 +7,10 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
     [CustomEntity("CommunalHelper/SeekerDashRefill")]
     class SeekerDashRefill : DashStateRefill {
         public SeekerDashRefill(EntityData data, Vector2 offset) 
-            : base(data, offset) { }
+            : base(data, offset) {
+            TouchSFX = CustomSFX.game_seekerDashRefill_seeker_refill_touch;
+            ReturnSFX = CustomSFX.game_seekerDashRefill_seeker_refill_return;
+        }
 
         protected override void Activated(Player player) =>
             DashStates.SeekerDash.SetEnabled(true);
