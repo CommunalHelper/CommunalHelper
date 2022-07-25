@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 
-namespace Celeste.Mod.CommunalHelper.Entities.Berries {
+namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/RedlessBerry")]
     [RegisterStrawberry(tracked: false, blocksCollection: false)]
     public class RedlessBerry : Entity, IStrawberry {
@@ -12,9 +12,25 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
         private static readonly Color BrokenColorB = Calc.HexToColor("252B42");
         private static readonly Color WarnColor = Color.Red;
 
-        private readonly EntityID id;
+        public struct Info {
+            public EntityID ID { get; set; }
+            public Vector2 Start { get; set; }
 
-        private Vector2 start;
+            public Info(EntityID id, Vector2 startPosition) {
+                ID = id;
+                Start = startPosition;
+            }
+
+            public override int GetHashCode() {
+                int hashCode = 1396480991;
+                hashCode = hashCode * -1521134295 + ID.GetHashCode();
+                hashCode = hashCode * -1521134295 + Start.GetHashCode();
+                return hashCode;
+            }
+        }
+        private readonly Info info;
+
+        private readonly bool persistent, persisted;
 
         private float safeLerp = 1f, safeLerpTarget = 1f;
         private float brokenLerp = 0f;
@@ -36,20 +52,29 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
         private readonly SoundSource breakSfx = new();
 
         public RedlessBerry(EntityData data, Vector2 offset, EntityID id)
-            : base(data.Position + offset) {
+            : this(data.Position + offset, id, data.Bool("persistent")) {
+            info = new(id, Position);
+        }
+
+        public RedlessBerry(Vector2 position, EntityID id, bool persistent = false)
+            : base(position) {
             Depth = Depths.Pickups;
             Collider = new Hitbox(14f, 14f, -7f, -7f);
 
-            this.id = id;
+            this.persistent = persistent;
 
             Add(new PlayerCollider(OnPlayer));
-            Add(follower = new(id) {
+            Add(follower = new(id, null, OnLoseLeader) {
                 FollowDelay = .3f
             });
 
             Add(sfx, breakSfx);
+        }
 
-            start = Position;
+        public RedlessBerry(Player player, Info info)
+            : this(player.Position + new Vector2(-12 * (int) player.Facing, -8f), info.ID, true) {
+            persisted = true;
+            this.info = info;
         }
 
         public override void Added(Scene scene) {
@@ -83,6 +108,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             Add(lightTween = light.CreatePulseTween());
 
             UpdateColor();
+
+            if (persisted && Util.TryGetPlayer(out Player player))
+                OnPlayer(player);
         }
 
         private void OnAnimate(string _) {
@@ -99,10 +127,20 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
                 return;
 
             Collidable = false;
-            Audio.Play(SFX.game_gen_strawberry_touch, Position);
             player.Leader.GainFollower(follower);
-            wiggler.Start();
             Depth = Depths.Top;
+
+            if (!persisted) {
+                Audio.Play(SFX.game_gen_strawberry_touch, Position);
+                wiggler.Start();
+            }
+
+            if (persistent && !persisted) {
+                Session session = SceneAs<Level>().Session;
+                session.DoNotLoad.Add(info.ID);
+                session.UpdateLevelStartDashes();
+                CommunalHelperModule.Session.RedlessBerries.Add(info);
+            }
         }
 
         private void Reset() {
@@ -114,9 +152,21 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             sfx.Play(CustomSFX.game_berries_redless_warning);
         }
 
+        private void OnLoseLeader() {
+            if (persistent && Util.TryGetPlayer(out Player player) && player.Dead)
+                return;
+            Detach();
+        }
+
         private void Detach() {
             if (collected)
                 return;
+
+            if (persistent) {
+                Session session = SceneAs<Level>().Session;
+                session.DoNotLoad.Remove(info.ID);
+                CommunalHelperModule.Session.RedlessBerries.Remove(info);
+            }
 
             fruit.Play("idleBroken", restart: true);
             fruit.SetAnimationFrame(35);
@@ -130,11 +180,11 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             shakeWiggler.Start();
             rotateWiggler.Start();
 
-            follower.Leader.LoseFollower(follower);
             safeLerpTarget = brokenLerp = 1f;
             shaking = 1f;
             broken = true;
 
+            Vector2 start = info.Start;
             Alarm.Set(this, .45f, () => {
                 Vector2 difference = (start - Position).SafeNormalize();
                 float distance = Vector2.Distance(Position, start);
@@ -150,7 +200,6 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
                 tween.OnComplete = _ => Reset();
                 Add(tween);
             });
-
         }
 
         public void OnCollect() {
@@ -177,7 +226,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             if (follower.Leader?.Entity is Player player) {
                 safeLerpTarget = Calc.ClampedMap(player.Stamina, 20f, Player.ClimbMaxStamina);
                 if (player.Stamina < Player.ClimbTiredThreshold)
-                    Detach();
+                    follower.Leader.LoseFollower(follower);
             }
 
             if (!broken)
@@ -197,5 +246,28 @@ namespace Celeste.Mod.CommunalHelper.Entities.Berries {
             base.Render();
             Position = original;
         }
+
+        #region Hooks
+
+        internal static void Hook() {
+            On.Celeste.Level.LoadLevel += Mod_Level_LoadLevel;
+        }
+
+        internal static void Unhook() {
+            On.Celeste.Level.LoadLevel += Mod_Level_LoadLevel;
+        }
+
+        private static void Mod_Level_LoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
+            orig(self, playerIntro, isFromLoader);
+
+            if (playerIntro != Player.IntroTypes.Transition) {
+                Player player = self.Tracker.GetEntity<Player>();
+                foreach (Info info in CommunalHelperModule.Session.RedlessBerries) {
+                    self.Add(new RedlessBerry(player, info));
+                }
+            }
+        }
+
+        #endregion
     }
 }

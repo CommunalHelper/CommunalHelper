@@ -497,6 +497,7 @@ entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffse
 
 # Redless Berry
 entities.CommunalHelper/RedlessBerry.placements.name.redless_berry=Redless Berry
+entities.CommunalHelper/RedlessBerry.attributes.description.persistent=Whether this Redless berry stays with the player, even throughout deaths.
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State

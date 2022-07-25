@@ -8,7 +8,10 @@ redlessBerry.depth = -100
 
 redlessBerry.placements = {
     {
-        name = "redless_berry"
+        name = "redless_berry",
+        data = {
+            persistent = false
+        }
     }
 }
 
