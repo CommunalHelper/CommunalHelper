@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.Utils;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.CommunalHelper.Utils;
 using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -138,16 +139,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 prev = player.Position;
             Vector2 next = Travel(out bool end);
 
+            // Override GravityHelper's changes while we naively move the player with the curved booster.
+            GravityHelper.BeginOverride?.Invoke();
+
+            bool inverted = GravityHelper.IsPlayerInverted?.Invoke() ?? false;
+            int offY = inverted ? -7 : 8;
+
             bool stopped = false;
             player.Speed = Vector2.Zero;
             player.MoveToX(next.X, _ => stopped = true);
-            player.MoveToY(next.Y + 8f, _ => stopped = true);
+            player.MoveToY(next.Y + offY, _ => stopped = true);
+
+            // Then finish overriding.
+            GravityHelper.EndOverride?.Invoke();
 
             if (stopped)
                 return Player.StNormal;
 
             if (end) {
-                player.Speed = endingSpeed;
+                Vector2 speed = endingSpeed;
+                if (inverted)
+                    speed.Y *= -1f;
+                player.Speed = speed;
                 return Player.StNormal;
             }
 
