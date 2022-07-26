@@ -100,6 +100,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Add(new Coroutine(RevealPathRoutine()));
         }
 
+        protected override void OnPlayerExit(Player player) {
+            base.OnPlayerExit(player);
+
+            float angle = curve.GetDerivativeByDistance(travel).Angle() - 0.5f;
+            Level level = SceneAs<Level>();
+            for (int i = 0; i < 20; i++)
+                level.ParticlesBG.Emit(P_BurstExplode, 1, player.Center, new Vector2(3f, 3f), angle + Calc.Random.NextFloat());
+        }
+
         private IEnumerator RevealPathRoutine() {
             float distance = 0f;
 

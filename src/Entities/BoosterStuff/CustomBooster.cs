@@ -2,6 +2,7 @@
 using Monocle;
 using MonoMod.Utils;
 using System;
+using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public abstract class CustomBooster : Booster {
@@ -48,6 +49,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         protected virtual void OnPlayerEnter(Player player) { }
+        protected virtual void OnPlayerExit(Player player) { }
 
         #region Hooks
 
@@ -58,6 +60,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Booster.OnPlayer += Booster_OnPlayer;
             On.Celeste.Booster.PlayerBoosted += Booster_PlayerBoosted;
             On.Celeste.Booster.PlayerReleased += Booster_PlayerReleased;
+            On.Celeste.Booster.BoostRoutine += Booster_BoostRoutine;
         }
 
         public static void Unload() {
@@ -67,6 +70,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Booster.OnPlayer -= Booster_OnPlayer;
             On.Celeste.Booster.PlayerBoosted -= Booster_PlayerBoosted;
             On.Celeste.Booster.PlayerReleased -= Booster_PlayerReleased;
+            On.Celeste.Booster.BoostRoutine -= Booster_BoostRoutine;
+        }
+
+        private static IEnumerator Booster_BoostRoutine(On.Celeste.Booster.orig_BoostRoutine orig, Booster self, Player player, Vector2 dir) {
+            IEnumerator origEnum = orig(self, player, dir);
+            while (origEnum.MoveNext())
+                yield return origEnum.Current;
+
+            if (self is CustomBooster booster)
+                booster.OnPlayerExit(player);
         }
 
         private static void Booster_PlayerReleased(On.Celeste.Booster.orig_PlayerReleased orig, Booster self) {

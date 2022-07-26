@@ -62,8 +62,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.RedDashCoroutine -= Player_RedDashCoroutine;
             On.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
             IL.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
-            On.Celeste.Booster.BoostRoutine -= Booster_BoostRoutine;
-            On.Celeste.Booster.PlayerBoosted -= Booster_PlayerBoosted;
             On.Celeste.Actor.MoveH -= Actor_MoveH;
             On.Celeste.Actor.MoveV -= Actor_MoveV;
             On.Celeste.Player.OnCollideH -= Player_OnCollideH;
@@ -74,37 +72,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.RedDashCoroutine += Player_RedDashCoroutine;
             On.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
             IL.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
-            On.Celeste.Booster.BoostRoutine += Booster_BoostRoutine;
-            On.Celeste.Booster.PlayerBoosted += Booster_PlayerBoosted;
             On.Celeste.Actor.MoveH += Actor_MoveH;
             On.Celeste.Actor.MoveV += Actor_MoveV;
             On.Celeste.Player.OnCollideH += Player_OnCollideH;
             On.Celeste.Player.OnCollideV += Player_OnCollideV;
-        }
-
-        private static void Booster_PlayerBoosted(On.Celeste.Booster.orig_PlayerBoosted orig, Booster self, Player player, Vector2 direction) {
-            orig(self, player, Vector2.Zero);
-        }
-
-        private static IEnumerator Booster_BoostRoutine(On.Celeste.Booster.orig_BoostRoutine orig, Booster self, Player player, Vector2 dir) {
-            IEnumerator origEnum = orig(self, player, dir);
-            while (origEnum.MoveNext())
-                yield return origEnum.Current;
-
-            // could have done this in Booster.PlayerReleased, but it doesn't pass the player object
-            if (self is DreamBoosterSegment booster) {
-                float angle = booster.Dir.Angle() - 0.5f;
-                for (int i = 0; i < 20; i++) {
-                    booster.SceneAs<Level>().ParticlesBG.Emit(DreamBooster.P_BurstExplode, 1, player.Center, new Vector2(3f, 3f), angle + Calc.Random.NextFloat());
-                }
-
-            }
-            if (self is DreamBoosterCurve curve) {
-                float angle = curve.EndingSpeed.Angle() - 0.5f;
-                for (int i = 0; i < 20; i++) {
-                    curve.SceneAs<Level>().ParticlesBG.Emit(DreamBooster.P_BurstExplode, 1, player.Center, new Vector2(3f, 3f), angle + Calc.Random.NextFloat());
-                }
-            }
         }
 
         private static int Player_RedDashUpdate(On.Celeste.Player.orig_RedDashUpdate orig, Player self) {
