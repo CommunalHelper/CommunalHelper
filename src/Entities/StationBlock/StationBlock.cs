@@ -1,5 +1,7 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Monocle;
 using System;
 using System.Collections;
@@ -16,7 +18,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private MTexture[,] tileSlices, blockTiles, buttonTiles;
         private Sprite arrowSprite;
 
-        private bool allowWavedash = false;
+        private bool allowWavedash, allowWavedashBottom;
 
         public MTexture CustomNode = null, CustomTrackV = null, CustomTrackH = null;
 
@@ -49,7 +51,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static readonly Color deactivatedButton = Calc.HexToColor("5bf75b");
 
         private Color buttonColor, buttonPressedColor;
-        private float colorLerp = 0.0f;
+        private float colorLerp, bottomColorLerp;
 
         private float speedFactor = 1f;
 
@@ -67,6 +69,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             this.offset = new Vector2(Width, Height) / 2f;
             allowWavedash = data.Bool("allowWavedash", false);
+            allowWavedashBottom = data.Bool("allowWavedashBottom", false);
             speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 2f);
 
             buttonColor = data.HexColor("wavedashButtonColor", deactivatedButton);
@@ -116,7 +119,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     break;
             }
 
-            if (allowWavedash)
+            if (allowWavedash && allowWavedashBottom)
+                block += "_button_both";
+            else if (allowWavedashBottom)
+                block += "_button_bottom";
+            else if (allowWavedash)
                 block += "_button";
 
             MTexture customBlock = null;
@@ -272,8 +279,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private DashCollisionResults OnDashed(Player player, Vector2 dir) {
             // Weird, lame fix, but eh.
-            if (player.StateMachine.State == 5)
-                player.StateMachine.State = 0;
+            if (player.StateMachine.State == Player.StRedDash)
+                player.StateMachine.State = Player.StNormal;
 
             // Easier wall bounces.
             if ((player.Left >= Right - 4f || player.Right < Left + 4f) && dir.Y == -1 && dashCornerCorrection) {
@@ -285,10 +292,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             } else {
                 Smash(ReverseControls ? dir : -dir);
 
+                bool inverted = GravityHelper.IsPlayerInverted?.Invoke() ?? false;
+
                 if (allowWavedash && dir.Y == 1) {
                     colorLerp = 1f;
-                    return DashCollisionResults.NormalCollision;
+                    return !inverted ? DashCollisionResults.NormalCollision : DashCollisionResults.Rebound;
                 }
+
+                if (allowWavedashBottom && dir.Y == -1) {
+                    bottomColorLerp = 1f;
+                    return inverted ? DashCollisionResults.NormalCollision : DashCollisionResults.Rebound;
+                }
+
                 return DashCollisionResults.Rebound;
             }
         }
@@ -471,21 +486,36 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int tileWidth = (int) (Width / 8f);
             int tileHeight = (int) (Height / 8f);
 
+            bool inverted = GravityHelper.IsPlayerInverted?.Invoke() ?? false;
+            bool playerOnTop = HasPlayerOnTop();
+            float buttonPos = Y - 4 + (allowWavedash && playerOnTop && !inverted ? 1 : 0);
+            float bottomButtonPos = Bottom - 4 - (allowWavedashBottom && playerOnTop && inverted ? 1 : 0);
+
+            Vector2 renderOffset = (Vector2.One * 4f) + hitOffset;
+
             for (int i = 0; i < tileWidth; i++) {
                 for (int j = 0; j < tileHeight; j++) {
-                    Vector2 vec = new Vector2(X + i * 8, Y + j * 8) + (Vector2.One * 4f) + hitOffset;
-                    vec.X = Center.X + (vec.X - Center.X) * scale.X;
-                    vec.Y = Center.Y + (vec.Y - Center.Y) * scale.Y;
+                    Vector2 vec = new Vector2(X + i * 8, Y + j * 8) + renderOffset;
+                    vec = Center + (vec - Center) * scale;
 
                     // Button rendering
-                    if (j == 0 && allowWavedash) {
+                    if (allowWavedash && j == 0) {
                         int tx = i == 0 ? 0 : (i == tileWidth - 1 ? 2 : 1);
-                        Vector2 vec2 = new Vector2(X + i * 8, Y - 4 + (HasPlayerOnTop() ? 1 : 0)) + (Vector2.One * 4f) + hitOffset;
-                        vec2.X = Center.X + (vec2.X - Center.X) * scale.X;
-                        vec2.Y = Center.Y + (vec2.Y - Center.Y) * scale.Y;
+                        Vector2 pos = new Vector2(X + i * 8, buttonPos) + renderOffset;
+                        pos = Center + (pos - Center) * scale;
                         Color c = Color.Lerp(buttonColor, buttonPressedColor, colorLerp);
-                        buttonTiles[tx, 0].DrawCentered(vec2, c, scale);
-                        buttonTiles[tx, 1].DrawCentered(vec2, c, scale);
+                        buttonTiles[tx, 0].DrawCentered(pos, c, scale);
+                        buttonTiles[tx, 1].DrawCentered(pos, c, scale);
+                    }
+
+                    // Bottom button rendering
+                    if (allowWavedashBottom && j == tileHeight - 1) {
+                        int tx = i == 0 ? 0 : (i == tileWidth - 1 ? 2 : 1);
+                        Vector2 pos = new Vector2(X + i * 8, bottomButtonPos) + renderOffset;
+                        pos = Center + (pos - Center) * scale;
+                        Color c = Color.Lerp(buttonColor, buttonPressedColor, bottomColorLerp);
+                        buttonTiles[tx, 0].DrawCentered(pos, c, scale, 0f, SpriteEffects.FlipVertically);
+                        buttonTiles[tx, 1].DrawCentered(pos, c, scale, 0f, SpriteEffects.FlipVertically);
                     }
 
                     blockTiles[i, j].DrawCentered(vec, Color.White, scale);
@@ -499,6 +529,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Update() {
             base.Update();
             colorLerp = Calc.Approach(colorLerp, 0f, 1.25f * Engine.DeltaTime);
+            bottomColorLerp = Calc.Approach(bottomColorLerp, 0f, 1.25f * Engine.DeltaTime);
 
             scale.X = Calc.Approach(scale.X, 1f, Engine.DeltaTime * 4f);
             scale.Y = Calc.Approach(scale.Y, 1f, Engine.DeltaTime * 4f);
