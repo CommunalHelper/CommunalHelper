@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
 using System;
@@ -393,6 +394,8 @@ namespace Celeste.Mod.CommunalHelper {
         }
 
         public override void MoveVExact(int move) {
+            GravityHelper.BeginOverride?.Invoke();
+
             //base.MoveVExact(move);
             GetRiders();
 
@@ -407,7 +410,6 @@ namespace Celeste.Mod.CommunalHelper {
                         entity.Collidable = true;
                         if (!entity.TreatNaive && CollideCheck(entity, Position)) {
                             foreach (Hitbox hitbox in Colliders) {
-
                                 if (hitbox.Collide(entity)) {
                                     float top = Y + hitbox.Top;
                                     float bottom = Y + hitbox.Bottom;
@@ -434,6 +436,8 @@ namespace Celeste.Mod.CommunalHelper {
                 }
             }
             riders.Clear();
+
+            GravityHelper.EndOverride?.Invoke();
         }
     }
 }

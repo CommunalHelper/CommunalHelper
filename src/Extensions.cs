@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -479,6 +480,13 @@ namespace Celeste.Mod.CommunalHelper {
                     throw new($"Could not find atlas source image at '{sourcePath}'!");
             }
         }
+
+        #endregion
+        
+        #region GravityHelper utilities
+
+        public static GravityType GetGravity(this Actor actor)
+            => (GravityType) (GravityHelper.GetActorGravity?.Invoke(actor) ?? 0);
 
         #endregion
     }

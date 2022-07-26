@@ -3,6 +3,7 @@ using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.ModInterop;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -84,6 +85,12 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Load();
 
             DreamDashListener.Load();
+
+            #region Imports
+
+            typeof(Imports.GravityHelper).ModInterop();
+
+            #endregion
         }
 
         public override void Unload() {
@@ -144,6 +151,14 @@ namespace Celeste.Mod.CommunalHelper {
 
             // We may hook methods in other mods, so this needs to be done after they're loaded
             AbstractPanel.LoadDelayed();
+
+            /*
+             * Some Communal Helper mechanics don't work well with Gravity Helper.
+             * To fix this, Gravity Helper has implemented hooks that patch some of Communal Helper's methods.
+             * From now on though, we'll be supporting Gravity Helper with the methods it exports, and fix quirks ourselves.
+             * So, we need to call RegisterModSupportBlacklist, which will discard hooks implemented in Gravity Helper.
+             */
+            Imports.GravityHelper.RegisterModSupportBlacklist?.Invoke("CommunalHelper");
         }
 
         public override void LoadContent(bool firstLoad) {

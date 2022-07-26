@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -28,7 +29,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static MTexture[] ParticleTextures;
         public float Flash;
 
-        public Rectangle ParticleBounds = new Rectangle(-23, -35, 48, 42);
+        public static readonly Rectangle ParticleBounds = new Rectangle(-23, -35, 48, 60);
 
         private readonly DreamDashCollider dreamDashCollider;
         public bool AllowDreamDash {
@@ -52,9 +53,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             gliderData["sprite"] = Sprite = CommunalHelperModule.SpriteBank.Create("dreamJellyfish");
             Add(Sprite);
 
-            Visible = false;
+            Visible = Sprite.Visible = false;
 
             Add(dreamDashCollider = new DreamDashCollider(new Hitbox(28, 16, -13, -18), OnDreamDashExit));
+
+            // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper)
+            // So let's add a listener that does this for us.
+            Component listener = GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) => {
+                bool inverted = value == (int) GravityType.Inverted;
+                dreamDashCollider.Collider.Position.Y = inverted ? 1 : -18; // a bit hacky
+            });
+            if (listener is not null)
+                Add(listener);
         }
 
         public override void Awake(Scene scene) {
