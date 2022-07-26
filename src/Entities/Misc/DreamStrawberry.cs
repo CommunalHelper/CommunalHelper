@@ -1,10 +1,13 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
@@ -76,11 +79,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         internal static void Hook() {
             IL.Celeste.Strawberry.Added += Strawberry_Added;
             IL.Celeste.StrawberrySeed.Awake += StrawberrySeed_Awake;
+            IL.Celeste.StrawberrySeed.Update += StrawberrySeed_Update;
+            On.Celeste.Player.Update += Player_Update;
+            On.Celeste.Player.ctor += Player_ctor;
         }
 
         internal static void Unhook() {
             IL.Celeste.Strawberry.Added -= Strawberry_Added;
             IL.Celeste.StrawberrySeed.Awake -= StrawberrySeed_Awake;
+            IL.Celeste.StrawberrySeed.Update -= StrawberrySeed_Update;
+            On.Celeste.Player.Update -= Player_Update;
+            On.Celeste.Player.ctor -= Player_ctor;
         }
 
         private static void Strawberry_Added(ILContext il) {
@@ -107,6 +116,38 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     sprite = CommunalHelperModule.SpriteBank.Create("dreamStrawberrySeed");
                 return sprite;
             });
+        }
+
+        private static void StrawberrySeed_Update(ILContext il) {
+            ILCursor cursor = new(il);
+
+            ILLabel label = null;
+            cursor.GotoNext(instr => instr.MatchStfld<StrawberrySeed>("losing"));
+            cursor.GotoPrev(MoveType.After, instr => instr.MatchBrfalse(out label));
+
+            // We have the label at which to break if don't want the seed to be lost.
+            // Let's break to it if the following predicate is true.
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Predicate<StrawberrySeed>>(seed => seed.Strawberry is DreamStrawberry);
+            cursor.Emit(OpCodes.Brtrue_S, label);
+        }
+
+        private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
+            orig(self);
+
+            bool loseDreamSeeds = self.StateMachine.State switch {
+                Player.StNormal => self.CollideCheck<Platform, DreamBlock>(self.Position + new Vector2(0, self.IsInverted() ? -1 : 1)),
+                Player.StClimb => self.CollideCheck<Platform, DreamBlock>(self.Position + Vector2.UnitX * (int)self.Facing),
+                _ => false,
+            };
+
+            if (loseDreamSeeds)
+                self.LoseDreamSeeds();
+        }
+
+        private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
+            orig(self, position, spriteMode);
+            self.Add(new DreamDashListener(_ => self.LoseDreamSeeds()));
         }
 
         #endregion
