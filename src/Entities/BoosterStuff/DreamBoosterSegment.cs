@@ -77,6 +77,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 level.ParticlesBG.Emit(P_BurstExplode, 1, player.Center, new Vector2(3f, 3f), angle + Calc.Random.NextFloat());
         }
 
+        protected override int? RedDashUpdateBefore(Player player) {
+            base.RedDashUpdateBefore(player);
+
+            if (Vector2.Distance(player.Center, Start) >= Length) {
+                player.Position = Target;
+                SceneAs<Level>().DirectionalShake(Dir, 0.175f);
+                return Player.StNormal;
+            }
+
+            return null;
+        }
+
         private IEnumerator RevealPathRoutine() {
             float duration = 0.5f;
             float timer = 0f;

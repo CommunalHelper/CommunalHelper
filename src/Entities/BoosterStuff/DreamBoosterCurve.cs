@@ -2,6 +2,7 @@
 using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Utils;
 using System;
 using System.Collections;
 
@@ -86,7 +87,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Removed(scene);
         }
 
-        public Vector2 Travel(out bool end) {
+        private Vector2 Travel(out bool end) {
             travel += 240f * Engine.DeltaTime; // booster speed constant
             end = travel >= curve.Length;
             return curve.GetPointByDistance(travel);
@@ -107,6 +108,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Level level = SceneAs<Level>();
             for (int i = 0; i < 20; i++)
                 level.ParticlesBG.Emit(P_BurstExplode, 1, player.Center, new Vector2(3f, 3f), angle + Calc.Random.NextFloat());
+        }
+
+        protected override int? RedDashUpdateBefore(Player player) {
+            base.RedDashUpdateBefore(player);
+
+            DynData<Player> data = player.GetData();
+
+            Vector2 prev = player.Position;
+            Vector2 next = Travel(out bool end);
+
+            player.Speed = Vector2.Zero;
+            player.MoveToX(next.X, (Collision) data["onCollideH"]);
+            player.MoveToY(next.Y + 8f, (Collision) data["onCollideV"]);
+
+            if (end) {
+                player.Speed = EndingSpeed;
+                return Player.StNormal;
+            }
+
+            return null;
         }
 
         private IEnumerator RevealPathRoutine() {

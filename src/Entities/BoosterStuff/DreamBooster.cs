@@ -43,6 +43,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 false);
         }
 
+        protected override int? RedDashUpdateBefore(Player player) {
+            bool inSolid = player.CollideCheck<Solid>();
+
+            // Prevent the player from jumping or dashing out of the DreamBooster. May be reset in IL hook below.
+            // If for whatever reason this becomes an actual option for DreamBoosters, this will need to be changed.
+            if (inSolid)
+                Ch9HubTransition = true;
+
+            LoopingSfxParam("dream_tunnel", Util.ToInt(inSolid));
+
+            return null;
+        }
+
+        protected override int? RedDashUpdateAfter(Player player) {
+            Ch9HubTransition = false;
+            return null;
+        }
+
         internal static void InitializeParticles() {
             P_BurstExplode = new ParticleType(P_Burst) {
                 Color = BurstColor,
@@ -58,19 +76,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     }
 
     public class DreamBoosterHooks {
-        public static void Unhook() {
-            On.Celeste.Player.RedDashCoroutine -= Player_RedDashCoroutine;
-            On.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
-            IL.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
-            On.Celeste.Actor.MoveH -= Actor_MoveH;
-            On.Celeste.Actor.MoveV -= Actor_MoveV;
-            On.Celeste.Player.OnCollideH -= Player_OnCollideH;
-            On.Celeste.Player.OnCollideV -= Player_OnCollideV;
-        }
-
         public static void Hook() {
             On.Celeste.Player.RedDashCoroutine += Player_RedDashCoroutine;
-            On.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
             IL.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
             On.Celeste.Actor.MoveH += Actor_MoveH;
             On.Celeste.Actor.MoveV += Actor_MoveV;
@@ -78,47 +85,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.OnCollideV += Player_OnCollideV;
         }
 
-        private static int Player_RedDashUpdate(On.Celeste.Player.orig_RedDashUpdate orig, Player self) {
-            DreamBooster dreamBooster = self.LastBooster as DreamBooster;
-            if (dreamBooster != null) {
-                DynData<Player> data = self.GetData();
-
-                bool inSolid = self.CollideCheck<Solid>();
-
-                // Prevent the player from jumping or dashing out of the DreamBooster. May be reset in IL hook below.
-                // If for whatever reason this becomes an actual option for DreamBoosters, this will need to be changed.
-                if (inSolid)
-                    self.LastBooster.Ch9HubTransition = true;
-
-                dreamBooster.LoopingSfxParam("dream_tunnel", Util.ToInt(inSolid));
-
-                if (dreamBooster is DreamBoosterSegment segment) {
-                    if (Vector2.Distance(self.Center, segment.Start) >= segment.Length) {
-                        self.Position = segment.Target;
-                        self.SceneAs<Level>().DirectionalShake(segment.Dir, 0.175f);
-                        return 0;
-                    }
-                }
-
-                if (dreamBooster is DreamBoosterCurve curve) {
-                    Vector2 prev = self.Position;
-                    Vector2 next = curve.Travel(out bool end);
-                    self.Speed = Vector2.Zero;
-                    self.MoveToX(next.X, (Collision) data["onCollideH"]);
-                    self.MoveToY(next.Y + 8f, (Collision) data["onCollideV"]);
-                    if (end) {
-                        self.Speed = curve.EndingSpeed;
-                        return 0;
-                    }
-                }
-            }
-
-            int ret = orig(self);
-
-            if (dreamBooster != null)
-                self.LastBooster.Ch9HubTransition = false;
-
-            return ret;
+        public static void Unhook() {
+            On.Celeste.Player.RedDashCoroutine -= Player_RedDashCoroutine;
+            IL.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
+            On.Celeste.Actor.MoveH -= Actor_MoveH;
+            On.Celeste.Actor.MoveV -= Actor_MoveV;
+            On.Celeste.Player.OnCollideH -= Player_OnCollideH;
+            On.Celeste.Player.OnCollideV -= Player_OnCollideV;
         }
 
         private static void Player_RedDashUpdate(ILContext il) {
