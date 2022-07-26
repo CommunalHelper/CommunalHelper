@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public abstract partial class DreamBooster : CustomBooster {
-        public static ParticleType P_BurstExplode;
+        public static ParticleType P_BurstExplode { get; private set; }
 
         public static readonly Color BurstColor = Calc.HexToColor("19233b");
         public static readonly Color AppearColor = Calc.HexToColor("4d5f6e");
@@ -30,7 +30,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected readonly PathStyle Style;
 
         public DreamBooster(Vector2 position, bool showPath, PathStyle style)
-            : base (position, redBoost: true) {
+            : base(position, redBoost: true) {
             Depth = Depths.DreamBlocks;
 
             Style = style;

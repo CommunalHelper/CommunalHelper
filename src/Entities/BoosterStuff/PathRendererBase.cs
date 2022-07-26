@@ -18,24 +18,28 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private readonly PathStyle style;
 
-        private float rainbowLerp;
-        protected Color CurrentRainbowColor { get; private set; }
+        private float lerp;
+        protected Color Color { get; private set; }
 
-        public PathRendererBase(float alpha, PathStyle style, T booster) {
+        private readonly Color[] colors;
+
+        public PathRendererBase(float alpha, PathStyle style, Color[] colors, T booster) {
             this.style = style;
             Booster = booster;
             Alpha = Percent = alpha;
+
+            this.colors = colors;
 
             Depth = Depths.DreamBlocks + 1;
         }
 
         public void ResetRainbow()
-            => CurrentRainbowColor = Util.ColorArrayLerp(rainbowLerp = Calc.Random.Range(0, 8), DreamBooster.DreamColors);
+            => Color = Util.ColorArrayLerp(lerp = Calc.Random.Range(0, 8), colors);
 
         public override void Update() {
             base.Update();
             if (Booster.BoostingPlayer)
-                CurrentRainbowColor = Util.ColorArrayLerp(rainbowLerp += Engine.DeltaTime * 8f, DreamBooster.DreamColors);
+                Color = Util.ColorArrayLerp(lerp += Engine.DeltaTime * 8f, colors);
         }
 
         public void DrawPathLine(Vector2 pos, Vector2 dir, Vector2 perp, float offset, Player player, Color lerp) {

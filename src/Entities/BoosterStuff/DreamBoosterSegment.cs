@@ -11,7 +11,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private readonly Vector2 perp;
 
             public PathRenderer(float alpha, DreamBoosterSegment booster)
-                : base(alpha, booster.Style, booster) {
+                : base(alpha, booster.Style, DreamColors, booster) {
                 perp = booster.Dir.Perpendicular();
             }
 
@@ -20,7 +20,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (Alpha <= 0f)
                     return;
 
-                Color color = Booster.BoostingPlayer ? CurrentRainbowColor : Color.White;
+                Color color = Booster.BoostingPlayer ? Color : Color.White;
 
                 Util.TryGetPlayer(out Player player);
 

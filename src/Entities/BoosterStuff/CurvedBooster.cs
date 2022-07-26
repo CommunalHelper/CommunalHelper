@@ -7,9 +7,19 @@ using System;
 using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-    [CustomEntity("CommunalHelper/CurvedDreamBooster")]
-    public class DreamBoosterCurve : DreamBooster {
-        public class PathRenderer : PathRendererBase<DreamBoosterCurve> {
+    [CustomEntity("CommunalHelper/CurvedBooster")]
+    public class CurvedBooster : CustomBooster {
+        public static ParticleType P_BurstExplode { get; private set; }
+        public static ParticleType P_PathReveal { get; private set; }
+
+        public static readonly Color BurstColor = Calc.HexToColor("062245");
+        public static readonly Color AppearColor = Calc.HexToColor("59c3e6");
+
+        public static readonly Color[] PathColors = new[] {
+            Calc.HexToColor("1878a6"), Calc.HexToColor("0d5382"),
+        };
+
+        public class PathRenderer : PathRendererBase<CurvedBooster> {
             private struct Node {
                 public readonly float Distance;
                 public readonly Vector2 Position, Dir, Perp;
@@ -25,8 +35,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private readonly Node[] nodes;
             private Node last;
 
-            public PathRenderer(float alpha, DreamBoosterCurve booster)
-                : base(alpha, booster.Style, DreamColors, booster) {
+            public PathRenderer(float alpha, CurvedBooster booster)
+                : base(alpha, booster.style, PathColors, booster) {
                 float sep = 6f;
                 nodes = new Node[(int)Math.Ceiling(booster.curve.Length / sep)];
 
@@ -35,6 +45,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     booster.curve.GetAllByDistance(d, out Vector2 point, out Vector2 derivative);
                     nodes[i] = new Node(d, Calc.Round(point), Calc.SafeNormalize(derivative));
                 }
+
+                Depth = Depths.Above + 1;
             }
 
             public void SetLastNode(float distance, Vector2 point, Vector2 derivative) {
@@ -58,21 +70,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private PathRenderer pathRenderer;
+        private readonly PathStyle style;
         private bool showPath = true;
 
         private readonly BakedCurve curve;
         private float travel = 0;
 
-        public readonly Vector2 EndingSpeed;
+        private readonly Vector2 endingSpeed;
 
-        public DreamBoosterCurve(EntityData data, Vector2 offset)
+        public CurvedBooster(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow)) { }
         
-        public DreamBoosterCurve(Vector2 position, Vector2[] nodes, CurveType mode, bool showPath, PathStyle style)
-            : base(position, showPath, style) {
+        public CurvedBooster(Vector2 position, Vector2[] nodes, CurveType mode, bool showPath, PathStyle style)
+            : base(position, redBoost: true) {
             this.showPath = showPath;
+            this.style = style;
             curve = new BakedCurve(nodes, mode, 24);
-            EndingSpeed = Calc.SafeNormalize(curve.GetPointByDistance(curve.Length) - curve.GetPointByDistance(curve.Length - 1f), 240);
+            endingSpeed = Calc.SafeNormalize(curve.GetPointByDistance(curve.Length) - curve.GetPointByDistance(curve.Length - 1f), 240);
+
+            ReplaceSprite(CommunalHelperModule.SpriteBank.Create("curvedBooster"));
+            SetParticleColors(BurstColor, AppearColor);
         }
 
         public override void Added(Scene scene) {
@@ -95,7 +112,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         protected override void OnPlayerEnter(Player player) {
             base.OnPlayerEnter(player);
-            pathRenderer.ResetRainbow();
             travel = 0f;
             if (!showPath)
                 Add(new Coroutine(RevealPathRoutine()));
@@ -118,12 +134,16 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 prev = player.Position;
             Vector2 next = Travel(out bool end);
 
+            bool stopped = false;
             player.Speed = Vector2.Zero;
-            player.MoveToX(next.X, (Collision) data["onCollideH"]);
-            player.MoveToY(next.Y + 8f, (Collision) data["onCollideV"]);
+            player.MoveToX(next.X, _ => stopped = true);
+            player.MoveToY(next.Y + 8f, _ => stopped = true);
+
+            if (stopped)
+                return Player.StNormal;
 
             if (end) {
-                player.Speed = EndingSpeed;
+                player.Speed = endingSpeed;
                 return Player.StNormal;
             }
 
@@ -148,10 +168,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 curve.GetAllByDistance(distance, out Vector2 point, out Vector2 derivative);
                 pathRenderer.SetLastNode(distance, point, derivative);
 
-                particlesBG.Emit(DreamParticles[Calc.Random.Range(0, 8)], 2, point, Vector2.One * 2f, (-derivative).Angle());
+                particlesBG.Emit(P_PathReveal, 1, point, Vector2.One * 2f, (-derivative).Angle());
                 yield return null;
             }
             pathRenderer.Percent = 1f;
+        }
+
+        internal static void InitializeParticles() {
+            P_BurstExplode = new ParticleType(P_Burst) {
+                Color = BurstColor, SpeedMax = 250
+            };
+            P_PathReveal = new ParticleType(P_Appear) {
+                Color = AppearColor, SpeedMax = 60
+            };
         }
     }
 }

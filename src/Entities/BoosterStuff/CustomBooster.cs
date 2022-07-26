@@ -19,6 +19,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public CustomBooster(Vector2 position, bool redBoost)
             : base(position, redBoost) {
             BoosterData = new DynData<Booster>(this);
+
+            P_CustomAppear = P_Appear;
+            P_CustomBurst = redBoost ? P_BurstRed : P_Burst;
         }
 
         protected void ReplaceSprite(Sprite newSprite) {
@@ -169,7 +172,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // 'post' takes priority first, then 'pre', and lastly the original result.
             return post ?? pre ?? res;
         }
-
 
         #endregion
     }
