@@ -47,7 +47,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Update();
 
             // Creates and updates the dream trail
-            if (Scene.OnInterval(0.1f))
+            if (Visible && Scene.OnInterval(0.1f))
                 CreateDreamTrail();
         }
 
