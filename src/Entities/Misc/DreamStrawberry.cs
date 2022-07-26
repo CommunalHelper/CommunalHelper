@@ -81,6 +81,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IL.Celeste.StrawberrySeed.Awake += StrawberrySeed_Awake;
             IL.Celeste.StrawberrySeed.Update += StrawberrySeed_Update;
             On.Celeste.Player.Update += Player_Update;
+            On.Celeste.Player.WallJump += Player_WallJump;
             On.Celeste.Player.ctor += Player_ctor;
         }
 
@@ -89,6 +90,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             IL.Celeste.StrawberrySeed.Awake -= StrawberrySeed_Awake;
             IL.Celeste.StrawberrySeed.Update -= StrawberrySeed_Update;
             On.Celeste.Player.Update -= Player_Update;
+            On.Celeste.Player.WallJump -= Player_WallJump;
             On.Celeste.Player.ctor -= Player_ctor;
         }
 
@@ -143,6 +145,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (loseDreamSeeds)
                 self.LoseDreamSeeds();
+        }
+
+        private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir) {
+            orig(self, dir);
+            self.LoseDreamSeeds();
         }
 
         private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
