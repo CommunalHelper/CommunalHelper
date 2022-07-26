@@ -90,6 +90,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create("curvedBooster"));
             SetParticleColors(BurstColor, AppearColor);
+            SetSoundEvent(
+                showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,
+                SFX.game_05_redbooster_move_loop,
+                false);
         }
 
         public override void Added(Scene scene) {
@@ -156,7 +160,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             showPath = true;
             SetSoundEvent(
                 CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter,
-                CustomSFX.game_customBoosters_dreamBooster_dreambooster_move,
+                SFX.game_05_redbooster_move_loop,
                 false);
 
             ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
