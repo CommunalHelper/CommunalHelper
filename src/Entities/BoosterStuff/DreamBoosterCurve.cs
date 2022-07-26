@@ -73,6 +73,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             this.showPath = showPath;
             curve = new BakedCurve(nodes, mode, 24);
             EndingSpeed = Calc.SafeNormalize(curve.GetPointByDistance(curve.Length) - curve.GetPointByDistance(curve.Length - 1f), 240);
+
+            ReplaceSprite(CommunalHelperModule.SpriteBank.Create("curvedDreamBooster"));
         }
 
         public override void Added(Scene scene) {

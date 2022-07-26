@@ -35,7 +35,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             Style = style;
 
-            ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
             SetParticleColors(BurstColor, AppearColor);
             SetSoundEvent(
                 showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,

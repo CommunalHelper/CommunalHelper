@@ -46,6 +46,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Length = Vector2.Distance(position, Target);
             Start = position;
 
+            ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
+
             this.showPath = showPath;
         }
 
