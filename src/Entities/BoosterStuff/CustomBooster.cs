@@ -51,14 +51,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
-        public static void Unload() {
-            DreamBoosterHooks.Unhook();
-
-            On.Celeste.Booster.AppearParticles -= Booster_AppearParticles;
-            On.Celeste.Booster.OnPlayer -= Booster_OnPlayer;
-            On.Celeste.Booster.PlayerBoosted -= Booster_PlayerBoosted;
-        }
-
         public static void Load() {
             DreamBoosterHooks.Hook();
 
@@ -66,6 +58,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Booster.OnPlayer += Booster_OnPlayer;
             On.Celeste.Booster.PlayerBoosted += Booster_PlayerBoosted;
             On.Celeste.Booster.PlayerReleased += Booster_PlayerReleased;
+        }
+
+        public static void Unload() {
+            DreamBoosterHooks.Unhook();
+
+            On.Celeste.Booster.AppearParticles -= Booster_AppearParticles;
+            On.Celeste.Booster.OnPlayer -= Booster_OnPlayer;
+            On.Celeste.Booster.PlayerBoosted -= Booster_PlayerBoosted;
+            On.Celeste.Booster.PlayerReleased -= Booster_PlayerReleased;
         }
 
         private static void Booster_PlayerReleased(On.Celeste.Booster.orig_PlayerReleased orig, Booster self) {
