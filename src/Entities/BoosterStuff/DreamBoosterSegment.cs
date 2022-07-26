@@ -11,7 +11,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private readonly Vector2 perp;
 
             public PathRenderer(float alpha, DreamBoosterSegment booster)
-                : base(alpha, booster) {
+                : base(alpha, booster.Style, booster) {
                 perp = booster.Dir.Perpendicular();
             }
 
