@@ -216,7 +216,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
         private readonly Color lightningFlashColor;
 
         public Cloudscape(BinaryPacker.Element child)
-            : this(new Options()) { }
+            : this(new Options(child)) { }
 
         public Cloudscape(Options options) : base() {
             sky = options.Sky;
