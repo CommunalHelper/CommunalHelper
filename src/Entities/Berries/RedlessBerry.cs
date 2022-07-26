@@ -36,6 +36,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
         private readonly Info info;
 
+        public EntityID ID => info.ID;
+
         internal bool Given; // given by command
 
         private readonly bool persistent, persisted;

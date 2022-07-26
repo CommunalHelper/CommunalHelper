@@ -22,7 +22,16 @@ namespace Celeste.Mod.CommunalHelper {
                 return;
             }
 
-            EntityID id = new EntityID("ch-unknown-redlessberry", 1073741823 + Calc.Random.Next(10000));
+            EntityID id = new EntityID("ch-unknown-redlessberry", -1);
+
+            // Let's not allow the player giving themselves two redless berries with this command.
+            foreach (Follower follower in player.Leader.Followers) {
+                if (follower.Entity is RedlessBerry e && e.ID.Level == id.Level && e.ID.ID == id.ID) {
+                    Engine.Commands.Log("Player was already given a Redless Strawberry!", Color.Red);
+                    return;
+                }
+            }
+
             RedlessBerry berry = new(player, new(id, player.Center)) { Given = true, };
             level.Add(berry);
         }
