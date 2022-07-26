@@ -61,7 +61,7 @@ curvedDreamBooster.placements = {
     }
 }
 
-local bubbleTexture = "objects/CommunalHelper/boosters/dreamBooster/idle00"
+local bubbleTexture = "objects/CommunalHelper/boosters/dreamBooster/idlecurve00"
 local insideTexture = "objects/CommunalHelper/boosters/dreamBooster/inside01"
 local extraNodeTexture = "objects/CommunalHelper/boosters/dreamBooster/x"
 local controlNodeTexture = "objects/CommunalHelper/boosters/dreamBooster/o"
