@@ -12,15 +12,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     // I gave them a plugin for the old version when i finished and I'd like to keep some compatability to the old version so they dont have to redo their berries using it
     [CustomEntity("CommunalHelper/DreamStrawberry", "DreamDashListener/DreamDashBerry")]
     public class DreamStrawberry : Strawberry {
-
-        /*
-         * Hey! snowii here
-         * 
-         * If anyone is reading this and wants to touch my unholy code AND has a sprite for this, please add it im begging
-         * 
-         * Hope someone finds this super niche excuse for an entity useful
-         */
-
         // Original OnDash method from Celeste.Strawberry
         private static readonly MethodInfo m_Strawberry_OnDash = typeof(Strawberry).GetMethod("OnDash", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
 
@@ -52,49 +43,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             dreamStrawberryData = DynamicData.For(this);
         }
 
-        #region Bad Code
-        /*
-        public override void Added(Scene scene) {
-            sprite.OnFrameChange = OnAnimate;
-            Add(wiggler = Wiggler.Create(0.4f, 4f, delegate (float v)
-            {
-                sprite.Scale = Vector2.One * (1f + v * 0.35f);
-            }));
-            Add(rotateWiggler = Wiggler.Create(0.5f, 4f, delegate (float v)
-            {
-                sprite.Rotation = v * 30f * ((float) Math.PI / 180f);
-            }));
-            Add(bloom = new BloomPoint(1f, 12f));
-            Add(light = new VertexLight(Color.White, 1f, 16, 24));
-            Add(lightTween = light.CreatePulseTween());
-            if ((scene as Level).Session.BloomBaseAdd > 0.1f) {
-                bloom.Alpha *= 0.5f;
-            }
-        }
-
-        public void OnAnimate(string id) {
-            if (!flyingAway && id == "flap" && sprite.CurrentAnimationFrame % 9 == 4) {
-                Audio.Play("event:/game/general/strawberry_wingflap", Position);
-                flapSpeed = -50f;
-            }
-            int num = 25;
-            // Checks if the animation from is 25, runs the funny strawberry noises
-            if (sprite.CurrentAnimationFrame == num) {
-                lightTween.Start();
-                if (!collected && (CollideCheck<FakeWall>() || CollideCheck<Solid>())) {
-                    Audio.Play("event:/game/general/strawberry_pulse", Position);
-                    SceneAs<Level>().Displacement.AddBurst(Position, 0.6f, 4f, 28f, 0.1f);
-                } else {
-                    Audio.Play("event:/game/general/strawberry_pulse", Position);
-                    SceneAs<Level>().Displacement.AddBurst(Position, 0.6f, 4f, 28f, 0.2f);
-                }
-            }
-        }
-        */
-        #endregion
-
         public override void Update() {
-
             base.Update();
 
             // Creates and updates the dream trail
