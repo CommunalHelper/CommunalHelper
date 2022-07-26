@@ -425,4 +425,12 @@
         <Loop id="flap" path="wings" delay=".08" frames="0-8,0-8,0-7,9" />
     </dreamStrawberry>
 	
+    <!--DreamStrawberrySeed-->
+    <dreamStrawberrySeed path="collectables/CommunalHelper/dreamberry/">
+        <Center />
+
+        <Loop id="idle" path="seed" frames="0-7,0-7,8" delay="0.1" />
+        <Loop id="noFlash" path="seed" frames="0-7" />
+    </dreamStrawberrySeed>
+	
 </Sprites>

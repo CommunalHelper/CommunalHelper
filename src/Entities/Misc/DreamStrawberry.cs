@@ -75,10 +75,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         internal static void Hook() {
             IL.Celeste.Strawberry.Added += Strawberry_Added;
+            IL.Celeste.StrawberrySeed.Awake += StrawberrySeed_Awake;
         }
 
         internal static void Unhook() {
             IL.Celeste.Strawberry.Added -= Strawberry_Added;
+            IL.Celeste.StrawberrySeed.Awake -= StrawberrySeed_Awake;
         }
 
         private static void Strawberry_Added(ILContext il) {
@@ -91,6 +93,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             cursor.EmitDelegate<Func<Sprite, Strawberry, Sprite>>((sprite, strawberry) => {
                 if (strawberry is DreamStrawberry)
                     sprite = CommunalHelperModule.SpriteBank.Create("dreamStrawberry");
+                return sprite;
+            });
+        }
+
+        private static void StrawberrySeed_Awake(ILContext il) {
+            ILCursor cursor = new(il);
+
+            cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<SpriteBank>(nameof(SpriteBank.Create)));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<Sprite, StrawberrySeed, Sprite>>((sprite, seed) => {
+                if (seed.Strawberry is DreamStrawberry)
+                    sprite = CommunalHelperModule.SpriteBank.Create("dreamStrawberrySeed");
                 return sprite;
             });
         }
