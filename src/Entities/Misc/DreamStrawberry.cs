@@ -1,13 +1,13 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
-using MonoMod;
+using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-
     // Originally I made this as a standalone entity for someone's map they were working on, but to make this fully work with DreamTunnelDash I moved it to CommunalHelper
     // I gave them a plugin for the old version when i finished and I'd like to keep some compatability to the old version so they dont have to redo their berries using it
     [CustomEntity("CommunalHelper/DreamStrawberry", "DreamDashListener/DreamDashBerry")]
@@ -70,5 +70,31 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             data.Values["winged"] = true;
             return data;
         }
+
+        #region Hooks
+
+        internal static void Hook() {
+            IL.Celeste.Strawberry.Added += Strawberry_Added;
+        }
+
+        internal static void Unhook() {
+            IL.Celeste.Strawberry.Added -= Strawberry_Added;
+        }
+
+        private static void Strawberry_Added(ILContext il) {
+            ILCursor cursor = new(il);
+
+            cursor.GotoNext(instr => instr.MatchLdstr("strawberry"));
+            cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<SpriteBank>(nameof(SpriteBank.Create)));
+
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<Sprite, Strawberry, Sprite>>((sprite, strawberry) => {
+                if (strawberry is DreamStrawberry)
+                    sprite = CommunalHelperModule.SpriteBank.Create("dreamStrawberry");
+                return sprite;
+            });
+        }
+
+        #endregion
     }
 }

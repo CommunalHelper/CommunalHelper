@@ -81,6 +81,7 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Load();
 
             DreamDashListener.Load();
+            DreamStrawberry.Hook();
 
             #region Imports
 
@@ -131,6 +132,7 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Unload();
 
             DreamDashListener.Unload();
+            DreamStrawberry.Unhook();
         }
 
         public override void Initialize() {
