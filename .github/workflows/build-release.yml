@@ -80,12 +80,7 @@ jobs:
       run: |
         OUTFILE="docs/Reference.md"
         TEMPFILE=$(mktemp)
-        gawk --lint=no-ext -f docs/generate.awk Loenn/lang/en_gb.lang > $TEMPFILE
-        echo '# Table of Contents\n<details><summary>Click to expand Table of Contents</summary>\n' >$OUTFILE
-        gawk 'match($0, /^## (.+)/, a) {
-          v=tolower(a[1]);gsub(/[^A-Za-z_ -]/,"",v);gsub(/ /,"-",v);print "- [" a[1] "](#" v ")";
-        }' $TEMPFILE >>$OUTFILE
-        echo '\n</details>\n'>>$OUTFILE
+        gawk -v METAFILE=$OUTFILE -f docs/generate.awk Loenn/lang/en_gb.lang > $TEMPFILE
         cat $TEMPFILE >>$OUTFILE
 
     - name: Sync Wiki
