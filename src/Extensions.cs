@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -410,5 +411,12 @@ namespace Celeste.Mod.CommunalHelper {
 
         public static TextMenuExt.OptionSubMenu Add(this TextMenuExt.OptionSubMenu menu, string label, params TextMenu.Item[] items)
             => menu.Add(label, new List<TextMenu.Item>(items));
+
+        #region GravityHelper utilities
+
+        public static GravityType GetGravity(this Actor actor)
+            => (GravityType) (GravityHelper.GetActorGravity?.Invoke(actor) ?? 0);
+
+        #endregion
     }
 }

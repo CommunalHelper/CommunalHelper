@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.DashStates;
+using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
@@ -262,7 +263,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (currentBooster is DreamBooster booster) {
                 DynData<Player> playerData = new DynData<Player>(self);
+
                 self.Speed = ((Vector2) (playerData["gliderBoostDir"] = self.DashDir = booster.Dir)) * 240f;
+
+                // If the player is inverted, invert its vertical speed so that it moves in the same direction no matter what.
+                if (GravityHelper.IsPlayerInverted?.Invoke() ?? false)
+                    self.Speed.Y *= -1f;
+
                 self.SceneAs<Level>().DirectionalShake(self.DashDir, 0.2f);
                 if (self.DashDir.X != 0f) {
                     self.Facing = (Facings) Math.Sign(self.DashDir.X);

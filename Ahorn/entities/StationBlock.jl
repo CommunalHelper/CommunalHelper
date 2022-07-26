@@ -18,6 +18,7 @@ const behaviors = ["Pulling", "Pushing"]
     customTrackPath::String="",
     speedFactor::Number=1.0,
     allowWavedash::Bool=false,
+    allowWavedashBottom::Bool=false,
     wavedashButtonColor::String="5BF75B",
     wavedashButtonPressedColor::String="F25EFF",
     dashCornerCorrection::Bool=true,
@@ -64,8 +65,19 @@ function getSprites(blockSize::Integer, entity::StationBlock)
         arrowDirectory, block = (behavior == "pulling") ? ("moonArrow/", "/moon_block") : ("altMoonArrow/", "/alt_moon_block")
     end
 
+    allowWavedash = Bool(get(entity.data, "allowWavedash", false))
+    allowWavedashBottom = Bool(get(entity.data, "allowWavedashBottom", false))
+
     arrow = (blockSize <= 16) ? "small00" : ((blockSize <= 24) ? "med00" : "big00")
-    button = (Bool(get(entity.data, "allowWavedash", false)) ? "_button" : "")
+    button = allowWavedash && allowWavedashBottom ? 
+        "_button_both" :
+        (allowWavedashBottom ?
+            "_button_bottom" :
+            (allowWavedash ?
+                "_button" :
+                ""
+            )
+        )
 
     return (
         (path * arrowDirectory * arrow),
@@ -87,16 +99,30 @@ function renderStationBlock(ctx::Ahorn.Cairo.CairoContext, entity::StationBlock)
     tilesWidth = div(width, 8)
     tilesHeight = div(height, 8)
 
+    allowWavedash = Bool(get(entity.data, "allowWavedash", false))
+    allowWavedashBottom = Bool(get(entity.data, "allowWavedashBottom", false))
+
     # Button
-    if Bool(get(entity.data, "allowWavedash", false))
+    if allowWavedash || allowWavedashBottom
         hexColor = String(get(entity.data, "wavedashButtonColor", "FFFFFF"))
         color = (length(hexColor) == 6) ? hexToRGBA(hexColor) : (1.0, 1.0, 1.0, 1.0)
 
         for i in 1:tilesWidth
             tx = (i == 1) ? 0 : ((i == tilesWidth) ? 16 : 8)
 
-            Ahorn.drawImage(ctx, buttonOutline, x + (i - 1) * 8, y - 4, tx, 0, 8, 8, tint=color)
-            Ahorn.drawImage(ctx, button, x + (i - 1) * 8, y - 4, tx, 0, 8, 8, tint=color)
+            if allowWavedash
+                Ahorn.drawImage(ctx, buttonOutline, x + (i - 1) * 8, y - 4, tx, 0, 8, 8, tint=color)
+                Ahorn.drawImage(ctx, button, x + (i - 1) * 8, y - 4, tx, 0, 8, 8, tint=color)
+            end
+
+            if allowWavedashBottom
+                Ahorn.Cairo.save(ctx)
+                Ahorn.Cairo.scale(ctx, 1, -1)
+                Ahorn.Cairo.translate(ctx, 0, -2 * y)
+                Ahorn.drawImage(ctx, buttonOutline, x + (i - 1) * 8, y - height - 4, tx, 0, 8, 8, tint=color)
+                Ahorn.drawImage(ctx, button, x + (i - 1) * 8, y - height - 4, tx, 0, 8, 8, tint=color)
+                Ahorn.Cairo.restore(ctx)
+            end
         end
     end
 
