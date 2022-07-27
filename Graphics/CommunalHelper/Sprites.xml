@@ -414,5 +414,23 @@
 		<Loop id="fallLoop" path="fallLoop" delay="0.06"/>
 		<Anim id="death" path="death" delay="0.06"/>
   	</dreamJellyfish>
+
+    <!--DreamStrawberry-->
+    <dreamStrawberry path="collectables/CommunalHelper/dreamberry/" start="idle">
+        <Center />
+        
+        <Loop id="idle" path="normal" delay=".1" frames="0-6,0-6,0-6,0-6,0-7" />
+        <Loop id="noFlash" path="normal" delay=".1" frames="0-6"/>
+        <Anim id="collect" path="normal" delay=".07" frames="7-11"/>
+        <Loop id="flap" path="wings" delay=".08" frames="0-8,0-8,0-7,9" />
+    </dreamStrawberry>
+	
+    <!--DreamStrawberrySeed-->
+    <dreamStrawberrySeed path="collectables/CommunalHelper/dreamberry/">
+        <Center />
+
+        <Loop id="idle" path="seed" frames="0-7,0-7,8" delay="0.1" />
+        <Loop id="noFlash" path="seed" frames="0-7" />
+    </dreamStrawberrySeed>
 	
 </Sprites>
