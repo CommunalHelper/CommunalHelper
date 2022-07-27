@@ -1,16 +1,11 @@
-local directions = {
-    "TopToBottom",
-    "BottomToTop",
-    "LeftToRight",
-    "RightToLeft"
-}
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 return {
     name = "CommunalHelper/CloudscapeColorTransitionTrigger",
     fieldInformation = {
         mode = {
             editable = false,
-            options = directions
+            options = communalHelper.lerpDirections
         },
         bgFrom = {
             fieldType = "color"

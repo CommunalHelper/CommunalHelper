@@ -93,7 +93,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             private readonly int index;
 
             public Color IdleColor { get; set; }
-            private Color targetColorA, targetColorB;
+            private Color targetColorA, targetColorB, flashColor;
 
             private float timer = 0f;
             private float flashDuration = 1f, flashTimer = 0f;
@@ -118,7 +118,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
                 float sin = ((float) Math.Sin(percent * 10) + 1) / 2f;
                 Color target = Color.Lerp(targetColorA, targetColorB, sin);
                 Color lightning = Color.Lerp(IdleColor, target, Ease.BounceIn(percent) * (1 - Ease.CubeIn(percent)));
-                Color flash = intensity > 0 ? Color.Lerp(lightning, backdrop.lightningFlashColor, intensity * Ease.ExpoIn(percent)) : lightning;
+                Color flash = intensity > 0 ? Color.Lerp(lightning, flashColor, intensity * Ease.ExpoIn(percent)) : lightning;
 
                 int to = LEVEL_OF_DETAIL * 2;
                 for (int i = 0; i < to; i++)
@@ -127,14 +127,17 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
                 oldPercent = percent;
             }
 
-            public void Update() {
-                timer -= Engine.DeltaTime;
-                if (timer <= 0) {
-                    timer = Calc.Random.Range(backdrop.lightningMinDelay, backdrop.lightningMaxDelay);
-                    flashTimer = flashDuration = Calc.Random.Range(backdrop.lightningMinDuration, backdrop.lightningMaxDuration);
-                    intensity = Settings.Instance.DisableFlashes ? 0 : backdrop.lightningIntensity * Ease.CubeIn(Calc.Random.NextFloat());
-                    targetColorA = Util.ColorArrayLerp(Calc.Random.NextFloat() * (backdrop.lightningColors.Length - 1), backdrop.lightningColors);
-                    targetColorB = Util.ColorArrayLerp(Calc.Random.NextFloat() * (backdrop.lightningColors.Length - 1), backdrop.lightningColors);
+            public void Update(bool allowLightning) {
+                if (allowLightning) {
+                    timer -= Engine.DeltaTime;
+                    if (timer <= 0) {
+                        timer = Calc.Random.Range(backdrop.lightningMinDelay, backdrop.lightningMaxDelay);
+                        flashColor = backdrop.lightningFlashColor;
+                        flashTimer = flashDuration = Calc.Random.Range(backdrop.lightningMinDuration, backdrop.lightningMaxDuration);
+                        intensity = Settings.Instance.DisableFlashes ? 0 : backdrop.lightningIntensity * Ease.CubeIn(Calc.Random.NextFloat());
+                        targetColorA = Util.ColorArrayLerp(Calc.Random.NextFloat() * (backdrop.lightningColors.Length - 1), backdrop.lightningColors);
+                        targetColorB = Util.ColorArrayLerp(Calc.Random.NextFloat() * (backdrop.lightningColors.Length - 1), backdrop.lightningColors);
+                    }
                 }
 
                 if (flashTimer > 0)
@@ -229,12 +232,12 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
 
         private readonly Vector2 offset, parallax;
 
-        public bool Lightning;
-        private readonly float lightningMinDelay, lightningMaxDelay;
-        private readonly float lightningMinDuration, lightningMaxDuration;
-        private readonly float lightningIntensity;
-        private readonly Color[] lightningColors;
-        private readonly Color lightningFlashColor;
+        private bool lightning;
+        private float lightningMinDelay, lightningMaxDelay;
+        private float lightningMinDuration, lightningMaxDuration;
+        private float lightningIntensity;
+        private Color[] lightningColors;
+        private Color lightningFlashColor;
 
         public Cloudscape(BinaryPacker.Element child)
             : this(new Options(child)) { }
@@ -245,7 +248,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             offset = options.Offset;
             parallax = options.Parallax;
 
-            Lightning = options.Lightning;
+            lightning = options.Lightning;
             lightningMinDelay = options.LightningMinDelay;
             lightningMaxDelay = options.LightningMaxDelay;
             lightningMinDuration = options.LightningMinDuration;
@@ -305,6 +308,24 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             }
         }
 
+        public void ConfigureLightning(
+            bool enable,
+            Color[] lightningColors, Color lightningFlashColor,
+            float lightningMinDelay, float lightningMaxDelay,
+            float lightningMinDuration, float lightningMaxDuration,
+            float lightningIntensity) {
+            lightning = enable;
+            if (lightning) {
+                this.lightningColors = lightningColors;
+                this.lightningFlashColor = lightningFlashColor;
+                this.lightningMinDelay = lightningMinDelay;
+                this.lightningMaxDelay = lightningMaxDelay;
+                this.lightningMinDuration = lightningMinDuration;
+                this.lightningMaxDuration = lightningMaxDuration;
+                this.lightningIntensity = lightningIntensity;
+            }
+        }
+
         public override void Update(Scene scene) {
             base.Update(scene);
 
@@ -315,9 +336,8 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
                 foreach (Ring ring in rings)
                     ring.Update(matrix);
 
-                if (Lightning)
-                    foreach (WarpedCloud cloud in clouds)
-                        cloud.Update();
+                foreach (WarpedCloud cloud in clouds)
+                    cloud.Update(lightning);    
             }
         }
 
