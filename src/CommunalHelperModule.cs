@@ -87,6 +87,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamDashListener.Load();
             DreamStrawberry.Hook();
 
+            RedlessBerry.Hook();
+
             PlayerSeekerBarrier.Hook();
             PlayerSeekerBarrierRenderer.Hook();
             
@@ -141,6 +143,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamDashListener.Unload();
             DreamStrawberry.Unhook();
+
+            RedlessBerry.Unhook();
             
             PlayerSeekerBarrier.Unhook();
             PlayerSeekerBarrierRenderer.Unhook();

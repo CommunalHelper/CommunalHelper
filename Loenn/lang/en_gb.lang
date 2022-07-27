@@ -513,6 +513,11 @@ entities.CommunalHelper/CustomSummitGemManager.attributes.description.gemIds=Com
 entities.CommunalHelper/CustomSummitGemManager.attributes.description.melody=NOT Comma separated list of numbers from 0-7 for a custom melody during collection. Defaults to the gem index if not provided.
 entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffset=Determines where the crystal heart will move to relative to this summit gem manager once all gems are collected.
 
+# Redless Berry
+entities.CommunalHelper/RedlessBerry.placements.name.redless_berry=Redless Berry
+entities.CommunalHelper/RedlessBerry.attributes.description.persistent=Whether this Redless Berry stays with the player, even throughout deaths.
+entities.CommunalHelper/RedlessBerry.attributes.description.winged=Makes this Redless Berry winged, meaning that it won't appear if the player was tired at some point in the session. 
+
 # Dream Strawberry
 entities.CommunalHelper/DreamStrawberry.placements.name.dream_dash_berry=Dream Strawberry
 entities.CommunalHelper/DreamStrawberry.attributes.description.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
@@ -553,6 +558,9 @@ triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.fadeA=De
 triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.fadeB=Determines the parameter value at the end of the fade.
 triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.parameter=The name of the affected parameter. Uses "fade" if left blank.
 triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.direction=The direction the music fades in.
+
+# Redless Berry Collection
+triggers.CommunalHelper/RedlessBerryCollection.placements.name.trigger=Redless Berry Collection
 
 # Cloudscape Color Transition
 triggers.CommunalHelper/CloudscapeColorTransitionTrigger.placements.name.trigger=Cloudscape Color Transition

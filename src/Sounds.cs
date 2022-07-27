@@ -78,6 +78,9 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_dreamJellyfish_jelly_refill = "event:/CommunalHelperEvents/game/dreamJellyfish/jelly_refill";
         public const string game_dreamJellyfish_jelly_use = "event:/CommunalHelperEvents/game/dreamJellyfish/jelly_use";
 
+        public const string game_berries_redless_break = "event:/CommunalHelperEvents/game/berries/redless/break";
+        public const string game_berries_redless_warning = "event:/CommunalHelperEvents/game/berries/redless/warning";
+
         public const string game_seekerDashRefill_seeker_refill_return = "event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_return";
         public const string game_seekerDashRefill_seeker_refill_touch = "event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_touch";
     }
