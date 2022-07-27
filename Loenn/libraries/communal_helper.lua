@@ -58,7 +58,7 @@ local function getTileSprite(entity, x, y, frame, color, depth, rectangles)
     local closedDown = hasAdjacent(entity, drawX, drawY + 8, rectangles)
     local completelyClosed = closedLeft and closedRight and closedUp and closedDown
 
-    local quadX, quadY = false, false
+    local quadX, quadY = -1, -1
 
     if completelyClosed then
         if not hasAdjacent(entity, drawX + 8, drawY - 8, rectangles) then
@@ -92,7 +92,7 @@ local function getTileSprite(entity, x, y, frame, color, depth, rectangles)
         end
     end
 
-    if quadX and quadY then
+    if quadX ~= -1 and quadY ~= -1 then
         local sprite = drawableSprite.fromTexture(frame, entity)
 
         sprite:addPosition(drawX, drawY)
