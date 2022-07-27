@@ -333,4 +333,13 @@ communalHelper.dreamBoosterPathStyles = {
     ["Points"] = "Point"
 }
 
+-- lerp triggers
+
+communalHelper.lerpDirections = {
+    "TopToBottom",
+    "BottomToTop",
+    "LeftToRight",
+    "RightToLeft"
+}
+
 return communalHelper

@@ -76,6 +76,13 @@ jobs:
             --arg url $DOWNLOAD_URL \
             '{body: "\($body)\r\n\r\n[Install CommunalHelper.zip](https://0x0a.de/twoclick/?\($url))"}')"
 
+    - name: Generate reference pages
+      run: |
+        OUTFILE="docs/Reference.md"
+        TEMPFILE=$(mktemp)
+        gawk -v METAFILE=$OUTFILE -f docs/generate.awk Loenn/lang/en_gb.lang > $TEMPFILE
+        cat $TEMPFILE >>$OUTFILE
+
     - name: Sync Wiki
       if: ${{ !fromJSON(env.PRERELEASE) }}
       uses: SwiftDocOrg/github-wiki-publish-action@v1
