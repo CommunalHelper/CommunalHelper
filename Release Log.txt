@@ -8,6 +8,7 @@
 * Enhanced Seeker Dash State graphics.
 * Fixed Attached Wall Booster bug with Ice Mode.
 * Implemented Gravity Helper support.
+* Added automatically-generated entity reference on the repository.
 
 --1.12.1 (27/06/2022)--
 * Renamed Cassette Music Fade trigger 'param' option to 'parameter'.
