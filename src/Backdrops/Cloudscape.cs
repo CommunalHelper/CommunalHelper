@@ -91,7 +91,8 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             private readonly Mesh<VertexPositionColorTexture> mesh;
 
             private readonly int index;
-            private readonly Color idleColor;
+
+            public Color IdleColor { get; set; }
             private Color targetColorA, targetColorB;
 
             private float timer = 0f;
@@ -104,19 +105,19 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
                 this.backdrop = backdrop;
                 this.mesh = mesh;
                 this.index = index;
-                this.idleColor = idleColor;
+                IdleColor = idleColor;
 
                 timer = Calc.Random.Range(backdrop.lightningMinDelay, backdrop.lightningMaxDelay) * Calc.Random.NextFloat();
             }
 
-            private void UpdateColors() {
+            internal void UpdateColors(bool force = false) {
                 float percent = flashTimer / flashDuration;
-                if (oldPercent == percent)
+                if (oldPercent == percent && !force)
                     return;
 
                 float sin = ((float) Math.Sin(percent * 10) + 1) / 2f;
                 Color target = Color.Lerp(targetColorA, targetColorB, sin);
-                Color lightning = Color.Lerp(idleColor, target, Ease.BounceIn(percent) * (1 - Ease.CubeIn(percent)));
+                Color lightning = Color.Lerp(IdleColor, target, Ease.BounceIn(percent) * (1 - Ease.CubeIn(percent)));
                 Color flash = intensity > 0 ? Color.Lerp(lightning, backdrop.lightningFlashColor, intensity * Ease.ExpoIn(percent)) : lightning;
 
                 int to = LEVEL_OF_DETAIL * 2;
@@ -146,23 +147,34 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
         private class Ring {
             public readonly Mesh<VertexPositionColorTexture> Mesh;
 
+            private readonly WarpedCloud[] clouds;
+
             private float rotation;
             private readonly float rotationSpeed;
 
+            public float ColorLerp { get; }
+
             private Matrix matrix;
 
-            public Ring(Cloudscape backdrop, float radius, Color color, List<WarpedCloud> clouds, float speed, float density) {
+            public Ring(Cloudscape backdrop, float radius, Color color, float colorLerp, List<WarpedCloud> allClouds, float speed, float density) {
                 rotation = Calc.Random.NextFloat(MathHelper.TwoPi);
                 rotationSpeed = speed;
 
+                ColorLerp = colorLerp;
+
                 Mesh = new(GFX.FxTexture);
+
+                List<WarpedCloud> clouds = new();
 
                 float angle = 0f;
                 while (angle < MathHelper.TwoPi) {
                     MTexture texture = Calc.Random.Choose(cloudTextures);
 
                     int index = Mesh.VertexCount;
-                    clouds.Add(new(backdrop, Mesh, index, color));
+
+                    WarpedCloud cloud = new(backdrop, Mesh, index, color);
+                    clouds.Add(cloud);
+                    allClouds.Add(cloud);
 
                     float centralAngle = texture.Width / radius;
                     float step = centralAngle / LEVEL_OF_DETAIL;
@@ -185,7 +197,16 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
                     angle += centralAngle / density;
                 }
 
+                this.clouds = clouds.ToArray();
+
                 Mesh.Bake();
+            }
+
+            public void SetCloudColor(Color color) {
+                foreach (WarpedCloud cloud in clouds) {
+                    cloud.IdleColor = color;
+                    cloud.UpdateColors(force: true);
+                }
             }
 
             public void Update(Matrix translation) {
@@ -201,7 +222,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
         private readonly Ring[] rings;
         private readonly WarpedCloud[] clouds;
 
-        private readonly Color sky;
+        private Color sky;
 
         private VirtualRenderTarget buffer;
         private Matrix matrix;
@@ -256,7 +277,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
                 if (density == 0)
                     continue;
 
-                Ring ring = new(this, radius, color, clouds, speed, density);
+                Ring ring = new(this, radius, color, percent, clouds, speed, density);
 
                 vertexCount += ring.Mesh.VertexCount;
                 triangleCount += ring.Mesh.Triangles;
@@ -273,6 +294,15 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
             Util.Log(LogLevel.Info, $"  * Size of {bytes * 1e-3} kB = {bytes * 1e-6} MB ({bytes}o)");
 
             Calc.PopRandom();
+        }
+
+        public void ConfigureColors(Color bg, Color[] gradientFrom, Color[] gradientTo, float lerp) {
+            sky = bg;
+            foreach (Ring ring in rings) {
+                Color from = Util.ColorArrayLerp(ring.ColorLerp * (gradientFrom.Length - 1), gradientFrom);
+                Color to = Util.ColorArrayLerp(ring.ColorLerp * (gradientTo.Length - 1), gradientTo);
+                ring.SetCloudColor(Color.Lerp(from, to, lerp));
+            }
         }
 
         public override void Update(Scene scene) {
