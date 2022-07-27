@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -39,7 +40,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             On.Celeste.Player.ctor += Player_ctor;
             hook_Player_get_CanDash = new Hook(
                 typeof(Player).GetProperty("CanDash").GetGetMethod(),
-                typeof(SeekerDash).GetMethod("Player_get_CanDash", BindingFlags.NonPublic | BindingFlags.Static));
+                typeof(SeekerDash).GetMethod(nameof(Player_get_CanDash), BindingFlags.NonPublic | BindingFlags.Static));
             On.Celeste.Player.DashBegin += Player_DashBegin;
             IL.Celeste.Player.DashUpdate += Player_DashUpdate;
             On.Celeste.Player.DashEnd += Player_DashEnd;
@@ -50,6 +51,10 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
             // Rendering
             On.Celeste.Player.GetCurrentTrailColor += Player_GetCurrentTrailColor;
+
+            // Player Seeker Hair
+            IL.Celeste.Player.ctor += IL_Player_ctor;
+            IL.Celeste.Player.TransitionTo += Player_TransitionTo;
 
             // Interactions
             On.Celeste.DashBlock.OnDashed += DashBlock_OnDashed;
@@ -75,6 +80,9 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
             On.Celeste.Player.GetCurrentTrailColor -= Player_GetCurrentTrailColor;
 
+            IL.Celeste.Player.ctor -= IL_Player_ctor;
+            IL.Celeste.Player.TransitionTo -= Player_TransitionTo;
+
             On.Celeste.DashBlock.OnDashed -= DashBlock_OnDashed;
             On.Celeste.TempleCrackedBlock.ctor_EntityID_Vector2_float_float_bool -= TempleCrackedBlock_ctor_EntityID_Vector2_float_float_bool;
             On.Celeste.SeekerBarrier.ctor_Vector2_float_float -= SeekerBarrier_ctor_Vector2_float_float;
@@ -87,10 +95,28 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
         #region Hooks
 
-        // Initialize dash state
+        // Initialize dash state & add Player Seeker Hair
         private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
             orig(self, position, spriteMode);
             HasSeekerDash = seekerDashAttacking = seekerDashLaunched = launchPossible = false;
+        }
+
+        private static void IL_Player_ctor(ILContext il) {
+            ILCursor cursor = new(il);
+
+            cursor.GotoNext(MoveType.After, instr => instr.MatchStfld<Player>(nameof(Player.Sprite)));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Player>>(player => player.Add(new PlayerSeekerHair()));
+        }
+
+        private static void Player_TransitionTo(ILContext il) {
+            ILCursor cursor = new(il);
+
+            cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<Player>(nameof(Player.UpdateHair)));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Player>>(player => {
+                player.Get<PlayerSeekerHair>().AfterUpdate(motion: false);
+            });
         }
 
         // Prevent dash if HasSeekerDash and inside SeekerBarrier
@@ -103,12 +129,12 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                     bool collidable = entity.Collidable;
                     entity.Collidable = true;
                     if (self.CollideCheck(entity)) {
-                        // Tiny bit of feel-good leniancy
-                        Vector2 aim = self.GetData().Get<Vector2>("lastAim").Sign();
+                        // Tiny bit of feel-good leniency
+                        Vector2 aim = self.GetData().Get<Vector2>("lastAim").Sign() * 5;
                         if (!self.CollideCheck(entity, self.Position + aim)) {
+                            entity.Collidable = collidable;
                             self.MoveHExact((int) aim.X);
                             self.MoveVExact((int) aim.Y);
-                            entity.Collidable = collidable;
                             return true;
                         }
 
@@ -157,13 +183,21 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         
         // Make SeekerBarriers collidable if seekerDashAttacking, handle cooldowns
         private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
-            if (seekerDashAttacking)
-                self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = true);
+            static bool ShouldBeCollidable(SeekerBarrier barrier) {
+                if (barrier is PlayerSeekerBarrier playerBarrier) {
+                    bool seesBarriers = HasSeekerDash || SeekerAttacking;
+                    return seesBarriers || playerBarrier.WavedashTime > 0;
+                }
+                return SeekerAttacking;
+            }
+
+            self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = ShouldBeCollidable((SeekerBarrier) e));
+
+            self.CollideFirst<PlayerSeekerBarrier>()?.MakeGroupUncollidable();
 
             orig(self);
 
-            if (seekerDashAttacking)
-                self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = false);
+            self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = false);
 
             DynData<Player> playerData = self.GetData();
 
@@ -266,7 +300,18 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         // Add DashCollision component to SeekerBarriers for seekerDashAttacking
         private static void SeekerBarrier_ctor_Vector2_float_float(On.Celeste.SeekerBarrier.orig_ctor_Vector2_float_float orig, SeekerBarrier self, Vector2 position, float width, float height) {
             orig(self, position, width, height);
+
             self.OnDashCollide = new DashCollision((player, dir) => {
+                // Allow for more lenient wallbounces against seeker barriers
+                if ((player.Left >= self.Right - 5f || player.Right < self.Left + 5f) && Math.Abs(dir.Y) == 1)
+                    return DashCollisionResults.NormalCollision;
+
+                // Allow wavedashes
+                if (self is PlayerSeekerBarrier barrier && dir.Y > 0) {
+                    barrier.WavedashTime = PlayerSeekerBarrier.WavedashLeniencyTimer;
+                    return DashCollisionResults.NormalCollision;
+                }
+
                 if (seekerDashAttacking) {
                     Vector2 origin = dir.X > 0 ? player.CenterRight : dir.X < 0 ? player.CenterLeft : dir.Y > 0 ? player.BottomCenter : player.TopCenter;
                     self.SceneAs<Level>().Particles.Emit(Seeker.P_HitWall, 12, origin, new Vector2(dir.Y, dir.X) * 4f, (-dir).Angle());

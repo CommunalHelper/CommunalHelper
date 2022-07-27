@@ -15,6 +15,23 @@ entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether t
 entities.CommunalHelper/DreamBooster.placements.name.normal=Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (Hidden Path)
 entities.CommunalHelper/DreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+entities.CommunalHelper/DreamBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
+
+# Curved Dream Booster
+entities.CommunalHelper/CurvedDreamBooster.placements.name.quadratic_hidden_path=Dream Booster (Hidden Path, Quadratic Curve)
+entities.CommunalHelper/CurvedDreamBooster.placements.name.quadratic=Dream Booster (Quadratic Curve)
+entities.CommunalHelper/CurvedDreamBooster.placements.name.cubic_hidden_path=Dream Booster (Hidden Path, Cubic Curve)
+entities.CommunalHelper/CurvedDreamBooster.placements.name.cubic=Dream Booster (Cubic Curve)
+entities.CommunalHelper/CurvedDreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+entities.CommunalHelper/CurvedDreamBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
+
+# Curved Booster
+entities.CommunalHelper/CurvedBooster.placements.name.quadratic_hidden_path=Curved Booster (Hidden Path, Quadratic Curve)
+entities.CommunalHelper/CurvedBooster.placements.name.quadratic=Curved Booster (Quadratic Curve)
+entities.CommunalHelper/CurvedBooster.placements.name.cubic_hidden_path=Curved Booster (Hidden Path, Cubic Curve)
+entities.CommunalHelper/CurvedBooster.placements.name.cubic=Curved Booster (Cubic Curve)
+entities.CommunalHelper/CurvedBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+entities.CommunalHelper/CurvedBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
 
 # Summit Gem
 entities.CommunalHelper/CustomSummitGem.placements.name.summit_gem=Custom Summit Gem
@@ -483,7 +500,7 @@ entities.CommunalHelper/RailedMoveBlock.attributes.description.speed=The maximum
 
 # Reset State Crystal
 entities.CommunalHelper/ResetStateCrystal.placements.name.reset_state_crystal=Reset State Crystal
-entities.CommunalHelper/ResetStateCrystal.attributes.description.oneUse=Whether the crystal should reappear after being collected.
+entities.CommunalHelper/ResetStateCrystal.attributes.description.oneUse=Whether the crystal should permanently disappear after being collected.
 
 # Synced Zip Mover Activation Controller
 entities.CommunalHelper/SyncedZipMoverActivationController.placements.name.controller=Synced Zip Mover Activation Controller
@@ -505,6 +522,13 @@ entities.CommunalHelper/RedlessBerry.attributes.description.winged=Makes this Re
 entities.CommunalHelper/DreamStrawberry.placements.name.dream_dash_berry=Dream Strawberry
 entities.CommunalHelper/DreamStrawberry.attributes.description.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
 entities.CommunalHelper/DreamStrawberry.attributes.description.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+
+# Seeker Dash Refill
+entities.CommunalHelper/SeekerDashRefill.placements.name.seeker_dash_refill=Seeker Dash Refill
+entities.CommunalHelper/SeekerDashRefill.attributes.description.oneUse=Whether the crystal should permanently disappear after being collected.
+
+# Player Seeker Barrier
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.player_seeker_barrier=Player Seeker Barrier
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
@@ -537,3 +561,24 @@ triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.directio
 
 # Redless Berry Collection
 triggers.CommunalHelper/RedlessBerryCollection.placements.name.trigger=Redless Berry Collection
+
+# Cloudscape Color Transition
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.placements.name.trigger=Cloudscape Color Transition
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.mode=Represents which direction in which the transition works.
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.colorsFrom=The array of hex color codes that define the gradient at the beginning of the transition. The values must be comma-separated.
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.colorsTo=The array of hex color codes that define the gradient at the end of the transition. The values must be comma-separated.
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.bgFrom=The hex color code for the background color at the beginning of the transition.
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.bgTo=The hex color code for the background color at the end of the transition.
+
+# Cloudscape Lightning Configuration
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.placements.name.enable=Cloudscape Lightning Configuration (Enable)
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.placements.name.disable=Cloudscape Lightning Configuration (Disable)
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.mode=Represents which direction in which the transition works.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.enable=Whether lightning should be enabled by this trigger.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningColors=The array of hex color codes that define the gradient used for the lightning colors. Colors are randomly picked from this gradient.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningFlashColor=The hex color code that defines the lightning's flash color.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMinDelay=The minimum delay waited for lightning to occur on a cloud.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMaxDelay=The maximum delay waited for lightning to occur on a cloud.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMinDuration=The minimum duration of a lightning occurring on a cloud.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMaxDuration=The minimum duration of a lightning occurring on a cloud.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningIntensity=A value between zero and one that determines how strong a cloud with lightning can flash.

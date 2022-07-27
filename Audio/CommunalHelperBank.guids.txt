@@ -1,4 +1,6 @@
 {4d0ffdff-b036-4c3c-9692-42f572e34a8d} event:/CommunalHelperEvents/game/attachedBlock/move
+{1f895ee0-332f-4566-9b37-cd493c1326e0} event:/CommunalHelperEvents/game/berries/redless/break
+{04be58d6-a721-48ec-9c87-f0052cb89036} event:/CommunalHelperEvents/game/berries/redless/warning
 {6f5a9b5e-9410-41ac-bba6-e79e93ba367b} event:/CommunalHelperEvents/game/chain/move
 {20042b1d-3b1f-49c7-a2da-68a3003dae83} event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/boss_impact
 {bc5b56a5-ff0f-4d58-a03c-fd1aa05c9315} event:/CommunalHelperEvents/game/chainedFallingBlock/attenuatedImpacts/ice_impact
@@ -27,6 +29,8 @@
 {64aa835a-801b-4057-87b3-dc886fe49e07} event:/CommunalHelperEvents/game/dreamZipMover/return
 {1707a709-7931-443e-b0f9-8a3f1ee10769} event:/CommunalHelperEvents/game/dreamZipMover/start
 {df422bf6-af85-43cf-b5f6-3380534654de} event:/CommunalHelperEvents/game/dreamZipMover/tick
+{2312c7bd-9e78-4937-8ee1-738ff7aa6041} event:/CommunalHelperEvents/game/elytra/gliding
+{17ef99f7-7ab9-447a-9a0e-507b4e6409df} event:/CommunalHelperEvents/game/elytra/wings-tighten
 {d3d7beec-1007-4593-aec7-dbdcb301f51e} event:/CommunalHelperEvents/game/melvin/impact
 {4d266002-ab1d-4af8-aa80-f42faaf925fe} event:/CommunalHelperEvents/game/melvin/move_loop
 {35d74d83-f18c-4ef4-9cce-f53ff4937ef5} event:/CommunalHelperEvents/game/melvin/seen_player
@@ -37,6 +41,8 @@
 {4b292127-06bb-4acb-a927-18571d19ca0d} event:/CommunalHelperEvents/game/seedCrystalHeart/collect_all_main
 {f25c9f4e-bda1-44d4-911e-5813f8c94187} event:/CommunalHelperEvents/game/seedCrystalHeart/shard_collect
 {a2bc8729-8243-400b-85bf-7aee35017dae} event:/CommunalHelperEvents/game/seedCrystalHeart/shards_reform
+{bec19e82-685c-47cc-a4e2-fb13ed8e1d19} event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_return
+{53f31277-06a3-42e7-8d0b-60fffa30f1a0} event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_touch
 {d1f1922a-3775-4a18-9e19-d92581355d3f} event:/CommunalHelperEvents/game/shieldedRefill/diamond_return
 {8f721410-399c-4943-b780-0218ebabea14} event:/CommunalHelperEvents/game/shieldedRefill/diamondbubble_pop
 {065a8ad7-9307-4d5e-9e3a-6c647e721190} event:/CommunalHelperEvents/game/shieldedRefill/pinkdiamond_return
@@ -56,6 +62,4 @@
 {58664ac0-a862-437c-9486-4aacce943f4c} event:/CommunalHelperEvents/game/zipMover/normal/return
 {3ad2c47a-5b95-4451-92df-9e318bd9b0ea} event:/CommunalHelperEvents/game/zipMover/normal/start
 {5233c8a4-cc43-44ef-a67f-86cc683f6b36} event:/CommunalHelperEvents/game/zipMover/normal/tick
-{1f895ee0-332f-4566-9b37-cd493c1326e0} event:/CommunalHelperEvents/game/berries/redless/break
-{04be58d6-a721-48ec-9c87-f0052cb89036} event:/CommunalHelperEvents/game/berries/redless/warning
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank

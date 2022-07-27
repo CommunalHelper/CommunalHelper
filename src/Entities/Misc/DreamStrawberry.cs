@@ -149,7 +149,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir) {
             orig(self, dir);
-            self.LoseDreamSeeds();
+            if (self.CollideCheck<Solid, DreamBlock>(self.Position + Vector2.UnitX * -(3 * dir)))
+                self.LoseDreamSeeds();
         }
 
         private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {

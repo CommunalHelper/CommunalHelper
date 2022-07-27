@@ -1,6 +1,7 @@
 local drawableLine = require("structs.drawable_line")
 local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local dreamBooster = {}
 
@@ -8,18 +9,26 @@ dreamBooster.name = "CommunalHelper/DreamBooster"
 dreamBooster.depth = -11000
 dreamBooster.nodeLimits = {1, 1}
 dreamBooster.nodeVisibility = "always"
+dreamBooster.fieldInformation = {
+    pathStyle = {
+        options = communalHelper.dreamBoosterPathStyles,
+        editable = false
+    }
+}
 
 dreamBooster.placements = {
     {
         name = "normal",
         data = {
-            hidePath = false
+            hidePath = false,
+            pathStyle = "Arrow"
         }
     },
     {
         name = "hidden_path",
         data = {
-            hidePath = true
+            hidePath = true,
+            pathStyle = "Arrow"
         }
     }
 }

@@ -12,7 +12,6 @@ using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.DashStates {
     public abstract class DashStateRefill : Refill {
-
         protected string TouchSFX = CustomSFX.game_dreamRefill_dream_refill_touch;
         protected string ReturnSFX = CustomSFX.game_dreamRefill_dream_refill_return;
 
@@ -34,10 +33,10 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 baseData["sprite"] = sprite;
             }
 
-            if (TryCreateCustomOutline(out Sprite outline)) {
-                Remove(baseData.Get<Sprite>("outline"));
-                Add(outline);
+            if (TryCreateCustomOutline(out Image outline)) {
+                Remove(baseData.Get<Image>("outline"));
                 baseData["outline"] = outline;
+                Add(outline);
             }
 
             if (TryCreateCustomFlash(out Sprite flash)) {
@@ -45,7 +44,6 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 Add(flash);
                 baseData["flash"] = flash;
             }
-
         }
 
         private void OnPlayer(Player player) {
@@ -70,8 +68,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
             return false;
         }
 
-        protected virtual bool TryCreateCustomOutline(out Sprite sprite) {
-            sprite = null;
+        protected virtual bool TryCreateCustomOutline(out Image image) {
+            image = null;
             return false;
         }
 
@@ -125,22 +123,11 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
             ILCursor cursor = new ILCursor(il);
 
-            cursor.GotoNext(MoveType.After, instr => instr.MatchLdstr(SFX.game_10_pinkdiamond_return));
-            // Cursed, apparently:
-            /*
+            cursor.GotoNext(MoveType.After, instr => instr.MatchLdstr(SFX.game_gen_diamond_return));
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Func<Refill, string, string>>((refill, str) => {
-                if (refill is DreamRefill)
-                    return CustomSFX.game_dreamRefill_dream_refill_return;
-                return str;
+            cursor.EmitDelegate<Func<string, Refill, string>>((str, refill) => {
+                return refill is DashStateRefill dashStateRefill ? dashStateRefill.ReturnSFX : str;
             });
-            */
-            // But this works fine:
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Isinst, t_DashStateRefill);
-            cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
-            cursor.Emit(OpCodes.Pop);
-            cursor.Emit(OpCodes.Ldstr, CustomSFX.game_dreamRefill_dream_refill_return);
         }
 
         private static void PatchRefillParticles(ILContext il, Action<DashStateRefill> method) {

@@ -80,6 +80,9 @@ namespace Celeste.Mod.CommunalHelper {
 
         public const string game_berries_redless_break = "event:/CommunalHelperEvents/game/berries/redless/break";
         public const string game_berries_redless_warning = "event:/CommunalHelperEvents/game/berries/redless/warning";
+
+        public const string game_seekerDashRefill_seeker_refill_return = "event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_return";
+        public const string game_seekerDashRefill_seeker_refill_touch = "event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_touch";
     }
 
     public static class CustomBanks {

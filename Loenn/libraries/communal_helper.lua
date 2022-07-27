@@ -291,4 +291,55 @@ function communalHelper.fixAndGetPanelRectangle(entity)
     return utils.rectangle(entity.x or 0, entity.y or 0, entity.width or 8, entity.height or 8)
 end
 
+-- custom curves (cubic bézier)
+
+function communalHelper.getCubicCurvePoint(start, stop, controlA, controlB, t)
+    local t2 = t * t
+    local t3 = t2 * t
+    local mt = 1 - t
+    local mt2 = mt * mt
+    local mt3 = mt2 * mt
+
+    local aMul = 3 * mt2 * t
+    local bMul = 3 * mt * t2
+
+    local x = mt3 * start[1] + aMul * controlA[1] + bMul * controlB[1] + t3 * stop[1]
+    local y = mt3 * start[2] + aMul * controlA[2] + bMul * controlB[2] + t3 * stop[2]
+
+    return x, y
+end
+
+function communalHelper.getCubicCurve(start, stop, controlA, controlB, resolution)
+    resolution = resolution or 16
+
+    local res = {}
+
+    for i = 0, resolution do
+        local x, y = communalHelper.getCubicCurvePoint(start, stop, controlA, controlB, i / resolution)
+
+        table.insert(res, x)
+        table.insert(res, y)
+    end
+
+    return res
+end
+
+-- dream boosters
+
+communalHelper.dreamBoosterPathStyles = {
+    ["Arrows"] = "Arrow",
+    ["Perpendicular lines"] = "Line",
+    ["Dotted line"] = "DottedLine",
+    ["Points"] = "Point"
+}
+
+-- lerp triggers
+
+communalHelper.lerpDirections = {
+    "TopToBottom",
+    "BottomToTop",
+    "LeftToRight",
+    "RightToLeft"
+}
+
 return communalHelper
