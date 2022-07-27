@@ -4,10 +4,12 @@
 * Added Redless Strawberry & Redless Berry Collection Trigger.
 * Added 'ch_give_redlessberry' command.
 * Added Seeker Dash Refill.
+* Added Player Seeker Barrier.
 * Added Cloudscape effect, and its triggers.
 * Enhanced Seeker Dash State graphics.
-* Fixed Attached Wall Booster bug with Ice Mode.
+* Added bottom wavedash button to Station Blocks.
 * Implemented Gravity Helper support.
+* Fixed Attached Wall Booster bug with Ice Mode.
 * Added automatically-generated entity reference on the repository.
 
 --1.12.1 (27/06/2022)--
