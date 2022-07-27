@@ -81,6 +81,7 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Load();
 
             DreamDashListener.Load();
+            DreamStrawberry.Hook();
 
             RedlessBerry.Hook();
 
@@ -133,6 +134,7 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Unload();
 
             DreamDashListener.Unload();
+            DreamStrawberry.Unhook();
 
             RedlessBerry.Unhook();
         }

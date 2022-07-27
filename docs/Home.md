@@ -6,6 +6,8 @@ A full list of entities and triggers can be found on the [Custom Entity List](ht
 
 Features that require additional information or usage guides will be explained here.
 
+:warning: This wiki is updated by a GitHub Action on every release. CHANGES MADE DIRECTLY ON THE WIKI WILL BE OVERWRITTEN. Update the files in the `docs/` directory of the main repo instead.
+
 ## Table of Contents
 * [Custom Summit Gems](#custom-summit-gems)
 

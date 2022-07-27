@@ -1,26 +1,20 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
-using MonoMod;
+using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-
     // Originally I made this as a standalone entity for someone's map they were working on, but to make this fully work with DreamTunnelDash I moved it to CommunalHelper
     // I gave them a plugin for the old version when i finished and I'd like to keep some compatability to the old version so they dont have to redo their berries using it
     [CustomEntity("CommunalHelper/DreamStrawberry", "DreamDashListener/DreamDashBerry")]
     public class DreamStrawberry : Strawberry {
-
-        /*
-         * Hey! snowii here
-         * 
-         * If anyone is reading this and wants to touch my unholy code AND has a sprite for this, please add it im begging
-         * 
-         * Hope someone finds this super niche excuse for an entity useful
-         */
-
         // Original OnDash method from Celeste.Strawberry
         private static readonly MethodInfo m_Strawberry_OnDash = typeof(Strawberry).GetMethod("OnDash", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
 
@@ -52,53 +46,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             dreamStrawberryData = DynamicData.For(this);
         }
 
-        #region Bad Code
-        /*
-        public override void Added(Scene scene) {
-            sprite.OnFrameChange = OnAnimate;
-            Add(wiggler = Wiggler.Create(0.4f, 4f, delegate (float v)
-            {
-                sprite.Scale = Vector2.One * (1f + v * 0.35f);
-            }));
-            Add(rotateWiggler = Wiggler.Create(0.5f, 4f, delegate (float v)
-            {
-                sprite.Rotation = v * 30f * ((float) Math.PI / 180f);
-            }));
-            Add(bloom = new BloomPoint(1f, 12f));
-            Add(light = new VertexLight(Color.White, 1f, 16, 24));
-            Add(lightTween = light.CreatePulseTween());
-            if ((scene as Level).Session.BloomBaseAdd > 0.1f) {
-                bloom.Alpha *= 0.5f;
-            }
-        }
-
-        public void OnAnimate(string id) {
-            if (!flyingAway && id == "flap" && sprite.CurrentAnimationFrame % 9 == 4) {
-                Audio.Play("event:/game/general/strawberry_wingflap", Position);
-                flapSpeed = -50f;
-            }
-            int num = 25;
-            // Checks if the animation from is 25, runs the funny strawberry noises
-            if (sprite.CurrentAnimationFrame == num) {
-                lightTween.Start();
-                if (!collected && (CollideCheck<FakeWall>() || CollideCheck<Solid>())) {
-                    Audio.Play("event:/game/general/strawberry_pulse", Position);
-                    SceneAs<Level>().Displacement.AddBurst(Position, 0.6f, 4f, 28f, 0.1f);
-                } else {
-                    Audio.Play("event:/game/general/strawberry_pulse", Position);
-                    SceneAs<Level>().Displacement.AddBurst(Position, 0.6f, 4f, 28f, 0.2f);
-                }
-            }
-        }
-        */
-        #endregion
-
         public override void Update() {
-
             base.Update();
 
             // Creates and updates the dream trail
-            if (Scene.OnInterval(0.1f))
+            if (Visible && Scene.OnInterval(0.1f))
                 CreateDreamTrail();
         }
 
@@ -121,5 +73,90 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             data.Values["winged"] = true;
             return data;
         }
+
+        #region Hooks
+
+        internal static void Hook() {
+            IL.Celeste.Strawberry.Added += Strawberry_Added;
+            IL.Celeste.StrawberrySeed.Awake += StrawberrySeed_Awake;
+            IL.Celeste.StrawberrySeed.Update += StrawberrySeed_Update;
+            On.Celeste.Player.Update += Player_Update;
+            On.Celeste.Player.WallJump += Player_WallJump;
+            On.Celeste.Player.ctor += Player_ctor;
+        }
+
+        internal static void Unhook() {
+            IL.Celeste.Strawberry.Added -= Strawberry_Added;
+            IL.Celeste.StrawberrySeed.Awake -= StrawberrySeed_Awake;
+            IL.Celeste.StrawberrySeed.Update -= StrawberrySeed_Update;
+            On.Celeste.Player.Update -= Player_Update;
+            On.Celeste.Player.WallJump -= Player_WallJump;
+            On.Celeste.Player.ctor -= Player_ctor;
+        }
+
+        private static void Strawberry_Added(ILContext il) {
+            ILCursor cursor = new(il);
+
+            cursor.GotoNext(instr => instr.MatchLdstr("strawberry"));
+            cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<SpriteBank>(nameof(SpriteBank.Create)));
+
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<Sprite, Strawberry, Sprite>>((sprite, strawberry) => {
+                if (strawberry is DreamStrawberry)
+                    sprite = CommunalHelperModule.SpriteBank.Create("dreamStrawberry");
+                return sprite;
+            });
+        }
+
+        private static void StrawberrySeed_Awake(ILContext il) {
+            ILCursor cursor = new(il);
+
+            cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<SpriteBank>(nameof(SpriteBank.Create)));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<Sprite, StrawberrySeed, Sprite>>((sprite, seed) => {
+                if (seed.Strawberry is DreamStrawberry)
+                    sprite = CommunalHelperModule.SpriteBank.Create("dreamStrawberrySeed");
+                return sprite;
+            });
+        }
+
+        private static void StrawberrySeed_Update(ILContext il) {
+            ILCursor cursor = new(il);
+
+            ILLabel label = null;
+            cursor.GotoNext(instr => instr.MatchStfld<StrawberrySeed>("losing"));
+            cursor.GotoPrev(MoveType.After, instr => instr.MatchBrfalse(out label));
+
+            // We have the label at which to break if don't want the seed to be lost.
+            // Let's break to it if the following predicate is true.
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Predicate<StrawberrySeed>>(seed => seed.Strawberry is DreamStrawberry);
+            cursor.Emit(OpCodes.Brtrue_S, label);
+        }
+
+        private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
+            orig(self);
+
+            bool loseDreamSeeds = self.StateMachine.State switch {
+                Player.StNormal => self.CollideCheck<Platform, DreamBlock>(self.Position + new Vector2(0, self.IsInverted() ? -1 : 1)),
+                Player.StClimb => self.CollideCheck<Platform, DreamBlock>(self.Position + Vector2.UnitX * (int)self.Facing),
+                _ => false,
+            };
+
+            if (loseDreamSeeds)
+                self.LoseDreamSeeds();
+        }
+
+        private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir) {
+            orig(self, dir);
+            self.LoseDreamSeeds();
+        }
+
+        private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
+            orig(self, position, spriteMode);
+            self.Add(new DreamDashListener(_ => self.LoseDreamSeeds()));
+        }
+
+        #endregion
     }
 }
