@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.DashStates;
+﻿using Celeste.Mod.CommunalHelper.Backdrops;
+using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -24,6 +25,8 @@ namespace Celeste.Mod.CommunalHelper {
         public static SpriteBank SpriteBank => Instance._SpriteBank;
         public SpriteBank _SpriteBank;
 
+        public static Atlas CloudscapeAtlas { get; private set; }
+
         private static Dictionary<EverestModuleMetadata, Action<EverestModule>> optionalDepLoaders;
         private static bool failedLoadingDeps;
 
@@ -37,6 +40,7 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Load() {
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand += CustomBirdTutorial_OnParseCommand;
+            Everest.Events.Level.OnLoadBackdrop += Level_OnLoadBackdrop;
 
             RegisterOptionalDependencies();
             Everest.Events.Everest.OnRegisterModule += OnRegisterModule;
@@ -93,6 +97,7 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Unload() {
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand -= CustomBirdTutorial_OnParseCommand;
+            Everest.Events.Level.OnLoadBackdrop -= Level_OnLoadBackdrop;
 
             Everest.Events.Everest.OnRegisterModule -= OnRegisterModule;
 
@@ -133,6 +138,8 @@ namespace Celeste.Mod.CommunalHelper {
 
             DreamDashListener.Unload();
             DreamStrawberry.Unhook();
+            
+            CloudscapeAtlas.Dispose();
         }
 
         public override void Initialize() {
@@ -158,6 +165,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override void LoadContent(bool firstLoad) {
             _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
+
+            CloudscapeAtlas = Extensions.LoadAtlasFromMod("CommunalHelper:/Graphics/Atlases/CommunalHelper/Cloudscape/atlas", Atlas.AtlasDataFormat.CrunchXml);
 
             StationBlock.InitializeParticles();
             StationBlockTrack.InitializeTextures();
@@ -187,6 +196,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfish.InitializeParticles();
 
             Chain.InitializeTextures();
+
+            Cloudscape.InitializeTextures();
         }
 
         protected override void CreateModMenuSectionHeader(TextMenu menu, bool inGame, FMOD.Studio.EventInstance snapshot) {
@@ -316,81 +327,19 @@ namespace Celeste.Mod.CommunalHelper {
 
             return null;
         }
-    }
 
-    public static class Util {
-        public static void Log(LogLevel logLevel, string str) {
-            Logger.Log("Communal Helper", str);
-        }
+        // Loading custom backdrops
+        // When the [CustomBackdrop] attributes becomes available to use in Everest, this will be removed.
+        private static Backdrop Level_OnLoadBackdrop(MapData map, BinaryPacker.Element child, BinaryPacker.Element above) {
+            string name = child.Name;
 
-        public static void Log(string str) => Log(LogLevel.Debug, str);
+            if (name.Equals(Cloudscape.ID, StringComparison.OrdinalIgnoreCase))
+                return new Cloudscape(child);
 
-        public static bool TryGetPlayer(out Player player) {
-            player = Engine.Scene?.Tracker?.GetEntity<Player>();
-            return player != null;
-        }
-
-        private static PropertyInfo[] namedColors = typeof(Color).GetProperties();
-
-        public static Color CopyColor(Color color, float alpha) {
-            return new Color(color.R, color.G, color.B, (byte) alpha * 255);
-        }
-
-        public static Color CopyColor(Color color, int alpha) {
-            return new Color(color.R, color.G, color.B, alpha);
-        }
-
-        public static Color ColorArrayLerp(float lerp, params Color[] colors) {
-            float m = lerp % colors.Length;
-            int fromIndex = (int) Math.Floor(m);
-            int toIndex = (fromIndex + 1) % colors.Length;
-            float clampedLerp = m - fromIndex;
-
-            return Color.Lerp(colors[fromIndex], colors[toIndex], clampedLerp);
-        }
-
-        public static Color TryParseColor(string str, float alpha = 1f) {
-            foreach (PropertyInfo prop in namedColors) {
-                if (str.Equals(prop.Name)) {
-                    return CopyColor((Color) prop.GetValue(null), alpha);
-                }
-            }
-            return CopyColor(Calc.HexToColor(str.Trim('#')), alpha);
-        }
-
-        public static int ToInt(bool b) => b ? 1 : 0;
-
-        public static int ToBitFlag(params bool[] b) {
-            int ret = 0;
-            for (int i = 0; i < b.Length; i++)
-                ret |= ToInt(b[i]) << i;
-            return ret;
-        }
-
-        public static float Mod(float x, float m) {
-            return (x % m + m) % m;
-        }
-
-        public static Vector2 RandomDir(float length) {
-            return Calc.AngleToVector(Calc.Random.NextAngle(), length);
-        }
-
-        public static string StrTrim(string str) => str.Trim();
-
-        public static Vector2 Min(Vector2 a, Vector2 b)
-            => new(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y));
-
-        public static Vector2 Max(Vector2 a, Vector2 b)
-            => new(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y));
-
-        public static Rectangle Rectangle(Vector2 a, Vector2 b) {
-            Vector2 min = Min(a, b);
-            Vector2 size = Max(a, b) - min;
-            return new((int) min.X, (int) min.Y, (int) size.X, (int) size.Y);
+            return null;
         }
     }
 
     // Don't worry about it
     internal class NoInliningException : Exception { public NoInliningException() : base("Something went horribly wrong.") { } }
-
 }

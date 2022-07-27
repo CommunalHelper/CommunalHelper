@@ -291,4 +291,12 @@ function communalHelper.fixAndGetPanelRectangle(entity)
     return utils.rectangle(entity.x or 0, entity.y or 0, entity.width or 8, entity.height or 8)
 end
 
+-- lerp triggers
+communalHelper.lerpDirections = {
+    "TopToBottom",
+    "BottomToTop",
+    "LeftToRight",
+    "RightToLeft"
+}
+
 return communalHelper
