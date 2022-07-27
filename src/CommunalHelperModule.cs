@@ -197,6 +197,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             RailedMoveBlock.InitializeTextures();
             DreamBooster.InitializeParticles();
+            CurvedBooster.InitializeParticles();
 
             DreamJellyfish.InitializeTextures();
             DreamJellyfish.InitializeParticles();

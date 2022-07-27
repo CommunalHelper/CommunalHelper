@@ -400,10 +400,29 @@
 	<dreamBooster path="objects/CommunalHelper/boosters/dreamBooster/" start="loop">
 		<Justify x="0.5" y="0.5"/>
 		<Loop id="loop" path="idle" delay="0.1"/>
+		<Loop id="loopcurve" path="idlecurve" delay="0.1"/>
 		<Loop id="inside" path="inside" delay="0.1"/>
 		<Loop id="spin" path="roll" delay="0.06"/>
 		<Anim id="pop" path="pop" delay="0.055"/>
   	</dreamBooster>
+
+	<!--CurvedDreamBoosters-->
+	<curvedDreamBooster path="objects/CommunalHelper/boosters/dreamBooster/" start="loop">
+		<Justify x="0.5" y="0.5"/>
+		<Loop id="loop" path="idlecurve" delay="0.1"/>
+		<Loop id="inside" path="inside" delay="0.1"/>
+		<Loop id="spin" path="roll" delay="0.06"/>
+		<Anim id="pop" path="pop" delay="0.055"/>
+  	</curvedDreamBooster>
+
+	<!--CurvedBoosters-->
+	<curvedBooster path="objects/CommunalHelper/boosters/curvedBooster/" start="loop">
+		<Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="booster" delay="0.1" frames="0-4"/>
+        <Loop id="inside" path="booster" delay="0.1" frames="5-8"/>
+        <Loop id="spin" path="booster" delay="0.06" frames="18-25"/>
+        <Anim id="pop" path="booster" delay="0.08" frames="9-17"/>  
+  	</curvedBooster>
 
 	<!--DreamJelly-->
 	<dreamJellyfish path="objects/CommunalHelper/dreamJellyfish/mask/" start="idle">
