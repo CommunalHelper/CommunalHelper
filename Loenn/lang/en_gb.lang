@@ -536,3 +536,24 @@ triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.fadeA=De
 triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.fadeB=Determines the parameter value at the end of the fade.
 triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.parameter=The name of the affected parameter. Uses "fade" if left blank.
 triggers.CommunalHelper/CassetteMusicFadeTrigger.attributes.description.direction=The direction the music fades in.
+
+# Cloudscape Color Transition
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.placements.name.trigger=Cloudscape Color Transition
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.mode=Represents which direction in which the transition works.
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.colorsFrom=The array of hex color codes that define the gradient at the beginning of the transition. The values must be comma-separated.
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.colorsTo=The array of hex color codes that define the gradient at the end of the transition. The values must be comma-separated.
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.bgFrom=The hex color code for the background color at the beginning of the transition.
+triggers.CommunalHelper/CloudscapeColorTransitionTrigger.attributes.description.bgTo=The hex color code for the background color at the end of the transition.
+
+# Cloudscape Lightning Configuration
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.placements.name.enable=Cloudscape Lightning Configuration (Enable)
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.placements.name.disable=Cloudscape Lightning Configuration (Disable)
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.mode=Represents which direction in which the transition works.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.enable=Whether lightning should be enabled by this trigger.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningColors=The array of hex color codes that define the gradient used for the lightning colors. Colors are randomly picked from this gradient.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningFlashColor=The hex color code that defines the lightning's flash color.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMinDelay=The minimum delay waited for lightning to occur on a cloud.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMaxDelay=The maximum delay waited for lightning to occur on a cloud.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMinDuration=The minimum duration of a lightning occurring on a cloud.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMaxDuration=The minimum duration of a lightning occurring on a cloud.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningIntensity=A value between zero and one that determines how strong a cloud with lightning can flash.
