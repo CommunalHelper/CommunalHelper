@@ -5,11 +5,13 @@ using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/PlayerSeekerBarrier")]
     [TrackedAs(typeof(SeekerBarrier))]
+    [Tracked]
     public class PlayerSeekerBarrier : SeekerBarrier {
         private static readonly float UncollidableParticleSpeedFactor   = 1.0f;
         private static readonly float CollidableParticleSpeedFactor     = 0.2f;
@@ -19,6 +21,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         // about 6 frames
         public const float WavedashLeniencyTimer = 0.1f;
         public float WavedashTime;
+
+        private bool hasGroup;
+        private PlayerSeekerBarrier master;
+        private List<PlayerSeekerBarrier> group;
 
         public PlayerSeekerBarrier(EntityData data, Vector2 offset)
             : base(data, offset) {
@@ -38,6 +44,37 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public override void Added(Scene scene) {
             base.Added(scene);
             scene.Tracker.GetEntity<PlayerSeekerBarrierRenderer>().Track(this);
+        }
+
+        public override void Awake(Scene scene) {
+            base.Awake(scene);
+
+            if (!hasGroup) {
+                group = new();
+                AddToGroupAndFindChildren(this);
+            }
+        }
+
+        private void AddToGroupAndFindChildren(PlayerSeekerBarrier from) {
+            from.hasGroup = true;
+            from.master = this;
+            group.Add(from);
+
+            foreach (PlayerSeekerBarrier barrier in Scene.Tracker.GetEntities<PlayerSeekerBarrier>()) {
+                if (barrier != from && !barrier.hasGroup) {
+                    barrier.Collidable = true;
+                    bool attached = Scene.CollideCheck(new Rectangle((int) from.X - 1, (int) from.Y, (int) from.Width + 2, (int) from.Height), barrier) ||
+                                    Scene.CollideCheck(new Rectangle((int) from.X, (int) from.Y - 1, (int) from.Width, (int) from.Height + 2), barrier);
+                    barrier.Collidable = false;
+                    if (attached)
+                        AddToGroupAndFindChildren(barrier);
+                }
+            }
+        }
+
+        public void MakeGroupUncollidable() {
+            foreach (PlayerSeekerBarrier barrier in master.group)
+                barrier.Collidable = false;
         }
 
         public override void Removed(Scene scene) {

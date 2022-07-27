@@ -132,7 +132,6 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                         // Tiny bit of feel-good leniency
                         Vector2 aim = self.GetData().Get<Vector2>("lastAim").Sign() * 5;
                         if (!self.CollideCheck(entity, self.Position + aim)) {
-                            Console.WriteLine("yo");
                             entity.Collidable = collidable;
                             self.MoveHExact((int) aim.X);
                             self.MoveVExact((int) aim.Y);
@@ -184,8 +183,17 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
         
         // Make SeekerBarriers collidable if seekerDashAttacking, handle cooldowns
         private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
-            bool seesBarriers = HasSeekerDash || SeekerAttacking;
-            self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = (e is PlayerSeekerBarrier barrier && (seesBarriers || barrier.WavedashTime > 0)) || SeekerAttacking);
+            static bool ShouldBeCollidable(SeekerBarrier barrier) {
+                if (barrier is PlayerSeekerBarrier playerBarrier) {
+                    bool seesBarriers = HasSeekerDash || SeekerAttacking;
+                    return seesBarriers || playerBarrier.WavedashTime > 0;
+                }
+                return SeekerAttacking;
+            }
+
+            self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = ShouldBeCollidable((SeekerBarrier) e));
+
+            self.CollideFirst<PlayerSeekerBarrier>()?.MakeGroupUncollidable();
 
             orig(self);
 
