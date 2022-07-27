@@ -56,4 +56,6 @@
 {3469a27d-311c-40b2-9f03-c0f6d1e17940} event:/CommunalHelperEvents/game/zipMover/moon/return
 {0fec3fca-b777-47c3-9e66-87b333dd0182} event:/CommunalHelperEvents/game/zipMover/moon/finish
 {c2aa5eaa-ff15-4bf6-bf6e-6e6b8a6d4798} event:/CommunalHelperEvents/game/zipMover/moon/tick
+{bec19e82-685c-47cc-a4e2-fb13ed8e1d19} event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_return
+{53f31277-06a3-42e7-8d0b-60fffa30f1a0} event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_touch
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank

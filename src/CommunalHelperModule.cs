@@ -87,6 +87,9 @@ namespace Celeste.Mod.CommunalHelper {
             DreamDashListener.Load();
             DreamStrawberry.Hook();
 
+            PlayerSeekerBarrier.Hook();
+            PlayerSeekerBarrierRenderer.Hook();
+            
             #region Imports
 
             typeof(Imports.GravityHelper).ModInterop();
@@ -139,6 +142,9 @@ namespace Celeste.Mod.CommunalHelper {
             DreamDashListener.Unload();
             DreamStrawberry.Unhook();
             
+            PlayerSeekerBarrier.Unhook();
+            PlayerSeekerBarrierRenderer.Unhook();
+
             CloudscapeAtlas.Dispose();
         }
 
@@ -196,6 +202,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamJellyfish.InitializeParticles();
 
             Chain.InitializeTextures();
+
+            PlayerSeekerHair.InitializeTextures();
 
             Cloudscape.InitializeTextures();
         }
