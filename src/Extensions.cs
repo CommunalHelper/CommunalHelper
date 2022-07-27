@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml;
 
@@ -21,6 +22,15 @@ namespace Celeste.Mod.CommunalHelper {
             if (cachedPlayerData != null && cachedPlayerData.IsAlive && cachedPlayerData.Target == player)
                 return cachedPlayerData;
             return cachedPlayerData = new DynData<Player>(player);
+        }
+
+        public static void LoseDreamSeeds(this Player player) {
+            Follower[] followers
+                = player.Leader.Followers.Where(f => f.Entity is StrawberrySeed seed && seed.Strawberry is DreamStrawberry)
+                                       .ToArray();
+
+            foreach (Follower follower in followers)
+                player.Leader.LoseFollower(follower);
         }
 
         public static Color Mult(this Color color, Color other) {
@@ -487,6 +497,9 @@ namespace Celeste.Mod.CommunalHelper {
 
         public static GravityType GetGravity(this Actor actor)
             => (GravityType) (GravityHelper.GetActorGravity?.Invoke(actor) ?? 0);
+
+        public static bool IsInverted(this Actor actor)
+            => GravityHelper.IsActorInverted?.Invoke(actor) ?? false;
 
         #endregion
     }
