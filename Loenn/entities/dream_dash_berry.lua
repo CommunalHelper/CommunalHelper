@@ -25,7 +25,7 @@ dreamDashBerry.placements = {
 }
 
 dreamDashBerry.texture = "collectables/CommunalHelper/dreamberry/wings01"
-dreamDashBerry.nodeTexture = "collectables/strawberry/seed00"
+dreamDashBerry.nodeTexture = "collectables/CommunalHelper/dreamberry/seed02"
 
 function dreamDashBerry.selection(room, entity)
     local x, y = entity.x or 0, entity.y or 0
