@@ -81,6 +81,7 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Load();
 
             DreamDashListener.Load();
+            DreamStrawberry.Hook();
 
             PlayerSeekerBarrier.Hook();
             PlayerSeekerBarrierRenderer.Hook();
@@ -134,7 +135,8 @@ namespace Celeste.Mod.CommunalHelper {
             ChainedKevin.Unload();
 
             DreamDashListener.Unload();
-
+            DreamStrawberry.Unhook();
+            
             PlayerSeekerBarrier.Unhook();
             PlayerSeekerBarrierRenderer.Unhook();
         }
