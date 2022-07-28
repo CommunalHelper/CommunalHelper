@@ -1,3 +1,8 @@
+--1.13.1 (28/07/2022)--
+* Added missing 'only' and 'exclude' properties from the Cloudscape effect. 
+* Fixed Dream Strawberry Ahorn plugin (sprites & nodes).
+* Fixed Curved Boosters & Curved Dream Boosters killing you when entering spikes that shouldn't kill you.
+
 --1.13.0 (28/07/2022)--
 * Added Curved Booster and Dream Curved Boosters.
 * Added Dream Strawberry.
