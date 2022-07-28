@@ -3,6 +3,8 @@ module CommunalHelperCloudscape
 using ..Ahorn, Maple
 
 @mapdef Effect "CommunalHelper/Cloudscape" Cloudscape(
+    only::String="*",
+    exclude::String="",
     seed::String="",
     colors::String="6d8ada,aea0c1,d9cbbc",
     bgColor::String="4f9af7",
