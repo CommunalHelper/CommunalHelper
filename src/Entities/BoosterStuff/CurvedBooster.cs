@@ -109,12 +109,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Removed(scene);
         }
 
-        private Vector2 Travel(out bool end) {
-            travel += 240f * Engine.DeltaTime; // booster speed constant
-            end = travel >= curve.Length;
-            return curve.GetPointByDistance(travel);
-        }
-
         protected override void OnPlayerEnter(Player player) {
             base.OnPlayerEnter(player);
             travel = 0f;
@@ -137,7 +131,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             DynData<Player> data = player.GetData();
 
             Vector2 prev = player.Position;
-            Vector2 next = Travel(out bool end);
+
+            travel += 240f * Engine.DeltaTime; // booster speed constant
+            bool end = travel >= curve.Length;
+
+            curve.GetAllByDistance(travel, out Vector2 next, out Vector2 derivative);
 
             // Override GravityHelper's changes while we naively move the player with the curved booster.
             GravityHelper.BeginOverride?.Invoke();
@@ -145,8 +143,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bool inverted = GravityHelper.IsPlayerInverted?.Invoke() ?? false;
             int offY = inverted ? -7 : 8;
 
+            // player's speed won't matter, we won't allow it to move while in a curved booster.
+            // this is here so that the player doesn't die to spikes that it shouldn't die to.
+            player.Speed = derivative.SafeNormalize();
+
             bool stopped = false;
-            player.Speed = Vector2.Zero;
             player.MoveToX(next.X, _ => stopped = true);
             player.MoveToY(next.Y + offY, _ => stopped = true);
 

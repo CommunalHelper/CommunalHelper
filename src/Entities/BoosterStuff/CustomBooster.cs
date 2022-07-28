@@ -1,8 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
 using System.Collections;
+using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public abstract class CustomBooster : Booster {
@@ -72,6 +76,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
+        private static readonly MethodInfo m_Player_orig_Update
+            = typeof(Player).GetMethod("orig_Update", BindingFlags.Public | BindingFlags.Instance);
+
+        private static ILHook IL_Player_orig_Update;
+
         public static void Load() {
             DreamBoosterHooks.Hook();
 
@@ -82,6 +91,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Booster.BoostRoutine += Booster_BoostRoutine;
 
             On.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
+
+            IL_Player_orig_Update = new ILHook(m_Player_orig_Update, Player_orig_Update);
         }
 
         public static void Unload() {
@@ -94,6 +105,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Booster.BoostRoutine -= Booster_BoostRoutine;
 
             On.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
+
+            IL_Player_orig_Update.Dispose();
         }
 
         private static IEnumerator Booster_BoostRoutine(On.Celeste.Booster.orig_BoostRoutine orig, Booster self, Player player, Vector2 dir) {
@@ -172,6 +185,35 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // 'post' takes priority first, then 'pre', and lastly the original result.
             return post ?? pre ?? res;
         }
+
+        // Related to all curved boosters:
+        // Makes the player unaffected by its own speed if it is inside a curved booster.
+        // This allows us to set the player's speed, so that stuff like spikes-player checks work correctly.
+        // But in reality, we are moving the player ourselves to the position we desire.
+        private static void Player_orig_Update(ILContext il) {
+            ILCursor cursor = new(il);
+
+            ILLabel label = null;
+
+            cursor.GotoNext(instr => instr.MatchCall<Actor>(nameof(Actor.Update)));
+
+            // Prevent player being affected by its horizontal speed if UnaffectedBySpeed(Player) returns true.
+            cursor.GotoNext(instr => instr.MatchCall<Actor>(nameof(Actor.MoveH)));
+            cursor.GotoPrev(MoveType.After, instr => instr.MatchBeq(out label));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Predicate<Player>>(UnaffectedBySpeed);
+            cursor.Emit(OpCodes.Brtrue_S, label);
+
+            // Prevent player being affected by its vertical speed if UnaffectedBySpeed(Player) returns true.
+            cursor.GotoNext(instr => instr.MatchCall<Actor>(nameof(Actor.MoveV)));
+            cursor.GotoPrev(MoveType.After, instr => instr.MatchBeq(out label));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Predicate<Player>>(UnaffectedBySpeed);
+            cursor.Emit(OpCodes.Brtrue_S, label);
+        }
+
+        private static bool UnaffectedBySpeed(Player player)
+            => player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBoosterCurve or CurvedBooster;
 
         #endregion
     }
