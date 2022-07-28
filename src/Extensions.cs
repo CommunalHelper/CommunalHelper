@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,7 +8,10 @@ using MonoMod.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Xml;
 
 namespace Celeste.Mod.CommunalHelper {
     public static class Extensions {
@@ -18,6 +22,15 @@ namespace Celeste.Mod.CommunalHelper {
             if (cachedPlayerData != null && cachedPlayerData.IsAlive && cachedPlayerData.Target == player)
                 return cachedPlayerData;
             return cachedPlayerData = new DynData<Player>(player);
+        }
+
+        public static void LoseDreamSeeds(this Player player) {
+            Follower[] followers
+                = player.Leader.Followers.Where(f => f.Entity is StrawberrySeed seed && seed.Strawberry is DreamStrawberry)
+                                       .ToArray();
+
+            foreach (Follower follower in followers)
+                player.Leader.LoseFollower(follower);
         }
 
         public static Color Mult(this Color color, Color other) {
@@ -410,5 +423,84 @@ namespace Celeste.Mod.CommunalHelper {
 
         public static TextMenuExt.OptionSubMenu Add(this TextMenuExt.OptionSubMenu menu, string label, params TextMenu.Item[] items)
             => menu.Add(label, new List<TextMenu.Item>(items));
+
+        #region Loading custom packed Atlases
+
+        public static Atlas CreateEmptyAtlas()
+            => new() { Sources = new() };
+
+        public static Atlas LoadAtlasFromMod(string path, Atlas.AtlasDataFormat format) {
+            Atlas atlas = CreateEmptyAtlas();
+
+            if (Everest.Content.Map.TryGetValue(path, out ModAsset asset)) {
+                string directory = Path.GetDirectoryName(path);
+
+                switch (format) {
+                    case Atlas.AtlasDataFormat.CrunchXml: {
+                        XmlDocument xml = new();
+                        xml.Load(asset.Stream);
+                        atlas.LoadXmlData(xml, directory);
+                        break;
+                    }
+
+                    default:
+                        throw new NotImplementedException($"Loading {format} atlases from mods is not implemented.");
+                }
+            } else
+                throw new($"Could not find mod asset with path '{path}'!");
+
+            return atlas;
+        }
+
+        /// <summary>
+        /// Loads atlas data from an XML document into a given empty atlas.
+        /// <para/> See <see href="https://github.com/ChevyRay/crunch"/>.
+        /// </summary>
+        /// <param name="atlas">The empty atlas into which textures are put.</param>
+        /// <param name="xml">The XML document containing the altas data.</param>
+        /// <param name="directory">The directory used to look up images references in the XML.</param>
+        public static void LoadXmlData(this Atlas atlas, XmlDocument xml, string directory) {
+            foreach (XmlElement tex in xml["atlas"]) {
+                string sourcePath = Path.Combine(directory, tex.GetAttribute("n")).Replace('\\', '/');
+
+                if (Everest.Content.Map.TryGetValue(sourcePath, out ModAsset asset)) {
+                    VirtualTexture virtualTexture = VirtualContent.CreateTexture(asset);
+                    MTexture source = new(virtualTexture);
+                    source.SetAtlas(atlas);
+                    atlas.Sources.Add(virtualTexture);
+
+                    foreach (XmlElement img in tex) {
+                        string name = img.Attr("n");
+                        int x = img.AttrInt("x");
+                        int y = img.AttrInt("y");
+                        int w = img.AttrInt("w");
+                        int h = img.AttrInt("h");
+                        Rectangle rect = new(x, y, w, h);
+
+                        if (img.HasAttr("fx")) {
+                            int fx = img.AttrInt("fx");
+                            int fy = img.AttrInt("fy");
+                            int fw = img.AttrInt("fw");
+                            int fh = img.AttrInt("fh");
+                            atlas.Textures[name] = new(source, name, rect, new Vector2(-fx, -fy), fw, fh);
+                        } else
+                            atlas.Textures[name] = new(source, name, rect);
+                    }
+                } else
+                    throw new($"Could not find atlas source image at '{sourcePath}'!");
+            }
+        }
+
+        #endregion
+        
+        #region GravityHelper utilities
+
+        public static GravityType GetGravity(this Actor actor)
+            => (GravityType) (GravityHelper.GetActorGravity?.Invoke(actor) ?? 0);
+
+        public static bool IsInverted(this Actor actor)
+            => GravityHelper.IsActorInverted?.Invoke(actor) ?? false;
+
+        #endregion
     }
 }

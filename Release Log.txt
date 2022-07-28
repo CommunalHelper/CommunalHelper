@@ -1,3 +1,22 @@
+--1.13.1 (28/07/2022)--
+* Added missing 'only' and 'exclude' properties from the Cloudscape effect. 
+* Fixed Dream Strawberry Ahorn plugin (sprites & nodes).
+* Fixed Curved Boosters & Curved Dream Boosters killing you when entering spikes that shouldn't kill you.
+
+--1.13.0 (28/07/2022)--
+* Added Curved Booster and Dream Curved Boosters.
+* Added Dream Strawberry.
+* Added Redless Strawberry & Redless Berry Collection Trigger.
+* Added 'ch_give_redlessberry' command.
+* Added Seeker Dash Refill.
+* Added Player Seeker Barrier.
+* Added Cloudscape effect, and its triggers.
+* Enhanced Seeker Dash State graphics.
+* Added bottom wavedash button to Station Blocks.
+* Implemented Gravity Helper support.
+* Fixed Attached Wall Booster bug with Ice Mode.
+* Added automatically-generated entity reference on the repository.
+
 --1.12.1 (27/06/2022)--
 * Renamed Cassette Music Fade trigger 'param' option to 'parameter'.
 
