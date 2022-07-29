@@ -580,5 +580,31 @@ triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.descr
 triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMinDelay=The minimum delay waited for lightning to occur on a cloud.
 triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMaxDelay=The maximum delay waited for lightning to occur on a cloud.
 triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMinDuration=The minimum duration of a lightning occurring on a cloud.
-triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMaxDuration=The minimum duration of a lightning occurring on a cloud.
+triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMaxDuration=The maximum duration of a lightning occurring on a cloud.
 triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningIntensity=A value between zero and one that determines how strong a cloud with lightning can flash.
+
+# Cloudscape
+style.effects.CommunalHelper/Cloudscape.name=Cloudscape
+style.effects.CommunalHelper/Cloudscape.description.seed=The RNG seed that this cloudscape instance will be generated with.
+style.effects.CommunalHelper/Cloudscape.description.colors=A list of colors that define the gradient that the clouds should use. The gradient starts at the middle of the clouds.
+style.effects.CommunalHelper/Cloudscape.description.bgColor=The background color.
+style.effects.CommunalHelper/Cloudscape.description.innerRadius=The radius of the middle ring.
+style.effects.CommunalHelper/Cloudscape.description.outerRadius=The radius of the last ring, at the edge.
+style.effects.CommunalHelper/Cloudscape.description.rings=The number of cloud rings to fit between the inner and outer radiuses.
+style.effects.CommunalHelper/Cloudscape.description.lightning=Whether lightning is activated.
+style.effects.CommunalHelper/Cloudscape.description.lightningColors=A list of colors that will be randomly used to determine which color a cloud should flash with.
+style.effects.CommunalHelper/Cloudscape.description.lightningFlashColor=The unique flash color of lightning, followed by any lightning color.
+style.effects.CommunalHelper/Cloudscape.description.lightningMinDelay=The minimum time it takes for lightning to occur on a cloud.
+style.effects.CommunalHelper/Cloudscape.description.lightningMaxDelay=The maximum time it takes for lightning to occur on a cloud.
+style.effects.CommunalHelper/Cloudscape.description.lightningMinDuration=The minimum duration of a lightning occurring on a cloud.
+style.effects.CommunalHelper/Cloudscape.description.lightningMaxDuration=The maximum duration of a lightning occurring on a cloud.
+style.effects.CommunalHelper/Cloudscape.description.lightningIntensity=A value between zero and one that determines how strong a cloud with lightning can flash.
+style.effects.CommunalHelper/Cloudscape.description.offsetX=The effect's offset on the X axis.
+style.effects.CommunalHelper/Cloudscape.description.offsetY=The effect's offset on the Y axis.
+style.effects.CommunalHelper/Cloudscape.description.parallaxX=The camera's impact on the position of the effect on the X axis. 0 means no parallax, 1 makes the effect move as if it were part of the level tiles.
+style.effects.CommunalHelper/Cloudscape.description.parallaxY=The camera's impact on the position of the effect on the Y axis. 0 means no parallax, 1 makes the effect move as if it were part of the level tiles.
+style.effects.CommunalHelper/Cloudscape.description.innerDensity=A number between 0 and 2 that determines how cloudy the effect is at the middle. 0 is no clouds at all, 1 is enough to fill most gaps, 2 is twice as much clouds.
+style.effects.CommunalHelper/Cloudscape.description.outerDensity=A number between 0 and 2 that determines how cloudy the effect is at the edge. 0 is no clouds at all, 1 is enough to fill most gaps, 2 is twice as much clouds.
+style.effects.CommunalHelper/Cloudscape.description.innerRotation=The rotational speed at the middle.
+style.effects.CommunalHelper/Cloudscape.description.outerRotation=The rotational speed at the edge.
+style.effects.CommunalHelper/Cloudscape.description.rotationExponent=A number between 0 and 2 that describes the interpolation of the rotational speed between the inner and outer rings. 1 is linear, 0 makes the value approach the outer target value faster, 2 makes the value approach the outer target value sooner.\nThis is hard to describe. 
