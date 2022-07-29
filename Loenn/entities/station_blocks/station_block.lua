@@ -60,7 +60,7 @@ local function getStationBlockThemeData(size, theme, behavior, wavedash, wavedas
     local moon = theme == "moon"
     local pushing = behavior == "pushing"
 
-    local button = (wavedash and wavedashBottom and "_button_both") or (wavedashBottom and "_button_bottom") or (wavedash and "_button")
+    local button = (wavedash and wavedashBottom and "_button_both") or (wavedashBottom and "_button_bottom") or (wavedash and "_button") or ""
     local block = (pushing and "alt_" or "") .. (moon and "moon_" or "") .. "block" .. button
 
     local arrowDir = moon and (pushing and "altMoonArrow" or "moonArrow") or (pushing and "altArrow" or "arrow")
