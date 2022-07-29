@@ -33,7 +33,7 @@ using ..Ahorn, Maple
 placements = Cloudscape
 
 function Ahorn.canFgBg(effect::Cloudscape)
-    return false, true
+    return true, true
 end
 
 end
