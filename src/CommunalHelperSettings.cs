@@ -32,12 +32,7 @@ namespace Celeste.Mod.CommunalHelper {
                     new TextMenu.OnOff(Dialog.Clean("SETTINGS_DREAMTUNNEL_IGNORECOLLECTIBLES"), _dreamTunnelIgnoreCollidables)
                 )
                 .Change(i => AlwaysActiveDreamRefillCharge = i == 0 ? false : true);
-            subMenu.Pressed(() => {
-                if (subMenu.MenuIndex == 0)
-                    subMenu.RightPressed();
-                else
-                    subMenu.LeftPressed();
-            });
+
             menu.Add(subMenu);
         }
 
