@@ -165,6 +165,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Direction = InitialDirection.Value;
         }
 
+        public void RemoveArrow() {
+            var arrows = Data.Get<List<MTexture>>("arrows");
+            for (int i = 0; i < arrows.Count; i++) {
+                arrows[i] = new MTexture();
+            }
+        }
+
         internal static void Load() {
             On.Celeste.MoveBlock.ctor_Vector2_int_int_Directions_bool_bool += MoveBlock_ctor_Vector2_int_int_Directions_bool_bool;
             On.Celeste.MoveBlock.BreakParticles += MoveBlock_BreakParticles;

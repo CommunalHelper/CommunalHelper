@@ -28,11 +28,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         internal const string MoveBlock_InitialDirection = "communalHelperInitialDirection";
 
         public static readonly Color Mask = new Color(200, 180, 190);
+
+        enum Appearance {
+            Default, SpeedUp, SlowDown, Delete, Pause
+        }
+        static readonly Dictionary<Appearance, ValueTuple<string, Color>> AppearanceMap = new() {
+            { Appearance.Default, ("arrow", Calc.HexToColor("fbce36"))},
+            { Appearance.SpeedUp, ("fast", Calc.HexToColor("29c32f"))},
+            { Appearance.SlowDown, ("slow", Calc.HexToColor("1c5bb3"))},
+            { Appearance.Delete, ("x", Calc.HexToColor("cc2541"))},
+            { Appearance.Pause, ("pause", Calc.HexToColor("ffffff"))}
+        };
+
         public static readonly Color UsedColor = Calc.HexToColor("474070"); // From MoveBlock
-        public static readonly Color DeleteColor = Calc.HexToColor("cc2541");
-        public static readonly Color DefaultColor = Calc.HexToColor("fbce36");
-        public static readonly Color FasterColor = Calc.HexToColor("29c32f");
-        public static readonly Color SlowerColor = Calc.HexToColor("1c5bb3");
 
         private Color startColor;
         private Color? overrideColor, overrideUsedColor;
@@ -40,6 +48,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public Directions Direction;
         public bool FastRedirect;
         public bool OneUse, DeleteBlock;
+        public bool CanRestart;
 
         private float angle;
         private float maskAlpha, alpha = 1f;
@@ -57,7 +66,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             FastRedirect = data.Bool("fastRedirect");
             OneUse = data.Bool("oneUse");
-            DeleteBlock = data.Bool("deleteBlock") || (Operation == Operations.Multiply && Modifier == 0f);
+            DeleteBlock = data.Bool("deleteBlock");
+
+            CanRestart = data.Bool("canRestart");
 
             Operation = data.Enum("operation", Operations.Add);
             Modifier = Math.Abs(data.Float("modifier"));
@@ -128,19 +139,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Added(Scene scene) {
             base.Added(scene);
-            string iconTexture = "arrow";
-            startColor = DefaultColor;
+            string iconTexture;
 
             if (DeleteBlock) {
-                iconTexture = "x";
-                startColor = DeleteColor;
+                (iconTexture, startColor) = AppearanceMap[Appearance.Delete];
             } else {
                 if ((Operation == Operations.Add && Modifier != 0f) || (Operation == Operations.Multiply && Modifier > 1f)) {
-                    iconTexture = "fast";
-                    startColor = FasterColor;
+                    (iconTexture, startColor) = AppearanceMap[Appearance.SpeedUp];
                 } else if ((Operation == Operations.Subtract && Modifier != 0f) || (Operation == Operations.Multiply && Modifier < 1f)) {
-                    iconTexture = "slow";
-                    startColor = SlowerColor;
+                    (iconTexture, startColor) = AppearanceMap[Appearance.SlowDown];
+                } else if (Operation == Operations.Multiply && Modifier == 0f) {
+                    (iconTexture, startColor) = AppearanceMap[Appearance.Pause];
+                } else {
+                    (iconTexture, startColor) = AppearanceMap[Appearance.Default];
                 }
             }
             scene.Add(icon = new Icon(Center, angle, iconTexture, reskinFolder));
@@ -208,6 +219,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (FastRedirect) {
                         SetBlockData(redirectable);
                         maskAlpha = 1f;
+                        // If speed set to 0, reset coroutine if it can be restarted, else abort.
+                        if (redirectable.TargetSpeed == 0) {
+                            PauseBlock(redirectable);
+                        }
                         if (OneUse)
                             Disappear();
                     } else {
@@ -299,6 +314,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             SetBlockData(redirectable);
 
+            // If speed set to 0, reset coroutine if it can be restarted, else abort.
+            if (redirectable.TargetSpeed == 0) {
+                PauseBlock(redirectable, orig);
+                yield break;
+            }
+
             while (timer > 0.2f) {
                 timer -= Engine.DeltaTime;
                 float percent = timer / duration;
@@ -320,6 +341,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             redirectable.Entity.Add(orig);
 
             // Wait for the moveblock to continue before resetting
+            if (OneUse)
+                Disappear();
+        }
+
+        private void PauseBlock(MoveBlockRedirectable redirectable, Coroutine routine = null) {
+            bool removed = routine is null;
+            routine ??= redirectable.Entity.Get<Coroutine>();
+
+            if (CanRestart) {
+                MoveBlockRedirectable.GetControllerDelegate(redirectable.Data, 0).Invoke(routine);
+                if (removed)
+                    redirectable.Entity.Add(routine);
+            } else {
+                redirectable.RemoveArrow();
+                if (!removed)
+                    redirectable.Entity.Remove(routine);
+            }
+
             if (OneUse)
                 Disappear();
         }
