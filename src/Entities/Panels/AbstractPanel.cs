@@ -158,7 +158,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static void LogHooked(string fullname) {
             if (!hooked.Contains(fullname)) {
-                Logger.Log(LogLevel.Verbose, "CommunalHelper", $"Hooking {fullname} to override when AbstractPanel present.");
+                Logger.Log(LogLevel.Debug, "CommunalHelper", $"Hooking {fullname} to override when AbstractPanel present.");
                 hooked.Add(fullname);
             }
         }
