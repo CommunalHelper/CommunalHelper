@@ -122,7 +122,7 @@ namespace Celeste.Mod.CommunalHelper {
             customTexture = !string.IsNullOrWhiteSpace(customPath);
             if (customTexture) {
                 string temp;
-                if (GFX.Game["objects/" + customPath] == null) {
+                if (!GFX.Game.Has("objects/" + customPath)) {
                     if (GFX.Game["objects/" + customPath + "/tileset"] == null) {
                         throw new Exception($"No valid tileset found, searched @ objects/{customPath}.png & objects/{customPath}/tileset.png\nFor custom arrow textures, use 'objects/{customPath}/arrow', 'objects/{customPath}/tileset' for tiles, and 'objects/{customPath}/x.png' for the breaking X sprite.");
                     }
