@@ -1,21 +1,24 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Monocle;
 using System;
 using System.Collections;
+using Node = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.Node;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/StationBlock")]
     [Tracked(false)]
-    class StationBlock : Solid {
-        public enum Theme {
+    public class StationBlock : Solid {
+        public enum Themes {
             Normal, Moon
         }
 
-        public static SpriteBank StationBlockSpriteBank;
-
-        private MTexture[,] tileSlices, blockTiles;
+        private MTexture[,] tileSlices, blockTiles, buttonTiles;
         private Sprite arrowSprite;
+
+        private bool allowWavedash, allowWavedashBottom;
 
         public MTexture CustomNode = null, CustomTrackV = null, CustomTrackH = null;
 
@@ -24,9 +27,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private ParticleType p_sparks;
 
         private ArrowDir arrowDir;
-        private float percent = 0f;
+        private float Percent = 0f;
 
-        private enum ArrowDir {
+        public enum ArrowDir {
             Up,
             Right,
             Down,
@@ -37,22 +40,42 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private Vector2 scale = Vector2.One;
 
         private Vector2 MoveDir;
-        public bool reverseControls = false;
+        public bool ReverseControls = false;
 
         private Vector2 offset;
         private Vector2 hitOffset;
         private SoundSource Sfx;
-        public Theme theme = Theme.Moon;
+        public Themes Theme = Themes.Moon;
+
+        private static readonly Color activatedButton = Calc.HexToColor("f25eff");
+        private static readonly Color deactivatedButton = Calc.HexToColor("5bf75b");
+
+        private Color buttonColor, buttonPressedColor;
+        private float colorLerp, bottomColorLerp;
+
+        private float speedFactor = 1f;
 
         public bool IsAttachedToTrack = false;
-        private StationBlockTrack.Node CurrentNode = null;
+        public Node CurrentNode = null;
+        private Node nextNode;
+        private StationBlockTrack currentTrack;
+
+        private bool dashCornerCorrection;
 
         public StationBlock(EntityData data, Vector2 offset)
             : base(data.Position + offset, data.Width, data.Height, safe: true) {
-            Depth = -9999;
+            Depth = Depths.FGTerrain + 1;
             Add(new LightOcclude());
 
             this.offset = new Vector2(Width, Height) / 2f;
+            allowWavedash = data.Bool("allowWavedash", false);
+            allowWavedashBottom = data.Bool("allowWavedashBottom", false);
+            speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 2f);
+
+            buttonColor = data.HexColor("wavedashButtonColor", deactivatedButton);
+            buttonPressedColor = data.HexColor("wavedashButtonPressedColor", activatedButton);
+
+            dashCornerCorrection = data.Bool("dashCornerCorrection", false);
 
             int minSize = (int) Calc.Min(Width, Height);
             string size;
@@ -65,17 +88,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             string block = "objects/CommunalHelper/stationBlock/blocks/";
             string sprite;
-            reverseControls = data.Attr("behavior", "Pulling") == "Pushing";
-            theme = data.Enum<Theme>("theme");
+            ReverseControls = data.Attr("behavior", "Pulling") == "Pushing";
+            Theme = data.Enum<Themes>("theme");
 
             string customBlockPath = data.Attr("customBlockPath").Trim();
             string customArrowPath = data.Attr("customArrowPath").Trim();
             string customTrackPath = data.Attr("customTrackPath").Trim();
 
-            switch (theme) {
+            switch (Theme) {
                 default:
-                case Theme.Normal:
-                    if (reverseControls) {
+                case Themes.Normal:
+                    if (ReverseControls) {
                         block += "alt_block";
                         sprite = size + "AltStationBlockArrow";
                     } else {
@@ -84,9 +107,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                     break;
 
-                case Theme.Moon:
-                    theme = Theme.Moon;
-                    if (reverseControls) {
+                case Themes.Moon:
+                    Theme = Themes.Moon;
+                    if (ReverseControls) {
                         block += "alt_moon_block";
                         sprite = size + "AltMoonStationBlockArrow";
                     } else {
@@ -96,10 +119,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     break;
             }
 
+            if (allowWavedash && allowWavedashBottom)
+                block += "_button_both";
+            else if (allowWavedashBottom)
+                block += "_button_bottom";
+            else if (allowWavedash)
+                block += "_button";
+
             MTexture customBlock = null;
             Sprite customArrow = null;
 
-            p_sparks = theme == Theme.Normal ? ZipMover.P_Sparks : (reverseControls ? P_PurpleSparks : P_BlueSparks);
+            p_sparks = Theme == Themes.Normal ? ZipMover.P_Sparks : (ReverseControls ? P_PurpleSparks : P_BlueSparks);
 
             if (customBlockPath != "") {
                 customBlock = GFX.Game["objects/" + customBlockPath];
@@ -121,10 +151,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
 
+            /* 
+             * the first dimension here represents the part of the button (left, middle, right), 
+             * the second (0 or 1) will represent whether we want to draw the outline or the front.
+             */
+            buttonTiles = new MTexture[3, 2];
+            for (int i = 0; i < 3; i++) {
+                buttonTiles[i, 0] = GFX.Game["objects/CommunalHelper/stationBlock/button_outline"].GetSubtexture(i * 8, 0, 8, 8);
+                buttonTiles[i, 1] = GFX.Game["objects/CommunalHelper/stationBlock/button"].GetSubtexture(i * 8, 0, 8, 8);
+            }
+
             GenerateTiles();
 
-            arrowSprite = customArrow ?? StationBlockSpriteBank.Create(sprite);
+            arrowSprite = customArrow ?? CommunalHelperModule.SpriteBank.Create(sprite);
             arrowDir = ArrowDir.Up;
+            arrowSprite.Position = new Vector2(Width / 2, Height / 2);
             Add(arrowSprite);
 
             SurfaceSoundIndex = SurfaceIndex.Girder;
@@ -220,42 +261,77 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
-        public void Attach(StationBlockTrack.Node node) {
+        public void Attach(Node node) {
             IsAttachedToTrack = true;
             CurrentNode = node;
 
-            if (node.nodeUp != null)
+            if (node.NodeUp != null)
                 arrowDir = ArrowDir.Up;
-            else if (node.nodeRight != null)
+            else if (node.NodeRight != null)
                 arrowDir = ArrowDir.Right;
-            else if (node.nodeLeft != null)
+            else if (node.NodeLeft != null)
                 arrowDir = ArrowDir.Left;
-            else if (node.nodeDown != null)
+            else if (node.NodeDown != null)
                 arrowDir = ArrowDir.Down;
 
             arrowSprite.Play("Idle" + Enum.GetName(typeof(ArrowDir), arrowDir), true);
         }
 
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
-        }
-
         private DashCollisionResults OnDashed(Player player, Vector2 dir) {
             // Weird, lame fix, but eh.
-            if (player.StateMachine.State == 5)
-                player.StateMachine.State = 0;
+            if (player.StateMachine.State == Player.StRedDash)
+                player.StateMachine.State = Player.StNormal;
+
+            // Easier wall bounces.
+            if ((player.Left >= Right - 4f || player.Right < Left + 4f) && dir.Y == -1 && dashCornerCorrection) {
+                return DashCollisionResults.NormalCollision;
+            }
 
             if (IsMoving || !IsAttachedToTrack || (player.CollideCheck<Spikes>() && !SaveData.Instance.Assists.Invincible)) {
                 return DashCollisionResults.NormalCollision;
             } else {
+                Smash(ReverseControls ? dir : -dir);
+
+                bool inverted = GravityHelper.IsPlayerInverted?.Invoke() ?? false;
+
+                if (allowWavedash && dir.Y == 1) {
+                    colorLerp = 1f;
+                    return !inverted ? DashCollisionResults.NormalCollision : DashCollisionResults.Rebound;
+                }
+
+                if (allowWavedashBottom && dir.Y == -1) {
+                    bottomColorLerp = 1f;
+                    return inverted ? DashCollisionResults.NormalCollision : DashCollisionResults.Rebound;
+                }
+
+                return DashCollisionResults.Rebound;
+            }
+        }
+
+        private void Smash(Vector2 dir, bool force = false) {
+            MoveDir = dir;
+
+            if (MoveDir == -Vector2.UnitY && CurrentNode.NodeUp != null) {
+                nextNode = CurrentNode.NodeUp;
+                currentTrack = CurrentNode.TrackUp;
+            } else if (MoveDir == Vector2.UnitY && CurrentNode.NodeDown != null) {
+                nextNode = CurrentNode.NodeDown;
+                currentTrack = CurrentNode.TrackDown;
+            } else if (MoveDir == -Vector2.UnitX && CurrentNode.NodeLeft != null) {
+                nextNode = CurrentNode.NodeLeft;
+                currentTrack = CurrentNode.TrackLeft;
+            } else if (MoveDir == Vector2.UnitX && CurrentNode.NodeRight != null) {
+                nextNode = CurrentNode.NodeRight;
+                currentTrack = CurrentNode.TrackRight;
+            }
+
+            IsMoving = force && currentTrack.CanBeUsed;
+            if (!force) {
                 scale = new Vector2(
                     1f + Math.Abs(dir.Y) * 0.35f - Math.Abs(dir.X) * 0.35f,
                     1f + Math.Abs(dir.X) * 0.35f - Math.Abs(dir.Y) * 0.35f);
                 hitOffset = dir * 5f;
-
-                MoveDir = reverseControls ? dir : -dir;
                 IsMoving = true;
-                return DashCollisionResults.Rebound;
             }
         }
 
@@ -339,62 +415,60 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 StartShaking(0.2f);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 
-                StationBlockTrack.Node nextNode = null;
-                StationBlockTrack currentTrack = null;
-                float f = 1f;
-                if (MoveDir == -Vector2.UnitY && CurrentNode.nodeUp != null) {
-                    nextNode = CurrentNode.nodeUp;
-                    currentTrack = CurrentNode.trackUp;
-                    f = -1f;
-                } else
-                if (MoveDir == Vector2.UnitY && CurrentNode.nodeDown != null) {
-                    nextNode = CurrentNode.nodeDown;
-                    currentTrack = CurrentNode.trackDown;
-                } else
-                if (MoveDir == -Vector2.UnitX && CurrentNode.nodeLeft != null) {
-                    nextNode = CurrentNode.nodeLeft;
-                    currentTrack = CurrentNode.trackLeft;
-                    f = -1f;
-                } else
-                if (MoveDir == Vector2.UnitX && CurrentNode.nodeRight != null) {
-                    nextNode = CurrentNode.nodeRight;
-                    currentTrack = CurrentNode.trackRight;
-                }
+                Vector2 dirSign = Calc.Sign(MoveDir);
+                float f = dirSign.X == -1 || dirSign.Y == -1 ? -1 : 1f;
 
-                Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (theme == Theme.Normal ? "station" : "moon") + "_block_seq", "travel", nextNode == null ? 0f : 1f);
-                if (nextNode != null) {
+                bool travel = nextNode != null && CurrentNode != nextNode &&currentTrack.CanBeUsed &&
+                    !(currentTrack.OneWayDir.HasValue && currentTrack.OneWayDir.Value == -MoveDir);
+
+                Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
+
+                if (travel) {
                     Safe = false;
-
+                    if (CurrentNode.PushForce != Vector2.Zero) {
+                        Audio.Play(CustomSFX.game_stationBlock_force_cue, Center);
+                    }
                     arrowSprite.Play(GetTurnAnim(arrowDir, MoveDir), true);
-
                     yield return 0.2f;
 
                     float t = 0f;
                     StopPlayerRunIntoAnimation = false;
                     Vector2 start = CurrentNode.Center - offset;
                     Vector2 target = nextNode.Center - offset;
+
                     while (t < 1f) {
-                        t = Calc.Approach(t, 1f, 2f * Engine.DeltaTime);
+                        float tNextUnclamped = t + speedFactor * 2f * Engine.DeltaTime;
+                        t = Calc.Approach(t, 1f, speedFactor * 2f * Engine.DeltaTime);
 
-                        percent = Ease.SineIn(t);
-                        currentTrack.trackOffset = f * percent * 16;
-                        CurrentNode.percent = nextNode.percent = currentTrack.percent = percent;
+                        Percent = Ease.SineIn(t);
+                        currentTrack.TrackOffset = f * Percent * 16;
+                        CurrentNode.Percent = nextNode.Percent = currentTrack.Percent = Percent;
 
-                        Vector2 vector = Vector2.Lerp(start, target, percent);
-                        ScrapeParticlesCheck(vector);
+                        if (nextNode.HasIndicator && nextNode.PushForce != Vector2.Zero) {
+                            nextNode.ColorLerp = Math.Min(1f, t * 2f);
+                        }
+
+                        Vector2 to = Vector2.Lerp(start, target, Percent);
+                        ScrapeParticlesCheck(to);
                         if (Scene.OnInterval(0.05f)) {
                             currentTrack.CreateSparks(Center, p_sparks);
                         }
 
-                        MoveTo(vector);
+                        Vector2 toUnclamped = Vector2.Lerp(start, target, Ease.SineIn(tNextUnclamped));
+                        Vector2 theoreticalLiftSpeed = Engine.DeltaTime == 0f ? Vector2.Zero : (toUnclamped - ExactPosition) / Engine.DeltaTime;
+                        MoveToX(to.X, theoreticalLiftSpeed.X);
+                        MoveToY(to.Y, theoreticalLiftSpeed.Y);
                         yield return null;
                     }
+
                     StartShaking(0.2f);
+                    Sfx.Param(Theme == Themes.Moon ? "end_moon" : "end", 1);
                     Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                     SceneAs<Level>().Shake(0.2f);
                     StopPlayerRunIntoAnimation = true;
-                    currentTrack.trackOffset = 0f;
-                    CurrentNode.percent = nextNode.percent = currentTrack.percent = percent = 0f;
+
+                    currentTrack.TrackOffset = 0f;
+                    CurrentNode.Percent = nextNode.Percent = currentTrack.Percent = Percent = 0f;
                     CurrentNode = nextNode;
                 } else {
                     arrowSprite.Play(GetAnimName(arrowDir, arrowDir), true);
@@ -412,11 +486,38 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int tileWidth = (int) (Width / 8f);
             int tileHeight = (int) (Height / 8f);
 
+            bool inverted = GravityHelper.IsPlayerInverted?.Invoke() ?? false;
+            bool playerOnTop = HasPlayerOnTop();
+            float buttonPos = Y - 4 + (allowWavedash && playerOnTop && !inverted ? 1 : 0);
+            float bottomButtonPos = Bottom - 4 - (allowWavedashBottom && playerOnTop && inverted ? 1 : 0);
+
+            Vector2 renderOffset = (Vector2.One * 4f) + hitOffset;
+
             for (int i = 0; i < tileWidth; i++) {
                 for (int j = 0; j < tileHeight; j++) {
-                    Vector2 vec = new Vector2(X + i * 8, Y + j * 8) + (Vector2.One * 4f) + hitOffset;
-                    vec.X = Center.X + (vec.X - Center.X) * scale.X;
-                    vec.Y = Center.Y + (vec.Y - Center.Y) * scale.Y;
+                    Vector2 vec = new Vector2(X + i * 8, Y + j * 8) + renderOffset;
+                    vec = Center + (vec - Center) * scale;
+
+                    // Button rendering
+                    if (allowWavedash && j == 0) {
+                        int tx = i == 0 ? 0 : (i == tileWidth - 1 ? 2 : 1);
+                        Vector2 pos = new Vector2(X + i * 8, buttonPos) + renderOffset;
+                        pos = Center + (pos - Center) * scale;
+                        Color c = Color.Lerp(buttonColor, buttonPressedColor, colorLerp);
+                        buttonTiles[tx, 0].DrawCentered(pos, c, scale);
+                        buttonTiles[tx, 1].DrawCentered(pos, c, scale);
+                    }
+
+                    // Bottom button rendering
+                    if (allowWavedashBottom && j == tileHeight - 1) {
+                        int tx = i == 0 ? 0 : (i == tileWidth - 1 ? 2 : 1);
+                        Vector2 pos = new Vector2(X + i * 8, bottomButtonPos) + renderOffset;
+                        pos = Center + (pos - Center) * scale;
+                        Color c = Color.Lerp(buttonColor, buttonPressedColor, bottomColorLerp);
+                        buttonTiles[tx, 0].DrawCentered(pos, c, scale, 0f, SpriteEffects.FlipVertically);
+                        buttonTiles[tx, 1].DrawCentered(pos, c, scale, 0f, SpriteEffects.FlipVertically);
+                    }
+
                     blockTiles[i, j].DrawCentered(vec, Color.White, scale);
                 }
             }
@@ -427,13 +528,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void Update() {
             base.Update();
-            arrowSprite.Scale = scale;
-            arrowSprite.Position = hitOffset + offset;
+            colorLerp = Calc.Approach(colorLerp, 0f, 1.25f * Engine.DeltaTime);
+            bottomColorLerp = Calc.Approach(bottomColorLerp, 0f, 1.25f * Engine.DeltaTime);
 
             scale.X = Calc.Approach(scale.X, 1f, Engine.DeltaTime * 4f);
             scale.Y = Calc.Approach(scale.Y, 1f, Engine.DeltaTime * 4f);
             hitOffset.X = Calc.Approach(hitOffset.X, 0f, Engine.DeltaTime * 15f);
             hitOffset.Y = Calc.Approach(hitOffset.Y, 0f, Engine.DeltaTime * 15f);
+
+            arrowSprite.Scale = scale;
+            arrowSprite.Position = hitOffset + offset;
+
+            if (CurrentNode != null && CurrentNode.PushForce != Vector2.Zero && !IsMoving) {
+                Smash(CurrentNode.PushForce, force: true);
+            }
         }
 
         public static void InitializeParticles() {

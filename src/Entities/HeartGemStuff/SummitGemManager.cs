@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/CustomSummitGemManager")]
+    [Tracked]
     public class CustomSummitGemManager : Entity {
 
         public static readonly string[] UnlockEventLookup;
@@ -29,7 +30,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public CustomSummitGemManager(EntityData data, Vector2 offset)
             : base(data.Position + offset) {
-            Depth = -10010;
+            Depth = Depths.FGTerrain - 10;
 
             // Hopefully this always works
             string mapId = AreaData.Get((Engine.Scene as Level)?.Session ?? (Engine.Scene as LevelLoader).Level.Session).SID;
@@ -43,7 +44,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             melody = Array.ConvertAll(data.Attr("melody").ToCharArray(), chr => (chr - '0'));
 
             gems = new List<Gem>();
-            string[] ids = data.Attr("gemIds").Split(',');
+            string[] ids = data.Attr("gemIds").Split(',').Select(Util.StrTrim).ToArray();
             if (ids.Length < data.Nodes.Length)
                 throw new IndexOutOfRangeException("The number of supplied SummitGemManager IDs needs to match the number of nodes!");
             int idx = 0;
@@ -51,7 +52,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (ids[idx].Count(s => s == '/') < 2)
                     ids[idx] = mapId + '/' + ids[idx];
                 Gem item = new Gem(ids[idx], position);
-                gems.Add(item); 
+                gems.Add(item);
                 idx++;
             }
             Add(new Coroutine(Routine(), true));
@@ -85,7 +86,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             int index = 0;
             foreach (Gem gem in gems) {
                 bool flag = CommunalHelperModule.Session.SummitGems.Contains(gem.ID);
-                if (!alreadyHasHeart) {
+                if (!alreadyHasHeart || IsExternal(gem)) {
                     flag |= (CommunalHelperModule.SaveData.SummitGems != null && CommunalHelperModule.SaveData.SummitGems.Contains(gem.ID));
                 }
                 if (flag) {
@@ -154,7 +155,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (broken < index)
                 yield break;
 
-            HeartGem heart = Scene.Entities.FindFirst<HeartGem>();
+            Entity heart = Scene.Entities.FindFirst<HeartGem>() ?? Scene.Entities.FindFirst_MiniHeart();
             if (heart != null) {
                 Audio.Play(SFX.game_07_gem_unlock_complete, heart.Position);
                 yield return 0.1f;
@@ -172,6 +173,13 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        private bool IsExternal(Gem gem) {
+            string[] arr = gem.ID.Split('/');
+            Array.Resize(ref arr, arr.Length - 2); // Drop room name and gem index
+            string SID = string.Join("/", arr);
+            return SID != AreaData.Get(SceneAs<Level>().Session).SID;
+        }
+
         public override void DebugRender(Camera camera) {
             Draw.Circle(Position, 64f, Color.BlueViolet, 16);
             Draw.Line(Position + new Vector2(2f, 0), Position + new Vector2(64f, 0), Color.BlueViolet);
@@ -184,14 +192,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public Color ParticleColor;
             public Vector2 Shake;
             public Sprite Sprite;
-            public Image Bg;
+            //public Image Bg; // Unused in favour of providing decals
             public BloomPoint Bloom;
 
-            public Gem(string id, Vector2 position) 
+            public Gem(string id, Vector2 position)
                 : base(position) {
                 ID = id;
                 Index = Calc.Clamp(int.Parse(id.Substring(id.LastIndexOf('/') + 1)), 0, 7);
-                Depth = -10010;
+                Depth = Depths.FGTerrain - 10;
 
                 // Will probably be implemented as Decals
                 //Add(Bg = new Image(GFX.Game["collectables/summitgems/" + id + "/bg"]));

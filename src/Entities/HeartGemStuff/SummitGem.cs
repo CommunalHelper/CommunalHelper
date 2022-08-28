@@ -9,8 +9,18 @@ using System.Collections;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
+    /*
+    Behaviour options:
+    - Vanilla: first collect retrieved from SaveData, subsequent from Session
+    - Permanent: All collects retrieved from SaveData
+    - One-Use: All collects retrieved from SaveData, *but* gems are removed from SaveData once collected (should only happen on heart collect)
+    - (Current) Improved Vanilla: Session for gems in current map, SaveData for gems outside (combination of Vanilla and Permanent) 
+    Currently there is no clean way to do this on a per-gem basis, although it could still easily be done through Ahorn
+    */
     [CustomEntity("CommunalHelper/CustomSummitGem")]
     public class CustomSummitGem : SummitGem {
+
+        private static Type t_BgFlash = typeof(SummitGem).GetNestedType("BgFlash", BindingFlags.NonPublic);
 
         public new static readonly Color[] GemColors;
 
@@ -25,8 +35,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             GemColors[6] = Calc.HexToColor("57FFCD");
             GemColors[7] = Calc.HexToColor("E00047");
         }
-        
-        public CustomSummitGem(EntityData data, Vector2 offset, EntityID gid) 
+
+        public CustomSummitGem(EntityData data, Vector2 offset, EntityID gid)
             : base(data, offset, gid) {
             baseData = new DynData<SummitGem>(this);
 
@@ -34,7 +44,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             // Hopefully this always works
             string mapId = AreaData.Get((Engine.Scene as Level)?.Session ?? (Engine.Scene as LevelLoader).Level.Session).SID;
-            
+
             CustomGemSID = $"{mapId}/{data.Level.Name}/{GemID}";
 
             Sprite sprite = baseData.Get<Sprite>("sprite");
@@ -57,7 +67,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 sprite.Color = Color.White * 0.5f;
             }
 
-            if (Everest.Content.TryGet<AssetTypeYaml>(GFX.Game.RelativeDataPath + "collectables/summitgems/" + CustomGemSID + "/gem.meta", out ModAsset asset) && 
+            if (Everest.Content.TryGet<AssetTypeYaml>(GFX.Game.RelativeDataPath + "collectables/summitgems/" + CustomGemSID + "/gem.meta", out ModAsset asset) &&
                 asset.TryDeserialize(out ColorMeta meta)) {
                 particleColor = Calc.HexToColor(meta.Color);
             }
@@ -88,7 +98,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Scene.Add(new AbsorbOrb(Position, player, null));
             }
             level.Flash(Color.White, true);
-            Scene.Add((Entity) Activator.CreateInstance(typeof(SummitGem).GetNestedType("BgFlash", BindingFlags.NonPublic)));
+            Scene.Add((Entity) Activator.CreateInstance(t_BgFlash));
 
             Engine.TimeRate = 0.5f;
             while (Engine.TimeRate < 1f) {
@@ -119,11 +129,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             ILCursor cursor = new ILCursor(il);
 
             cursor.GotoNext(MoveType.Before, instr => instr.MatchCallvirt<SummitGem>("SmashRoutine"));
-                
+
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.Emit(OpCodes.Isinst, typeof(CustomSummitGem).GetTypeInfo());
             cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
-            cursor.Emit(OpCodes.Callvirt, typeof(CustomSummitGem).GetMethod("SmashRoutine", BindingFlags.NonPublic | BindingFlags.Instance));
+            cursor.Emit(OpCodes.Callvirt, typeof(CustomSummitGem).GetMethod(nameof(SmashRoutine), BindingFlags.NonPublic | BindingFlags.Instance));
             cursor.Emit(OpCodes.Br_S, cursor.Next.Next);
 
         }

@@ -15,7 +15,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public PathRenderer(DreamSwapBlock block)
                 : base(block.Position) {
                 this.block = block;
-                Depth = 8999;
+                Depth = Depths.BGDecals - 1;
                 timer = Calc.Random.NextFloat();
             }
 
@@ -27,7 +27,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public override void Render() {
                 float scale = 0.5f * (0.5f + ((float) Math.Sin(timer) + 1f) * 0.25f);
                 scale = Calc.LerpClamp(scale, 1, block.ColorLerp);
-                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, block.activeLineColor * scale);
+                block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, ActiveLineColor * scale);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public DreamSwapBlock(EntityData data, Vector2 offset)
-            : base(data.Position + offset, data.Width, data.Height, data.Bool("featherMode", false), data.Bool("oneUse", false), data.Bool("doubleRefill", false)) {
+            : base(data, offset) {
             start = Position;
             end = data.Nodes[0] + offset;
             noReturn = data.Bool("noReturn", false);
@@ -87,9 +87,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             maxBackwardSpeed = maxForwardSpeed * 0.4f;
             Direction.X = Math.Sign(end.X - start.X);
             Direction.Y = Math.Sign(end.Y - start.Y);
-            Add(new DashListener {
-                OnDash = OnDash
-            });
+            Add(new DashListener { OnDash = OnDash });
 
             int left = (int) MathHelper.Min(X, end.X);
             int top = (int) MathHelper.Min(Y, end.Y);
@@ -181,7 +179,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 speed = Calc.Approach(speed, maxForwardSpeed, maxForwardSpeed / 0.2f * Engine.DeltaTime);
                 float num = lerp;
                 lerp = Calc.Approach(lerp, target, speed * Engine.DeltaTime);
-                if (lerp == 0 || lerp == 1)
+                if (lerp is 0 or 1)
                     Audio.Stop(moveSfx);
                 if (lerp != num) {
                     Vector2 liftSpeed = (end - start) * speed;
@@ -209,7 +207,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (Swapping && lerp >= 1f) {
                     Swapping = false;
                 }
-                StopPlayerRunIntoAnimation = (lerp <= 0f || lerp >= 1f);
+                StopPlayerRunIntoAnimation = (lerp is <= 0f or >= 1f);
             } else {
                 if (returnTimer > 0f) {
                     returnTimer -= Engine.DeltaTime;
@@ -256,7 +254,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (Swapping && lerp >= 1f) {
                     Swapping = false;
                 }
-                StopPlayerRunIntoAnimation = (lerp <= 0f || lerp >= 1f);
+                StopPlayerRunIntoAnimation = (lerp is <= 0f or >= 1f);
             }
         }
 
@@ -282,7 +280,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 dreamParticles[3].Color = Calc.HexToColor("5b6ee1");
                 dreamParticles[3].Color2 = Calc.HexToColor("CC3B3B");
             } else {
-                for(int i = 0; i < 4; i++) {
+                for (int i = 0; i < 4; i++) {
                     dreamParticles[i].Color = Color.LightGray * 0.5f;
                     dreamParticles[i].Color2 = Color.LightGray * 0.75f;
                 }
@@ -315,11 +313,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 direction = (float) Math.PI / 2f;
                 num = Math.Max(2f, Width / 14f);
             }
+
             particlesRemainder += num;
-            int num2 = (int) particlesRemainder;
-            particlesRemainder -= num2;
+            int amount = (int) particlesRemainder;
+            particlesRemainder -= amount;
             positionRange *= 0.5f;
-            SceneAs<Level>().Particles.Emit(dreamParticles[particleIndex], num2, position, positionRange, direction);
+            SceneAs<Level>().Particles.Emit(dreamParticles[particleIndex], amount, position, positionRange, direction);
             ++particleIndex;
             particleIndex %= 4;
         }

@@ -1,0 +1,106 @@
+name: Package and Publish
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  TAG_NAME: ${{ github.ref_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Download Everest stripped lib
+      uses: coloursofnoise/get-azure-pipelines-artifact@v0.0.3
+      with:
+        repository: EverestAPI/Everest
+        definitionId: 3
+        artifact: lib-stripped
+        reasonFilter: 'individualCI'
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    - name: Restore with .NET Core
+      run: dotnet restore
+
+    - name: Run Pre-Build Script
+      run: |
+        export MOD_VERSION=${TAG_NAME#v}
+        [[ "$MOD_VERSION" =~ -.*$ ]] && PRERELEASE=true || PRERELEASE=false
+        echo "MOD_VERSION=$MOD_VERSION" >> $GITHUB_ENV
+        echo "PRERELEASE=$PRERELEASE" >> $GITHUB_ENV
+        yq e -i '.[0].Version = strenv(MOD_VERSION)' everest.yaml
+        awk '/$^/{exit} /--/{next} {print $0 >"changelog.current"}' Release\ Log.txt
+
+    - name: Build with .NET Core
+      run: dotnet build "/p:Configuration=Debug"
+      env:
+        CELESTEGAMEPATH: ${{ github.workspace }}/lib-stripped
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: main
+        path: src/bin/Debug/net452
+
+    - name: Create mod zip
+      run: zip -qq -r CommunalHelper.zip Ahorn/* Loenn Audio Dialog Graphics src/bin/Debug/net452 everest.yaml
+
+    - name: Create Release
+      id: release
+      uses: softprops/action-gh-release@58fa4b7a8863f6beaf115a49196308842b8b0f06
+      with:
+        name: CommunalHelper ${{ env.MOD_VERSION }}
+        files: CommunalHelper.zip
+        fail_on_unmatched_files: true
+        prerelease: ${{ fromJSON(env.PRERELEASE) }}
+
+    - name: Update release description
+      env:
+        RELEASE_ID: ${{ steps.release.outputs.id }}
+        DOWNLOAD_URL: ${{ fromJSON(steps.release.outputs.assets)[0].browser_download_url }}
+      run: |
+        curl \
+          -X PATCH \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" \
+          -d "$(jq -n \
+            --rawfile body changelog.current \
+            --arg url $DOWNLOAD_URL \
+            '{body: "\($body)\r\n\r\n[Install CommunalHelper.zip](https://0x0a.de/twoclick/?\($url))"}')"
+
+    - name: Generate reference pages
+      run: |
+        OUTFILE="docs/Reference.md"
+        TEMPFILE=$(mktemp)
+        gawk -v METAFILE=$OUTFILE -f docs/generate.awk Loenn/lang/en_gb.lang > $TEMPFILE
+        cat $TEMPFILE >>$OUTFILE
+
+    - name: Sync Wiki
+      if: ${{ !fromJSON(env.PRERELEASE) }}
+      uses: SwiftDocOrg/github-wiki-publish-action@v1
+      with:
+        path: docs
+      env:
+        GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+
+    - name: Publish discord webhook
+      env:
+        DOWNLOAD_URL: ${{ fromJSON(steps.release.outputs.assets)[0].browser_download_url }}
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      run: |
+        curl \
+          -X POST \
+          -H "Content-Type: application/json" \
+          "$DISCORD_WEBHOOK" \
+          -d "$(jq -n \
+            --rawfile body changelog.current \
+            --arg url $DOWNLOAD_URL \
+            '{embeds: [{title: "Install CommunalHelper.zip", url: "https://0x0a.de/twoclick/?\($url)", description: $body}]}')"

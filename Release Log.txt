@@ -1,4 +1,219 @@
---1.3.0 (??/08/2020)--
+--1.13.2 (28/07/2022)--
+* Added Cloudscape Lönn plugin
+* Fixed Station Block Lönn plugin.
+* Fixed Cloudscape effect stuck at the bottom of the effects list in Ahorn.
+
+--1.13.1 (28/07/2022)--
+* Added missing 'only' and 'exclude' properties from the Cloudscape effect. 
+* Fixed Dream Strawberry Ahorn plugin (sprites & nodes).
+* Fixed Curved Boosters & Curved Dream Boosters killing you when entering spikes that shouldn't kill you.
+
+--1.13.0 (28/07/2022)--
+* Added Curved Booster and Dream Curved Boosters.
+* Added Dream Strawberry.
+* Added Redless Strawberry & Redless Berry Collection Trigger.
+* Added 'ch_give_redlessberry' command.
+* Added Seeker Dash Refill.
+* Added Player Seeker Barrier.
+* Added Cloudscape effect, and its triggers.
+* Enhanced Seeker Dash State graphics.
+* Added bottom wavedash button to Station Blocks.
+* Implemented Gravity Helper support.
+* Fixed Attached Wall Booster bug with Ice Mode.
+* Added automatically-generated entity reference on the repository.
+
+--1.12.1 (27/06/2022)--
+* Renamed Cassette Music Fade trigger 'param' option to 'parameter'.
+
+--1.12.0 (25/06/2022)--
+* Added Cassette Music Fade trigger.
+
+--1.11.7 (18/06/2022)--
+* Fixed wrong image width for custom Attached Wall Booster textures. 
+
+--1.11.6 (18/06/2022)--
+* Added legacyBoost option to Attached Wall Boosters, ON by default.
+* Rewrote & optimized zip mover path rendering code.
+* Code cleanup & tweaks.
+
+--1.11.5 (12/06/2022)--
+* Fix Attached Wall Booster doubled Y liftspeed boost.
+
+--1.11.4 (11/06/2022)--
+* Change flag-controlled Connected Move Blocks activation from static movers.
+* Add single Renderer entities before LevelLoader.LoadingThread to avoid potential crashes.
+
+--1.11.3 (30/04/2022)--
+* Fix Connected Move Block types not responding to static movers trigerring.
+* Add outline option to Connected Move Block and Equation Move Block.
+
+--1.11.2 (04/04/2022)--
+* Fix 1.11.1 bugfix undesired side effects on vanilla Wall Boosters.
+
+--1.11.1 (03/04/2022)--
+* Fix Attached Wall Booster sound and behavior bugs.
+
+--1.11.0 (02/04/2022)--
+* Lönn support.
+* Fix various tooltips + missing tooltips.
+
+--1.10.0 (09/03/2022)--
+* Added Seeker Dash.
+* Added Dash State Trigger.
+* Added Frictionless Panel.
+* Added Dash Collision Panel.
+* Added Bouncy Panel.
+* Added Dream Tunnel featherMode preview.
+* Fix overrideAllowStaticMovers attribute on panels.
+* Properly detect late-loaded optional dependencies.
+* Added wiki for in-depth documentation.
+
+--1.9.8 (24/01/2022)--
+* Added triggerAlways option to Timed Trigger Spikes.
+
+--1.9.7 (22/01/2022)--
+* Added Sound Area Trigger.
+
+--1.9.6 (01/01/2022)--
+* Added No Overlay Watch Tower.
+
+--1.9.5 (28/11/2021)--
+* Fix Station Block killed-liftspeed issue (leniency).
+* Station Blocks can no longer travel to the current node they are located at (bug appeared in 1.9.0).
+
+--1.9.4 (11/11/2021)--
+* Added Core Mode Music Controller.
+* Added options to Track Switch Box to disable floating and bouncing behavior.
+* Added forceShake option to DreamFallingBlock types (legacy option).
+* Fix Dream Jellyfish crash when entering Seeker Barrier.
+
+--1.9.3 (17/10/2021)--
+* Added quickDestroy option to Dream Block types.
+* Fix inconsistent chain outlines when broken in half.
+* Fix inconsistent Chained Falling Block shake time with vanilla Falling Blocks. 
+* Revert to old unintentionally modified Dream Falling Block behavior.
+* Refactor shared CassetteBlock, CustomDreamBlock entityData values.
+* Code cleanup.
+
+--1.9.2 (08/07/2021)--
+* Fixed Delete Mode MoveBlockRedirect Ahorn plugin
+* Fixed LiftSpeed grace time for MoveSwapBlock
+
+--1.9.1 (28/07/2021)--
+* Fixed Connected Zip Mover FMOD audio events wrongly routed to gameplay SFX bus.
+
+--1.9.0 (25/07/2021)--
+* Added Uncollidable Solid Extensions.
+* Added Decorative Chain Entity.
+* Added Chained variants of Falling Block & Dream Falling Block.
+* Added Chained Kevin.
+* Added Force & One Way Station Block Tracks.
+* Added reskinning option to Move Block Redirects.
+* Added Dream Jellyfish.
+* Added Railed Move Block.
+* Added Underwater Music Controller.
+* Fixed Move Swap Block liftspeed issues.
+* Fixed Move Block Redirects static mover desync and delete mode not working.
+* Fixed Zip Mover type sound issues.
+* Fixed Connected Move Block & Equation Move Block rendering issues in Ahorn.
+* Communal Helper custom Player states are now registered with CelesteTAS.
+
+--1.8.4 (17/06/2021)--
+* [Silent] Added Equation Move Blocks.
+* [Silent] Added flag options for Connected & Equation Move Blocks.
+* Fixed Station Block issue concerning dash corner correction.
+
+--1.8.3 (07/06/2021)--
+* Fixed another Linux-related crash.
+
+--1.8.2 (06/06/2021)--
+* Added Station Block option to allow easier wallbounces (dashCornerCorrection).
+* Added Music Param Trigger.
+* Added more Connected Zip Mover reskinning options.
+* Added missing Connected Move Block reskinning code.
+* Code cleanup.
+* Fixed Manual Cassette Controller not visually updating Cassette Blocks.
+* Fixed crash involving Dream Blocks (Linux only).
+* Fixed being able to jump out of Dream Boosters when being inside of solids.
+* Fixed Cassette Zip Mover liftspeed boost when deactivating.
+* Fixed Cassette Move Block static mover issues.
+
+--1.8.1 (30/04/2021)--
+* Fixed inverted logic when retrieving CustomCassetteBlock types.
+
+--1.8.0 (29/04/2021)--
+* Added Dream Tunnel Entry.
+* Added Sound Surface Panel.
+* Added Input Flag Controller.
+* Added Cassette Jump Fix Controller.
+* Added Manual Cassette Controller (in 1.7.1).
+* Added Dream Booster.
+* Added Custom Cassette Block for the vanilla Cassette Blocks with custom color.
+* Added Player Bubble Region.
+* Added custom color option for Cassette Block types from Communal Helper.
+* Added custom respawn time for Dream Refills.
+* Added custom wavedash button indicator color options (wavedashButtonColor and wavedashButtonPressedColor). 
+* Fixed Attached Wall Booster neutral boost.
+* Fixed Move Block Redirects not affecting every MoveBlock derivatives.
+* Fixed crouched hitbox when dream tunneling next to solid.
+
+--1.7.1 (30/03/2021)--
+* [Silent] Added Manual Cassette Controller.
+* Fixed crashes involving using readonly structs.
+
+--1.7.0 (27/02/2021)--
+* Added Melvin.
+* Added Dream Flag Switch Gate (requires Max's Helping Hand).
+* Added deleteBlock & oneUse attributes to MoveBlockRedirects.
+* Made Move Block Redirects able to edit its Move Block's speed.
+* Made Summit Gems work across maps.
+* Fixed Move Blocks going through Move Block Redirects.
+* Fixed Dream Refills not refilling Player's dashes when turning on Always Active Dream Refill Charge.
+
+--1.6.2 (12/02/2021)--
+* Fixed ConnectedSolids not killing Madeline when crushed horizontally.
+* Fixed Timed Trigger Spikes invisible glitch.
+* Massive code cleanup and update to C# 9.
+
+--1.6.1 (08/02/2021)--
+* Added multiBlockTrack attribute to Station Blocks.
+
+--1.6.0 (06/02/2021)--
+* Fixed crash on Celeste beta (1.3.3.17).
+* Fixed rendering bug with unattached Station Blocks.
+* Re-added and fixed DreamZipMover's custom sound.
+* Added speedFactor, allowWavedash attributes to StationBlocks.
+* Added trackSwitchMode ("ON/OFF" tracks) attribute to StationBlockTracks.
+* Added Track Switch Box.
+* Added Switch Track Trigger.
+* Deprecated doubleRefill attribute on CustomDreamBlocks.
+* Added refillCount attribute to CustomDreamBlocks.
+* Added grouping attribute to TimedTriggerSpikes (requires Max's Helping Hand).
+* Added rainbow attribute to TimedTriggerSpikes (requires Viv's Helper).
+* Support CollabUtils MiniHeart in SummitGemManager.
+
+--1.5.0 (05/12/2020)--
+* Fixed rare crash involving IL hook interactions.
+* Added DreamCrumbleWallOnRumble, DreamFloatySpaceBlock.
+* Added Multi-Node support for ZipMover types.
+* Added permanent, waiting, ticking attributes to all ZipMover types.
+
+--1.4.0 (31/10/2020)--
+* Fixed IL hooks on SteamFNA.
+* Static Movers now attach properly to ConnectedSolids.
+* Added Timed Trigger Spikes.
+* Added Move Swap Block.
+* Added Reset State Crystal.
+* Added Shielded Refill.
+* Added variable move speed to all MoveBlock types.
+* Added below attribute to all DreamBlock types.
+* Added noCollide attribute to DreamFallingBlock.
+* Moved Custom SpriteBank file.
+* CustomDreamBlocks now activate and deactivate properly.
+* DreamTunnelDash now behaves more consistently.
+* Fixed StrawberrySeed collection during DreamTunnelDash.
+
+--1.3.0 (01/09/2020)--
 * Added "double refill" mode to all dream block types.
 * Added Connected Zip Mover, Connected Move Block and Connected Swap Block. 
 * Added Connected Solid Extension.
@@ -33,4 +248,3 @@
 * Added Dream Zip Mover.
 * Added Dream Move Block.
 * Added Dream Swap Block.
-

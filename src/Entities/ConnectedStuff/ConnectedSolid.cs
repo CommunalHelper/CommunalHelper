@@ -1,35 +1,63 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper {
-    class ConnectedSolid : Solid
-    {
+    public class ConnectedSolid : Solid {
+        public class BGTilesRenderer : Entity {
+            private ConnectedSolid solid;
+
+            public List<Image> BGTiles = new List<Image>();
+
+            public BGTilesRenderer(ConnectedSolid solid) {
+                this.solid = solid;
+
+                // Never rendering above solid.
+                Depth = Math.Max(Depths.Player, solid.Depth) + 1;
+            }
+
+            public override void Update() {
+                Visible = solid.Visible;
+                base.Update();
+            }
+
+            public override void Render() {
+                Position = solid.Position + solid.Shake;
+                base.Render();
+            }
+        }
+        public BGTilesRenderer BGRenderer;
+
         public Vector2 GroupBoundsMin, GroupBoundsMax;
         public Vector2 GroupCenter => Position + GroupOffset + (GroupBoundsMax - GroupBoundsMin) / 2f;
-             
-        public Hitbox[] Colliders;
+
+        // AllColliders contains colliders that didn't have a hitbox.
+        public Hitbox[] Colliders, AllColliders;
         public Collider MasterCollider;
 
-        // Auto-tiling stuff.
-        public bool[,] GroupTiles;
+        // Auto-tiling stuff. (AllGroupTiles is similar to AllColliders)
+        public bool[,] GroupTiles, AllGroupTiles;
         private AutoTileData[,] autoTileData;
-        bool wasAutoTiled = false;
+        private bool wasAutoTiled = false;
+
         private enum TileType {
             Edge, Corner, InnerCorner, Filler
         }
-        private struct AutoTileData {
-            public AutoTileData(int x_, int y_, TileType type_) {
-                x = x_;
-                y = y_;
-                type = type_;
-            }
-            public int x, y;
-            public TileType type;
-        }
 
+        private struct AutoTileData {
+            public readonly int X, Y;
+            public readonly TileType Type;
+
+            public AutoTileData(int x, int y, TileType type) {
+                X = x;
+                Y = y;
+                Type = type;
+            }
+        }
 
         public Vector2 GroupOffset;
 
@@ -38,50 +66,91 @@ namespace Celeste.Mod.CommunalHelper {
 
         public List<Image> Tiles = new List<Image>();
         public List<Image> EdgeTiles = new List<Image>();
-        public List<Image> CornerTiles = new List<Image>();        
+        public List<Image> CornerTiles = new List<Image>();
         public List<Image> InnerCornerTiles = new List<Image>();
         public List<Image> FillerTiles = new List<Image>();
 
         public ConnectedSolid(Vector2 position, int width, int height, bool safe)
-            : base(position, width, height, safe)
-        {
+            : base(position, width, height, safe) {
             GroupBoundsMin = new Vector2(X, Y);
             GroupBoundsMax = new Vector2(Right, Bottom);
-            MasterWidth = width; MasterHeight = height;
-            MasterCollider = base.Collider;
+            MasterWidth = width;
+            MasterHeight = height;
+            MasterCollider = Collider;
         }
 
-        public override void Awake(Scene scene)
-        {
-            base.Awake(scene);
-
+        public override void Awake(Scene scene) {
             List<SolidExtension> extensions = new List<SolidExtension>();
-            FindExtensions(this, extensions);
+            FindExtensions(extensions);
 
-            GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - base.Position;
-            Colliders = new Hitbox[extensions.Count + 1];
-            for (int i = 0; i < extensions.Count; i++)
-            {
+            GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - Position;
+            Colliders = new Hitbox[extensions.Count(ext => ext.HasHitbox) + 1];
+            AllColliders = new Hitbox[extensions.Count + 1];
+
+            int j = 0;
+            for (int i = 0; i < extensions.Count; i++) {
                 SolidExtension e = extensions[i];
                 Vector2 offset = e.Position - Position;
-                Colliders[i] = new Hitbox(e.Width, e.Height, offset.X, offset.Y);
+                Hitbox hitbox = new Hitbox(e.Width, e.Height, offset.X, offset.Y);
+                if (e.HasHitbox) {
+                    Colliders[j] = hitbox;
+                    j++;
+                }
+                AllColliders[i] = hitbox;
+                e.RemoveSelf();
+                // You don't want disabled Solids hanging around in the level, so you remove them.
             }
-            Colliders[Colliders.Length - 1] = new Hitbox(Collider.Width, Collider.Height);
-            base.Collider = new ColliderList(Colliders);
 
-            foreach (SolidExtension e in extensions) e.RemoveSelf();
-            // You don't want disabled Solids hanging around in the level, so you remove them.
+            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+            GroupTiles = new bool[tWidth + 2, tHeight + 2];
+            AllGroupTiles = new bool[tWidth + 2, tHeight + 2];
+
+            Colliders[Colliders.Length - 1] = (Hitbox) Collider;
+            AllColliders[AllColliders.Length - 1] = (Hitbox) Collider;
+
+            Collider = new ColliderList(AllColliders);
+            for (int x = 0; x < tWidth + 2; x++)
+                for (int y = 0; y < tHeight + 2; y++)
+                    AllGroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
+
+            Collider = new ColliderList(Colliders);
+            for (int x = 0; x < tWidth + 2; x++)
+                for (int y = 0; y < tHeight + 2; y++)
+                    GroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
+
+            scene.Add(BGRenderer = new BGTilesRenderer(this));
+
+            base.Awake(scene);
         }
 
-        private void FindExtensions(ConnectedSolid master, List<SolidExtension> list)
-        {
-            foreach (SolidExtension extension in base.Scene.Tracker.GetEntities<SolidExtension>())
-            {
+        public override void Removed(Scene scene) {
+            base.Removed(scene);
+            BGRenderer.RemoveSelf();
+        }
+
+        public static Tuple<MTexture[,], MTexture[,]> SetupCustomTileset(string path) {
+            MTexture tileset = GFX.Game["objects/" + path];
+
+            MTexture[,] overrideEdgeTiles = new MTexture[3, 3];
+            MTexture[,] overrideInCornersTiles = new MTexture[2, 2];
+
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    overrideEdgeTiles[i, j] = tileset.GetSubtexture(i * 8, j * 8, 8, 8);
+                    if (i < 2 && j < 2)
+                        overrideInCornersTiles[i, j] = tileset.GetSubtexture(i * 8 + 24, j * 8, 8, 8);
+                }
+            }
+            return new Tuple<MTexture[,], MTexture[,]>(overrideEdgeTiles, overrideInCornersTiles);
+        }
+
+        private void FindExtensions(List<SolidExtension> list) {
+            foreach (SolidExtension extension in Scene.Tracker.GetEntities<SolidExtension>()) {
                 if (!extension.HasGroup &&
-                    (base.Scene.CollideCheck(new Rectangle((int)X - 1, (int)Y, (int)Width + 2, (int)master.Height), extension) ||
-                    base.Scene.CollideCheck(new Rectangle((int)X, (int)Y - 1, (int)Width, (int)Height + 2), extension)))
-                {
-                    extension.AddToGroupAndFindChildren(extension, master, list);
+                    (Scene.CollideCheck(new Rectangle((int) X - 1, (int) Y, (int) Width + 2, (int) Height), extension) ||
+                    Scene.CollideCheck(new Rectangle((int) X, (int) Y - 1, (int) Width, (int) Height + 2), extension))) {
+                    extension.AddToGroupAndFindChildren(extension, this, list);
                 }
             }
         }
@@ -128,29 +197,40 @@ namespace Celeste.Mod.CommunalHelper {
         /// <param name="innerCorners"> Split tiles from a 16x16 texture, for the inside turns. </param>
         /// <param name="addAsComponent"> Whether all the tiles should be added as components to this entity, therefore rendered automatically. </param>
         public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, bool storeTiles = true, bool addAsComponent = true) {
+            return AutoTile(edges, innerCorners, out _, storeTiles, addAsComponent);
+        }
 
-            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8.0f);
-            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8.0f);
+        public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, out List<Image> bgTiles, bool storeTiles = true, bool addAsComponent = true) {
+            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
             List<Image> res = new List<Image>();
+            bgTiles = new List<Image>();
+
             if (!wasAutoTiled) {
                 autoTileData = new AutoTileData[tWidth, tHeight];
-                GroupTiles = new bool[tWidth + 2, tHeight + 2];
-
-                for (int x = 0; x < tWidth + 2; x++) {
-                    for (int y = 0; y < tHeight + 2; y++) {
-                        GroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
-                    }
-                }
             }
+
             for (int x = 1; x < tWidth + 1; x++) {
                 for (int y = 1; y < tHeight + 1; y++) {
-                    if (GroupTiles[x, y]) {
-                        Image tile = AddTile(GroupTiles, x, y, GroupOffset, edges, innerCorners, storeTiles, wasAutoTiled);
+                    bool uncollidable = AllGroupTiles[x, y] && !GroupTiles[x, y];
+                    bool[,] tiles = uncollidable ? AllGroupTiles : GroupTiles;
+                    if (tiles[x, y]) {
+                        Image tile = AddTile(tiles, x, y, GroupOffset, edges, innerCorners, storeTiles, wasAutoTiled);
                         res.Add(tile);
 
-                        if (addAsComponent)
-                            Add(tile);
+                        if (addAsComponent) {
+                            if (uncollidable) {
+                                BGRenderer.Add(tile);
+                            } else {
+                                Add(tile);
+                            }
+                        }
+
+                        if (uncollidable) {
+                            bgTiles.Add(tile);
+                            tile.Color = Color.Gray;
+                        }
                     }
                 }
             }
@@ -164,7 +244,6 @@ namespace Celeste.Mod.CommunalHelper {
             AutoTileData tileData;
 
             if (!ignoreTilingLogic) {
-
                 bool up = tiles[x, y - 1];
                 bool down = tiles[x, y + 1];
                 bool left = tiles[x - 1, y];
@@ -176,26 +255,22 @@ namespace Celeste.Mod.CommunalHelper {
                 bool downright = tiles[x + 1, y + 1];
 
                 image = AutoTileTexture(
-                    up, down, left, right,
-                    upleft, upright, downleft, downright,
-                    edges, innerCorners,
-                    out tileData);
+                    (Sides) Util.ToBitFlag(up, down, left, right),
+                    (Corners) Util.ToBitFlag(upleft, upright, downleft, downright),
+                    edges, innerCorners, out tileData);
                 autoTileData[(int) tilePos.X, (int) tilePos.Y] = tileData;
-
             } else {
-
                 tileData = autoTileData[(int) tilePos.X, (int) tilePos.Y];
                 image = new Image(
-                        tileData.type == TileType.InnerCorner ?
-                        innerCorners[tileData.x, tileData.y] :
-                        edges[tileData.x, tileData.y]);
+                        tileData.Type == TileType.InnerCorner ?
+                        innerCorners[tileData.X, tileData.Y] :
+                        edges[tileData.X, tileData.Y]);
             }
 
             image.Position = (tilePos * 8f) + offset;
             if (storeTiles) {
                 Tiles.Add(image);
-                switch (tileData.type) {
-
+                switch (tileData.Type) {
                     default:
                     case TileType.Filler:
                         FillerTiles.Add(image);
@@ -209,106 +284,103 @@ namespace Celeste.Mod.CommunalHelper {
                     case TileType.InnerCorner:
                         InnerCornerTiles.Add(image);
                         break;
-                        
                 }
             }
             return image;
         }
 
-        private Image AutoTileTexture(
-            bool up, bool down, bool left, bool right,
-            bool upleft, bool upright, bool downleft, bool downright,
-            MTexture[,] edges, MTexture[,] innerCorners,
-            out AutoTileData data) {
-            bool completelyClosed = up && down && left && right;
+        [Flags]
+        private enum Sides {
+            Up = 1,
+            Down = 2,
+            Left = 4,
+            Right = 8,
+            All = Up | Down | Left | Right
+        }
 
-            data = new AutoTileData(1, 1, TileType.Filler);
-            if (!(completelyClosed && upright && upleft && downright && downleft)) {
-                if (completelyClosed) {
+        [Flags]
+        private enum Corners {
+            UpLeft = 1,
+            UpRight = 2,
+            DownLeft = 4,
+            DownRight = 8,
+            All = UpLeft | UpRight | DownLeft | DownRight
+        }
 
-                    if (!upleft) { data.x = 0; data.y = 0; data.type = TileType.InnerCorner; }
-                    else if (!upright) { data.x = 1; data.y = 0; data.type = TileType.InnerCorner; }
-                    else if (!downleft) { data.x = 0; data.y = 1; data.type = TileType.InnerCorner; }
-                    else if (!downright) { data.x = 1; data.y = 1; data.type = TileType.InnerCorner; }
-                } else {
-
-                    if (!up && down && left && right) { data.x = 1; data.y = 0; data.type = TileType.Edge; }
-                    else if (up && !down && left && right) { data.x = 1; data.y = 2; data.type = TileType.Edge; }
-                    else if (up && down && !left && right) { data.x = 0; data.y = 1; data.type = TileType.Edge; }
-                    else if (up && down && left && !right) { data.x = 2; data.y = 1; data.type = TileType.Edge; }
-
-                    else if (!up && down && !left && right) { data.x = 0; data.y = 0; data.type = TileType.Corner; }
-                    else if (!up && down && left && !right) { data.x = 2; data.y = 0; data.type = TileType.Corner; }
-                    else if (up && !down && !left && right) { data.x = 0; data.y = 2; data.type = TileType.Corner; }
-                    else if (up && !down && left && !right) { data.x = 2; data.y = 2; data.type = TileType.Corner; }
-                }
+        private Image AutoTileTexture(Sides sides, Corners corners, MTexture[,] edges, MTexture[,] innerCorners, out AutoTileData data) {
+            if (sides == Sides.All) {
+                data = corners switch {
+                    Corners.All ^ Corners.UpLeft => new AutoTileData(0, 0, TileType.InnerCorner),
+                    Corners.All ^ Corners.UpRight => new AutoTileData(1, 0, TileType.InnerCorner),
+                    Corners.All ^ Corners.DownLeft => new AutoTileData(0, 1, TileType.InnerCorner),
+                    Corners.All ^ Corners.DownRight => new AutoTileData(1, 1, TileType.InnerCorner),
+                    _ => new AutoTileData(1, 1, TileType.Filler)
+                };
+            } else {
+                data = sides switch {
+                    Sides.All ^ Sides.Up => new AutoTileData(1, 0, TileType.Edge),
+                    Sides.All ^ Sides.Down => new AutoTileData(1, 2, TileType.Edge),
+                    Sides.All ^ Sides.Left => new AutoTileData(0, 1, TileType.Edge),
+                    Sides.All ^ Sides.Right => new AutoTileData(2, 1, TileType.Edge),
+                    Sides.Down | Sides.Right => new AutoTileData(0, 0, TileType.Corner),
+                    Sides.Down | Sides.Left => new AutoTileData(2, 0, TileType.Corner),
+                    Sides.Up | Sides.Right => new AutoTileData(0, 2, TileType.Corner),
+                    Sides.Up | Sides.Left => new AutoTileData(2, 2, TileType.Corner),
+                    _ => new AutoTileData(1, 1, TileType.Filler)
+                };
             }
 
             return new Image(
-                data.type == TileType.InnerCorner ? 
-                innerCorners[data.x, data.y] : 
-                edges[data.x, data.y]);
+                data.Type == TileType.InnerCorner ?
+                innerCorners[data.X, data.Y] :
+                edges[data.X, data.Y]);
         }
 
-        private bool TileCollideWithGroup(int x, int y)
-        {
-            return base.CollideRect(new Rectangle((int)GroupBoundsMin.X + x * 8, (int)GroupBoundsMin.Y + y * 8, 8, 8));
+        private bool TileCollideWithGroup(int x, int y) {
+            return CollideRect(new Rectangle((int) GroupBoundsMin.X + x * 8, (int) GroupBoundsMin.Y + y * 8, 8, 8));
         }
 
         /* 
          * Check for every Hitbox in base.Colliders, so that 
          * the player & other entities don't get sent to the ends of the group.
          */
-        public override void MoveHExact(int move)
-        {
+        public override void MoveHExact(int move) {
             //base.MoveHExact(move);
             GetRiders();
-            Player player = base.Scene.Tracker.GetEntity<Player>();
+            Player player = Scene.Tracker.GetEntity<Player>();
 
             HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
 
-            if (player != null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + Vector2.UnitX * move - Vector2.UnitY))
-            {
+            if (player != null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + Vector2.UnitX * move - Vector2.UnitY)) {
                 player.MoveV(1f);
             }
-            base.X += move;
+            X += move;
             MoveStaticMovers(Vector2.UnitX * move);
-            if (Collidable)
-            {
-                foreach (Actor entity in base.Scene.Tracker.GetEntities<Actor>())
-                {
-                    if (entity.AllowPushing)
-                    {
+            if (Collidable) {
+                foreach (Actor entity in Scene.Tracker.GetEntities<Actor>()) {
+                    if (entity.AllowPushing) {
                         bool collidable = entity.Collidable;
                         entity.Collidable = true;
 
-                        if (!entity.TreatNaive && CollideCheck(entity, Position))
-                        {
-                            foreach(Hitbox hitbox in Colliders)
-                            {
-                                if (hitbox.Collide(entity))
-                                {
+                        if (!entity.TreatNaive && CollideCheck(entity, Position)) {
+                            foreach (Hitbox hitbox in Colliders) {
+                                if (hitbox.Collide(entity)) {
                                     float left = X + hitbox.Left;
                                     float right = X + hitbox.Right;
 
-                                    int moveH = (move <= 0) ? (int)(left - entity.Right) : (int)(right - entity.Left);
+                                    int moveH = (move <= 0) ? (int) (left - entity.Right) : (int) (right - entity.Left);
 
                                     Collidable = false;
-                                    entity.MoveHExact(moveH, null, this);
+                                    entity.MoveHExact(moveH, entity.SquishCallback, this);
                                     entity.LiftSpeed = LiftSpeed;
                                     Collidable = true;
                                 }
                             }
-                        }
-                        else if (riders.Contains(entity))
-                        {
+                        } else if (riders.Contains(entity)) {
                             Collidable = false;
-                            if (entity.TreatNaive)
-                            {
+                            if (entity.TreatNaive) {
                                 entity.NaiveMove(Vector2.UnitX * move);
-                            }
-                            else
-                            {
+                            } else {
                                 entity.MoveHExact(move);
                             }
                             entity.LiftSpeed = LiftSpeed;
@@ -321,50 +393,39 @@ namespace Celeste.Mod.CommunalHelper {
             riders.Clear();
         }
 
-        public override void MoveVExact(int move)
-        {
+        public override void MoveVExact(int move) {
+            GravityHelper.BeginOverride?.Invoke();
+
             //base.MoveVExact(move);
             GetRiders();
 
             HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
-        
-            base.Y += move;
+
+            Y += move;
             MoveStaticMovers(Vector2.UnitY * move);
-            if (Collidable)
-            {
-                foreach (Actor entity in base.Scene.Tracker.GetEntities<Actor>())
-                {
-                    if (entity.AllowPushing)
-                    {
+            if (Collidable) {
+                foreach (Actor entity in Scene.Tracker.GetEntities<Actor>()) {
+                    if (entity.AllowPushing) {
                         bool collidable = entity.Collidable;
                         entity.Collidable = true;
-                        if (!entity.TreatNaive && CollideCheck(entity, Position))
-                        {
-                            foreach (Hitbox hitbox in Colliders)
-                            {
-        
-                                if (hitbox.Collide(entity))
-                                {
+                        if (!entity.TreatNaive && CollideCheck(entity, Position)) {
+                            foreach (Hitbox hitbox in Colliders) {
+                                if (hitbox.Collide(entity)) {
                                     float top = Y + hitbox.Top;
                                     float bottom = Y + hitbox.Bottom;
-        
-                                    int moveV = (move <= 0) ? (int)(top - entity.Bottom) : (int)(bottom - entity.Top);
+
+                                    int moveV = (move <= 0) ? (int) (top - entity.Bottom) : (int) (bottom - entity.Top);
                                     Collidable = false;
                                     entity.MoveVExact(moveV, entity.SquishCallback, this);
                                     entity.LiftSpeed = LiftSpeed;
                                     Collidable = true;
                                 }
                             }
-                        }
-                        else if (riders.Contains(entity))
-                        {
+                        } else if (riders.Contains(entity)) {
                             Collidable = false;
-                            if (entity.TreatNaive)
-                            {
+                            if (entity.TreatNaive) {
                                 entity.NaiveMove(Vector2.UnitY * move);
-                            }
-                            else
-                            {
+                            } else {
                                 entity.MoveVExact(move);
                             }
                             entity.LiftSpeed = LiftSpeed;
@@ -375,6 +436,8 @@ namespace Celeste.Mod.CommunalHelper {
                 }
             }
             riders.Clear();
+
+            GravityHelper.EndOverride?.Invoke();
         }
     }
 }

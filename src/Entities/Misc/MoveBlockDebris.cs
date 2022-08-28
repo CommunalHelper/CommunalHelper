@@ -39,7 +39,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (firstHit || speed.Y > 50f) {
                     Audio.Play(SFX.game_gen_debris_stone, Position, "debris_velocity", Calc.ClampedMap(speed.Y, 0f, 600f, 0f, 1f));
                 }
-                if (speed.Y > 0f && speed.Y < 40f) {
+                if (speed.Y is > 0f and < 40f) {
                     speed.Y = 0f;
                 } else {
                     speed.Y = -speed.Y * 0.25f;
@@ -81,7 +81,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (Collidable) {
                     speed.X = Calc.Approach(speed.X, 0f, Engine.DeltaTime * 100f);
                     if (!OnGround(1)) {
-                        speed.Y = speed.Y + 400f * Engine.DeltaTime;
+                        speed.Y += 400f * Engine.DeltaTime;
                     }
                     MoveH(speed.X * Engine.DeltaTime, onCollideH);
                     MoveV(speed.Y * Engine.DeltaTime, onCollideV);

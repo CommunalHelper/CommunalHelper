@@ -14,11 +14,12 @@ using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/ConnectedDreamBlock")]
-    class ConnectedDreamBlock : CustomDreamBlock {
+    [Tracked(true)]
+    public class ConnectedDreamBlock : CustomDreamBlock {
         private struct SpaceJamTile {
-            public int X, Y;
-            public int[] Edges;
-            public bool Exist;
+            public readonly int X, Y;
+            public readonly int[] Edges;
+            public readonly bool Exist;
 
             public SpaceJamTile(int x, int y, bool exist) {
                 X = x;
@@ -42,8 +43,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             public int this[Edges edge] {
-                get { return Edges[(int) edge]; }
-                set { Edges[(int) edge] = value; }
+                get => Edges[(int) edge];
+                set => Edges[(int) edge] = value;
             }
 
         }
@@ -63,14 +64,15 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private struct SpaceJamCorner {
-            public bool
+            public readonly bool
                 upright, upleft, downright, downleft,
                 inupright, inupleft, indownright, indownleft;
 
-            public int x, y;
+            public readonly int x, y;
 
             public SpaceJamCorner(int x_, int y_, bool ur, bool ul, bool dr, bool dl, bool iur, bool iul, bool idr, bool idl) {
-                x = x_; y = y_;
+                x = x_;
+                y = y_;
                 upright = ur;
                 upleft = ul;
                 downright = dr;
@@ -86,7 +88,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<SpaceJamCorner> GroupCorners;
         private Rectangle GroupRect;
 
-        enum Edges {
+        private enum Edges {
             North,
             East,
             South,
@@ -95,22 +97,22 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private static readonly MethodInfo m_DreamBlock_LineAmplitude = typeof(DreamBlock).GetMethod("LineAmplitude", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        public Point GroupBoundsMin;
-        public Point GroupBoundsMax;
+        public Vector2 GroupBoundsMin;
+        public Vector2 GroupBoundsMax;
 
         public bool HasGroup { get; private set; }
 
         public bool MasterOfGroup { get; private set; }
 
-        private List<ConnectedDreamBlock> group;
-        private ConnectedDreamBlock master;
+        public Dictionary<Platform, Vector2> Moves;
+        public List<ConnectedDreamBlock> Group;
+        public List<JumpThru> JumpThrus;
+        protected ConnectedDreamBlock master;
+
+        protected bool IncludeJumpThrus = false;
 
         public ConnectedDreamBlock(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), data.Bool("doubleRefill", false)) { }
-
-        public ConnectedDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, bool doubleRefill)
-            : base(position, width, height, featherMode, oneUse, doubleRefill) {
-        }
+            : base(data, offset) { }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
@@ -118,23 +120,30 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (!HasGroup) {
                 /* Setup group */
                 MasterOfGroup = true;
-                GroupBoundsMin = new Point((int) X, (int) Y);
-                GroupBoundsMax = new Point((int) Right, (int) Bottom);
-                group = new List<ConnectedDreamBlock>();
+
+                Moves = new Dictionary<Platform, Vector2>();
+                Group = new List<ConnectedDreamBlock>();
+                JumpThrus = new List<JumpThru>();
+
+                GroupBoundsMin = new Vector2(X, Y);
+                GroupBoundsMax = new Vector2(Right, Bottom);
                 GroupEdges = new List<SpaceJamEdge>();
                 GroupCorners = new List<SpaceJamCorner>();
                 AddToGroupAndFindChildren(this);
                 SetupCustomParticles(0, 0); // Parameters are ignored
 
                 GroupRect = new Rectangle(
-                        GroupBoundsMin.X,
-                        GroupBoundsMin.Y,
-                        GroupBoundsMax.X - GroupBoundsMin.X,
-                        GroupBoundsMax.Y - GroupBoundsMin.Y);
+                    (int) GroupBoundsMin.X,
+                    (int) GroupBoundsMin.Y,
+                    (int) (GroupBoundsMax.X - GroupBoundsMin.X),
+                    (int) (GroupBoundsMax.Y - GroupBoundsMin.Y));
+
+                float groupW = GroupBoundsMax.X - GroupBoundsMin.X;
+                float groupH = GroupBoundsMax.Y - GroupBoundsMin.Y;
 
                 /* Setup Edges of the group */
-                int groupTileW = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8.0f);
-                int groupTileH = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8.0f);
+                int groupTileW = (int) (groupW / 8.0f);
+                int groupTileH = (int) (groupH / 8.0f);
                 SpaceJamTile[,] tiles = new SpaceJamTile[(groupTileW + 2), (groupTileH + 2)];
                 for (int x = 0; x < groupTileW + 2; x++) {
                     for (int y = 0; y < groupTileH + 2; y++) {
@@ -148,6 +157,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     }
                 }
 
+                Vector2 groupCenter = new Vector2(groupW / 2, groupH / 2);
+                for (int i = 0; i < GroupEdges.Count; i++) {
+                    SpaceJamEdge edge = GroupEdges[i];
+                    float angle = Calc.Angle(groupCenter, Vector2.Lerp(edge.start, edge.end, 0.5f)) + Calc.HalfCircle;
+                    GroupEdges[i] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset + angle, edge.flipNormal, edge.facing);
+                }
             }
         }
 
@@ -181,7 +196,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             bool inupleft = nNorth.Exist && nWest.Exist && !nNorthWest.Exist;
             bool indownright = nSouth.Exist && nEast.Exist && !nSouthEast.Exist;
             bool indownleft = nSouth.Exist && nWest.Exist && !nSouthWest.Exist;
-            if(upright || upleft || downright || downleft || inupright || inupleft || indownright || indownleft) {
+            if (upright || upleft || downright || downleft || inupright || inupleft || indownright || indownleft) {
                 GroupCorners.Add(new SpaceJamCorner(x - 1, y - 1, upright, upleft, downright, downleft, inupright, inupleft, indownright, indownleft));
             }
             #endregion
@@ -190,12 +205,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (nWest.TryGetEdge(Edges.North, out int idx)) {
                     SpaceJamEdge edge = GroupEdges[idx];
                     edge.end.X += 8;
-                    GroupEdges[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal, edge.facing);
+                    GroupEdges[idx] = edge;
                     self[Edges.North] = idx;
                 } else {
                     SpaceJamEdge newEdge;
-                    newEdge.start = TileToPoint(x - 1, y - 1);
-                    newEdge.end = newEdge.start;
+                    newEdge.end = newEdge.start = TileToPoint(x - 1, y - 1);
                     newEdge.end.X += 8;
                     newEdge.wobbleOffset = 0.0f;
                     newEdge.flipNormal = false;
@@ -209,12 +223,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (nNorth.TryGetEdge(Edges.East, out int idx)) {
                     SpaceJamEdge edge = GroupEdges[idx];
                     edge.end.Y += (nSouth.Exist && nSouthEast.Exist) ? 9 : 8;
-                    GroupEdges[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal, edge.facing);
+                    GroupEdges[idx] = edge;
                     self[Edges.East] = idx;
                 } else {
                     SpaceJamEdge newEdge;
-                    newEdge.start = TileToPoint(x, y - 1);
-                    newEdge.end = newEdge.start;
+                    newEdge.end = newEdge.start = TileToPoint(x, y - 1);
                     newEdge.end.Y += (nSouth.Exist && nSouthEast.Exist) ? 9 : 8;
                     if (nNorth.Exist) {
                         newEdge.start.Y -= 1;
@@ -231,7 +244,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (nWest.TryGetEdge(Edges.South, out int idx)) {
                     SpaceJamEdge edge = GroupEdges[idx];
                     edge.end.X += 8;
-                    GroupEdges[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal, edge.facing);
+                    GroupEdges[idx] = edge;
                     self[Edges.South] = idx;
                 } else {
                     SpaceJamEdge newEdge;
@@ -251,7 +264,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (nNorth.TryGetEdge(Edges.West, out int idx)) {
                     SpaceJamEdge edge = GroupEdges[idx];
                     edge.end.Y += (nSouth.Exist && nSouthWest.Exist) ? 9 : 8;
-                    GroupEdges[idx] = new SpaceJamEdge(edge.start, edge.end, edge.wobbleOffset, edge.flipNormal, edge.facing);
+                    GroupEdges[idx] = edge;
                     self[Edges.West] = idx;
                 } else {
                     SpaceJamEdge newEdge;
@@ -273,32 +286,66 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private void AddToGroupAndFindChildren(ConnectedDreamBlock from) {
             if (from.X < GroupBoundsMin.X) {
-                GroupBoundsMin.X = (int) from.X;
+                GroupBoundsMin.X = from.X;
             }
             if (from.Y < GroupBoundsMin.Y) {
-                GroupBoundsMin.Y = (int) from.Y;
+                GroupBoundsMin.Y = from.Y;
             }
             if (from.Right > GroupBoundsMax.X) {
-                GroupBoundsMax.X = (int) from.Right;
+                GroupBoundsMax.X = from.Right;
             }
             if (from.Bottom > GroupBoundsMax.Y) {
-                GroupBoundsMax.Y = (int) from.Bottom;
+                GroupBoundsMax.Y = from.Bottom;
             }
+
             from.HasGroup = true;
-            group.Add(from);
+            from.OnDashCollide = new DashCollision(OnDash);
+            Group.Add(from);
+            Moves.Add(from, from.Position);
             if (from != this) {
                 from.master = this;
             }
-            foreach (DreamBlock block in Scene.Tracker.GetEntities<DreamBlock>()) {
-                if (block is ConnectedDreamBlock) {
-                    ConnectedDreamBlock connectedBlock = block as ConnectedDreamBlock;
-                    if (!connectedBlock.HasGroup && connectedBlock.FeatherMode == from.FeatherMode && 
-                        Scene.CollideCheck(new Rectangle((int) from.X, (int) from.Y, (int) from.Width, (int) from.Height), connectedBlock)) {
-                        AddToGroupAndFindChildren(connectedBlock);
+
+            if (IncludeJumpThrus) {
+                foreach (JumpThru jumpThru in Scene.CollideAll<JumpThru>(new Rectangle((int) from.X - 1, (int) from.Y, (int) from.Width + 2, (int) from.Height))) {
+                    if (!JumpThrus.Contains(jumpThru)) {
+                        AddJumpThru(jumpThru);
+                    }
+                }
+                foreach (JumpThru jumpThru in Scene.CollideAll<JumpThru>(new Rectangle((int) from.X, (int) from.Y - 1, (int) from.Width, (int) from.Height + 2))) {
+                    if (!JumpThrus.Contains(jumpThru)) {
+                        AddJumpThru(jumpThru);
                     }
                 }
             }
+
+            foreach (Entity entity in Scene.Tracker.GetEntities<ConnectedDreamBlock>()) {
+                ConnectedDreamBlock connectedBlock = (ConnectedDreamBlock) entity;
+                if (!connectedBlock.HasGroup && connectedBlock.FeatherMode == from.FeatherMode &&
+                    Scene.CollideCheck(new Rectangle((int) from.X, (int) from.Y, (int) from.Width, (int) from.Height), connectedBlock)) {
+                    AddToGroupAndFindChildren(connectedBlock);
+                }
+            }
         }
+
+        private void AddJumpThru(JumpThru jp) {
+            jp.OnDashCollide = new DashCollision(OnDashJumpThru);
+            JumpThrus.Add(jp);
+            Moves.Add(jp, jp.Position);
+            foreach (Entity entity in Scene.Tracker.GetEntities<ConnectedDreamBlock>()) {
+                ConnectedDreamBlock connectedBlock = (ConnectedDreamBlock) entity;
+                if (!connectedBlock.HasGroup && connectedBlock.FeatherMode == FeatherMode &&
+                    Scene.CollideCheck(new Rectangle((int) jp.X - 1, (int) jp.Y, (int) jp.Width + 2, (int) jp.Height), connectedBlock)) {
+                    AddToGroupAndFindChildren(connectedBlock);
+                }
+            }
+        }
+
+        protected virtual DashCollisionResults OnDash(Player player, Vector2 dir)
+            => DashCollisionResults.NormalCollision;
+
+        protected virtual DashCollisionResults OnDashJumpThru(Player player, Vector2 dir)
+            => DashCollisionResults.NormalCollision;
 
         public override void Render() {
             Camera camera = SceneAs<Level>().Camera;
@@ -313,7 +360,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             if (MasterOfGroup) {
-                Color lineColor = PlayerHasDreamDash ? activeLineColor : disabledLineColor;
+                Color lineColor = PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
                 Color backColor = Color.Lerp(PlayerHasDreamDash ? baseData.Get<Color>("activeBackColor") : baseData.Get<Color>("disabledBackColor"), Color.White, ColorLerp);
 
                 if (whiteFill > 0f) {
@@ -325,7 +372,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 #region Background rendering
 
                 Vector2 cameraPositon = SceneAs<Level>().Camera.Position;
-                foreach (ConnectedDreamBlock block in group) {
+                foreach (ConnectedDreamBlock block in Group) {
                     if (block.Right < camera.Left || block.Left > camera.Right || block.Bottom < camera.Top || block.Top > camera.Bottom) {
                         continue;
                     }
@@ -347,7 +394,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     position = PutInside(position, GroupRect);
 
                     bool particleIsInside = false;
-                    foreach (ConnectedDreamBlock block in group) {
+                    foreach (ConnectedDreamBlock block in Group) {
                         if (block.CheckParticleCollide(position)) {
                             particleIsInside = true;
                             break;
@@ -363,7 +410,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (FeatherMode) {
                         featherTextures[layer].DrawCentered(position + Shake + shake, color, 1, rotation);
                     } else {
-                        MTexture[] particleTextures = DoubleRefill ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
+                        MTexture[] particleTextures = RefillCount != -1 ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
                         MTexture particleTexture;
                         switch (layer) {
                             case 0: {
@@ -390,7 +437,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 if (whiteFill == 1f && whiteHeight < 1f) {
                     float whiteFillBottom = GroupRect.Y + GroupRect.Height * whiteHeight;
-                    foreach (ConnectedDreamBlock block in group) {
+                    foreach (ConnectedDreamBlock block in Group) {
                         if (block.Right < camera.Left || block.Left > camera.Right || block.Bottom < camera.Top || block.Top > camera.Bottom) {
                             continue;
                         }
@@ -427,7 +474,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             end.Y += 1;
                         }
                     }
-                    WobbleLine(start + shake, end + shake, edge.wobbleOffset, lineColor, backColor);
+                    WobbleLine(GroupBoundsMin + start + shake, GroupBoundsMin + end + shake, edge.wobbleOffset, lineColor, backColor);
                 }
 
                 #endregion
@@ -435,7 +482,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void RenderCorner(Vector2 position, SpaceJamCorner corner, Color line, Color back) {
-            int x = (int)(corner.x * 8 + position.X);
+            int x = (int) (corner.x * 8 + position.X);
             int y = (int) (corner.y * 8 + position.Y);
 
             // Simple corners:
@@ -482,23 +529,35 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Vector2 vector = new Vector2(value.Y, 0f - value.X);
 
             float scaleFactor = 0f;
-            int num2 = 16;
-            for (int i = 2; i < length - 2; i += num2) {
-                float num3 = MathHelper.Lerp((float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleFrom") + offset, i }), 
-                    (float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleTo") + offset, i }), 
+            int increment = 16;
+            for (int i = 2; i < length - 2; i += increment) {
+                float scale = MathHelper.Lerp((float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleFrom") + offset, i }),
+                    (float) m_DreamBlock_LineAmplitude.Invoke(this, new object[] { baseData.Get<float>("wobbleTo") + offset, i }),
                     baseData.Get<float>("wobbleEase"));
-                if (i + num2 >= length) {
-                    num3 = 0f;
+                if (i + increment >= length) {
+                    scale = 0f;
                 }
-                float num4 = Math.Min(num2, length - 2f - i);
+                float num4 = Math.Min(increment, length - 2f - i);
                 Vector2 vector2 = from + value * i + vector * scaleFactor;
-                Vector2 vector3 = from + value * (i + num4) + vector * num3;
+                Vector2 vector3 = from + value * (i + num4) + vector * scale;
                 Draw.Line(vector2 - vector, vector3 - vector, back);
                 Draw.Line(vector2 - vector * 2f, vector3 - vector * 2f, back);
                 //Draw.Line(vector2 - vector * 3f, vector3 - vector * 3f, back);
                 Draw.Line(vector2, vector3, line);
-                scaleFactor = num3;
+                scaleFactor = scale;
             }
+        }
+
+        public override void MoveHExact(int move) {
+            base.MoveHExact(move);
+            GroupBoundsMax.X += move;
+            GroupBoundsMin.X += move;
+        }
+
+        public override void MoveVExact(int move) {
+            base.MoveVExact(move);
+            GroupBoundsMax.Y += move;
+            GroupBoundsMin.Y += move;
         }
 
         private void SpawnFastRoutineParticles() {
@@ -522,14 +581,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private void SpawnSlowRoutineParticles() {
-            if(MasterOfGroup) {
+            if (MasterOfGroup) {
                 Level level = SceneAs<Level>();
                 Camera camera = level.Camera;
 
                 float whiteHeight = baseData.Get<float>("whiteHeight");
                 float whiteFillBottom = GroupRect.Y + GroupRect.Height * whiteHeight;
 
-                foreach (ConnectedDreamBlock block in group) {
+                foreach (ConnectedDreamBlock block in Group) {
                     if (block.Right < camera.Left || block.Left > camera.Right || block.Bottom < camera.Top || block.Top > camera.Bottom) {
                         continue;
                     }
@@ -545,7 +604,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private bool TileHasGroupDreamBlock(int x, int y) {
             Rectangle rect = TileToRectangle(x, y);
-            foreach (ConnectedDreamBlock block in group) {
+            rect.Offset((int) GroupBoundsMin.X, (int) GroupBoundsMin.Y);
+            foreach (ConnectedDreamBlock block in Group) {
                 if (block.CollideRect(rect)) {
                     return true;
                 }
@@ -553,21 +613,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             return false;
         }
 
+        /// <summary>
+        /// Relative to Position
+        /// </summary>
         private Rectangle TileToRectangle(int x, int y) {
-            /* Relative to base.Position */
             Vector2 p = TileToPoint(x, y);
             return new Rectangle((int) p.X, (int) p.Y, 8, 8);
         }
 
+        /// <summary>
+        /// Relative to Position
+        /// </summary>
         private Vector2 TileToPoint(int x, int y) {
-            return new Vector2(GroupBoundsMin.X + x * 8, GroupBoundsMin.Y + y * 8);
+            return new Vector2(x * 8, y * 8);
         }
 
         public void ConnectedFootstepRipple(Vector2 position) {
             if (PlayerHasDreamDash) {
                 ConnectedDreamBlock master = MasterOfGroup ? this : this.master;
 
-                foreach (ConnectedDreamBlock block in master.group) {
+                foreach (ConnectedDreamBlock block in master.Group) {
                     DisplacementRenderer.Burst burst = (Scene as Level).Displacement.AddBurst(position, 0.5f, 0f, 40f);
                     burst.WorldClipCollider = block.Collider;
                     burst.WorldClipPadding = 1;
@@ -577,18 +642,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public override void BeginShatter() {
             if (ShatterCheck()) {
-                shattering = true;
                 Audio.Play(CustomSFX.game_connectedDreamBlock_dreamblock_shatter, Position);
 
                 ConnectedDreamBlock master = MasterOfGroup ? this : this.master;
-                foreach (ConnectedDreamBlock block in master.group) {
+                foreach (ConnectedDreamBlock block in master.Group) {
+                    block.shattering = true;
                     block.Add(new Coroutine(block.ShatterSequence()));
                 }
             }
         }
 
         private IEnumerator ShatterSequence() {
-            yield return 0.28f;
+            if (QuickDestroy) {
+                Collidable = false;
+                foreach (StaticMover entity in staticMovers) {
+                    entity.Entity.Collidable = false;
+                }
+            } else {
+                yield return 0.28f;
+            }
 
             while (ColorLerp < 2.0f) {
                 ColorLerp += Engine.DeltaTime * 10.0f;
@@ -596,17 +668,19 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             ColorLerp = 1.0f;
-            yield return 0.05f;
+            if (!QuickDestroy) {
+                yield return 0.05f;
+            }
 
             if (MasterOfGroup) {
                 Level level = SceneAs<Level>();
                 level.Shake(.65f);
                 Vector2 camera = level.Camera.Position;
                 Rectangle GroupRect = new Rectangle(
-                    GroupBoundsMin.X,
-                    GroupBoundsMin.Y,
-                    GroupBoundsMax.X - GroupBoundsMin.X,
-                    GroupBoundsMax.Y - GroupBoundsMin.Y);
+                    (int) GroupBoundsMin.X,
+                    (int) GroupBoundsMin.Y,
+                    (int) (GroupBoundsMax.X - GroupBoundsMin.X),
+                    (int) (GroupBoundsMax.Y - GroupBoundsMin.Y));
 
                 Vector2 centre = new Vector2(GroupRect.Center.X, GroupRect.Center.Y);
                 for (int i = 0; i < particles.Length; i++) {
@@ -614,7 +688,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     position += camera * (0.3f + 0.25f * particles[i].Layer);
                     position = PutInside(position, GroupRect);
                     bool inside = false;
-                    foreach (ConnectedDreamBlock block in group) {
+                    foreach (ConnectedDreamBlock block in Group) {
                         if (block.CollidePoint(position)) {
                             inside = true;
                             break;
@@ -637,8 +711,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     level.ParticlesFG.Emit(type, 1, position, Vector2.One * 3f);
                 }
 
-                foreach (ConnectedDreamBlock block in group) {
+                foreach (ConnectedDreamBlock block in Group) {
                     block.OneUseDestroy();
+                }
+
+                foreach (JumpThru jumpThru in JumpThrus) {
+                    jumpThru.RemoveSelf();
                 }
 
                 Glitch.Value = 0.22f;
@@ -677,19 +755,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static void Hook() {
             On.Celeste.DreamBlock.FootstepRipple += DreamBlock_FootstepRipple;
 
-            Type nestedType = typeof(DreamBlock).GetNestedType("<FastActivate>d__13", BindingFlags.NonPublic);
+            Type[] nestedTypes = typeof(DreamBlock).GetNestedTypes(BindingFlags.NonPublic);
+            Type nestedType = nestedTypes.First(t => t.Name.StartsWith("<FastActivate>"));
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_FastActivate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
-            
-            nestedType = typeof(DreamBlock).GetNestedType("<FastDeactivate>d__12", BindingFlags.NonPublic);
+
+            nestedType = nestedTypes.First(t => t.Name.StartsWith("<FastDeactivate>"));
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_FastDeactivate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockFastRoutine);
 
-            nestedType = typeof(DreamBlock).GetNestedType("<Activate>d__34", BindingFlags.NonPublic);
+            nestedType = nestedTypes.First(t => t.Name.StartsWith("<Activate>"));
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_Activate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockSlowRoutine);
-            
-            nestedType = typeof(DreamBlock).GetNestedType("<Deactivate>d__11", BindingFlags.NonPublic);
+
+            nestedType = nestedTypes.First(t => t.Name.StartsWith("<Deactivate>"));
             f_DreamBlock_Routine_this = nestedType.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
             hook_DreamBlock_Deactivate = new ILHook(nestedType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance), DreamBlockSlowRoutine);
         }

@@ -1,8 +1,11 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
+﻿using Celeste.Mod.CommunalHelper.Backdrops;
+using Celeste.Mod.CommunalHelper.DashStates;
+using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.ModInterop;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper {
@@ -12,13 +15,24 @@ namespace Celeste.Mod.CommunalHelper {
 
         public override Type SettingsType => typeof(CommunalHelperSettings);
         public static CommunalHelperSettings Settings => (CommunalHelperSettings) Instance._Settings;
-        
+
         public override Type SaveDataType => typeof(CommunalHelperSaveData);
         public static CommunalHelperSaveData SaveData => (CommunalHelperSaveData) Instance._SaveData;
 
         public override Type SessionType => typeof(CommunalHelperSession);
         public static CommunalHelperSession Session => (CommunalHelperSession) Instance._Session;
-        
+
+        public static SpriteBank SpriteBank => Instance._SpriteBank;
+        public SpriteBank _SpriteBank;
+
+        public static Atlas CloudscapeAtlas { get; private set; }
+
+        private static Dictionary<EverestModuleMetadata, Action<EverestModule>> optionalDepLoaders;
+        private static bool failedLoadingDeps;
+
+        public static bool MaxHelpingHandLoaded { get; private set; }
+        public static bool VivHelperLoaded { get; private set; }
+
         public CommunalHelperModule() {
             Instance = this;
         }
@@ -26,59 +40,254 @@ namespace Celeste.Mod.CommunalHelper {
         public override void Load() {
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand += CustomBirdTutorial_OnParseCommand;
+            Everest.Events.Level.OnLoadBackdrop += Level_OnLoadBackdrop;
 
+            RegisterOptionalDependencies();
+            Everest.Events.Everest.OnRegisterModule += OnRegisterModule;
+
+            DashStateRefill.Load();
             DreamTunnelDash.Load();
-            DreamRefill.Load();
+            SeekerDash.Load();
+
+            DreamBlockDummy.Load();
 
             CustomDreamBlock.Load();
-            ConnectedDreamBlock.Hook();
+            // Individual Dream Blocks hooked in CustomDreamBlock.Load
+
+            DreamDashCollider.Load();
+
+            AbstractPanel.Load();
+            // Panel-specific hooks loaded from AbstractPanel.Load
+
             ConnectedSwapBlockHooks.Hook();
-            CustomCassetteBlockHooks.Hook();
-            SyncedZipMoverActivationControllerHooks.Hook();
-            MoveBlockRedirect.Load();
+            CustomCassetteBlock.Hook();
+
             AttachedWallBooster.Hook();
+            MoveBlockRedirect.Load();
+            MoveBlockRedirectable.Load();
+            MoveSwapBlock.Load();
+
+            AbstractInputController.Load();
+            // Controller-specific hooks loaded from AbstractInputController.Load
+            CassetteJumpFixController.Load();
+            // TimedTriggerSpikes hooked in Initialize
+
+            UnderwaterMusicController.Load();
 
             HeartGemShard.Load();
             CustomSummitGem.Load();
 
-            // External optional dependencies loaded in LoadContent
+            CustomBooster.Load();
+
+            DreamJellyfish.Load();
+            DreamJellyfishRenderer.Load();
+
+            ChainedKevin.Load();
+
+            DreamDashListener.Load();
+            DreamStrawberry.Hook();
+
+            RedlessBerry.Hook();
+
+            PlayerSeekerBarrier.Hook();
+            PlayerSeekerBarrierRenderer.Hook();
+            
+            #region Imports
+
+            typeof(Imports.GravityHelper).ModInterop();
+
+            #endregion
         }
 
         public override void Unload() {
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
             Everest.Events.CustomBirdTutorial.OnParseCommand -= CustomBirdTutorial_OnParseCommand;
+            Everest.Events.Level.OnLoadBackdrop -= Level_OnLoadBackdrop;
 
+            Everest.Events.Everest.OnRegisterModule -= OnRegisterModule;
+
+            DashStateRefill.Unload();
             DreamTunnelDash.Unload();
-            DreamRefill.Unload();
+            SeekerDash.Unload();
+
+            DreamBlockDummy.Unload();
 
             CustomDreamBlock.Unload();
-            ConnectedDreamBlock.Unhook();
+            // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
+
+            AbstractPanel.Unload();
+            DreamDashCollider.Unload();
+
             ConnectedSwapBlockHooks.Unhook();
-            CustomCassetteBlockHooks.Unhook();
-            SyncedZipMoverActivationControllerHooks.Unhook();
-			AttachedWallBooster.Unhook();
+            CustomCassetteBlock.Unhook();
+
+            AttachedWallBooster.Unhook();
             MoveBlockRedirect.Unload();
+            MoveBlockRedirectable.Unload();
+            MoveSwapBlock.Unload();
+            AbstractInputController.Unload();
+            CassetteJumpFixController.Unload();
+            TimedTriggerSpikes.Unload();
+
+            UnderwaterMusicController.Unload();
 
             HeartGemShard.Unload();
             CustomSummitGem.Unload();
+
+            CustomBooster.Unload();
+
+            DreamJellyfish.Unload();
+            DreamJellyfishRenderer.Unload();
+
+            ChainedKevin.Unload();
+
+            DreamDashListener.Unload();
+            DreamStrawberry.Unhook();
+
+            RedlessBerry.Unhook();
+            
+            PlayerSeekerBarrier.Unhook();
+            PlayerSeekerBarrierRenderer.Unhook();
+
+            CloudscapeAtlas.Dispose();
         }
 
-		public override void LoadContent(bool firstLoad) {
-            // We want to keep this stuff as isolated as possible
-            // ExternalDependencyHandler.Load();
+        public override void Initialize() {
+            // Because of `Celeste.Tags.Initialize` of all things
+            // We create a static CrystalStaticSpinner which needs to access Tags.TransitionUpdate
+            // Which wouldn't be loaded in time for EverestModule.Load
+            TimedTriggerSpikes.LoadDelayed();
 
-            StationBlock.StationBlockSpriteBank = new SpriteBank(GFX.Game, "Graphics/StationBlockSprites.xml");
-			StationBlock.InitializeParticles();
+            // Register CustomCassetteBlock types
+            CustomCassetteBlock.Initialize();
 
-            DreamTunnelDash.LoadContent();
-            DreamRefill.InitializeParticles();
+            // We may hook methods in other mods, so this needs to be done after they're loaded
+            AbstractPanel.LoadDelayed();
+
+            /*
+             * Some Communal Helper mechanics don't work well with Gravity Helper.
+             * To fix this, Gravity Helper has implemented hooks that patch some of Communal Helper's methods.
+             * From now on though, we'll be supporting Gravity Helper with the methods it exports, and fix quirks ourselves.
+             * So, we need to call RegisterModSupportBlacklist, which will discard hooks implemented in Gravity Helper.
+             */
+            Imports.GravityHelper.RegisterModSupportBlacklist?.Invoke("CommunalHelper");
+        }
+
+        public override void LoadContent(bool firstLoad) {
+            _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
+
+            CloudscapeAtlas = Extensions.LoadAtlasFromMod("CommunalHelper:/Graphics/Atlases/CommunalHelper/Cloudscape/atlas", Atlas.AtlasDataFormat.CrunchXml);
+
+            StationBlock.InitializeParticles();
+            StationBlockTrack.InitializeTextures();
+            TrackSwitchBox.InitializeParticles();
+
+            CassetteZipMover.InitializeTextures();
+
+            DreamTunnelRefill.InitializeParticles();
+            DreamTunnelDash.InitializeParticles();
+
+            DreamZipMover.InitializeTextures();
             DreamMoveBlock.InitializeParticles();
             DreamSwitchGate.InitializeParticles();
-            
+
             ConnectedMoveBlock.InitializeTextures();
             ConnectedSwapBlock.InitializeTextures();
 
             HeartGemShard.InitializeParticles();
+
+            Melvin.InitializeTextures();
+            Melvin.InitializeParticles();
+
+            RailedMoveBlock.InitializeTextures();
+            DreamBooster.InitializeParticles();
+            CurvedBooster.InitializeParticles();
+
+            DreamJellyfish.InitializeTextures();
+            DreamJellyfish.InitializeParticles();
+
+            Chain.InitializeTextures();
+
+            PlayerSeekerHair.InitializeTextures();
+
+            Cloudscape.InitializeTextures();
+        }
+
+        protected override void CreateModMenuSectionHeader(TextMenu menu, bool inGame, FMOD.Studio.EventInstance snapshot) {
+            base.CreateModMenuSectionHeader(menu, inGame, snapshot);
+
+            if (failedLoadingDeps) {
+                menu.Add(new TextMenuExt.SubHeaderExt(Dialog.Clean("communalhelper_failedloadingdeps")) {
+                    TextColor = Color.OrangeRed,
+                    HeightExtra = 0f,
+                });
+            }
+        }
+
+        internal static bool SavingSettings { get; private set; }
+        public override void SaveSettings() {
+            SavingSettings = true;
+            base.SaveSettings();
+            SavingSettings = false;
+        }
+
+        private void RegisterOptionalDependencies() {
+            failedLoadingDeps = false;
+            optionalDepLoaders = new();
+            EverestModuleMetadata meta;
+
+            // Hair colors used by CustomDreamBlocks particles
+            meta = new EverestModuleMetadata { Name = "MoreDasheline", VersionString = "1.6.3" };
+            optionalDepLoaders[meta] = module => {
+                Extensions.MoreDasheline_GetHairColor = module.GetType().GetMethod("GetHairColor", new Type[] { typeof(Player), typeof(int) }, throwOnNull: true);
+                Extensions.MoreDashelineLoaded = true;
+                Util.Log(LogLevel.Info, "MoreDasheline detected: using MoreDasheline hair colors for CustomDreamBlock particles.");
+            };
+            // MiniHeart used by SummitGemManager
+            meta = new EverestModuleMetadata { Name = "CollabUtils2", VersionString = "1.3.8.1" };
+            optionalDepLoaders[meta] = module => {
+                Extensions.CollabUtils_MiniHeart = module.GetType().Module.GetType("Celeste.Mod.CollabUtils2.Entities.MiniHeart", ignoreCase: false, throwOnError: true);
+                Extensions.CollabUtilsLoaded = true;
+            };
+            // Used for registering custom playerstates for display in CelesteTAS
+            meta = new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.5" };
+            optionalDepLoaders[meta] = module => {
+                Type t_PlayerStates = module.GetType().Module.GetType("TAS.PlayerStates", ignoreCase: false, throwOnError: true);
+                Extensions.CelesteTAS_PlayerStates_Register = t_PlayerStates.GetMethod("Register", BindingFlags.Public | BindingFlags.Static, throwOnNull: true);
+                Extensions.CelesteTAS_PlayerStates_Unregister = t_PlayerStates.GetMethod("Unregister", BindingFlags.Public | BindingFlags.Static, throwOnNull: true);
+                Extensions.CelesteTASLoaded = true;
+            };
+            meta = new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" };
+            optionalDepLoaders[meta] = module => MaxHelpingHandLoaded = true;
+            meta = new EverestModuleMetadata { Name = "VivHelper", VersionString = "1.0.28" };
+            optionalDepLoaders[meta] = module => VivHelperLoaded = true;
+
+            // Check already loaded modules
+            foreach (EverestModuleMetadata dep in optionalDepLoaders.Keys) {
+                if (Extensions.TryGetModule(dep, out EverestModule module)) {
+                    LoadDependency(module, optionalDepLoaders[dep]);
+                }
+            }
+        }
+
+        private void OnRegisterModule(EverestModule module) {
+            foreach (EverestModuleMetadata dep in optionalDepLoaders.Keys) {
+                if (Extensions.SatisfiesDependency(dep, module.Metadata)) {
+                    LoadDependency(module, optionalDepLoaders[dep]);
+                    return;
+                }
+            }
+        }
+
+        private void LoadDependency(EverestModule module, Action<EverestModule> loader) {
+            try {
+                loader.Invoke(module);
+            } catch (Exception e) {
+                Util.Log(LogLevel.Error, "Failed loading optional dependency: " + module.Metadata.Name);
+                Console.WriteLine(e.ToString());
+                // Show something on screen to alert user
+                failedLoadingDeps = true;
+            }
         }
 
         // Loading "custom" entities
@@ -97,6 +306,22 @@ namespace Celeste.Mod.CommunalHelper {
                 return Level.LoadCustomEntity(entityData, level);
             }
 
+            if (entityData.Name == "CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate") {
+                entityData.Name = "CommunalHelper/DreamSwitchGate";
+                entityData.Values["isFlagSwitchGate"] = true;
+                return Level.LoadCustomEntity(entityData, level);
+            }
+
+            // Hackfix because backwards compatability for Ahorn plugins
+            if (entityData.Name == "CommunalHelper/DreamFallingBlock" && entityData.Bool("chained")) {
+                entityData.Name = "CommunalHelper/ChainedDreamFallingBlock";
+                return false; // Let the CustomEntity attribute handle it
+            }
+
+            // Will be handled later
+            if (entityData.Name == "CommunalHelper/ManualCassetteController")
+                return true;
+
             return false;
         }
 
@@ -106,47 +331,28 @@ namespace Celeste.Mod.CommunalHelper {
                 return Settings.AllowActivateRebinding ?
                     Settings.ActivateSyncedZipMovers.Button : Input.Grab;
             }
+
+            if (command == "CommunalHelperCycleCassetteBlocksBinding")
+                return Settings.CycleCassetteBlocks.Button;
+
+            if (command == "CommunalHelperActivateFlagControllerBinding")
+                return Settings.ActivateFlagController.Button;
+
+            return null;
+        }
+
+        // Loading custom backdrops
+        // When the [CustomBackdrop] attributes becomes available to use in Everest, this will be removed.
+        private static Backdrop Level_OnLoadBackdrop(MapData map, BinaryPacker.Element child, BinaryPacker.Element above) {
+            string name = child.Name;
+
+            if (name.Equals(Cloudscape.ID, StringComparison.OrdinalIgnoreCase))
+                return new Cloudscape(child);
+
             return null;
         }
     }
 
-	public static class Util {
-		public static void log(string str) {
-			Logger.Log("Communal Helper", str);
-		}
-	}
-
-    #region JaThePlayer's state machine extension code
-    internal static class StateMachineExt {
-		/// <summary>
-		/// Adds a state to a StateMachine
-		/// </summary>
-		/// <returns>The index of the new state</returns>
-		public static int AddState(this StateMachine machine, Func<int> onUpdate, Func<IEnumerator> coroutine = null, Action begin = null, Action end = null) {
-			Action[] begins = (Action[])StateMachine_begins.GetValue(machine);
-			Func<int>[] updates = (Func<int>[])StateMachine_updates.GetValue(machine);
-			Action[] ends = (Action[])StateMachine_ends.GetValue(machine);
-			Func<IEnumerator>[] coroutines = (Func<IEnumerator>[])StateMachine_coroutines.GetValue(machine);
-			int nextIndex = begins.Length;
-			// Now let's expand the arrays
-			Array.Resize(ref begins, begins.Length + 1);
-			Array.Resize(ref updates, begins.Length + 1);
-			Array.Resize(ref ends, begins.Length + 1);
-			Array.Resize(ref coroutines, coroutines.Length + 1);
-			// Store the resized arrays back into the machine
-			StateMachine_begins.SetValue(machine, begins);
-			StateMachine_updates.SetValue(machine, updates);
-			StateMachine_ends.SetValue(machine, ends);
-			StateMachine_coroutines.SetValue(machine, coroutines);
-			// And now we add the new functions
-			machine.SetCallbacks(nextIndex, onUpdate, coroutine, begin, end);
-			return nextIndex;
-		}
-		private static FieldInfo StateMachine_begins = typeof(StateMachine).GetField("begins", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static FieldInfo StateMachine_updates = typeof(StateMachine).GetField("updates", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static FieldInfo StateMachine_ends = typeof(StateMachine).GetField("ends", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static FieldInfo StateMachine_coroutines = typeof(StateMachine).GetField("coroutines", BindingFlags.Instance | BindingFlags.NonPublic);
-	}
-    #endregion
-
+    // Don't worry about it
+    internal class NoInliningException : Exception { public NoInliningException() : base("Something went horribly wrong.") { } }
 }
