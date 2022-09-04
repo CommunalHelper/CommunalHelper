@@ -7,6 +7,10 @@ namespace Celeste.Mod.CommunalHelper {
 
     public static class ModExports {
 
+        internal static void Initialize() {
+            typeof(DashStates).ModInterop();
+        }
+
         [ModExportName("CommunalHelper.DashStates")]
         public static class DashStates {
 

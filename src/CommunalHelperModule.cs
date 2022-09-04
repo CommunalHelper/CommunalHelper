@@ -91,12 +91,14 @@ namespace Celeste.Mod.CommunalHelper {
 
             PlayerSeekerBarrier.Hook();
             PlayerSeekerBarrierRenderer.Hook();
-            
+
             #region Imports
 
             typeof(Imports.GravityHelper).ModInterop();
 
             #endregion
+
+            ModExports.Initialize();
         }
 
         public override void Unload() {
