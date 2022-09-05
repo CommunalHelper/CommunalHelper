@@ -16,7 +16,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             #region DreamTunnel
 
-            public static int StDreamTunnelDash() => DreamTunnelDash.StDreamTunnelDash;
+            public static int GetDreamTunnelDashState() => DreamTunnelDash.StDreamTunnelDash;
             public static bool HasDreamTunnelDash() => DreamTunnelDash.HasDreamTunnelDash;
 
             public static Component DreamTunnelInteraction(Action<Player> onPlayerEnter, Action<Player> onPlayerExit)
@@ -27,7 +27,7 @@ namespace Celeste.Mod.CommunalHelper {
             #region Seeker
 
             public static bool HasSeekerDash() => SeekerDash.HasSeekerDash;
-            public static bool SeekerAttacking() => SeekerDash.SeekerAttacking;
+            public static bool IsSeekerDashAttacking() => SeekerDash.SeekerAttacking;
 
             #endregion
 
