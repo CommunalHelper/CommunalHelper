@@ -165,9 +165,9 @@ namespace Celeste.Mod.CommunalHelper {
                         Vector2 vecTop = Position + hitbox.Position + new Vector2(t, -1);
                         Vector2 vecBottom = Position + hitbox.Position + new Vector2(t, hitbox.Height + 1);
                         if (Scene.CollideCheck<Solid>(vecTop))
-                            level.ParticlesFG.Emit(ZipMover.P_Scrape, vecTop, 0);
+                            level.ParticlesFG.Emit(ZipMover.P_Scrape, vecTop);
                         if (Scene.CollideCheck<Solid>(vecBottom))
-                            level.ParticlesFG.Emit(ZipMover.P_Scrape, vecBottom, 0);
+                            level.ParticlesFG.Emit(ZipMover.P_Scrape, vecBottom);
                     }
                 }
 
@@ -176,9 +176,9 @@ namespace Celeste.Mod.CommunalHelper {
                         Vector2 vecLeft = Position + hitbox.Position + new Vector2(-1, t);
                         Vector2 vecRight = Position + hitbox.Position + new Vector2(hitbox.Width + 1, t);
                         if (Scene.CollideCheck<Solid>(vecLeft))
-                            level.ParticlesFG.Emit(ZipMover.P_Scrape, vecLeft, 0);
+                            level.ParticlesFG.Emit(ZipMover.P_Scrape, vecLeft);
                         if (Scene.CollideCheck<Solid>(vecRight))
-                            level.ParticlesFG.Emit(ZipMover.P_Scrape, vecRight, 0);
+                            level.ParticlesFG.Emit(ZipMover.P_Scrape, vecRight);
                     }
                 }
             }
