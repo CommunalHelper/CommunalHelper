@@ -1,3 +1,9 @@
+--1.13.3 (09/09/2022)--
+* Communal Helper Exports are now available via MonoMod's ModInterop.
+* Adjust Connected Solid scrape particles spawn interval.
+* Fix Dream Tunnel Option submenu.
+* Tweaks to logging.
+
 --1.13.2 (28/07/2022)--
 * Added Cloudscape Lönn plugin
 * Fixed Station Block Lönn plugin.
