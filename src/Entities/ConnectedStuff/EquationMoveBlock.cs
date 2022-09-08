@@ -120,7 +120,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
                     moveTime += Engine.DeltaTime;
 
                     Vector2 move = Position - start;
-                    SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
+                    if (Scene.OnInterval(0.03f))
+                        SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
 
                     curMoveCheck = moveCheck;
 
