@@ -1,3 +1,6 @@
+--1.13.4 (09/09/2022)--
+* Fix TAS desync introduced last update.
+
 --1.13.3 (09/09/2022)--
 * Communal Helper Exports are now available via MonoMod's ModInterop.
 * Adjust Connected Solid scrape particles spawn interval.
