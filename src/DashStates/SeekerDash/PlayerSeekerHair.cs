@@ -13,13 +13,15 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
         // Couldn't find a better name
         private class Braid {
+            private static readonly Random random = new Random();
+
             private readonly Vector2[] nodes = new Vector2[9];
             private readonly Vector2 direction;
 
-            private float wave = Calc.Random.NextAngle();
+            private float wave = random.NextAngle();
             private float angleSpeed = 1f;
 
-            private readonly float spasmInterval = Calc.Random.NextFloat(6f) + 4f;
+            private readonly float spasmInterval = random.NextFloat(6f) + 4f;
 
             public Braid(Vector2 direction) {
                 this.direction = direction;
@@ -32,7 +34,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                 angleSpeed = Calc.Approach(angleSpeed, 1f, Engine.DeltaTime * 3f);
 
                 if (Engine.Scene.OnInterval(spasmInterval))
-                    angleSpeed += Calc.Random.Next(1, 4);
+                    angleSpeed += random.Next(1, 4);
 
                 float angle = (float) Math.Sin(Engine.Scene.TimeActive) * .2f;
                 Vector2 dir = new Vector2(direction.X * -facing, direction.Y).Rotate(angle);
