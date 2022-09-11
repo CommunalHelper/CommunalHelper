@@ -34,6 +34,7 @@ local connectTo = {
     "CommunalHelper/ConnectedZipMover",
     "CommunalHelper/ConnectedSwapBlock",
     "CommunalHelper/ConnectedMoveBlock",
+    "CommunalHelper/ConnectedTempleCrackedBlock",
     "CommunalHelper/EquationMoveBlock"
 }
 
