@@ -52,6 +52,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamBlockDummy.Load();
 
             CustomDreamBlock.Load();
+            ConnectedTempleCrackedBlock.Load();
+
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
 
             DreamDashCollider.Load();
@@ -115,6 +117,8 @@ namespace Celeste.Mod.CommunalHelper {
             DreamBlockDummy.Unload();
 
             CustomDreamBlock.Unload();
+            ConnectedTempleCrackedBlock.Unload();
+
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
             AbstractPanel.Unload();

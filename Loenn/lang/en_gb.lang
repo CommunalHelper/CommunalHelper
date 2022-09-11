@@ -332,6 +332,11 @@ entities.CommunalHelper/ConnectedMoveBlock.attributes.description.pressedColor=T
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.outline=Gives this Move Block an outline.
 
+# Connected Temple Cracked Block
+entities.CommunalHelper/ConnectedTempleCrackedBlock.placements.name.normal=Connected Temple Cracked Block
+entities.CommunalHelper/ConnectedTempleCrackedBlock.placements.name.persistent=Connected Temple Cracked Block (Persistent)
+entities.CommunalHelper/ConnectedTempleCrackedBlock.attributes.description.persistent=Persistent blocks will stay broken after dying or leaving the room.
+
 # Equation Move Block
 entities.CommunalHelper/EquationMoveBlock.placements.name.up=Equation Move Block (Up)
 entities.CommunalHelper/EquationMoveBlock.placements.name.down=Equation Move Block (Down)

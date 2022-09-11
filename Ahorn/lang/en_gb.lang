@@ -68,6 +68,8 @@ placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.pressedColor=The 
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.breakColor=The color of the arrow when breaking.
 placements.entities.CommunalHelper/ConnectedMoveBlock.tooltips.outline=Gives this Move Block an outline.
 
+# -- Connected Temple Cracked Block --
+placements.entities.CommunalHelper/ConnectedTempleCrackedBlock.tooltips.persistent=Persistent blocks will stay broken after dying or leaving the room.
 
 # -- Equation Move Block --
 placements.entities.CommunalHelper/EquationMoveBlock.tooltips.equation=The equation used by the Equation Move Block.\n0: y = ax\n1: y = ax^2 + bx\n2: y = ax^3 + bx^2 + x\n3: y = a*sin bx\n4: y = a*cos bx\n5: y = ae^bx\n6: y = ax^b\n7: elliptic, x-scale = a, y-scale = b
