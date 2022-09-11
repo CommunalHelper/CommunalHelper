@@ -97,74 +97,10 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
             }
         }
 
-        // Grouping stuff
-
-#pragma warning disable CS0649 // Remove "Field is never assigned to"
-        // private variable is never assigned to warning is a false positive. It is assigned to in DoGrouping.
-        private ConnectedTempleCrackedBlock master;
-        private List<ConnectedTempleCrackedBlock> group;
-#pragma warning restore CS0649
-
-        private void DoGrouping(ConnectedTempleCrackedBlock parent) {
-            if (master != null && master == parent.master) {  // Already in this group
-                return;
-            }
-
-            // Set the master block
-            master = parent.master ?? this;
-            if (master.group == null) {
-                master.group = new List<ConnectedTempleCrackedBlock>();
-            }
-            if (!master.group.Contains(this)) {
-                master.group.Add(this);
-            }
-            // If this used to be a master, merge into the new one
-            if (group != null && master != this) {
-                foreach (ConnectedTempleCrackedBlock blk in group) {
-                    if (!master.group.Contains(blk)) {
-                        master.group.Add(blk);
-                    }
-                }
-                group = null;
-            }
-
-            // handle group bounds shenanigans
-            if (X < master.GroupBoundsMin.X) {
-                master.GroupBoundsMin.X = (int)X;
-            }
-            if (Y < master.GroupBoundsMin.Y) {
-                master.GroupBoundsMin.Y = (int)Y;
-            }
-            if (Right > master.GroupBoundsMax.X) {
-                master.GroupBoundsMax.X = (int)Right;
-            }
-            if (Bottom > master.GroupBoundsMax.Y) {
-                master.GroupBoundsMax.Y = (int)Bottom;
-            }
-
-            // propagate to new blocks
-            foreach (Entity entity in Scene.Tracker.GetEntities<ConnectedTempleCrackedBlock>()) {
-                ConnectedTempleCrackedBlock connectedBlock = (ConnectedTempleCrackedBlock) entity;
-                if (connectedBlock.persistent == persistent &&
-                    Scene.CollideCheck(new Rectangle((int) X, (int) Y, (int) Width, (int) Height), connectedBlock)) {
-                    connectedBlock.DoGrouping(this);
-                }
-            }
-        }
-
-        public void Break(Vector2 from) {
-            Audio.Play("event:/game/05_mirror_temple/crackedwall_vanish", base.Center);
-            // Propagate to all in group
-            foreach (ConnectedTempleCrackedBlock block in master.group) {
-                block.IndividualBreak(from);
-            }
-        }
-
-        // Base Entity
+        // Actual entity stuff
 
         private MTexture[,,] texture;
         private bool autoTiled = false;
-        private bool[,] groupGrid;
 
         private EntityID eid;
         private bool persistent;
@@ -187,7 +123,6 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
 
             this.eid = eid;
             this.persistent = persistent;
-            group = null;
             Collidable = (Visible = false);
             int tilesW = (int) (width / 8f);
             int tilesH = (int) (height / 8f);
@@ -215,8 +150,6 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
             } else {
                 Collidable = (Visible = true);
             }
-
-            DoGrouping(this);
         }
 
         public override void Update() {
@@ -237,36 +170,18 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
             if (num >= frames) {
                 return;
             }
-            for (int i = 0; (float) i < Width / 8f; i++) {
-                for (int j = 0; (float) j < Height / 8f; j++) {
+            for (int i = 0; i < tiles.GetLength(0); i++) {
+                for (int j = 0; j < tiles.GetLength(1); j++) {
                     Tuple<int, int> tile = tiles[i, j];
                     if (tile != null) {
-                        texture[tile.Item1, tile.Item2, num].Draw(Position + new Vector2(i, j) * 8f);
+                        texture[tile.Item1, tile.Item2, num].Draw(GroupBoundsMin + new Vector2(i, j) * 8f);
                     }
                 }
             }
         }
 
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
-
-            if (master == this) {
-                int tWidth = (int) (GroupBoundsMax.X - GroupBoundsMin.X) / 8;
-                int tHeight = (int) (GroupBoundsMax.Y - GroupBoundsMin.Y) / 8;
-                groupGrid = new bool[tWidth, tHeight];
-                foreach (ConnectedTempleCrackedBlock blk in group) {
-                    int offsX = (int) (blk.X - GroupBoundsMin.X) / 8;
-                    int offsY = (int) (blk.Y - GroupBoundsMin.Y) / 8;
-                    for (int x = 0; x < blk.Width / 8; x++) {
-                        for (int y = 0; y < blk.Height / 8; y++) {
-                            groupGrid[x + offsX, y + offsY] = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void IndividualBreak(Vector2 from) {
+        public void Break(Vector2 from) {
+            Audio.Play("event:/game/05_mirror_temple/crackedwall_vanish", base.Center);
             if (persistent) {
                 SceneAs<Level>().Session.DoNotLoad.Add(eid);
             }
@@ -282,18 +197,14 @@ namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
         // Tiling
 
         private void AutoTile(MTexture[,,] tex) {
-            //int tWidth = (int) (Width / 8);
-            //int tHeight = (int) (Height / 8);
-            int tWidth = (int) ((master.GroupBoundsMax.X - master.GroupBoundsMin.X) / 8);
-            int tHeight = (int) ((master.GroupBoundsMax.Y - master.GroupBoundsMin.Y) / 8);
+            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
             Tuple<int, int>[,] res = new Tuple<int, int>[tWidth, tHeight];
-            int offsX = (int)(X - master.GroupBoundsMin.X) / 8;
-            int offsY = (int)(Y - master.GroupBoundsMin.Y) / 8;
             for (int x = 0; x < tWidth; x++) {
                 for (int y = 0; y < tHeight; y++) {
-                    if (GetGridSafe(master.groupGrid, x + offsX, y + offsY)) {
-                        res[x, y] = GetTile(master.groupGrid, x + offsX, y + offsY, tex);
+                    if (GetGridSafe(GroupTiles, x + 1, y + 1)) {
+                        res[x, y] = GetTile(GroupTiles, x + 1, y + 1, tex);
                     }
                 }
             }
