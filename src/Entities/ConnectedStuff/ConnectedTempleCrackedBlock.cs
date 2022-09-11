@@ -13,7 +13,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff {
+namespace Celeste.Mod.CommunalHelper.Entities {
 
     [Tracked]
     [CustomEntity("CommunalHelper/ConnectedTempleCrackedBlock")]

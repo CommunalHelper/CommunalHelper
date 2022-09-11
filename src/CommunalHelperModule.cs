@@ -52,7 +52,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamBlockDummy.Load();
 
             CustomDreamBlock.Load();
-            Entities.ConnectedStuff.ConnectedTempleCrackedBlock.Load();
+            ConnectedTempleCrackedBlock.Load();
 
             // Individual Dream Blocks hooked in CustomDreamBlock.Load
 
@@ -117,7 +117,7 @@ namespace Celeste.Mod.CommunalHelper {
             DreamBlockDummy.Unload();
 
             CustomDreamBlock.Unload();
-            Entities.ConnectedStuff.ConnectedTempleCrackedBlock.Unload();
+            ConnectedTempleCrackedBlock.Unload();
 
             // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
