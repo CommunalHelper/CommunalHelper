@@ -342,6 +342,9 @@ namespace Celeste.Mod.CommunalHelper.Backdrops {
         }
 
         public override void BeforeRender(Scene scene) {
+            if (!Visible)
+                return;
+
             base.BeforeRender(scene);
 
             if (buffer == null || buffer.IsDisposed)
