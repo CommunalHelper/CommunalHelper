@@ -396,8 +396,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             ILCursor cursor = new ILCursor(il);
 
             Logger.Log("CommunalHelper", "Replacing MoveBlock SFX with near-identical custom event that supports a \"redirect_slowdown\" param");
-            while (cursor.TryGotoNext(instr => instr.MatchLdstr(SFX.game_04_arrowblock_move_loop)))
-                cursor.Remove().Emit(OpCodes.Ldstr, CustomSFX.game_redirectMoveBlock_arrowblock_move);
+            if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdstr(SFX.game_04_arrowblock_move_loop))) {
+                cursor.Emit(OpCodes.Pop);
+                cursor.Emit(OpCodes.Ldstr, CustomSFX.game_redirectMoveBlock_arrowblock_move);
+            }
         }
 
         #endregion
