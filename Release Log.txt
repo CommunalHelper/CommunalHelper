@@ -1,3 +1,8 @@
+--1.13.5 (23/09/2022)--
+* Added Connected Temple Cracked Blocks.
+* Fix Cloudscape performing rendering when invisible.
+* Fix a MoveBlock IL hook causing a Gravity Helper + Communal Helper bug.
+
 --1.13.4 (09/09/2022)--
 * Fix TAS desync introduced last update.
 
