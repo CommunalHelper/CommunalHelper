@@ -96,6 +96,7 @@ namespace Celeste.Mod.CommunalHelper {
 
             #region Imports
 
+            typeof(Imports.CavernHelper).ModInterop();
             typeof(Imports.GravityHelper).ModInterop();
 
             #endregion
