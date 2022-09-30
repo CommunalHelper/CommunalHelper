@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -138,6 +139,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 }
             }
             Add(new LightOcclude(0.5f));
+
+            Component explosionCollider = CavernHelper.GetCrystalBombExplosionCollider?.Invoke(Break, null);
+            if (explosionCollider != null) {
+                Add(explosionCollider);
+            }
         }
 
         public override void Added(Scene scene) {
