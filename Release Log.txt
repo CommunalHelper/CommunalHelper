@@ -1,15 +1,19 @@
+--1.13.6 (30/09/2022)--
+* Implemented Connected Cracked Block + Crystal Bomb compatibility.
+* Fixed rubble spawning in Connected Temple Cracked Blocks.
+
 --1.13.5 (23/09/2022)--
 * Added Connected Temple Cracked Blocks.
-* Fix Cloudscape performing rendering when invisible.
-* Fix a MoveBlock IL hook causing a Gravity Helper + Communal Helper bug.
+* Fixed Cloudscape performing rendering when invisible.
+* Fixed a MoveBlock IL hook causing a Gravity Helper + Communal Helper bug.
 
 --1.13.4 (09/09/2022)--
-* Fix TAS desync introduced last update.
+* Fixed TAS desync introduced last update.
 
 --1.13.3 (09/09/2022)--
 * Communal Helper Exports are now available via MonoMod's ModInterop.
 * Adjust Connected Solid scrape particles spawn interval.
-* Fix Dream Tunnel Option submenu.
+* Fixed Dream Tunnel Option submenu.
 * Tweaks to logging.
 
 --1.13.2 (28/07/2022)--
