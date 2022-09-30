@@ -140,8 +140,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             Add(new LightOcclude(0.5f));
 
-            Action<Vector2> onExplode = (pos) => Break(pos);
-            Component explosionCollider = CavernHelper.GetCrystalBombExplosionCollider?.Invoke(onExplode, null);
+            Component explosionCollider = CavernHelper.GetCrystalBombExplosionCollider?.Invoke(Break, null);
             if (explosionCollider != null) {
                 Add(explosionCollider);
             }
