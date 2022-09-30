@@ -187,9 +187,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
             broken = true;
             Collidable = false;
-            for (int i = 0; (float) i < base.Width / 8f; i++) {
-                for (int j = 0; (float) j < base.Height / 8f; j++) {
-                    Scene.Add(Engine.Pooler.Create<Debris>().Init(Position + new Vector2(i * 8 + 4, j * 8 + 4), '1', playSound: true).BlastFrom(from));
+            for (int i = 0; i < tiles.GetLength(0); i++) {
+                for (int j = 0; j < tiles.GetLength(1); j++) {
+                    if (tiles[i, j] != null) {
+                        Scene.Add(Engine.Pooler.Create<Debris>().Init(GroupBoundsMin + new Vector2(i * 8 + 4, j * 8 + 4), '1', playSound: true).BlastFrom(from));
+                    }
                 }
             }
         }
