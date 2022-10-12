@@ -161,7 +161,7 @@ namespace Celeste.Mod.CommunalHelper {
             Level level = SceneAs<Level>();
             foreach (Hitbox hitbox in Colliders) {
                 if (doOnX) {
-                    for (float t = 0; t < hitbox.Width; t += 6) {
+                    for (float t = 0; t < hitbox.Width; t += 8) {
                         Vector2 vecTop = Position + hitbox.Position + new Vector2(t, -1);
                         Vector2 vecBottom = Position + hitbox.Position + new Vector2(t, hitbox.Height + 1);
                         if (Scene.CollideCheck<Solid>(vecTop))
@@ -172,7 +172,7 @@ namespace Celeste.Mod.CommunalHelper {
                 }
 
                 if (doOnY) {
-                    for (float t = 0; t < hitbox.Height; t += 6) {
+                    for (float t = 0; t < hitbox.Height; t += 8) {
                         Vector2 vecLeft = Position + hitbox.Position + new Vector2(-1, t);
                         Vector2 vecRight = Position + hitbox.Position + new Vector2(hitbox.Width + 1, t);
                         if (Scene.CollideCheck<Solid>(vecLeft))
