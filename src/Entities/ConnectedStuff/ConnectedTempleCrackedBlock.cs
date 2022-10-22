@@ -194,6 +194,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public void Break(Vector2 from) {
+            DestroyStaticMovers();
             Audio.Play("event:/game/05_mirror_temple/crackedwall_vanish", base.Center);
             if (persistent) {
                 SceneAs<Level>().Session.DoNotLoad.Add(eid);
