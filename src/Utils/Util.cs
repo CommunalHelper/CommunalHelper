@@ -75,5 +75,23 @@ namespace Celeste.Mod.CommunalHelper {
             Vector2 size = Max(a, b) - min;
             return new((int) min.X, (int) min.Y, (int) size.X, (int) size.Y);
         }
+
+        /// <summary>
+        /// Triangle wave function.
+        /// </summary>
+        public static float TriangleWave(float x)
+            => 2 * Math.Abs(Mod(x, 2) - 1) - 1;
+
+        /// <summary>
+        /// Triangle wave between mapped between two values.
+        /// </summary>
+        /// <param name="x">The input value.</param>
+        /// <param name="from">The ouput when <c>x</c> is an even integer.</param>
+        /// <param name="to">The output when <c>x</c> is an odd integer.</param>
+        public static float MappedTriangleWave(float x, float from, float to)
+            => (from - to) * Math.Abs(Mod(x, 2) - 1) + to;
+
+        public static float PowerBounce(float x, float p)
+            => -(float)Math.Pow(Math.Abs(2 * (Mod(x, 1) - .5f)), p) + 1;
     }
 }

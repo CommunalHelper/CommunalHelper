@@ -26,6 +26,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public float[] Wave;
             public float Length;
 
+            public readonly bool spiky;
+
             public Edge(PlayerSeekerBarrier parent, Vector2 a, Vector2 b) {
                 Parent = parent;
                 Visible = true;
@@ -43,7 +45,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Wave = new float[(int) Length + 2];
 
                 for (int i = 0; i <= Length; i++)
-                    Wave[i] = GetWaveAt(time, i, Length);
+                    Wave[i] = (spiky ? GetSpikyWaveAt(time, i, Length) : GetWaveAt(time, i, Length));
             }
 
             private float GetWaveAt(float offset, float along, float length) {
@@ -56,6 +58,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 float num = offset + along * 0.25f;
                 float num2 = (float) (Math.Sin(num) * 2.0 + Math.Sin(num * 0.25f));
                 return (1f + num2 * Ease.SineInOut(Calc.YoYo(along / length))) * (1f - Parent.Solidify);
+            }
+
+            private float GetSpikyWaveAt(float offset, float along, float length) {
+                if (along <= 1f || along >= length - 1f)
+                    return 0f;
+
+                if (Parent.Solidify >= 1f)
+                    return 0f;
+
+                float intensity = (1f - Parent.Solidify);
+                float at = offset + along * 0.5f;
+                return Util.MappedTriangleWave(at / 2, 0, 8) * Util.PowerBounce(along / length, 2.5f) * intensity;
             }
 
             public bool InView(ref Rectangle view)
