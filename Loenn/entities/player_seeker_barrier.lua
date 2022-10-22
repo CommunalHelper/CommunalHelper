@@ -23,7 +23,7 @@ playerSeekerBarrier.placements = {
 }
 
 local normalColor = {0.36, 0.36, 0.36, 0.8}
-local spikyColor = {0.36, 0.36, 0.36, 0.8}
+local spikyColor = {0.36, 0.13, 0.13, 0.8}
 
 function playerSeekerBarrier.color(room, entity)
     return entity.spiky and spikyColor or normalColor

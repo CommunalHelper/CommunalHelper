@@ -26,9 +26,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private PlayerSeekerBarrier master;
         private List<PlayerSeekerBarrier> group;
 
+        public bool Spiky { get; }
+
         public PlayerSeekerBarrier(EntityData data, Vector2 offset)
             : base(data, offset) {
             SurfaceSoundIndex = SurfaceIndex.AuroraGlass;
+            Spiky = data.Bool("spiky", false);
         }
 
         public override void Update() {
