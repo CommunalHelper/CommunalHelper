@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.Imports;
+﻿using Celeste.Mod.CommunalHelper.DashStates;
+using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
@@ -111,12 +112,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private int frames;
 
         public ConnectedTempleCrackedBlock(EntityData data, Vector2 offset)
-            : this(new EntityID(data.Level.Name, data.ID), data, offset) {
-        }
+            : this(new EntityID(data.Level.Name, data.ID), data, offset) { }
 
         public ConnectedTempleCrackedBlock(EntityID eid, EntityData data, Vector2 offset)
-            : this(eid, data.Position + offset, data.Width, data.Height, data.Bool("persistent")) {
-        }
+            : this(eid, data.Position + offset, data.Width, data.Height, data.Bool("persistent")) { }
 
         public ConnectedTempleCrackedBlock(EntityID eid, Vector2 position, int width, int height, bool persistent)
             : base(position, width, height, safe: true) {
@@ -144,6 +143,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (explosionCollider != null) {
                 Add(explosionCollider);
             }
+
+            OnDashCollide = (player, dir) => {
+                if (SeekerDash.SeekerAttacking) {
+                    Break(player.Center);
+                    return DashCollisionResults.Rebound;
+                }
+                return DashCollisionResults.NormalCollision;
+            };
         }
 
         public override void Added(Scene scene) {
