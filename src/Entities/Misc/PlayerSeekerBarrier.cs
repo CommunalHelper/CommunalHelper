@@ -27,6 +27,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private List<PlayerSeekerBarrier> group;
 
         public bool Spiky { get; }
+        private Spikes spikeUp, spikeDown, spikeLeft, spikeRight;
 
         public PlayerSeekerBarrier(EntityData data, Vector2 offset)
             : base(data, offset) {
@@ -40,6 +41,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             speedFactor = Calc.Approach(speedFactor, targetSpeed, Engine.DeltaTime * (collidable ? 0.5f : 4.0f));
 
             WavedashTime = Calc.Approach(WavedashTime, 0f, Engine.DeltaTime);
+
+            if (Spiky)
+                spikeUp.Collidable = spikeDown.Collidable = spikeLeft.Collidable = spikeRight.Collidable = collidable;
 
             base.Update();
         }
@@ -56,6 +60,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 group = new();
                 AddToGroupAndFindChildren(this);
             }
+
+            if (Spiky) {
+                AddInvisibleSpike(spikeUp = new Spikes(Position, (int) Width, Spikes.Directions.Up, string.Empty) { Visible = false });
+                AddInvisibleSpike(spikeDown = new Spikes(Position + Vector2.UnitY * Height, (int) Width, Spikes.Directions.Down, string.Empty) { Visible = false });
+                AddInvisibleSpike(spikeLeft = new Spikes(Position, (int) Height, Spikes.Directions.Left, string.Empty) { Visible = false });
+                AddInvisibleSpike(spikeRight = new Spikes(Position + Vector2.UnitX * Width, (int) Height, Spikes.Directions.Right, string.Empty) { Visible = false });
+            }
+        }
+
+        // kinda cursed
+        private void AddInvisibleSpike(Spikes spike) {
+            StaticMover sm = spike.Get<StaticMover>();
+            sm.JumpThruChecker = null;
+            sm.SolidChecker = null;
+            sm.Platform = this;
+            staticMovers.Add(sm);
+            Scene.Add(spike);
         }
 
         private void AddToGroupAndFindChildren(PlayerSeekerBarrier from) {
@@ -87,16 +108,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         #region Hooks
 
-        private static readonly TypeInfo t_PlayerSeekerBarrier
-            = typeof(PlayerSeekerBarrier).GetTypeInfo();
-
-        private static readonly MethodInfo m_Draw_Rect
-            = typeof(Draw).GetMethod(nameof(Draw.Rect), new[] { typeof(Collider), typeof(Color) });
-
-        private static readonly ConstructorInfo ctor_SeekerBarrierRenderer_Edge
-            = typeof(SeekerBarrierRenderer).GetNestedType("Edge", BindingFlags.NonPublic)
-                                           .GetConstructor(new[] { typeof(SeekerBarrier), typeof(Vector2), typeof(Vector2) });
-
         internal static void Hook() {
             On.Celeste.SeekerBarrierRenderer.Track += SeekerBarrierRenderer_Track;
             On.Celeste.SeekerBarrierRenderer.Untrack += SeekerBarrierRenderer_Untrack;
@@ -120,6 +131,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 return;
             orig(self, block);
         }
+
         private static void SeekerBarrier_Update(ILContext il) {
             ILCursor cursor = new(il);
 

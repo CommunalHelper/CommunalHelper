@@ -317,6 +317,12 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                     self.SceneAs<Level>().Particles.Emit(Seeker.P_HitWall, 12, origin, new Vector2(dir.Y, dir.X) * 4f, (-dir).Angle());
                     self.OnReflectSeeker();
                     Audio.Play(SFX.game_05_seeker_impact_lightwall, self.Position);
+
+                    // Rare case where the player hits the seeker barrier before colliding with the spikes.
+                    // When this happens, the player is sent back and doesn't collide with the spikes, and doesn't die.
+                    if (self is PlayerSeekerBarrier playerSeekerBarrier && playerSeekerBarrier.Spiky)
+                        return DashCollisionResults.NormalOverride;
+
                     return DashCollisionResults.Bounce;
                 }
                 return DashCollisionResults.NormalOverride;
