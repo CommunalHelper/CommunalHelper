@@ -533,7 +533,9 @@ entities.CommunalHelper/SeekerDashRefill.placements.name.seeker_dash_refill=Seek
 entities.CommunalHelper/SeekerDashRefill.attributes.description.oneUse=Whether the crystal should permanently disappear after being collected.
 
 # Player Seeker Barrier
-entities.CommunalHelper/PlayerSeekerBarrier.placements.name.player_seeker_barrier=Player Seeker Barrier
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.normal=Player Seeker Barrier
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spiky=Player Seeker Barrier (Spiky)
+entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spiky=Whether the edges of this barrier act like spikes.
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
