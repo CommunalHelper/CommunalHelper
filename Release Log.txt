@@ -1,3 +1,7 @@
+--1.13.7 (30/09/2022)--
+* Added Spiky Player Seeker Barriers.
+* Changed Connected Temple Cracked Blocks to destroy static movers.
+
 --1.13.6 (30/09/2022)--
 * Implemented Connected Cracked Block + Crystal Bomb compatibility.
 * Fixed rubble spawning in Connected Temple Cracked Blocks.
