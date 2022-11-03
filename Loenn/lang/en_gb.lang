@@ -533,8 +533,8 @@ entities.CommunalHelper/SeekerDashRefill.placements.name.seeker_dash_refill=Seek
 entities.CommunalHelper/SeekerDashRefill.attributes.description.oneUse=Whether the crystal should permanently disappear after being collected.
 
 # Player Seeker Barrier
-entities.CommunalHelper/PlayerSeekerBarrier.placements.name.normal=Player Seeker Barrier
-entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_all=Player Seeker Barrier (All Spikes)
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.normal=Player Seeker Barrier (No spikes)
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_all=Player Seeker Barrier (All spikes)
 entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_up=Player Seeker Barrier (Up spikes)
 entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_down=Player Seeker Barrier (Down spikes)
 entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_left=Player Seeker Barrier (Left spikes)
@@ -543,6 +543,7 @@ entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeUp=Wheth
 entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeDown=Whether the bottom edge of this barrier acts like spikes.
 entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeLeft=Whether the left edge of this barrier acts like spikes.
 entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeRight=Whether the right edge of this barrier acts like spikes.
+entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spiky=[DEPRECATED] Whether all edges of this barrier act like spikes.
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
