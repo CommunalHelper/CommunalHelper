@@ -7,12 +7,24 @@ using System.Collections.Generic;
 namespace Celeste.Mod.CommunalHelper.Entities {
     [Tracked(false)]
     public class PlayerSeekerBarrierRenderer : Entity {
-        private enum Tile {
-            Empty, Normal, Spike,
+        // cursed
+        [Flags]
+        public enum Tiling {
+            Empty       = 0x00000,
+            Occupied    = 0x10000,
+            SpikeUp     = 0x01000,
+            SpikeDown   = 0x00100,
+            SpikeLeft   = 0x00010,
+            SpikeRight  = 0x00001,
+            SpikeAll = SpikeUp | SpikeDown | SpikeLeft | SpikeRight,
         }
 
         private static readonly Point[] edgeBuildOffsets = new Point[] {
             new(0, -1), new(0, 1), new(-1, 0), new(1, 0),
+        };
+
+        private static readonly Tiling[] edgeSpikeDirections = {
+            Tiling.SpikeUp, Tiling.SpikeDown, Tiling.SpikeLeft, Tiling.SpikeRight,
         };
 
         private static readonly Color UncollidableColor = Color.Black * .85f;
@@ -32,7 +44,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             public readonly bool spiky;
 
-            public Edge(PlayerSeekerBarrier parent, Vector2 a, Vector2 b) {
+            public Edge(PlayerSeekerBarrier parent, bool spiky, Vector2 a, Vector2 b) {
                 Parent = parent;
                 Visible = true;
                 A = a;
@@ -42,7 +54,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Normal = (b - a).SafeNormalize();
                 Perpendicular = -Normal.Perpendicular();
                 Length = (a - b).Length();
-                spiky = parent.Spiky;
+                this.spiky = spiky;
             }
 
             public void UpdateWave(float time) {
@@ -50,7 +62,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     Wave = new float[(int) Length + 2];
 
                 for (int i = 0; i <= Length; i++)
-                    Wave[i] = (spiky ? GetSpikyWaveAt(time, i, Length) : GetWaveAt(time, i, Length));
+                    Wave[i] = spiky ? GetSpikyWaveAt(time, i, Length) : GetWaveAt(time, i, Length);
             }
 
             private float GetWaveAt(float offset, float along, float length) {
@@ -86,7 +98,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private List<PlayerSeekerBarrier> list = new();
         private List<Edge> edges = new();
-        private VirtualMap<Tile> tiles;
+        private VirtualMap<Tiling> tiles;
 
         private Rectangle levelTileBounds;
 
@@ -106,10 +118,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             if (tiles == null) {
                 levelTileBounds = (Scene as Level).TileBounds;
-                tiles = new VirtualMap<Tile>(levelTileBounds.Width, levelTileBounds.Height, emptyValue: Tile.Empty);
+                tiles = new VirtualMap<Tiling>(levelTileBounds.Width, levelTileBounds.Height, emptyValue: Tiling.Empty);
             }
 
-            Tile tile = block.Spiky ? Tile.Spike : Tile.Normal;
+            Tiling tile = block.TileSpikes | Tiling.Occupied;
             for (int i = (int) block.X / 8; i < block.Right / 8f; i++)
                 for (int j = (int) block.Y / 8; j < block.Bottom / 8f; j++)
                     tiles[i - levelTileBounds.X, j - levelTileBounds.Y] = tile;
@@ -124,7 +136,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             else
                 for (int i = (int) block.X / 8; i < block.Right / 8f; i++)
                     for (int j = (int) block.Y / 8; j < block.Bottom / 8f; j++)
-                        tiles[i - levelTileBounds.X, j - levelTileBounds.Y] = Tile.Empty;
+                        tiles[i - levelTileBounds.X, j - levelTileBounds.Y] = Tiling.Empty;
             dirty = true;
         }
 
@@ -155,6 +167,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        private static bool CanConnect(Tiling a, Tiling b)
+            => a == b || (a & b & ~Tiling.Occupied) != Tiling.Empty;
+
         private void RebuildEdges() {
             dirty = false;
             edges.Clear();
@@ -168,34 +183,36 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                             Point offset = edgeBuildOffsets[k];
                             Point perp = new Point(-offset.Y, offset.X);
 
-                            Tile current = At(i, j);
-                            Tile front = At(i + offset.X, j + offset.Y);
-                            Tile side = At(i - perp.X, j - perp.Y);
-                            Tile diag = At(i + offset.X - perp.X, j + offset.Y - perp.Y);
+                            Tiling current = At(i, j);
+                            Tiling front = At(i + offset.X, j + offset.Y);
+                            Tiling side = At(i - perp.X, j - perp.Y);
+                            Tiling diag = At(i + offset.X - perp.X, j + offset.Y - perp.Y);
 
                             /*
                              * If the front tile is empty, we are located at the beginning of a new edge if either of these is true:
-                             * 1: The side tile is empty, or there's an wall on the side.
+                             * 1: The side tile is empty, or there's a wall on the side (diag tile is occupied).
                              * 2: The current tile is not empty, there's no wall on the side, and the side tile is occupied and of different type.
                              */
 
-                            bool flag1 = side == Tile.Empty || diag != Tile.Empty;
-                            bool flag2 = current != Tile.Empty && diag == Tile.Empty && side != Tile.Empty && side != current;
+                            if (front != Tiling.Empty)
+                                continue;
 
-                            if (front == Tile.Empty && (flag1 || flag2)) {
+                            bool flag1 = side == Tiling.Empty || diag.HasFlag(Tiling.Occupied);
+                            bool flag2 = current.HasFlag(Tiling.Occupied) && diag == Tiling.Empty && !CanConnect(side, current);
+
+                            if (flag1 || flag2) {
                                 Point at = new Point(i, j);
                                 Point to = new Point(i + perp.X, j + perp.Y);
                                 Vector2 value = new Vector2(4f) + new Vector2(offset.X - perp.X, offset.Y - perp.Y) * 4f;
 
-                                Tile type = At(i, j);
-                                Tile next = At(to.X, to.Y);
-                                while (next == type && !Inside(to.X + offset.X, to.Y + offset.Y)) {
+                                Tiling type = At(i, j);
+                                Tiling next = At(to.X, to.Y);
+                                while (CanConnect(next, type) && !Inside(to.X + offset.X, to.Y + offset.Y))
                                     next = At(to.X += perp.X, to.Y += perp.Y);
-                                }
 
                                 Vector2 a = new Vector2(at.X, at.Y) * 8f + value - barrier.Position;
                                 Vector2 b = new Vector2(to.X, to.Y) * 8f + value - barrier.Position;
-                                edges.Add(new(barrier, a, b));
+                                edges.Add(new(barrier, current.HasFlag(edgeSpikeDirections[k]), a, b));
                             }
                         }
                     }
@@ -204,9 +221,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private bool Inside(int tx, int ty) 
-            => At(tx, ty) != Tile.Empty;
+            => At(tx, ty) != Tiling.Empty;
 
-        private Tile At(int tx, int ty)
+        private Tiling At(int tx, int ty)
             => tiles[tx - levelTileBounds.X, ty - levelTileBounds.Y];
 
         private void OnRenderBloom() {

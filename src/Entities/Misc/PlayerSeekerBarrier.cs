@@ -7,6 +7,7 @@ using MonoMod.Cil;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using static Celeste.Mod.CommunalHelper.Entities.PlayerSeekerBarrierRenderer;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/PlayerSeekerBarrier")]
@@ -26,13 +27,21 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private PlayerSeekerBarrier master;
         private List<PlayerSeekerBarrier> group;
 
-        public bool Spiky { get; }
+        public Tiling TileSpikes;
         private Spikes spikeUp, spikeDown, spikeLeft, spikeRight;
 
         public PlayerSeekerBarrier(EntityData data, Vector2 offset)
             : base(data, offset) {
             SurfaceSoundIndex = SurfaceIndex.AuroraGlass;
-            Spiky = data.Bool("spiky", false);
+
+            if (data.Bool("spiky", false))
+                TileSpikes = Tiling.SpikeAll;
+            else {
+                if (data.Bool("spikeUp", false)) TileSpikes |= Tiling.SpikeUp;
+                if (data.Bool("spikeDown", false)) TileSpikes |= Tiling.SpikeDown;
+                if (data.Bool("spikeLeft", false)) TileSpikes |= Tiling.SpikeLeft;
+                if (data.Bool("spikeRight", false)) TileSpikes |= Tiling.SpikeRight;
+            }
         }
 
         public override void Update() {
@@ -42,8 +51,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             WavedashTime = Calc.Approach(WavedashTime, 0f, Engine.DeltaTime);
 
-            if (Spiky)
-                spikeUp.Collidable = spikeDown.Collidable = spikeLeft.Collidable = spikeRight.Collidable = collidable;
+            if (spikeUp is not null) spikeUp.Collidable = collidable;
+            if (spikeDown is not null) spikeDown.Collidable = collidable;
+            if (spikeLeft is not null) spikeLeft.Collidable = collidable;
+            if (spikeRight is not null) spikeRight.Collidable = collidable;
 
             base.Update();
         }
@@ -61,12 +72,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 AddToGroupAndFindChildren(this);
             }
 
-            if (Spiky) {
-                AddInvisibleSpike(spikeUp = new Spikes(Position, (int) Width, Spikes.Directions.Up, string.Empty) { Visible = false });
-                AddInvisibleSpike(spikeDown = new Spikes(Position + Vector2.UnitY * Height, (int) Width, Spikes.Directions.Down, string.Empty) { Visible = false });
-                AddInvisibleSpike(spikeLeft = new Spikes(Position, (int) Height, Spikes.Directions.Left, string.Empty) { Visible = false });
-                AddInvisibleSpike(spikeRight = new Spikes(Position + Vector2.UnitX * Width, (int) Height, Spikes.Directions.Right, string.Empty) { Visible = false });
-            }
+            if (TileSpikes.HasFlag(Tiling.SpikeUp)) AddInvisibleSpike(spikeUp = new Spikes(Position, (int) Width, Spikes.Directions.Up, string.Empty) { Visible = false });
+            if (TileSpikes.HasFlag(Tiling.SpikeDown)) AddInvisibleSpike(spikeDown = new Spikes(Position + Vector2.UnitY * Height, (int) Width, Spikes.Directions.Down, string.Empty) { Visible = false });
+            if (TileSpikes.HasFlag(Tiling.SpikeLeft)) AddInvisibleSpike(spikeLeft = new Spikes(Position, (int) Height, Spikes.Directions.Left, string.Empty) { Visible = false });
+            if (TileSpikes.HasFlag(Tiling.SpikeRight)) AddInvisibleSpike(spikeRight = new Spikes(Position + Vector2.UnitX * Width, (int) Height, Spikes.Directions.Right, string.Empty) { Visible = false });
         }
 
         // kinda cursed

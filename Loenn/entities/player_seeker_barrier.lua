@@ -2,6 +2,7 @@ local playerSeekerBarrier = {}
 
 playerSeekerBarrier.name = "CommunalHelper/PlayerSeekerBarrier"
 playerSeekerBarrier.depth = 0
+playerSeekerBarrier.minimumSize = {8, 8}
 
 playerSeekerBarrier.placements = {
     {
@@ -9,15 +10,65 @@ playerSeekerBarrier.placements = {
         data = {
             width = 8,
             height = 8,
-            spiky = false,
+            spikeUp = false,
+            spikeDown = false,
+            spikeLeft = false,
+            spikeRight = false
         }
     },
     {
-        name = "spiky",
+        name = "spike_up",
         data = {
             width = 8,
             height = 8,
-            spiky = true,
+            spikeUp = true,
+            spikeDown = false,
+            spikeLeft = false,
+            spikeRight = false
+        }
+    },
+    {
+        name = "spike_down",
+        data = {
+            width = 8,
+            height = 8,
+            spikeUp = false,
+            spikeDown = true,
+            spikeLeft = false,
+            spikeRight = false
+        }
+    },
+    {
+        name = "spike_left",
+        data = {
+            width = 8,
+            height = 8,
+            spikeUp = false,
+            spikeDown = false,
+            spikeLeft = true,
+            spikeRight = false
+        }
+    },
+    {
+        name = "spike_right",
+        data = {
+            width = 8,
+            height = 8,
+            spikeUp = false,
+            spikeDown = false,
+            spikeLeft = false,
+            spikeRight = true
+        }
+    },
+    {
+        name = "spike_all",
+        data = {
+            width = 8,
+            height = 8,
+            spikeUp = true,
+            spikeDown = true,
+            spikeLeft = true,
+            spikeRight = true
         }
     }
 }

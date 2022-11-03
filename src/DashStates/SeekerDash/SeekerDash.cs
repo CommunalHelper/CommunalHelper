@@ -8,6 +8,7 @@ using MonoMod.Utils;
 using System;
 using System.Collections;
 using System.Reflection;
+using static Celeste.Mod.CommunalHelper.Entities.PlayerSeekerBarrierRenderer;
 
 namespace Celeste.Mod.CommunalHelper.DashStates {
     // Add custom playerhair that makes tentacles on head
@@ -320,8 +321,19 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
                     // Rare case where the player hits the seeker barrier before colliding with the spikes.
                     // When this happens, the player is sent back and doesn't collide with the spikes, and doesn't die.
-                    if (self is PlayerSeekerBarrier playerSeekerBarrier && playerSeekerBarrier.Spiky)
-                        return DashCollisionResults.NormalOverride;
+                    if (self is PlayerSeekerBarrier playerSeekerBarrier) {
+                        // Check if the player is dashing up and the barrier has down spikes.
+                        bool up = dir.Y < 0 && playerSeekerBarrier.TileSpikes.HasFlag(Tiling.SpikeDown);
+                        // Check if the player is dashing down and the barrier has up spikes.
+                        bool down = dir.Y > 0 && playerSeekerBarrier.TileSpikes.HasFlag(Tiling.SpikeUp);
+                        // Check if the player is dashing left and the barrier has right spikes.
+                        bool left = dir.X < 0 && playerSeekerBarrier.TileSpikes.HasFlag(Tiling.SpikeRight);
+                        // Check if the player is dashing right and the barrier has left spikes.
+                        bool right = dir.X > 0 && playerSeekerBarrier.TileSpikes.HasFlag(Tiling.SpikeLeft);
+                        // If any of these is true, then the player could be touching spikes, let's not bounce out of them.
+                        if (up || down || left || right)
+                            return DashCollisionResults.NormalOverride;
+                    }
 
                     return DashCollisionResults.Bounce;
                 }

@@ -534,8 +534,15 @@ entities.CommunalHelper/SeekerDashRefill.attributes.description.oneUse=Whether t
 
 # Player Seeker Barrier
 entities.CommunalHelper/PlayerSeekerBarrier.placements.name.normal=Player Seeker Barrier
-entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spiky=Player Seeker Barrier (Spiky)
-entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spiky=Whether the edges of this barrier act like spikes.
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_all=Player Seeker Barrier (All Spikes)
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_up=Player Seeker Barrier (Up spikes)
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_down=Player Seeker Barrier (Down spikes)
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_left=Player Seeker Barrier (Left spikes)
+entities.CommunalHelper/PlayerSeekerBarrier.placements.name.spike_right=Player Seeker Barrier (Right spikes)
+entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeUp=Whether the top edge of this barrier acts like spikes.
+entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeDown=Whether the bottom edge of this barrier acts like spikes.
+entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeLeft=Whether the left edge of this barrier acts like spikes.
+entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeRight=Whether the right edge of this barrier acts like spikes.
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
