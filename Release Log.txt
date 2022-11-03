@@ -1,4 +1,8 @@
---1.13.7 (30/09/2022)--
+--1.13.8 (03/11/2022)--
+* Added a 'spike' option for each side of Player Seeker Barriers.
+* Improved Player Seeker Barriers Lönn plugin.
+
+--1.13.7 (23/10/2022)--
 * Added Spiky Player Seeker Barriers.
 * Changed Connected Temple Cracked Blocks to destroy static movers.
 
