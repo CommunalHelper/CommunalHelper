@@ -235,7 +235,7 @@ placements.entities.CommunalHelper/RailedMoveBlock.tooltips.speed=The maximum sp
 # -- Shielded Refill --
 placements.entities.CommunalHelper/ShieldedRefill.tooltips.twoDashes=Whether the refill should give two dashes, instead of one.
 placements.entities.CommunalHelper/ShieldedRefill.tooltips.bubbleRepel=Whether the player should bounce off the bubble.
-placements.entities.CommunalHelper/ShieldedRefill.tooltips.oneUse=Whether the refill should reappear after being collected.
+placements.entities.CommunalHelper/ShieldedRefill.tooltips.oneUse=Whether the refill should not reappear after being collected.
 
 # -- Reset State Crystal --
 placements.entities.CommunalHelper/ResetStateCrystal.tooltips.oneUse=Whether the crystal should reappear after being collected.

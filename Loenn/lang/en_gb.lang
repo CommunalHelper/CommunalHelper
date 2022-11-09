@@ -545,6 +545,13 @@ entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeLeft=Whe
 entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spikeRight=Whether the right edge of this barrier acts like spikes.
 entities.CommunalHelper/PlayerSeekerBarrier.attributes.description.spiky=[DEPRECATED] Whether all edges of this barrier act like spikes.
 
+# Shielded Refill
+entities.CommunalHelper/ShieldedRefill.placements.name.one_dash=Shielded Refill
+entities.CommunalHelper/ShieldedRefill.placements.name.two_dashes=Shielded Refill (Two Dashes)
+entities.CommunalHelper/ShieldedRefill.attributes.description.twoDashes=Whether the refill should give two dashes, instead of one.
+entities.CommunalHelper/ShieldedRefill.attributes.description.bubbleRepel=Whether the player should bounce off the bubble.
+entities.CommunalHelper/ShieldedRefill.attributes.description.oneUse=Whether the refill should not reappear after being collected.
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
