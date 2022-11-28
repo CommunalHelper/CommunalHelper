@@ -30,22 +30,14 @@ attachedWallBooster.placements = {
     }
 }
 
-local names = {
-    ToggleDefaultHot = "Toggle (Default to Hot)",
-    ToggleDefaultCold = "Toggle (Default to Cold)",
-    AlwaysHot = "Always Hot",
-    AlwaysCold = "Always Cold"
-}
-
 attachedWallBooster.fieldInformation = {
     coreModeBehavior = {
         options = {
-            "ToggleDefaultHot",
-            "ToggleDefaultCold",
-            "AlwaysHot",
-            "AlwaysCold"
+            {"Toggle (Default to Hot)", "ToggleDefaultHot"},
+            {"Toggle (Default to Cold)", "ToggleDefaultCold"},
+            {"Always Hot", "AlwaysHot"},
+            {"Always Cold", "AlwaysCold"}
         },
-        displayTransformer = function(s) return names[s] end,
         editable = false
     }
 }
