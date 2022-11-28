@@ -8,8 +8,8 @@ using ..Ahorn, Maple
     width::Integer=8,
     height::Integer=8,
     left::Bool=false,
-    notCoreMode::Bool=false,
     legacyBoost::Bool=true,
+    coreModeBehavior::String="ToggleDefaultHot"
 )
 
 const placements = Ahorn.PlacementDict(
@@ -31,6 +31,10 @@ const placements = Ahorn.PlacementDict(
 
 Ahorn.minimumSize(entity::AttachedWallBooster) = 8, 8
 Ahorn.resizable(entity::AttachedWallBooster) = false, true
+
+Ahorn.editingOptions(entity::AttachedWallBooster) = Dict{String, Any}(
+    "coreModeBehavior" => String["ToggleDefaultHot", "ToggleDefaultCold", "AlwaysHot", "AlwaysCold"]
+)
 
 function Ahorn.selection(entity::AttachedWallBooster)
     x, y = Ahorn.position(entity)
