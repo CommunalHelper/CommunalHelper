@@ -384,13 +384,18 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private static IDetour hook_MoveBlock_Controller;
 
         internal static void Load() {
+            IL.Celeste.Solid.GetPlayerOnTop += Solid_GetPlayerOnTop;
             hook_MoveBlock_Controller = new ILHook(typeof(MoveBlock).GetMethod("Controller", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(),
                 MoveBlock_Controller);
         }
 
         internal static void Unload() {
+            IL.Celeste.Solid.GetPlayerOnTop -= Solid_GetPlayerOnTop;
             hook_MoveBlock_Controller.Dispose();
         }
+
+        // what the fuck
+        private static void Solid_GetPlayerOnTop(ILContext il) { }
 
         private static void MoveBlock_Controller(ILContext il) {
             ILCursor cursor = new ILCursor(il);
