@@ -1,3 +1,6 @@
+--1.13.10 (30/11/2022)--
+* Improve Attached Wall Booster core mode handling.
+
 --1.13.9 (30/11/2022)--
 * Added missing Shielded Refill Lönn plugin.
 * Fixed Move Block bug with Gravity Helper + Communal Helper.
