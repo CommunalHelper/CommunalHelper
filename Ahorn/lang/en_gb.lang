@@ -8,8 +8,10 @@
 
 # -- Attached Wall Booster --
 placements.entities.CommunalHelper/AttachedWallBooster.tooltips.left=Whether the Attached Wall Booster should attach to the left sides of solids.
-placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode.
+placements.entities.CommunalHelper/AttachedWallBooster.names.notCoreMode=Force Ice on Room Entry
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode when entering the room.\nThis is a legacy option that may not work as expected with different settings for Core Mode Behavior.
 placements.entities.CommunalHelper/AttachedWallBooster.tooltips.legacyBoost=Makes this Attached Wall Booster apply the expected speed boost to the player.\nIf disabled, the vertical boost is applied twice if the player isn't moving horizontally, due to a bug that was accidentally introduced in 1.11.2.\nAlso, if disabled, this entity is reskinned with a variant of the wall booster textures.
+placements.entities.CommunalHelper/AttachedWallBooster.tooltips.coreModeBehavior=How the Attached Wall Booster should interact with the Core Mode.\nIf set to Toggle, it will respect the current Core Mode and use the default value if the Core Mode is None.\nIf set to Always Hot/Cold, it will completely ignore the Core Mode and always stay in one mode.
 
 
 # -- Custom Cassette Block --
@@ -283,7 +285,7 @@ placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.z
 placements.entities.CommunalHelper/SyncedZipMoverActivationController.tooltips.colorCode=Target color code.
 
 
-# -- Melvin -- 
+# -- Melvin --
 placements.entities.CommunalHelper/Melvin.tooltips.weakTop=Whether this Melvin can be dashed into from above.
 placements.entities.CommunalHelper/Melvin.tooltips.weakBottom=Whether this Melvin can be dashed into from below.
 placements.entities.CommunalHelper/Melvin.tooltips.weakLeft=Whether this Melvin can be dashed into from the left.
@@ -385,7 +387,7 @@ placements.entities.CommunalHelper/CoreModeMusicController.tooltips.params=A lis
 placements.entities.CommunalHelper/CoreModeMusicController.tooltips.hot=The values to which the parameters will be set when the core mode is "Hot".
 placements.entities.CommunalHelper/CoreModeMusicController.tooltips.cold=The values to which the parameters will be set when the core mode is "Cold".
 placements.entities.CommunalHelper/CoreModeMusicController.tooltips.none=The values to which the parameters will be set when the core mode is "None".
-placements.entities.CommunalHelper/CoreModeMusicController.tooltips.disable=If this is ticked on, this controller will look for every controller with the same parameter list (in order), and disable it (remove it). It also removes itself afterwards. 
+placements.entities.CommunalHelper/CoreModeMusicController.tooltips.disable=If this is ticked on, this controller will look for every controller with the same parameter list (in order), and disable it (remove it). It also removes itself afterwards.
 
 # -- No Overlay Watch Tower --
 placements.entities.CommunalHelper/NoOverlayLookout.tooltips.summit=Whether the watch tower should zoom on the final node or not. Requires nodes to function, otherwise game will crash.
@@ -400,7 +402,7 @@ placements.entities.CommunalHelper/DreamStrawberry.tooltips.order=Manually deter
 
 # -- Dash State Trigger --
 placements.triggers.CommunalHelper/DashStateTrigger.tooltips.dashState=The dash state to set.
-placements.triggers.CommunalHelper/DashStateTrigger.tooltips.mode=The changing mode.\n'Trigger' changes the dash state when the player enters the trigger.\n'OneUse' makes this trigger remove itself when used.\n'Field' makes it change the dash state constantly while the player is inside. 
+placements.triggers.CommunalHelper/DashStateTrigger.tooltips.mode=The changing mode.\n'Trigger' changes the dash state when the player enters the trigger.\n'OneUse' makes this trigger remove itself when used.\n'Field' makes it change the dash state constantly while the player is inside.
 
 # -- Music Param Trigger --
 placements.triggers.CommunalHelper/MusicParamTrigger.tooltips.enterValue=The value to which the parameter(s) are set when the player is touching the trigger.

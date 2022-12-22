@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
@@ -11,15 +12,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/AttachedWallBooster")]
     [TrackedAs(typeof(WallBooster))]
     public class AttachedWallBooster : WallBooster {
+
+        private enum CoreModeBehavior {
+            ToggleDefaultHot,
+            ToggleDefaultCold,
+            AlwaysHot,
+            AlwaysCold
+        }
+
         public Vector2 Shake = Vector2.Zero;
 
-        private readonly DynData<WallBooster> baseData;
+        private readonly DynamicData baseData;
 
         private bool legacyBoost;
 
+        private readonly CoreModeBehavior coreModeBehavior;
+
         public AttachedWallBooster(EntityData data, Vector2 offset)
             : base(data, offset) {
-            baseData = new DynData<WallBooster>(this);
+            baseData = DynamicData.For(this);
 
             Remove(Get<StaticMover>());
             Add(new StaticMover {
@@ -28,6 +39,11 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 OnEnable = OnEnable,
                 OnDisable = OnDisable
             });
+
+            coreModeBehavior = data.Enum("coreModeBehavior", CoreModeBehavior.ToggleDefaultHot);
+            if (coreModeBehavior is CoreModeBehavior.AlwaysHot or CoreModeBehavior.AlwaysCold) {
+                Remove(Get<CoreModeListener>());
+            }
         }
 
         public void SetColor(Color color) {
@@ -63,6 +79,26 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Position += Shake;
             base.Render();
             Position = p;
+        }
+
+        [MonoModLinkTo("Monocle.Entity", "System.Void Added(Monocle.Scene)")]
+        public void base_Added(Scene scene) {
+            base.Added(scene);
+        }
+
+        public override void Added(Scene scene) {
+            base_Added(scene);
+            Session.CoreModes currentCoreMode = (scene as Level).CoreMode;
+            bool notCoreMode = baseData.Get<bool>("notCoreMode");
+            Session.CoreModes mode = coreModeBehavior switch {
+                _ when notCoreMode => Session.CoreModes.Cold,
+                CoreModeBehavior.ToggleDefaultHot => currentCoreMode switch {Session.CoreModes.Cold => Session.CoreModes.Cold, _ => Session.CoreModes.Hot},
+                CoreModeBehavior.ToggleDefaultCold => currentCoreMode switch {Session.CoreModes.Hot => Session.CoreModes.Hot, _ => Session.CoreModes.Cold},
+                CoreModeBehavior.AlwaysHot => Session.CoreModes.Hot,
+                CoreModeBehavior.AlwaysCold => Session.CoreModes.Cold,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            baseData.Invoke("OnChangeMode", mode);
         }
 
         #region Hooks

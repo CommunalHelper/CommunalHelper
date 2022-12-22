@@ -41,7 +41,9 @@ entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines 
 entities.CommunalHelper/AttachedWallBooster.placements.name.right=Attached Wall Booster (Right)
 entities.CommunalHelper/AttachedWallBooster.placements.name.left=Attached Wall Booster (Left)
 entities.CommunalHelper/AttachedWallBooster.attributes.description.left=Whether the Attached Wall Booster should attach to the left sides of solids.
-entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode.
+entities.CommunalHelper/AttachedWallBooster.attributes.name.notCoreMode=Force Ice on Room Entry
+entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode when entering the room.\nThis is a legacy option that may not work as expected with different settings for Core Mode Behavior.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.coreModeBehavior=How the Attached Wall Booster should interact with the Core Mode.\nIf set to Toggle, it will respect the current Core Mode and use the default value if the Core Mode is None.\nIf set to Always Hot/Cold, it will completely ignore the Core Mode and always stay in one mode.
 entities.CommunalHelper/AttachedWallBooster.attributes.description.legacyBoost=Makes this Attached Wall Booster apply the expected speed boost to the player.\nIf disabled, the vertical boost is applied twice if the player isn't moving horizontally, due to a bug that was accidentally introduced in 1.11.2.\nAlso, if disabled, this entity is reskinned with a variant of the wall booster textures.
 
 # Station Block
@@ -433,7 +435,7 @@ entities.CommunalHelper/CoreModeMusicController.attributes.description.params=A 
 entities.CommunalHelper/CoreModeMusicController.attributes.description.hot=The values to which the parameters will be set when the core mode is "Hot".
 entities.CommunalHelper/CoreModeMusicController.attributes.description.cold=The values to which the parameters will be set when the core mode is "Cold".
 entities.CommunalHelper/CoreModeMusicController.attributes.description.none=The values to which the parameters will be set when the core mode is "None".
-entities.CommunalHelper/CoreModeMusicController.attributes.description.disable=If this is ticked on, this controller will look for every controller with the same parameter list (in order), and disable it (remove it). It also removes itself afterwards. 
+entities.CommunalHelper/CoreModeMusicController.attributes.description.disable=If this is ticked on, this controller will look for every controller with the same parameter list (in order), and disable it (remove it). It also removes itself afterwards.
 
 # Heart Gem Shards
 entities.CommunalHelper/CrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards)
@@ -521,7 +523,7 @@ entities.CommunalHelper/CustomSummitGemManager.attributes.description.heartOffse
 # Redless Berry
 entities.CommunalHelper/RedlessBerry.placements.name.redless_berry=Redless Berry
 entities.CommunalHelper/RedlessBerry.attributes.description.persistent=Whether this Redless Berry stays with the player, even throughout deaths.
-entities.CommunalHelper/RedlessBerry.attributes.description.winged=Makes this Redless Berry winged, meaning that it won't appear if the player was tired at some point in the session. 
+entities.CommunalHelper/RedlessBerry.attributes.description.winged=Makes this Redless Berry winged, meaning that it won't appear if the player was tired at some point in the session.
 
 # Dream Strawberry
 entities.CommunalHelper/DreamStrawberry.placements.name.dream_dash_berry=Dream Strawberry
@@ -555,7 +557,7 @@ entities.CommunalHelper/ShieldedRefill.attributes.description.oneUse=Whether the
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
-triggers.CommunalHelper/DashStateTrigger.attributes.description.mode=The changing mode. 'Trigger' changes the dash state when the player enters the trigger. 'OneUse' makes this trigger remove itself when used. 'Field' makes it change the dash state constantly while the player is inside. 
+triggers.CommunalHelper/DashStateTrigger.attributes.description.mode=The changing mode. 'Trigger' changes the dash state when the player enters the trigger. 'OneUse' makes this trigger remove itself when used. 'Field' makes it change the dash state constantly while the player is inside.
 
 # Music Param Trigger
 triggers.CommunalHelper/MusicParamTrigger.placements.name.trigger=Music Parameter
@@ -629,4 +631,4 @@ style.effects.CommunalHelper/Cloudscape.description.innerDensity=A number betwee
 style.effects.CommunalHelper/Cloudscape.description.outerDensity=A number between 0 and 2 that determines how cloudy the effect is at the edge. 0 is no clouds at all, 1 is enough to fill most gaps, 2 is twice as much clouds.
 style.effects.CommunalHelper/Cloudscape.description.innerRotation=The rotational speed at the middle.
 style.effects.CommunalHelper/Cloudscape.description.outerRotation=The rotational speed at the edge.
-style.effects.CommunalHelper/Cloudscape.description.rotationExponent=A number between 0 and 2 that describes the interpolation of the rotational speed between the inner and outer rings. 1 is linear, 0 makes the value approach the outer target value faster, 2 makes the value approach the outer target value sooner.\nThis is hard to describe. 
+style.effects.CommunalHelper/Cloudscape.description.rotationExponent=A number between 0 and 2 that describes the interpolation of the rotational speed between the inner and outer rings. 1 is linear, 0 makes the value approach the outer target value faster, 2 makes the value approach the outer target value sooner.\nThis is hard to describe.
