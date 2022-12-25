@@ -28,7 +28,15 @@ heldBooster.placements = {
 
 local function isGreen(entity)
     local nodes = entity.nodes or {}
-    return #nodes == 1
+
+    if #nodes == 0 then
+        return false
+    end
+
+    local x, y = entity.x or 0, entity.y or 0
+    local nx, ny = nodes[1].x, nodes[1].y
+
+    return x ~= nx or y ~= ny
 end
 
 function heldBooster.ignoredFields(entity)
