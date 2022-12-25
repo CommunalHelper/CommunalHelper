@@ -50,6 +50,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         public static readonly Color GreenBurstColor = Calc.HexToColor("174f21");
         public static readonly Color GreenAppearColor = Calc.HexToColor("0df235");
 
+        private readonly Sprite arrow;
+
         private readonly bool green;
 
         public Vector2 Start { get; }
@@ -58,12 +60,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         private Vector2 aim, prevAim;
         private float targetAngle;
         private float anim;
-
         private bool hasPlayer;
 
         private PathRenderer pathRenderer;
-
-        private readonly MTexture arrow = GFX.Game["objects/CommunalHelper/boosters/heldBooster/arrow"];
 
         public HeldBooster(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.FirstNodeNullable(offset)) { }
@@ -73,6 +72,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             green = node is not null && node.Value != position;
 
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create(green ? "greenHeldBooster" : "purpleHeldBooster"));
+
+            Add(arrow = CommunalHelperModule.SpriteBank.Create("heldBoosterArrow"));
+            arrow.Visible = false;
 
             SetParticleColors(
                 green ? GreenBurstColor : PurpleBurstColor,
@@ -111,12 +113,16 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
                 anim = 1f;
             else
                 SetAim(Vector2.UnitX * (int) player.Facing, pulse: true);
+
+            arrow.Play("inside");
         }
 
         protected override void OnPlayerExit(Player player) {
             base.OnPlayerExit(player);
             Collidable = true;
             hasPlayer = false;
+
+            arrow.Play("pop");
         }
 
         // prevents held boosters from starting automatically (which red boosters do after 0.25 seconds).
@@ -193,22 +199,25 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
             Vector2 scale = new(1 + ease * 0.25f, 1 - ease * 0.25f);
 
-            bool greenFlag = sprite.CurrentAnimationID is "inside" or "loop" or "spin";
-            bool purpleFlag = sprite.CurrentAnimationID is "inside" or "spin";
+            bool greenFlag = true;
+            bool purpleFlag = sprite.CurrentAnimationID is not "loop";
 
             bool visibleArrow = (green && greenFlag) || (!green && purpleFlag);
+            bool pop = sprite.CurrentAnimationID is "pop";
 
-            if (visibleArrow) {
-                arrow.DrawCentered(pos + Vector2.UnitX, Color.Black, scale, angle);
-                arrow.DrawCentered(pos - Vector2.UnitX, Color.Black, scale, angle);
-                arrow.DrawCentered(pos + Vector2.UnitY, Color.Black, scale, angle);
-                arrow.DrawCentered(pos - Vector2.UnitY, Color.Black, scale, angle);
+            Console.WriteLine($"{sprite.CurrentAnimationID}[{sprite.CurrentAnimationFrame}]");
+
+            if (visibleArrow && !pop) {
+                arrow.Texture.DrawCentered(pos + Vector2.UnitX, Color.Black, scale, angle);
+                arrow.Texture.DrawCentered(pos - Vector2.UnitX, Color.Black, scale, angle);
+                arrow.Texture.DrawCentered(pos + Vector2.UnitY, Color.Black, scale, angle);
+                arrow.Texture.DrawCentered(pos - Vector2.UnitY, Color.Black, scale, angle);
             }
 
             base.Render();
 
             if (visibleArrow) {
-                arrow.DrawCentered(pos, Color.White, scale, angle);
+                arrow.Texture.DrawCentered(pos, Color.White, scale, angle);
             }
         }
     }
