@@ -66,6 +66,9 @@ namespace Celeste.Mod.CommunalHelper {
         public const string game_customBoosters_dreamBooster_dreambooster_enter_cue = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter_cue";
         public const string game_customBoosters_dreamBooster_dreambooster_move = "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_move";
 
+        public const string game_customBoosters_heldBooster_move = "event:/CommunalHelperEvents/game/customBoosters/heldBooster/move";
+        public const string game_customBoosters_heldBooster_move_cue = "event:/CommunalHelperEvents/game/customBoosters/heldBooster/move_cue";
+
         public const string game_chainedFallingBlock_chain_rattle = "event:/CommunalHelperEvents/game/chainedFallingBlock/chain_rattle";
         public const string game_chainedFallingBlock_chain_tighten_ceiling = "event:/CommunalHelperEvents/game/chainedFallingBlock/chain_tighten_ceiling";
         public const string game_chainedFallingBlock_chain_tighten_block = "event:/CommunalHelperEvents/game/chainedFallingBlock/chain_tighten_block";

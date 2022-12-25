@@ -13,6 +13,8 @@
 {56e914d8-6460-4d34-8bbb-0db5a9439ef1} event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter
 {a60c2909-ac85-4b6a-aea3-e2fb6722e54d} event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_enter_cue
 {82196f99-4cd9-46eb-8705-74766fcb25e7} event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_move
+{4f23301b-8137-453a-bcbd-b95833be1827} event:/CommunalHelperEvents/game/customBoosters/heldBooster/move_cue
+{8c6b981a-4a40-4ab5-b76d-47a296c48ffc} event:/CommunalHelperEvents/game/customBoosters/heldBooster/move
 {a5790358-1b9c-4f24-a52e-10c2e1d67170} event:/CommunalHelperEvents/game/dreamJellyfish/jelly_refill
 {e4c02be7-4b63-413a-b71c-9243bd22dbed} event:/CommunalHelperEvents/game/dreamJellyfish/jelly_use
 {596b795d-af4d-4284-8836-506c20eaf2a9} event:/CommunalHelperEvents/game/dreamMoveBlock/dream_move_block_activate

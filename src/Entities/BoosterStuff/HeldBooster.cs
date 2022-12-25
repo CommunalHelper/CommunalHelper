@@ -73,9 +73,16 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             green = node is not null && node.Value != position;
 
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create(green ? "greenHeldBooster" : "purpleHeldBooster"));
+
             SetParticleColors(
                 green ? GreenBurstColor : PurpleBurstColor,
                 green ? GreenAppearColor : PurpleAppearColor
+            );
+
+            SetSoundEvent(
+                SFX.game_05_redbooster_enter,
+                CustomSFX.game_customBoosters_heldBooster_move,
+                playMoveEnd: true
             );
 
             MovementInBubbleFactor = green ? 0 : 1.5f;
@@ -160,7 +167,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         public override void Update() {
             base.Update();
 
-            if (!green && hasPlayer) {
+            if (!green && hasPlayer && !BoostingPlayer) {
                 Vector2 v = Input.Aim.Value == Vector2.Zero ? Vector2.Zero : Input.GetAimVector();
                 SetAim(v, v != prevAim);
                 prevAim = v;
@@ -187,7 +194,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             Vector2 scale = new(1 + ease * 0.25f, 1 - ease * 0.25f);
 
             bool greenFlag = sprite.CurrentAnimationID is "inside" or "loop" or "spin";
-            bool purpleFlag = sprite.CurrentAnimationID is "inside";
+            bool purpleFlag = sprite.CurrentAnimationID is "inside" or "spin";
 
             bool visibleArrow = (green && greenFlag) || (!green && purpleFlag);
 
