@@ -210,7 +210,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             Vector2 offset = aim * ease;
 
             bool inside = sprite.CurrentAnimationID is "inside";
-            float verticalCorrection = inside && !green ? 3 : 2;
+            float verticalCorrection = inside ? 3 : 2;
             Vector2 pos = Center + sprite.Position + offset - new Vector2(0, verticalCorrection);
 
             float angle = green
