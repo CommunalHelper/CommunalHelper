@@ -26,6 +26,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             private readonly Node[] nodes;
             private Node last;
 
+            public float Percent { get; set; }
+
             public PathRenderer(float alpha, DreamBoosterCurve booster)
                 : base(alpha, booster.Style, DreamColors, booster) {
                 float sep = 6f;
@@ -36,6 +38,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     booster.curve.GetAllByDistance(d, out Vector2 point, out Vector2 derivative);
                     nodes[i] = new Node(d, Calc.Round(point), Calc.SafeNormalize(derivative));
                 }
+
+                Percent = alpha;
             }
 
             public void SetLastNode(float distance, Vector2 point, Vector2 derivative) {

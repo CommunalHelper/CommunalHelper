@@ -11,10 +11,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
     public class DreamBoosterSegment : DreamBooster {
         public class PathRenderer : PathRendererBase<DreamBoosterSegment> {
             private readonly Vector2 perp;
+            public float Percent { get; set; }
 
             public PathRenderer(float alpha, DreamBoosterSegment booster)
                 : base(alpha, booster.Style, DreamColors, booster) {
                 perp = booster.Dir.Perpendicular();
+                Percent = alpha;
             }
 
             public override void Render() {

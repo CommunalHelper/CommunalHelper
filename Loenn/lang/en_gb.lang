@@ -36,7 +36,7 @@ entities.CommunalHelper/CurvedBooster.attributes.description.pathStyle=The style
 # Held Booster
 entities.CommunalHelper/HeldBooster.placements.name.green=Held Booster (Green)
 entities.CommunalHelper/HeldBooster.placements.name.purple=Held Booster (Purple)
-entities.CommunalHelper/HeldBooster.attributes.description.hidePath=Hides the path until the player enters the Held Booster. Plays an audio cue once when starting.
+entities.CommunalHelper/HeldBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
 
 # Summit Gem
 entities.CommunalHelper/CustomSummitGem.placements.name.summit_gem=Custom Summit Gem

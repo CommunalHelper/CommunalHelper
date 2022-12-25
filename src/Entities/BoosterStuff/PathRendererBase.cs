@@ -14,7 +14,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public readonly T Booster;
 
         public float Alpha;
-        public float Percent = 1f;
 
         private readonly PathStyle style;
 
@@ -26,7 +25,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public PathRendererBase(float alpha, PathStyle style, Color[] colors, T booster) {
             this.style = style;
             Booster = booster;
-            Alpha = Percent = alpha;
+            Alpha = alpha;
 
             this.colors = colors;
 

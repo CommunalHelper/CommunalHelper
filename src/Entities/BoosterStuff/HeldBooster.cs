@@ -11,12 +11,24 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
     public class HeldBooster : CustomBooster {
         public class PathRenderer : PathRendererBase<HeldBooster> {
             private readonly Vector2 dir, perp;
+            private float length, lerp;
 
             public PathRenderer(float alpha, Vector2 direction, HeldBooster booster)
-                : base(alpha, PathStyle.Arrow, PathColors, booster) {
+                : base(alpha, booster.style, PathColors, booster) {
                 dir = direction;
                 perp = direction.Perpendicular();
                 Depth = booster.Depth + 1;
+            }
+
+            public override void Update() {
+                base.Update();
+
+                if (Booster.BoostingPlayer) {
+                    lerp = 1f;
+                    length = Vector2.Distance(Booster.Sprite.Position + Booster.Center, Booster.start);
+                } else {
+                    lerp = Calc.Approach(lerp, 0f, Engine.DeltaTime);
+                }
             }
 
             public override void Render() {
@@ -29,11 +41,12 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
                 Util.TryGetPlayer(out Player player);
 
-                float length = 128 * Percent;
-                for (float f = 0f; f < length; f += 6f) {
-                    float t = f / length;
-                    float opacity = 1 - Ease.QuadOut(t);
-                    DrawPathLine(Calc.Round(Booster.Start + dir * f), dir, perp, f, player, color, opacity);
+                float sineout = Ease.CubeOut(lerp);
+                float l = MathHelper.Lerp(128, length, Ease.ExpoInOut(lerp));
+                for (float f = 0f; f < l; f += 6f) {
+                    float t = f / l;
+                    float opacity = MathHelper.Lerp(1 - Ease.QuadOut(t), 1f, sineout);
+                    DrawPathLine(Calc.Round(Booster.start + dir * f), dir, perp, f, player, color, opacity);
                 }
             }
         }
@@ -50,11 +63,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         public static readonly Color GreenBurstColor = Calc.HexToColor("174f21");
         public static readonly Color GreenAppearColor = Calc.HexToColor("0df235");
 
-        private readonly Sprite arrow;
-
         private readonly bool green;
 
-        public Vector2 Start { get; }
+        private readonly Vector2 start;
         private readonly Vector2 dir;
 
         private Vector2 aim, prevAim;
@@ -62,12 +73,15 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         private float anim;
         private bool hasPlayer;
 
+        private readonly Sprite arrow;
+
         private PathRenderer pathRenderer;
+        private readonly PathStyle style;
 
         public HeldBooster(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.FirstNodeNullable(offset)) { }
+            : this(data.Position + offset, data.FirstNodeNullable(offset), data.Enum("pathStyle", PathStyle.Arrow)) { }
 
-        public HeldBooster(Vector2 position, Vector2? node = null)
+        public HeldBooster(Vector2 position, Vector2? node = null, PathStyle style = PathStyle.Arrow)
             : base(position, redBoost: true) {
             green = node is not null && node.Value != position;
 
@@ -89,8 +103,10 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
             MovementInBubbleFactor = green ? 0 : 1.5f;
 
-            Start = position;
-            dir = ((node ?? Vector2.Zero) - Start).SafeNormalize();
+            start = position;
+            dir = ((node ?? Vector2.Zero) - start).SafeNormalize();
+
+            this.style = style;
         }
 
         public override void Added(Scene scene) {

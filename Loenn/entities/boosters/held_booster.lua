@@ -1,6 +1,7 @@
 local drawableLine = require("structs.drawable_line")
 local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local heldBooster = {}
 
@@ -9,18 +10,25 @@ heldBooster.depth = -8500
 heldBooster.nodeLimits = {0, 1}
 heldBooster.nodeVisibility = "always"
 
+heldBooster.fieldInformation = {
+    pathStyle = {
+        options = communalHelper.dreamBoosterPathStyles,
+        editable = false
+    }
+}
+
 heldBooster.placements = {
     {
         name = "purple",
         data = {
-            hidePath = false
+            pathStyle = "Arrow"
         }
     },
     {
         name = "green",
         placementType = "line",
         data = {
-            hidePath = false,
+            pathStyle = "Arrow",
             nodes = {{x = 0, y = 0}} -- this is hacky
         }
     }
@@ -41,9 +49,9 @@ end
 
 function heldBooster.ignoredFields(entity)
     if isGreen(entity) then
-        return {"_name", "_id", "green"}
+        return {"_name", "_id", "green", "nodes"}
     else
-        return {"_name", "_id", "green", "hidePath", "nodes"}
+        return {"_name", "_id", "green", "pathStyle", "nodes"}
     end
 end
 
