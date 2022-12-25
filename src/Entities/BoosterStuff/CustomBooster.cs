@@ -59,6 +59,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             BoosterData.Get<SoundSource>("loopingSfx").Param(path, value);
         }
 
+        protected virtual void OnRespawn() { }
         protected virtual void OnPlayerEnter(Player player) { }
         protected virtual void OnPlayerExit(Player player) { }
 
@@ -106,6 +107,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static void Load() {
             DreamBoosterHooks.Hook();
 
+            On.Celeste.Booster.Respawn += Booster_Respawn;
             On.Celeste.Booster.AppearParticles += Booster_AppearParticles;
             On.Celeste.Booster.OnPlayer += Booster_OnPlayer;
             On.Celeste.Booster.PlayerBoosted += Booster_PlayerBoosted;
@@ -123,6 +125,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static void Unload() {
             DreamBoosterHooks.Unhook();
 
+            On.Celeste.Booster.Respawn -= Booster_Respawn;
             On.Celeste.Booster.AppearParticles -= Booster_AppearParticles;
             On.Celeste.Booster.OnPlayer -= Booster_OnPlayer;
             On.Celeste.Booster.PlayerBoosted -= Booster_PlayerBoosted;
@@ -134,6 +137,12 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Player.RedDashCoroutine -= Player_RedDashCoroutine;
 
             IL_Player_orig_Update.Dispose();
+        }
+
+        private static void Booster_Respawn(On.Celeste.Booster.orig_Respawn orig, Booster self) {
+            orig(self);
+            if (self is CustomBooster booster)
+                booster.OnRespawn();
         }
 
         private static IEnumerator Booster_BoostRoutine(On.Celeste.Booster.orig_BoostRoutine orig, Booster self, Player player, Vector2 dir) {

@@ -170,6 +170,10 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
                 anim = 1f;
         }
 
+        protected override void OnRespawn() {
+            arrow.Play("loop", restart: true);
+        }
+
         public override void Update() {
             base.Update();
 
@@ -204,8 +208,6 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
             bool visibleArrow = (green && greenFlag) || (!green && purpleFlag);
             bool pop = sprite.CurrentAnimationID is "pop";
-
-            Console.WriteLine($"{sprite.CurrentAnimationID}[{sprite.CurrentAnimationFrame}]");
 
             if (visibleArrow && !pop) {
                 arrow.Texture.DrawCentered(pos + Vector2.UnitX, Color.Black, scale, angle);
