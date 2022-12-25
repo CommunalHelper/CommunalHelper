@@ -42,7 +42,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 Color = Util.ColorArrayLerp(lerp += Engine.DeltaTime * 8f, colors);
         }
 
-        public void DrawPathLine(Vector2 pos, Vector2 dir, Vector2 perp, float offset, Player player, Color lerp) {
+        public void DrawPathLine(Vector2 pos, Vector2 dir, Vector2 perp, float offset, Player player, Color lerp, float alpha = 1f) {
             float sin = (float) Math.Sin(offset + Scene.TimeActive * 6f) * 0.3f + 1f;
 
             float highlight = .25f;
@@ -53,7 +53,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
             float lineHighlight = (1 - highlight) * 2.5f + 0.75f;
             float alphaHighlight = 1 - Calc.Clamp(highlight, 0.01f, 0.8f);
-            Color color = Color.Lerp(Color.White, lerp, 1 - highlight) * alphaHighlight * Alpha;
+            Color color = Color.Lerp(Color.White, lerp, 1 - highlight) * alphaHighlight * Alpha * alpha;
 
             switch (style) {
                 case PathStyle.Point: {
@@ -66,14 +66,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                     if (lineLength < 1f)
                         Draw.Point(pos, color);
                     else
-                        Draw.Line(pos, pos + dir * lineLength, color * Alpha);
+                        Draw.Line(pos, pos + dir * lineLength, color);
                     break;
                 }
 
                 case PathStyle.Line: {
                     float lineLength = lineHighlight * sin;
                     Vector2 lineOffset = perp * lineLength;
-                    Draw.Line(pos + lineOffset, pos - lineOffset, color * Alpha);
+                    Draw.Line(pos + lineOffset, pos - lineOffset, color);
                     break;
                 }
 

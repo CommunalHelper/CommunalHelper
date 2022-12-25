@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -74,6 +75,24 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         /// <returns>An optional <see cref="Player"/> state ID. If set, it will be the returned <see cref="Player"/> state.<br/></returns>
         protected virtual int? RedDashUpdateAfter(Player player) => null;
 
+        /// <summary>
+        /// An coroutine appended to Player.RedDashCoroutine.
+        /// </summary>
+        /// <param name="player">The player.</param>
+        /// <returns>The IEnumerator that represents the routine.</returns>
+        protected virtual IEnumerator RedDashCoroutineAfter(Player player) { yield return null; }
+
+        /// <summary>
+        /// Replacement coroutine to Player.BoostRoutine.
+        /// </summary>
+        /// <param name="player">The player.</param>
+        /// <returns>The IEnumerator that represents the routine.</returns>
+        protected virtual IEnumerator BoostRoutine(Player player) {
+            yield return 0.25f;
+            if (RedBoost)
+                player.StateMachine.State = RedBoost ? Player.StRedDash : Player.StDash;
+        }
+
         #region Hooks
 
         private static readonly MethodInfo m_Player_orig_Update
@@ -90,7 +109,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Booster.PlayerReleased += Booster_PlayerReleased;
             On.Celeste.Booster.BoostRoutine += Booster_BoostRoutine;
 
+            On.Celeste.Player.BoostCoroutine += Player_BoostCoroutine;
             On.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
+            On.Celeste.Player.RedDashCoroutine += Player_RedDashCoroutine;
 
             IL_Player_orig_Update = new ILHook(m_Player_orig_Update, Player_orig_Update);
         }
@@ -104,7 +125,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Booster.PlayerReleased -= Booster_PlayerReleased;
             On.Celeste.Booster.BoostRoutine -= Booster_BoostRoutine;
 
+            On.Celeste.Player.BoostCoroutine -= Player_BoostCoroutine;
             On.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
+            On.Celeste.Player.RedDashCoroutine -= Player_RedDashCoroutine;
 
             IL_Player_orig_Update.Dispose();
         }
@@ -170,6 +193,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
         }
 
+        private static IEnumerator Player_BoostCoroutine(On.Celeste.Player.orig_BoostCoroutine orig, Player self) {
+            IEnumerator routine = self.LastBooster is CustomBooster booster
+                ? booster.BoostRoutine(self)
+                : orig(self);
+            while (routine.MoveNext())
+                yield return routine.Current;
+        }
+
         private static int Player_RedDashUpdate(On.Celeste.Player.orig_RedDashUpdate orig, Player self) {
             if (self.LastBooster is not CustomBooster booster)
                 return orig(self);
@@ -184,6 +215,23 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             // return the 'latest' returned state.
             // 'post' takes priority first, then 'pre', and lastly the original result.
             return post ?? pre ?? res;
+        }
+
+        private static IEnumerator Player_RedDashCoroutine(On.Celeste.Player.orig_RedDashCoroutine orig, Player self) {
+            // get the booster now, it'll be set to null in the coroutine
+            Booster currentBooster = self.CurrentBooster;
+
+            // do the entire coroutine, thanks max480 :)
+            IEnumerator origRoutine = orig(self);
+            while (origRoutine.MoveNext())
+                yield return origRoutine.Current;
+
+            if (currentBooster is not CustomBooster booster)
+                yield break;
+
+            IEnumerator routine = booster.RedDashCoroutineAfter(self);
+            while (routine.MoveNext())
+                yield return routine.Current;
         }
 
         // Related to all curved boosters:

@@ -1,12 +1,10 @@
 ﻿using Celeste.Mod.CommunalHelper.DashStates;
-using Celeste.Mod.CommunalHelper.Imports;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System;
-using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
     public abstract partial class DreamBooster : CustomBooster {
@@ -77,7 +75,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
     public class DreamBoosterHooks {
         public static void Hook() {
-            On.Celeste.Player.RedDashCoroutine += Player_RedDashCoroutine;
             IL.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
             On.Celeste.Actor.MoveH += Actor_MoveH;
             On.Celeste.Actor.MoveV += Actor_MoveV;
@@ -86,7 +83,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         public static void Unhook() {
-            On.Celeste.Player.RedDashCoroutine -= Player_RedDashCoroutine;
             IL.Celeste.Player.RedDashUpdate -= Player_RedDashUpdate;
             On.Celeste.Actor.MoveH -= Actor_MoveH;
             On.Celeste.Actor.MoveV -= Actor_MoveV;
@@ -104,32 +100,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 if (player.LastBooster is DreamBooster && DreamTunnelDash.HasDreamTunnelDash)
                     player.LastBooster.Ch9HubTransition = false;
             });
-        }
-
-        private static IEnumerator Player_RedDashCoroutine(On.Celeste.Player.orig_RedDashCoroutine orig, Player self) {
-            // get the booster now, it'll be set to null in the coroutine
-            Booster currentBooster = self.CurrentBooster;
-
-            // do the entire coroutine, thanks max480 :)
-            IEnumerator origEnum = orig(self);
-            while (origEnum.MoveNext())
-                yield return origEnum.Current;
-
-            if (currentBooster is DreamBoosterSegment segment) {
-                DynData<Player> playerData = new DynData<Player>(self);
-
-                self.Speed = ((Vector2) (playerData["gliderBoostDir"] = self.DashDir = segment.Dir)) * 240f;
-
-                // If the player is inverted, invert its vertical speed so that it moves in the same direction no matter what.
-                if (GravityHelper.IsPlayerInverted?.Invoke() ?? false)
-                    self.Speed.Y *= -1f;
-
-                self.SceneAs<Level>().DirectionalShake(self.DashDir, 0.2f);
-                if (self.DashDir.X != 0f) {
-                    self.Facing = (Facings) Math.Sign(self.DashDir.X);
-                }
-                yield break;
-            }
         }
 
         // A little bit of jank to make use of collision results

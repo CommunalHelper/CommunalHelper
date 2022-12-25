@@ -87,7 +87,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Removed(scene);
             scene.Remove(pathRenderer);
             pathRenderer = null;
-            base.Removed(scene);
         }
 
         protected override void OnPlayerEnter(Player player) {

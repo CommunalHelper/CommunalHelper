@@ -1,6 +1,8 @@
-﻿using Celeste.Mod.Entities;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Utils;
 using System;
 using System.Collections;
 
@@ -60,7 +62,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             base.Removed(scene);
             scene.Remove(pathRenderer);
             pathRenderer = null;
-            base.Removed(scene);
         }
 
         protected override void OnPlayerEnter(Player player) {
@@ -89,6 +90,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             }
 
             return null;
+        }
+
+        protected override IEnumerator RedDashCoroutineAfter(Player player) {
+
+            DynamicData data = new(player);
+
+            player.DashDir = Dir;
+            data.Set("gliderBoostDir", Dir);
+            player.Speed = Dir * 240f;
+
+            // If the player is inverted, invert its vertical speed so that it moves in the same direction no matter what.
+            if (GravityHelper.IsPlayerInverted?.Invoke() ?? false)
+                player.Speed.Y *= -1f;
+
+            player.SceneAs<Level>().DirectionalShake(player.DashDir, 0.2f);
+            if (player.DashDir.X != 0f)
+                player.Facing = (Facings) Math.Sign(player.DashDir.X);
+
+            yield break;
         }
 
         private IEnumerator RevealPathRoutine() {
