@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.CommunalHelper.Imports;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -20,6 +19,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private bool playMoveEventEnd;
 
         public bool RedBoost => BoosterData.Get<bool>("red");
+
+        public Sprite Sprite => BoosterData.Get<Sprite>("sprite");
 
         public CustomBooster(Vector2 position, bool redBoost)
             : base(position, redBoost) {

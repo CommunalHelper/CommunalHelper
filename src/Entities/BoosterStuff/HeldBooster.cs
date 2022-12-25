@@ -55,7 +55,15 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         public Vector2 Start { get; }
         private readonly Vector2 dir;
 
+        private Vector2 aim;
+        private float targetAngle;
+        private float anim;
+
+        private bool hasPlayer;
+
         private PathRenderer pathRenderer;
+
+        private readonly MTexture arrow = GFX.Game["objects/CommunalHelper/boosters/heldBooster/arrow"];
 
         public HeldBooster(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.FirstNodeNullable(offset)) { }
@@ -88,13 +96,20 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         protected override void OnPlayerEnter(Player player) {
             base.OnPlayerEnter(player);
             Collidable = false;
+            hasPlayer = true;
+
+            if (green)
+                anim = 1f;
+            else
+                SetAim(Vector2.UnitX * (int) player.Facing, force: true);
         }
 
         protected override void OnPlayerExit(Player player) {
             base.OnPlayerExit(player);
             Collidable = true;
+            hasPlayer = false;
         }
-        
+
         // prevents held boosters from starting automatically (which red boosters do after 0.25 seconds).
         protected override IEnumerator BoostRoutine(Player player) {
             while (true)
@@ -109,14 +124,13 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         }
 
         protected override IEnumerator RedDashCoroutineAfter(Player player) {
-            if (!green)
-                yield break;
-
             DynamicData data = new(player);
 
-            player.DashDir = dir;
-            data.Set("gliderBoostDir", dir);
-            player.Speed = dir * 240f;
+            Vector2 direction = green ? dir : aim;
+
+            player.DashDir = direction;
+            data.Set("gliderBoostDir", direction);
+            player.Speed = direction * 240f;
 
             // If the player is inverted, invert its vertical speed so that it moves in the same direction no matter what.
             if (GravityHelper.IsPlayerInverted?.Invoke() ?? false)
@@ -125,6 +139,67 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             player.SceneAs<Level>().DirectionalShake(player.DashDir, 0.2f);
             if (player.DashDir.X != 0f)
                 player.Facing = (Facings) Math.Sign(player.DashDir.X);
+
+            yield break;
+        }
+
+        private void SetAim(Vector2 v, bool force = false) {
+            if (v == Vector2.Zero)
+                return;
+
+            Vector2 old = aim;
+
+            v.Normalize();
+            aim = v;
+            targetAngle = v.Angle();
+
+            if (force || aim != old)
+                anim = 1f;
+        }
+
+        public override void Update() {
+            base.Update();
+
+            if (!green && hasPlayer)
+                SetAim(Input.Aim.Value, Input.Aim.PreviousValue != Input.Aim.Value);
+
+            anim = Calc.Approach(anim, 0f, Engine.DeltaTime * 2f);
+        }
+
+        public override void Render() {
+            Sprite sprite = Sprite;
+
+            float ease = Ease.BounceIn(anim);
+
+            Vector2 offset = aim * ease * 2.5f;
+
+            bool inside = sprite.CurrentAnimationID is "inside";
+            float verticalCorrection = inside && !green ? 3 : 2;
+            Vector2 pos = Center + sprite.Position + offset - new Vector2(0, verticalCorrection);
+
+            float angle = green
+                ? dir.Angle()
+                : targetAngle;
+
+            Vector2 scale = new(1 + ease * 0.4f, 1 - ease * 0.3f);
+
+            bool greenFlag = sprite.CurrentAnimationID is "inside" or "loop" or "spin";
+            bool purpleFlag = sprite.CurrentAnimationID is "inside";
+
+            bool visibleArrow = (green && greenFlag) || (!green && purpleFlag);
+
+            if (visibleArrow) {
+                arrow.DrawCentered(pos + Vector2.UnitX, Color.Black, scale, angle);
+                arrow.DrawCentered(pos - Vector2.UnitX, Color.Black, scale, angle);
+                arrow.DrawCentered(pos + Vector2.UnitY, Color.Black, scale, angle);
+                arrow.DrawCentered(pos - Vector2.UnitY, Color.Black, scale, angle);
+            }
+
+            base.Render();
+
+            if (visibleArrow) {
+                arrow.DrawCentered(pos, Color.White, scale, angle);
+            }
         }
     }
 }
