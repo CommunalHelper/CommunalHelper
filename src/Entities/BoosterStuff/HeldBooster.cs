@@ -55,7 +55,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         public Vector2 Start { get; }
         private readonly Vector2 dir;
 
-        private Vector2 aim;
+        private Vector2 aim, prevAim;
         private float targetAngle;
         private float anim;
 
@@ -77,6 +77,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
                 green ? GreenBurstColor : PurpleBurstColor,
                 green ? GreenAppearColor : PurpleAppearColor
             );
+
+            MovementInBubbleFactor = green ? 0 : 1.5f;
 
             Start = position;
             dir = ((node ?? Vector2.Zero) - Start).SafeNormalize();
@@ -101,7 +103,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             if (green)
                 anim = 1f;
             else
-                SetAim(Vector2.UnitX * (int) player.Facing, force: true);
+                SetAim(Vector2.UnitX * (int) player.Facing, pulse: true);
         }
 
         protected override void OnPlayerExit(Player player) {
@@ -143,25 +145,26 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             yield break;
         }
 
-        private void SetAim(Vector2 v, bool force = false) {
+        private void SetAim(Vector2 v, bool pulse = false) {
             if (v == Vector2.Zero)
                 return;
-
-            Vector2 old = aim;
 
             v.Normalize();
             aim = v;
             targetAngle = v.Angle();
 
-            if (force || aim != old)
+            if (pulse)
                 anim = 1f;
         }
 
         public override void Update() {
             base.Update();
 
-            if (!green && hasPlayer)
-                SetAim(Input.Aim.Value, Input.Aim.PreviousValue != Input.Aim.Value);
+            if (!green && hasPlayer) {
+                Vector2 v = Input.Aim.Value == Vector2.Zero ? Vector2.Zero : Input.GetAimVector();
+                SetAim(v, v != prevAim);
+                prevAim = v;
+            }
 
             anim = Calc.Approach(anim, 0f, Engine.DeltaTime * 2f);
         }
@@ -171,7 +174,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
             float ease = Ease.BounceIn(anim);
 
-            Vector2 offset = aim * ease * 2.5f;
+            Vector2 offset = aim * ease;
 
             bool inside = sprite.CurrentAnimationID is "inside";
             float verticalCorrection = inside && !green ? 3 : 2;
@@ -181,7 +184,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
                 ? dir.Angle()
                 : targetAngle;
 
-            Vector2 scale = new(1 + ease * 0.4f, 1 - ease * 0.3f);
+            Vector2 scale = new(1 + ease * 0.25f, 1 - ease * 0.25f);
 
             bool greenFlag = sprite.CurrentAnimationID is "inside" or "loop" or "spin";
             bool purpleFlag = sprite.CurrentAnimationID is "inside";

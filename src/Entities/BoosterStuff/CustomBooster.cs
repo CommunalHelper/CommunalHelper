@@ -22,6 +22,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         public Sprite Sprite => BoosterData.Get<Sprite>("sprite");
 
+        public float MovementInBubbleFactor { get; set; } = 3f;
+
         public CustomBooster(Vector2 position, bool redBoost)
             : base(position, redBoost) {
             BoosterData = new DynData<Booster>(this);
@@ -110,6 +112,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             On.Celeste.Booster.PlayerReleased += Booster_PlayerReleased;
             On.Celeste.Booster.BoostRoutine += Booster_BoostRoutine;
 
+            IL.Celeste.Player.BoostUpdate += Player_BoostUpdate;
             On.Celeste.Player.BoostCoroutine += Player_BoostCoroutine;
             On.Celeste.Player.RedDashUpdate += Player_RedDashUpdate;
             On.Celeste.Player.RedDashCoroutine += Player_RedDashCoroutine;
@@ -192,6 +195,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             } else {
                 orig(self);
             }
+        }
+
+        private static void Player_BoostUpdate(ILContext il) {
+            ILCursor cursor = new(il);
+
+            cursor.GotoNext(MoveType.After, instr => instr.MatchLdcR4(3));
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<float, Player, float>>((f, player) => player.LastBooster is CustomBooster booster ? booster.MovementInBubbleFactor : f);
         }
 
         private static IEnumerator Player_BoostCoroutine(On.Celeste.Player.orig_BoostCoroutine orig, Player self) {
