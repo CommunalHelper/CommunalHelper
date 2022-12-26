@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.Entities;
+using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
@@ -85,11 +86,13 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         private readonly float deathTimer;
 
         private bool blink;
+        private readonly SoundSource blinkSfx = new();
+        private readonly bool blinkSoundEnabled;
 
         public HeldBooster(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Float("speed", 240f), data.FirstNodeNullable(offset), data.Enum("pathStyle", PathStyle.Arrow), data.Float("deathTimer", -1)) { }
+            : this(data.Position + offset, data.Float("speed", 240f), data.FirstNodeNullable(offset), data.Enum("pathStyle", PathStyle.Arrow), data.Float("deathTimer", -1), data.Bool("blinkSfx", true)) { }
 
-        public HeldBooster(Vector2 position, float speed = 240f, Vector2? node = null, PathStyle style = PathStyle.Arrow, float deathTimer = -1)
+        public HeldBooster(Vector2 position, float speed = 240f, Vector2? node = null, PathStyle style = PathStyle.Arrow, float deathTimer = -1, bool blinkSoundEnabled = true)
             : base(position, redBoost: true) {
             green = node is not null && node.Value != position;
 
@@ -117,6 +120,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             this.speed = speed;
             this.deathTimer = deathTimer;
             this.style = style;
+
+            Add(blinkSfx);
+            this.blinkSoundEnabled = blinkSoundEnabled;
         }
 
         public override void Added(Scene scene) {
@@ -154,28 +160,51 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
         // prevents held boosters from starting automatically (which red boosters do after 0.25 seconds).
         protected override IEnumerator BoostRoutine(Player player) {
-            if (deathTimer > 0f) {
-                float t = 0f;
-                while (t < deathTimer) {
-
-                    float largestBlink = Settings.Instance.DisableFlashes ? 0.5f : 0.25f;
-                    float smallestBlink = Settings.Instance.DisableFlashes ? 0.25f : 0.13f;
-                    float blinkDuration = MathHelper.Lerp(largestBlink, smallestBlink, Ease.QuadIn(t / deathTimer));
-                    blink = Util.Blink(t, blinkDuration);
-
-                    t += Engine.DeltaTime;
+            if (deathTimer <= 0f) {
+                // deathTimer is ignored, player has no time constraint, so we wait infinitely.
+                while (true)
                     yield return null;
-                }
-
-                blink = true;
-
-                player.Die(Vector2.Zero);
-                yield break;
             }
 
-            // deathTimer is ignored, player has no time constraint, so we wait infinitely.
-            while (true)
+            EventInstance sound = null;
+            if (blinkSoundEnabled) {
+                blinkSfx.Play(CustomSFX.game_customBoosters_heldBooster_blink);
+                sound = DynamicData.For(blinkSfx).Get<EventInstance>("instance");
+                sound.setVolume(0.5f);
+            }
+
+            bool prevBlink = blink;
+            float t = 0f;
+            while (t < deathTimer) {
+                float percent = t / deathTimer;
+                float ease = Ease.QuadIn(percent);
+
+                float largestBlink = Settings.Instance.DisableFlashes ? 0.5f : 0.25f;
+                float smallestBlink = Settings.Instance.DisableFlashes ? 0.25f : 0.13f;
+                float blinkDuration = MathHelper.Lerp(largestBlink, smallestBlink, ease);
+                blink = Util.Blink(t, blinkDuration);
+
+                if (blinkSoundEnabled && prevBlink != blink) {
+                    if (blink) {
+                        int ms = (int) (ease * 60);
+                        sound.setTimelinePosition(ms);
+                    }
+                    prevBlink = blink;
+                }
+
+                t += Engine.DeltaTime;
                 yield return null;
+            }
+
+            blink = true;
+            if (blinkSoundEnabled)
+                blinkSfx.Stop();
+
+            player.Die(Vector2.Zero);
+
+            Audio.Play(SFX.game_05_redbooster_end);
+
+            yield break;
         }
 
         protected override int? RedDashUpdateAfter(Player player) {
@@ -191,6 +220,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             DynamicData data = new(player);
 
             Vector2 direction = green ? dir : aim;
+
+            aim = direction;
+            anim = 1.75f;
 
             player.DashDir = direction;
             data.Set("gliderBoostDir", direction);

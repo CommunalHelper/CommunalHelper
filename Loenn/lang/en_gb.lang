@@ -41,6 +41,7 @@ entities.CommunalHelper/HeldBooster.placements.name.purple_limited=Held Booster 
 entities.CommunalHelper/HeldBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
 entities.CommunalHelper/HeldBooster.attributes.description.speed=The speed of this booster. Defaults to 240.0, which is the default booster speed in vanilla Celeste.
 entities.CommunalHelper/HeldBooster.attributes.description.deathTimer=The maximum time the player can wait before starting a dash. If exceeded, the player is killed.\nSet this option to a negative value to ignore this behavior.
+entities.CommunalHelper/HeldBooster.attributes.description.blinkSfx=Whether the booster should play a beep sound every time it blinks when ticking down.
 
 # Summit Gem
 entities.CommunalHelper/CustomSummitGem.placements.name.summit_gem=Custom Summit Gem

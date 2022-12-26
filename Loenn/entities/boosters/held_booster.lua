@@ -27,6 +27,7 @@ heldBooster.placements = {
             pathStyle = "Arrow",
             speed = 240.0,
             deathTimer = -1.0,
+            blinkSfx = true,
         }
     },
     {
@@ -35,6 +36,7 @@ heldBooster.placements = {
             pathStyle = "Arrow",
             speed = 240.0,
             deathTimer = 3,
+            blinkSfx = true,
         }
     },
     {
@@ -44,6 +46,7 @@ heldBooster.placements = {
             pathStyle = "Arrow",
             speed = 240.0,
             deathTimer = -1.0,
+            blinkSfx = true,
             nodes = {{x = 0, y = 0}} -- this is hacky
         }
     },
@@ -54,6 +57,7 @@ heldBooster.placements = {
             pathStyle = "Arrow",
             speed = 240.0,
             deathTimer = 3,
+            blinkSfx = true,
             nodes = {{x = 0, y = 0}} -- this is hacky
         }
     }
