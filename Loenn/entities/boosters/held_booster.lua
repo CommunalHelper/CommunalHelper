@@ -14,6 +14,9 @@ heldBooster.fieldInformation = {
     pathStyle = {
         options = communalHelper.dreamBoosterPathStyles,
         editable = false
+    },
+    speed = {
+        minimumValue = 0.0
     }
 }
 
@@ -21,7 +24,17 @@ heldBooster.placements = {
     {
         name = "purple",
         data = {
-            pathStyle = "Arrow"
+            pathStyle = "Arrow",
+            speed = 240.0,
+            deathTimer = -1.0,
+        }
+    },
+    {
+        name = "purple_limited",
+        data = {
+            pathStyle = "Arrow",
+            speed = 240.0,
+            deathTimer = 3,
         }
     },
     {
@@ -29,6 +42,18 @@ heldBooster.placements = {
         placementType = "line",
         data = {
             pathStyle = "Arrow",
+            speed = 240.0,
+            deathTimer = -1.0,
+            nodes = {{x = 0, y = 0}} -- this is hacky
+        }
+    },
+    {
+        name = "green_limited",
+        placementType = "line",
+        data = {
+            pathStyle = "Arrow",
+            speed = 240.0,
+            deathTimer = 3,
             nodes = {{x = 0, y = 0}} -- this is hacky
         }
     }

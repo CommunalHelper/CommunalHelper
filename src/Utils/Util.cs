@@ -93,5 +93,8 @@ namespace Celeste.Mod.CommunalHelper {
 
         public static float PowerBounce(float x, float p)
             => -(float)Math.Pow(Math.Abs(2 * (Mod(x, 1) - .5f)), p) + 1;
+
+        public static bool Blink(float time, float duration)
+            => time % (duration * 2) < duration;
     }
 }

@@ -63,6 +63,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         public static readonly Color GreenBurstColor = Calc.HexToColor("174f21");
         public static readonly Color GreenAppearColor = Calc.HexToColor("0df235");
 
+        public static readonly Color GreenBlink = Color.Red;
+        public static readonly Color PurpleBlink = Calc.HexToColor("880000");
+
         private readonly bool green;
 
         private readonly Vector2 start;
@@ -78,10 +81,15 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         private PathRenderer pathRenderer;
         private readonly PathStyle style;
 
-        public HeldBooster(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.FirstNodeNullable(offset), data.Enum("pathStyle", PathStyle.Arrow)) { }
+        private readonly float speed;
+        private readonly float deathTimer;
 
-        public HeldBooster(Vector2 position, Vector2? node = null, PathStyle style = PathStyle.Arrow)
+        private bool blink;
+
+        public HeldBooster(EntityData data, Vector2 offset)
+            : this(data.Position + offset, data.Float("speed", 240f), data.FirstNodeNullable(offset), data.Enum("pathStyle", PathStyle.Arrow), data.Float("deathTimer", -1)) { }
+
+        public HeldBooster(Vector2 position, float speed = 240f, Vector2? node = null, PathStyle style = PathStyle.Arrow, float deathTimer = -1)
             : base(position, redBoost: true) {
             green = node is not null && node.Value != position;
 
@@ -106,6 +114,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             start = position;
             dir = ((node ?? Vector2.Zero) - start).SafeNormalize();
 
+            this.speed = speed;
+            this.deathTimer = deathTimer;
             this.style = style;
         }
 
@@ -124,6 +134,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             base.OnPlayerEnter(player);
             Collidable = false;
             hasPlayer = true;
+            blink = false;
 
             if (green)
                 anim = 1f;
@@ -143,6 +154,26 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
         // prevents held boosters from starting automatically (which red boosters do after 0.25 seconds).
         protected override IEnumerator BoostRoutine(Player player) {
+            if (deathTimer > 0f) {
+                float t = 0f;
+                while (t < deathTimer) {
+
+                    float largestBlink = Settings.Instance.DisableFlashes ? 0.5f : 0.25f;
+                    float smallestBlink = Settings.Instance.DisableFlashes ? 0.25f : 0.13f;
+                    float blinkDuration = MathHelper.Lerp(largestBlink, smallestBlink, Ease.QuadIn(t / deathTimer));
+                    blink = Util.Blink(t, blinkDuration);
+
+                    t += Engine.DeltaTime;
+                    yield return null;
+                }
+
+                blink = true;
+
+                player.Die(Vector2.Zero);
+                yield break;
+            }
+
+            // deathTimer is ignored, player has no time constraint, so we wait infinitely.
             while (true)
                 yield return null;
         }
@@ -155,13 +186,15 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         }
 
         protected override IEnumerator RedDashCoroutineAfter(Player player) {
+            blink = false;
+
             DynamicData data = new(player);
 
             Vector2 direction = green ? dir : aim;
 
             player.DashDir = direction;
             data.Set("gliderBoostDir", direction);
-            player.Speed = direction * 240f;
+            player.Speed = direction * speed;
 
             // If the player is inverted, invert its vertical speed so that it moves in the same direction no matter what.
             if (GravityHelper.IsPlayerInverted?.Invoke() ?? false)
@@ -188,6 +221,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
         protected override void OnRespawn() {
             arrow.Play("loop", restart: true);
+            blink = false;
         }
 
         public override void Update() {
@@ -200,6 +234,12 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             }
 
             anim = Calc.Approach(anim, 0f, Engine.DeltaTime * 2f);
+
+            Sprite.Color = blink
+                ? green
+                    ? GreenBlink
+                    : PurpleBlink
+                : Color.White;
         }
 
         public override void Render() {
@@ -235,7 +275,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
             base.Render();
 
             if (visibleArrow) {
-                arrow.Texture.DrawCentered(pos, Color.White, scale, angle);
+                arrow.Texture.DrawCentered(pos, blink ? Color.Red : Color.White, scale, angle);
             }
         }
     }
