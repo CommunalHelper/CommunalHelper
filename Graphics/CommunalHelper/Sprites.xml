@@ -415,6 +415,15 @@
         <Anim id="pop" path="pop" delay="0.055"/>
     </curvedDreamBooster>
 
+    <!--SegmentBoosters-->
+    <segmentBooster path="objects/CommunalHelper/boosters/curvedBooster/" start="loop">
+        <Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="boosteralt" delay="0.1" frames="0-4"/>
+        <Loop id="inside" path="booster" delay="0.1" frames="5-8"/>
+        <Loop id="spin" path="booster" delay="0.06" frames="18-25"/>
+        <Anim id="pop" path="booster" delay="0.08" frames="9-17"/>
+    </segmentBooster>
+
     <!--CurvedBoosters-->
     <curvedBooster path="objects/CommunalHelper/boosters/curvedBooster/" start="loop">
         <Justify x="0.5" y="0.5"/>
