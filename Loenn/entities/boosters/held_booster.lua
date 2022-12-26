@@ -98,7 +98,7 @@ function heldBooster.sprite(room, entity)
     local nx, ny = nodes[1].x, nodes[1].y
 
     return {
-        drawableLine.fromPoints({x, y, nx, ny}, entity.hidePath and hiddenPathColor or {1, 1, 1}),
+        drawableLine.fromPoints({x, y, nx, ny}, {1, 1, 1}),
         drawableSprite.fromTexture(greenTexture, entity)
     }
 end

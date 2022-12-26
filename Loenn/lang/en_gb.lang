@@ -25,6 +25,12 @@ entities.CommunalHelper/CurvedDreamBooster.placements.name.cubic=Dream Booster (
 entities.CommunalHelper/CurvedDreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
 entities.CommunalHelper/CurvedDreamBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
 
+# Segment Booster
+entities.CommunalHelper/SegmentBooster.placements.name.normal=Segment Booster
+entities.CommunalHelper/SegmentBooster.placements.name.hidden_path=Segment Booster (Hidden Path)
+entities.CommunalHelper/SegmentBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
+entities.CommunalHelper/SegmentBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
+
 # Curved Booster
 entities.CommunalHelper/CurvedBooster.placements.name.quadratic_hidden_path=Curved Booster (Hidden Path, Quadratic Curve)
 entities.CommunalHelper/CurvedBooster.placements.name.quadratic=Curved Booster (Quadratic Curve)
