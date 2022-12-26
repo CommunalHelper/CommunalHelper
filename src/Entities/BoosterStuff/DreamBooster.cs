@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.DashStates;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -7,7 +8,8 @@ using MonoMod.Utils;
 using System;
 
 namespace Celeste.Mod.CommunalHelper.Entities {
-    public abstract partial class DreamBooster : CustomBooster {
+    [CustomEntity("CommunalHelper/DreamBoosterAny")]
+    public class DreamBooster : CustomBooster {
         public static ParticleType P_BurstExplode { get; private set; }
 
         public static readonly Color BurstColor = Calc.HexToColor("19233b");
@@ -26,19 +28,17 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         };
         public static readonly ParticleType[] DreamParticles = new ParticleType[8];
 
-        protected readonly PathStyle Style;
+        public DreamBooster(EntityData data, Vector2 offset)
+            : this(data.Position + offset) {
+            ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
+            SetSoundEvent(CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter, CustomSFX.game_customBoosters_dreamBooster_dreambooster_move, false);
+        }
 
-        public DreamBooster(Vector2 position, bool showPath, PathStyle style)
+        public DreamBooster(Vector2 position)
             : base(position, redBoost: true) {
             Depth = Depths.DreamBlocks;
 
-            Style = style;
-
             SetParticleColors(BurstColor, AppearColor);
-            SetSoundEvent(
-                showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,
-                CustomSFX.game_customBoosters_dreamBooster_dreambooster_move,
-                false);
         }
 
         protected override int? RedDashUpdateBefore(Player player) {

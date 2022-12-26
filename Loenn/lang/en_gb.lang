@@ -12,6 +12,9 @@ entities.CommunalHelper/DreamJellyfish.attributes.description.bubble=Whether the
 entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether the entity should show the usage tutorial.
 
 # Dream Booster
+entities.CommunalHelper/DreamBoosterAny.placements.name.dream_booster=Dream Booster (Any Direction)
+
+# Segment Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.normal=Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (Hidden Path)
 entities.CommunalHelper/DreamBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.

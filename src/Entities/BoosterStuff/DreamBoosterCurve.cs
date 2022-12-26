@@ -29,7 +29,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public float Percent { get; set; }
 
             public PathRenderer(float alpha, DreamBoosterCurve booster)
-                : base(alpha, booster.Style, DreamColors, booster) {
+                : base(alpha, booster.style, DreamColors, booster) {
                 float sep = 6f;
                 nodes = new Node[(int)Math.Ceiling(booster.curve.Length / sep)];
 
@@ -65,6 +65,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private PathRenderer pathRenderer;
+        private readonly PathStyle style;
         private bool showPath = true;
         private readonly bool proximityPath;
 
@@ -77,7 +78,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
         
         public DreamBoosterCurve(Vector2 position, Vector2[] nodes, CurveType mode, bool showPath, PathStyle style, bool proximityPath = true)
-            : base(position, showPath, style) {
+            : base(position) {
+            this.style = style;
             this.showPath = showPath;
             this.proximityPath = proximityPath;
 
@@ -85,6 +87,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             EndingSpeed = Calc.SafeNormalize(curve.GetPointByDistance(curve.Length) - curve.GetPointByDistance(curve.Length - 1f), 240);
 
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create("curvedDreamBooster"));
+            SetSoundEvent(
+                showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,
+                CustomSFX.game_customBoosters_dreamBooster_dreambooster_move,
+                false);
         }
 
         public override void Added(Scene scene) {

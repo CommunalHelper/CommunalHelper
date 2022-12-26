@@ -14,7 +14,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             public float Percent { get; set; }
 
             public PathRenderer(float alpha, DreamBoosterSegment booster)
-                : base(alpha, booster.Style, DreamColors, booster) {
+                : base(alpha, booster.style, DreamColors, booster) {
                 perp = booster.Dir.Perpendicular();
                 Percent = alpha;
             }
@@ -37,6 +37,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         }
 
         private PathRenderer pathRenderer;
+        private readonly PathStyle style;
         private bool showPath = true;
         private readonly bool proximityPath;
 
@@ -47,7 +48,8 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             : this(data.Position + offset, data.Nodes[0] + offset, !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
 
         public DreamBoosterSegment(Vector2 position, Vector2 node, bool showPath, PathStyle style, bool proximityPath = true)
-            : base(position, showPath, style) {
+            : base(position) {
+            this.style = style;
             this.showPath = showPath;
             this.proximityPath = proximityPath;
 
@@ -57,6 +59,10 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             Start = position;
 
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
+            SetSoundEvent(
+                showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,
+                CustomSFX.game_customBoosters_dreamBooster_dreambooster_move,
+                false);
         }
 
         public override void Added(Scene scene) {
