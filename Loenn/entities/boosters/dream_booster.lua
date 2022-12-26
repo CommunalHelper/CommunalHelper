@@ -21,14 +21,16 @@ dreamBooster.placements = {
         name = "normal",
         data = {
             hidePath = false,
-            pathStyle = "Arrow"
+            pathStyle = "Arrow",
+            proximityPath = true
         }
     },
     {
         name = "hidden_path",
         data = {
             hidePath = true,
-            pathStyle = "Arrow"
+            pathStyle = "Arrow",
+            proximityPath = true
         }
     }
 }

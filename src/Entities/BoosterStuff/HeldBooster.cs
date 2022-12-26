@@ -40,7 +40,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
                 Color color = Booster.BoostingPlayer ? Color : Color.White;
 
-                Util.TryGetPlayer(out Player player);
+                Player player = null;
+                if (Booster.proximityPath)
+                    Util.TryGetPlayer(out player);
 
                 float sineout = Ease.CubeOut(lerp);
                 float l = MathHelper.Lerp(128, length, Ease.ExpoInOut(lerp));
@@ -81,6 +83,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
         private PathRenderer pathRenderer;
         private readonly PathStyle style;
+        private readonly bool proximityPath;
 
         private readonly float speed;
         private readonly float deathTimer;
@@ -90,9 +93,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
         private readonly bool blinkSoundEnabled;
 
         public HeldBooster(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Float("speed", 240f), data.FirstNodeNullable(offset), data.Enum("pathStyle", PathStyle.Arrow), data.Float("deathTimer", -1), data.Bool("blinkSfx", true)) { }
+            : this(data.Position + offset, data.Float("speed", 240f), data.FirstNodeNullable(offset), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true), data.Float("deathTimer", -1), data.Bool("blinkSfx", true)) { }
 
-        public HeldBooster(Vector2 position, float speed = 240f, Vector2? node = null, PathStyle style = PathStyle.Arrow, float deathTimer = -1, bool blinkSoundEnabled = true)
+        public HeldBooster(Vector2 position, float speed = 240f, Vector2? node = null, PathStyle style = PathStyle.Arrow, bool proximityPath = true, float deathTimer = -1, bool blinkSoundEnabled = true)
             : base(position, redBoost: true) {
             green = node is not null && node.Value != position;
 
@@ -119,7 +122,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff {
 
             this.speed = speed;
             this.deathTimer = deathTimer;
+
             this.style = style;
+            this.proximityPath = proximityPath;
 
             Add(blinkSfx);
             this.blinkSoundEnabled = blinkSoundEnabled;

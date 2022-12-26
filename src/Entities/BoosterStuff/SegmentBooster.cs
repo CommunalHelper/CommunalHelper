@@ -27,7 +27,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Color color = Booster.BoostingPlayer ? Color : Color.White;
 
-                Util.TryGetPlayer(out Player player);
+                Player player = null;
+                if (Booster.proximityPath)
+                    Util.TryGetPlayer(out player);
 
                 for (float f = 0f; f < Booster.Length * Percent; f += 6f)
                     DrawPathLine(Calc.Round(Booster.Start + Booster.Dir * f), Booster.Dir, perp, f, player, color);
@@ -38,15 +40,20 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private PathRenderer pathRenderer;
         private readonly PathStyle style;
         private bool showPath = true;
+        private readonly bool proximityPath;
 
         public float Length;
         public Vector2 Start, Target, Dir;
 
         public SegmentBooster(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Nodes[0] + offset, !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow)) { }
+            : this(data.Position + offset, data.Nodes[0] + offset, !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
 
-        public SegmentBooster(Vector2 position, Vector2 node, bool showPath, PathStyle style)
+        public SegmentBooster(Vector2 position, Vector2 node, bool showPath, PathStyle style, bool proximityPath = true)
             : base(position, redBoost: true) {
+            this.showPath = showPath;
+            this.proximityPath = proximityPath;
+            this.style = style;
+
             Target = node;
             Dir = Calc.SafeNormalize(Target - Position);
             Length = Vector2.Distance(position, Target);
@@ -58,9 +65,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
                 showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,
                 SFX.game_05_redbooster_move_loop,
                 false);
-
-            this.showPath = showPath;
-            this.style = style;
         }
 
         public override void Added(Scene scene) {

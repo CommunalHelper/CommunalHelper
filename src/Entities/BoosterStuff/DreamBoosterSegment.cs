@@ -26,7 +26,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Color color = Booster.BoostingPlayer ? Color : Color.White;
 
-                Util.TryGetPlayer(out Player player);
+                Player player = null;
+                if (Booster.proximityPath)
+                    Util.TryGetPlayer(out player);
 
                 for (float f = 0f; f < Booster.Length * Percent; f += 6f)
                     DrawPathLine(Calc.Round(Booster.Start + Booster.Dir * f), Booster.Dir, perp, f, player, color);
@@ -36,23 +38,25 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
         private PathRenderer pathRenderer;
         private bool showPath = true;
+        private readonly bool proximityPath;
 
         public float Length;
         public Vector2 Start, Target, Dir;
 
         public DreamBoosterSegment(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Nodes[0] + offset, !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow)) { }
+            : this(data.Position + offset, data.Nodes[0] + offset, !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
 
-        public DreamBoosterSegment(Vector2 position, Vector2 node, bool showPath, PathStyle style)
+        public DreamBoosterSegment(Vector2 position, Vector2 node, bool showPath, PathStyle style, bool proximityPath = true)
             : base(position, showPath, style) {
+            this.showPath = showPath;
+            this.proximityPath = proximityPath;
+
             Target = node;
             Dir = Calc.SafeNormalize(Target - Position);
             Length = Vector2.Distance(position, Target);
             Start = position;
 
             ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
-
-            this.showPath = showPath;
         }
 
         public override void Added(Scene scene) {

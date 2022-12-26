@@ -62,7 +62,9 @@ namespace Celeste.Mod.CommunalHelper.Entities {
 
                 Color color = Booster.BoostingPlayer ? Color : Color.White;
 
-                Util.TryGetPlayer(out Player player);
+                Player player = null;
+                if (Booster.proximityPath)
+                    Util.TryGetPlayer(out player);
 
                 for (int i = 0; i < nodes.Length * Percent; i++) {
                     Node node = nodes[i];
@@ -76,6 +78,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private PathRenderer pathRenderer;
         private readonly PathStyle style;
         private bool showPath = true;
+        private readonly bool proximityPath;
 
         private readonly BakedCurve curve;
         private float travel = 0;
@@ -83,12 +86,14 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         private readonly Vector2 endingSpeed;
 
         public CurvedBooster(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow)) { }
+            : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
         
-        public CurvedBooster(Vector2 position, Vector2[] nodes, CurveType mode, bool showPath, PathStyle style)
+        public CurvedBooster(Vector2 position, Vector2[] nodes, CurveType mode, bool showPath, PathStyle style, bool proximityPath = true)
             : base(position, redBoost: true) {
             this.showPath = showPath;
+            this.proximityPath = proximityPath;
             this.style = style;
+
             curve = new BakedCurve(nodes, mode, 24);
             endingSpeed = Calc.SafeNormalize(curve.GetPointByDistance(curve.Length) - curve.GetPointByDistance(curve.Length - 1f), 240);
 

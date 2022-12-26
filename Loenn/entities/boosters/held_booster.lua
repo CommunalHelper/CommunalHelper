@@ -25,18 +25,20 @@ heldBooster.placements = {
         name = "purple",
         data = {
             pathStyle = "Arrow",
+            proximityPath = true,
             speed = 240.0,
             deathTimer = -1.0,
-            blinkSfx = true,
+            blinkSfx = true
         }
     },
     {
         name = "purple_limited",
         data = {
             pathStyle = "Arrow",
+            proximityPath = true,
             speed = 240.0,
             deathTimer = 3,
-            blinkSfx = true,
+            blinkSfx = true
         }
     },
     {
@@ -44,6 +46,7 @@ heldBooster.placements = {
         placementType = "line",
         data = {
             pathStyle = "Arrow",
+            proximityPath = true,
             speed = 240.0,
             deathTimer = -1.0,
             blinkSfx = true,
@@ -55,6 +58,7 @@ heldBooster.placements = {
         placementType = "line",
         data = {
             pathStyle = "Arrow",
+            proximityPath = true,
             speed = 240.0,
             deathTimer = 3,
             blinkSfx = true,
@@ -86,8 +90,6 @@ end
 
 local purpleTexture = "objects/CommunalHelper/boosters/heldBooster/purple/booster00"
 local greenTexture = "objects/CommunalHelper/boosters/heldBooster/green/booster00"
-local hiddenPathColor = {1.0, 1.0, 1.0, 0.25}
-
 function heldBooster.sprite(room, entity)
     if not isGreen(entity) then
         return drawableSprite.fromTexture(purpleTexture, entity)
