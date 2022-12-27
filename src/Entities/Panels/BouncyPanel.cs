@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
-using Directions = Celeste.Spikes.Directions;
+﻿using Directions = Celeste.Spikes.Directions;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 

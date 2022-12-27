@@ -1,10 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper.DashStates;
-using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
-using Monocle;
 using MonoMod.Cil;
-using System;
 using System.Collections.Generic;
 using static Celeste.Mod.CommunalHelper.Entities.PlayerSeekerBarrierRenderer;
 

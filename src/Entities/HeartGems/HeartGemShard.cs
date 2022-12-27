@@ -1,7 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Monocle;
-using MonoMod.Utils;
-using System;
+﻿using MonoMod.Utils;
 using System.Collections.Generic;
 using XNAColor = Microsoft.Xna.Framework.Color;
 

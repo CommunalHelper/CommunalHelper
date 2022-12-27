@@ -1,7 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Imports;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Monocle;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities;

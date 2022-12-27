@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Monocle;
-using System;
-
-namespace Celeste.Mod.CommunalHelper.Entities;
+﻿namespace Celeste.Mod.CommunalHelper.Entities;
 
 public enum PathStyle
 {

@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-
-namespace Celeste.Mod.CommunalHelper.Entities;
+﻿namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/SurfaceSoundPanel")]
 public class SurfaceSoundPanel : AbstractPanel

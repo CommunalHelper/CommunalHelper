@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
-using System.Linq;
+﻿using System.Linq;
 using static Celeste.Session;
 
 namespace Celeste.Mod.CommunalHelper.Entities.Misc;

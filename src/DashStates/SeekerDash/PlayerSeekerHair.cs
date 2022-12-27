@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Monocle;
-using System;
-
-namespace Celeste.Mod.CommunalHelper.DashStates;
+﻿namespace Celeste.Mod.CommunalHelper.DashStates;
 
 // Not meant to be added on something that isn't Player
 public class PlayerSeekerHair : Component

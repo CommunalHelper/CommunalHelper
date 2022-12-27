@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
-using static Celeste.Mod.CommunalHelper.DashStates.SeekerDash;
+﻿using static Celeste.Mod.CommunalHelper.DashStates.SeekerDash;
 
 namespace Celeste.Mod.CommunalHelper.DashStates;
 

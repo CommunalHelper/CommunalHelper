@@ -1,7 +1,4 @@
-﻿using Monocle;
-using System;
-
-namespace Celeste.Mod.CommunalHelper.DashStates;
+﻿namespace Celeste.Mod.CommunalHelper.DashStates;
 
 public class DreamTunnelInteraction : Component
 {

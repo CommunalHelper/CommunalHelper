@@ -1,6 +1,4 @@
-using Microsoft.Xna.Framework;
 using MonoMod.Utils;
-using System;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper;

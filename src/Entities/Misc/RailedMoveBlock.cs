@@ -1,8 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
-using MonoMod.Utils;
-using System;
+﻿using MonoMod.Utils;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities;

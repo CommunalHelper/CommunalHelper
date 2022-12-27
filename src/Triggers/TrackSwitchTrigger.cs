@@ -1,7 +1,4 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
-using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
 using TrackSwitchState = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.TrackSwitchState;
 
 namespace Celeste.Mod.CommunalHelper.Triggers;

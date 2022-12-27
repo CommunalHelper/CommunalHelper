@@ -1,8 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
-using System;
-using static Celeste.Mod.CommunalHelper.DashStates.DreamTunnelDash;
+﻿using static Celeste.Mod.CommunalHelper.DashStates.DreamTunnelDash;
 
 namespace Celeste.Mod.CommunalHelper.DashStates;
 

@@ -1,11 +1,7 @@
-﻿using Celeste.Mod.Entities;
-using FMOD.Studio;
-using Microsoft.Xna.Framework;
+﻿using FMOD.Studio;
 using Mono.Cecil.Cil;
-using Monocle;
 using MonoMod.Cil;
 using MonoMod.Utils;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;

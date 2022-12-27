@@ -1,7 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Monocle;
-using MonoMod.Cil;
-using System;
+﻿using MonoMod.Cil;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 

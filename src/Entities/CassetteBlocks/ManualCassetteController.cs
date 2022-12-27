@@ -1,7 +1,5 @@
-﻿using Monocle;
-using MonoMod.Cil;
+﻿using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using System;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;

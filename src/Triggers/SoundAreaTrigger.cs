@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using FMOD.Studio;
-using Microsoft.Xna.Framework;
-using Monocle;
+﻿using FMOD.Studio;
 using MonoMod.Utils;
 
 namespace Celeste.Mod.CommunalHelper.Triggers;

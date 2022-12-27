@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-
-namespace Celeste.Mod.CommunalHelper.Triggers;
+﻿namespace Celeste.Mod.CommunalHelper.Triggers;
 
 [CustomEntity("CommunalHelper/MusicParamTrigger")]
 internal class MusicParamTrigger : Trigger

@@ -1,8 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using FMOD.Studio;
-using Microsoft.Xna.Framework;
-using Monocle;
-using System;
+﻿using FMOD.Studio;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 

@@ -1,6 +1,4 @@
-﻿using Monocle;
-
-namespace Celeste.Mod.CommunalHelper;
+﻿namespace Celeste.Mod.CommunalHelper;
 
 public static class CommunalHelperGFX
 {

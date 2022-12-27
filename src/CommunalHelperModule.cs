@@ -1,9 +1,12 @@
-﻿using Celeste.Mod.CommunalHelper.Backdrops;
+﻿global using System;
+global using Microsoft.Xna.Framework;
+global using Monocle;
+global using Celeste.Mod.Entities;
+
+using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
-using Microsoft.Xna.Framework;
 using MonoMod.ModInterop;
-using System;
 
 namespace Celeste.Mod.CommunalHelper;
 

@@ -1,8 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
-
-namespace Celeste.Mod.CommunalHelper.Entities;
+﻿namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/SyncedZipMoverActivationController")]
 public class SyncedZipMoverActivationController : AbstractInputController

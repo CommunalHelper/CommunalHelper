@@ -1,6 +1,4 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
 
 namespace Celeste.Mod.CommunalHelper;
 

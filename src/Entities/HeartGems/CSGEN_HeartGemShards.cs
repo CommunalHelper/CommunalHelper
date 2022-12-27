@@ -1,6 +1,4 @@
 ﻿using FMOD.Studio;
-using Microsoft.Xna.Framework;
-using Monocle;
 using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;

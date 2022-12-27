@@ -1,11 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Imports;
-using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
-using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -419,7 +415,7 @@ public class TimedTriggerSpikes : Entity
         }
 
         GetPlayerCollideIndex(player, out int minIndex, out int maxIndex);
-        return minIndex <= spikeIndex + 1 ? maxIndex >= spikeIndex - 1 : false;
+        return minIndex <= spikeIndex + 1 && maxIndex >= spikeIndex - 1;
     }
 
     private static int GetSize(EntityData data, Directions dir)
@@ -469,7 +465,7 @@ public class TimedTriggerSpikes : Entity
 
     private bool IsRiding(JumpThru jumpThru)
     {
-        return direction == Directions.Up ? CollideCheck(jumpThru, Position + Vector2.UnitY) : false;
+        return direction == Directions.Up && CollideCheck(jumpThru, Position + Vector2.UnitY);
     }
 
     #region Hooks

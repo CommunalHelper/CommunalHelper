@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-
-namespace Celeste.Mod.CommunalHelper.DashStates;
+﻿namespace Celeste.Mod.CommunalHelper.DashStates;
 
 [CustomEntity("CommunalHelper/DashStateTrigger")]
 public class DashStateTrigger : Trigger

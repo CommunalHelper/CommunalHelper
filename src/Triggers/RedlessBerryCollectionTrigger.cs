@@ -1,8 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
-
-namespace Celeste.Mod.CommunalHelper.Triggers;
+﻿namespace Celeste.Mod.CommunalHelper.Triggers;
 
 [CustomEntity("CommunalHelper/RedlessBerryCollection")]
 [Tracked]

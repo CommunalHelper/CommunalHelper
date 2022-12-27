@@ -1,8 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Imports;
-using Microsoft.Xna.Framework;
-using Monocle;
 using MonoMod.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 

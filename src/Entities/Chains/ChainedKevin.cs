@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using Monocle;
-using MonoMod.Utils;
+﻿using MonoMod.Utils;
 using System.Collections.Generic;
 using Directions = Celeste.MoveBlock.Directions;
 

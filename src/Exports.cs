@@ -1,7 +1,5 @@
 using Celeste.Mod.CommunalHelper.DashStates;
-using Monocle;
 using MonoMod.ModInterop;
-using System;
 
 namespace Celeste.Mod.CommunalHelper;
 
