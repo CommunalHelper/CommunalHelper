@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.Utils;
+﻿using Celeste.Mod.Backdrops;
+using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Monocle;
@@ -8,10 +9,9 @@ using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Backdrops;
 
+[CustomBackdrop("CommunalHelper/Cloudscape")]
 public class Cloudscape : Backdrop
 {
-    public const string ID = "CommunalHelper/Cloudscape";
-
     private const int LEVEL_OF_DETAIL = 16;
     private const int STRIPE_SIZE = (sizeof(float) * 5) + (sizeof(byte) * 4);
 

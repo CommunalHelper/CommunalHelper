@@ -43,7 +43,6 @@ public class CommunalHelperModule : EverestModule
     {
         Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
         Everest.Events.CustomBirdTutorial.OnParseCommand += CustomBirdTutorial_OnParseCommand;
-        Everest.Events.Level.OnLoadBackdrop += Level_OnLoadBackdrop;
 
         RegisterOptionalDependencies();
         Everest.Events.Everest.OnRegisterModule += OnRegisterModule;
@@ -111,7 +110,6 @@ public class CommunalHelperModule : EverestModule
     {
         Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
         Everest.Events.CustomBirdTutorial.OnParseCommand -= CustomBirdTutorial_OnParseCommand;
-        Everest.Events.Level.OnLoadBackdrop -= Level_OnLoadBackdrop;
 
         Everest.Events.Everest.OnRegisterModule -= OnRegisterModule;
 
@@ -369,15 +367,6 @@ public class CommunalHelperModule : EverestModule
         return command == "CommunalHelperCycleCassetteBlocksBinding"
             ? Settings.CycleCassetteBlocks.Button
             : command == "CommunalHelperActivateFlagControllerBinding" ? Settings.ActivateFlagController.Button : (object)null;
-    }
-
-    // Loading custom backdrops
-    // When the [CustomBackdrop] attributes becomes available to use in Everest, this will be removed.
-    private static Backdrop Level_OnLoadBackdrop(MapData map, BinaryPacker.Element child, BinaryPacker.Element above)
-    {
-        string name = child.Name;
-
-        return name.Equals(Cloudscape.ID, StringComparison.OrdinalIgnoreCase) ? new Cloudscape(child) : (Backdrop)null;
     }
 }
 
