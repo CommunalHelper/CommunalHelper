@@ -381,7 +381,7 @@ public class Cloudscape : Backdrop
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);
         Engine.Graphics.GraphicsDevice.Clear(sky);
         Engine.Instance.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
-        Engine.Instance.GraphicsDevice.Textures[0] = CommunalHelperModule.CloudscapeAtlas.Sources[0].Texture_Safe;
+        Engine.Instance.GraphicsDevice.Textures[0] = CommunalHelperGFX.CloudscapeAtlas.Sources[0].Texture_Safe;
         foreach (Ring ring in rings)
             ring.Render();
     }
@@ -411,6 +411,6 @@ public class Cloudscape : Backdrop
 
     internal static void InitializeTextures()
     {
-        cloudTextures = CommunalHelperModule.CloudscapeAtlas.GetAtlasSubtextures(string.Empty).ToArray();
+        cloudTextures = CommunalHelperGFX.CloudscapeAtlas.GetAtlasSubtextures(string.Empty).ToArray();
     }
 }

@@ -58,7 +58,7 @@ public class TrackSwitchBox : Solid
 
         SurfaceSoundIndex = SurfaceIndex.ZipMover;
         start = Position;
-        sprite = CommunalHelperModule.SpriteBank.Create("trackSwitchBox");
+        sprite = CommunalHelperGFX.SpriteBank.Create("trackSwitchBox");
         sprite.Position = new Vector2(Width, Height) / 2f;
         sprite.OnLastFrame = anim =>
         {

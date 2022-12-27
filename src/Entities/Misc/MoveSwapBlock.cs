@@ -152,8 +152,8 @@ public class MoveSwapBlock : SwapBlock
         middleArrow.CenterOrigin();
 
         Remove(swapBlockData.Get<Sprite>("middleGreen"), swapBlockData.Get<Sprite>("middleRed"));
-        swapBlockData["middleGreen"] = middleGreen = CommunalHelperModule.SpriteBank.Create("swapBlockLight");
-        swapBlockData["middleRed"] = middleRed = CommunalHelperModule.SpriteBank.Create("swapBlockLightRed");
+        swapBlockData["middleGreen"] = middleGreen = CommunalHelperGFX.SpriteBank.Create("swapBlockLight");
+        swapBlockData["middleRed"] = middleRed = CommunalHelperGFX.SpriteBank.Create("swapBlockLightRed");
         Add(middleGreen, middleRed);
 
         Add(middleOrange = new Image(GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockOrange"]));

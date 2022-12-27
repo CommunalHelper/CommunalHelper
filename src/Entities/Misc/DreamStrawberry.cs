@@ -113,7 +113,7 @@ public class DreamStrawberry : Strawberry
         cursor.EmitDelegate<Func<Sprite, Strawberry, Sprite>>((sprite, strawberry) =>
         {
             if (strawberry is DreamStrawberry)
-                sprite = CommunalHelperModule.SpriteBank.Create("dreamStrawberry");
+                sprite = CommunalHelperGFX.SpriteBank.Create("dreamStrawberry");
             return sprite;
         });
     }
@@ -127,7 +127,7 @@ public class DreamStrawberry : Strawberry
         cursor.EmitDelegate<Func<Sprite, StrawberrySeed, Sprite>>((sprite, seed) =>
         {
             if (seed.Strawberry is DreamStrawberry)
-                sprite = CommunalHelperModule.SpriteBank.Create("dreamStrawberrySeed");
+                sprite = CommunalHelperGFX.SpriteBank.Create("dreamStrawberrySeed");
             return sprite;
         });
     }

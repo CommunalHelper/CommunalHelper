@@ -23,11 +23,6 @@ public class CommunalHelperModule : EverestModule
     public override Type SessionType => typeof(CommunalHelperSession);
     public static CommunalHelperSession Session => (CommunalHelperSession)Instance._Session;
 
-    public static SpriteBank SpriteBank => Instance._SpriteBank;
-    public SpriteBank _SpriteBank;
-
-    public static Atlas CloudscapeAtlas { get; private set; }
-
     private static Dictionary<EverestModuleMetadata, Action<EverestModule>> optionalDepLoaders;
     private static bool failedLoadingDeps;
 
@@ -96,6 +91,8 @@ public class CommunalHelperModule : EverestModule
         PlayerSeekerBarrier.Hook();
         PlayerSeekerBarrierRenderer.Hook();
 
+        CommunalHelperGFX.Load();
+
         #region Imports
 
         typeof(Imports.CavernHelper).ModInterop();
@@ -158,7 +155,7 @@ public class CommunalHelperModule : EverestModule
         PlayerSeekerBarrier.Unhook();
         PlayerSeekerBarrierRenderer.Unhook();
 
-        CloudscapeAtlas.Dispose();
+        CommunalHelperGFX.Unload();
     }
 
     public override void Initialize()
@@ -185,9 +182,7 @@ public class CommunalHelperModule : EverestModule
 
     public override void LoadContent(bool firstLoad)
     {
-        _SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
-
-        CloudscapeAtlas = Extensions.LoadAtlasFromMod("CommunalHelper:/Graphics/Atlases/CommunalHelper/Cloudscape/atlas", Atlas.AtlasDataFormat.CrunchXml);
+        CommunalHelperGFX.LoadContent();
 
         StationBlock.InitializeParticles();
         StationBlockTrack.InitializeTextures();

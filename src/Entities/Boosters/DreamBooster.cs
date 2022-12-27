@@ -33,7 +33,7 @@ public class DreamBooster : CustomBooster
     public DreamBooster(EntityData data, Vector2 offset)
         : this(data.Position + offset)
     {
-        ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
+        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create("dreamBooster"));
         SetSoundEvent(CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter, CustomSFX.game_customBoosters_dreamBooster_dreambooster_move, false);
     }
 

@@ -65,7 +65,7 @@ public class SegmentBooster : CustomBooster
         Length = Vector2.Distance(position, Target);
         Start = position;
 
-        ReplaceSprite(CommunalHelperModule.SpriteBank.Create("segmentBooster"));
+        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create("segmentBooster"));
         SetParticleColors(CurvedBooster.BurstColor, CurvedBooster.AppearColor);
         SetSoundEvent(
             showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,

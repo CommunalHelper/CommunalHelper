@@ -176,7 +176,7 @@ public class StationBlock : Solid
 
         GenerateTiles();
 
-        arrowSprite = customArrow ?? CommunalHelperModule.SpriteBank.Create(sprite);
+        arrowSprite = customArrow ?? CommunalHelperGFX.SpriteBank.Create(sprite);
         arrowDir = ArrowDir.Up;
         arrowSprite.Position = new Vector2(Width / 2, Height / 2);
         Add(arrowSprite);

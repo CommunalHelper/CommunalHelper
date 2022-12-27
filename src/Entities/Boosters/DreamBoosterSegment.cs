@@ -64,7 +64,7 @@ public class DreamBoosterSegment : DreamBooster
         Length = Vector2.Distance(position, Target);
         Start = position;
 
-        ReplaceSprite(CommunalHelperModule.SpriteBank.Create("dreamBooster"));
+        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create("dreamBooster"));
         SetSoundEvent(
             showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,
             CustomSFX.game_customBoosters_dreamBooster_dreambooster_move,

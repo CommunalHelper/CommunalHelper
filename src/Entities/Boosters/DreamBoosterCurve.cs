@@ -97,7 +97,7 @@ public class DreamBoosterCurve : DreamBooster
         curve = new BakedCurve(nodes, mode, 24);
         EndingSpeed = Calc.SafeNormalize(curve.GetPointByDistance(curve.Length) - curve.GetPointByDistance(curve.Length - 1f), 240);
 
-        ReplaceSprite(CommunalHelperModule.SpriteBank.Create("curvedDreamBooster"));
+        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create("curvedDreamBooster"));
         SetSoundEvent(
             showPath ? CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter : CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter_cue,
             CustomSFX.game_customBoosters_dreamBooster_dreambooster_move,

@@ -55,7 +55,7 @@ internal class DreamJellyfish : Glider
 
         Sprite oldSprite = gliderData.Get<Sprite>("sprite");
         Remove(oldSprite);
-        gliderData["sprite"] = Sprite = CommunalHelperModule.SpriteBank.Create("dreamJellyfish");
+        gliderData["sprite"] = Sprite = CommunalHelperGFX.SpriteBank.Create("dreamJellyfish");
         Add(Sprite);
 
         Visible = Sprite.Visible = false;

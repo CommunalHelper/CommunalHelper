@@ -86,7 +86,7 @@ public class Melvin : Solid
 
         SetupTiles();
 
-        Add(eye = CommunalHelperModule.SpriteBank.Create("melvinEye"));
+        Add(eye = CommunalHelperGFX.SpriteBank.Create("melvinEye"));
         eye.Position = new Vector2(width / 2, height / 2);
 
         OnDashCollide = OnDashed;

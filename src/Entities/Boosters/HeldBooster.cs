@@ -110,9 +110,9 @@ public class HeldBooster : CustomBooster
     {
         green = node is not null && node.Value != position;
 
-        ReplaceSprite(CommunalHelperModule.SpriteBank.Create(green ? "greenHeldBooster" : "purpleHeldBooster"));
+        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create(green ? "greenHeldBooster" : "purpleHeldBooster"));
 
-        Add(arrow = CommunalHelperModule.SpriteBank.Create("heldBoosterArrow"));
+        Add(arrow = CommunalHelperGFX.SpriteBank.Create("heldBoosterArrow"));
         arrow.Visible = false;
 
         SetParticleColors(

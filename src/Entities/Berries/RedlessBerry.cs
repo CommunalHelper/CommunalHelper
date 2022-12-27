@@ -110,8 +110,8 @@ public class RedlessBerry : Entity, IStrawberry
 
         ghost = SaveData.Instance.CheckStrawberry(info.ID);
 
-        fruit = CommunalHelperModule.SpriteBank.Create("recolorableStrawberryFruit");
-        overlay = CommunalHelperModule.SpriteBank.Create("recolorableStrawberryOverlay");
+        fruit = CommunalHelperGFX.SpriteBank.Create("recolorableStrawberryFruit");
+        overlay = CommunalHelperGFX.SpriteBank.Create("recolorableStrawberryOverlay");
         Add(fruit, overlay);
 
         if (winged)
