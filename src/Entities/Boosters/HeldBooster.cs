@@ -7,7 +7,7 @@ using MonoMod.Utils;
 using System;
 using System.Collections;
 
-namespace Celeste.Mod.CommunalHelper.Entities.BoosterStuff;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/HeldBooster")]
 public class HeldBooster : CustomBooster

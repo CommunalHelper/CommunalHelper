@@ -15,7 +15,6 @@ public static class ModExports
     [ModExportName("CommunalHelper.DashStates")]
     public static class DashStates
     {
-
         #region DreamTunnel
 
         public static int GetDreamTunnelDashState()
@@ -48,7 +47,6 @@ public static class ModExports
         }
 
         #endregion
-
     }
 
 }

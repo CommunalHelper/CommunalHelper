@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 
-namespace Celeste.Mod.CommunalHelper.Entities.ChainStuff;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/ChainedDreamFallingBlock")]
 public class ChainedDreamFallingBlock : DreamFallingBlock
