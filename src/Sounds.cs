@@ -93,5 +93,5 @@ public static class CustomSFX
 
 public static class CustomBanks
 {
-    public static Bank CommunalHelper = Audio.Banks.Banks["bank:/CommunalHelperBank"];
+    public static Bank CommunalHelper { get; } = Audio.Banks.Banks["bank:/CommunalHelperBank"];
 }
