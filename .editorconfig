@@ -11,7 +11,7 @@ indent_style = space
 tab_width = 4
 
 end_of_line = crlf
-insert_final_newline = false
+insert_final_newline = true
 
 
 
@@ -133,7 +133,7 @@ csharp_indent_case_contents_when_block = false
 csharp_indent_labels = one_less_than_current
 csharp_indent_switch_labels = true
 
-csharp_space_after_cast = false
+csharp_space_after_cast = true  
 csharp_space_after_colon_in_inheritance_clause = true
 csharp_space_after_comma = true
 csharp_space_after_dot = false
