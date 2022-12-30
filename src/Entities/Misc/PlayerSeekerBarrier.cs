@@ -75,10 +75,10 @@ public class PlayerSeekerBarrier : SeekerBarrier
             AddToGroupAndFindChildren(this);
         }
 
-        if (TileSpikes.HasFlag(Tiling.SpikeUp)) AddInvisibleSpike(spikeUp = new Spikes(Position, (int)Width, Spikes.Directions.Up, string.Empty) { Visible = false });
-        if (TileSpikes.HasFlag(Tiling.SpikeDown)) AddInvisibleSpike(spikeDown = new Spikes(Position + (Vector2.UnitY * Height), (int)Width, Spikes.Directions.Down, string.Empty) { Visible = false });
-        if (TileSpikes.HasFlag(Tiling.SpikeLeft)) AddInvisibleSpike(spikeLeft = new Spikes(Position, (int)Height, Spikes.Directions.Left, string.Empty) { Visible = false });
-        if (TileSpikes.HasFlag(Tiling.SpikeRight)) AddInvisibleSpike(spikeRight = new Spikes(Position + (Vector2.UnitX * Width), (int)Height, Spikes.Directions.Right, string.Empty) { Visible = false });
+        if (TileSpikes.HasFlag(Tiling.SpikeUp)) AddInvisibleSpike(spikeUp = new Spikes(Position, (int) Width, Spikes.Directions.Up, string.Empty) { Visible = false });
+        if (TileSpikes.HasFlag(Tiling.SpikeDown)) AddInvisibleSpike(spikeDown = new Spikes(Position + (Vector2.UnitY * Height), (int) Width, Spikes.Directions.Down, string.Empty) { Visible = false });
+        if (TileSpikes.HasFlag(Tiling.SpikeLeft)) AddInvisibleSpike(spikeLeft = new Spikes(Position, (int) Height, Spikes.Directions.Left, string.Empty) { Visible = false });
+        if (TileSpikes.HasFlag(Tiling.SpikeRight)) AddInvisibleSpike(spikeRight = new Spikes(Position + (Vector2.UnitX * Width), (int) Height, Spikes.Directions.Right, string.Empty) { Visible = false });
     }
 
     // kinda cursed
@@ -103,8 +103,8 @@ public class PlayerSeekerBarrier : SeekerBarrier
             if (barrier != from && !barrier.hasGroup)
             {
                 barrier.Collidable = true;
-                bool attached = Scene.CollideCheck(new Rectangle((int)from.X - 1, (int)from.Y, (int)from.Width + 2, (int)from.Height), barrier) ||
-                                Scene.CollideCheck(new Rectangle((int)from.X, (int)from.Y - 1, (int)from.Width, (int)from.Height + 2), barrier);
+                bool attached = Scene.CollideCheck(new Rectangle((int) from.X - 1, (int) from.Y, (int) from.Width + 2, (int) from.Height), barrier) ||
+                                Scene.CollideCheck(new Rectangle((int) from.X, (int) from.Y - 1, (int) from.Width, (int) from.Height + 2), barrier);
                 barrier.Collidable = false;
                 if (attached)
                     AddToGroupAndFindChildren(barrier);
