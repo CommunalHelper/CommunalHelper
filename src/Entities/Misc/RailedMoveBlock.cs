@@ -32,10 +32,10 @@ internal class RailedMoveBlock : Solid
             sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
 
             float num = (from - to).Angle();
-            sparkDirFromA = num + ((float)Math.PI / 8f);
-            sparkDirFromB = num - ((float)Math.PI / 8f);
-            sparkDirToA = num + (float)Math.PI - ((float)Math.PI / 8f);
-            sparkDirToB = num + (float)Math.PI + ((float)Math.PI / 8f);
+            sparkDirFromA = num + ((float) Math.PI / 8f);
+            sparkDirFromB = num - ((float) Math.PI / 8f);
+            sparkDirToA = num + (float) Math.PI - ((float) Math.PI / 8f);
+            sparkDirToB = num + (float) Math.PI + ((float) Math.PI / 8f);
 
             cog = GFX.Game["objects/zipmover/cog"];
         }
@@ -60,14 +60,14 @@ internal class RailedMoveBlock : Solid
             Vector2 value = vector.Perpendicular() * 3f;
             Vector2 value2 = -vector.Perpendicular() * 4f;
 
-            float rotation = block.percent * (float)Math.PI * 2f;
+            float rotation = block.percent * (float) Math.PI * 2f;
 
             Draw.Line(from + value + offset, to + value + offset, colorOverride ?? block.fillColor);
             Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? block.fillColor);
 
             Color highlightColor = Color.Lerp(block.fillColor, Color.White, 0.18f);
 
-            for (float num = 4f - (block.percent * (float)Math.PI * 8f % 4f); num < (to - from).Length(); num += 4f)
+            for (float num = 4f - (block.percent * (float) Math.PI * 8f % 4f); num < (to - from).Length(); num += 4f)
             {
                 Vector2 value3 = from + value + vector.Perpendicular() + (vector * num);
                 Vector2 value4 = to + value2 - (vector * num);
@@ -213,8 +213,8 @@ internal class RailedMoveBlock : Solid
             for (int j = 0; j < tilesHeight; j++)
             {
                 int num4 = (j != 0) ? ((j < tilesHeight - 1) ? 1 : 2) : 0;
-                AddImage(button.GetSubtexture(num4 * 8, 0, 8, 8), new Vector2(-4f, j * 8), (float)Math.PI / 2f, new Vector2(1f, -1f), leftButton);
-                AddImage(button.GetSubtexture(num4 * 8, 0, 8, 8), new Vector2(((tilesWidth - 1) * 8) + 4, j * 8), (float)Math.PI / 2f, new Vector2(1f, 1f), rightButton);
+                AddImage(button.GetSubtexture(num4 * 8, 0, 8, 8), new Vector2(-4f, j * 8), (float) Math.PI / 2f, new Vector2(1f, -1f), leftButton);
+                AddImage(button.GetSubtexture(num4 * 8, 0, 8, 8), new Vector2(((tilesWidth - 1) * 8) + 4, j * 8), (float) Math.PI / 2f, new Vector2(1f, 1f), rightButton);
             }
         }
 

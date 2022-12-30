@@ -34,14 +34,14 @@ public class ConnectedSwapBlock : ConnectedSolid
 
         public override void Render()
         {
-            float scale = 0.5f * (0.5f + (((float)Math.Sin(timer) + 1f) * 0.25f));
+            float scale = 0.5f * (0.5f + (((float) Math.Sin(timer) + 1f) * 0.25f));
             DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, Color.White * scale);
         }
 
         private void DrawBlockStyle(Vector2 pos, float width, float height, MTexture[,] ninSlice, Color color)
         {
-            int num = (int)(width / 8f);
-            int num2 = (int)(height / 8f);
+            int num = (int) (width / 8f);
+            int num2 = (int) (height / 8f);
             ninSlice[0, 0].Draw(pos + new Vector2(0f, 0f), Vector2.Zero, color);
             ninSlice[2, 0].Draw(pos + new Vector2(width - 8f, 0f), Vector2.Zero, color);
             ninSlice[0, 2].Draw(pos + new Vector2(0f, height - 8f), Vector2.Zero, color);
@@ -234,10 +234,10 @@ public class ConnectedSwapBlock : ConnectedSolid
         Add(middleGreen);
 
         // Making the track rectangle always contain the connected swap block, entirely.
-        int x1 = (int)MathHelper.Min(GroupBoundsMin.X, offset.X + GroupBoundsMin.X);
-        int y1 = (int)MathHelper.Min(GroupBoundsMin.Y, offset.Y + GroupBoundsMin.Y);
-        int x2 = (int)MathHelper.Max(GroupBoundsMax.X, offset.X + GroupBoundsMax.X);
-        int y2 = (int)MathHelper.Max(GroupBoundsMax.Y, offset.Y + GroupBoundsMax.Y);
+        int x1 = (int) MathHelper.Min(GroupBoundsMin.X, offset.X + GroupBoundsMin.X);
+        int y1 = (int) MathHelper.Min(GroupBoundsMin.Y, offset.Y + GroupBoundsMin.Y);
+        int x2 = (int) MathHelper.Max(GroupBoundsMax.X, offset.X + GroupBoundsMax.X);
+        int y2 = (int) MathHelper.Max(GroupBoundsMax.Y, offset.Y + GroupBoundsMax.Y);
         moveRect = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 
         scene.Add(bgTiles = new ConnectedSwapBlockBGTilesRenderer(this));
@@ -385,7 +385,7 @@ public class ConnectedSwapBlock : ConnectedSolid
             {
                 position = hitbox.CenterLeft;
                 positionRange = Vector2.UnitY * (hitbox.Height - 6f);
-                direction = (float)Math.PI;
+                direction = (float) Math.PI;
                 num = Math.Max(2f, hitbox.Height / 14f);
             }
             else if (normal.X < 0f)
@@ -399,18 +399,18 @@ public class ConnectedSwapBlock : ConnectedSolid
             {
                 position = hitbox.TopCenter;
                 positionRange = Vector2.UnitX * (hitbox.Width - 6f);
-                direction = -(float)Math.PI / 2f;
+                direction = -(float) Math.PI / 2f;
                 num = Math.Max(2f, hitbox.Width / 14f);
             }
             else
             {
                 position = hitbox.BottomCenter;
                 positionRange = Vector2.UnitX * (hitbox.Width - 6f);
-                direction = (float)Math.PI / 2f;
+                direction = (float) Math.PI / 2f;
                 num = Math.Max(2f, hitbox.Width / 14f);
             }
             particlesRemainder += num;
-            int num2 = (int)particlesRemainder;
+            int num2 = (int) particlesRemainder;
             particlesRemainder -= num2;
             positionRange *= 0.5f;
             SceneAs<Level>().Particles.Emit(SwapBlock.P_Move, num2, position + Position, positionRange, direction);
@@ -541,7 +541,7 @@ public class ConnectedSwapBlockHooks
         cursor.Emit(OpCodes.Ret);
 
         // Next bit to modify
-        cursor.GotoNext(MoveType.Before, instr => instr.OpCode == OpCodes.Stfld && ((FieldReference)instr.Operand).Name.Contains("swapCancel"));
+        cursor.GotoNext(MoveType.Before, instr => instr.OpCode == OpCodes.Stfld && ((FieldReference) instr.Operand).Name.Contains("swapCancel"));
 
         // Load the actual "this" (the instance of the coroutine)
         cursor.Emit(OpCodes.Ldarg_0);

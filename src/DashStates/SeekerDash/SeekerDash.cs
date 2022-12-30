@@ -144,8 +144,8 @@ public static class SeekerDash
                     if (!self.CollideCheck(entity, self.Position + aim))
                     {
                         entity.Collidable = collidable;
-                        self.MoveHExact((int)aim.X);
-                        self.MoveVExact((int)aim.Y);
+                        self.MoveHExact((int) aim.X);
+                        self.MoveVExact((int) aim.Y);
                         return true;
                     }
 
@@ -211,7 +211,7 @@ public static class SeekerDash
             return SeekerAttacking;
         }
 
-        self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = ShouldBeCollidable((SeekerBarrier)e));
+        self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = ShouldBeCollidable((SeekerBarrier) e));
 
         self.CollideFirst<PlayerSeekerBarrier>()?.MakeGroupUncollidable();
 
@@ -382,7 +382,7 @@ public static class SeekerDash
     // Kill the seeker if player was launched from seekerdash
     private static void Seeker_OnBouncePlayer(On.Celeste.Seeker.orig_OnBouncePlayer orig, Seeker self, Player player)
     {
-        if (seekerDashLaunched && !(bool)f_Seeker_dead.GetValue(self))
+        if (seekerDashLaunched && !(bool) f_Seeker_dead.GetValue(self))
         {
             self.Killed(player);
             player.Bounce(Math.Min(player.Y, self.CenterY));
@@ -494,7 +494,7 @@ public static class SeekerDash
         DisplacementRenderer.Burst burst = barrier.SceneAs<Level>().Displacement.AddBurst(player.Center, 0.8f, 8f, 64f, 0.5f, Ease.QuadOut, Ease.QuadOut);
         burst.WorldClipCollider = barrier.Collider;
 
-        player.DashDir = (Vector2)m_Player_CorrectDashPrecision.Invoke(player, new object[] { playerData["lastAim"] });
+        player.DashDir = (Vector2) m_Player_CorrectDashPrecision.Invoke(player, new object[] { playerData["lastAim"] });
 
         player.SceneAs<Level>().DirectionalShake(player.DashDir, 0.2f);
         m_Player_CallDashEvents.Invoke(player, null);

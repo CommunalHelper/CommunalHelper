@@ -280,7 +280,7 @@ public class CustomCassetteBlock : CassetteBlock
             if (!createdCassetteManager)
             {
                 createdCassetteManager = true;
-                if (level.Tracker.GetEntity<CassetteBlockManager>() == null && (bool)m_Level_get_ShouldCreateCassetteManager.Invoke(level, null))
+                if (level.Tracker.GetEntity<CassetteBlockManager>() == null && (bool) m_Level_get_ShouldCreateCassetteManager.Invoke(level, null))
                 {
                     if (!level.Entities.ToAdd.Any(e => e is CassetteBlockManager))
                     {

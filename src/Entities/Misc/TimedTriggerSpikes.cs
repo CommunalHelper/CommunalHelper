@@ -233,7 +233,7 @@ public class TimedTriggerSpikes : Entity
         // GravityHelper listener to enable inverted ledge blocks & safe ground blockers
         Component listener = GravityHelper.CreatePlayerGravityListener?.Invoke((_, value, _) =>
         {
-            bool active = direction == Directions.Up ^ value == (int)GravityType.Inverted;
+            bool active = direction == Directions.Up ^ value == (int) GravityType.Inverted;
             safeGroundBlocker.Blocking = ledgeBlocker.Blocking = active;
         });
         if (listener is not null)
@@ -292,9 +292,9 @@ public class TimedTriggerSpikes : Entity
 
     private bool UpSafeBlockCheck(Player player)
     {
-        int dir = 8 * (int)player.Facing;
-        int left = (int)((player.Left + dir - Left) / 8f);
-        int right = (int)((player.Right + dir - Left) / 8f);
+        int dir = 8 * (int) player.Facing;
+        int left = (int) ((player.Left + dir - Left) / 8f);
+        int right = (int) ((player.Right + dir - Left) / 8f);
 
         if (right < 0 || left >= spikes.Length)
             return false;
@@ -310,8 +310,8 @@ public class TimedTriggerSpikes : Entity
 
     private bool SideSafeBlockCheck(Player player)
     {
-        int top = (int)((player.Top - Top) / 4f);
-        int bottom = (int)((player.Bottom - Top) / 4f);
+        int top = (int) ((player.Top - Top) / 4f);
+        int bottom = (int) ((player.Bottom - Top) / 4f);
 
         if (bottom < 0 || top >= spikes.Length)
             return false;
@@ -378,29 +378,29 @@ public class TimedTriggerSpikes : Entity
             case Directions.Up:
                 if (player.Speed.Y >= 0f || triggerAlways)
                 {
-                    minIndex = (int)((player.Left - Left) / 8f);
-                    maxIndex = (int)((player.Right - Left) / 8f);
+                    minIndex = (int) ((player.Left - Left) / 8f);
+                    maxIndex = (int) ((player.Right - Left) / 8f);
                 }
                 break;
             case Directions.Down:
                 if (player.Speed.Y <= 0f || triggerAlways)
                 {
-                    minIndex = (int)((player.Left - Left) / 8f);
-                    maxIndex = (int)((player.Right - Left) / 8f);
+                    minIndex = (int) ((player.Left - Left) / 8f);
+                    maxIndex = (int) ((player.Right - Left) / 8f);
                 }
                 break;
             case Directions.Left:
                 if (player.Speed.X >= 0f || triggerAlways)
                 {
-                    minIndex = (int)((player.Top - Top) / 8f);
-                    maxIndex = (int)((player.Bottom - Top) / 8f);
+                    minIndex = (int) ((player.Top - Top) / 8f);
+                    maxIndex = (int) ((player.Bottom - Top) / 8f);
                 }
                 break;
             case Directions.Right:
                 if (player.Speed.X <= 0f || triggerAlways)
                 {
-                    minIndex = (int)((player.Top - Top) / 8f);
-                    maxIndex = (int)((player.Bottom - Top) / 8f);
+                    minIndex = (int) ((player.Top - Top) / 8f);
+                    maxIndex = (int) ((player.Bottom - Top) / 8f);
                 }
                 break;
         }

@@ -23,7 +23,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
     private const float Accel = 300f;
     private const float MoveSpeed = 60f;
     private const float FastMoveSpeed = 75f;
-    private const float SteerSpeed = (float)Math.PI * 16f;
+    private const float SteerSpeed = (float) Math.PI * 16f;
     private const float NoSteerTime = 0.2f;
     private const float CrashTime = 0.15f;
     private const float CrashResetTime = 0.1f;
@@ -82,7 +82,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
             Get_Direction = () => Direction,
             Set_Direction = dir =>
             {
-                int index = (int)Math.Floor(((0f - angle + ((float)Math.PI * 2f)) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f) + 0.5f);
+                int index = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
                 arrow.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index];
                 arrowPressed.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index];
                 Direction = dir;
@@ -97,7 +97,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
     public override void Awake(Scene scene)
     {
-        int index = (int)Math.Floor(((0f - angle + ((float)Math.PI * 2f)) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f) + 0.5f);
+        int index = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
         arrow = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index]);
         arrowPressed = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index]);
         cross = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/x"]);
@@ -312,7 +312,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
         if (moveSfx != null && moveSfx.Playing)
         {
             float num = (Calc.AngleToVector(angle, 1f) * new Vector2(-1f, 1f)).Angle();
-            int num2 = (int)Math.Floor(((0f - num + ((float)Math.PI * 2f)) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f) + 0.5f);
+            int num2 = (int) Math.Floor(((0f - num + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
             moveSfx.Param("arrow_influence", num2 + 1);
         }
         flash = Calc.Approach(flash, 0f, Engine.DeltaTime * 5f);
@@ -421,17 +421,17 @@ public class CassetteMoveBlock : CustomCassetteBlock
         bool top = !CollideCheck<Player>(Position - Vector2.UnitY);
         if (left)
         {
-            SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(Height / 2f), CenterLeft, Vector2.UnitY * (Height - 4f) * 0.5f, (float)Math.PI);
+            SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int) (Height / 2f), CenterLeft, Vector2.UnitY * (Height - 4f) * 0.5f, (float) Math.PI);
         }
         if (right)
         {
-            SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(Height / 2f), CenterRight, Vector2.UnitY * (Height - 4f) * 0.5f, 0f);
+            SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int) (Height / 2f), CenterRight, Vector2.UnitY * (Height - 4f) * 0.5f, 0f);
         }
         if (top)
         {
-            SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(Width / 2f), TopCenter, Vector2.UnitX * (Width - 4f) * 0.5f, -(float)Math.PI / 2f);
+            SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int) (Width / 2f), TopCenter, Vector2.UnitX * (Width - 4f) * 0.5f, -(float) Math.PI / 2f);
         }
-        SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int)(Width / 2f), BottomCenter, Vector2.UnitX * (Width - 4f) * 0.5f, (float)Math.PI / 2f);
+        SceneAs<Level>().ParticlesBG.Emit(P_Activate, (int) (Width / 2f), BottomCenter, Vector2.UnitX * (Width - 4f) * 0.5f, (float) Math.PI / 2f);
     }
 
     private void BreakParticles()
@@ -458,7 +458,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
         {
             position = CenterLeft + Vector2.UnitX;
             positionRange = Vector2.UnitY * (Height - 4f);
-            num = (float)Math.PI;
+            num = (float) Math.PI;
             num2 = Height / 32f;
         }
         else if (Direction == Directions.Left)
@@ -472,18 +472,18 @@ public class CassetteMoveBlock : CustomCassetteBlock
         {
             position = TopCenter + Vector2.UnitY;
             positionRange = Vector2.UnitX * (Width - 4f);
-            num = -(float)Math.PI / 2f;
+            num = -(float) Math.PI / 2f;
             num2 = Width / 32f;
         }
         else
         {
             position = BottomCenter;
             positionRange = Vector2.UnitX * (Width - 4f);
-            num = (float)Math.PI / 2f;
+            num = (float) Math.PI / 2f;
             num2 = Width / 32f;
         }
         particleRemainder += num2;
-        int num3 = (int)particleRemainder;
+        int num3 = (int) particleRemainder;
         particleRemainder -= num3;
         positionRange *= 0.5f;
         if (num3 > 0)

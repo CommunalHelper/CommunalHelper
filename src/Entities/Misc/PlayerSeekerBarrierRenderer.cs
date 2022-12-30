@@ -62,7 +62,7 @@ public class PlayerSeekerBarrierRenderer : Entity
         public void UpdateWave(float time)
         {
             if (Wave == null || Wave.Length <= Length)
-                Wave = new float[(int)Length + 2];
+                Wave = new float[(int) Length + 2];
 
             for (int i = 0; i <= Length; i++)
                 Wave[i] = spiky ? GetSpikyWaveAt(time, i, Length) : GetWaveAt(time, i, Length);
@@ -77,7 +77,7 @@ public class PlayerSeekerBarrierRenderer : Entity
                 return 0f;
 
             float num = offset + (along * 0.25f);
-            float num2 = (float)((Math.Sin(num) * 2.0) + Math.Sin(num * 0.25f));
+            float num2 = (float) ((Math.Sin(num) * 2.0) + Math.Sin(num * 0.25f));
             return (1f + (num2 * Ease.SineInOut(Calc.YoYo(along / length)))) * (1f - Parent.Solidify);
         }
 
@@ -116,7 +116,7 @@ public class PlayerSeekerBarrierRenderer : Entity
 
     public PlayerSeekerBarrierRenderer()
     {
-        Tag = (int)Tags.Global | (int)Tags.TransitionUpdate;
+        Tag = (int) Tags.Global | (int) Tags.TransitionUpdate;
         Depth = Depths.Player;
         Add(new CustomBloom(OnRenderBloom));
     }
@@ -132,8 +132,8 @@ public class PlayerSeekerBarrierRenderer : Entity
         }
 
         Tiling tile = block.TileSpikes | Tiling.Occupied;
-        for (int i = (int)block.X / 8; i < block.Right / 8f; i++)
-            for (int j = (int)block.Y / 8; j < block.Bottom / 8f; j++)
+        for (int i = (int) block.X / 8; i < block.Right / 8f; i++)
+            for (int j = (int) block.Y / 8; j < block.Bottom / 8f; j++)
                 tiles[i - levelTileBounds.X, j - levelTileBounds.Y] = tile;
 
         dirty = true;
@@ -145,8 +145,8 @@ public class PlayerSeekerBarrierRenderer : Entity
         if (list.Count <= 0)
             tiles = null;
         else
-            for (int i = (int)block.X / 8; i < block.Right / 8f; i++)
-                for (int j = (int)block.Y / 8; j < block.Bottom / 8f; j++)
+            for (int i = (int) block.X / 8; i < block.Right / 8f; i++)
+                for (int j = (int) block.Y / 8; j < block.Bottom / 8f; j++)
                     tiles[i - levelTileBounds.X, j - levelTileBounds.Y] = Tiling.Empty;
         dirty = true;
     }
@@ -166,7 +166,7 @@ public class PlayerSeekerBarrierRenderer : Entity
     public void UpdateEdges()
     {
         Camera camera = (Scene as Level).Camera;
-        Rectangle view = new((int)camera.Left - 4, (int)camera.Top - 4, (int)(camera.Right - camera.Left) + 8, (int)(camera.Bottom - camera.Top) + 8);
+        Rectangle view = new((int) camera.Left - 4, (int) camera.Top - 4, (int) (camera.Right - camera.Left) + 8, (int) (camera.Bottom - camera.Top) + 8);
 
         for (int i = 0; i < edges.Count; i++)
         {
@@ -197,9 +197,9 @@ public class PlayerSeekerBarrierRenderer : Entity
 
         foreach (PlayerSeekerBarrier barrier in list)
         {
-            for (int i = (int)barrier.X / 8; i < barrier.Right / 8f; i++)
+            for (int i = (int) barrier.X / 8; i < barrier.Right / 8f; i++)
             {
-                for (int j = (int)barrier.Y / 8; j < barrier.Bottom / 8f; j++)
+                for (int j = (int) barrier.Y / 8; j < barrier.Bottom / 8f; j++)
                 {
                     for (int k = 0; k < edgeBuildOffsets.Length; k++)
                     {

@@ -277,7 +277,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                     MoveParticles();
                 }
                 speed = startingBroken ? 0 : Calc.Approach(speed, targetSpeed, 300f * Engine.DeltaTime);
-                angle = Calc.Approach(angle, targetAngle, (float)Math.PI * 16f * Engine.DeltaTime);
+                angle = Calc.Approach(angle, targetAngle, (float) Math.PI * 16f * Engine.DeltaTime);
                 Vector2 vec = Calc.AngleToVector(angle, speed) * Engine.DeltaTime;
                 bool flag2;
                 Vector2 start = Position;
@@ -347,8 +347,8 @@ public class ConnectedMoveBlock : ConnectedSolid
             BreakParticles();
 
             List<MoveBlockDebris> debris = new();
-            int tWidth = (int)((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-            int tHeight = (int)((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
             for (int i = 0; i < tWidth; i++)
             {
@@ -562,17 +562,17 @@ public class ConnectedMoveBlock : ConnectedSolid
 
             if (left)
             {
-                SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int)(hitbox.Height / 2f), Position + hitbox.CenterLeft, Vector2.UnitY * (hitbox.Height - 4f) * 0.5f, (float)Math.PI);
+                SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (hitbox.Height / 2f), Position + hitbox.CenterLeft, Vector2.UnitY * (hitbox.Height - 4f) * 0.5f, (float) Math.PI);
             }
             if (right)
             {
-                SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int)(hitbox.Height / 2f), Position + hitbox.CenterRight, Vector2.UnitY * (hitbox.Height - 4f) * 0.5f, 0f);
+                SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (hitbox.Height / 2f), Position + hitbox.CenterRight, Vector2.UnitY * (hitbox.Height - 4f) * 0.5f, 0f);
             }
             if (top)
             {
-                SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int)(hitbox.Width / 2f), Position + hitbox.TopCenter, Vector2.UnitX * (hitbox.Width - 4f) * 0.5f, -(float)Math.PI / 2f);
+                SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (hitbox.Width / 2f), Position + hitbox.TopCenter, Vector2.UnitX * (hitbox.Width - 4f) * 0.5f, -(float) Math.PI / 2f);
             }
-            SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int)(hitbox.Width / 2f), Position + hitbox.BottomCenter, Vector2.UnitX * (hitbox.Width - 4f) * 0.5f, (float)Math.PI / 2f);
+            SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (hitbox.Width / 2f), Position + hitbox.BottomCenter, Vector2.UnitX * (hitbox.Width - 4f) * 0.5f, (float) Math.PI / 2f);
         }
     }
 
@@ -607,7 +607,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 position = hitbox.CenterLeft + Vector2.UnitX;
                 positionRange = Vector2.UnitY * (hitbox.Height - 4f);
-                num = (float)Math.PI;
+                num = (float) Math.PI;
                 num2 = hitbox.Height / 32f;
             }
             else if (Direction == MoveBlock.Directions.Left)
@@ -621,18 +621,18 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 position = hitbox.TopCenter + Vector2.UnitY;
                 positionRange = Vector2.UnitX * (hitbox.Width - 4f);
-                num = -(float)Math.PI / 2f;
+                num = -(float) Math.PI / 2f;
                 num2 = hitbox.Width / 32f;
             }
             else
             {
                 position = hitbox.BottomCenter;
                 positionRange = Vector2.UnitX * (hitbox.Width - 4f);
-                num = (float)Math.PI / 2f;
+                num = (float) Math.PI / 2f;
                 num2 = hitbox.Width / 32f;
             }
             particleRemainder += num2;
-            int num3 = (int)particleRemainder;
+            int num3 = (int) particleRemainder;
             particleRemainder -= num3;
             positionRange *= 0.5f;
             if (num3 > 0)
@@ -670,7 +670,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         scene.Add(border = new Border(this));
 
         // Get all the colliders that can have an arrow drawn on.
-        ArrowsList = new List<Hitbox> { (Hitbox)MasterCollider };
+        ArrowsList = new List<Hitbox> { (Hitbox) MasterCollider };
         foreach (Hitbox hitbox in Colliders)
         {
             if (Math.Min(hitbox.Width, hitbox.Height) >= 24)
@@ -685,7 +685,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         base.Update();
         if (moveSfx != null && moveSfx.Playing)
         {
-            int num = (int)Math.Floor(((0f - (Calc.AngleToVector(angle, 1f) * new Vector2(-1f, 1f)).Angle() + ((float)Math.PI * 2f)) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f) + 0.5f);
+            int num = (int) Math.Floor(((0f - (Calc.AngleToVector(angle, 1f) * new Vector2(-1f, 1f)).Angle() + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
             moveSfx.Param("arrow_influence", num + 1);
         }
         border.Visible = Visible;
@@ -704,7 +704,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         }
 
         base.Render();
-        int arrowIndex = Calc.Clamp((int)Math.Floor(((0f - angle + ((float)Math.PI * 2f)) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f) + 0.5f), 0, 7);
+        int arrowIndex = Calc.Clamp((int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f), 0, 7);
         foreach (Hitbox hitbox in ArrowsList)
         {
             Vector2 vec = hitbox.Center + Position;

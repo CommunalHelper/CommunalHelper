@@ -17,7 +17,7 @@ public class BakedCurve
         this.mode = mode;
         this.resolution = resolution;
 
-        int m = (int)mode;
+        int m = (int) mode;
         int l = nodes.Length - 1;
         int max = l - (l % m);
         CurveCount = max / m;
@@ -38,7 +38,7 @@ public class BakedCurve
             for (float t = step; t < CurveCount; t += step)
             {
                 float percent = t % 1;
-                int i = (int)Math.Floor(t) * 3;
+                int i = (int) Math.Floor(t) * 3;
 
                 Vector2 p = GetCurvePoint(points[i], points[i + 1], points[i + 2], points[i + 3], percent);
                 lut[++index] = Length += Vector2.Distance(prev, p);
@@ -51,7 +51,7 @@ public class BakedCurve
             for (float t = step; t < CurveCount; t += step)
             {
                 float percent = t % 1;
-                int i = (int)Math.Floor(t) * 2;
+                int i = (int) Math.Floor(t) * 2;
 
                 Vector2 p = GetCurvePoint(points[i], points[i + 1], points[i + 2], percent);
                 lut[++index] = Length += Vector2.Distance(prev, p);
@@ -108,9 +108,9 @@ public class BakedCurve
 
     public Vector2 GetPoint(float t)
     {
-        int m = (int)mode;
+        int m = (int) mode;
         float percent = t % 1;
-        int i = Math.Max(0, (int)Math.Floor(t) * m);
+        int i = Math.Max(0, (int) Math.Floor(t) * m);
         if (t >= CurveCount)
         {
             percent++;
@@ -124,9 +124,9 @@ public class BakedCurve
 
     public Vector2 GetDerivative(float t)
     {
-        int m = (int)mode;
+        int m = (int) mode;
         float percent = t % 1;
-        int i = Math.Max(0, (int)Math.Floor(t) * m);
+        int i = Math.Max(0, (int) Math.Floor(t) * m);
         if (t >= CurveCount)
         {
             percent++;
@@ -140,9 +140,9 @@ public class BakedCurve
 
     public void GetAll(float t, out Vector2 point, out Vector2 derivative)
     {
-        int m = (int)mode;
+        int m = (int) mode;
         float percent = t % 1;
-        int i = Math.Max(0, (int)Math.Floor(t) * m);
+        int i = Math.Max(0, (int) Math.Floor(t) * m);
         if (t >= CurveCount)
         {
             percent++;

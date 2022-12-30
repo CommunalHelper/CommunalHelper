@@ -192,7 +192,7 @@ public class HeartGemShard : Entity
         bounceSfxDelay -= Engine.DeltaTime;
         timer += Engine.DeltaTime;
 
-        sprite.Position = Vector2.UnitY * (!Collected ? (float)Math.Sin(timer * 2f) * 2f : 0);
+        sprite.Position = Vector2.UnitY * (!Collected ? (float) Math.Sin(timer * 2f) * 2f : 0);
         sprite.Position += moveWiggleDir * moveWiggler.Value * -4f;
         sprite.Position += shaker.Value;
 

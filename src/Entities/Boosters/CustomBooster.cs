@@ -235,7 +235,7 @@ public abstract class CustomBooster : Booster
             ParticleSystem particlesBG = self.SceneAs<Level>().ParticlesBG;
             for (int i = 0; i < 360; i += 30)
             {
-                particlesBG.Emit(booster.P_CustomAppear, 1, self.Center, Vector2.One * 2f, i * ((float)Math.PI / 180f));
+                particlesBG.Emit(booster.P_CustomAppear, 1, self.Center, Vector2.One * 2f, i * ((float) Math.PI / 180f));
             }
         }
         else

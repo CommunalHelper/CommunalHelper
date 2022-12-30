@@ -61,7 +61,7 @@ public class Melvin : Solid
     private readonly List<Image> tiles = new();
     private float topTilesAlpha, bottomTilesAlpha, leftTilesAlpha, rightTilesAlpha;
 
-    private bool Submerged => Scene.CollideCheck<Water>(new Rectangle((int)(Center.X - 4f), (int)Center.Y, 8, 4));
+    private bool Submerged => Scene.CollideCheck<Water>(new Rectangle((int) (Center.X - 4f), (int) Center.Y, 8, 4));
 
     private readonly Coroutine attackCoroutine;
 
@@ -102,8 +102,8 @@ public class Melvin : Solid
 
     private void SetupTiles()
     {
-        int w = (int)(Width / 8);
-        int h = (int)(Height / 8);
+        int w = (int) (Width / 8);
+        int h = (int) (Height / 8);
 
         // middle & edges
         for (int i = 0; i < w; i++)
@@ -413,7 +413,7 @@ public class Melvin : Solid
                 if (crushDir == Vector2.UnitX)
                 {
                     position = new Vector2(Left + 1f, Calc.Random.Range(Top + 3f, Bottom - 3f));
-                    direction = (float)Math.PI;
+                    direction = (float) Math.PI;
                 }
                 else if (crushDir == -Vector2.UnitX)
                 {
@@ -423,12 +423,12 @@ public class Melvin : Solid
                 else if (crushDir == Vector2.UnitY)
                 {
                     position = new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Top + 1f);
-                    direction = -(float)Math.PI / 2f;
+                    direction = -(float) Math.PI / 2f;
                 }
                 else
                 {
                     position = new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Bottom - 1f);
-                    direction = (float)Math.PI / 2f;
+                    direction = (float) Math.PI / 2f;
                 }
                 level.Particles.Emit(SwitchGate.P_Behind, position, direction);
             }
@@ -461,8 +461,8 @@ public class Melvin : Solid
                 Vector2 pos = new(Right + 1f, Top + 4f + (y * 8));
                 if (!Scene.CollideCheck<Water>(pos) && Scene.CollideCheck<Solid>(pos))
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, (float)Math.PI);
-                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, (float)Math.PI);
+                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, (float) Math.PI);
+                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, (float) Math.PI);
                 }
             }
         }
@@ -474,8 +474,8 @@ public class Melvin : Solid
                 Vector2 pos = new(Left + 4f + (x * 8), Top - 1f);
                 if (!Scene.CollideCheck<Water>(pos) && Scene.CollideCheck<Solid>(pos))
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, (float)Math.PI / 2f);
-                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, (float)Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, (float) Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, (float) Math.PI / 2f);
                 }
             }
         }
@@ -487,8 +487,8 @@ public class Melvin : Solid
                 Vector2 pos = new(Left + 4f + (x * 8), Bottom + 1f);
                 if (!Scene.CollideCheck<Water>(pos) && Scene.CollideCheck<Solid>(pos))
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, -(float)Math.PI / 2f);
-                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, -(float)Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos + offset, -(float) Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(CrushBlock.P_Impact, pos - offset, -(float) Math.PI / 2f);
                 }
             }
         }
@@ -656,28 +656,28 @@ public class Melvin : Solid
             direction = 0f;
             position = CenterRight - Vector2.UnitX;
             positionRange = Vector2.UnitY * (Height - 2f) * 0.5f;
-            amount = (int)(Height / 8f) * 4;
+            amount = (int) (Height / 8f) * 4;
         }
         else if (dir == ArrowDir.Left)
         {
-            direction = (float)Math.PI;
+            direction = (float) Math.PI;
             position = CenterLeft + Vector2.UnitX;
             positionRange = Vector2.UnitY * (Height - 2f) * 0.5f;
-            amount = (int)(Height / 8f) * 4;
+            amount = (int) (Height / 8f) * 4;
         }
         else if (dir == ArrowDir.Down)
         {
-            direction = (float)Math.PI / 2f;
+            direction = (float) Math.PI / 2f;
             position = BottomCenter - Vector2.UnitY;
             positionRange = Vector2.UnitX * (Width - 2f) * 0.5f;
-            amount = (int)(Width / 8f) * 4;
+            amount = (int) (Width / 8f) * 4;
         }
         else
         {
-            direction = -(float)Math.PI / 2f;
+            direction = -(float) Math.PI / 2f;
             position = TopCenter + Vector2.UnitY;
             positionRange = Vector2.UnitX * (Width - 2f) * 0.5f;
-            amount = (int)(Width / 8f) * 4;
+            amount = (int) (Width / 8f) * 4;
         }
         amount += 2;
         level.Particles.Emit(P_Activate, amount, position, positionRange, direction);
@@ -768,15 +768,15 @@ public class Melvin : Solid
             Rectangle toPlayerRect = new();
             if (player.Center.Y > Y && player.Center.Y < Y + Height)
             {
-                int y1 = (int)Math.Max(player.Top, Top);
-                int y2 = (int)Math.Min(player.Bottom, Bottom);
+                int y1 = (int) Math.Max(player.Top, Top);
+                int y2 = (int) Math.Min(player.Bottom, Bottom);
                 if (player.Center.X > X + Width)
                 {
                     // right
                     detectedPlayer = true;
                     crushDir = Vector2.UnitX;
                     dir = ArrowDir.Right;
-                    toPlayerRect = new Rectangle((int)(X + Width), y1, (int)(player.Left - X - Width), y2 - y1);
+                    toPlayerRect = new Rectangle((int) (X + Width), y1, (int) (player.Left - X - Width), y2 - y1);
                 }
                 if (player.Center.X < X)
                 {
@@ -784,20 +784,20 @@ public class Melvin : Solid
                     detectedPlayer = true;
                     crushDir = -Vector2.UnitX;
                     dir = ArrowDir.Left;
-                    toPlayerRect = new Rectangle((int)player.Right, y1, (int)(X - player.Right), y2 - y1);
+                    toPlayerRect = new Rectangle((int) player.Right, y1, (int) (X - player.Right), y2 - y1);
                 }
             }
             if (player.Center.X > X && player.Center.X < X + Width)
             {
-                int x1 = (int)Math.Max(player.Left, Left);
-                int x2 = (int)Math.Min(player.Right, Right);
+                int x1 = (int) Math.Max(player.Left, Left);
+                int x2 = (int) Math.Min(player.Right, Right);
                 if (player.Center.Y < Y)
                 {
                     // top
                     detectedPlayer = true;
                     crushDir = -Vector2.UnitY;
                     dir = ArrowDir.Up;
-                    toPlayerRect = new Rectangle(x1, (int)player.Bottom, x2 - x1, (int)(Y - player.Bottom));
+                    toPlayerRect = new Rectangle(x1, (int) player.Bottom, x2 - x1, (int) (Y - player.Bottom));
                 }
                 if (player.Center.Y > Y + Height)
                 {
@@ -805,7 +805,7 @@ public class Melvin : Solid
                     detectedPlayer = true;
                     crushDir = Vector2.UnitY;
                     dir = ArrowDir.Down;
-                    toPlayerRect = new Rectangle(x1, (int)(Y + Height), x2 - x1, (int)(player.Top - Y - Height));
+                    toPlayerRect = new Rectangle(x1, (int) (Y + Height), x2 - x1, (int) (player.Top - Y - Height));
                 }
             }
             if (detectedPlayer && IsPlayerSeen(toPlayerRect, dir))
@@ -827,10 +827,10 @@ public class Melvin : Solid
         Position += Shake;
 
         Rectangle rect = new(
-            (int)(Center.X + ((X + 2 - Center.X) * squishScale.X)),
-            (int)(Center.Y + ((Y + 2 - Center.Y) * squishScale.Y)),
-            (int)((Width - 4) * squishScale.X),
-            (int)((Height - 4) * squishScale.Y));
+            (int) (Center.X + ((X + 2 - Center.X) * squishScale.X)),
+            (int) (Center.Y + ((Y + 2 - Center.Y) * squishScale.Y)),
+            (int) ((Width - 4) * squishScale.X),
+            (int) ((Height - 4) * squishScale.Y));
 
         Draw.Rect(rect, fill);
 

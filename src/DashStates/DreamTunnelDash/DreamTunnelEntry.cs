@@ -319,12 +319,12 @@ public class DreamTunnelEntry : AbstractPanel
             MTexture mtexture;
             if (layer == 0)
             {
-                int num = (int)(((particles[i].TimeOffset * 4f) + animTimer) % 4f);
+                int num = (int) (((particles[i].TimeOffset * 4f) + animTimer) % 4f);
                 mtexture = particleTextures[3 - num];
             }
             else if (layer == 1)
             {
-                int num2 = (int)(((particles[i].TimeOffset * 2f) + animTimer) % 2f);
+                int num2 = (int) (((particles[i].TimeOffset * 2f) + animTimer) % 2f);
                 mtexture = particleTextures[1 + num2];
             }
             else
@@ -380,12 +380,12 @@ public class DreamTunnelEntry : AbstractPanel
 
     private float LineAmplitude(float seed, float index)
     {
-        return (float)(Math.Sin(seed + (index / 16f) + (Math.Sin((seed * 2f) + (index / 32f)) * Calc.Circle)) + 1.0) * 1.5f;
+        return (float) (Math.Sin(seed + (index / 16f) + (Math.Sin((seed * 2f) + (index / 32f)) * Calc.Circle)) + 1.0) * 1.5f;
     }
 
     public void Setup()
     {
-        particles = new DreamParticle[(int)(Width / 4f * (Height / 4f) * 0.5f)];
+        particles = new DreamParticle[(int) (Width / 4f * (Height / 4f) * 0.5f)];
         for (int i = 0; i < particles.Length; i++)
         {
             particles[i].Position = new Vector2(Calc.Random.NextFloat(Width), Calc.Random.NextFloat(Height));
@@ -511,7 +511,7 @@ public class DreamTunnelEntry : AbstractPanel
         ILCursor cursor = new(il);
         // oof
         cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Callvirt &&
-            ((MethodReference)instr.Operand).FullName == "System.Boolean Monocle.Entity::CollideCheck<Celeste.DreamBlock>(Microsoft.Xna.Framework.Vector2)");
+            ((MethodReference) instr.Operand).FullName == "System.Boolean Monocle.Entity::CollideCheck<Celeste.DreamBlock>(Microsoft.Xna.Framework.Vector2)");
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.Emit(OpCodes.Ldfld, typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget().DeclaringType.GetField("<>4__this"));
         cursor.EmitDelegate<Func<bool, Player, bool>>((v, player) =>
@@ -532,10 +532,10 @@ public class DreamTunnelEntry : AbstractPanel
         {
             foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers"))
             {
-                Vector2 origin = player.Position + new Vector2((float)player.Facing * 3, -4f);
+                Vector2 origin = player.Position + new Vector2((float) player.Facing * 3, -4f);
                 if (sm.Entity is DreamTunnelEntry entry
                     && (entry.Orientation is Spikes.Directions.Left or Spikes.Directions.Right)
-                    && entry.CollidePoint(origin + (Vector2.UnitX * (float)player.Facing)))
+                    && entry.CollidePoint(origin + (Vector2.UnitX * (float) player.Facing)))
                 {
                     entry.FootstepRipple(origin);
                 }

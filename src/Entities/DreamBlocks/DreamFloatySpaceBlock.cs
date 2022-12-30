@@ -47,7 +47,7 @@ public class DreamFloatySpaceBlock : ConnectedDreamBlock
 
     private void MoveToTarget()
     {
-        float sine = (float)Math.Sin(sineWave) * 4f;
+        float sine = (float) Math.Sin(sineWave) * 4f;
         Vector2 vector = Calc.YoYo(Ease.QuadIn(dashEase)) * dashDirection * 8f;
         for (int i = 0; i < 2; i++)
         {

@@ -139,13 +139,13 @@ internal class DreamJellyfishRenderer : Entity
                 {
                     case 0:
                     {
-                        int num2 = (int)(((jelly.Particles[i].TimeOffset * 4f) + animTimer) % 4f);
+                        int num2 = (int) (((jelly.Particles[i].TimeOffset * 4f) + animTimer) % 4f);
                         mTexture = DreamJellyfish.ParticleTextures[3 - num2];
                         break;
                     }
                     case 1:
                     {
-                        int num = (int)(((jelly.Particles[i].TimeOffset * 2f) + animTimer) % 2f);
+                        int num = (int) (((jelly.Particles[i].TimeOffset * 2f) + animTimer) % 2f);
                         mTexture = DreamJellyfish.ParticleTextures[1 + num];
                         break;
                     }

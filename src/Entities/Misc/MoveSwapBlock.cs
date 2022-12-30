@@ -162,8 +162,8 @@ public class MoveSwapBlock : SwapBlock
         homeAngle = targetAngle = angle = MoveDirection.Angle();
         angleSteerSign = angle > 0f ? -1 : 1;
 
-        int tilesX = (int)Width / 8;
-        int tilesY = (int)Height / 8;
+        int tilesX = (int) Width / 8;
+        int tilesY = (int) Height / 8;
         MTexture buttonTexture = GFX.Game["objects/moveBlock/button"];
         MTexture buttonPressedTexture = GFX.Game["objects/CommunalHelper/moveSwapBlock/buttonPressed"];
         if (canSteer && (MoveDirection == Directions.Left || MoveDirection == Directions.Right))
@@ -180,10 +180,10 @@ public class MoveSwapBlock : SwapBlock
             for (int y = 0; y < tilesY; y++)
             {
                 int offsetY = (y != 0) ? ((y < tilesY - 1) ? 1 : 2) : 0;
-                AddImage(buttonTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(-4f, y * 8), (float)Math.PI / 2f, new Vector2(1f, -1f), leftButton);
-                AddImage(buttonPressedTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(-4f, y * 8), (float)Math.PI / 2f, new Vector2(1f, -1f), leftButton);
-                AddImage(buttonTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(((tilesX - 1) * 8) + 4, y * 8), (float)Math.PI / 2f, new Vector2(1f, 1f), rightButton);
-                AddImage(buttonPressedTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(((tilesX - 1) * 8) + 4, y * 8), (float)Math.PI / 2f, new Vector2(1f, 1f), rightButton);
+                AddImage(buttonTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(-4f, y * 8), (float) Math.PI / 2f, new Vector2(1f, -1f), leftButton);
+                AddImage(buttonPressedTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(-4f, y * 8), (float) Math.PI / 2f, new Vector2(1f, -1f), leftButton);
+                AddImage(buttonTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(((tilesX - 1) * 8) + 4, y * 8), (float) Math.PI / 2f, new Vector2(1f, 1f), rightButton);
+                AddImage(buttonPressedTexture.GetSubtexture(offsetY * 8, 0, 8, 8), new Vector2(((tilesX - 1) * 8) + 4, y * 8), (float) Math.PI / 2f, new Vector2(1f, 1f), rightButton);
             }
         }
         UpdateColors();
@@ -285,7 +285,7 @@ public class MoveSwapBlock : SwapBlock
         Swapping = lerp is <= 1f and >= 0f;
         swapBlockData["target"] = swapBlockData.Get<int>("target") ^ 1;
         swapBlockData["burst"] = (Scene as Level).Displacement.AddBurst(Center, 0.2f, 0f, 16f);
-        swapBlockData["speed"] = lerp >= 0.2f ? maxForwardSpeed : (object)MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, lerp / 0.2f);
+        swapBlockData["speed"] = lerp >= 0.2f ? maxForwardSpeed : (object) MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, lerp / 0.2f);
 
         Audio.Stop(swapBlockData.Get<EventInstance>("returnSfx"));
         Audio.Stop(swapBlockData.Get<EventInstance>("moveSfx"));
@@ -415,8 +415,8 @@ public class MoveSwapBlock : SwapBlock
 
                     // Structs are value types, not reference types, so we have to copy it back and forth
                     moveRect = swapBlockData.Get<Rectangle>("moveRect");
-                    moveRect.X = (int)Math.Min(start.X, end.X);
-                    moveRect.Y = (int)Math.Min(start.Y, end.Y);
+                    moveRect.X = (int) Math.Min(start.X, end.X);
+                    moveRect.Y = (int) Math.Min(start.Y, end.Y);
                     swapBlockData["moveRect"] = moveRect;
 
                     swapBlockData["start"] = start;
@@ -614,17 +614,17 @@ public class MoveSwapBlock : SwapBlock
         bool top = (!canSteer | vertical) && !CollideCheck<Player>(Position - Vector2.UnitY);
         if (left)
         {
-            SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int)(Height / 2f), CenterLeft, Vector2.UnitY * (Height - 4f) * 0.5f, (float)Math.PI);
+            SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (Height / 2f), CenterLeft, Vector2.UnitY * (Height - 4f) * 0.5f, (float) Math.PI);
         }
         if (right)
         {
-            SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int)(Height / 2f), CenterRight, Vector2.UnitY * (Height - 4f) * 0.5f, 0f);
+            SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (Height / 2f), CenterRight, Vector2.UnitY * (Height - 4f) * 0.5f, 0f);
         }
         if (top)
         {
-            SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int)(Width / 2f), TopCenter, Vector2.UnitX * (Width - 4f) * 0.5f, -(float)Math.PI / 2f);
+            SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (Width / 2f), TopCenter, Vector2.UnitX * (Width - 4f) * 0.5f, -(float) Math.PI / 2f);
         }
-        SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int)(Width / 2f), BottomCenter, Vector2.UnitX * (Width - 4f) * 0.5f, (float)Math.PI / 2f);
+        SceneAs<Level>().ParticlesBG.Emit(MoveBlock.P_Activate, (int) (Width / 2f), BottomCenter, Vector2.UnitX * (Width - 4f) * 0.5f, (float) Math.PI / 2f);
     }
 
     private void BreakParticles()
@@ -650,7 +650,7 @@ public class MoveSwapBlock : SwapBlock
         {
             position = CenterLeft + Vector2.UnitX;
             positionRange = Vector2.UnitY * (Height - 4f);
-            angle = (float)Math.PI;
+            angle = (float) Math.PI;
             particleNum = Height / 32f;
         }
         else if (MoveDirection == Directions.Left)
@@ -664,19 +664,19 @@ public class MoveSwapBlock : SwapBlock
         {
             position = TopCenter + Vector2.UnitY;
             positionRange = Vector2.UnitX * (Width - 4f);
-            angle = -(float)Math.PI / 2f;
+            angle = -(float) Math.PI / 2f;
             particleNum = Width / 32f;
         }
         else
         {
             position = BottomCenter;
             positionRange = Vector2.UnitX * (Width - 4f);
-            angle = (float)Math.PI / 2f;
+            angle = (float) Math.PI / 2f;
             particleNum = Width / 32f;
         }
 
         particleRemainder += particleNum;
-        int particleNumTruncated = (int)particleRemainder;
+        int particleNumTruncated = (int) particleRemainder;
         particleRemainder -= particleNumTruncated;
 
         positionRange *= 0.5f;
@@ -958,7 +958,7 @@ public class MoveSwapBlock : SwapBlock
             if (block.State != MovementState.Breaking)
             {
                 // This can probably be cleaned up, but I haven't bothered to understand it
-                int value = Calc.Clamp((int)Math.Floor(((block.angle + (Calc.QuarterCircle * 5)) % Calc.Circle / Calc.Circle * 8f) + 0.5f), 0, 7);
+                int value = Calc.Clamp((int) Math.Floor(((block.angle + (Calc.QuarterCircle * 5)) % Calc.Circle / Calc.Circle * 8f) + 0.5f), 0, 7);
 
                 Image middleImage = middle;
                 if (block.State == MovementState.Moving && !block.Swapping && (block.Position == block.start || block.Position == block.end))

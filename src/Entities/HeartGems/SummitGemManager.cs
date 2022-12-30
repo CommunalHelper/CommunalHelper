@@ -153,7 +153,7 @@ public class CustomSummitGemManager : Entity
                 Input.Rumble(RumbleStrength.Light, RumbleLength.Short);
                 for (int i = 0; i < 20; i++)
                 {
-                    level.ParticlesFG.Emit(SummitGem.P_Shatter, gem.Position + new Vector2(Calc.Random.Range(-8, 8), Calc.Random.Range(-8, 8)), gem.ParticleColor, Calc.Random.NextFloat((float)Math.PI * 2f));
+                    level.ParticlesFG.Emit(SummitGem.P_Shatter, gem.Position + new Vector2(Calc.Random.Range(-8, 8), Calc.Random.Range(-8, 8)), gem.ParticleColor, Calc.Random.NextFloat((float) Math.PI * 2f));
                 }
 
                 broken++;

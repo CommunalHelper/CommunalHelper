@@ -200,8 +200,8 @@ public class ShieldedRefill : Entity
         yield return 0.05f;
 
         float num = player.Speed.Angle();
-        level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - ((float)Math.PI / 2f));
-        level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + ((float)Math.PI / 2f));
+        level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - ((float) Math.PI / 2f));
+        level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + ((float) Math.PI / 2f));
         SlashFx.Burst(Position, num);
         if (oneUse)
         {
@@ -232,7 +232,7 @@ public class ShieldedRefill : Entity
         player.Speed = value * 200;
         if (Math.Abs(player.Speed.X) < 80f)
         {
-            player.Speed.X = player.Speed.X == 0f ? (float)(0 - player.Facing) * 80 : (float)Math.Sign(player.Speed.X) * 80;
+            player.Speed.X = player.Speed.X == 0f ? (float) (0 - player.Facing) * 80 : (float) Math.Sign(player.Speed.X) * 80;
         }
     }
 }

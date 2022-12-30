@@ -375,7 +375,7 @@ public class DreamMoveBlock : CustomDreamBlock
         if (moveSfx != null && moveSfx.Playing)
         {
             float num = (Calc.AngleToVector(angle, 1f) * new Vector2(-1f, 1f)).Angle();
-            int num2 = (int)Math.Floor(((0f - num + ((float)Math.PI * 2f)) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f) + 0.5f);
+            int num2 = (int) Math.Floor(((0f - num + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
             moveSfx.Param("arrow_influence", num2 + 1);
         }
         flash = Calc.Approach(flash, 0f, Engine.DeltaTime * 5f);
@@ -480,7 +480,7 @@ public class DreamMoveBlock : CustomDreamBlock
         Color color = Color.Lerp(ActiveLineColor, Color.Black, ColorLerp);
         if (State != MovementState.Breaking)
         {
-            int value = (int)Math.Floor(((0f - angle + ((float)Math.PI * 2f)) % ((float)Math.PI * 2f) / ((float)Math.PI * 2f) * 8f) + 0.5f);
+            int value = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
             MTexture arrow = arrows[Calc.Clamp(value, 0, 7)];
             arrow.DrawCentered(Center + baseData.Get<Vector2>("shake"), color);
         }
@@ -505,7 +505,7 @@ public class DreamMoveBlock : CustomDreamBlock
             {
                 ParticleType particle = dreamParticles[activateParticleIndex];
                 Vector2 position = TopLeft + (Vector2.UnitY * i * 2);
-                SceneAs<Level>().Particles.Emit(particle, 1, position, Vector2.One, (float)Math.PI);
+                SceneAs<Level>().Particles.Emit(particle, 1, position, Vector2.One, (float) Math.PI);
                 ++activateParticleIndex;
                 activateParticleIndex %= 4;
             }
@@ -527,7 +527,7 @@ public class DreamMoveBlock : CustomDreamBlock
             {
                 ParticleType particle = dreamParticles[activateParticleIndex];
                 Vector2 position = TopLeft + (Vector2.UnitX * i * 2);
-                SceneAs<Level>().Particles.Emit(particle, 1, position, Vector2.One, -(float)Math.PI / 2f);
+                SceneAs<Level>().Particles.Emit(particle, 1, position, Vector2.One, -(float) Math.PI / 2f);
                 ++activateParticleIndex;
                 activateParticleIndex %= 4;
             }
@@ -536,7 +536,7 @@ public class DreamMoveBlock : CustomDreamBlock
         {
             ParticleType particle = dreamParticles[activateParticleIndex];
             Vector2 position = BottomLeft + (Vector2.UnitX * i * 2);
-            SceneAs<Level>().Particles.Emit(particle, 1, position, Vector2.One, (float)Math.PI / 2f);
+            SceneAs<Level>().Particles.Emit(particle, 1, position, Vector2.One, (float) Math.PI / 2f);
             ++activateParticleIndex;
             activateParticleIndex %= 4;
         }
@@ -567,7 +567,7 @@ public class DreamMoveBlock : CustomDreamBlock
         {
             position = CenterLeft + Vector2.UnitX;
             positionRange = Vector2.UnitY * (Height - 4f);
-            dir = (float)Math.PI;
+            dir = (float) Math.PI;
             num2 = Height / 32f;
         }
         else if (Direction == MoveBlock.Directions.Left)
@@ -581,19 +581,19 @@ public class DreamMoveBlock : CustomDreamBlock
         {
             position = TopCenter + Vector2.UnitY;
             positionRange = Vector2.UnitX * (Width - 4f);
-            dir = -(float)Math.PI / 2f;
+            dir = -(float) Math.PI / 2f;
             num2 = Width / 32f;
         }
         else
         {
             position = BottomCenter;
             positionRange = Vector2.UnitX * (Width - 4f);
-            dir = (float)Math.PI / 2f;
+            dir = (float) Math.PI / 2f;
             num2 = Width / 32f;
         }
 
         particleRemainder += num2;
-        int amount = (int)particleRemainder;
+        int amount = (int) particleRemainder;
         particleRemainder -= amount;
         positionRange *= 0.5f;
         if (amount > 0)
@@ -669,7 +669,7 @@ public class DreamMoveBlock : CustomDreamBlock
             cursor.Emit(OpCodes.Ldfld, f_this);
             cursor.EmitDelegate<Func<DreamBlock, bool>>(block => block is DreamMoveBlock moveBlock && !moveBlock.Visible);
             cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
-            foreach (ParameterDefinition param in ((MethodReference)cursor.Next.Operand).Parameters)
+            foreach (ParameterDefinition param in ((MethodReference) cursor.Next.Operand).Parameters)
                 cursor.Emit(OpCodes.Pop);
             cursor.Emit(OpCodes.Pop);
             cursor.Emit(OpCodes.Br_S, cursor.Next.Next);

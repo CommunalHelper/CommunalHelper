@@ -1,8 +1,7 @@
-﻿global using System;
+﻿global using Celeste.Mod.Entities;
 global using Microsoft.Xna.Framework;
 global using Monocle;
-global using Celeste.Mod.Entities;
-
+global using System;
 using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
@@ -15,13 +14,13 @@ public class CommunalHelperModule : EverestModule
     public static CommunalHelperModule Instance;
 
     public override Type SettingsType => typeof(CommunalHelperSettings);
-    public static CommunalHelperSettings Settings => (CommunalHelperSettings)Instance._Settings;
+    public static CommunalHelperSettings Settings => (CommunalHelperSettings) Instance._Settings;
 
     public override Type SaveDataType => typeof(CommunalHelperSaveData);
-    public static CommunalHelperSaveData SaveData => (CommunalHelperSaveData)Instance._SaveData;
+    public static CommunalHelperSaveData SaveData => (CommunalHelperSaveData) Instance._SaveData;
 
     public override Type SessionType => typeof(CommunalHelperSession);
-    public static CommunalHelperSession Session => (CommunalHelperSession)Instance._Session;
+    public static CommunalHelperSession Session => (CommunalHelperSession) Instance._Session;
 
     public CommunalHelperModule()
     {
@@ -282,7 +281,7 @@ public class CommunalHelperModule : EverestModule
 
         return command == "CommunalHelperCycleCassetteBlocksBinding"
             ? Settings.CycleCassetteBlocks.Button
-            : command == "CommunalHelperActivateFlagControllerBinding" ? Settings.ActivateFlagController.Button : (object)null;
+            : command == "CommunalHelperActivateFlagControllerBinding" ? Settings.ActivateFlagController.Button : (object) null;
     }
 }
 

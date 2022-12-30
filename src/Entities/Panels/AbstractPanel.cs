@@ -228,7 +228,7 @@ public abstract class AbstractPanel : Entity
         {
             if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null && panel.Orientation == Directions.Up && entity.CollideCheck(panel, entity.Position + Vector2.UnitY))
             {
-                return (int)panel.surfaceSoundIndex;
+                return (int) panel.surfaceSoundIndex;
             }
         }
         return orig(self, entity);
@@ -240,13 +240,13 @@ public abstract class AbstractPanel : Entity
         {
             if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null)
             {
-                if (side == (int)Facings.Left && panel.Orientation == Directions.Right && player.CollideCheck(panel, player.Position - Vector2.UnitX))
+                if (side == (int) Facings.Left && panel.Orientation == Directions.Right && player.CollideCheck(panel, player.Position - Vector2.UnitX))
                 {
-                    return (int)panel.surfaceSoundIndex;
+                    return (int) panel.surfaceSoundIndex;
                 }
-                if (side == (int)Facings.Right && panel.Orientation == Directions.Left && player.CollideCheck(panel, player.Position + Vector2.UnitX))
+                if (side == (int) Facings.Right && panel.Orientation == Directions.Left && player.CollideCheck(panel, player.Position + Vector2.UnitX))
                 {
-                    return (int)panel.surfaceSoundIndex;
+                    return (int) panel.surfaceSoundIndex;
                 }
             }
         }
@@ -285,7 +285,7 @@ public abstract class AbstractPanel : Entity
     private static void DashBlock_Break_Vector2_Vector2_bool_bool(On.Celeste.DashBlock.orig_Break_Vector2_Vector2_bool_bool orig, DashBlock self, Vector2 from, Vector2 direction, bool playSound, bool playDebrisSound)
     {
         orig(self, from, direction, playSound, playDebrisSound);
-        List<StaticMover> staticMovers = (List<StaticMover>)f_Platform_staticMovers.GetValue(self);
+        List<StaticMover> staticMovers = (List<StaticMover>) f_Platform_staticMovers.GetValue(self);
         foreach (StaticMover mover in staticMovers)
         {
             if (mover.Entity is AbstractPanel)

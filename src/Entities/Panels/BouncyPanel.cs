@@ -31,7 +31,7 @@ public class BouncyPanel : AbstractPanel
         if (newState == Player.StNormal)
         {
             // no bounce if the player is going to climb! Climbing should already take priority over bouncing.
-            if (!SaveData.Instance.Assists.NoGrabbing && !self.Ducking && self.Stamina >= 20f && Input.GrabCheck && self.ClimbCheck((int)self.Facing))
+            if (!SaveData.Instance.Assists.NoGrabbing && !self.Ducking && self.Stamina >= 20f && Input.GrabCheck && self.ClimbCheck((int) self.Facing))
             {
                 return newState;
             }

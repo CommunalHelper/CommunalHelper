@@ -119,7 +119,7 @@ public class Cloudscape : Backdrop
             if (oldPercent == percent && !force)
                 return;
 
-            float sin = ((float)Math.Sin(percent * 10) + 1) / 2f;
+            float sin = ((float) Math.Sin(percent * 10) + 1) / 2f;
             Color target = Color.Lerp(targetColorA, targetColorB, sin);
             Color lightning = Color.Lerp(IdleColor, target, Ease.BounceIn(percent) * (1 - Ease.CubeIn(percent)));
             Color flash = intensity > 0 ? Color.Lerp(lightning, flashColor, intensity * Ease.ExpoIn(percent)) : lightning;
@@ -196,7 +196,7 @@ public class Cloudscape : Backdrop
                 {
                     float th = angle + (step * i);
 
-                    float uvx = MathHelper.Lerp(texture.LeftUV, texture.RightUV, (float)i / (LEVEL_OF_DETAIL - 1));
+                    float uvx = MathHelper.Lerp(texture.LeftUV, texture.RightUV, (float) i / (LEVEL_OF_DETAIL - 1));
                     VertexPositionColorTexture closerVertex = new(new(Calc.AngleToVector(th, radius - halfHeight), 0), color, new(uvx, texture.TopUV));
                     VertexPositionColorTexture fartherVertex = new(new(Calc.AngleToVector(th, radius + halfHeight), 0), color, new(uvx, texture.BottomUV));
                     Mesh.AddVertices(closerVertex, fartherVertex);
@@ -288,11 +288,11 @@ public class Cloudscape : Backdrop
         float dRotation = options.OuterRotation - options.InnerRotation;
         for (int i = 0; i < count; i++)
         {
-            float percent = (float)i / count;
+            float percent = (float) i / count;
 
             Color color = Util.ColorArrayLerp(percent * (options.Colors.Length - 1), options.Colors);
             float radius = a + (d * percent);
-            float speed = (dRotation * (float)Math.Pow(percent, options.RotationExponent)) + options.InnerRotation;
+            float speed = (dRotation * (float) Math.Pow(percent, options.RotationExponent)) + options.InnerRotation;
             float density = MathHelper.Lerp(options.InnerDensity, options.OuterDensity, percent);
 
             if (density == 0)

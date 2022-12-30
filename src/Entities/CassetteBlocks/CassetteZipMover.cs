@@ -125,7 +125,7 @@ public class CassetteZipMover : CustomCassetteBlock
                 prev = node;
             }
 
-            bounds = new((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
+            bounds = new((int) min.X, (int) min.Y, (int) (max.X - min.X), (int) (max.Y - min.Y));
             bounds.Inflate(10, 10);
 
             ropeColor = baseRopeColor.Mult(zipMover.color);
@@ -288,8 +288,8 @@ public class CassetteZipMover : CustomCassetteBlock
             int dir = Math.Sign(to.Y - ExactPosition.Y);
             Vector2 origin = (dir != 1) ? TopLeft : BottomLeft;
 
-            int start = dir == 1 ? Math.Min((int)Height - 12, 20) : 4;
-            int end = dir == -1 ? Math.Max(16, (int)Height - 16) : (int)Height;
+            int start = dir == 1 ? Math.Min((int) Height - 12, 20) : 4;
+            int end = dir == -1 ? Math.Max(16, (int) Height - 16) : (int) Height;
 
             if (Scene.CollideCheck<Solid>(origin + new Vector2(-2f, dir * -2)))
                 for (int i = start; i < end; i += 8)
@@ -305,8 +305,8 @@ public class CassetteZipMover : CustomCassetteBlock
             int dir = Math.Sign(to.X - ExactPosition.X);
             Vector2 origin = (dir != 1) ? TopLeft : TopRight;
 
-            int start = dir == 1 ? Math.Min((int)Width - 12, 20) : 4;
-            int end = dir == -1 ? Math.Max(16, (int)Width - 16) : (int)Width;
+            int start = dir == 1 ? Math.Min((int) Width - 12, 20) : 4;
+            int end = dir == -1 ? Math.Max(16, (int) Width - 16) : (int) Width;
 
             if (Scene.CollideCheck<Solid>(origin + new Vector2(dir * -2, -2f)))
                 for (int k = start; k < end; k += 8)

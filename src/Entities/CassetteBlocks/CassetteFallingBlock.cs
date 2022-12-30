@@ -66,7 +66,7 @@ public class CassetteFallingBlock : CustomCassetteBlock
             {
                 if (Scene.CollideCheck<Solid>(TopLeft + new Vector2(i, -2f)))
                 {
-                    SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + i, Y), Vector2.One * 4f, (float)Math.PI / 2f);
+                    SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + i, Y), Vector2.One * 4f, (float) Math.PI / 2f);
                 }
                 SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + i, Y), Vector2.One * 4f);
             }
@@ -135,8 +135,8 @@ public class CassetteFallingBlock : CustomCassetteBlock
         {
             if (Scene.CollideCheck<Solid>(BottomLeft + new Vector2(i, 3f)))
             {
-                SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, -(float)Math.PI / 2f);
-                float direction = (!(i < Width / 2f)) ? 0f : ((float)Math.PI);
+                SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, -(float) Math.PI / 2f);
+                float direction = (!(i < Width / 2f)) ? 0f : ((float) Math.PI);
                 SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_LandDust, 1, new Vector2(X + i, Bottom), Vector2.One * 4f, direction);
             }
         }

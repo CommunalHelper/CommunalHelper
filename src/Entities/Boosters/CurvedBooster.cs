@@ -43,7 +43,7 @@ public class CurvedBooster : CustomBooster
             : base(alpha, booster.style, PathColors, booster)
         {
             float sep = 6f;
-            nodes = new Node[(int)Math.Ceiling(booster.curve.Length / sep)];
+            nodes = new Node[(int) Math.Ceiling(booster.curve.Length / sep)];
 
             for (int i = 0; i < nodes.Length; i++)
             {

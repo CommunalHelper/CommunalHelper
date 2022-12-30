@@ -243,8 +243,8 @@ public class DreamSwitchGate : CustomDreamBlock
                 Vector2 point = vector + Vector2.UnitX;
                 if (Scene.CollideCheck<Solid>(vector) && !Scene.CollideCheck<Solid>(point))
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vector + value, (float)Math.PI);
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vector - value, (float)Math.PI);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vector + value, (float) Math.PI);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vector - value, (float) Math.PI);
                 }
             }
         }
@@ -271,8 +271,8 @@ public class DreamSwitchGate : CustomDreamBlock
                 Vector2 point = vectpr + Vector2.UnitY;
                 if (Scene.CollideCheck<Solid>(vectpr) && !Scene.CollideCheck<Solid>(point))
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vectpr + value, -(float)Math.PI / 2f);
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vectpr - value, -(float)Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vectpr + value, -(float) Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vectpr - value, -(float) Math.PI / 2f);
                 }
             }
         }
@@ -285,8 +285,8 @@ public class DreamSwitchGate : CustomDreamBlock
                 Vector2 point = vector - (Vector2.UnitY * 2f);
                 if (Scene.CollideCheck<Solid>(vector) && !Scene.CollideCheck<Solid>(point))
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vector + value, (float)Math.PI / 2f);
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vector - value, (float)Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vector + value, (float) Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, vector - value, (float) Math.PI / 2f);
                 }
             }
         }
@@ -309,7 +309,7 @@ public class DreamSwitchGate : CustomDreamBlock
         {
             for (int m = 0; m < 32; m++)
             {
-                float num = Calc.Random.NextFloat((float)Math.PI * 2f);
+                float num = Calc.Random.NextFloat((float) Math.PI * 2f);
                 SceneAs<Level>().ParticlesFG.Emit(TouchSwitch.P_Fire, Center + Calc.AngleToVector(num, 4f), num);
             }
         }
@@ -415,8 +415,8 @@ public class DreamSwitchGate : CustomDreamBlock
                 Vector2 noCollideAt = collideAt + Vector2.UnitX;
                 if (Scene.CollideCheck<Solid>(collideAt) && !Scene.CollideCheck<Solid>(noCollideAt))
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, (float)Math.PI);
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, (float)Math.PI);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, (float) Math.PI);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, (float) Math.PI);
                 }
             }
         }
@@ -447,8 +447,8 @@ public class DreamSwitchGate : CustomDreamBlock
                 Vector2 noCollideAt = collideAt + Vector2.UnitY;
                 if (Scene.CollideCheck<Solid>(collideAt) && !Scene.CollideCheck<Solid>(noCollideAt))
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, -(float)Math.PI / 2f);
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, -(float)Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, -(float) Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, -(float) Math.PI / 2f);
                 }
             }
         }
@@ -463,8 +463,8 @@ public class DreamSwitchGate : CustomDreamBlock
                 Vector2 noCollideAt = collideAt - (Vector2.UnitY * 2f);
                 if (Scene.CollideCheck<Solid>(collideAt) && !Scene.CollideCheck<Solid>(noCollideAt))
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, (float)Math.PI / 2f);
-                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, (float)Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt + add, (float) Math.PI / 2f);
+                    SceneAs<Level>().ParticlesFG.Emit(SwitchGate.P_Dust, collideAt - add, (float) Math.PI / 2f);
                 }
             }
         }
@@ -492,7 +492,7 @@ public class DreamSwitchGate : CustomDreamBlock
         {
             for (int i = 0; i < 32; i++)
             {
-                float angle = Calc.Random.NextFloat((float)Math.PI * 2f);
+                float angle = Calc.Random.NextFloat((float) Math.PI * 2f);
                 SceneAs<Level>().ParticlesFG.Emit(goingBack ? P_RecoloredFireBack : P_RecoloredFire, Position + iconOffset + Calc.AngleToVector(angle, 4f), angle);
             }
         }

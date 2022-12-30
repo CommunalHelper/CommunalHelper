@@ -150,7 +150,7 @@ public class DreamStrawberry : Strawberry
         bool loseDreamSeeds = self.StateMachine.State switch
         {
             Player.StNormal => self.CollideCheck<Platform, DreamBlock>(self.Position + new Vector2(0, self.IsInverted() ? -1 : 1)),
-            Player.StClimb => self.CollideCheck<Platform, DreamBlock>(self.Position + (Vector2.UnitX * (int)self.Facing)),
+            Player.StClimb => self.CollideCheck<Platform, DreamBlock>(self.Position + (Vector2.UnitX * (int) self.Facing)),
             _ => false,
         };
 

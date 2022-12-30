@@ -91,13 +91,13 @@ public class DreamTunnelRefill : DashStateRefill
         Level level = baseData.Get<Level>("level");
         for (int i = 0; i < 5; ++i)
         {
-            level.ParticlesFG.Emit(P_Shatter[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle - ((float)Math.PI / 2f));
+            level.ParticlesFG.Emit(P_Shatter[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle - ((float) Math.PI / 2f));
             ++shatterParticleIndex;
             shatterParticleIndex %= 4;
         }
         for (int i = 0; i < 5; ++i)
         {
-            level.ParticlesFG.Emit(P_Shatter[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle + ((float)Math.PI / 2f));
+            level.ParticlesFG.Emit(P_Shatter[shatterParticleIndex], 1, Position, Vector2.One * 4f, angle + ((float) Math.PI / 2f));
             ++shatterParticleIndex;
             shatterParticleIndex %= 4;
         }

@@ -95,8 +95,8 @@ public class MoveBlockRedirect : Entity
             GFX.Game.PopFallback();
         }
 
-        int w = (int)(Width / 8f);
-        int h = (int)(Height / 8f);
+        int w = (int) (Width / 8f);
+        int h = (int) (Height / 8f);
         for (int i = -1; i <= w; i++)
         {
             for (int j = -1; j <= h; j++)
@@ -165,7 +165,7 @@ public class MoveBlockRedirect : Entity
         {
             Color = icon.Sprite.Color,
             Color2 = Color.Lerp(icon.Sprite.Color, Color.White, .2f),
-            DirectionRange = (float)Math.PI * 0.5f,
+            DirectionRange = (float) Math.PI * 0.5f,
             SpeedMax = 20f
         };
     }
@@ -391,13 +391,13 @@ public class MoveBlockRedirect : Entity
 
         for (int i = 0; i < Height / 8; i++)
         {
-            level.Particles.Emit(p_Used, new Vector2(Left + 1f, Calc.Random.Range(Top + 3f, Bottom - 3f)), (float)Math.PI);
+            level.Particles.Emit(p_Used, new Vector2(Left + 1f, Calc.Random.Range(Top + 3f, Bottom - 3f)), (float) Math.PI);
             level.Particles.Emit(p_Used, new Vector2(Right - 1f, Calc.Random.Range(Top + 3f, Bottom - 3f)), 0f);
         }
         for (int i = 0; i < Width / 8; i++)
         {
-            level.Particles.Emit(p_Used, new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Top + 1f), -(float)Math.PI / 2f);
-            level.Particles.Emit(p_Used, new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Bottom - 1f), (float)Math.PI / 2f);
+            level.Particles.Emit(p_Used, new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Top + 1f), -(float) Math.PI / 2f);
+            level.Particles.Emit(p_Used, new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Bottom - 1f), (float) Math.PI / 2f);
         }
     }
 

@@ -50,8 +50,8 @@ public class ResetStateCrystal : Refill
         player.StateMachine.State = 0;
         float angle = player.Speed.Angle();
         Level level = baseData.Get<Level>("level");
-        level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle - ((float)Math.PI / 2f));
-        level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle + ((float)Math.PI / 2f));
+        level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle - ((float) Math.PI / 2f));
+        level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle + ((float) Math.PI / 2f));
         SlashFx.Burst(Position, angle);
         if (oneUse)
         {

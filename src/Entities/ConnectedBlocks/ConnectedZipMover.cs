@@ -135,7 +135,7 @@ public class ConnectedZipMover : ConnectedSolid
                 prev = node;
             }
 
-            bounds = new((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
+            bounds = new((int) min.X, (int) min.Y, (int) (max.X - min.X), (int) (max.Y - min.Y));
             bounds.Inflate(10, 10);
 
             this.color = color;
@@ -410,7 +410,7 @@ public class ConnectedZipMover : ConnectedSolid
             int oldN = n;
             for (int j = 4; j <= w + 4; j += 8)
             {
-                int index = (int)(Util.Mod((rot + (n * percent * (float)Math.PI * 4f)) / ((float)Math.PI / 2f), 1f) * count);
+                int index = (int) (Util.Mod((rot + (n * percent * (float) Math.PI * 4f)) / ((float) Math.PI / 2f), 1f) * count);
                 MTexture mTexture = innerCogs[index];
                 Rectangle rectangle = new(0, 0, mTexture.Width, mTexture.Height);
                 Vector2 zero = Vector2.Zero;
@@ -466,10 +466,10 @@ public class ConnectedZipMover : ConnectedSolid
         if (drawBlackBorder)
             foreach (Hitbox extension in AllColliders)
                 Draw.HollowRect(new Rectangle(
-                    (int)(X + extension.Left - 1f + Shake.X),
-                    (int)(Y + extension.Top - 1f + Shake.Y),
-                    (int)extension.Width + 2,
-                    (int)extension.Height + 2),
+                    (int) (X + extension.Left - 1f + Shake.X),
+                    (int) (Y + extension.Top - 1f + Shake.Y),
+                    (int) extension.Width + 2,
+                    (int) extension.Height + 2),
                     Color.Black);
     }
 
@@ -541,7 +541,7 @@ public class ConnectedZipMover : ConnectedSolid
                     while (!HasPlayerRider() && tickNum < 5)
                     {
                         yield return null;
-                        streetlight.SetAnimationFrame(1 - (int)Math.Round(tickTime));
+                        streetlight.SetAnimationFrame(1 - (int) Math.Round(tickTime));
 
 
                         tickTime = Calc.Approach(tickTime, 1f, Engine.DeltaTime);

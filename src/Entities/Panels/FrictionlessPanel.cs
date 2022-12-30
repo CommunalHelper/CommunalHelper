@@ -85,7 +85,7 @@ public class FrictionlessPanel : AbstractPanel
                     {
                         if (mover.Entity is FrictionlessPanel panel &&
                             panel.Orientation is Directions.Left or Directions.Right &&
-                            player.CollideCheck(mover.Entity, player.Position + new Vector2((int)player.Facing, move)))
+                            player.CollideCheck(mover.Entity, player.Position + new Vector2((int) player.Facing, move)))
                         {
                             return false;
                         }

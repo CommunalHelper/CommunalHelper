@@ -62,7 +62,7 @@ internal class DreamJellyfish : Glider
         // So let's add a listener that does this for us.
         Component listener = GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) =>
         {
-            bool inverted = value == (int)GravityType.Inverted;
+            bool inverted = value == (int) GravityType.Inverted;
             dreamDashCollider.Collider.Position.Y = inverted ? 1 : -18; // a bit hacky
         });
         if (listener is not null)
@@ -75,7 +75,7 @@ internal class DreamJellyfish : Glider
 
         int w = ParticleBounds.Width;
         int h = ParticleBounds.Height;
-        Particles = new DreamParticle[(int)(w / 8f * (h / 8f) * 1.5f)];
+        Particles = new DreamParticle[(int) (w / 8f * (h / 8f) * 1.5f)];
         for (int i = 0; i < Particles.Length; i++)
         {
             Particles[i].Position = new Vector2(Calc.Random.NextFloat(w), Calc.Random.NextFloat(h));
@@ -112,7 +112,7 @@ internal class DreamJellyfish : Glider
             player.GetData()["minHoldTimer"] = 0f;
             new DynData<Holdable>(Hold)["cannotHoldTimer"] = 0;
 
-            if ((bool)m_Player_Pickup.Invoke(player, new object[] { Hold }))
+            if ((bool) m_Player_Pickup.Invoke(player, new object[] { Hold }))
             {
                 player.StateMachine.State = Player.StPickup;
             }

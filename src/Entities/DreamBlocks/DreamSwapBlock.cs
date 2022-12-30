@@ -27,7 +27,7 @@ public class DreamSwapBlock : CustomDreamBlock
 
         public override void Render()
         {
-            float scale = 0.5f * (0.5f + (((float)Math.Sin(timer) + 1f) * 0.25f));
+            float scale = 0.5f * (0.5f + (((float) Math.Sin(timer) + 1f) * 0.25f));
             scale = Calc.LerpClamp(scale, 1, block.ColorLerp);
             block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, ActiveLineColor * scale);
         }
@@ -96,10 +96,10 @@ public class DreamSwapBlock : CustomDreamBlock
         Direction.Y = Math.Sign(end.Y - start.Y);
         Add(new DashListener { OnDash = OnDash });
 
-        int left = (int)MathHelper.Min(X, end.X);
-        int top = (int)MathHelper.Min(Y, end.Y);
-        int right = (int)MathHelper.Max(X + Width, end.X + Width);
-        int bottom = (int)MathHelper.Max(Y + Height, end.Y + Height);
+        int left = (int) MathHelper.Min(X, end.X);
+        int top = (int) MathHelper.Min(Y, end.Y);
+        int right = (int) MathHelper.Max(X + Width, end.X + Width);
+        int bottom = (int) MathHelper.Max(Y + Height, end.Y + Height);
         moveRect = new Rectangle(left, top, right - left, bottom - top);
 
         MTexture targetTexture = GFX.Game["objects/swapblock/target"];
@@ -338,7 +338,7 @@ public class DreamSwapBlock : CustomDreamBlock
         {
             position = CenterLeft;
             positionRange = Vector2.UnitY * (Height - 6f);
-            direction = (float)Math.PI;
+            direction = (float) Math.PI;
             num = Math.Max(2f, Height / 14f);
         }
         else if (normal.X < 0f)
@@ -352,19 +352,19 @@ public class DreamSwapBlock : CustomDreamBlock
         {
             position = TopCenter;
             positionRange = Vector2.UnitX * (Width - 6f);
-            direction = -(float)Math.PI / 2f;
+            direction = -(float) Math.PI / 2f;
             num = Math.Max(2f, Width / 14f);
         }
         else
         {
             position = BottomCenter;
             positionRange = Vector2.UnitX * (Width - 6f);
-            direction = (float)Math.PI / 2f;
+            direction = (float) Math.PI / 2f;
             num = Math.Max(2f, Width / 14f);
         }
 
         particlesRemainder += num;
-        int amount = (int)particlesRemainder;
+        int amount = (int) particlesRemainder;
         particlesRemainder -= amount;
         positionRange *= 0.5f;
         SceneAs<Level>().Particles.Emit(dreamParticles[particleIndex], amount, position, positionRange, direction);
@@ -374,8 +374,8 @@ public class DreamSwapBlock : CustomDreamBlock
 
     private void DrawBlockStyle(Vector2 pos, float width, float height, MTexture[,] ninSlice, Sprite middle, Color color)
     {
-        int tilesX = (int)(width / 8f);
-        int tilesY = (int)(height / 8f);
+        int tilesX = (int) (width / 8f);
+        int tilesY = (int) (height / 8f);
         ninSlice[0, 0].Draw(pos + new Vector2(0f, 0f), Vector2.Zero, color);
         ninSlice[2, 0].Draw(pos + new Vector2(width - 8f, 0f), Vector2.Zero, color);
         ninSlice[0, 2].Draw(pos + new Vector2(0f, height - 8f), Vector2.Zero, color);

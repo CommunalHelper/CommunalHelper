@@ -99,7 +99,7 @@ internal class DreamDashCollider : Component
     private static void Player_DreamDashEnd(On.Celeste.Player.orig_DreamDashEnd orig, Player self)
     {
         DynData<Player> playerData = self.GetData();
-        if ((DreamBlock)playerData["dreamBlock"] is DreamBlockDummy dummy)
+        if ((DreamBlock) playerData["dreamBlock"] is DreamBlockDummy dummy)
         {
             foreach (DreamDashCollider collider in dummy.Entity.Components.GetAll<DreamDashCollider>())
             {

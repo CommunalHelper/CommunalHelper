@@ -133,8 +133,8 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
         this.eid = eid;
         this.persistent = persistent;
         Collidable = Visible = false;
-        int tilesW = (int)(width / 8f);
-        int tilesH = (int)(height / 8f);
+        int tilesW = (int) (width / 8f);
+        int tilesH = (int) (height / 8f);
         List<MTexture> atlasSubtextures = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/connectedTempleCrackedBlock/breakBlock");
         tiles = new Tuple<int, int>[tilesW, tilesH];
         frames = atlasSubtextures.Count;
@@ -204,7 +204,7 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
         {
             AutoTile(texture);
         }
-        int num = (int)frame;
+        int num = (int) frame;
         if (num >= frames)
         {
             return;
@@ -248,8 +248,8 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
 
     private void AutoTile(MTexture[,,] tex)
     {
-        int tWidth = (int)((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-        int tHeight = (int)((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+        int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+        int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
         Tuple<int, int>[,] res = new Tuple<int, int>[tWidth, tHeight];
         for (int x = 0; x < tWidth; x++)

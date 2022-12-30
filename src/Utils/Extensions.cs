@@ -35,10 +35,10 @@ public static class Extensions
 
     public static Color Mult(this Color color, Color other)
     {
-        color.R = (byte)(color.R * other.R / 256f);
-        color.G = (byte)(color.G * other.G / 256f);
-        color.B = (byte)(color.B * other.B / 256f);
-        color.A = (byte)(color.A * other.A / 256f);
+        color.R = (byte) (color.R * other.R / 256f);
+        color.G = (byte) (color.G * other.G / 256f);
+        color.B = (byte) (color.B * other.B / 256f);
+        color.A = (byte) (color.A * other.A / 256f);
         return color;
     }
 
@@ -164,7 +164,7 @@ public static class Extensions
     public static Color GetHairColor(this Player player, int dashCount)
     {
         if (MoreDashelineLoaded)
-            return (Color)MoreDasheline_GetHairColor.Invoke(null, new object[] { player, dashCount });
+            return (Color) MoreDasheline_GetHairColor.Invoke(null, new object[] { player, dashCount });
 
         bool isBadeline = player.Sprite.Mode == PlayerSpriteMode.MadelineAsBadeline;
         return dashCount switch
@@ -190,7 +190,7 @@ public static class Extensions
 
     public static Entity FindFirst_MiniHeart(this EntityList list)
     {
-        return CollabUtilsLoaded ? (Entity)m_FindFirst_MiniHeart.Invoke(list, new object[] { }) : null;
+        return CollabUtilsLoaded ? (Entity) m_FindFirst_MiniHeart.Invoke(list, new object[] { }) : null;
     }
 
     public static bool SatisfiesDependency(EverestModuleMetadata meta, EverestModuleMetadata dependency)
@@ -289,7 +289,7 @@ public static class Extensions
         {
             if (player.Speed.X == 0f)
             {
-                player.Speed.X = -(float)player.Facing * 100f;
+                player.Speed.X = -(float) player.Facing * 100f;
                 return;
             }
             player.Speed.X = Math.Sign(player.Speed.X) * 100f;
@@ -327,9 +327,9 @@ public static class Extensions
     {
         return dir switch
         {
-            MoveBlock.Directions.Left => (float)Math.PI,
-            MoveBlock.Directions.Up => -(float)Math.PI / 2f,
-            MoveBlock.Directions.Down => (float)Math.PI / 2f,
+            MoveBlock.Directions.Left => (float) Math.PI,
+            MoveBlock.Directions.Up => -(float) Math.PI / 2f,
+            MoveBlock.Directions.Down => (float) Math.PI / 2f,
             _ => 0f
         };
     }
@@ -416,10 +416,10 @@ public static class Extensions
     /// <returns>The index of the new state</returns>
     public static int AddState(this StateMachine machine, Func<int> onUpdate, Func<IEnumerator> coroutine = null, Action begin = null, Action end = null)
     {
-        Action[] begins = (Action[])StateMachine_begins.GetValue(machine);
-        Func<int>[] updates = (Func<int>[])StateMachine_updates.GetValue(machine);
-        Action[] ends = (Action[])StateMachine_ends.GetValue(machine);
-        Func<IEnumerator>[] coroutines = (Func<IEnumerator>[])StateMachine_coroutines.GetValue(machine);
+        Action[] begins = (Action[]) StateMachine_begins.GetValue(machine);
+        Func<int>[] updates = (Func<int>[]) StateMachine_updates.GetValue(machine);
+        Action[] ends = (Action[]) StateMachine_ends.GetValue(machine);
+        Func<IEnumerator>[] coroutines = (Func<IEnumerator>[]) StateMachine_coroutines.GetValue(machine);
         int nextIndex = begins.Length;
         // Now let's expand the arrays
         Array.Resize(ref begins, begins.Length + 1);
@@ -483,10 +483,10 @@ public static class Extensions
 
     public static Rectangle GetBounds(this Camera camera)
     {
-        int top = (int)camera.Top;
-        int bottom = (int)camera.Bottom;
-        int left = (int)camera.Left;
-        int right = (int)camera.Right;
+        int top = (int) camera.Top;
+        int bottom = (int) camera.Bottom;
+        int left = (int) camera.Left;
+        int right = (int) camera.Right;
 
         return new(left, top, right - left, bottom - top);
     }
@@ -583,7 +583,7 @@ public static class Extensions
 
     public static GravityType GetGravity(this Actor actor)
     {
-        return (GravityType)(GravityHelper.GetActorGravity?.Invoke(actor) ?? 0);
+        return (GravityType) (GravityHelper.GetActorGravity?.Invoke(actor) ?? 0);
     }
 
     public static bool IsInverted(this Actor actor)

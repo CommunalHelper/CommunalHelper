@@ -80,7 +80,7 @@ public class StationBlock : Solid
 
         dashCornerCorrection = data.Bool("dashCornerCorrection", false);
 
-        int minSize = (int)Calc.Min(Width, Height);
+        int minSize = (int) Calc.Min(Width, Height);
         string size = minSize <= 16 ? "small" : minSize <= 24 ? "medium" : "big";
         string block = "objects/CommunalHelper/stationBlock/blocks/";
         string sprite;
@@ -261,8 +261,8 @@ public class StationBlock : Solid
 
     private void GenerateTiles()
     {
-        int tileWidth = (int)(Width / 8f);
-        int tileHeight = (int)(Height / 8f);
+        int tileWidth = (int) (Width / 8f);
+        int tileHeight = (int) (Height / 8f);
         blockTiles = new MTexture[tileWidth, tileHeight];
         for (int i = 0; i < tileWidth; i++)
         {
@@ -400,25 +400,25 @@ public class StationBlock : Solid
             int num2 = 4;
             if (num == 1)
             {
-                num2 = Math.Min((int)Height - 12, 20);
+                num2 = Math.Min((int) Height - 12, 20);
             }
-            int num3 = (int)Height;
+            int num3 = (int) Height;
             if (num == -1)
             {
-                num3 = Math.Max(16, (int)Height - 16);
+                num3 = Math.Max(16, (int) Height - 16);
             }
             if (Scene.CollideCheck<Solid>(value + new Vector2(-2f, num * -2)))
             {
                 for (int i = num2; i < num3; i += 8)
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(0f, i + (num * 2f)), (num == 1) ? (-(float)Math.PI / 4f) : ((float)Math.PI / 4f));
+                    SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(0f, i + (num * 2f)), (num == 1) ? (-(float) Math.PI / 4f) : ((float) Math.PI / 4f));
                 }
             }
             if (Scene.CollideCheck<Solid>(value + new Vector2(Width + 2f, num * -2)))
             {
                 for (int j = num2; j < num3; j += 8)
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopRight + new Vector2(-1f, j + (num * 2f)), (num == 1) ? ((float)Math.PI * -3f / 4f) : ((float)Math.PI * 3f / 4f));
+                    SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopRight + new Vector2(-1f, j + (num * 2f)), (num == 1) ? ((float) Math.PI * -3f / 4f) : ((float) Math.PI * 3f / 4f));
                 }
             }
         }
@@ -433,25 +433,25 @@ public class StationBlock : Solid
             int num5 = 4;
             if (num4 == 1)
             {
-                num5 = Math.Min((int)Width - 12, 20);
+                num5 = Math.Min((int) Width - 12, 20);
             }
-            int num6 = (int)Width;
+            int num6 = (int) Width;
             if (num4 == -1)
             {
-                num6 = Math.Max(16, (int)Width - 16);
+                num6 = Math.Max(16, (int) Width - 16);
             }
             if (Scene.CollideCheck<Solid>(value2 + new Vector2(num4 * -2, -2f)))
             {
                 for (int k = num5; k < num6; k += 8)
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(k + (num4 * 2f), -1f), (num4 == 1) ? ((float)Math.PI * 3f / 4f) : ((float)Math.PI / 4f));
+                    SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, TopLeft + new Vector2(k + (num4 * 2f), -1f), (num4 == 1) ? ((float) Math.PI * 3f / 4f) : ((float) Math.PI / 4f));
                 }
             }
             if (Scene.CollideCheck<Solid>(value2 + new Vector2(num4 * -2, Height + 2f)))
             {
                 for (int l = num5; l < num6; l += 8)
                 {
-                    SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, BottomLeft + new Vector2(l + (num4 * 2f), 0f), (num4 == 1) ? ((float)Math.PI * -3f / 4f) : (-(float)Math.PI / 4f));
+                    SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, BottomLeft + new Vector2(l + (num4 * 2f), 0f), (num4 == 1) ? ((float) Math.PI * -3f / 4f) : (-(float) Math.PI / 4f));
                 }
             }
         }
@@ -545,8 +545,8 @@ public class StationBlock : Solid
         Vector2 position = Position;
         Position += Shake;
 
-        int tileWidth = (int)(Width / 8f);
-        int tileHeight = (int)(Height / 8f);
+        int tileWidth = (int) (Width / 8f);
+        int tileHeight = (int) (Height / 8f);
 
         bool inverted = GravityHelper.IsPlayerInverted?.Invoke() ?? false;
         bool playerOnTop = HasPlayerOnTop();

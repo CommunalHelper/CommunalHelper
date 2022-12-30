@@ -37,11 +37,11 @@ public class PlayerSeekerHair : Component
             if (Engine.Scene.OnInterval(spasmInterval))
                 angleSpeed += random.Next(1, 4);
 
-            float angle = (float)Math.Sin(Engine.Scene.TimeActive) * .2f;
+            float angle = (float) Math.Sin(Engine.Scene.TimeActive) * .2f;
             Vector2 dir = new Vector2(direction.X * -facing, direction.Y).Rotate(angle);
             Vector2 waveDir = dir.Perpendicular() * 1.125f;
 
-            Vector2 target = nodes[0] + dir + (waveDir * (float)Math.Sin(wave));
+            Vector2 target = nodes[0] + dir + (waveDir * (float) Math.Sin(wave));
             Vector2 current = nodes[0];
 
             const float step = 3;
@@ -51,14 +51,14 @@ public class PlayerSeekerHair : Component
             {
                 if (motion)
                 {
-                    float speed = (1f - ((float)i / nodes.Length * 0.5f)) * 64f;
+                    float speed = (1f - ((float) i / nodes.Length * 0.5f)) * 64f;
                     nodes[i] = Calc.Approach(nodes[i], target, speed * Engine.DeltaTime);
                 }
 
                 if (Vector2.DistanceSquared(nodes[i], current) > stepSq)
                     nodes[i] = current + ((nodes[i] - current).SafeNormalize() * step);
 
-                target = nodes[i] + dir + (waveDir * (float)Math.Sin(wave + (i * 0.8f)));
+                target = nodes[i] + dir + (waveDir * (float) Math.Sin(wave + (i * 0.8f)));
                 current = nodes[i];
             }
         }
@@ -91,7 +91,7 @@ public class PlayerSeekerHair : Component
                     continue;
                 scale *= GetHairScale(i);
 
-                float lerp = ((float)i / (nodes.Length - 1)) + (Engine.Scene.TimeActive * 0.75f);
+                float lerp = ((float) i / (nodes.Length - 1)) + (Engine.Scene.TimeActive * 0.75f);
                 Color color = Util.ColorArrayLerp(lerp, SeekerHairColors);
                 seekerHairSegments[i % seekerHairSegments.Length].DrawCentered(nodes[i], color, scale);
             }
@@ -99,7 +99,7 @@ public class PlayerSeekerHair : Component
 
         private float GetHairScale(int index)
         {
-            return 0.25f + ((1f - ((float)index / nodes.Length)) * 0.75f);
+            return 0.25f + ((1f - ((float) index / nodes.Length)) * 0.75f);
         }
     }
 
@@ -126,13 +126,13 @@ public class PlayerSeekerHair : Component
     {
         Player player = Entity as Player;
         PlayerSprite sprite = player.Sprite;
-        int facing = (int)player.Facing;
+        int facing = (int) player.Facing;
 
         Vector2 hairOffset = player.Sprite.HairOffset * new Vector2(facing, 1f);
         Vector2 hairPosition = player.Sprite.RenderPosition + new Vector2(0f, -9f * sprite.Scale.Y) + hairOffset;
 
         foreach (Braid braid in braids)
-            braid.Simulate(hairPosition, (int)player.Facing, motion);
+            braid.Simulate(hairPosition, (int) player.Facing, motion);
     }
 
     public override void Render()

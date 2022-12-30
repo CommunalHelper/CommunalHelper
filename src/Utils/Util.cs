@@ -25,7 +25,7 @@ public static class Util
 
     public static Color CopyColor(Color color, float alpha)
     {
-        return new Color(color.R, color.G, color.B, (byte)alpha * 255);
+        return new Color(color.R, color.G, color.B, (byte) alpha * 255);
     }
 
     public static Color CopyColor(Color color, int alpha)
@@ -36,7 +36,7 @@ public static class Util
     public static Color ColorArrayLerp(float lerp, params Color[] colors)
     {
         float m = lerp % colors.Length;
-        int fromIndex = (int)Math.Floor(m);
+        int fromIndex = (int) Math.Floor(m);
         int toIndex = (fromIndex + 1) % colors.Length;
         float clampedLerp = m - fromIndex;
 
@@ -49,7 +49,7 @@ public static class Util
         {
             if (str.Equals(prop.Name))
             {
-                return CopyColor((Color)prop.GetValue(null), alpha);
+                return CopyColor((Color) prop.GetValue(null), alpha);
             }
         }
         return CopyColor(Calc.HexToColor(str.Trim('#')), alpha);
@@ -97,7 +97,7 @@ public static class Util
     {
         Vector2 min = Min(a, b);
         Vector2 size = Max(a, b) - min;
-        return new((int)min.X, (int)min.Y, (int)size.X, (int)size.Y);
+        return new((int) min.X, (int) min.Y, (int) size.X, (int) size.Y);
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ public static class Util
 
     public static float PowerBounce(float x, float p)
     {
-        return -(float)Math.Pow(Math.Abs(2 * (Mod(x, 1) - .5f)), p) + 1;
+        return -(float) Math.Pow(Math.Abs(2 * (Mod(x, 1) - .5f)), p) + 1;
     }
 
     public static bool Blink(float time, float duration)

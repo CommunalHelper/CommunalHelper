@@ -122,7 +122,7 @@ public class NoOverlayLookout : Entity
             player.Drop();
 
         player.StateMachine.State = Player.StDummy;
-        yield return player.DummyWalkToExact((int)X, walkBackwards: false, 1f, cancelOnFall: true);
+        yield return player.DummyWalkToExact((int) X, walkBackwards: false, 1f, cancelOnFall: true);
 
         if (Math.Abs(X - player.X) > 4f || player.Dead || !player.OnGround())
         {

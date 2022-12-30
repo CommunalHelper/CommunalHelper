@@ -99,7 +99,7 @@ public class CustomSummitGem : SummitGem
             Scene.Add(new AbsorbOrb(Position, player, null));
         }
         level.Flash(Color.White, true);
-        Scene.Add((Entity)Activator.CreateInstance(t_BgFlash));
+        Scene.Add((Entity) Activator.CreateInstance(t_BgFlash));
 
         Engine.TimeRate = 0.5f;
         while (Engine.TimeRate < 1f)

@@ -161,8 +161,8 @@ public static class DreamTunnelDash
             if (!self.CollideCheck<Solid, DreamBlock>() && self.CollideCheck<Solid, DreamBlock>(self.Position + dir))
             {
                 self.Speed = self.DashDir = lastAim;
-                self.MoveHExact((int)dir.X, playerData.Get<Collision>("onCollideH"));
-                self.MoveVExact((int)dir.Y, playerData.Get<Collision>("onCollideV"));
+                self.MoveHExact((int) dir.X, playerData.Get<Collision>("onCollideH"));
+                self.MoveVExact((int) dir.Y, playerData.Get<Collision>("onCollideV"));
             }
 
             if (NextDashFeather)
@@ -414,7 +414,7 @@ public static class DreamTunnelDash
 
     public static void CreateTrail(this Player player, Color color)
     {
-        Vector2 scale = new(Math.Abs(player.Sprite.Scale.X) * (float)player.Facing, player.Sprite.Scale.Y);
+        Vector2 scale = new(Math.Abs(player.Sprite.Scale.X) * (float) player.Facing, player.Sprite.Scale.Y);
         TrailManager.Add(player, scale, color);
     }
 
@@ -693,7 +693,7 @@ public static class DreamTunnelDash
                     int moveX = playerData.Get<int>("moveX");
                     if (Input.Grab.Check && ((moveX == 1 && flag2) || (moveX == -1 && flag)))
                     {
-                        player.Facing = (Facings)moveX;
+                        player.Facing = (Facings) moveX;
                         if (!SaveData.Instance.Assists.NoGrabbing)
                         {
                             return Player.StClimb;

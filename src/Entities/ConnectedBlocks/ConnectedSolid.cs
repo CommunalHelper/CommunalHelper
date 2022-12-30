@@ -111,13 +111,13 @@ public class ConnectedSolid : Solid
             // You don't want disabled Solids hanging around in the level, so you remove them.
         }
 
-        int tWidth = (int)((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-        int tHeight = (int)((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+        int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+        int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
         GroupTiles = new bool[tWidth + 2, tHeight + 2];
         AllGroupTiles = new bool[tWidth + 2, tHeight + 2];
 
-        Colliders[Colliders.Length - 1] = (Hitbox)Collider;
-        AllColliders[AllColliders.Length - 1] = (Hitbox)Collider;
+        Colliders[Colliders.Length - 1] = (Hitbox) Collider;
+        AllColliders[AllColliders.Length - 1] = (Hitbox) Collider;
 
         Collider = new ColliderList(AllColliders);
         for (int x = 0; x < tWidth + 2; x++)
@@ -164,8 +164,8 @@ public class ConnectedSolid : Solid
         foreach (SolidExtension extension in Scene.Tracker.GetEntities<SolidExtension>())
         {
             if (!extension.HasGroup &&
-                (Scene.CollideCheck(new Rectangle((int)X - 1, (int)Y, (int)Width + 2, (int)Height), extension) ||
-                Scene.CollideCheck(new Rectangle((int)X, (int)Y - 1, (int)Width, (int)Height + 2), extension)))
+                (Scene.CollideCheck(new Rectangle((int) X - 1, (int) Y, (int) Width + 2, (int) Height), extension) ||
+                Scene.CollideCheck(new Rectangle((int) X, (int) Y - 1, (int) Width, (int) Height + 2), extension)))
             {
                 extension.AddToGroupAndFindChildren(extension, this, list);
             }
@@ -226,8 +226,8 @@ public class ConnectedSolid : Solid
 
     public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, out List<Image> bgTiles, bool storeTiles = true, bool addAsComponent = true)
     {
-        int tWidth = (int)((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-        int tHeight = (int)((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+        int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+        int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
         List<Image> res = new();
         bgTiles = new List<Image>();
@@ -291,14 +291,14 @@ public class ConnectedSolid : Solid
             bool downright = tiles[x + 1, y + 1];
 
             image = AutoTileTexture(
-                (Sides)Util.ToBitFlag(up, down, left, right),
-                (Corners)Util.ToBitFlag(upleft, upright, downleft, downright),
+                (Sides) Util.ToBitFlag(up, down, left, right),
+                (Corners) Util.ToBitFlag(upleft, upright, downleft, downright),
                 edges, innerCorners, out tileData);
-            autoTileData[(int)tilePos.X, (int)tilePos.Y] = tileData;
+            autoTileData[(int) tilePos.X, (int) tilePos.Y] = tileData;
         }
         else
         {
-            tileData = autoTileData[(int)tilePos.X, (int)tilePos.Y];
+            tileData = autoTileData[(int) tilePos.X, (int) tilePos.Y];
             image = new Image(
                     tileData.Type == TileType.InnerCorner ?
                     innerCorners[tileData.X, tileData.Y] :
@@ -381,7 +381,7 @@ public class ConnectedSolid : Solid
 
     private bool TileCollideWithGroup(int x, int y)
     {
-        return CollideRect(new Rectangle((int)GroupBoundsMin.X + (x * 8), (int)GroupBoundsMin.Y + (y * 8), 8, 8));
+        return CollideRect(new Rectangle((int) GroupBoundsMin.X + (x * 8), (int) GroupBoundsMin.Y + (y * 8), 8, 8));
     }
 
     /* 
@@ -420,7 +420,7 @@ public class ConnectedSolid : Solid
                                 float left = X + hitbox.Left;
                                 float right = X + hitbox.Right;
 
-                                int moveH = (move <= 0) ? (int)(left - entity.Right) : (int)(right - entity.Left);
+                                int moveH = (move <= 0) ? (int) (left - entity.Right) : (int) (right - entity.Left);
 
                                 Collidable = false;
                                 entity.MoveHExact(moveH, entity.SquishCallback, this);
@@ -478,7 +478,7 @@ public class ConnectedSolid : Solid
                                 float top = Y + hitbox.Top;
                                 float bottom = Y + hitbox.Bottom;
 
-                                int moveV = (move <= 0) ? (int)(top - entity.Bottom) : (int)(bottom - entity.Top);
+                                int moveV = (move <= 0) ? (int) (top - entity.Bottom) : (int) (bottom - entity.Top);
                                 Collidable = false;
                                 entity.MoveVExact(moveV, entity.SquishCallback, this);
                                 entity.LiftSpeed = LiftSpeed;

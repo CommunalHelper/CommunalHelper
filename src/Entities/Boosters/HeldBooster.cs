@@ -160,7 +160,7 @@ public class HeldBooster : CustomBooster
         if (green)
             anim = 1f;
         else
-            SetAim(Vector2.UnitX * (int)player.Facing, pulse: true);
+            SetAim(Vector2.UnitX * (int) player.Facing, pulse: true);
 
         arrow.Play("inside");
     }
@@ -208,7 +208,7 @@ public class HeldBooster : CustomBooster
             {
                 if (blink)
                 {
-                    int ms = (int)(ease * 60);
+                    int ms = (int) (ease * 60);
                     sound.setTimelinePosition(ms);
                 }
                 prevBlink = blink;
@@ -255,7 +255,7 @@ public class HeldBooster : CustomBooster
 
         player.SceneAs<Level>().DirectionalShake(player.DashDir, 0.2f);
         if (player.DashDir.X != 0f)
-            player.Facing = (Facings)Math.Sign(player.DashDir.X);
+            player.Facing = (Facings) Math.Sign(player.DashDir.X);
 
         yield break;
     }

@@ -153,28 +153,28 @@ public class TrackSwitchBox : Solid
             direction = 0f;
             position = CenterRight - (Vector2.UnitX * 12f);
             positionRange = Vector2.UnitY * (Height - 6f) * 0.5f;
-            num = (int)(Height / 8f) * 4;
+            num = (int) (Height / 8f) * 4;
         }
         else if (dir == -Vector2.UnitX)
         {
-            direction = (float)Math.PI;
+            direction = (float) Math.PI;
             position = CenterLeft + (Vector2.UnitX * 12f);
             positionRange = Vector2.UnitY * (Height - 6f) * 0.5f;
-            num = (int)(Height / 8f) * 4;
+            num = (int) (Height / 8f) * 4;
         }
         else if (dir == Vector2.UnitY)
         {
-            direction = (float)Math.PI / 2f;
+            direction = (float) Math.PI / 2f;
             position = BottomCenter - (Vector2.UnitY * 12f);
             positionRange = Vector2.UnitX * (Width - 6f) * 0.5f;
-            num = (int)(Width / 8f) * 4;
+            num = (int) (Width / 8f) * 4;
         }
         else
         {
-            direction = -(float)Math.PI / 2f;
+            direction = -(float) Math.PI / 2f;
             position = TopCenter + (Vector2.UnitY * 12f);
             positionRange = Vector2.UnitX * (Width - 6f) * 0.5f;
-            num = (int)(Width / 8f) * 4;
+            num = (int) (Width / 8f) * 4;
         }
         num += 2;
         SceneAs<Level>().Particles.Emit(P_Smash, num, position, positionRange, direction);
@@ -237,19 +237,19 @@ public class TrackSwitchBox : Solid
         sprite.Position += shaker.Value;
 
         Rectangle rect = new(
-            (int)(Center.X + ((X - Center.X) * sprite.Scale.X)),
-            (int)(Center.Y + ((Y - Center.Y) * sprite.Scale.Y)),
-            (int)(Width * sprite.Scale.X),
-            (int)(Height * sprite.Scale.Y));
+            (int) (Center.X + ((X - Center.X) * sprite.Scale.X)),
+            (int) (Center.Y + ((Y - Center.Y) * sprite.Scale.Y)),
+            (int) (Width * sprite.Scale.X),
+            (int) (Height * sprite.Scale.Y));
         rect.Inflate(-1, -1);
 
         uint seed = Seed;
 
         Draw.Rect(rect, Color.Lerp(OnColor, OffColor, colorLerp));
 
-        for (int i = rect.Y; (float)i < rect.Bottom; i += 2)
+        for (int i = rect.Y; (float) i < rect.Bottom; i += 2)
         {
-            float scale = 0.05f + ((1f + (float)Math.Sin((i / 16f) + (Scene.TimeActive * 2f))) / 2f * 0.2f);
+            float scale = 0.05f + ((1f + (float) Math.Sin((i / 16f) + (Scene.TimeActive * 2f))) / 2f * 0.2f);
             Draw.Line(rect.X, i, rect.X + rect.Width, i, Color.White * 0.55f * scale);
         }
 

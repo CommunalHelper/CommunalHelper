@@ -128,7 +128,7 @@ public class SegmentBooster : CustomBooster
 
         player.SceneAs<Level>().DirectionalShake(player.DashDir, 0.2f);
         if (player.DashDir.X != 0f)
-            player.Facing = (Facings)Math.Sign(player.DashDir.X);
+            player.Facing = (Facings) Math.Sign(player.DashDir.X);
 
         yield break;
     }

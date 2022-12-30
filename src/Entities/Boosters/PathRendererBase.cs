@@ -46,13 +46,13 @@ public abstract class PathRendererBase<T> : Entity where T : CustomBooster
 
     public void DrawPathLine(Vector2 pos, Vector2 dir, Vector2 perp, float offset, Player player, Color lerp, float alpha = 1f)
     {
-        float sin = ((float)Math.Sin(offset + (Scene.TimeActive * 6f)) * 0.3f) + 1f;
+        float sin = ((float) Math.Sin(offset + (Scene.TimeActive * 6f)) * 0.3f) + 1f;
 
         float highlight = .25f;
         if (player != null)
         {
             float dSquared = Vector2.DistanceSquared(player.Center, pos);
-            highlight = dSquared <= 6400f ? Calc.ClampedMap((float)Math.Sqrt(dSquared), 0, 80) : 1;
+            highlight = dSquared <= 6400f ? Calc.ClampedMap((float) Math.Sqrt(dSquared), 0, 80) : 1;
         }
 
         float lineHighlight = ((1 - highlight) * 2.5f) + 0.75f;

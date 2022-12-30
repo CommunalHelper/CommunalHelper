@@ -59,7 +59,7 @@ public abstract class DashStateRefill : Refill
             Audio.Play(TouchSFX, Position);
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
             Collidable = false;
-            Add(new Coroutine((IEnumerator)m_Refill_RefillRoutine.Invoke(this, new object[] { player })));
+            Add(new Coroutine((IEnumerator) m_Refill_RefillRoutine.Invoke(this, new object[] { player })));
             baseData["respawnTimer"] = respawnTime;
         }
     }

@@ -81,13 +81,13 @@ public abstract class CustomDreamBlock : DreamBlock
 
     public bool PlayerHasDreamDash => baseData.Get<bool>("playerHasDreamDash");
 
-    public static Color ActiveLineColor => (Color)f_DreamBlock_activeLineColor.GetValue(null);
+    public static Color ActiveLineColor => (Color) f_DreamBlock_activeLineColor.GetValue(null);
     private static readonly FieldInfo f_DreamBlock_activeLineColor = typeof(DreamBlock).GetField("activeLineColor", BindingFlags.NonPublic | BindingFlags.Static);
-    public static Color DisabledLineColor => (Color)f_DreamBlock_disabledLineColor.GetValue(null);
+    public static Color DisabledLineColor => (Color) f_DreamBlock_disabledLineColor.GetValue(null);
     private static readonly FieldInfo f_DreamBlock_disabledLineColor = typeof(DreamBlock).GetField("disabledLineColor", BindingFlags.NonPublic | BindingFlags.Static);
-    public static Color ActiveBackColor => (Color)f_DreamBlock_activeBackColor.GetValue(null);
+    public static Color ActiveBackColor => (Color) f_DreamBlock_activeBackColor.GetValue(null);
     private static readonly FieldInfo f_DreamBlock_activeBackColor = typeof(DreamBlock).GetField("activeBackColor", BindingFlags.NonPublic | BindingFlags.Static);
-    public static Color DisabledBackColor => (Color)f_DreamBlock_disabledBackColor.GetValue(null);
+    public static Color DisabledBackColor => (Color) f_DreamBlock_disabledBackColor.GetValue(null);
     private static readonly FieldInfo f_DreamBlock_disabledBackColor = typeof(DreamBlock).GetField("disabledBackColor", BindingFlags.NonPublic | BindingFlags.Static);
 
     // All dream colors in one array, independent of layer.
@@ -131,7 +131,7 @@ public abstract class CustomDreamBlock : DreamBlock
             Color = ActiveLineColor,
             ColorMode = ParticleType.ColorModes.Static,
             Acceleration = Vector2.Zero,
-            DirectionRange = (float)Math.PI / 2
+            DirectionRange = (float) Math.PI / 2
         };
 
         featherTextures = new MTexture[] {
@@ -170,7 +170,7 @@ public abstract class CustomDreamBlock : DreamBlock
     public virtual void SetupCustomParticles(float canvasWidth, float canvasHeight)
     {
         float countFactor = (FeatherMode ? 0.5f : 0.7f) * RefillCount != -1 ? 1.2f : 1;
-        particles = new DreamParticle[(int)(canvasWidth / 8f * (canvasHeight / 8f) * 0.7f * countFactor)];
+        particles = new DreamParticle[(int) (canvasWidth / 8f * (canvasHeight / 8f) * 0.7f * countFactor)];
         baseData["particles"] = Array.CreateInstance(DreamParticle.t_DreamParticle, particles.Length);
 
         // Necessary to get the player's spritemode
@@ -206,7 +206,7 @@ public abstract class CustomDreamBlock : DreamBlock
                 particles[i].Speed = Calc.Random.Range(6f, 16f);
                 particles[i].Spin = Calc.Random.Range(8f, 12f) * 0.2f;
                 particles[i].RotationCounter = Calc.Random.NextAngle();
-                particles[i].MaxRotate = Calc.Random.Range(0.3f, 0.6f) * ((float)Math.PI / 2f);
+                particles[i].MaxRotate = Calc.Random.Range(0.3f, 0.6f) * ((float) Math.PI / 2f);
             }
 
             #endregion
@@ -242,7 +242,7 @@ public abstract class CustomDreamBlock : DreamBlock
                 case 0:
                     position = CenterLeft + Vector2.UnitX;
                     positionRange = Vector2.UnitY * (Height - 4f);
-                    angle = (float)Math.PI;
+                    angle = (float) Math.PI;
                     num2 = Height / 32f;
                     break;
                 case 1:
@@ -254,20 +254,20 @@ public abstract class CustomDreamBlock : DreamBlock
                 case 2:
                     position = TopCenter + Vector2.UnitY;
                     positionRange = Vector2.UnitX * (Width - 4f);
-                    angle = -(float)Math.PI / 2f;
+                    angle = -(float) Math.PI / 2f;
                     num2 = Width / 32f;
                     break;
                 default:
                     position = BottomCenter;
                     positionRange = Vector2.UnitX * (Width - 4f);
-                    angle = (float)Math.PI / 2f;
+                    angle = (float) Math.PI / 2f;
                     num2 = Width / 32f;
                     break;
             }
 
             num2 *= 0.25f;
             particleRemainders[i] += num2;
-            int amount = (int)particleRemainders[i];
+            int amount = (int) particleRemainders[i];
             particleRemainders[i] -= amount;
             positionRange *= 0.5f;
             if (amount > 0f)
@@ -354,12 +354,12 @@ public abstract class CustomDreamBlock : DreamBlock
             DreamParticle particle = particles[i];
             int layer = particle.Layer;
             Vector2 position = particle.Position + (cameraPositon * (0.3f + (0.25f * layer)));
-            float rotation = ((float)Math.PI / 2f) - 0.8f + (float)Math.Sin(particle.RotationCounter * particle.MaxRotate);
+            float rotation = ((float) Math.PI / 2f) - 0.8f + (float) Math.Sin(particle.RotationCounter * particle.MaxRotate);
             if (FeatherMode)
             {
                 position += Calc.AngleToVector(rotation, 4f);
             }
-            position = (Vector2)m_DreamBlock_PutInside.Invoke(this, new object[] { position });
+            position = (Vector2) m_DreamBlock_PutInside.Invoke(this, new object[] { position });
             if (!CheckParticleCollide(position))
                 continue;
 
@@ -377,13 +377,13 @@ public abstract class CustomDreamBlock : DreamBlock
                 {
                     case 0:
                     {
-                        int index = (int)(((particle.TimeOffset * 4f) + baseData.Get<float>("animTimer")) % 4f);
+                        int index = (int) (((particle.TimeOffset * 4f) + baseData.Get<float>("animTimer")) % 4f);
                         particleTexture = particleTextures[3 - index];
                         break;
                     }
                     case 1:
                     {
-                        int index = (int)(((particle.TimeOffset * 2f) + baseData.Get<float>("animTimer")) % 2f);
+                        int index = (int) (((particle.TimeOffset * 2f) + baseData.Get<float>("animTimer")) % 2f);
                         particleTexture = particleTextures[1 + index];
                         break;
                     }
@@ -469,7 +469,7 @@ public abstract class CustomDreamBlock : DreamBlock
         {
             Vector2 position = particles[i].Position;
             position += camera * (0.3f + (0.25f * particles[i].Layer));
-            position = (Vector2)m_DreamBlock_PutInside.Invoke(this, new object[] { position });
+            position = (Vector2) m_DreamBlock_PutInside.Invoke(this, new object[] { position });
 
             Color flickerColor = Color.Lerp(particles[i].Color, Color.White, 0.6f);
             ParticleType type = new(Lightning.P_Shatter)
@@ -478,7 +478,7 @@ public abstract class CustomDreamBlock : DreamBlock
                 Color = particles[i].Color,
                 Color2 = flickerColor,
                 Source = FeatherMode ? featherTextures[particles[i].Layer] : baseData.Get<MTexture[]>("particleTextures")[2],
-                SpinMax = FeatherMode ? (float)Math.PI : 0,
+                SpinMax = FeatherMode ? (float) Math.PI : 0,
                 RotationMode = FeatherMode ? ParticleType.RotationModes.Random : ParticleType.RotationModes.None,
                 Direction = (position - Center).Angle()
             };

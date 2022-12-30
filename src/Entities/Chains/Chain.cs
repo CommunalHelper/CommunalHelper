@@ -52,7 +52,7 @@ public class Chain : Entity
     private Vector2 sfxPos;
 
     public Chain(EntityData data, Vector2 offset)
-        : this(data.Bool("outline", true), (int)((Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8) + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) { }
+        : this(data.Bool("outline", true), (int) ((Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8) + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) { }
 
     public Chain(bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter)
         : base(attachedStartGetter())
@@ -83,8 +83,8 @@ public class Chain : Entity
         Vector2 start = nodes[0].Position;
         Vector2 end = nodes[nodes.Length - 1].Position;
 
-        Solid startSolid = scene.CollideFirst<Solid>(new Rectangle((int)start.X - 2, (int)start.Y - 2, 4, 4));
-        Solid endSolid = scene.CollideFirst<Solid>(new Rectangle((int)end.X - 2, (int)end.Y - 2, 4, 4));
+        Solid startSolid = scene.CollideFirst<Solid>(new Rectangle((int) start.X - 2, (int) start.Y - 2, 4, 4));
+        Solid endSolid = scene.CollideFirst<Solid>(new Rectangle((int) end.X - 2, (int) end.Y - 2, 4, 4));
 
         if (startSolid != null)
         {

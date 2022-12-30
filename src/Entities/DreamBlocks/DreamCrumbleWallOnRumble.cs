@@ -42,7 +42,7 @@ public class DreamCrumbleWallOnRumble : CustomDreamBlock
             {
                 for (int y = 0; y < Height / 8f; y++)
                 {
-                    if (!Scene.CollideCheck<Solid>(new Rectangle((int)X + (x * 8), (int)Y + (y * 8), 8, 8)))
+                    if (!Scene.CollideCheck<Solid>(new Rectangle((int) X + (x * 8), (int) Y + (y * 8), 8, 8)))
                     {
                         Scene.Add(Engine.Pooler.Create<DreamBlockDebris>().Init(Position + new Vector2(4 + (x * 8), 4 + (y * 8))).BlastFrom(TopCenter));
                     }
@@ -88,7 +88,7 @@ public class DreamCrumbleWallOnRumble : CustomDreamBlock
         List<DreamCrumbleWallOnRumble> crumbles = new();
         foreach (Entity entity in scene.Tracker.GetEntities<DreamCrumbleWallOnRumble>())
         {
-            DreamCrumbleWallOnRumble crumble = (DreamCrumbleWallOnRumble)entity;
+            DreamCrumbleWallOnRumble crumble = (DreamCrumbleWallOnRumble) entity;
             if ((!constrainHeight || (crumble.Y >= top && crumble.Y <= bottom)) && crumble.X >= left && crumble.X <= right)
             {
                 if (triggered)

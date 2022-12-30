@@ -201,7 +201,7 @@ public class AttachedWallBooster : WallBooster
         orig(self);
 
         DynData<Player> data = self.GetData();
-        float timer = (float)data[Player_attachedWallBoosterLiftSpeedTimer];
+        float timer = (float) data[Player_attachedWallBoosterLiftSpeedTimer];
         if (timer > 0)
             data[Player_attachedWallBoosterLiftSpeedTimer] = Calc.Approach(timer, 0f, Engine.DeltaTime);
     }
@@ -222,8 +222,8 @@ public class AttachedWallBooster : WallBooster
     {
         DynData<Player> data = player.GetData();
 
-        float timer = (float)data[Player_attachedWallBoosterLiftSpeedTimer];
-        float currentSpeed = (float)data[Player_attachedWallBoosterCurrentSpeed];
+        float timer = (float) data[Player_attachedWallBoosterLiftSpeedTimer];
+        float currentSpeed = (float) data[Player_attachedWallBoosterCurrentSpeed];
 
         /*
          * So...

@@ -79,10 +79,10 @@ public class CassetteSwapBlock : CustomCassetteBlock
 
         Add(new DashListener { OnDash = OnDash });
 
-        int minX = (int)MathHelper.Min(X, node.X);
-        int minY = (int)MathHelper.Min(Y, node.Y);
-        int maxX = (int)MathHelper.Max(X + Width, node.X + Width);
-        int maxY = (int)MathHelper.Max(Y + Height, node.Y + Height);
+        int minX = (int) MathHelper.Min(X, node.X);
+        int minY = (int) MathHelper.Min(Y, node.Y);
+        int maxX = (int) MathHelper.Max(X + Width, node.X + Width);
+        int maxY = (int) MathHelper.Max(Y + Height, node.Y + Height);
         moveRect = new Rectangle(minX, minY, maxX - minX, maxY - minY);
 
         MTexture mTexture3 = GFX.Game["objects/swapblock/target"];
@@ -301,7 +301,7 @@ public class CassetteSwapBlock : CustomCassetteBlock
         {
             position = CenterLeft;
             positionRange = Vector2.UnitY * (Height - 6f);
-            direction = (float)Math.PI;
+            direction = (float) Math.PI;
             num = Math.Max(2f, Height / 14f);
         }
         else if (normal.X < 0f)
@@ -315,18 +315,18 @@ public class CassetteSwapBlock : CustomCassetteBlock
         {
             position = TopCenter;
             positionRange = Vector2.UnitX * (Width - 6f);
-            direction = -(float)Math.PI / 2f;
+            direction = -(float) Math.PI / 2f;
             num = Math.Max(2f, Width / 14f);
         }
         else
         {
             position = BottomCenter;
             positionRange = Vector2.UnitX * (Width - 6f);
-            direction = (float)Math.PI / 2f;
+            direction = (float) Math.PI / 2f;
             num = Math.Max(2f, Width / 14f);
         }
         particlesRemainder += num;
-        int num2 = (int)particlesRemainder;
+        int num2 = (int) particlesRemainder;
         particlesRemainder -= num2;
         positionRange *= 0.5f;
         SceneAs<Level>().Particles.Emit(Collidable ? moveParticle : moveParticlePressed, num2, position, positionRange, direction);
@@ -334,8 +334,8 @@ public class CassetteSwapBlock : CustomCassetteBlock
 
     private void DrawBlockStyle(Vector2 pos, float width, float height, MTexture[,] ninSlice, Sprite middle, Color color)
     {
-        int tilesX = (int)(width / 8f);
-        int tilesY = (int)(height / 8f);
+        int tilesX = (int) (width / 8f);
+        int tilesY = (int) (height / 8f);
         ninSlice[0, 0].Draw(pos + new Vector2(0f, 0f), Vector2.Zero, color);
         ninSlice[2, 0].Draw(pos + new Vector2(width - 8f, 0f), Vector2.Zero, color);
         ninSlice[0, 2].Draw(pos + new Vector2(0f, height - 8f), Vector2.Zero, color);

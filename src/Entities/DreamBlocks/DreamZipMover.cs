@@ -82,8 +82,8 @@ public class DreamZipMover : CustomDreamBlock
 
                     Color color = zipMover.dreamAesthetic ?
                                     (zipMover.PlayerHasDreamDash ?
-                                        activeDreamColors[(int)Util.Mod((float)Math.Round((d - shiftProgress) / 4f), 9f)] :
-                                        disabledDreamColors[(int)Util.Mod((float)Math.Round((d - shiftProgress) / 4f), 4f)]
+                                        activeDreamColors[(int) Util.Mod((float) Math.Round((d - shiftProgress) / 4f), 9f)] :
+                                        disabledDreamColors[(int) Util.Mod((float) Math.Round((d - shiftProgress) / 4f), 4f)]
                                     ) : ropeLightColor;
                     Draw.Line(teethA, teethA + twodir, color);
                     Draw.Line(teethB, teethB - twodir, color);
@@ -162,7 +162,7 @@ public class DreamZipMover : CustomDreamBlock
                 prev = node;
             }
 
-            bounds = new((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
+            bounds = new((int) min.X, (int) min.Y, (int) (max.X - min.X), (int) (max.Y - min.Y));
             bounds.Inflate(10, 10);
 
             Depth = Depths.SolidsBelow;
@@ -304,11 +304,11 @@ public class DreamZipMover : CustomDreamBlock
             int particleOffset = 4;
 
             if (dir == 1)
-                particleOffset = Math.Min((int)Height - 12, 20);
+                particleOffset = Math.Min((int) Height - 12, 20);
 
-            int particleHeight = (int)Height;
+            int particleHeight = (int) Height;
             if (dir == -1)
-                particleHeight = Math.Max(16, (int)Height - 16);
+                particleHeight = Math.Max(16, (int) Height - 16);
 
             if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(-2f, dir * -2)))
                 for (int i = particleOffset; i < particleHeight; i += 8)
@@ -326,11 +326,11 @@ public class DreamZipMover : CustomDreamBlock
             int particleOffset = 4;
 
             if (dir == 1)
-                particleOffset = Math.Min((int)Width - 12, 20);
+                particleOffset = Math.Min((int) Width - 12, 20);
 
-            int particleWidth = (int)Width;
+            int particleWidth = (int) Width;
             if (dir == -1)
-                particleWidth = Math.Max(16, (int)Width - 16);
+                particleWidth = Math.Max(16, (int) Width - 16);
 
             if (Scene.CollideCheck<Solid>(collisionPoint + new Vector2(dir * -2, -2f)))
                 for (int i = particleOffset; i < particleWidth; i += 8)

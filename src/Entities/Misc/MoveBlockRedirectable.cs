@@ -156,7 +156,7 @@ public class MoveBlockRedirectable : Component
         return orig =>
         {
             IEnumerator controller;
-            orig.Replace(controller = (IEnumerator)Activator.CreateInstance(t_Controller, jumpPoint));
+            orig.Replace(controller = (IEnumerator) Activator.CreateInstance(t_Controller, jumpPoint));
             f_Controller_this.SetValue(controller, targetData.Target);
         };
     }

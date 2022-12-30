@@ -91,8 +91,8 @@ public class StationBlockTrack : Entity
         multiBlockTrack = data.Bool("multiBlockTrack", false);
         Collider = new Hitbox(Horizontal ? data.Width : 8, Horizontal ? 8 : data.Height);
 
-        nodeRect1 = new Rectangle((int)X, (int)Y, 8, 8);
-        nodeRect2 = new Rectangle((int)(X + Width - 8), (int)(Y + Height - 8), 8, 8);
+        nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
+        nodeRect2 = new Rectangle((int) (X + Width - 8), (int) (Y + Height - 8), 8, 8);
 
         initialNodeData1 = new Node(nodeRect1.X, nodeRect1.Y);
         initialNodeData2 = new Node(nodeRect2.X, nodeRect2.Y);
@@ -146,7 +146,7 @@ public class StationBlockTrack : Entity
             initialNodeData2.NodeLeft = initialNodeData1;
             initialNodeData2.TrackLeft = this;
 
-            trackRect = new Rectangle((int)X + 8, (int)Y, (int)Width - 16, (int)Height);
+            trackRect = new Rectangle((int) X + 8, (int) Y, (int) Width - 16, (int) Height);
             length = Width - 8;
         }
         else
@@ -157,7 +157,7 @@ public class StationBlockTrack : Entity
             initialNodeData2.NodeUp = initialNodeData1;
             initialNodeData2.TrackUp = this;
 
-            trackRect = new Rectangle((int)X, (int)Y + 8, (int)Width, (int)Height - 16);
+            trackRect = new Rectangle((int) X, (int) Y + 8, (int) Width, (int) Height - 16);
             length = Height - 8;
         }
 
@@ -166,10 +166,10 @@ public class StationBlockTrack : Entity
         sparkAdd = (from - to).SafeNormalize(3f).Perpendicular();
 
         float num = (from - to).Angle();
-        sparkDirFromA = num + ((float)Math.PI / 8f);
-        sparkDirFromB = num - ((float)Math.PI / 8f);
-        sparkDirToA = num + (float)Math.PI - ((float)Math.PI / 8f);
-        sparkDirToB = num + (float)Math.PI + ((float)Math.PI / 8f);
+        sparkDirFromA = num + ((float) Math.PI / 8f);
+        sparkDirFromB = num - ((float) Math.PI / 8f);
+        sparkDirToA = num + (float) Math.PI - ((float) Math.PI / 8f);
+        sparkDirToB = num + (float) Math.PI + ((float) Math.PI / 8f);
     }
 
     public override void Awake(Scene scene)
@@ -429,11 +429,11 @@ public class StationBlockTrack : Entity
                 track.DrawPipe();
             }
 
-            float bounce = (float)Math.Floor(1.5f * (Scene.TimeActive % 1f));
+            float bounce = (float) Math.Floor(1.5f * (Scene.TimeActive % 1f));
 
             foreach (Node node in Track)
             {
-                int frame = (int)(node.Percent * 8) % nodeSprite.Count; // Allows for somewhat speed control.
+                int frame = (int) (node.Percent * 8) % nodeSprite.Count; // Allows for somewhat speed control.
                 nodeSprite[frame].DrawCentered(node.Center);
                 if (node.HasIndicator && node.PushForce != Vector2.Zero)
                 {
@@ -453,9 +453,9 @@ public class StationBlockTrack : Entity
             }
         }
 
-        int trackpercent = (int)(trackStatePercent * (length + 2));
+        int trackpercent = (int) (trackStatePercent * (length + 2));
 
-        for (int i = (int)Util.Mod(trackConstantLooping ? Scene.TimeActive * 14 : TrackOffset, 8) + trackpercent; i <= length; i += 8)
+        for (int i = (int) Util.Mod(trackConstantLooping ? Scene.TimeActive * 14 : TrackOffset, 8) + trackpercent; i <= length; i += 8)
         {
             trackSprite.Draw(Position + new Vector2(Horizontal ? i : 0, Horizontal ? 0 : i));
         }

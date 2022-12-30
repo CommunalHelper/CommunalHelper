@@ -94,7 +94,7 @@ public class RedlessBerry : Entity, IStrawberry
     }
 
     public RedlessBerry(Player player, Info info)
-        : this(player.Position + new Vector2(-12 * (int)player.Facing, -8f), info.ID, true, false)
+        : this(player.Position + new Vector2(-12 * (int) player.Facing, -8f), info.ID, true, false)
     {
         persisted = true;
         this.info = info;
