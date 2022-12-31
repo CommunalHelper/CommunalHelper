@@ -3,6 +3,7 @@ using Celeste.Mod.Entities;
 using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -566,6 +567,15 @@ namespace Celeste.Mod.CommunalHelper {
                 if (Math.Min(hitbox.Width, hitbox.Height) >= 24) {
                     ArrowsList.Add(hitbox);
                 }
+            }
+
+            // Allow this block to be redirected by MoveBlockRedirects if it has a single rectangular collider.
+            if (Colliders.Length == 1) {
+                Add(new MoveBlockRedirectable(new DynamicData(this)) {
+                    Get_CanSteer = () => false,
+                    Get_Direction = () => Direction,
+                    Set_Direction = dir => Direction = dir,
+                });
             }
         }
 
