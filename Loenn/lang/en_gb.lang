@@ -578,6 +578,13 @@ entities.CommunalHelper/ShieldedRefill.attributes.description.twoDashes=Whether 
 entities.CommunalHelper/ShieldedRefill.attributes.description.bubbleRepel=Whether the player should bounce off the bubble.
 entities.CommunalHelper/ShieldedRefill.attributes.description.oneUse=Whether the refill should not reappear after being collected.
 
+# Lightning Controller
+entities.CommunalHelper/LightningController.placements.name.controller=Simple Lightning Controller
+entities.CommunalHelper/LightningController.attributes.description.minDelay=The minimum delay between two strikes.
+entities.CommunalHelper/LightningController.attributes.description.maxDelay=The maximum delay between two strikes.
+entities.CommunalHelper/LightningController.attributes.description.startupDelay=The time waited before any lightning strikes after the controller starts.
+entities.CommunalHelper/LightningController.attributes.description.depth=The depth value at which the lightning spawns.
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
