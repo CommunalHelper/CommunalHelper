@@ -1,11 +1,11 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System;
 using System.Collections;
 
-namespace Celeste.Mod.CommunalHelper.Entities.Misc {
+namespace Celeste.Mod.CommunalHelper.Entities {
     [CustomEntity("CommunalHelper/LightningController")]
+    [Tracked]
     public class LightningController : Entity {
         private class Flash : Entity {
             private float alpha = 1.0f;

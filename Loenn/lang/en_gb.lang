@@ -643,6 +643,9 @@ triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.descr
 triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMaxDuration=The maximum duration of a lightning occurring on a cloud.
 triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningIntensity=A value between zero and one that determines how strong a cloud with lightning can flash.
 
+# Stop Lightning Controller Trigger
+triggers.CommunalHelper/StopLightningControllerTrigger.placements.name.trigger=Stop Lightning Controller
+
 # Cloudscape
 style.effects.CommunalHelper/Cloudscape.name=Cloudscape
 style.effects.CommunalHelper/Cloudscape.description.seed=The RNG seed that this cloudscape instance will be generated with.
