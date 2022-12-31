@@ -578,6 +578,18 @@ entities.CommunalHelper/ShieldedRefill.attributes.description.twoDashes=Whether 
 entities.CommunalHelper/ShieldedRefill.attributes.description.bubbleRepel=Whether the player should bounce off the bubble.
 entities.CommunalHelper/ShieldedRefill.attributes.description.oneUse=Whether the refill should not reappear after being collected.
 
+# Lightning Controller
+entities.CommunalHelper/LightningController.placements.name.controller=Simple Lightning Controller
+entities.CommunalHelper/LightningController.attributes.description.minDelay=The minimum delay between two strikes.
+entities.CommunalHelper/LightningController.attributes.description.maxDelay=The maximum delay between two strikes.
+entities.CommunalHelper/LightningController.attributes.description.startupDelay=The time waited before any lightning strikes after the controller starts.
+entities.CommunalHelper/LightningController.attributes.description.flash=The intensity (brightness) of the flash.
+entities.CommunalHelper/LightningController.attributes.description.flashDuration=The duration of the flash in seconds. Leave at 0 for no flash.
+entities.CommunalHelper/LightningController.attributes.description.depth=The depth value at which the lightning spawns.
+entities.CommunalHelper/LightningController.attributes.description.shakeAmount=The shake time. Leave at 0 for no shake.
+entities.CommunalHelper/LightningController.attributes.description.sfx=The sound effect event name played when lightning strikes. Enter `null` for no sound.
+entities.CommunalHelper/LightningController.attributes.description.probability=A number between 0.0 and 1.0 that represents the chance of a lightning strike occurring after each delay.
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
@@ -630,6 +642,9 @@ triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.descr
 triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMinDuration=The minimum duration of a lightning occurring on a cloud.
 triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningMaxDuration=The maximum duration of a lightning occurring on a cloud.
 triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.description.lightningIntensity=A value between zero and one that determines how strong a cloud with lightning can flash.
+
+# Stop Lightning Controller Trigger
+triggers.CommunalHelper/StopLightningControllerTrigger.placements.name.trigger=Stop Lightning Controller
 
 # Cloudscape
 style.effects.CommunalHelper/Cloudscape.name=Cloudscape
