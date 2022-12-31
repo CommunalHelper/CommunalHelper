@@ -16,8 +16,23 @@ lightningController.fieldInformation = {
     startupDelay = {
         minimumValue = 0.0
     },
+    flash = {
+        maximumValue = 1.0,
+        minimumValue = 0.0
+    },
+    flashDuration = {
+        minimumValue = 0.0
+    },
     depth = {
+        fieldType = "integer",
         options = enums.depths
+    },
+    shakeAmount = {
+        minimumValue = 0.0
+    },
+    probability = {
+        maximumValue = 1.0,
+        minimumValue = 0.0
     }
 }
 
@@ -28,7 +43,12 @@ lightningController.placements = {
             minDelay = 5,
             maxDelay = 10,
             startupDelay = 4,
-            depth = 0
+            flash = 0.3,
+            flashDuration = 0.5,
+            depth = 0,
+            shakeAmount = 0.3,
+            sfx = "event:/new_content/game/10_farewell/lightning_strike",
+            probability = 1.0
         }
     }
 }
