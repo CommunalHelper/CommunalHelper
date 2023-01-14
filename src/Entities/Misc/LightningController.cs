@@ -72,7 +72,7 @@ public class LightningController : Entity
         Level level = Scene as Level;
         Camera cam = level.Camera;
 
-        bool flashes = flashDuration > 0 && flash > 0 && Settings.Instance.DisableFlashes;
+        bool flashes = flashDuration > 0 && flash > 0 && !Settings.Instance.DisableFlashes;
 
         while (true)
         {
