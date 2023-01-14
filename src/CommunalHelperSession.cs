@@ -1,22 +1,23 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
-using System;
 using System.Collections.Generic;
 using static Celeste.Mod.CommunalHelper.Entities.StationBlockTrack;
 
-namespace Celeste.Mod.CommunalHelper {
-    public class CommunalHelperSession : EverestModuleSession {
-        public SortedSet<string> SummitGems { get; set; }
+namespace Celeste.Mod.CommunalHelper;
 
-        public TrackSwitchState TrackInitialState = TrackSwitchState.On;
+public class CommunalHelperSession : EverestModuleSession
+{
+    public SortedSet<string> SummitGems { get; set; }
 
-        public bool CassetteJumpFix = false;
+    public TrackSwitchState TrackInitialState = TrackSwitchState.On;
 
-        public HashSet<RedlessBerry.Info> RedlessBerries { get; set; } = new();
+    public bool CassetteJumpFix = false;
 
-        public bool PlayerWasTired { get; set; } = false;
+    public HashSet<RedlessBerry.Info> RedlessBerries { get; set; } = new();
 
-        public CommunalHelperSession() {
-            SummitGems = new SortedSet<string>(StringComparer.InvariantCulture);
-        }
+    public bool PlayerWasTired { get; set; } = false;
+
+    public CommunalHelperSession()
+    {
+        SummitGems = new SortedSet<string>(StringComparer.InvariantCulture);
     }
 }
