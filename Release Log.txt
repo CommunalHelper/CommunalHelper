@@ -1,8 +1,9 @@
---1.14.0 (27/12/2022)--
+--1.14.0 (../../....)--
 * Added Held Boosters.
 * Added Segment Boosters.
 * Added any-direction variant of Dream Boosters.
 * Added 'proximityPath' to all boosters that have a path.
+* Added Simple Lighting Controllers and Stop Lighting Controller Trigger.
 * Code cleanup & project restructure.
 
 --1.13.10 (30/11/2022)--

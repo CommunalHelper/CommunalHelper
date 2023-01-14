@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
 using FMOD.Studio;
+using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -677,6 +678,15 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 ArrowsList.Add(hitbox);
             }
+        }
+
+        // Allow this block to be redirected by MoveBlockRedirects if it has a single rectangular collider.
+        if (Colliders.Length == 1) {
+            Add(new MoveBlockRedirectable(new DynamicData(this)) {
+                Get_CanSteer = () => false,
+                Get_Direction = () => Direction,
+                Set_Direction = dir => Direction = dir,
+            });
         }
     }
 
