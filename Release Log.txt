@@ -1,10 +1,11 @@
---1.14.0 (../../....)--
+--1.14.0 (14/01/2023)--
 * Added Held Boosters.
 * Added Segment Boosters.
 * Added any-direction variant of Dream Boosters.
 * Added 'proximityPath' to all boosters that have a path.
-* Added Simple Lighting Controllers and Stop Lighting Controller Trigger.
-* Code cleanup & project restructure.
+* [Silent] Added Simple Lighting Controllers and Stop Lighting Controller Trigger.
+* Allow Connected Move Blocks redirects when rectangle-only.
+* Code cleanup, some refactoring & project restructure.
 
 --1.13.10 (30/11/2022)--
 * Improve Attached Wall Booster core mode handling.
