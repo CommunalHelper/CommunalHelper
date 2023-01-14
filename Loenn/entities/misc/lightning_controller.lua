@@ -33,6 +33,12 @@ lightningController.fieldInformation = {
     probability = {
         maximumValue = 1.0,
         minimumValue = 0.0
+    },
+    color = {
+        fieldType = "color"
+    },
+    flashColor = {
+        fieldType = "color"
     }
 }
 
@@ -48,7 +54,9 @@ lightningController.placements = {
             depth = 0,
             shakeAmount = 0.3,
             sfx = "event:/new_content/game/10_farewell/lightning_strike",
-            probability = 1.0
+            probability = 1.0,
+            color = "ffffff",
+            flashColor = "ffffff"
         }
     }
 }

@@ -589,6 +589,8 @@ entities.CommunalHelper/LightningController.attributes.description.depth=The dep
 entities.CommunalHelper/LightningController.attributes.description.shakeAmount=The shake time. Leave at 0 for no shake.
 entities.CommunalHelper/LightningController.attributes.description.sfx=The sound effect event name played when lightning strikes. Enter `null` for no sound.
 entities.CommunalHelper/LightningController.attributes.description.probability=A number between 0.0 and 1.0 that represents the chance of a lightning strike occurring after each delay.
+entities.CommunalHelper/LightningController.attributes.description.color=The color of the lightning strikes.
+entities.CommunalHelper/LightningController.attributes.description.flashColor=The color of the flash.
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
