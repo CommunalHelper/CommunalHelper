@@ -1,3 +1,6 @@
+--1.14.1 (14/01/2023)--
+* Fix Simple Lighting Controllers flashing only when photosensitive mode is enabled.
+
 --1.14.0 (14/01/2023)--
 * Added Held Boosters.
 * Added Segment Boosters.
