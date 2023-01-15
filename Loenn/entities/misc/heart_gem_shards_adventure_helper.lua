@@ -1,3 +1,10 @@
+local mods = require("mods")
+
+-- this entity plugin can only be shown with adventure helper loaded
+if not mods.hasLoadedMod("AdventureHelper") then
+    return
+end
+
 local drawableSprite = require("structs.drawable_sprite")
 local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
