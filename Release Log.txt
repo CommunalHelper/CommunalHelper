@@ -1,3 +1,6 @@
+--1.14.2 (15/01/2023)--
+* Prevent the Adventure Helper Heart Gem Shard Lönn plugin from loading without Adventure Helper loaded as a dependency.
+
 --1.14.1 (14/01/2023)--
 * Added 'color' and 'flashColor' options to Lightning Controller;
 * Fixed Lightning Controller flashes occuring only when photosensitive is enabled.
