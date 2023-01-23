@@ -344,17 +344,15 @@ internal class RailedMoveBlock : Solid
             else if (speed != 0f)
             {
                 if (Scene.OnInterval(0.25f))
-                {
                     pathRenderer.CreateSparks();
-                }
             }
 
             if (newFillColor != StopBgFill)
             {
-                Vector2 move = Vector2.Zero;
+                Vector2 lift = dir * speed;
+                Vector2 move = lift * Engine.DeltaTime;
+
                 Vector2 position = Position;
-                move.X += dir.X * speed * Engine.DeltaTime;
-                move.Y += dir.Y * speed * Engine.DeltaTime;
                 position += move;
 
                 percent = Vector2.Distance(start, position) / length;
@@ -377,8 +375,8 @@ internal class RailedMoveBlock : Solid
                     newFillColor = StopBgFill;
                 }
 
-                MoveH(move.X);
-                MoveV(move.Y);
+                MoveH(move.X, lift.X);
+                MoveV(move.Y, lift.Y);
 
                 if (impact)
                 {
