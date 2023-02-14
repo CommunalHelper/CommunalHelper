@@ -12,6 +12,9 @@ summitGemManager.nodeLineRenderType = "fan"
 summitGemManager.fieldInformation = {
     gemIds = {
         fieldType = "string",
+
+        --[[ NOTE: the commented code below is incorrect, because this field is not always a list of integers.
+
         -- check if input is a comma-separated list of stricly positive integers
         validator = function(s)
             for sub in string.gmatch(s, "[^,]+") do
@@ -25,6 +28,8 @@ summitGemManager.fieldInformation = {
             end
             return true
         end
+
+        ]]--
     },
     melody = {
         fieldType = "string",
