@@ -1,3 +1,6 @@
+--1.14.4 (14/02/2023)--
+* Fix Summit Gem Manager Lönn plugin from accepting custom room syntax for the Gem IDs field. 
+
 --1.14.3 (23/01/2023)--
 * Fix Railed Move Block liftspeed cancellation bug. 
 
