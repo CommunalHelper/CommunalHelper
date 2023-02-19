@@ -691,7 +691,7 @@ public static class DreamTunnelDash
                     bool flag = player.ClimbCheck(-1, 0);
                     bool flag2 = player.ClimbCheck(1, 0);
                     int moveX = playerData.Get<int>("moveX");
-                    if (Input.Grab.Check && ((moveX == 1 && flag2) || (moveX == -1 && flag)))
+                    if (Input.GrabCheck && ((moveX == 1 && flag2) || (moveX == -1 && flag)))
                     {
                         player.Facing = (Facings) moveX;
                         if (!SaveData.Instance.Assists.NoGrabbing)
