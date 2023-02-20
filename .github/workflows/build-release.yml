@@ -1,5 +1,6 @@
 name: Package and Publish
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -85,11 +86,12 @@ jobs:
 
     - name: Sync Wiki
       if: ${{ !fromJSON(env.PRERELEASE) }}
-      uses: SwiftDocOrg/github-wiki-publish-action@v1
-      with:
-        path: docs
+      uses: Andrew-Chen-Wang/github-wiki-action@v3
       env:
-        GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+        WIKI_DIR: docs/
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_MAIL: github-actions@github.com
+        GH_NAME: ${{ github.repository_owner }}
 
     - name: Publish discord webhook
       env:
