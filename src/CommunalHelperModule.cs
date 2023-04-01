@@ -5,6 +5,7 @@ global using System;
 using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using MonoMod.ModInterop;
 
 namespace Celeste.Mod.CommunalHelper;
@@ -207,6 +208,8 @@ public class CommunalHelperModule : EverestModule
         Chain.InitializeTextures();
 
         PlayerSeekerHair.InitializeTextures();
+
+        LoopBlock.InitializeTextures();
 
         Cloudscape.InitializeTextures();
     }
