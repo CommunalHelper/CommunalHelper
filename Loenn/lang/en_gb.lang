@@ -599,6 +599,11 @@ entities.CommunalHelper/BulletTimeController.attributes.description.timerate=The
 entities.CommunalHelper/BulletTimeController.attributes.description.flag=If present, time will only be affected if this flag is set.
 entities.CommunalHelper/BulletTimeController.attributes.description.minDashes=The number of dashes required for time to be slowed down.
 
+# [Strawberry Jam] Loop Block
+entities.CommunalHelper/SJ2021/LoopBlock.placements.name.loop_block=Loop Block [Strawberry Jam]
+entities.CommunalHelper/SJ2021/LoopBlock.attributes.description.edgeThickness=How thick this loop block's edges are, measured in tiles.
+entities.CommunalHelper/SJ2021/LoopBlock.attributes.description.color=The hexadecimal color code for this block's tint.
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
