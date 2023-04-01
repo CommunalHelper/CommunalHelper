@@ -592,8 +592,8 @@ entities.CommunalHelper/LightningController.attributes.description.probability=A
 entities.CommunalHelper/LightningController.attributes.description.color=The color of the lightning strikes.
 entities.CommunalHelper/LightningController.attributes.description.flashColor=The color of the flash.
 
-# Bullet Time Controller
-entities.CommunalHelper/BulletTimeController.placements.name.controller=Bullet Time Controller
+# [Strawberry Jam] Bullet Time Controller
+entities.CommunalHelper/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]
 entities.CommunalHelper/BulletTimeController.placements.description.controller=Slows down time while the player has dashes.
 entities.CommunalHelper/BulletTimeController.attributes.description.timerate=The timerate that the game should run at while the player has dashes, as a multiplier of normal speed.
 entities.CommunalHelper/BulletTimeController.attributes.description.flag=If present, time will only be affected if this flag is set.
