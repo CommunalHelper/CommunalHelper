@@ -18,8 +18,12 @@ public class Cloudscape : Backdrop
     {
         public int Seed { get; set; } = 0;
 
-        public Color[] Colors { get; set; }
-            = new[] { Calc.HexToColor("6d8ada"), Calc.HexToColor("aea0c1"), Calc.HexToColor("d9cbbc") };
+        public Color[] Colors { get; set; } = new[]
+            {
+                Calc.HexToColor("6d8ada"),
+                Calc.HexToColor("aea0c1"),
+                Calc.HexToColor("d9cbbc"),
+            };
         public Color Sky { get; set; } = Calc.HexToColor("4f9af7");
 
         public float InnerRadius { get; set; } = 40.0f;
@@ -28,8 +32,13 @@ public class Cloudscape : Backdrop
 
         public bool Lightning { get; set; } = false;
 
-        public Color[] LightningColors { get; set; }
-            = new[] { Calc.HexToColor("384bc8"), Calc.HexToColor("7a50d0"), Calc.HexToColor("c84ddd"), Calc.HexToColor("3397e2") };
+        public Color[] LightningColors { get; set; } = new[]
+        {
+            Calc.HexToColor("384bc8"),
+            Calc.HexToColor("7a50d0"),
+            Calc.HexToColor("c84ddd"), 
+            Calc.HexToColor("3397e2"),
+        };
         public Color LightningFlashColor { get; set; } = Color.White;
 
         public float LightningMinDelay { get; set; } = 5.0f;
@@ -336,33 +345,33 @@ public class Cloudscape : Backdrop
         float lightningIntensity)
     {
         lightning = enable;
-        if (lightning)
-        {
-            this.lightningColors = lightningColors;
-            this.lightningFlashColor = lightningFlashColor;
-            this.lightningMinDelay = lightningMinDelay;
-            this.lightningMaxDelay = lightningMaxDelay;
-            this.lightningMinDuration = lightningMinDuration;
-            this.lightningMaxDuration = lightningMaxDuration;
-            this.lightningIntensity = lightningIntensity;
-        }
+        if (!lightning)
+            return;
+
+        this.lightningColors = lightningColors;
+        this.lightningFlashColor = lightningFlashColor;
+        this.lightningMinDelay = lightningMinDelay;
+        this.lightningMaxDelay = lightningMaxDelay;
+        this.lightningMinDuration = lightningMinDuration;
+        this.lightningMaxDuration = lightningMaxDuration;
+        this.lightningIntensity = lightningIntensity;
     }
 
     public override void Update(Scene scene)
     {
         base.Update(scene);
 
-        if (Visible)
-        {
-            Vector2 pos = offset - ((scene as Level).Camera.Position * parallax);
-            matrix = Matrix.CreateTranslation(pos.X, pos.Y, 0);
+        if (!Visible)
+            return;
 
-            foreach (Ring ring in rings)
-                ring.Update(matrix);
+        Vector2 pos = offset - ((scene as Level).Camera.Position * parallax);
+        matrix = Matrix.CreateTranslation(pos.X, pos.Y, 0);
 
-            foreach (WarpedCloud cloud in clouds)
-                cloud.Update(lightning);
-        }
+        foreach (Ring ring in rings)
+            ring.Update(matrix);
+
+        foreach (WarpedCloud cloud in clouds)
+            cloud.Update(lightning);
     }
 
     public override void BeforeRender(Scene scene)
