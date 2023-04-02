@@ -25,8 +25,14 @@ local texture = "objects/CommunalHelper/strawberryJam/grabTempleGate/TempleDoor0
 
 function grabTempleGate.sprite(room, entity)
     local sprite = drawableSprite.fromTexture(texture, entity)
+
+    if not entity.closed then
+        sprite.color = {1.0, 1.0, 1.0, 0.45}
+    end
+
     sprite:setJustification(0.5, 0.0)
     sprite:addPosition(4, 0)
+
     return sprite
 end
 
