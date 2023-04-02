@@ -89,6 +89,8 @@ public class CommunalHelperModule : EverestModule
 
         GrabTempleGate.Hook();
 
+        SolarElevator.Hook();
+
         CommunalHelperGFX.Load();
 
         #region Imports
@@ -156,6 +158,8 @@ public class CommunalHelperModule : EverestModule
         ShowHitboxTrigger.Unload();
 
         GrabTempleGate.Unhook();
+
+        SolarElevator.Unhook();
 
         CommunalHelperGFX.Unload();
     }
