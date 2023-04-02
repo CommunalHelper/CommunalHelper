@@ -423,3 +423,6 @@ placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.fadeA=Deter
 placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.fadeB=Determines the parameter value at the end of the fade.
 placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.parameter=The name of the affected parameter. Uses "fade" if left blank.
 placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.direction=The direction the music fades in.
+
+# -- [Strawberry Jam] Show Hitbox Trigger --
+placements.triggers.CommunalHelper/SJ/ShowHitboxTrigger.tooltips.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill

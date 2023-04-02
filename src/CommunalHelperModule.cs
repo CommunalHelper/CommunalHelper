@@ -6,6 +6,7 @@ using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
+using Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
 using MonoMod.ModInterop;
 
 namespace Celeste.Mod.CommunalHelper;
@@ -83,6 +84,8 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Hook();
         PlayerSeekerBarrierRenderer.Hook();
+        
+        ShowHitboxTrigger.Load();
 
         GrabTempleGate.Hook();
 
@@ -149,6 +152,8 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Unhook();
         PlayerSeekerBarrierRenderer.Unhook();
+        
+        ShowHitboxTrigger.Unload();
 
         GrabTempleGate.Unhook();
 
