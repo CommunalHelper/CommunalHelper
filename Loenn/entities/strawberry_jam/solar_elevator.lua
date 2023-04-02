@@ -44,7 +44,7 @@ solarElevator.placements = {
             moveSfx = "event:/strawberry_jam_2021/game/solar_elevator/elevate",
             haltSfx = "event:/strawberry_jam_2021/game/solar_elevator/halt",
             requiresHoldable = false,
-            holdableHintDialog = "StrawberryJam2021_Entities_SolarElevator_DefaultHint",
+            holdableHintDialog = "communalhelper_entities_strawberry_jam_solar_elevator_hint",
             reskinDirectory = ""
         }
     }

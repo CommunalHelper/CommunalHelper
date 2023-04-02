@@ -4,3 +4,5 @@ Send your log.txt to a CommunalHelper maintainer.
 SETTINGS_DREAMTUNNEL_ALWAYSACTIVE= Always Active Dream Tunnel
 SETTINGS_DREAMTUNNEL_FEATHERMODE= Dream Tunnel Feather Mode
 SETTINGS_DREAMTUNNEL_IGNORECOLLECTIBLES= Dream Tunnel Ignore Collectibles
+
+communalhelper_entities_strawberry_jam_solar_elevator_hint=This elevator requires a holdable entity.

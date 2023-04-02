@@ -14,7 +14,7 @@ using ..Ahorn, Maple
     moveSfx::String="event:/strawberry_jam_2021/game/solar_elevator/elevate",
     haltSfx::String="event:/strawberry_jam_2021/game/solar_elevator/halt",
     requiresHoldable::Bool=false,
-    holdableHintDialog::String="StrawberryJam2021_Entities_SolarElevator_DefaultHint",
+    holdableHintDialog::String="communalhelper_entities_strawberry_jam_solar_elevator_hint",
     reskinDirectory::String="",
 )
 
