@@ -402,6 +402,9 @@ placements.entities.CommunalHelper/SJ/BulletTimeController.tooltips.timerate=The
 placements.entities.CommunalHelper/SJ/BulletTimeController.tooltips.flag=(Optional) The flag that will activate this controller. If no flag is given, the controller will always be active.
 placements.entities.CommunalHelper/SJ/BulletTimeController.tooltips.minDashes=The number of dashes required for time to be slowed down.
 
+# -- [Strawberry Jam] Photosensitive Flag Controller --
+placements.entities.CommunalHelper/SJ/PhotosensitiveFlagController.tooltips.flag=The flag to set to the photosensitive mode.
+
 
 # -- Triggers --
 

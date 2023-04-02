@@ -599,6 +599,11 @@ entities.CommunalHelper/SJ/BulletTimeController.attributes.description.timerate=
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.flag=If present, time will only be affected if this flag is set.
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.minDashes=The number of dashes required for time to be slowed down.
 
+# [Strawberry Jam] Photosensitive Flag Controller
+entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.name.controller=Photosensitive Flag Controller [Strawberry Jam]
+entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.description.controller=Sets a flag when photosensitive mode is enabled.
+entities.CommunalHelper/SJ/PhotosensitiveFlagController.attributes.description.flag=The flag to set.
+
 # [Strawberry Jam] Grab Temple Gate
 entities.CommunalHelper/SJ/GrabTempleGate.placements.name.open=Grab Temple Gate (Open) [Strawberry Jam]
 entities.CommunalHelper/SJ/GrabTempleGate.placements.name.closed=Grab Temple Gate (Closed) [Strawberry Jam]
