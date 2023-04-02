@@ -6,7 +6,7 @@ local startPositions = {"Closest", "Top", "Bottom"}
 
 local solarElevator = {}
 
-solarElevator.name = "CommunalHelper/SH/SolarElevator"
+solarElevator.name = "CommunalHelper/SJ/SolarElevator"
 
 solarElevator.fieldInformation = {
     distance = {
