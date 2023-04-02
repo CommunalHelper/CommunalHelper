@@ -509,4 +509,12 @@
         <Anim id="collect" path="CommunalHelper/recolorableBerry/leaves" delay=".07" frames="7-11"/>
     </recolorableStrawberryOverlay>
 
+    <!--GrabTempleGate-->
+    <grabTempleGate path="objects/CommunalHelper/strawberryJam/grabTempleGate/" start="idle">
+        <Justify x="0.5" y="0"/>
+        <Loop id="idle" path="TempleDoor" delay="0.1" frames="0"/>
+        <Anim id="open" path="TempleDoor" delay="0.1" frames="6-14" goto="idle"/>
+        <Anim id="hit" path="TempleDoor" delay="0.08" frames="0-4" goto="idle"/>
+    </grabTempleGate>
+
 </Sprites>

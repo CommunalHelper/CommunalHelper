@@ -21,7 +21,7 @@ grabTempleGate.placements = {
     }
 }
 
-local texture = "objects/door/TempleDoor00"
+local texture = "objects/CommunalHelper/strawberryJam/grabTempleGate/TempleDoor05"
 
 function grabTempleGate.sprite(room, entity)
     local sprite = drawableSprite.fromTexture(texture, entity)
