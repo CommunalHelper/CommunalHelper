@@ -1,6 +1,6 @@
 ﻿namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 
-[CustomEntity("CommunalHelper/SJ2021/LoopBlock")]
+[CustomEntity("CommunalHelper/SJ/LoopBlock")]
 public class LoopBlock : Solid
 {
     // The third dimension is to store the same tiles with different details and variations.

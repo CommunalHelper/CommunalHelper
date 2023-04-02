@@ -4,7 +4,7 @@ local matrix = require("utils.matrix")
 
 local loopBlock = {}
 
-loopBlock.name = "CommunalHelper/SJ2021/LoopBlock"
+loopBlock.name = "CommunalHelper/SJ/LoopBlock"
 loopBlock.minimumSize = {24, 24}
 
 loopBlock.fieldInformation = {
