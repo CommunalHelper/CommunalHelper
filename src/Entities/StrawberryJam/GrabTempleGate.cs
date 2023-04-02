@@ -1,6 +1,9 @@
-﻿namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
+﻿using MonoMod.Cil;
+
+namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 
 [CustomEntity("CommunalHelper/SJ/GrabTempleGate")]
+[Tracked]
 public class GrabTempleGate : Solid
 {
     private const float switchTimeDelay = 0.2f;
@@ -122,9 +125,8 @@ public class GrabTempleGate : Solid
         Collider.Height = height;
     }
 
-    public override void Update()
+    private void CheckToggle()
     {
-        base.Update();
         canSwitchTimer = Calc.Approach(canSwitchTimer, 0f, Engine.DeltaTime);
         if (Input.Grab.Pressed && canSwitchTimer == 0f)
         {
@@ -135,6 +137,13 @@ public class GrabTempleGate : Solid
                 Open();
             canSwitchTimer = switchTimeDelay;
         }
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        CheckToggle();
 
         float num = Math.Max(4f, Height);
         if (drawHeight != num)
@@ -147,4 +156,40 @@ public class GrabTempleGate : Solid
         Draw.Rect(X - 2f, Y - 8f, 13f, 10f, Color.Black);
         sprite.DrawSubrect(Vector2.Zero + value, new Rectangle(0, (int) (sprite.Height - drawHeight), (int) sprite.Width, (int) drawHeight));
     }
+
+    private static void UpdateAll()
+    {
+        if (Engine.Scene is not Level level)
+            return;
+
+        foreach (GrabTempleGate gate in level.Tracker.GetEntities<GrabTempleGate>())
+            gate.CheckToggle();
+    }
+
+    #region Hooks
+
+    internal static void Hook()
+    {
+        IL.Monocle.Engine.Update += Engine_Update;
+    }
+
+    internal static void Unhook()
+    {
+        IL.Monocle.Engine.Update -= Engine_Update;
+    }
+
+    // NOTE: would've inherited from AbstractInputController, but can't, because this already inherits from Celeste.Solid
+    private static void Engine_Update(ILContext il)
+    {
+        ILCursor cursor = new(il);
+
+        cursor.TryGotoNext(
+            instr => instr.MatchLdsfld<Engine>(nameof(Engine.FreezeTimer)),
+            instr => instr.MatchCall<Engine>("get_RawDeltaTime")
+        );
+
+        cursor.EmitDelegate(UpdateAll);
+    }
+
+    #endregion
 }

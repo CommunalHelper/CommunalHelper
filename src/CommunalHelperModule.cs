@@ -84,6 +84,8 @@ public class CommunalHelperModule : EverestModule
         PlayerSeekerBarrier.Hook();
         PlayerSeekerBarrierRenderer.Hook();
 
+        GrabTempleGate.Hook();
+
         CommunalHelperGFX.Load();
 
         #region Imports
@@ -147,6 +149,8 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Unhook();
         PlayerSeekerBarrierRenderer.Unhook();
+
+        GrabTempleGate.Unhook();
 
         CommunalHelperGFX.Unload();
     }
