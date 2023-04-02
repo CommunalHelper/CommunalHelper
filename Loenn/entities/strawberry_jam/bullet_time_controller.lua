@@ -17,7 +17,7 @@ bulletTimeController.placements = {
     {
         name = "controller",
         data = {
-            timerate = 1.0,
+            timerate = 0.5,
             flag = "",
             minDashes = 1
         }
