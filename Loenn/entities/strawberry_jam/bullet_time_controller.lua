@@ -1,6 +1,6 @@
 local bulletTimeController = {}
 
-bulletTimeController.name = "CommunalHelper/BulletTimeController"
+bulletTimeController.name = "CommunalHelper/SJ2021/BulletTimeController"
 bulletTimeController.depth = -1000000
 bulletTimeController.texture = "objects/CommunalHelper/bulletTimeController/icon"
 bulletTimeController.fieldInformation = {
