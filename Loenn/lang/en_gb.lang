@@ -599,9 +599,9 @@ entities.CommunalHelper/SJ/BulletTimeController.attributes.description.timerate=
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.flag=If present, time will only be affected if this flag is set.
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.minDashes=The number of dashes required for time to be slowed down.
 
-# [Strawberry Jam] Loop Block
-entities.CommunalHelper/SJ/GrabTempleGate.placements.name.open=Loop Block (Open) [Strawberry Jam]
-entities.CommunalHelper/SJ/GrabTempleGate.placements.name.closed=Loop Block (Closed) [Strawberry Jam]
+# [Strawberry Jam] Grab Temple Gate
+entities.CommunalHelper/SJ/GrabTempleGate.placements.name.open=Grab Temple Gate (Open) [Strawberry Jam]
+entities.CommunalHelper/SJ/GrabTempleGate.placements.name.closed=Grab Temple Gate (Closed) [Strawberry Jam]
 entities.CommunalHelper/SJ/GrabTempleGate.attributes.description.closed=Whether the gate should initially be closed. This causes this gate to open when others close, and vice-versa.
 
 # [Strawberry Jam] Loop Block
