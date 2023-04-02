@@ -604,6 +604,11 @@ entities.CommunalHelper/SJ/LoopBlock.placements.name.loop_block=Loop Block [Stra
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.edgeThickness=How thick this loop block's edges are, measured in tiles.
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.color=The hexadecimal color code for this block's tint.
 
+# [Strawberry Jam] Show Hitbox Trigger
+triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox [Strawberry Jam]
+triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.description.trigger=Shows the hitboxes of specified entities while inside.
+triggers.CommunalHelper/SJ/ShowHitboxTrigger.attributes.description.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.
