@@ -39,7 +39,7 @@ end
 const transparentTint = (1.0, 1.0, 1.0, 1.0) .* 0.45
 
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::SolarElevator, room::Maple.Room)
-    rail = Ahorn.getSprite("objects/StrawberryJam2021/solarElevator/rails", "Gameplay")
+    rail = Ahorn.getSprite("objects/CommunalHelper/strawberryJam/solarElevator/rails", "Gameplay")
     railOffsetX = -floor(Int, rail.width / 2)
     distance = max(0, Int(get(entity.data, "distance", 128)))
     y = 0
@@ -48,8 +48,8 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::SolarElevator, room
         y += rail.height
     end
     
-    front = Ahorn.getSprite("objects/StrawberryJam2021/solarElevator/front", "Gameplay")
-    back = Ahorn.getSprite("objects/StrawberryJam2021/solarElevator/back", "Gameplay")
+    front = Ahorn.getSprite("objects/CommunalHelper/strawberryJam/solarElevator/front", "Gameplay")
+    back = Ahorn.getSprite("objects/CommunalHelper/strawberryJam/solarElevator/back", "Gameplay")
 
     oxf, oyf = -floor(front.width / 2), -front.height
     oxb, oyb = -floor(back.width / 2), -back.height
