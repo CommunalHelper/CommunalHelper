@@ -600,6 +600,11 @@ entities.CommunalHelper/SJ/BulletTimeController.attributes.description.flag=If p
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.minDashes=The number of dashes required for time to be slowed down.
 
 # [Strawberry Jam] Loop Block
+entities.CommunalHelper/SJ/GrabTempleGate.placements.name.open=Loop Block (Open) [Strawberry Jam]
+entities.CommunalHelper/SJ/GrabTempleGate.placements.name.closed=Loop Block (Closed) [Strawberry Jam]
+entities.CommunalHelper/SJ/GrabTempleGate.attributes.description.closed=Whether the gate should initially be closed. This causes this gate to open when others close, and vice-versa.
+
+# [Strawberry Jam] Loop Block
 entities.CommunalHelper/SJ/LoopBlock.placements.name.loop_block=Loop Block [Strawberry Jam]
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.edgeThickness=How thick this loop block's edges are, measured in tiles.
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.color=The hexadecimal color code for this block's tint.
