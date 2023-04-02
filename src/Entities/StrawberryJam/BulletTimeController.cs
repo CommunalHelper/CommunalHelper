@@ -1,6 +1,6 @@
 ﻿namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 
-[CustomEntity("CommunalHelper/SJ2021/BulletTimeController")]
+[CustomEntity("CommunalHelper/SJ/BulletTimeController")]
 public class BulletTimeController : Entity
 {
     float timerate;
