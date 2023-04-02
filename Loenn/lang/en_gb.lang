@@ -614,6 +614,20 @@ entities.CommunalHelper/SJ/LoopBlock.placements.name.loop_block=Loop Block [Stra
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.edgeThickness=How thick this loop block's edges are, measured in tiles.
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.color=The hexadecimal color code for this block's tint.
 
+# Solar Elevator [Strawberry Jam]
+entities.CommunalHelper/SJ/SolarElevator.placements.name.solar_elevator=Solar Elevator [Strawberry Jam] 
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.distance=The height at which this elevator goes. 
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.time=The time in seconds this elevator takes to move from one floor to the other.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.delay=The time in seconds waited before movement.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.bgDepth=The depth that the background of the elevator will be displayed at.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.oneWay=Whether this elevator is only used once.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.startPosition=Determines which of the two floors is the default.\n- Closest: the default floor is the one closest to the player when the entity is created.\n- Bottom: the default floor is always the bottom one.\n- Top: the default floor is always the top one.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.moveSfx=The sound played during movement. Preferably a looped sound for arbitrary duration.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.haltSfx=The sound played when the elevator stops.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.requiresHoldable=Whether this elevator can only be activated if it can carry a holdable object (for instance, a Theo crystal). If this option is activated, the bubble UI will display a message to indicate that this elevator requires a holdable. 
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.holdableHintDialog=The dialog ID of the shown message, only useful if this elevator requires a holdable.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.reskinDirectory=The path to the directory that contains custom textures for this elevator, starting from "Graphics/Atlases/Gameplay/". Leave empty for default appearance.\nThe directory must contain a "front.png", "back.png", and "rails.png". Missing textures will fall back to the default textures. If something isn't working, check the Celeste console or log.txt for missing texture warnings.
+
 # [Strawberry Jam] Show Hitbox Trigger
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox [Strawberry Jam]
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.description.trigger=Shows the hitboxes of specified entities while inside.
