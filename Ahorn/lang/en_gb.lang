@@ -397,6 +397,11 @@ placements.entities.CommunalHelper/NoOverlayLookout.tooltips.onlyY=Whether the w
 placements.entities.CommunalHelper/DreamStrawberry.tooltips.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
 placements.entities.CommunalHelper/DreamStrawberry.tooltips.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
 
+# -- [Strawberry Jam] Bullet Time Controller --
+placements.entities.CommunalHelper/SJ/BulletTimeController.tooltips.timerate=The speed the game will run at when the player has dashes remaining, relative to regular game speed.
+placements.entities.CommunalHelper/SJ/BulletTimeController.tooltips.flag=(Optional) The flag that will activate this controller. If no flag is given, the controller will always be active.
+placements.entities.CommunalHelper/SJ/BulletTimeController.tooltips.minDashes=The number of dashes required for time to be slowed down.
+
 
 # -- Triggers --
 
