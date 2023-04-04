@@ -86,10 +86,9 @@ public class CommunalHelperModule : EverestModule
         PlayerSeekerBarrierRenderer.Hook();
         
         ShowHitboxTrigger.Load();
-
         GrabTempleGate.Hook();
-
         SolarElevator.Hook();
+        ExplodingStrawberry.Load();
 
         CommunalHelperGFX.Load();
 
@@ -156,10 +155,9 @@ public class CommunalHelperModule : EverestModule
         PlayerSeekerBarrierRenderer.Unhook();
         
         ShowHitboxTrigger.Unload();
-
         GrabTempleGate.Unhook();
-
         SolarElevator.Unhook();
+        ExplodingStrawberry.Unload();
 
         CommunalHelperGFX.Unload();
     }

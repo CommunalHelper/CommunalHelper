@@ -517,4 +517,10 @@
         <Anim id="hit" path="TempleDoor" delay="0.08" frames="0-4" goto="idle"/>
     </grabTempleGate>
 
+    <explodingStrawberry path="objects/CommunalHelper/strawberryJam/explodingStrawberry/" start="idle">
+        <Center/>
+        <Anim id="idle" path="explodeberry" delay="0.1" frames="0"/>
+        <Anim id="explode" path="explodeberry" delay="0.1" frames="0-11"/>
+        <Anim id="ghostexplode" path="explodeghostberry" delay="0.1" frames="0-11"/>
+    </explodingStrawberry>
 </Sprites>
