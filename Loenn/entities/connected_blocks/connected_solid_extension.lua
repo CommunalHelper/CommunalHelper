@@ -52,7 +52,7 @@ local function getSearchPredicate()
     end
 end
 
-local function getTileSprite(entity, x, y, frame, rectangles)
+local function getTileSprite(entity, x, y, tileset, rectangles, color)
     local hasAdjacent = connectedEntities.hasAdjacent
 
     local drawX, drawY = (x - 1) * 8, (y - 1) * 8
@@ -63,7 +63,7 @@ local function getTileSprite(entity, x, y, frame, rectangles)
     local closedDown = hasAdjacent(entity, drawX, drawY + 8, rectangles)
     local completelyClosed = closedLeft and closedRight and closedUp and closedDown
 
-    local quadX, quadY = false, false
+    local quadX, quadY = nil, nil
 
     if completelyClosed then
         if not hasAdjacent(entity, drawX + 8, drawY - 8, rectangles) then
@@ -106,10 +106,11 @@ local function getTileSprite(entity, x, y, frame, rectangles)
     end
 
     if quadX and quadY then
-        local sprite = drawableSprite.fromTexture(frame, entity)
+        local sprite = drawableSprite.fromTexture(tileset, entity)
 
         sprite:addPosition(drawX, drawY)
         sprite:useRelativeQuad(quadX, quadY, 8, 8)
+        sprite.color = color
 
         return sprite
     end
@@ -126,10 +127,11 @@ function connectedSolidExtension.sprite(room, entity)
     local rectangles = connectedEntities.getEntityRectangles(relevantBlocks)
 
     local block = entity.collidable and frame or frameAlt
+    local color = entity.collidable and {1.0, 1.0, 1.0, 1.0} or {0.6, 0.6, 0.6, 1.0}
 
     for x = 1, tileWidth do
         for y = 1, tileHeight do
-            local sprite = getTileSprite(entity, x, y, block, rectangles)
+            local sprite = getTileSprite(entity, x, y, block, rectangles, color)
 
             if sprite then
                 table.insert(sprites, sprite)
