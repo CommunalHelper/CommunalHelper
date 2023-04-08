@@ -60,7 +60,7 @@ public class SolarElevator : Solid
 
     private readonly MTexture back, rails;
 
-    public const string DefaultHintDialog = "StrawberryJam2021_Entities_SolarElevator_DefaultHint";
+    public const string DefaultHintDialog = "communalhelper_entities_strawberry_jam_solar_elevator_hint";
     public readonly string HoldableHintDialog;
     public readonly bool RequiresHoldable;
 
