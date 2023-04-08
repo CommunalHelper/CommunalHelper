@@ -89,6 +89,7 @@ public class CommunalHelperModule : EverestModule
         GrabTempleGate.Hook();
         SolarElevator.Hook();
         ExplodingStrawberry.Load();
+        ExpiringDashRefill.Load();
 
         CommunalHelperGFX.Load();
 
@@ -158,6 +159,7 @@ public class CommunalHelperModule : EverestModule
         GrabTempleGate.Unhook();
         SolarElevator.Unhook();
         ExplodingStrawberry.Unload();
+        ExpiringDashRefill.Unload();
 
         CommunalHelperGFX.Unload();
     }
