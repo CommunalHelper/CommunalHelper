@@ -370,7 +370,7 @@ placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.chainOutline=Whe
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 
-# -- Chained Kevin
+# -- Chained Kevin --
 placements.entities.CommunalHelper/ChainedKevin.tooltips.chillout=Whether the block should have the large face and get tired after being hit.
 placements.entities.CommunalHelper/ChainedKevin.tooltips.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
 placements.entities.CommunalHelper/ChainedKevin.tooltips.direction=The only direction in which this block will travel.
@@ -393,7 +393,7 @@ placements.entities.CommunalHelper/CoreModeMusicController.tooltips.disable=If t
 placements.entities.CommunalHelper/NoOverlayLookout.tooltips.summit=Whether the watch tower should zoom on the final node or not. Requires nodes to function, otherwise game will crash.
 placements.entities.CommunalHelper/NoOverlayLookout.tooltips.onlyY=Whether the watch tower can only move vertically. If the watch tower has nodes it will still follow CommunalHelper/NoOverlayLookout
 
-# Dream Strawberry
+# -- Dream Strawberry --
 placements.entities.CommunalHelper/DreamStrawberry.tooltips.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
 placements.entities.CommunalHelper/DreamStrawberry.tooltips.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
 
@@ -405,8 +405,42 @@ placements.entities.CommunalHelper/SJ/BulletTimeController.tooltips.minDashes=Th
 # -- [Strawberry Jam] Photosensitive Flag Controller --
 placements.entities.CommunalHelper/SJ/PhotosensitiveFlagController.tooltips.flag=The flag to set to the photosensitive mode.
 
+# -- [Strawberry Jam] Grab Temple Gate --
+placements.entities.CommunalHelper/SJ/GrabTempleGate.tooltips.closed=Whether the gate should initially be closed. This causes this gate to open when others close, and vice-versa.
+
+# -- [Strawberry Jam] Loop Block --
+placements.entities.CommunalHelper/SJ/LoopBlock.tooltips.edgeThickness=How thick this loop block's edges are, measured in tiles.
+placements.entities.CommunalHelper/SJ/LoopBlock.tooltips.color=The hexadecimal color code for this block's tint.
+
+# -- [Strawberry Jam] Solar Elevator --
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.distance=The height at which this elevator goes. 
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.time=The time in seconds this elevator takes to move from one floor to the other.
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.delay=The time in seconds waited before movement.
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.bgDepth=The depth that the background of the elevator will be displayed at.
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.oneWay=Whether this elevator is only used once.
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.startPosition=Determines which of the two floors is the default.\n- Closest: the default floor is the one closest to the player when the entity is created.\n- Bottom: the default floor is always the bottom one.\n- Top: the default floor is always the top one.
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.moveSfx=The sound played during movement. Preferably a looped sound for arbitrary duration.
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.haltSfx=The sound played when the elevator stops.
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.requiresHoldable=Whether this elevator can only be activated if it can carry a holdable object (for instance, a Theo crystal). If this option is activated, the bubble UI will display a message to indicate that this elevator requires a holdable. 
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.holdableHintDialog=The dialog ID of the shown message, only useful if this elevator requires a holdable.
+placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.reskinDirectory=The path to the directory that contains custom textures for this elevator, starting from "Graphics/Atlases/Gameplay/". Leave empty for default appearance.\nThe directory must contain a "front.png", "back.png", and "rails.png". Missing textures will fall back to the default textures. If something isn't working, check the Celeste console or log.txt for missing texture warnings.
+
+# -- [Strawberry Jam] Air Time Music Controller --
+placements.entities.CommunalHelper/SJ/ExpiringDashRefill.tooltips.oneUse=Whether this refill can only be used once.
+placements.entities.CommunalHelper/SJ/ExpiringDashRefill.tooltips.dashExpirationTime=The amount of time given before the dash is revoked if not used.
+placements.entities.CommunalHelper/SJ/ExpiringDashRefill.tooltips.hairFlashThreshold=The threshold ratio that determines when the warning flash begins (0 - 1).
+
+# -- [Strawberry Jam] Air Time Music Controller --
+placements.entities.CommunalHelper/SJ/AirTimeMusicController.tooltips.activationThreshold=The amount of airtime in seconds required before the music parameter is enabled.
+placements.entities.CommunalHelper/SJ/AirTimeMusicController.tooltips.musicParam=The music parameter that will be adjusted by this controller. Its value will be set to 1.0 when the airtime threshold is reached, and is 0.0 by default or when disabled.
 
 # -- Triggers --
+
+# -- [Strawberry Jam] Show Hitbox Trigger --
+placements.triggers.CommunalHelper/SJ/ShowHitboxTrigger.tooltips.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill
+
+# -- [Strawberry Jam] Dash Count Trigger --
+placements.triggers.CommunalHelper/SJ/DashCountTrigger.tooltips.numberOfDashes=The new number of dashes the player has.
 
 # -- Dash State Trigger --
 placements.triggers.CommunalHelper/DashStateTrigger.tooltips.dashState=The dash state to set.
@@ -431,6 +465,3 @@ placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.fadeA=Deter
 placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.fadeB=Determines the parameter value at the end of the fade.
 placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.parameter=The name of the affected parameter. Uses "fade" if left blank.
 placements.triggers.CommunalHelper/CassetteMusicFadeTrigger.tooltips.direction=The direction the music fades in.
-
-# -- [Strawberry Jam] Show Hitbox Trigger --
-placements.triggers.CommunalHelper/SJ/ShowHitboxTrigger.tooltips.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill

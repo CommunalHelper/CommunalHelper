@@ -632,7 +632,7 @@ entities.CommunalHelper/SJ/SolarElevator.attributes.description.reskinDirectory=
 entities.CommunalHelper/SJ/ExplodingStrawberry.placements.name.strawberry=Exploding Strawberry [Strawberry Jam]
 entities.CommunalHelper/SJ/ExplodingStrawberry.placements.description.strawberry=Strawberry that explodes when a pufferfish explodes.
 
-# [Strawberry Jam] Air Time Music Controller
+# [Strawberry Jam] Expiring Dash Refill
 entities.CommunalHelper/SJ/ExpiringDashRefill.placements.name.expiring_dash_refill=Expiring Dash Refill [Strawberry Jam]
 entities.CommunalHelper/SJ/ExpiringDashRefill.attributes.description.oneUse=Whether this refill can only be used once.
 entities.CommunalHelper/SJ/ExpiringDashRefill.attributes.description.dashExpirationTime=The amount of time given before the dash is revoked if not used.
