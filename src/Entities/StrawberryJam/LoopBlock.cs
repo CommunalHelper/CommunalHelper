@@ -164,8 +164,7 @@ public class LoopBlock : Solid
             level.DirectionalShake(Vector2.UnitX, 0.2f);
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 
-            // TODO: port sfx
-            // Audio.Play(CustomSoundEffects.game_loop_block_sideboost, player.Center);
+            Audio.Play(CustomSFX.game_strawberryJam_loop_block_sideboost, Center);
 
             speed.X = dir.X * 180f;
             targetSpeedX = -dir.X * 90f;
