@@ -632,6 +632,11 @@ entities.CommunalHelper/SJ/SolarElevator.attributes.description.reskinDirectory=
 entities.CommunalHelper/SJ/ExplodingStrawberry.placements.name.strawberry=Exploding Strawberry [Strawberry Jam]
 entities.CommunalHelper/SJ/ExplodingStrawberry.placements.description.strawberry=Strawberry that explodes when a pufferfish explodes.
 
+# [Strawberry Jam] Air Time Music Controller
+entities.CommunalHelper/SJ/AirTimeMusicController.placements.name.air_time_music_controller=Airtime Music Controller [Strawberry Jam]
+entities.CommunalHelper/SJ/AirTimeMusicController.attributes.description.activationThreshold=The amount of airtime in seconds required before the music parameter is enabled.
+entities.CommunalHelper/SJ/AirTimeMusicController.attributes.description.musicParam=The music parameter that will be adjusted by this controller. Its value will be set to 1.0 when the airtime threshold is reached, and is 0.0 by default or when disabled.
+
 # [Strawberry Jam] Show Hitbox Trigger
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox [Strawberry Jam]
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.description.trigger=Shows the hitboxes of specified entities while inside.
