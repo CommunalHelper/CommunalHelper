@@ -645,7 +645,7 @@ entities.CommunalHelper/SJ/AirTimeMusicController.attributes.description.musicPa
 
 # [Strawberry Jam] Wormhole Booster
 entities.CommunalHelper/SJ/WormholeBooster.placements.name.booster=Wormhole Booster [Strawberry Jam]
-entities.CommunalHelper/SJ/WormholeBooster.placements.description.strawberry=Booster that teleports you to the nearest of its kind, or kills you if none exist.
+entities.CommunalHelper/SJ/WormholeBooster.placements.description.booster=Booster that teleports you to the nearest of its kind, or kills you if none exist.
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.deathColor=The color to use for the booster when it becomes deadly.
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.instantCamera=Whether the camera should transition instantly or not.
 
