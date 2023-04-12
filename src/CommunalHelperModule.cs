@@ -91,6 +91,7 @@ public class CommunalHelperModule : EverestModule
         ExplodingStrawberry.Load();
         ExpiringDashRefill.Load();
         DashCountTrigger.Load();
+        WormholeBooster.Load();
 
         CommunalHelperGFX.Load();
 
@@ -162,6 +163,7 @@ public class CommunalHelperModule : EverestModule
         ExplodingStrawberry.Unload();
         ExpiringDashRefill.Unload();
         DashCountTrigger.Unload();
+        WormholeBooster.Unload();
 
         CommunalHelperGFX.Unload();
     }
@@ -225,6 +227,7 @@ public class CommunalHelperModule : EverestModule
         PlayerSeekerHair.InitializeTextures();
 
         LoopBlock.InitializeTextures();
+        WormholeBooster.InitializeParticles();
 
         Cloudscape.InitializeTextures();
     }

@@ -523,4 +523,20 @@
         <Anim id="explode" path="explodeberry" delay="0.1" frames="0-11"/>
         <Anim id="ghostexplode" path="explodeghostberry" delay="0.1" frames="0-11"/>
     </explodingStrawberry>
+
+    <wormholeBooster path="objects/CommunalHelper/strawberryJam/boosterWormhole/" start="loop">
+        <Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="boosterWormhole" delay="0.1" frames="0-4"/>
+        <Loop id="inside" path="boosterWormhole" delay="0.1" frames="5-8"/>
+        <Loop id="spin" path="boosterWormhole" delay="0.06" frames="18-25"/>
+        <Anim id="pop" path="boosterWormhole" delay="0.08" frames="9-17"/>
+    </wormholeBooster>
+
+    <wormholeMask path="objects/CommunalHelper/strawberryJam/boosterDisplacementMask/" start="loop">
+        <Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="boosterWormhole" delay="0.1" frames="0-4"/>
+        <Loop id="inside" path="boosterWormhole" delay="0.1" frames="5-8"/>
+        <Loop id="spin" path="boosterWormhole" delay="0.06" frames="18-25"/>
+        <Anim id="pop" path="boosterWormhole" delay="0.08" frames="9-17"/>
+    </wormholeMask>
 </Sprites>

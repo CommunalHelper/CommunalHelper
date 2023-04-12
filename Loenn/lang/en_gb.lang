@@ -643,6 +643,12 @@ entities.CommunalHelper/SJ/AirTimeMusicController.placements.name.air_time_music
 entities.CommunalHelper/SJ/AirTimeMusicController.attributes.description.activationThreshold=The amount of airtime in seconds required before the music parameter is enabled.
 entities.CommunalHelper/SJ/AirTimeMusicController.attributes.description.musicParam=The music parameter that will be adjusted by this controller. Its value will be set to 1.0 when the airtime threshold is reached, and is 0.0 by default or when disabled.
 
+# [Strawberry Jam] Wormhole Booster
+entities.CommunalHelper/SJ/WormholeBooster.placements.name.booster=Wormhole Booster [Strawberry Jam]
+entities.CommunalHelper/SJ/WormholeBooster.placements.description.strawberry=Booster that teleports you to the nearest of its kind, or kills you if none exist.
+entities.CommunalHelper/SJ/WormholeBooster.attributes.description.deathColor=The color to use for the booster when it becomes deadly.
+entities.CommunalHelper/SJ/WormholeBooster.attributes.description.instantCamera=Whether the camera should transition instantly or not.
+
 # [Strawberry Jam] Show Hitbox Trigger
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox [Strawberry Jam]
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.description.trigger=Shows the hitboxes of specified entities while inside.
