@@ -32,6 +32,7 @@ public class UFO : Actor
     public Player player;
     public float RaySizeX = 13f;
     public float RaySizeY = 60f;
+    public long life;
 
     public UFO(Vector2[] nodes) : base(nodes[0])
     {
@@ -125,6 +126,7 @@ public class UFO : Actor
     public override void Update()
     {
         base.Update();
+        life++;
         switch (state)
         {
             case States.Wait:
@@ -394,7 +396,38 @@ public class UFO : Actor
         if (state == States.Wait)
         {
             Draw.Rect(Position.X - RaySizeX, Position.Y + 12, RaySizeX * 2, RaySizeY, Color.Orange * 0.3f);
+            const int spacing = 20;
+            int limit = (int)(Math.Ceiling(RaySizeY) / spacing) + 1;
+            for (int i = 0; i < limit; i++)
+            {
+                float offset = (life % (spacing * 2)) / 2f;
+                float fade = offset / spacing;
+                var colour = Color.Orange;
+                if (i == 0) colour *= fade;
+                else if (i == limit - 1) colour *= 1 - fade;
+
+                Oval(Position + new Vector2(0, i * spacing + offset), 20, 8, colour, 16);
+            }
         }
         base.Render();
+    }
+    
+    // like circle, but better!
+    public static void Oval(Vector2 position, float radiusX, float radiusY, Color color, int resolution)
+    {
+        Vector2 radiusVX = Calc.AngleToVector(0, 1) * new Vector2(radiusX, radiusY);
+        Vector2 radiusVY = Calc.AngleToVector(MathHelper.PiOver2, 1) * new Vector2(radiusX, radiusY);
+        for (float index = 1; index <= resolution; ++index)
+        {
+            float angleRadians = MathHelper.PiOver2 * (index / resolution);
+            Vector2 point = Calc.AngleToVector(angleRadians, 1) * new Vector2(radiusX, radiusY);
+            Vector2 pointV = Calc.AngleToVector(angleRadians + MathHelper.PiOver2, 1) * new Vector2(radiusX, radiusY);
+            Draw.Line(position + radiusVX, position + point, color);
+            Draw.Line(position - radiusVX, position - point, color);
+            Draw.Line(position + radiusVY, position + pointV, color);
+            Draw.Line(position - radiusVY, position - pointV, color);
+            radiusVX = point;
+            radiusVY = pointV;
+        }
     }
 }
