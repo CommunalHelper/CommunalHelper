@@ -10,7 +10,7 @@ const placements = Ahorn.PlacementDict(
     )				
 )
 
-UFOsprite = "objects/CommunalHelper/ufo/UFO.png"
+UFOsprite = "objects/CommunalHelper/ufo/idle00.png"
 
 function Ahorn.selection(entity::UFO)
     x, y = Ahorn.position(entity)

@@ -539,4 +539,20 @@
         <Loop id="spin" path="boosterWormhole" delay="0.06" frames="18-25"/>
         <Anim id="pop" path="boosterWormhole" delay="0.08" frames="9-17"/>
     </wormholeMask>
+
+    <ufo path="objects/CommunalHelper/ufo/" start="idle">
+        <Center/>
+        <Loop id="idle" path="idle" delay="0.08"/>
+        <Anim id="alert" path="alert" goto="warned" delay="0.08"/>
+        <Loop id="warned" path="warned" delay="0.08"/>
+        <Anim id="flight" path="flight" goto="off" delay="0.08"/>
+        <Loop id="off" path="off" delay="0.08"/>
+    </ufo>
+
+    <ufoCage path="objects/CommunalHelper/ufo/capture/" start="appear">
+        <Center/>
+        <Anim id="appear" path="appear" goto="capture" delay="0.075"/>
+        <Loop id="capture" path="capture" delay="0.05"/>
+        <Anim id="disappear" path="disappear" delay="0.065"/>
+    </ufoCage>
 </Sprites>

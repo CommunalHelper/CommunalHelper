@@ -17,7 +17,7 @@ public class UFO : Actor
 
     public static readonly Vector2 FlingSpeed = new(380f, -100f);
 
-    private Image sprite;
+    private Sprite sprite;
     private States state;
     private Vector2 flingSpeed;
     private Vector2 flingTargetSpeed;
@@ -36,7 +36,7 @@ public class UFO : Actor
     public UFO(Vector2[] nodes) : base(nodes[0])
     {
         Depth = Depths.Above;
-        Add(sprite = new Image(GFX.Game["objects/CommunalHelper/ufo/UFO"]));
+        Add(sprite = CommunalHelperGFX.SpriteBank.Create("ufo"));
         sprite.CenterOrigin();
         Collider = new Hitbox(24f, 24f, -12f, -12f);
         Add(new PlayerCollider(OnPlayer));
@@ -129,14 +129,18 @@ public class UFO : Actor
         {
             case States.Wait:
                 Player entity = Scene.Tracker.GetEntity<Player>();
-                if (entity != null && entity.X - X >= 100f)
+                if (entity != null && entity.X - X >= 140f)
                 {
                     Skip();
                 }
-                else if (entity != null)
+                else if (entity != null && Math.Abs(entity.X - X) < 90)
                 {
-                    float scaleFactor = Calc.ClampedMap((entity.Center - Position).Length(), 16f, 64f, 12f, 0f);
-                    Vector2 value = (entity.Center - Position).SafeNormalize();
+                    if(sprite.LastAnimationID != "warned")
+                        sprite.Play("alert");
+                }
+                else
+                {
+                    sprite.Play("idle");
                 }
 
                 break;
@@ -147,6 +151,10 @@ public class UFO : Actor
                 }
 
                 Position += flingSpeed * Engine.DeltaTime;
+                
+                if(sprite.LastAnimationID != "off")
+                    sprite.Play("flight");
+                
                 break;
             case States.Move:
                 break;
@@ -383,10 +391,10 @@ public class UFO : Actor
 
     public override void Render()
     {
-        base.Render();
         if (state == States.Wait)
         {
-            Draw.Rect(Position.X - RaySizeX, Position.Y + 12, RaySizeX * 2, RaySizeY, Color.White);
+            Draw.Rect(Position.X - RaySizeX, Position.Y + 12, RaySizeX * 2, RaySizeY, Color.Orange * 0.3f);
         }
+        base.Render();
     }
 }

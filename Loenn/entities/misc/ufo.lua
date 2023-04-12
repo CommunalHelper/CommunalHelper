@@ -2,7 +2,8 @@
 
 ufo.name = "CommunalHelper/UFO"
 ufo.depth = -8500
-ufo.texture = "objects/CommunalHelper/ufo/UFO"
+ufo.texture = "objects/CommunalHelper/ufo/idle00"
+ufo.nodeLineRenderType = "line"
 ufo.nodeLimits = {0, -1}
 ufo.placements = {
     name = "ufo",
