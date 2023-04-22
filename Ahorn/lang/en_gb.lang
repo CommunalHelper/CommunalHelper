@@ -355,7 +355,6 @@ placements.entities.CommunalHelper/DashCollisionPanel.tooltips.dashCollideResult
 # -- Frictionless Panel --
 placements.entities.CommunalHelper/FrictionlessPanel.tooltips.orientation=The way this Frictionless Panel faces.
 
-
 # -- Chain --
 placements.entities.CommunalHelper/Chain.tooltips.outline=Whether this chain has an outline (black).
 placements.entities.CommunalHelper/Chain.tooltips.extraJoints=The additional 'chain nodes' this chain has. Used to make the chain longer without distancing the endpoints of the chain any further away from eachother.
@@ -425,7 +424,7 @@ placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.requiresHoldable=Wh
 placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.holdableHintDialog=The dialog ID of the shown message, only useful if this elevator requires a holdable.
 placements.entities.CommunalHelper/SJ/SolarElevator.tooltips.reskinDirectory=The path to the directory that contains custom textures for this elevator, starting from "Graphics/Atlases/Gameplay/". Leave empty for default appearance.\nThe directory must contain a "front.png", "back.png", and "rails.png". Missing textures will fall back to the default textures. If something isn't working, check the Celeste console or log.txt for missing texture warnings.
 
-# -- [Strawberry Jam] Air Time Music Controller --
+# -- [Strawberry Jam] Expiring Dash Refill --
 placements.entities.CommunalHelper/SJ/ExpiringDashRefill.tooltips.oneUse=Whether this refill can only be used once.
 placements.entities.CommunalHelper/SJ/ExpiringDashRefill.tooltips.dashExpirationTime=The amount of time given before the dash is revoked if not used.
 placements.entities.CommunalHelper/SJ/ExpiringDashRefill.tooltips.hairFlashThreshold=The threshold ratio that determines when the warning flash begins (0 - 1).
@@ -442,9 +441,6 @@ placements.entities.CommunalHelper/SJ/WormholeBooster.tooltips.instantCamera=Whe
 
 # -- [Strawberry Jam] Show Hitbox Trigger --
 placements.triggers.CommunalHelper/SJ/ShowHitboxTrigger.tooltips.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill
-
-# -- [Strawberry Jam] Dash Count Trigger --
-placements.triggers.CommunalHelper/SJ/DashCountTrigger.tooltips.numberOfDashes=The new number of dashes the player has.
 
 # -- Dash State Trigger --
 placements.triggers.CommunalHelper/DashStateTrigger.tooltips.dashState=The dash state to set.

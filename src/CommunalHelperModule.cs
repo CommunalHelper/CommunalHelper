@@ -90,7 +90,6 @@ public class CommunalHelperModule : EverestModule
         SolarElevator.Hook();
         ExplodingStrawberry.Load();
         ExpiringDashRefill.Load();
-        DashCountTrigger.Load();
         WormholeBooster.Load();
 
         CommunalHelperGFX.Load();
@@ -162,7 +161,6 @@ public class CommunalHelperModule : EverestModule
         SolarElevator.Unhook();
         ExplodingStrawberry.Unload();
         ExpiringDashRefill.Unload();
-        DashCountTrigger.Unload();
         WormholeBooster.Unload();
 
         CommunalHelperGFX.Unload();
