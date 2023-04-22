@@ -1,4 +1,7 @@
---1.15.0 (22/04/2023)--
+--1.15.2 (22/04/2023)--
+* Fix Cloudscape potentially rendering on the wrong render target in some special cases.
+
+--1.15.1 (22/04/2023)--
 * Added 'additive' and 'hasBackgroundColor' options to Cloudscape.
 
 --1.15.0 (22/04/2023)--
