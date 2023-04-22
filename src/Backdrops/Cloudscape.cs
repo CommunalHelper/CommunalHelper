@@ -60,6 +60,9 @@ public class Cloudscape : Backdrop
         public float OuterRotation { get; set; } = 0.2f;
         public float RotationExponent { get; set; } = 2.0f;
 
+        public bool HasBackgroundColor { get; set; } = true;
+        public bool Additive { get; set; } = false;
+
         public Options() { }
 
         public Options(BinaryPacker.Element child)
@@ -97,6 +100,9 @@ public class Cloudscape : Backdrop
             InnerRotation = child.AttrFloat("innerRotation", 0.002f);
             OuterRotation = child.AttrFloat("outerRotation", 0.2f);
             RotationExponent = MathHelper.Max(child.AttrFloat("rotationExponent", 2f), 1f);
+
+            HasBackgroundColor = child.AttrBool("hasBackgroundColor", true);
+            Additive = child.AttrBool("additive", false);
         }
     }
 
@@ -266,6 +272,8 @@ public class Cloudscape : Backdrop
     private Color[] lightningColors;
     private Color lightningFlashColor;
 
+    private readonly BlendState blend;
+
     public Cloudscape(BinaryPacker.Element child)
         : this(new Options(child)) { }
 
@@ -274,7 +282,9 @@ public class Cloudscape : Backdrop
     {
         UseSpritebatch = false;
 
-        sky = options.Sky;
+        sky = options.HasBackgroundColor
+            ? options.Sky
+            : Color.Transparent;
 
         offset = options.Offset;
         parallax = options.Parallax;
@@ -287,6 +297,10 @@ public class Cloudscape : Backdrop
         lightningIntensity = options.LightningIntensity;
         lightningColors = options.LightningColors;
         lightningFlashColor = options.LightningFlashColor;
+
+        blend = options.Additive
+            ? BlendState.Additive
+            : BlendState.AlphaBlend;
 
         Calc.PushRandom(options.Seed);
 
@@ -391,7 +405,7 @@ public class Cloudscape : Backdrop
         Engine.Instance.GraphicsDevice.SetRenderTarget(GameplayBuffers.Level);
 
         BackdropRenderer renderer = (scene as Level).Background;
-        renderer.StartSpritebatch(BlendState.AlphaBlend);
+        renderer.StartSpritebatch(blend);
         Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White);
         renderer.EndSpritebatch();
     }

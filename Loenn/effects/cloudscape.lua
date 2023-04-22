@@ -74,7 +74,9 @@ cloudscape.defaultData = {
     outerDensity = 1.0,
     innerRotation = 0.002,
     outerRotation = 0.2,
-    rotationExponent = 2.0
+    rotationExponent = 2.0,
+    hasBackgroundColor = true,
+    additive = false,
 }
 
 return cloudscape

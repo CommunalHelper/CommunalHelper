@@ -27,7 +27,9 @@ using ..Ahorn, Maple
     outerDensity::Number=1.0,
     innerRotation::Number=0.002,
     outerRotation::Number=0.2,
-    rotationExponent::Number=2.0
+    rotationExponent::Number=2.0,
+    hasBackgroundColor::Bool=false,
+    additive::Bool=false,
 )
 
 placements = Cloudscape
