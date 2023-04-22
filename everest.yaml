@@ -3,4 +3,4 @@
   DLL: src/bin/Debug/net452/CommunalHelper.dll
   Dependencies:
     - Name: Everest
-      Version: 1.3650.0
+      Version: 1.3876.0
