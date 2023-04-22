@@ -1,4 +1,7 @@
 --1.15.0 (22/04/2023)--
+* Added 'additive' and 'hasBackgroundColor' options to Cloudscape.
+
+--1.15.0 (22/04/2023)--
 * Ported Air Time Music Controller from Strawberry Jam.
 * Ported Bullet Time Controller from Strawberry Jam.
 * Ported Expiring Dash Refill from Strawberry Jam.
