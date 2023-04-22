@@ -592,6 +592,74 @@ entities.CommunalHelper/LightningController.attributes.description.probability=A
 entities.CommunalHelper/LightningController.attributes.description.color=The color of the lightning strikes.
 entities.CommunalHelper/LightningController.attributes.description.flashColor=The color of the flash.
 
+# UFO
+entities.CommunalHelper/UFO.placements.name.ufo=UFO
+entities.CommunalHelper/UFO.placements.description.ufo=Flings the player and holdables when below, before moving to the next position.
+entities.CommunalHelper/UFO.attributes.description.raySizeX=The width of the beam within which entities are flung.
+entities.CommunalHelper/UFO.attributes.description.raySizeY=The height of the beam within which entities are flung.
+
+# [Strawberry Jam] Bullet Time Controller
+entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]
+entities.CommunalHelper/SJ/BulletTimeController.placements.description.controller=Slows down time while the player has dashes.
+entities.CommunalHelper/SJ/BulletTimeController.attributes.description.timerate=The timerate that the game should run at while the player has dashes, as a multiplier of normal speed.
+entities.CommunalHelper/SJ/BulletTimeController.attributes.description.flag=If present, time will only be affected if this flag is set.
+entities.CommunalHelper/SJ/BulletTimeController.attributes.description.minDashes=The number of dashes required for time to be slowed down.
+
+# [Strawberry Jam] Photosensitive Flag Controller
+entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.name.controller=Photosensitive Flag Controller [Strawberry Jam]
+entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.description.controller=Sets a flag when photosensitive mode is enabled.
+entities.CommunalHelper/SJ/PhotosensitiveFlagController.attributes.description.flag=The flag to set.
+
+# [Strawberry Jam] Grab Temple Gate
+entities.CommunalHelper/SJ/GrabTempleGate.placements.name.open=Grab Temple Gate (Open) [Strawberry Jam]
+entities.CommunalHelper/SJ/GrabTempleGate.placements.name.closed=Grab Temple Gate (Closed) [Strawberry Jam]
+entities.CommunalHelper/SJ/GrabTempleGate.attributes.description.closed=Whether the gate should initially be closed. This causes this gate to open when others close, and vice-versa.
+
+# [Strawberry Jam] Loop Block
+entities.CommunalHelper/SJ/LoopBlock.placements.name.loop_block=Loop Block [Strawberry Jam]
+entities.CommunalHelper/SJ/LoopBlock.attributes.description.edgeThickness=How thick this loop block's edges are, measured in tiles.
+entities.CommunalHelper/SJ/LoopBlock.attributes.description.color=The hexadecimal color code for this block's tint.
+
+# [Strawberry Jam] Solar Elevator
+entities.CommunalHelper/SJ/SolarElevator.placements.name.solar_elevator=Solar Elevator [Strawberry Jam]
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.distance=The height at which this elevator goes. 
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.time=The time in seconds this elevator takes to move from one floor to the other.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.delay=The time in seconds waited before movement.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.bgDepth=The depth that the background of the elevator will be displayed at.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.oneWay=Whether this elevator is only used once.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.startPosition=Determines which of the two floors is the default.\n- Closest: the default floor is the one closest to the player when the entity is created.\n- Bottom: the default floor is always the bottom one.\n- Top: the default floor is always the top one.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.moveSfx=The sound played during movement. Preferably a looped sound for arbitrary duration.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.haltSfx=The sound played when the elevator stops.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.requiresHoldable=Whether this elevator can only be activated if it can carry a holdable object (for instance, a Theo crystal). If this option is activated, the bubble UI will display a message to indicate that this elevator requires a holdable. 
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.holdableHintDialog=The dialog ID of the shown message, only useful if this elevator requires a holdable.
+entities.CommunalHelper/SJ/SolarElevator.attributes.description.reskinDirectory=The path to the directory that contains custom textures for this elevator, starting from "Graphics/Atlases/Gameplay/". Leave empty for default appearance.\nThe directory must contain a "front.png", "back.png", and "rails.png". Missing textures will fall back to the default textures. If something isn't working, check the Celeste console or log.txt for missing texture warnings.
+
+# [Strawberry Jam] Exploding Strawberry
+entities.CommunalHelper/SJ/ExplodingStrawberry.placements.name.strawberry=Exploding Strawberry [Strawberry Jam]
+entities.CommunalHelper/SJ/ExplodingStrawberry.placements.description.strawberry=Strawberry that explodes when a pufferfish explodes.
+
+# [Strawberry Jam] Expiring Dash Refill
+entities.CommunalHelper/SJ/ExpiringDashRefill.placements.name.expiring_dash_refill=Expiring Dash Refill [Strawberry Jam]
+entities.CommunalHelper/SJ/ExpiringDashRefill.attributes.description.oneUse=Whether this refill can only be used once.
+entities.CommunalHelper/SJ/ExpiringDashRefill.attributes.description.dashExpirationTime=The amount of time given before the dash is revoked if not used.
+entities.CommunalHelper/SJ/ExpiringDashRefill.attributes.description.hairFlashThreshold=The threshold ratio that determines when the warning flash begins (0 - 1).
+
+# [Strawberry Jam] Air Time Music Controller
+entities.CommunalHelper/SJ/AirTimeMusicController.placements.name.air_time_music_controller=Airtime Music Controller [Strawberry Jam]
+entities.CommunalHelper/SJ/AirTimeMusicController.attributes.description.activationThreshold=The amount of airtime in seconds required before the music parameter is enabled.
+entities.CommunalHelper/SJ/AirTimeMusicController.attributes.description.musicParam=The music parameter that will be adjusted by this controller. Its value will be set to 1.0 when the airtime threshold is reached, and is 0.0 by default or when disabled.
+
+# [Strawberry Jam] Wormhole Booster
+entities.CommunalHelper/SJ/WormholeBooster.placements.name.booster=Wormhole Booster [Strawberry Jam]
+entities.CommunalHelper/SJ/WormholeBooster.placements.description.booster=Booster that teleports you to the nearest of its kind, or kills you if none exist.
+entities.CommunalHelper/SJ/WormholeBooster.attributes.description.deathColor=The color to use for the booster when it becomes deadly.
+entities.CommunalHelper/SJ/WormholeBooster.attributes.description.instantCamera=Whether the camera should transition instantly or not.
+
+# [Strawberry Jam] Show Hitbox Trigger
+triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox [Strawberry Jam]
+triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.description.trigger=Shows the hitboxes of specified entities while inside.
+triggers.CommunalHelper/SJ/ShowHitboxTrigger.attributes.description.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill
+
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
 triggers.CommunalHelper/DashStateTrigger.attributes.description.dashState=The dash state to set.

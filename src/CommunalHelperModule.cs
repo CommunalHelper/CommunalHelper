@@ -5,6 +5,8 @@ global using System;
 using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
+using Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
 using MonoMod.ModInterop;
 
 namespace Celeste.Mod.CommunalHelper;
@@ -82,6 +84,13 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Hook();
         PlayerSeekerBarrierRenderer.Hook();
+        
+        ShowHitboxTrigger.Load();
+        GrabTempleGate.Hook();
+        SolarElevator.Hook();
+        ExplodingStrawberry.Load();
+        ExpiringDashRefill.Load();
+        WormholeBooster.Load();
 
         CommunalHelperGFX.Load();
 
@@ -146,6 +155,13 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Unhook();
         PlayerSeekerBarrierRenderer.Unhook();
+        
+        ShowHitboxTrigger.Unload();
+        GrabTempleGate.Unhook();
+        SolarElevator.Unhook();
+        ExplodingStrawberry.Unload();
+        ExpiringDashRefill.Unload();
+        WormholeBooster.Unload();
 
         CommunalHelperGFX.Unload();
     }
@@ -207,6 +223,9 @@ public class CommunalHelperModule : EverestModule
         Chain.InitializeTextures();
 
         PlayerSeekerHair.InitializeTextures();
+
+        LoopBlock.InitializeTextures();
+        WormholeBooster.InitializeParticles();
 
         Cloudscape.InitializeTextures();
     }

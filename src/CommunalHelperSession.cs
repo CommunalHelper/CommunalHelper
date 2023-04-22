@@ -16,6 +16,10 @@ public class CommunalHelperSession : EverestModuleSession
 
     public bool PlayerWasTired { get; set; } = false;
 
+    // used by expiring dash refills
+    public double ExpiringDashRemainingTime { get; set; }
+    public float ExpiringDashFlashThreshold { get; set; }
+
     public CommunalHelperSession()
     {
         SummitGems = new SortedSet<string>(StringComparer.InvariantCulture);
