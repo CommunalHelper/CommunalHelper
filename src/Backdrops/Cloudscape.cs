@@ -14,6 +14,10 @@ public class Cloudscape : Backdrop
 
     private static MTexture[] cloudTextures;
 
+    // using one buffer even if there are multiple cloudscapes;
+    // cleared when rendering another cloudscape.
+    private static VirtualRenderTarget buffer;
+
     public class Options
     {
         public int Seed { get; set; } = 0;
@@ -252,9 +256,7 @@ public class Cloudscape : Backdrop
 
     private Color sky;
 
-    private VirtualRenderTarget buffer;
     private Matrix matrix;
-
     private readonly Vector2 offset, parallax;
 
     private bool lightning;
@@ -267,8 +269,11 @@ public class Cloudscape : Backdrop
     public Cloudscape(BinaryPacker.Element child)
         : this(new Options(child)) { }
 
-    public Cloudscape(Options options) : base()
+    public Cloudscape(Options options)
+        : base()
     {
+        UseSpritebatch = false;
+
         sky = options.Sky;
 
         offset = options.Offset;
@@ -374,49 +379,41 @@ public class Cloudscape : Backdrop
             cloud.Update(lightning);
     }
 
-    public override void BeforeRender(Scene scene)
+    public override void Render(Scene scene)
     {
-        if (!Visible)
-            return;
-
-        base.BeforeRender(scene);
-
-        if (buffer == null || buffer.IsDisposed)
-            buffer = VirtualContent.CreateRenderTarget("communalhelper-cloudscape", 320, 180);
-
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);
         Engine.Graphics.GraphicsDevice.Clear(sky);
         Engine.Instance.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
         Engine.Instance.GraphicsDevice.Textures[0] = CommunalHelperGFX.CloudscapeAtlas.Sources[0].Texture_Safe;
         foreach (Ring ring in rings)
             ring.Render();
-    }
 
-    public override void Render(Scene scene)
-    {
-        base.Render(scene);
+        Engine.Instance.GraphicsDevice.SetRenderTarget(GameplayBuffers.Level);
 
-        if (buffer != null && !buffer.IsDisposed)
-            Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White);
+        BackdropRenderer renderer = (scene as Level).Background;
+        renderer.StartSpritebatch(BlendState.AlphaBlend);
+        Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White);
+        renderer.EndSpritebatch();
     }
 
     public override void Ended(Scene scene)
     {
         base.Ended(scene);
 
-        if (buffer != null)
-        {
-            buffer.Dispose();
-            buffer = null;
-        }
-
         if (rings != null)
             foreach (Ring ring in rings)
                 ring.Mesh.Dispose();
     }
 
-    internal static void InitializeTextures()
+    internal static void Initalize()
     {
         cloudTextures = CommunalHelperGFX.CloudscapeAtlas.GetAtlasSubtextures(string.Empty).ToArray();
+        buffer = VirtualContent.CreateRenderTarget("communal_helper/shared_cloudscape_buffer", 320, 180);
+    }
+
+    internal static void Unload()
+    {
+        buffer.Dispose();
+        buffer = null;
     }
 }

@@ -147,6 +147,8 @@ public class CommunalHelperModule : EverestModule
         PlayerSeekerBarrier.Unhook();
         PlayerSeekerBarrierRenderer.Unhook();
 
+        Cloudscape.Unload();
+
         CommunalHelperGFX.Unload();
     }
 
@@ -208,7 +210,7 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerHair.InitializeTextures();
 
-        Cloudscape.InitializeTextures();
+        Cloudscape.Initalize();
     }
 
     protected override void CreateModMenuSectionHeader(TextMenu menu, bool inGame, FMOD.Studio.EventInstance snapshot)
