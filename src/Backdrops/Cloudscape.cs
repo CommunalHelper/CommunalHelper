@@ -395,6 +395,15 @@ public class Cloudscape : Backdrop
 
     public override void Render(Scene scene)
     {
+        // assuming that GameplayBuffers.Level is the buffer the styleground is being rendered to is wrong.
+        // in some cases, (with styleground masks for instance), the backdrop is redirected to be rendered onto another buffer.
+        // so we can use GraphicsDevice.GetRenderTargets and select the first one to render it here.
+        // in most cases, that'll just end up being GameplayBuffers.Level anyway.
+        RenderTarget2D rt = GameplayBuffers.Level;
+        RenderTargetBinding[] renderTargets = Engine.Graphics.GraphicsDevice.GetRenderTargets();
+        if (renderTargets.Length > 0)
+            rt = renderTargets[0].RenderTarget as RenderTarget2D ?? rt;
+
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);
         Engine.Graphics.GraphicsDevice.Clear(sky);
         Engine.Instance.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
@@ -402,8 +411,7 @@ public class Cloudscape : Backdrop
         foreach (Ring ring in rings)
             ring.Render();
 
-        Engine.Instance.GraphicsDevice.SetRenderTarget(GameplayBuffers.Level);
-
+        Engine.Instance.GraphicsDevice.SetRenderTarget(rt);
         BackdropRenderer renderer = (scene as Level).Background;
         renderer.StartSpritebatch(blend);
         Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White);
