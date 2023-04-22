@@ -1,4 +1,4 @@
-﻿module SJ2021UFO
+CommunalHelperUFO
 
 using ..Ahorn, Maple
 
