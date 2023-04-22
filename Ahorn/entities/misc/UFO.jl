@@ -1,14 +1,18 @@
-CommunalHelperUFO
+module CommunalHelperUFO
 
 using ..Ahorn, Maple
 
 @mapdef Entity "CommunalHelper/UFO" UFO(x::Integer, y::Integer, nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[], raySizeX::Integer = 13, raySizeY::Integer = 60)
+
+#== hidden for now
 
 const placements = Ahorn.PlacementDict(
     "UFO (Communal Helper)" => Ahorn.EntityPlacement(
         UFO
     )				
 )
+
+==#
 
 UFOsprite = "objects/CommunalHelper/ufo/idle00.png"
 
@@ -34,5 +38,7 @@ function Ahorn.renderAbs(ctx::Ahorn.Cairo.CairoContext, entity::UFO, room::Maple
     x, y = Ahorn.position(entity)
     Ahorn.drawSprite(ctx, UFOsprite, x, y)
 end
+
 Ahorn.nodeLimits(entity::UFO) = 1, -1
+
 end
