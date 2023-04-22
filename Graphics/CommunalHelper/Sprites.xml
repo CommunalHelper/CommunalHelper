@@ -509,4 +509,50 @@
         <Anim id="collect" path="CommunalHelper/recolorableBerry/leaves" delay=".07" frames="7-11"/>
     </recolorableStrawberryOverlay>
 
+    <!--GrabTempleGate-->
+    <grabTempleGate path="objects/CommunalHelper/strawberryJam/grabTempleGate/" start="idle">
+        <Justify x="0.5" y="0"/>
+        <Loop id="idle" path="TempleDoor" delay="0.1" frames="0"/>
+        <Anim id="open" path="TempleDoor" delay="0.1" frames="6-14" goto="idle"/>
+        <Anim id="hit" path="TempleDoor" delay="0.08" frames="0-4" goto="idle"/>
+    </grabTempleGate>
+
+    <explodingStrawberry path="objects/CommunalHelper/strawberryJam/explodingStrawberry/" start="idle">
+        <Center/>
+        <Anim id="idle" path="explodeberry" delay="0.1" frames="0"/>
+        <Anim id="explode" path="explodeberry" delay="0.1" frames="0-11"/>
+        <Anim id="ghostexplode" path="explodeghostberry" delay="0.1" frames="0-11"/>
+    </explodingStrawberry>
+
+    <wormholeBooster path="objects/CommunalHelper/strawberryJam/boosterWormhole/" start="loop">
+        <Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="boosterWormhole" delay="0.1" frames="0-4"/>
+        <Loop id="inside" path="boosterWormhole" delay="0.1" frames="5-8"/>
+        <Loop id="spin" path="boosterWormhole" delay="0.06" frames="18-25"/>
+        <Anim id="pop" path="boosterWormhole" delay="0.08" frames="9-17"/>
+    </wormholeBooster>
+
+    <wormholeMask path="objects/CommunalHelper/strawberryJam/boosterDisplacementMask/" start="loop">
+        <Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="boosterWormhole" delay="0.1" frames="0-4"/>
+        <Loop id="inside" path="boosterWormhole" delay="0.1" frames="5-8"/>
+        <Loop id="spin" path="boosterWormhole" delay="0.06" frames="18-25"/>
+        <Anim id="pop" path="boosterWormhole" delay="0.08" frames="9-17"/>
+    </wormholeMask>
+
+    <ufo path="objects/CommunalHelper/ufo/" start="idle">
+        <Center/>
+        <Loop id="idle" path="idle" delay="0.08"/>
+        <Anim id="alert" path="alert" goto="warned" delay="0.08"/>
+        <Loop id="warned" path="warned" delay="0.08"/>
+        <Anim id="flight" path="flight" goto="off" delay="0.08"/>
+        <Loop id="off" path="off" delay="0.08"/>
+    </ufo>
+
+    <ufoCage path="objects/CommunalHelper/ufo/capture/" start="appear">
+        <Center/>
+        <Anim id="appear" path="appear" goto="capture" delay="0.075"/>
+        <Loop id="capture" path="capture" delay="0.05"/>
+        <Anim id="disappear" path="disappear" delay="0.065"/>
+    </ufoCage>
 </Sprites>

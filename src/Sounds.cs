@@ -89,6 +89,27 @@ public static class CustomSFX
 
     public const string game_seekerDashRefill_seeker_refill_return = "event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_return";
     public const string game_seekerDashRefill_seeker_refill_touch = "event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_touch";
+
+    #region partial strawberry jam sfx bank port
+
+    public const string game_strawberryJam_bee_fireball_idle = "event:/CommunalHelperEvents/game/strawberryJam/game/bee/fireball_idle";
+    public const string game_strawberryJam_boost_block_boost = "event:/CommunalHelperEvents/game/strawberryJam/game/boost_block/boost";
+    public const string game_strawberryJam_bubble_emitter_bubble_pop = "event:/CommunalHelperEvents/game/strawberryJam/game/bubble_emitter/bubble_pop";
+    public const string game_strawberryJam_bubble_emitter_emitter_generate = "event:/CommunalHelperEvents/game/strawberryJam/game/bubble_emitter/emitter_generate";
+    public const string game_strawberryJam_dash_seq_fail = "event:/CommunalHelperEvents/game/strawberryJam/game/dash_seq/fail";
+    public const string game_strawberryJam_dash_zip_mover_zip_mover = "event:/CommunalHelperEvents/game/strawberryJam/game/dash_zip_mover/zip_mover";
+    public const string game_strawberryJam_drum_swapblock_drum_swapblock_move = "event:/CommunalHelperEvents/game/strawberryJam/game/drum_swapblock/drum_swapblock_move";
+    public const string game_strawberryJam_drum_swapblock_drum_swapblock_move_end = "event:/CommunalHelperEvents/game/strawberryJam/game/drum_swapblock/drum_swapblock_move_end";
+    public const string game_strawberryJam_loop_block_sideboost = "event:/CommunalHelperEvents/game/strawberryJam/game/loop_block/sideboost";
+    public const string game_strawberryJam_solar_elevator_elevate = "event:/CommunalHelperEvents/game/strawberryJam/game/solar_elevator/elevate";
+    public const string game_strawberryJam_solar_elevator_halt = "event:/CommunalHelperEvents/game/strawberryJam/game/solar_elevator/halt";
+    public const string game_strawberryJam_solar_express_rock_stream = "event:/CommunalHelperEvents/game/strawberryJam/game/solar_express/rock_stream";
+    public const string game_strawberryJam_triple_boost_flower_boost_1 = "event:/CommunalHelperEvents/game/strawberryJam/game/triple_boost_flower/boost_1";
+    public const string game_strawberryJam_triple_boost_flower_boost_2 = "event:/CommunalHelperEvents/game/strawberryJam/game/triple_boost_flower/boost_2";
+    public const string game_strawberryJam_triple_boost_flower_boost_3 = "event:/CommunalHelperEvents/game/strawberryJam/game/triple_boost_flower/boost_3";
+    public const string game_strawberryJam_triple_boost_flower_glider_movement = "event:/CommunalHelperEvents/game/strawberryJam/game/triple_boost_flower/glider_movement";
+
+    #endregion
 }
 
 public static class CustomBanks

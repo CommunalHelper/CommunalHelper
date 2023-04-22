@@ -557,9 +557,14 @@ public static class DreamTunnelDash
 
     #region DreamTunnelState
 
+    private static readonly PropertyInfo p_Player_StartedDashing
+        = typeof(Player).GetProperty(nameof(Player.StartedDashing), BindingFlags.Instance | BindingFlags.Public);
+
     private static void DreamTunnelDashBegin(this Player player)
     {
         DynData<Player> playerData = player.GetData();
+
+        p_Player_StartedDashing.SetValue(player, false);
 
         SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
         if (dreamSfxLoop == null)
