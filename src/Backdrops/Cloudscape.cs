@@ -10,7 +10,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops;
 public class Cloudscape : Backdrop
 {
     private const int LEVEL_OF_DETAIL = 16;
-    private const int STRIPE_SIZE = (sizeof(float) * 5) + (sizeof(byte) * 4);
+    private const int STRIDE_SIZE = (sizeof(float) * 5) + (sizeof(byte) * 4);
 
     private static MTexture[] cloudTextures;
 
@@ -337,7 +337,7 @@ public class Cloudscape : Backdrop
         this.rings = rings.ToArray();
         this.clouds = clouds.ToArray();
 
-        float bytes = STRIPE_SIZE * vertexCount;
+        float bytes = STRIDE_SIZE * vertexCount;
         Util.Log(LogLevel.Info, $"Cloudscape meshes baked:");
         Util.Log(LogLevel.Info, $"  * {vertexCount} vertices and {triangleCount} triangles ({triangleCount * 3} indices)");
         Util.Log(LogLevel.Info, $"  * Size of {bytes * 1e-3} kB = {bytes * 1e-6} MB ({bytes}o)");
