@@ -10,6 +10,7 @@
 * Ported Exploding Strawberry from Strawberry Jam.
 * Ported Wormhole Booster from Strawberry Jam.
 * Make Cloudscape instances use a shared texture buffer instead allocating of their own.
+* Fix Dream Tunnelling bug with Factory Helper dash negators.
 
 --1.14.5 (20/02/2023)--
 * Fix Dream Tunnel Dash grab check.
