@@ -59,7 +59,7 @@ vertex_output vertex_shader(cloudscape_vertex input)
     float d_rotation = outer_rotation - inner_rotation;
     float speed = d_rotation * pow(abs(percent), rotation_exponent) + inner_rotation;
 
-    angle += speed * time;
+    angle -= speed * time;
 
     float2 cartesian = float2(cos(angle), sin(angle)) * distance;
     float2 proj_offset = offset / float2(w / 2, h / 2);
