@@ -9,8 +9,7 @@ namespace Celeste.Mod.CommunalHelper.Backdrops;
 [CustomBackdrop("CommunalHelper/Cloudscape")]
 public class Cloudscape : Backdrop
 {
-    private const int LEVEL_OF_DETAIL = 16;
-    private const int STRIDE_SIZE = (sizeof(float) * 5) + (sizeof(byte) * 4);
+    private const uint LEVEL_OF_DETAIL = 16;
 
     private static MTexture[] cloudTextures;
 
@@ -20,48 +19,48 @@ public class Cloudscape : Backdrop
 
     public class Options
     {
-        public int Seed { get; set; } = 0;
+        public int Seed { get; } = 0;
 
-        public Color[] Colors { get; set; } = new[]
-            {
-                Calc.HexToColor("6d8ada"),
-                Calc.HexToColor("aea0c1"),
-                Calc.HexToColor("d9cbbc"),
-            };
-        public Color Sky { get; set; } = Calc.HexToColor("4f9af7");
+        public Color[] Colors { get; } = new[]
+        {
+            Calc.HexToColor("6d8ada"),
+            Calc.HexToColor("aea0c1"),
+            Calc.HexToColor("d9cbbc"),
+        };
+        public Color Sky { get; } = Calc.HexToColor("4f9af7");
 
-        public float InnerRadius { get; set; } = 40.0f;
-        public float OuterRadius { get; set; } = 400.0f;
-        public int Count { get; set; } = 24;
+        public float InnerRadius { get; } = 40.0f;
+        public float OuterRadius { get; } = 400.0f;
+        public int Count { get; } = 24;
 
-        public bool Lightning { get; set; } = false;
+        public bool Lightning { get; } = false;
 
-        public Color[] LightningColors { get; set; } = new[]
+        public Color[] LightningColors { get; } = new[]
         {
             Calc.HexToColor("384bc8"),
             Calc.HexToColor("7a50d0"),
             Calc.HexToColor("c84ddd"), 
             Calc.HexToColor("3397e2"),
         };
-        public Color LightningFlashColor { get; set; } = Color.White;
+        public Color LightningFlashColor { get; } = Color.White;
 
-        public float LightningMinDelay { get; set; } = 5.0f;
-        public float LightningMaxDelay { get; set; } = 40.0f;
-        public float LightningMinDuration { get; set; } = 0.5f;
-        public float LightningMaxDuration { get; set; } = 1.0f;
-        public float LightningIntensity { get; set; } = 0.4f;
+        public float LightningMinDelay { get; } = 5.0f;
+        public float LightningMaxDelay { get; } = 40.0f;
+        public float LightningMinDuration { get; } = 0.5f;
+        public float LightningMaxDuration { get; } = 1.0f;
+        public float LightningIntensity { get; } = 0.4f;
 
-        public Vector2 Offset { get; set; } = Vector2.Zero;
-        public Vector2 Parallax { get; set; } = Vector2.One * 0.05f;
+        public Vector2 Offset { get; } = Vector2.Zero;
+        public Vector2 Parallax { get; } = Vector2.One * 0.05f;
 
-        public float InnerDensity { get; set; } = 1.0f;
-        public float OuterDensity { get; set; } = 1.0f;
-        public float InnerRotation { get; set; } = 0.002f;
-        public float OuterRotation { get; set; } = 0.2f;
-        public float RotationExponent { get; set; } = 2.0f;
+        public float InnerDensity { get; } = 1.0f;
+        public float OuterDensity { get; } = 1.0f;
+        public float InnerRotation { get; } = 0.002f;
+        public float OuterRotation { get; } = 0.2f;
+        public float RotationExponent { get; } = 2.0f;
 
-        public bool HasBackgroundColor { get; set; } = true;
-        public bool Additive { get; set; } = false;
+        public bool HasBackgroundColor { get; } = true;
+        public bool Additive { get; } = false;
 
         public Options() { }
 
@@ -108,10 +107,7 @@ public class Cloudscape : Backdrop
 
     private class WarpedCloud
     {
-        private readonly Cloudscape backdrop;
-        private readonly Mesh<VertexPositionColorTexture> mesh;
-
-        private readonly int index;
+        private readonly Cloudscape parent;
 
         public Color IdleColor { get; set; }
         private Color targetColorA, targetColorB, flashColor;
@@ -122,32 +118,29 @@ public class Cloudscape : Backdrop
 
         private float oldPercent;
 
-        public WarpedCloud(Cloudscape backdrop, Mesh<VertexPositionColorTexture> mesh, int index, Color idleColor)
-        {
-            this.backdrop = backdrop;
-            this.mesh = mesh;
-            this.index = index;
-            IdleColor = idleColor;
+        private Color color;
 
-            timer = Calc.Random.Range(backdrop.lightningMinDelay, backdrop.lightningMaxDelay) * Calc.Random.NextFloat();
+        public WarpedCloud(Cloudscape parent, Color idleColor)
+        {
+            this.parent = parent;
+            IdleColor = color = idleColor;
+            timer = Calc.Random.Range(parent.lightningMinDelay, parent.lightningMaxDelay) * Calc.Random.NextFloat();
         }
 
-        internal void UpdateColors(bool force = false)
+        public Color CalculateColor(bool force = false)
         {
             float percent = flashTimer / flashDuration;
             if (oldPercent == percent && !force)
-                return;
+                return color;
 
             float sin = ((float) Math.Sin(percent * 10) + 1) / 2f;
             Color target = Color.Lerp(targetColorA, targetColorB, sin);
             Color lightning = Color.Lerp(IdleColor, target, Ease.BounceIn(percent) * (1 - Ease.CubeIn(percent)));
-            Color flash = intensity > 0 ? Color.Lerp(lightning, flashColor, intensity * Ease.ExpoIn(percent)) : lightning;
-
-            int to = LEVEL_OF_DETAIL * 2;
-            for (int i = 0; i < to; i++)
-                mesh.Vertices[index + i].Color = flash;
+            color = intensity > 0 ? Color.Lerp(lightning, flashColor, intensity * Ease.ExpoIn(percent)) : lightning;
 
             oldPercent = percent;
+
+            return color;
         }
 
         public void Update(bool allowLightning)
@@ -157,113 +150,46 @@ public class Cloudscape : Backdrop
                 timer -= Engine.DeltaTime;
                 if (timer <= 0)
                 {
-                    timer = Calc.Random.Range(backdrop.lightningMinDelay, backdrop.lightningMaxDelay);
-                    flashColor = backdrop.lightningFlashColor;
-                    flashTimer = flashDuration = Calc.Random.Range(backdrop.lightningMinDuration, backdrop.lightningMaxDuration);
-                    intensity = Settings.Instance.DisableFlashes ? 0 : backdrop.lightningIntensity * Ease.CubeIn(Calc.Random.NextFloat());
-                    targetColorA = Util.ColorArrayLerp(Calc.Random.NextFloat() * (backdrop.lightningColors.Length - 1), backdrop.lightningColors);
-                    targetColorB = Util.ColorArrayLerp(Calc.Random.NextFloat() * (backdrop.lightningColors.Length - 1), backdrop.lightningColors);
+                    timer = Calc.Random.Range(parent.lightningMinDelay, parent.lightningMaxDelay);
+                    flashColor = parent.lightningFlashColor;
+                    flashTimer = flashDuration = Calc.Random.Range(parent.lightningMinDuration, parent.lightningMaxDuration);
+                    intensity = Settings.Instance.DisableFlashes ? 0 : parent.lightningIntensity * Ease.CubeIn(Calc.Random.NextFloat());
+                    targetColorA = Util.ColorArrayLerp(Calc.Random.NextFloat() * (parent.lightningColors.Length - 1), parent.lightningColors);
+                    targetColorB = Util.ColorArrayLerp(Calc.Random.NextFloat() * (parent.lightningColors.Length - 1), parent.lightningColors);
                 }
             }
 
             if (flashTimer > 0)
                 flashTimer = Calc.Approach(flashTimer, 0, Engine.DeltaTime);
-
-            UpdateColors();
         }
     }
 
     private class Ring
     {
-        public readonly Mesh<VertexPositionColorTexture> Mesh;
-
+        public float Lerp { get; }
         private readonly WarpedCloud[] clouds;
 
-        private float rotation;
-        private readonly float rotationSpeed;
-
-        public float ColorLerp { get; }
-
-        private Matrix matrix;
-
-        public Ring(Cloudscape backdrop, float radius, Color color, float colorLerp, List<WarpedCloud> allClouds, float speed, float density)
+        public Ring(float lerp, WarpedCloud[] clouds)
         {
-            rotation = Calc.Random.NextFloat(MathHelper.TwoPi);
-            rotationSpeed = speed;
-
-            ColorLerp = colorLerp;
-
-            Mesh = new(GFX.FxTexture);
-
-            List<WarpedCloud> clouds = new();
-
-            float angle = 0f;
-            while (angle < MathHelper.TwoPi)
-            {
-                MTexture texture = Calc.Random.Choose(cloudTextures);
-
-                int index = Mesh.VertexCount;
-
-                WarpedCloud cloud = new(backdrop, Mesh, index, color);
-                clouds.Add(cloud);
-                allClouds.Add(cloud);
-
-                float centralAngle = texture.Width / radius;
-                float step = centralAngle / LEVEL_OF_DETAIL;
-                float halfHeight = texture.Height / 2f;
-                for (int i = 0; i < LEVEL_OF_DETAIL; i++)
-                {
-                    float th = angle + (step * i);
-
-                    float uvx = MathHelper.Lerp(texture.LeftUV, texture.RightUV, (float) i / (LEVEL_OF_DETAIL - 1));
-                    VertexPositionColorTexture closerVertex = new(new(Calc.AngleToVector(th, radius - halfHeight), 0), color, new(uvx, texture.TopUV));
-                    VertexPositionColorTexture fartherVertex = new(new(Calc.AngleToVector(th, radius + halfHeight), 0), color, new(uvx, texture.BottomUV));
-                    Mesh.AddVertices(closerVertex, fartherVertex);
-
-                    if (i != LEVEL_OF_DETAIL - 1)
-                    {
-                        int o = index + (i * 2);
-                        Mesh.AddTriangle(o + 0, o + 1, o + 2);
-                        Mesh.AddTriangle(o + 1, o + 2, o + 3);
-                    }
-                }
-
-                angle += centralAngle / density;
-            }
-
-            this.clouds = clouds.ToArray();
-
-            Mesh.Bake();
+            Lerp = lerp;
+            this.clouds = clouds;
         }
 
-        public void SetCloudColor(Color color)
+        public void ApplyIdleColor(Color color, Color[] array)
         {
-            foreach (WarpedCloud cloud in clouds)
+            for (int i = 0; i < clouds.Length; i++)
             {
+                var cloud = clouds[i];
                 cloud.IdleColor = color;
-                cloud.UpdateColors(force: true);
+                array[i] = cloud.CalculateColor(force: true);
             }
-        }
-
-        public void Update(Matrix translation)
-        {
-            rotation += rotationSpeed * Engine.DeltaTime;
-            matrix = Matrix.CreateRotationZ(rotation) * translation;
-        }
-
-        public void Render()
-        {
-            Mesh.Celeste_DrawVertices(matrix);
         }
     }
 
-    private readonly Ring[] rings;
-    private readonly WarpedCloud[] clouds;
-
     private Color sky;
 
-    private Matrix matrix;
     private readonly Vector2 offset, parallax;
+    private Vector2 translate;
 
     private bool lightning;
     private float lightningMinDelay, lightningMaxDelay;
@@ -272,7 +198,17 @@ public class Cloudscape : Backdrop
     private Color[] lightningColors;
     private Color lightningFlashColor;
 
+    private readonly float innerRotation, outerRotation;
+    private readonly float rotationExponent;
+
     private readonly BlendState blend;
+
+    private Texture2D colorBuffer;
+    private readonly Mesh<CloudscapeVertex> mesh;
+    private readonly WarpedCloud[] clouds;
+    private readonly Ring[] rings;
+
+    private readonly Color[] colors;
 
     public Cloudscape(BinaryPacker.Element child)
         : this(new Options(child)) { }
@@ -286,6 +222,10 @@ public class Cloudscape : Backdrop
             ? options.Sky
             : Color.Transparent;
 
+        blend = options.Additive
+            ? BlendState.Additive
+            : BlendState.AlphaBlend;
+
         offset = options.Offset;
         parallax = options.Parallax;
 
@@ -298,51 +238,97 @@ public class Cloudscape : Backdrop
         lightningColors = options.LightningColors;
         lightningFlashColor = options.LightningFlashColor;
 
-        blend = options.Additive
-            ? BlendState.Additive
-            : BlendState.AlphaBlend;
+        innerRotation = options.InnerRotation;
+        outerRotation = options.OuterRotation;
+        rotationExponent = options.RotationExponent;
 
         Calc.PushRandom(options.Seed);
 
-        List<Ring> rings = new();
-        List<WarpedCloud> clouds = new();
+        mesh = new(null);
 
-        int vertexCount = 0, triangleCount = 0;
+        List<WarpedCloud> clouds = new();
+        List<Ring> rings = new();
 
         int count = options.Count;
+
         float a = MathHelper.Min(options.InnerRadius, options.OuterRadius);
         float b = MathHelper.Max(options.InnerRadius, options.OuterRadius);
         float d = b - a;
-        float dRotation = options.OuterRotation - options.InnerRotation;
-        for (int i = 0; i < count; i++)
+
+        short id = 0; // cloud ID for color lookup
+
+        // ring iteration
+        for (short r = 0; r < count; r++)
         {
-            float percent = (float) i / count;
+            float percent = (float) r / count;
 
             Color color = Util.ColorArrayLerp(percent * (options.Colors.Length - 1), options.Colors);
             float radius = a + (d * percent);
-            float speed = (dRotation * (float) Math.Pow(percent, options.RotationExponent)) + options.InnerRotation;
             float density = MathHelper.Lerp(options.InnerDensity, options.OuterDensity, percent);
 
             if (density == 0)
                 continue;
 
-            Ring ring = new(this, radius, color, percent, clouds, speed, density);
+            List<WarpedCloud> cloudsInRing = new();
 
-            vertexCount += ring.Mesh.VertexCount;
-            triangleCount += ring.Mesh.Triangles;
+            float rotation = Calc.Random.NextFloat(MathHelper.TwoPi);
 
-            rings.Add(ring);
+            // cloud iteration
+            float angle = 0f;
+            while (angle < MathHelper.TwoPi)
+            {
+                WarpedCloud cloud = new(this, color);
+                clouds.Add(cloud);
+                cloudsInRing.Add(cloud);
+
+                int index = mesh.VertexCount;
+
+                MTexture texture = Calc.Random.Choose(cloudTextures);
+                float halfHeight = texture.Height / 2f;
+
+                float centralAngle = texture.Width / radius;
+                float step = centralAngle / LEVEL_OF_DETAIL;
+
+                for (int i = 0; i < LEVEL_OF_DETAIL; i++)
+                {
+                    float th = rotation + angle + (step * i);
+
+                    // custom vertices hold polar coordinates. cartesian coordinates are computed in the shader.
+                    float uvx = MathHelper.Lerp(texture.LeftUV, texture.RightUV, (float) i / (LEVEL_OF_DETAIL - 1));
+                    CloudscapeVertex closer = new(th, radius - halfHeight, new(uvx, texture.TopUV), id, r);
+                    CloudscapeVertex farther = new(th, radius + halfHeight, new(uvx, texture.BottomUV), id, r);
+                    mesh.AddVertices(closer, farther);
+
+                    if (i != LEVEL_OF_DETAIL - 1)
+                    {
+                        int o = index + (i * 2);
+                        mesh.AddTriangle(o + 0, o + 1, o + 2);
+                        mesh.AddTriangle(o + 1, o + 2, o + 3);
+                    }
+                }
+
+                ++id;
+                angle += centralAngle / density;
+            }
+
+            // add ring to regroup clouds
+            rings.Add(new(percent, cloudsInRing.ToArray()));
         }
 
-        this.rings = rings.ToArray();
-        this.clouds = clouds.ToArray();
+        mesh.Bake();
 
-        float bytes = STRIDE_SIZE * vertexCount;
-        Util.Log(LogLevel.Info, $"Cloudscape meshes baked:");
-        Util.Log(LogLevel.Info, $"  * {vertexCount} vertices and {triangleCount} triangles ({triangleCount * 3} indices)");
-        Util.Log(LogLevel.Info, $"  * Size of {bytes * 1e-3} kB = {bytes * 1e-6} MB ({bytes}o)");
+        this.clouds = clouds.ToArray();
+        this.rings = rings.ToArray();
+
+        colorBuffer = new(Engine.Graphics.GraphicsDevice, this.clouds.Length, 1);
+        colors = new Color[this.clouds.Length];
 
         Calc.PopRandom();
+
+        int bytes = mesh.VertexCount * CloudscapeVertex.VertexDeclaration.VertexStride;
+        Util.Log(LogLevel.Info, $"[NEW-IMPL] Cloudscape meshes baked:");
+        Util.Log(LogLevel.Info, $"  * {mesh.VertexCount} vertices and {mesh.Triangles} triangles ({mesh.Triangles * 3} indices)");
+        Util.Log(LogLevel.Info, $"  * Size of {bytes * 1e-3} kB = {bytes * 1e-6} MB ({bytes}o)");
     }
 
     public void ConfigureColors(Color bg, Color[] gradientFrom, Color[] gradientTo, float lerp)
@@ -350,9 +336,9 @@ public class Cloudscape : Backdrop
         sky = bg;
         foreach (Ring ring in rings)
         {
-            Color from = Util.ColorArrayLerp(ring.ColorLerp * (gradientFrom.Length - 1), gradientFrom);
-            Color to = Util.ColorArrayLerp(ring.ColorLerp * (gradientTo.Length - 1), gradientTo);
-            ring.SetCloudColor(Color.Lerp(from, to, lerp));
+            Color from = Util.ColorArrayLerp(ring.Lerp * (gradientFrom.Length - 1), gradientFrom);
+            Color to = Util.ColorArrayLerp(ring.Lerp * (gradientTo.Length - 1), gradientTo);
+            ring.ApplyIdleColor(Color.Lerp(from, to, lerp), colors);
         }
     }
 
@@ -383,14 +369,22 @@ public class Cloudscape : Backdrop
         if (!Visible)
             return;
 
-        Vector2 pos = offset - ((scene as Level).Camera.Position * parallax);
-        matrix = Matrix.CreateTranslation(pos.X, pos.Y, 0);
+        translate = offset - (scene as Level).Camera.Position * parallax;
 
-        foreach (Ring ring in rings)
-            ring.Update(matrix);
-
-        foreach (WarpedCloud cloud in clouds)
+        // calculate colors once for each cloud, and store them in the color buffer texture.
+        // it will be sent to the gpu so it can be sampled, instead of changing the color of each vertex (old & slow method)
+        for (int i = 0; i < clouds.Length; i++)
+        {
+            var cloud = clouds[i];
             cloud.Update(lightning);
+            colors[i] = cloud.CalculateColor();
+        }
+    }
+
+    public override void BeforeRender(Scene scene)
+    {
+        base.BeforeRender(scene);
+        colorBuffer.SetData(colors);
     }
 
     public override void Render(Scene scene)
@@ -406,12 +400,33 @@ public class Cloudscape : Backdrop
 
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);
         Engine.Graphics.GraphicsDevice.Clear(sky);
-        Engine.Instance.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
-        Engine.Instance.GraphicsDevice.Textures[0] = CommunalHelperGFX.CloudscapeAtlas.Sources[0].Texture_Safe;
-        foreach (Ring ring in rings)
-            ring.Render();
+        Engine.Graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;
+        Engine.Graphics.GraphicsDevice.Textures[0] = CommunalHelperGFX.CloudscapeAtlas.Sources[0].Texture_Safe;
+        Engine.Graphics.GraphicsDevice.Textures[1] = colorBuffer;
 
+        // rotation is calculated in the shader, since we're only doing one draw call now.
+        CommunalHelperGFX.CloudscapeShader.Parameters["ring_count"].SetValue(rings.Length);
+        CommunalHelperGFX.CloudscapeShader.Parameters["color_buffer_size"].SetValue(colorBuffer.Width);
+        CommunalHelperGFX.CloudscapeShader.Parameters["offset"].SetValue(translate);
+        CommunalHelperGFX.CloudscapeShader.Parameters["inner_rotation"].SetValue(innerRotation);
+        CommunalHelperGFX.CloudscapeShader.Parameters["outer_rotation"].SetValue(outerRotation);
+        CommunalHelperGFX.CloudscapeShader.Parameters["rotation_exponent"].SetValue(rotationExponent);
+        CommunalHelperGFX.CloudscapeShader.Parameters["time"].SetValue(scene.TimeActive);
+
+        var technique = CommunalHelperGFX.CloudscapeShader.Techniques[0];
+        foreach (var pass in technique.Passes)
+        {
+            pass.Apply();
+            mesh.Draw();
+        }
+
+        // important because used by some vanilla celeste shader
+        Engine.Graphics.GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+        Engine.Graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
+
+        // present onto RT
         Engine.Instance.GraphicsDevice.SetRenderTarget(rt);
+
         BackdropRenderer renderer = (scene as Level).Background;
         renderer.StartSpritebatch(blend);
         Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White);
@@ -422,9 +437,8 @@ public class Cloudscape : Backdrop
     {
         base.Ended(scene);
 
-        if (rings != null)
-            foreach (Ring ring in rings)
-                ring.Mesh.Dispose();
+        colorBuffer.Dispose();
+        colorBuffer = null;
     }
 
     internal static void Initalize()

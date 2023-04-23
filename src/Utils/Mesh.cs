@@ -124,6 +124,26 @@ public class Mesh<T> : IDisposable where T : struct, IVertexType
         GFX.DrawIndexedVertices(matrix ?? Matrix.Identity, Vertices, Vertices.Length, Indices, Triangles, effect);
     }
 
+    /// <summary>
+    /// Draws the vertices.
+    /// This can only be done if the mesh is baked.
+    /// </summary>
+    public void Draw()
+    {
+        if (!Baked)
+            throw new InvalidOperationException("A mesh must be baked in order for its vertices to be drawn!");
+
+        if (VertexCount == 0)
+            return;
+
+        Engine.Graphics.GraphicsDevice.DrawUserIndexedPrimitives
+        (
+            PrimitiveType.TriangleList,
+            Vertices, 0, VertexCount,
+            Indices, 0, Triangles
+        );
+    }
+
     public void Dispose()
     {
         _vertices = null;
