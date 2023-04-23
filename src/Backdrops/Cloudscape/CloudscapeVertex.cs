@@ -10,9 +10,9 @@ namespace Celeste.Mod.CommunalHelper.Backdrops;
 [StructLayout(LayoutKind.Sequential)]
 struct CloudscapeVertex : IVertexType
 {
-    public Vector2 Polar;
-    public Vector2 Texture;
-    public Short2 IndexRing;
+    public Vector2 Polar; // { angle, distance }
+    public Vector2 Texture; // uv
+    public Short2 IndexRing; // { cloud_id, ring_idx }
 
     public static readonly VertexDeclaration VertexDeclaration = new
     (

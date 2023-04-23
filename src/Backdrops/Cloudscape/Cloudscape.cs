@@ -216,6 +216,10 @@ public class Cloudscape : Backdrop
             ? options.Sky
             : Color.Transparent;
 
+        blend = options.Additive
+            ? BlendState.Additive
+            : BlendState.AlphaBlend;
+
         offset = options.Offset;
         parallax = options.Parallax;
 
@@ -232,10 +236,6 @@ public class Cloudscape : Backdrop
         outerRotation = options.OuterRotation;
         rotationExponent = options.RotationExponent;
 
-        blend = options.Additive
-            ? BlendState.Additive
-            : BlendState.AlphaBlend;
-
         Calc.PushRandom(options.Seed);
 
         mesh = new(null);
@@ -251,6 +251,7 @@ public class Cloudscape : Backdrop
 
         short id = 0; // cloud ID for color lookup
 
+        // ring iteration
         for (short r = 0; r < count; r++)
         {
             float percent = (float) r / count;
@@ -264,6 +265,7 @@ public class Cloudscape : Backdrop
 
             List<WarpedCloud> cloudsInRing = new();
 
+            // cloud iteration
             float angle = 0f;
             while (angle < MathHelper.TwoPi)
             {
@@ -282,6 +284,7 @@ public class Cloudscape : Backdrop
                 {
                     float th = angle + (step * i);
 
+                    // custom vertices hold polar coordinates. cartesian coordinates are computed in the shader.
                     float uvx = MathHelper.Lerp(texture.LeftUV, texture.RightUV, (float) i / (LEVEL_OF_DETAIL - 1));
                     CloudscapeVertex closer = new(th, radius - halfHeight, new(uvx, texture.TopUV), id, r);
                     CloudscapeVertex farther = new(th, radius + halfHeight, new(uvx, texture.BottomUV), id, r);
@@ -299,18 +302,23 @@ public class Cloudscape : Backdrop
                 angle += centralAngle / density;
             }
 
+            // add ring to regroup clouds
             rings.Add(new(percent, cloudsInRing.ToArray()));
         }
+
+        mesh.Bake();
 
         this.clouds = clouds.ToArray();
         this.rings = rings.ToArray();
 
-        colorBuffer = new(Engine.Graphics.GraphicsDevice, this.clouds.Length, 1); // TODO: instantiate somewhere else, not in ctor
-        colorBuffer.SetData(Enumerable.Repeat(Color.Black, this.clouds.Length).ToArray());
-
-        mesh.Bake();
+        colorBuffer = new(Engine.Graphics.GraphicsDevice, this.clouds.Length, 1);
 
         Calc.PopRandom();
+
+        int bytes = mesh.VertexCount * CloudscapeVertex.VertexDeclaration.VertexStride;
+        Util.Log(LogLevel.Info, $"[NEW-IMPL] Cloudscape meshes baked:");
+        Util.Log(LogLevel.Info, $"  * {mesh.VertexCount} vertices and {mesh.Triangles} triangles ({mesh.Triangles * 3} indices)");
+        Util.Log(LogLevel.Info, $"  * Size of {bytes * 1e-3} kB = {bytes * 1e-6} MB ({bytes}o)");
     }
 
     public void ConfigureColors(Color bg, Color[] gradientFrom, Color[] gradientTo, float lerp)
@@ -353,6 +361,8 @@ public class Cloudscape : Backdrop
 
         translate = offset - (scene as Level).Camera.Position * parallax;
 
+        // calculate colors once for each cloud, and store them in the color buffer texture.
+        // it will be sent to the gpu so it can be sampled, instead of changing the color of each vertex (old & slow method)
         Color[] colors = new Color[clouds.Length];
         for (int i = 0; i < clouds.Length; i++)
         {
@@ -360,7 +370,6 @@ public class Cloudscape : Backdrop
             cloud.Update(lightning);
             colors[i] = cloud.CalculateColor();
         }
-
         colorBuffer.SetData(colors);
     }
 
@@ -381,6 +390,7 @@ public class Cloudscape : Backdrop
         Engine.Graphics.GraphicsDevice.Textures[0] = CommunalHelperGFX.CloudscapeAtlas.Sources[0].Texture_Safe;
         Engine.Graphics.GraphicsDevice.Textures[1] = colorBuffer;
 
+        // rotation is calculated in the shader, since we're only doing one draw call now.
         CommunalHelperGFX.CloudscapeShader.Parameters["ring_count"].SetValue(rings.Length);
         CommunalHelperGFX.CloudscapeShader.Parameters["color_buffer_size"].SetValue(colorBuffer.Width);
         CommunalHelperGFX.CloudscapeShader.Parameters["offset"].SetValue(translate);
@@ -396,9 +406,11 @@ public class Cloudscape : Backdrop
             mesh.Draw();
         }
 
+        // important because used by some vanilla celeste shader
         Engine.Graphics.GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
         Engine.Graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
 
+        // present onto RT
         Engine.Instance.GraphicsDevice.SetRenderTarget(rt);
 
         BackdropRenderer renderer = (scene as Level).Background;
