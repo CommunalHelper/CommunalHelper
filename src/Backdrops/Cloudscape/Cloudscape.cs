@@ -204,7 +204,7 @@ public class Cloudscape : Backdrop
     private readonly WarpedCloud[] clouds;
     private readonly Ring[] rings;
 
-    private Color[] colors;
+    private readonly Color[] colors;
 
     public Cloudscape(BinaryPacker.Element child)
         : this(new Options(child)) { }
