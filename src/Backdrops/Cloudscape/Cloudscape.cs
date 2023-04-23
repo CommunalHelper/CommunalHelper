@@ -19,48 +19,48 @@ public class Cloudscape : Backdrop
 
     public class Options
     {
-        public int Seed { get; set; } = 0;
+        public int Seed { get; } = 0;
 
-        public Color[] Colors { get; set; } = new[]
-            {
-                Calc.HexToColor("6d8ada"),
-                Calc.HexToColor("aea0c1"),
-                Calc.HexToColor("d9cbbc"),
-            };
-        public Color Sky { get; set; } = Calc.HexToColor("4f9af7");
+        public Color[] Colors { get; } = new[]
+        {
+            Calc.HexToColor("6d8ada"),
+            Calc.HexToColor("aea0c1"),
+            Calc.HexToColor("d9cbbc"),
+        };
+        public Color Sky { get; } = Calc.HexToColor("4f9af7");
 
-        public float InnerRadius { get; set; } = 40.0f;
-        public float OuterRadius { get; set; } = 400.0f;
-        public int Count { get; set; } = 24;
+        public float InnerRadius { get; } = 40.0f;
+        public float OuterRadius { get; } = 400.0f;
+        public int Count { get; } = 24;
 
-        public bool Lightning { get; set; } = false;
+        public bool Lightning { get; } = false;
 
-        public Color[] LightningColors { get; set; } = new[]
+        public Color[] LightningColors { get; } = new[]
         {
             Calc.HexToColor("384bc8"),
             Calc.HexToColor("7a50d0"),
             Calc.HexToColor("c84ddd"), 
             Calc.HexToColor("3397e2"),
         };
-        public Color LightningFlashColor { get; set; } = Color.White;
+        public Color LightningFlashColor { get; } = Color.White;
 
-        public float LightningMinDelay { get; set; } = 5.0f;
-        public float LightningMaxDelay { get; set; } = 40.0f;
-        public float LightningMinDuration { get; set; } = 0.5f;
-        public float LightningMaxDuration { get; set; } = 1.0f;
-        public float LightningIntensity { get; set; } = 0.4f;
+        public float LightningMinDelay { get; } = 5.0f;
+        public float LightningMaxDelay { get; } = 40.0f;
+        public float LightningMinDuration { get; } = 0.5f;
+        public float LightningMaxDuration { get; } = 1.0f;
+        public float LightningIntensity { get; } = 0.4f;
 
-        public Vector2 Offset { get; set; } = Vector2.Zero;
-        public Vector2 Parallax { get; set; } = Vector2.One * 0.05f;
+        public Vector2 Offset { get; } = Vector2.Zero;
+        public Vector2 Parallax { get; } = Vector2.One * 0.05f;
 
-        public float InnerDensity { get; set; } = 1.0f;
-        public float OuterDensity { get; set; } = 1.0f;
-        public float InnerRotation { get; set; } = 0.002f;
-        public float OuterRotation { get; set; } = 0.2f;
-        public float RotationExponent { get; set; } = 2.0f;
+        public float InnerDensity { get; } = 1.0f;
+        public float OuterDensity { get; } = 1.0f;
+        public float InnerRotation { get; } = 0.002f;
+        public float OuterRotation { get; } = 0.2f;
+        public float RotationExponent { get; } = 2.0f;
 
-        public bool HasBackgroundColor { get; set; } = true;
-        public bool Additive { get; set; } = false;
+        public bool HasBackgroundColor { get; } = true;
+        public bool Additive { get; } = false;
 
         public Options() { }
 
