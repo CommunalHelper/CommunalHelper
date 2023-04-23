@@ -188,14 +188,15 @@ public class Cloudscape : Backdrop
     private Color[] lightningColors;
     private Color lightningFlashColor;
 
+    private readonly float innerRotation, outerRotation;
+    private readonly float rotationExponent;
+
     private readonly BlendState blend;
 
     private Texture2D colorBuffer;
     private readonly Mesh<CloudscapeVertex> mesh;
     private readonly WarpedCloud[] clouds;
     private readonly Ring[] rings;
-
-    private readonly float innerRadius, outerRadius;
 
     public Cloudscape(BinaryPacker.Element child)
         : this(new Options(child)) { }
@@ -219,6 +220,10 @@ public class Cloudscape : Backdrop
         lightningColors = options.LightningColors;
         lightningFlashColor = options.LightningFlashColor;
 
+        innerRotation = options.InnerRotation;
+        outerRotation = options.OuterRotation;
+        rotationExponent = options.RotationExponent;
+
         Calc.PushRandom(options.Seed);
 
         mesh = new(null);
@@ -227,19 +232,19 @@ public class Cloudscape : Backdrop
         List<Ring> rings = new();
 
         int count = options.Count;
-        float a = innerRadius = MathHelper.Min(options.InnerRadius, options.OuterRadius);
-        float b = outerRadius = MathHelper.Max(options.InnerRadius, options.OuterRadius);
-        float d = b - a;
-        float dRotation = options.OuterRotation - options.InnerRotation;
-        short id = 0; // cloud ID
 
-        for (int r = 0; r < count; r++)
+        float a = MathHelper.Min(options.InnerRadius, options.OuterRadius);
+        float b = MathHelper.Max(options.InnerRadius, options.OuterRadius);
+        float d = b - a;
+
+        short id = 0; // cloud ID for color lookup
+
+        for (short r = 0; r < count; r++)
         {
             float percent = (float) r / count;
 
             Color color = Util.ColorArrayLerp(percent * (options.Colors.Length - 1), options.Colors);
             float radius = a + (d * percent);
-            //float speed = (dRotation * (float) Math.Pow(percent, options.RotationExponent)) + options.InnerRotation;
             float density = MathHelper.Lerp(options.InnerDensity, options.OuterDensity, percent);
 
             if (density == 0)
@@ -266,8 +271,8 @@ public class Cloudscape : Backdrop
                     float th = angle + (step * i);
 
                     float uvx = MathHelper.Lerp(texture.LeftUV, texture.RightUV, (float) i / (LEVEL_OF_DETAIL - 1));
-                    CloudscapeVertex closer = new(th, radius - halfHeight, new(uvx, texture.TopUV), id);
-                    CloudscapeVertex farther = new(th, radius + halfHeight, new(uvx, texture.BottomUV), id);
+                    CloudscapeVertex closer = new(th, radius - halfHeight, new(uvx, texture.TopUV), id, r);
+                    CloudscapeVertex farther = new(th, radius + halfHeight, new(uvx, texture.BottomUV), id, r);
                     mesh.AddVertices(closer, farther);
 
                     if (i != LEVEL_OF_DETAIL - 1)
@@ -364,8 +369,13 @@ public class Cloudscape : Backdrop
         Engine.Graphics.GraphicsDevice.Textures[0] = CommunalHelperGFX.CloudscapeAtlas.Sources[0].Texture_Safe;
         Engine.Graphics.GraphicsDevice.Textures[1] = colorBuffer;
 
-        CommunalHelperGFX.CloudscapeShader.Parameters["offset"].SetValue(translate);
+        CommunalHelperGFX.CloudscapeShader.Parameters["ring_count"].SetValue(rings.Length);
         CommunalHelperGFX.CloudscapeShader.Parameters["color_buffer_size"].SetValue(colorBuffer.Width);
+        CommunalHelperGFX.CloudscapeShader.Parameters["offset"].SetValue(translate);
+        CommunalHelperGFX.CloudscapeShader.Parameters["inner_rotation"].SetValue(innerRotation);
+        CommunalHelperGFX.CloudscapeShader.Parameters["outer_rotation"].SetValue(outerRotation);
+        CommunalHelperGFX.CloudscapeShader.Parameters["rotation_exponent"].SetValue(rotationExponent);
+        CommunalHelperGFX.CloudscapeShader.Parameters["time"].SetValue(scene.TimeActive);
 
         var technique = CommunalHelperGFX.CloudscapeShader.Techniques[0];
         foreach (var pass in technique.Passes)
