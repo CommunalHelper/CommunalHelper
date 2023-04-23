@@ -204,6 +204,8 @@ public class Cloudscape : Backdrop
     private readonly WarpedCloud[] clouds;
     private readonly Ring[] rings;
 
+    private Color[] colors;
+
     public Cloudscape(BinaryPacker.Element child)
         : this(new Options(child)) { }
 
@@ -312,6 +314,7 @@ public class Cloudscape : Backdrop
         this.rings = rings.ToArray();
 
         colorBuffer = new(Engine.Graphics.GraphicsDevice, this.clouds.Length, 1);
+        colors = new Color[this.clouds.Length];
 
         Calc.PopRandom();
 
@@ -363,13 +366,17 @@ public class Cloudscape : Backdrop
 
         // calculate colors once for each cloud, and store them in the color buffer texture.
         // it will be sent to the gpu so it can be sampled, instead of changing the color of each vertex (old & slow method)
-        Color[] colors = new Color[clouds.Length];
         for (int i = 0; i < clouds.Length; i++)
         {
             var cloud = clouds[i];
             cloud.Update(lightning);
             colors[i] = cloud.CalculateColor();
         }
+    }
+
+    public override void BeforeRender(Scene scene)
+    {
+        base.BeforeRender(scene);
         colorBuffer.SetData(colors);
     }
 
