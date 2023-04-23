@@ -14,7 +14,7 @@ public class CloudscapeLightningConfigurationTrigger : Trigger
     private readonly float lightningIntensity;
 
     public CloudscapeLightningConfigurationTrigger(EntityData data, Vector2 offset)
-        : base(data, offset)
+        : base(data, offset)    
     {
         enable = data.Bool("enable", true);
         lightningColors = data.Attr("lightningColors", "384bc8,7a50d0,c84ddd,3397e2")

@@ -121,7 +121,7 @@ public static class SeekerDash
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.EmitDelegate<Action<Player>>(player =>
         {
-            player.Get<PlayerSeekerHair>().AfterUpdate(motion: false);
+            player.Get<PlayerSeekerHair>()?.AfterUpdate(motion: false);
         });
     }
 
