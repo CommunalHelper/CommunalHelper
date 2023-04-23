@@ -1,7 +1,7 @@
 texture2D atlas_texture;
 sampler2D atlas_sampler = sampler_state
 {
-	Texture = <atlas_texture>;
+    Texture = <atlas_texture>;
     MagFilter = Point;
     MinFilter = Point;
     AddressU = Clamp;
@@ -11,7 +11,7 @@ sampler2D atlas_sampler = sampler_state
 texture2D color_texture;
 sampler2D color_sampler = sampler_state
 {
-	Texture = <color_texture>;
+    Texture = <color_texture>;
     MagFilter = Point;
     MinFilter = Point;
     AddressU = Clamp;
