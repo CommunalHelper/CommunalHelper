@@ -267,6 +267,8 @@ public class Cloudscape : Backdrop
 
             List<WarpedCloud> cloudsInRing = new();
 
+            float rotation = Calc.Random.NextFloat(MathHelper.TwoPi);
+
             // cloud iteration
             float angle = 0f;
             while (angle < MathHelper.TwoPi)
@@ -284,7 +286,7 @@ public class Cloudscape : Backdrop
 
                 for (int i = 0; i < LEVEL_OF_DETAIL; i++)
                 {
-                    float th = angle + (step * i);
+                    float th = rotation + angle + (step * i);
 
                     // custom vertices hold polar coordinates. cartesian coordinates are computed in the shader.
                     float uvx = MathHelper.Lerp(texture.LeftUV, texture.RightUV, (float) i / (LEVEL_OF_DETAIL - 1));
