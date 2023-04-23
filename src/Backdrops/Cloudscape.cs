@@ -334,7 +334,7 @@ public class Cloudscape : Backdrop
         if (!Visible)
             return;
 
-        translate = (offset - ((scene as Level).Camera.Position * parallax)) * new Vector2(1, -1) / 2f;
+        translate = offset - (scene as Level).Camera.Position * parallax;
 
         Color[] colors = new Color[clouds.Length];
         for (int i = 0; i < clouds.Length; i++)

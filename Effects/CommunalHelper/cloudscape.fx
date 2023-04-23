@@ -21,8 +21,8 @@ sampler2D color_sampler = sampler_state
 int color_buffer_size = 1;
 float2 offset = 0.0;
 
-const float w = 320 / 2.0;
-const float h = 180 / 2.0;
+const float w = 320.0;
+const float h = 180.0;
 
 struct cloudscape_vertex
 {
@@ -43,9 +43,13 @@ vertex_output vertex_shader(cloudscape_vertex input)
 {
     vertex_output output;
 
-    float2 cartesian = float2(cos(input.angle), sin(input.angle)) * input.distance + offset;
+    float2 cartesian = float2(cos(input.angle), sin(input.angle)) * input.distance;
+    float2 proj_offset = offset / float2(w / 2, h / 2);
 
-    output.position = float4(cartesian.x / w, cartesian.y / h, 0.0, 1.0);
+    float x = cartesian.x / (w / 2.0) - 1 + proj_offset.x;
+    float y = cartesian.y / (h / 2.0) + 1 - proj_offset.y;
+
+    output.position = float4(x, y, 0.0, 1.0);
     output.uv = input.uv;
     output.index = input.index;
 
