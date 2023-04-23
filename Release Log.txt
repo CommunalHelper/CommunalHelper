@@ -1,3 +1,23 @@
+--1.15.2 (22/04/2023)--
+* Fix Cloudscape potentially rendering on the wrong render target in some special cases.
+
+--1.15.1 (22/04/2023)--
+* Added 'additive' and 'hasBackgroundColor' options to Cloudscape.
+
+--1.15.0 (22/04/2023)--
+* Ported Air Time Music Controller from Strawberry Jam.
+* Ported Bullet Time Controller from Strawberry Jam.
+* Ported Expiring Dash Refill from Strawberry Jam.
+* Ported Show Hitbox Trigger from Strawberry Jam.
+* Ported Grab Temple Gate from Strawberry Jam.
+* Ported Loop Block from Strawberry Jam.
+* Ported Solar Elevator from Strawberry Jam.
+* Ported Photosensitive Flag Controller from Strawberry Jam.
+* Ported Exploding Strawberry from Strawberry Jam.
+* Ported Wormhole Booster from Strawberry Jam.
+* Make Cloudscape instances use a shared texture buffer instead allocating of their own.
+* Fix Dream Tunnelling bug with Factory Helper dash negators.
+
 --1.14.5 (20/02/2023)--
 * Fix Dream Tunnel Dash grab check.
 * Fix GitHub release workflow.
