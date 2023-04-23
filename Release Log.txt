@@ -1,3 +1,9 @@
+--1.16.0 (24/04/2023)--
+* Re-implement & optimize Cloudscape rendering.
+* Added 'chainTexture' option to Chained Dream Falling Block, Chained Falling Block, Chained Kevin.
+* Added 'texture' option to Chain.
+* Fixed PlayerSeekerHair-related crash on room transition after code hot reload.  
+
 --1.15.2 (22/04/2023)--
 * Fix Cloudscape potentially rendering on the wrong render target in some special cases.
 
