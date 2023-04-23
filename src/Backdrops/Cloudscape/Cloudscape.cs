@@ -175,10 +175,14 @@ public class Cloudscape : Backdrop
             this.clouds = clouds;
         }
 
-        public void ApplyIdleColor(Color color)
+        public void ApplyIdleColor(Color color, Color[] array)
         {
-            foreach (WarpedCloud cloud in clouds)
+            for (int i = 0; i < clouds.Length; i++)
+            {
+                var cloud = clouds[i];
                 cloud.IdleColor = color;
+                array[i] = cloud.CalculateColor(force: true);
+            }
         }
     }
 
@@ -273,8 +277,9 @@ public class Cloudscape : Backdrop
             float angle = 0f;
             while (angle < MathHelper.TwoPi)
             {
-                clouds.Add(new(this, color));
-                cloudsInRing.Add(new(this, color));
+                WarpedCloud cloud = new(this, color);
+                clouds.Add(cloud);
+                cloudsInRing.Add(cloud);
 
                 int index = mesh.VertexCount;
 
@@ -333,7 +338,7 @@ public class Cloudscape : Backdrop
         {
             Color from = Util.ColorArrayLerp(ring.Lerp * (gradientFrom.Length - 1), gradientFrom);
             Color to = Util.ColorArrayLerp(ring.Lerp * (gradientTo.Length - 1), gradientTo);
-            ring.ApplyIdleColor(Color.Lerp(from, to, lerp));
+            ring.ApplyIdleColor(Color.Lerp(from, to, lerp), colors);
         }
     }
 
