@@ -34,7 +34,8 @@ for _, direction in pairs(directions) do
                 chainLength = 64,
                 direction = direction,
                 chainOutline = true,
-                centeredChain = false
+                centeredChain = false,
+                chainTexture = "objects/CommunalHelper/chains/chain"
             }
         }
     )

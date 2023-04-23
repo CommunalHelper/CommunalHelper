@@ -8,6 +8,7 @@ using Ahorn.CommunalHelper
     y::Integer,
     extraJoints::Integer=0,
     outline::Bool=true,
+    texture::String="objects/CommunalHelper/chains/chain",
 )
 
 const placements = Ahorn.PlacementDict(

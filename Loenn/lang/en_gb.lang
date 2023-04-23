@@ -277,6 +277,7 @@ entities.CommunalHelper/DreamFallingBlock.attributes.description.chainOutline=Wh
 entities.CommunalHelper/DreamFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.quickDestroy=Makes this Dream Falling Block shatter a little faster.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.chainTexture=The texture for this Dream Falling Block's chain (if chained).
 
 # Dream Switch Gate
 entities.CommunalHelper/DreamSwitchGate.placements.name.dream_switch_gate=Dream Switch Gate
@@ -435,6 +436,7 @@ entities.CommunalHelper/ChainedKevin.attributes.description.chainLength=The leng
 entities.CommunalHelper/ChainedKevin.attributes.description.direction=The only direction in which this block will travel.
 entities.CommunalHelper/ChainedKevin.attributes.description.centeredChain=Renders only one chain at the horizontal or vertical center of this block, depending on the direction.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
+entities.CommunalHelper/ChainedKevin.attributes.description.chainTexture=The texture for this Chained Kevin's chain.
 
 # Chained Falling Block
 entities.CommunalHelper/ChainedFallingBlock.placements.name.chained_falling_block=Falling Block (Chained)
@@ -446,11 +448,13 @@ entities.CommunalHelper/ChainedFallingBlock.attributes.description.centeredChain
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainTexture=The texture for this Falling Block's chain.
 
 # Chain
 entities.CommunalHelper/Chain.placements.name.chain=Chain
 entities.CommunalHelper/Chain.attributes.description.outline=Whether this chain has an outline (black).
 entities.CommunalHelper/Chain.attributes.description.extraJoints=The additional 'chain nodes' this chain has. Used to make the chain longer without distancing the endpoints of the chain any further away from eachother.
+entities.CommunalHelper/Chain.attributes.description.texture=This chain's texture.
 
 # Core Mode Music Controller
 entities.CommunalHelper/CoreModeMusicController.placements.name.enable=Core Mode Music Controller

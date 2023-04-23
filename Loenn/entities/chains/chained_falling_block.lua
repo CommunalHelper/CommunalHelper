@@ -31,7 +31,8 @@ chainedFallingBlock.placements = {
         centeredChain = false,
         chainOutline = true,
         indicator = false,
-        indicatorAtStart = false
+        indicatorAtStart = false,
+        chainTexture = "objects/CommunalHelper/chains/chain"
     }
 }
 

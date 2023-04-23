@@ -16,6 +16,7 @@ using Cairo
     chainOutline::Bool=true,
     indicator::Bool=false,
     indicatorAtStart::Bool=false,
+    chainTexture::String="objects/CommunalHelper/chains/chain",
 )
 
 const placements = Ahorn.PlacementDict(

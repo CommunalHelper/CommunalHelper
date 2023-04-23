@@ -113,6 +113,7 @@ placements.entities.CommunalHelper/DreamFallingBlock.tooltips.chainOutline=Wheth
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.quickDestroy=Makes this Dream Falling Block shatter a little faster.
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.chainTexture=The texture for this Dream Falling Block's chain (if chained).
 
 # -- Dream Move Block --
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.below=Determines whether the Dream Move Block should render below foreground tiles.
@@ -358,6 +359,7 @@ placements.entities.CommunalHelper/FrictionlessPanel.tooltips.orientation=The wa
 # -- Chain --
 placements.entities.CommunalHelper/Chain.tooltips.outline=Whether this chain has an outline (black).
 placements.entities.CommunalHelper/Chain.tooltips.extraJoints=The additional 'chain nodes' this chain has. Used to make the chain longer without distancing the endpoints of the chain any further away from eachother.
+placements.entities.CommunalHelper/Chain.tooltips.texture=This chain's texture.
 
 # -- Chained Falling Block --
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.tiletype=Changes the visual appearance of this block.
@@ -368,6 +370,7 @@ placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.centeredChain=Re
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.chainOutline=Whether the chain of this block should have a black outline.
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicator=Renders below the block a dark transparent rectangle of the path the it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
+placements.entities.CommunalHelper/ChainedFallingBlock.tooltips.chainTexture=The texture for this Falling Block's chain.
 
 # -- Chained Kevin --
 placements.entities.CommunalHelper/ChainedKevin.tooltips.chillout=Whether the block should have the large face and get tired after being hit.
@@ -375,7 +378,7 @@ placements.entities.CommunalHelper/ChainedKevin.tooltips.chainLength=The length 
 placements.entities.CommunalHelper/ChainedKevin.tooltips.direction=The only direction in which this block will travel.
 placements.entities.CommunalHelper/ChainedKevin.tooltips.centeredChain=Renders only one chain at the horizontal or vertical center of this block, depending on the direction.
 placements.entities.CommunalHelper/ChainedKevin.tooltips.chainOutline=Whether the chain of this block should have a black outline.
-
+placements.entities.CommunalHelper/ChainedKevin.tooltips.chainTexture=The texture for this Chained Kevin's chain.
 
 # -- Underwater Music Controller --
 placements.entities.CommunalHelper/UnderwaterMusicController.tooltips.enable=Whether to always enable or always disable underwater sound modifiers.

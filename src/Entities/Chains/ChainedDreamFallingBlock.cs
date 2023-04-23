@@ -16,18 +16,18 @@ public class ChainedDreamFallingBlock : DreamFallingBlock
         public override void Render()
         {
             if (block.centeredChain)
-            {
-                Chain.DrawChainLine(new Vector2(block.X + (block.Width / 2f), block.startY), new Vector2(block.X + (block.Width / 2f), block.Y), block.chainOutline);
-            }
+                Chain.DrawChainLine(new Vector2(block.X + (block.Width / 2f), block.startY), new Vector2(block.X + (block.Width / 2f), block.Y), block.chainTexture, block.chainOutline);
             else
             {
-                Chain.DrawChainLine(new Vector2(block.X + 3, block.startY), new Vector2(block.X + 3, block.Y), block.chainOutline);
-                Chain.DrawChainLine(new Vector2(block.X + block.Width - 4, block.startY), new Vector2(block.X + block.Width - 4, block.Y), block.chainOutline);
+                Chain.DrawChainLine(new Vector2(block.X + 3, block.startY), new Vector2(block.X + 3, block.Y), block.chainTexture, block.chainOutline);
+                Chain.DrawChainLine(new Vector2(block.X + block.Width - 4, block.startY), new Vector2(block.X + block.Width - 4, block.Y), block.chainTexture, block.chainOutline);
             }
         }
     }
 
     private DreamFallingBlockChainRenderer chainRenderer;
+
+    private readonly MTexture chainTexture;
 
     private bool heldByChain;
     protected override bool Held => heldByChain || base.Held;
@@ -44,7 +44,6 @@ public class ChainedDreamFallingBlock : DreamFallingBlock
     public ChainedDreamFallingBlock(EntityData data, Vector2 offset)
         : base(data, offset)
     {
-
         removeWhenOutOfLevel = true;
 
         startY = Y;
@@ -54,6 +53,9 @@ public class ChainedDreamFallingBlock : DreamFallingBlock
         indicator = data.Bool("indicator");
         indicatorAtStart = data.Bool("indicatorAtStart");
         pathLerp = Util.ToInt(indicatorAtStart);
+
+        string chainTexturePath = data.Attr("chainTexture", Chain.DEFAULT_CHAIN_PATH);
+        chainTexture = GFX.Game.GetOrDefault(chainTexturePath, Chain.DefaultChain);
 
         Add(rattle = new SoundSource()
         {

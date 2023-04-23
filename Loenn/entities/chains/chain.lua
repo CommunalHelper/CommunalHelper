@@ -17,7 +17,8 @@ chain.placements = {
     name = "chain",
     data = {
         extraJoints = 0,
-        outline = true
+        outline = true,
+        texture = "objects/CommunalHelper/chains/chain",
     }
 }
 

@@ -14,6 +14,7 @@ const entityData = appendkwargs(CustomDreamBlockData, :(
     indicator::Bool=false,
     indicatorAtStart::Bool=false,
     chained::Bool=false,
+    chainTexture::String="objects/CommunalHelper/chains/chain",
 ))
 @mapdefdata Entity "CommunalHelper/DreamFallingBlock" DreamFallingBlock entityData
 
@@ -39,7 +40,7 @@ Ahorn.selection(entity::DreamFallingBlock) = Ahorn.getEntityRectangle(entity)
 Ahorn.editingIgnored(entity::DreamFallingBlock, multiple::Bool=false) =
     multiple ? 
     String["x", "y", "width", "height", "chained"] : (Bool(get(entity.data, "chained", false)) ?
-    String["chained"] : String["chained", "fallDistance", "centeredChain", "chainOutline", "indicator", "indicatorAtStart"])
+    String["chained"] : String["chained", "fallDistance", "centeredChain", "chainOutline", "indicator", "indicatorAtStart", "chainTexture"])
 
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::DreamFallingBlock)
     width = Int(get(entity.data, "width", 8))

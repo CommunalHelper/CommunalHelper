@@ -14,6 +14,7 @@ internal class ChainedKevin : CrushBlock
     private readonly int chainLength;
     private bool centeredChain;
     private readonly bool chainOutline;
+    private readonly MTexture chainTexture;
 
     private DynData<CrushBlock> crushBlockData;
     private List<Image> idleImages, activeTopImages, activeRightImages, activeLeftImages, activeBottomImages;
@@ -26,9 +27,10 @@ internal class ChainedKevin : CrushBlock
         chainOutline = data.Bool("chainOutline", true);
         if (((direction == Directions.Up || direction == Directions.Down) && Width <= 8) ||
             ((direction == Directions.Left || direction == Directions.Right) && Height <= 8))
-        {
             centeredChain = true;
-        }
+
+        string chainTexturePath = data.Attr("chainTexture", Chain.DEFAULT_CHAIN_PATH);
+        chainTexture = GFX.Game.GetOrDefault(chainTexturePath, Chain.DefaultChain);
     }
 
     public override void Render()
@@ -37,49 +39,41 @@ internal class ChainedKevin : CrushBlock
         {
             case Directions.Down:
                 if (centeredChain)
-                {
-                    Chain.DrawChainLine(new Vector2(Left + (Width / 2f), start.Y), new Vector2(X + (Width / 2f), Top), chainOutline);
-                }
+                    Chain.DrawChainLine(new Vector2(Left + (Width / 2f), start.Y), new Vector2(X + (Width / 2f), Top), chainTexture, chainOutline);
                 else
                 {
-                    Chain.DrawChainLine(new Vector2(Left + 3, start.Y), new Vector2(X + 3, Y), chainOutline);
-                    Chain.DrawChainLine(new Vector2(Left + Width - 4, start.Y), new Vector2(X + Width - 4, Top), chainOutline);
+                    Chain.DrawChainLine(new Vector2(Left + 3, start.Y), new Vector2(X + 3, Y), chainTexture, chainOutline);
+                    Chain.DrawChainLine(new Vector2(Left + Width - 4, start.Y), new Vector2(X + Width - 4, Top), chainTexture, chainOutline);
                 }
                 break;
 
             case Directions.Up:
                 if (centeredChain)
-                {
-                    Chain.DrawChainLine(new Vector2(Left + (Width / 2f), start.Y + Height), new Vector2(X + (Width / 2f), Bottom), chainOutline);
-                }
+                    Chain.DrawChainLine(new Vector2(Left + (Width / 2f), start.Y + Height), new Vector2(X + (Width / 2f), Bottom), chainTexture, chainOutline);
                 else
                 {
-                    Chain.DrawChainLine(new Vector2(Left + 3, start.Y + Height), new Vector2(X + 3, Bottom), chainOutline);
-                    Chain.DrawChainLine(new Vector2(Left + Width - 4, start.Y + Height), new Vector2(X + Width - 4, Bottom), chainOutline);
+                    Chain.DrawChainLine(new Vector2(Left + 3, start.Y + Height), new Vector2(X + 3, Bottom), chainTexture, chainOutline);
+                    Chain.DrawChainLine(new Vector2(Left + Width - 4, start.Y + Height), new Vector2(X + Width - 4, Bottom), chainTexture, chainOutline);
                 }
                 break;
 
             case Directions.Right:
                 if (centeredChain)
-                {
-                    Chain.DrawChainLine(new Vector2(start.X, Top + (Height / 2f)), new Vector2(Left, Top + (Height / 2f)), chainOutline);
-                }
+                    Chain.DrawChainLine(new Vector2(start.X, Top + (Height / 2f)), new Vector2(Left, Top + (Height / 2f)), chainTexture, chainOutline);
                 else
                 {
-                    Chain.DrawChainLine(new Vector2(start.X, Top + 5), new Vector2(Left, Top + 5), chainOutline);
-                    Chain.DrawChainLine(new Vector2(start.X, Top + Height - 4), new Vector2(Left, Top + Height - 4), chainOutline);
+                    Chain.DrawChainLine(new Vector2(start.X, Top + 5), new Vector2(Left, Top + 5), chainTexture, chainOutline);
+                    Chain.DrawChainLine(new Vector2(start.X, Top + Height - 4), new Vector2(Left, Top + Height - 4), chainTexture, chainOutline);
                 }
                 break;
 
             case Directions.Left:
                 if (centeredChain)
-                {
-                    Chain.DrawChainLine(new Vector2(start.X + Width, Top + (Height / 2f)), new Vector2(Right, Top + (Height / 2f)), chainOutline);
-                }
+                    Chain.DrawChainLine(new Vector2(start.X + Width, Top + (Height / 2f)), new Vector2(Right, Top + (Height / 2f)), chainTexture, chainOutline);
                 else
                 {
-                    Chain.DrawChainLine(new Vector2(start.X + Width, Top + 5), new Vector2(Right, Top + 5), chainOutline);
-                    Chain.DrawChainLine(new Vector2(start.X + Width, Top + Height - 4), new Vector2(Right, Top + Height - 4), chainOutline);
+                    Chain.DrawChainLine(new Vector2(start.X + Width, Top + 5), new Vector2(Right, Top + 5), chainTexture, chainOutline);
+                    Chain.DrawChainLine(new Vector2(start.X + Width, Top + Height - 4), new Vector2(Right, Top + Height - 4), chainTexture, chainOutline);
                 }
                 break;
         }

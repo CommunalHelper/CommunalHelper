@@ -1,5 +1,6 @@
 ﻿using FMOD.Studio;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -37,7 +38,8 @@ public class Chain : Entity
         }
     }
 
-    private static MTexture ChainTexture, ChainStartTexture;
+    public static MTexture DefaultChain { get; private set; }
+    public const string DEFAULT_CHAIN_PATH = "objects/CommunalHelper/chains/chain";
 
     private readonly bool outline;
 
@@ -51,12 +53,24 @@ public class Chain : Entity
     private readonly EventInstance sfx;
     private Vector2 sfxPos;
 
-    public Chain(EntityData data, Vector2 offset)
-        : this(data.Bool("outline", true), (int) ((Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8) + 1 + data.Int("extraJoints")), 8, () => data.Position + offset, () => data.Nodes[0] + offset) { }
+    private readonly MTexture texture;
+    private readonly MTexture segment;
 
-    public Chain(bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter)
+    public Chain(EntityData data, Vector2 offset)
+        : this(
+            data.Bool("outline", true),
+            (int) ((Vector2.Distance(data.Position + offset, data.NodesOffset(offset)[0]) / 8) + 1 + data.Int("extraJoints")),
+            8,
+            () => data.Position + offset,
+            () => data.Nodes[0] + offset,
+            GFX.Game.GetOrDefault(data.Attr("texture", DEFAULT_CHAIN_PATH), DefaultChain)
+        ) { }
+
+    public Chain(bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter, MTexture texture)
         : base(attachedStartGetter())
     {
+        this.texture = texture;
+        segment = texture.GetSubtexture(0, 8, 8, 8);
 
         nodes = new ChainNode[nodeCount];
         this.attachedStartGetter = attachedStartGetter;
@@ -92,9 +106,7 @@ public class Chain : Entity
             attachedStartGetter = () => startSolid.Position + offset;
         }
         else
-        {
             attachedStartGetter = null;
-        }
 
         if (endSolid != null)
         {
@@ -102,9 +114,7 @@ public class Chain : Entity
             attachedEndGetter = () => endSolid.Position + offset;
         }
         else
-        {
             attachedEndGetter = null;
-        }
 
         if (attachedStartGetter == null && attachedEndGetter == null)
             RemoveSelf();
@@ -170,9 +180,7 @@ public class Chain : Entity
         UpdateSfx(oldPositions);
 
         if (Vector2.Distance(nodes[0].Position, nodes[nodes.Length - 1].Position) > (nodes.Length + 1) * distanceConstraint)
-        {
             BreakInHalf();
-        }
     }
 
     private void BreakInHalf()
@@ -181,11 +189,11 @@ public class Chain : Entity
         Vector2 middleNode = nodes[nodes.Length / 2].Position;
 
         Chain a, b;
-        Scene.Add(a = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedStartGetter));
+        Scene.Add(a = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedStartGetter, texture));
         a.AttachedEndsToSolids(Scene);
         a.ShakeImpulse();
 
-        Scene.Add(b = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedEndGetter));
+        Scene.Add(b = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedEndGetter, texture));
         b.AttachedEndsToSolids(Scene);
         b.ShakeImpulse();
 
@@ -252,59 +260,56 @@ public class Chain : Entity
     public override void Render()
     {
         base.Render();
+
         if (outline)
         {
             for (int i = 0; i < nodes.Length - 1; i++)
             {
                 if (Calc.Round(nodes[i].Position) == Calc.Round(nodes[i + 1].Position))
-                {
                     continue;
-                }
+
                 float yScale = Vector2.Distance(nodes[i].Position, nodes[i + 1].Position) / distanceConstraint;
                 Vector2 mid = (nodes[i].Position + nodes[i + 1].Position) * 0.5f;
                 float angle = Calc.Angle(nodes[i].Position, nodes[i + 1].Position) - MathHelper.PiOver2;
-                ChainTexture.DrawOutlineOnlyCentered(mid, new Vector2(1f, yScale), angle);
+                segment.DrawOutlineOnlyCentered(mid, new Vector2(1f, yScale), angle);
             }
         }
+
         for (int i = 0; i < nodes.Length - 1; i++)
         {
             if (Calc.Round(nodes[i].Position) == Calc.Round(nodes[i + 1].Position))
-            {
                 continue;
-            }
+
             float yScale = Vector2.Distance(nodes[i].Position, nodes[i + 1].Position) / distanceConstraint;
             Vector2 mid = (nodes[i].Position + nodes[i + 1].Position) * 0.5f;
             float angle = Calc.Angle(nodes[i].Position, nodes[i + 1].Position) - MathHelper.PiOver2;
-            ChainTexture.DrawCentered(mid, Color.White, new Vector2(1f, yScale), angle);
+            segment.DrawCentered(mid, Color.White, new Vector2(1f, yScale), angle);
         }
     }
 
-    public static void DrawChainLine(Vector2 from, Vector2 to, bool outline)
+    public static void DrawChainLine(Vector2 from, Vector2 to, MTexture texture, bool outline)
     {
         Vector2 dir = Vector2.Normalize(to - from);
         float angle = dir.Angle() - MathHelper.PiOver2;
         float d = Vector2.Distance(from, to);
 
+        MTexture tip = texture.GetSubtexture(0, 0, 8, 8),
+                 mid = texture.GetSubtexture(0, 8, 8, 8);
+
         if (outline)
         {
             for (float t = d; t >= 0f; t -= 8f)
-            {
-                ChainTexture.DrawOutlineOnlyCentered(Vector2.Lerp(from, to, t / d), Vector2.One, angle);
-            }
-            ChainStartTexture.DrawOutlineOnlyCentered(from + (dir * 4f), Vector2.One, angle);
+                mid.DrawOutlineOnlyCentered(Vector2.Lerp(from, to, t / d), Vector2.One, angle);
+            tip.DrawOutlineOnlyCentered(from + (dir * 4f), Vector2.One, angle);
         }
 
         for (float t = d; t >= 0f; t -= 8f)
-        {
-            ChainTexture.DrawCentered(Vector2.Lerp(from, to, t / d), Color.White, 1f, angle);
-        }
-        ChainStartTexture.DrawCentered(from + (dir * 4f), Color.White, 1f, angle);
+            mid.DrawCentered(Vector2.Lerp(from, to, t / d), Color.White, 1f, angle);
+        tip.DrawCentered(from + (dir * 4f), Color.White, 1f, angle);
     }
 
     public static void InitializeTextures()
     {
-        MTexture full = GFX.Game["objects/hanginglamp"];
-        ChainStartTexture = full.GetSubtexture(0, 0, 8, 8);
-        ChainTexture = full.GetSubtexture(0, 8, 8, 8);
+        DefaultChain = GFX.Game[DEFAULT_CHAIN_PATH];
     }
 }

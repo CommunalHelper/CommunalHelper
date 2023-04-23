@@ -13,6 +13,7 @@ using Ahorn.Cairo
     direction::String="Right",
     chainOutline::Bool=true,
     centeredChain::Bool=false,
+    chainTexture::String="objects/CommunalHelper/chains/chain",
 )
 
 const placements = Ahorn.PlacementDict(
