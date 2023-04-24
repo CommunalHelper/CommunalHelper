@@ -20,6 +20,7 @@ jobs:
         definitionId: 3
         artifact: lib-stripped
         reasonFilter: 'individualCI'
+        branchName: stable
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
