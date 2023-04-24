@@ -401,17 +401,21 @@ public class Cloudscape : Backdrop
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);
         Engine.Graphics.GraphicsDevice.Clear(sky);
         Engine.Graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;
-        Engine.Graphics.GraphicsDevice.Textures[0] = CommunalHelperGFX.CloudscapeAtlas.Sources[0].Texture_Safe;
-        Engine.Graphics.GraphicsDevice.Textures[1] = colorBuffer;
+
+        EffectParameterCollection parameters = CommunalHelperGFX.CloudscapeShader.Parameters;
+
+        // passing the textures to the shader via Graphics.Textures does not work on XNA.
+        parameters["atlas_texture"].SetValue(CommunalHelperGFX.CloudscapeAtlas.Sources[0].Texture_Safe);
+        parameters["color_texture"].SetValue(colorBuffer);
 
         // rotation is calculated in the shader, since we're only doing one draw call now.
-        CommunalHelperGFX.CloudscapeShader.Parameters["ring_count"].SetValue(rings.Length);
-        CommunalHelperGFX.CloudscapeShader.Parameters["color_buffer_size"].SetValue(colorBuffer.Width);
-        CommunalHelperGFX.CloudscapeShader.Parameters["offset"].SetValue(translate);
-        CommunalHelperGFX.CloudscapeShader.Parameters["inner_rotation"].SetValue(innerRotation);
-        CommunalHelperGFX.CloudscapeShader.Parameters["outer_rotation"].SetValue(outerRotation);
-        CommunalHelperGFX.CloudscapeShader.Parameters["rotation_exponent"].SetValue(rotationExponent);
-        CommunalHelperGFX.CloudscapeShader.Parameters["time"].SetValue(scene.TimeActive);
+        parameters["ring_count"].SetValue(rings.Length);
+        parameters["color_buffer_size"].SetValue(colorBuffer.Width);
+        parameters["offset"].SetValue(translate);
+        parameters["inner_rotation"].SetValue(innerRotation);
+        parameters["outer_rotation"].SetValue(outerRotation);
+        parameters["rotation_exponent"].SetValue(rotationExponent);
+        parameters["time"].SetValue(scene.TimeActive);
 
         var technique = CommunalHelperGFX.CloudscapeShader.Techniques[0];
         foreach (var pass in technique.Passes)
