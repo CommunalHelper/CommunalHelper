@@ -25,11 +25,11 @@ const texture = "objects/CommunalHelper/strawberryJam/grabTempleGate/TempleDoor0
 
 function Ahorn.selection(entity::GrabTempleGate)
     x, y = Ahorn.position(entity)
-    return Ahorn.Rectangle(x - 4, y, 15, 48)
+    return Ahorn.Rectangle(x - 3, y, 15, 48)
 end
 
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::GrabTempleGate, room::Maple.Room)
-    Ahorn.drawImage(ctx, texture, -4, 0)
+    Ahorn.drawImage(ctx, texture, -8, 0)
 end
 
 end
