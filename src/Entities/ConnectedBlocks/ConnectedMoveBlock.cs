@@ -8,6 +8,7 @@ using System.Linq;
 namespace Celeste.Mod.CommunalHelper;
 
 [CustomEntity("CommunalHelper/ConnectedMoveBlock")]
+[Tracked]
 public class ConnectedMoveBlock : ConnectedSolid
 {
     // Custom Border Entity
@@ -54,6 +55,9 @@ public class ConnectedMoveBlock : ConnectedSolid
         Breaking
     }
     public MovementState State;
+
+    private MoveBlockGroup group;
+    public bool GroupSignal { get; internal set; }
 
     protected static MTexture[,] masterEdges = new MTexture[3, 3];
     protected static MTexture[,] masterInnerCorners = new MTexture[2, 2];
@@ -207,6 +211,11 @@ public class ConnectedMoveBlock : ConnectedSolid
         Add(new LightOcclude(0.5f));
     }
 
+    public void SetGroup(MoveBlockGroup group)
+    {
+        this.group = group;
+    }
+
     public override void OnStaticMoverTrigger(StaticMover sm)
     {
         base.OnStaticMoverTrigger(sm);
@@ -229,7 +238,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             curMoveCheck = false;
             triggered = false;
             State = MovementState.Idling;
-            while (!triggered && !startingByActivator && !startingBroken)
+            while (!triggered && !startingByActivator && !startingBroken && !GroupSignal)
             {
                 if (startInvisible && !AnySetEnabled(BreakerFlags))
                 {
@@ -238,6 +247,16 @@ public class ConnectedMoveBlock : ConnectedSolid
                 yield return null;
                 startingBroken = AnySetEnabled(BreakerFlags) && !startInvisible;
                 startingByActivator = AnySetEnabled(ActivatorFlags);
+            }
+
+            if (group is not null)
+            {
+                if (!GroupSignal)
+                    group.Trigger(); // block was manually triggered
+                // ensures all moveblock in the group start simultaneously
+                while (!GroupSignal) // wait for signal to come back
+                    yield return null;
+                GroupSignal = false; // reset
             }
 
             Audio.Play(SFX.game_04_arrowblock_activate, Position);
