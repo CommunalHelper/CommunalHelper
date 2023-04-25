@@ -16,7 +16,7 @@ public class MoveBlockGroup : Entity
 
     private readonly Vector2[] nodes;
 
-    private readonly Color color;
+    public Color Color { get; }
     private readonly RespawnBehavior respawnBehavior;
 
     private readonly HashSet<ConnectedMoveBlock> blocks = new();
@@ -29,7 +29,7 @@ public class MoveBlockGroup : Entity
     {
         this.nodes = nodes;
 
-        this.color = color;
+        this.Color = color;
         this.respawnBehavior = respawnBehavior;
     }
 
