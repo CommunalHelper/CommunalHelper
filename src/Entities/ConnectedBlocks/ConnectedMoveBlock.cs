@@ -250,7 +250,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 startingByActivator = AnySetEnabled(ActivatorFlags);
             }
 
-            if (group is not null)
+            if (group is not null && group.SyncActivation)
             {
                 if (!GroupSignal)
                     group.Trigger(); // block was manually triggered
@@ -748,7 +748,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         {
             Color arrowColor = group is null
                 ? fillColor
-                : Color.Lerp(fillColor, group.Color, Calc.SineMap(Scene.TimeActive * 4, 0, 1));
+                : Color.Lerp(fillColor, group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
 
             Vector2 vec = hitbox.Center + Position;
             Draw.Rect(vec.X - 4f, vec.Y - 4f, 8f, 8f, arrowColor);
@@ -765,9 +765,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         }
 
         foreach (Image img in Tiles)
-        {
             Draw.Rect(img.Position + Position, 8, 8, Color.White * flash);
-        }
 
         Position = position;
     }

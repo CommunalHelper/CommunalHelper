@@ -17,19 +17,21 @@ public class MoveBlockGroup : Entity
     private readonly Vector2[] nodes;
 
     public Color Color { get; }
+    public bool SyncActivation { get; }
     private readonly RespawnBehavior respawnBehavior;
 
     private readonly HashSet<ConnectedMoveBlock> blocks = new();
 
     public MoveBlockGroup(EntityData data, Vector2 offset)
-        : this(data.NodesOffset(offset), data.HexColor("color", defaultColor), data.Enum("respawnBehavior", RespawnBehavior.Simultaneous))
+        : this(data.NodesOffset(offset), data.HexColor("color", defaultColor), data.Bool("syncActivation", true), data.Enum("respawnBehavior", RespawnBehavior.Simultaneous))
     { }
 
-    public MoveBlockGroup(Vector2[] nodes, Color color, RespawnBehavior respawnBehavior = RespawnBehavior.Simultaneous)
+    public MoveBlockGroup(Vector2[] nodes, Color color, bool syncActivation = true, RespawnBehavior respawnBehavior = RespawnBehavior.Simultaneous)
     {
         this.nodes = nodes;
 
         this.Color = color;
+        this.SyncActivation = syncActivation;
         this.respawnBehavior = respawnBehavior;
     }
 
