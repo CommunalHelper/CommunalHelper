@@ -12,13 +12,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Download Everest stripped lib
-      uses: coloursofnoise/get-azure-pipelines-artifact@v0.0.3
+    - name: Download Everest lib-stripped release asset from GitHub
+      uses: duhow/download-github-release-assets@v1
       with:
         repository: EverestAPI/Everest
-        definitionId: 3
-        artifact: lib-stripped
-        reasonFilter: 'individualCI'
+        release-id: latest
+        files: lib-stripped.zip
+
+    - name: Unzip lib-stripped.zip
+      run: unzip lib-stripped.zip
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
