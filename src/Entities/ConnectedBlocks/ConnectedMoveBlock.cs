@@ -56,7 +56,7 @@ public class ConnectedMoveBlock : ConnectedSolid
     }
     public MovementState State;
 
-    private MoveBlockGroup group;
+    public MoveBlockGroup Group { get; internal set; }
     public bool GroupSignal { get; internal set; }
     public bool CheckGroupRespawn { get; internal set; }
 
@@ -212,11 +212,6 @@ public class ConnectedMoveBlock : ConnectedSolid
         Add(new LightOcclude(0.5f));
     }
 
-    public void SetGroup(MoveBlockGroup group)
-    {
-        this.group = group;
-    }
-
     public override void OnStaticMoverTrigger(StaticMover sm)
     {
         base.OnStaticMoverTrigger(sm);
@@ -250,10 +245,10 @@ public class ConnectedMoveBlock : ConnectedSolid
                 startingByActivator = AnySetEnabled(ActivatorFlags);
             }
 
-            if (group is not null && group.SyncActivation)
+            if (Group is not null && Group.SyncActivation)
             {
                 if (!GroupSignal)
-                    group.Trigger(); // block was manually triggered
+                    Group.Trigger(); // block was manually triggered
                 // ensures all moveblock in the group start simultaneously
                 while (!GroupSignal) // wait for signal to come back
                     yield return null;
@@ -425,10 +420,10 @@ public class ConnectedMoveBlock : ConnectedSolid
             curMoveCheck = false;
             yield return 2.2f;
 
-            if (group is not null)
+            if (Group is not null)
             {
                 CheckGroupRespawn = true;
-                while (!group.CanRespawn())
+                while (!Group.CanRespawn(this))
                     yield return null;
             }
 
@@ -746,9 +741,9 @@ public class ConnectedMoveBlock : ConnectedSolid
         int arrowIndex = Calc.Clamp((int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f), 0, 7);
         foreach (Hitbox hitbox in ArrowsList)
         {
-            Color arrowColor = group is null
+            Color arrowColor = Group is null
                 ? fillColor
-                : Color.Lerp(fillColor, group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
+                : Color.Lerp(fillColor, Group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
 
             Vector2 vec = hitbox.Center + Position;
             Draw.Rect(vec.X - 4f, vec.Y - 4f, 8f, 8f, arrowColor);
