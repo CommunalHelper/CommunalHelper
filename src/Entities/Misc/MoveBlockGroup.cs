@@ -10,6 +10,7 @@ public class MoveBlockGroup : Entity
     {
         Immediate,
         Simultaneous,
+        Sequential,
     }
 
     private static readonly Color defaultColor = Calc.HexToColor("ffae11");

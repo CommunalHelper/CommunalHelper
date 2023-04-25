@@ -1,6 +1,7 @@
 local drawableLine = require("structs.drawable_line")
 local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
+local drawing = require("utils.drawing")
 
 local moveBlockGroup = {}
 
@@ -15,7 +16,8 @@ local defaultColorValue = "ffae11"
 
 local respawnBehaviors = {
     "Immediate",
-    "Simultaneous"
+    "Simultaneous",
+    "Sequential"
 }
 
 moveBlockGroup.fieldInformation = {
@@ -24,7 +26,7 @@ moveBlockGroup.fieldInformation = {
     },
     respawnBehavior = {
         options = respawnBehaviors,
-        editable = false,
+        editable = false
     }
 }
 
@@ -34,7 +36,7 @@ moveBlockGroup.placements = {
         data = {
             color = defaultColorValue,
             syncActivation = true,
-            respawnBehavior = "Simultaneous",
+            respawnBehavior = "Simultaneous"
         }
     }
 }
@@ -43,9 +45,11 @@ local iconTexture = "objects/CommunalHelper/moveBlockGroup/icon"
 local ringTexture = "objects/CommunalHelper/moveBlockGroup/ring"
 local ringOutlineTexture = "objects/CommunalHelper/moveBlockGroup/ring_outline"
 
-local lineColor = {0.5, 0.5, 0.5, 0.5}
+local lineColor = {0.45, 0.45, 0.45, 0.45}
+local sequenceLineColor = {0.8, 0.8, 0.8, 0.8}
+local white = {1.0, 1.0, 1.0, 1.0}
 
-function moveBlockGroup.sprite(room, entity)
+local function sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0
     local nodes = entity.nodes or {{x = x + 16, y = y}, {x = x + 32, y = y}}
 
@@ -68,6 +72,32 @@ function moveBlockGroup.sprite(room, entity)
     return sprites
 end
 
+function moveBlockGroup.draw(room, entity, viewport)
+    local sprites = sprite(room, entity)
+    for _, s in ipairs(sprites) do
+        s:draw()
+    end
+
+    if entity.respawnBehavior ~= "Sequential" then
+        return
+    end
+
+    local x, y = entity.x or 0, entity.y or 0
+    local nodes = entity.nodes or {{x = x + 16, y = y}, {x = x + 32, y = y}}
+
+    local prev = nil
+    for i, node in ipairs(nodes) do
+        drawing.printCenteredText(tostring(i), node.x - 16, node.y - 13, 32, 10)
+
+        if prev then
+            love.graphics.setColor(sequenceLineColor)
+            drawing.drawDashedLine(prev.x, prev.y, node.x, node.y, 2, 2)
+            love.graphics.setColor(white)
+        end
+        prev = node
+    end
+end
+
 function moveBlockGroup.nodeSprite(room, entity, node, _, _)
     local sprites = {}
 
@@ -76,6 +106,9 @@ function moveBlockGroup.nodeSprite(room, entity, node, _, _)
 
     local color = entity.color or defaultColorValue
     ring:setColor(color)
+
+    ring.depth = -10000
+    outline.depth = -10000
 
     table.insert(sprites, outline)
     table.insert(sprites, ring)
