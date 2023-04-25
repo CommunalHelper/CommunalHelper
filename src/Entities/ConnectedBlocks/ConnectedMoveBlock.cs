@@ -8,6 +8,7 @@ using System.Linq;
 namespace Celeste.Mod.CommunalHelper;
 
 [CustomEntity("CommunalHelper/ConnectedMoveBlock")]
+[Tracked]
 public class ConnectedMoveBlock : ConnectedSolid
 {
     // Custom Border Entity
@@ -54,6 +55,10 @@ public class ConnectedMoveBlock : ConnectedSolid
         Breaking
     }
     public MovementState State;
+
+    public MoveBlockGroup Group { get; internal set; }
+    public bool GroupSignal { get; internal set; }
+    public bool CheckGroupRespawn { get; internal set; }
 
     protected static MTexture[,] masterEdges = new MTexture[3, 3];
     protected static MTexture[,] masterInnerCorners = new MTexture[2, 2];
@@ -229,7 +234,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             curMoveCheck = false;
             triggered = false;
             State = MovementState.Idling;
-            while (!triggered && !startingByActivator && !startingBroken)
+            while (!triggered && !startingByActivator && !startingBroken && !GroupSignal)
             {
                 if (startInvisible && !AnySetEnabled(BreakerFlags))
                 {
@@ -238,6 +243,16 @@ public class ConnectedMoveBlock : ConnectedSolid
                 yield return null;
                 startingBroken = AnySetEnabled(BreakerFlags) && !startInvisible;
                 startingByActivator = AnySetEnabled(ActivatorFlags);
+            }
+
+            if (Group is not null && Group.SyncActivation)
+            {
+                if (!GroupSignal)
+                    Group.Trigger(); // block was manually triggered
+                // ensures all moveblock in the group start simultaneously
+                while (!GroupSignal) // wait for signal to come back
+                    yield return null;
+                GroupSignal = false; // reset
             }
 
             Audio.Play(SFX.game_04_arrowblock_activate, Position);
@@ -405,6 +420,13 @@ public class ConnectedMoveBlock : ConnectedSolid
             curMoveCheck = false;
             yield return 2.2f;
 
+            if (Group is not null)
+            {
+                CheckGroupRespawn = true;
+                while (!Group.CanRespawn(this))
+                    yield return null;
+            }
+
             foreach (MoveBlockDebris item in debris)
             {
                 item.StopMoving();
@@ -436,6 +458,8 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 item4.RemoveSelf();
             }
+
+            CheckGroupRespawn = false;
         Rebuild:
             Audio.Play(SFX.game_04_arrowblock_reappear, Position);
             Visible = true;
@@ -717,29 +741,26 @@ public class ConnectedMoveBlock : ConnectedSolid
         int arrowIndex = Calc.Clamp((int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f), 0, 7);
         foreach (Hitbox hitbox in ArrowsList)
         {
+            Color arrowColor = Group is null
+                ? fillColor
+                : Color.Lerp(fillColor, Group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
+
             Vector2 vec = hitbox.Center + Position;
-            Draw.Rect(vec.X - 4f, vec.Y - 4f, 8f, 8f, fillColor);
+            Draw.Rect(vec.X - 4f, vec.Y - 4f, 8f, 8f, arrowColor);
+
             if (State != MovementState.Breaking)
             {
                 if (arrows == null)
-                {
                     masterArrows[arrowIndex].DrawCentered(vec);
-                }
                 else
-                {
                     arrows[arrowIndex].DrawCentered(vec);
-                }
             }
             else
-            {
                 xTexture.DrawCentered(vec);
-            }
         }
 
         foreach (Image img in Tiles)
-        {
             Draw.Rect(img.Position + Position, 8, 8, Color.White * flash);
-        }
 
         Position = position;
     }
