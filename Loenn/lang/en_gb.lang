@@ -602,8 +602,10 @@ entities.CommunalHelper/UFO.placements.description.ufo=Flings the player and hol
 entities.CommunalHelper/UFO.attributes.description.raySizeX=The width of the beam within which entities are flung.
 entities.CommunalHelper/UFO.attributes.description.raySizeY=The height of the beam within which entities are flung.
 
+# Move Block Group
 entities.CommunalHelper/MoveBlockGroup.placements.name.move_block_group=Move Block Group
 entities.CommunalHelper/MoveBlockGroup.attributes.description.color=The display color of this Move Block group.
+entities.CommunalHelper/MoveBlockGroup.attributes.description.respawnBehavior=Dictates how Move Blocks respawn within this group.\n* Immediate: the Move Blocks respawn immediately, like they normally do outside of a group.\n* Simultaneous: all Move Blocks from this group must have first broken in order for them to respawn.
 
 # [Strawberry Jam] Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]

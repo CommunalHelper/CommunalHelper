@@ -11,19 +11,29 @@ moveBlockGroup.nodeLimits = {2, -1}
 moveBlockGroup.nodeLineRenderType = "fan"
 moveBlockGroup.nodeVisibility = "always"
 
+local defaultColorValue = "ffae11"
+
+local respawnBehaviors = {
+    "Immediate",
+    "Simultaneous"
+}
+
 moveBlockGroup.fieldInformation = {
     color = {
         fieldType = "color"
+    },
+    respawnBehavior = {
+        options = respawnBehaviors,
+        editable = false,
     }
 }
-
-local defaultColorValue = "ffae11"
 
 moveBlockGroup.placements = {
     {
         name = "move_block_group",
         data = {
-            color = defaultColorValue
+            color = defaultColorValue,
+            respawnBehavior = "Simultaneous",
         }
     }
 }

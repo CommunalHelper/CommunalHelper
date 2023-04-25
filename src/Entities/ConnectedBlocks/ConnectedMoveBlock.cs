@@ -58,6 +58,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     private MoveBlockGroup group;
     public bool GroupSignal { get; internal set; }
+    public bool CheckGroupRespawn { get; internal set; }
 
     protected static MTexture[,] masterEdges = new MTexture[3, 3];
     protected static MTexture[,] masterInnerCorners = new MTexture[2, 2];
@@ -424,6 +425,13 @@ public class ConnectedMoveBlock : ConnectedSolid
             curMoveCheck = false;
             yield return 2.2f;
 
+            if (group is not null)
+            {
+                CheckGroupRespawn = true;
+                while (!group.CanRespawn())
+                    yield return null;
+            }
+
             foreach (MoveBlockDebris item in debris)
             {
                 item.StopMoving();
@@ -455,6 +463,8 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 item4.RemoveSelf();
             }
+
+            CheckGroupRespawn = false;
         Rebuild:
             Audio.Play(SFX.game_04_arrowblock_reappear, Position);
             Visible = true;
