@@ -44,8 +44,11 @@ local function generateTorusTiles(w, h, thickness)
 end
 
 function loopBlock.sprite(room, entity)
+    local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 24, entity.height or 24
     local w, h = math.floor(width / 8), math.floor(height / 8)
+
+    math.randomseed(x, y)
 
     local sprites = {}
 
@@ -65,7 +68,7 @@ function loopBlock.sprite(room, entity)
                 local tx, ty = 0, 0
 
                 if full then
-                    tx, ty = 1, 7
+                    tx, ty = 1 + math.random(0, 1), 7 + math.random(0, 1)
                 elseif innerCorner then
                     if not downright then
                         tx, ty = 0, 7
@@ -98,6 +101,8 @@ function loopBlock.sprite(room, entity)
                     elseif up and down and (not left) and (not right) then
                         tx, ty = 3, 6
                     end
+
+                    tx = tx + math.random(0, 2)
                 end
 
                 local tile = drawableSprite.fromTexture(tileset, entity)
