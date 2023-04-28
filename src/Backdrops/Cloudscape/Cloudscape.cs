@@ -320,7 +320,7 @@ public class Cloudscape : Backdrop
         this.clouds = clouds.ToArray();
         this.rings = rings.ToArray();
 
-        colorBuffer = new(Engine.Graphics.GraphicsDevice, this.clouds.Length, 1);
+        EnsureValidColorBuffer();
         colors = new Color[this.clouds.Length];
 
         Calc.PopRandom();
@@ -329,6 +329,12 @@ public class Cloudscape : Backdrop
         Util.Log(LogLevel.Info, $"[NEW-IMPL] Cloudscape meshes baked:");
         Util.Log(LogLevel.Info, $"  * {mesh.VertexCount} vertices and {mesh.Triangles} triangles ({mesh.Triangles * 3} indices)");
         Util.Log(LogLevel.Info, $"  * Size of {bytes * 1e-3} kB = {bytes * 1e-6} MB ({bytes}o)");
+    }
+
+    private void EnsureValidColorBuffer()
+    {
+        if (colorBuffer is null || colorBuffer.IsDisposed)
+            colorBuffer = new(Engine.Graphics.GraphicsDevice, clouds.Length, 1);
     }
 
     public void ConfigureColors(Color bg, Color[] gradientFrom, Color[] gradientTo, float lerp)
@@ -384,6 +390,8 @@ public class Cloudscape : Backdrop
     public override void BeforeRender(Scene scene)
     {
         base.BeforeRender(scene);
+        
+        EnsureValidColorBuffer();
         colorBuffer.SetData(colors);
     }
 
