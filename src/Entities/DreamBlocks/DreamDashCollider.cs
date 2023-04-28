@@ -8,20 +8,33 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [Tracked]
 internal class DreamDashCollider : Component
 {
+    // Used as a dream block dummy, but which stores a DreamDashCollider property.
+    // The reason for this is I didn't want to store a DreamDashCollider inside DreamBlockDummy.
+    internal sealed class ColliderDummy : DreamBlockDummy
+    {
+        public DreamDashCollider DreamDashCollider { get; }
+        public ColliderDummy(Entity entity, DreamDashCollider collider)
+            : base(entity)
+        {
+            DreamDashCollider = collider;
+        }
+    }
+
     public static readonly Color ActiveColor = Color.Teal;
     public static readonly Color InactiveColor = Calc.HexToColor("044f63"); // darker teal
 
     public Collider Collider;
-    public DreamBlockDummy Dummy;
+    public ColliderDummy Dummy;
 
-    public Action<Player> OnExit;
+    public Action<Player> OnEnter, OnExit;
 
-    public DreamDashCollider(Collider collider, Action<Player> onExit_player = null)
+    public DreamDashCollider(Collider collider, Action<Player> onEnter = null, Action < Player> onExit = null)
         : base(active: true, visible: false)
     {
         Collider = collider;
-        Dummy = new DreamBlockDummy(Entity);
-        OnExit = onExit_player;
+        Dummy = new(Entity, this);
+        OnEnter = onEnter;
+        OnExit = onExit;
     }
 
     public override void Added(Entity entity)
@@ -119,15 +132,27 @@ internal class DreamDashCollider : Component
             cursor.EmitDelegate<Func<DreamBlock, Player, DreamBlock>>((dreamBlock, self) =>
             {
                 foreach (DreamDashCollider collider in self.Scene.Tracker.GetComponents<DreamDashCollider>())
-                {
                     if (collider.Check(self))
-                    {
                         return collider.Dummy;
-                    }
-                }
                 return dreamBlock;
             });
         }
+
+        cursor.GotoNext(instr => instr.MatchStfld<Player>("dreamBlock"));
+
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.EmitDelegate<Func<DreamBlock, Player, DreamBlock>>((dreamBlock, self) =>
+        {
+            DynamicData data = DynamicData.For(self);
+
+            DreamBlock oldDreamBlock = data.Get<DreamBlock>("dreamBlock");
+            if (dreamBlock != oldDreamBlock && dreamBlock is ColliderDummy dummy)
+            {
+                dummy.DreamDashCollider.OnEnter?.Invoke(self);
+            }
+
+            return dreamBlock;
+        });
     }
 
     #endregion
