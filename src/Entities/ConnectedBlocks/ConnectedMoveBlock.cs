@@ -506,7 +506,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected void LoadCustomSounds(string customSoundEffectPath)
     {
-        static void LoadIfPresent(string sfxPath, ref string target)
+        static void LoadSfxIfPresent(string sfxPath, ref string target)
         {
             if (Audio.GetEventDescription(sfxPath) != null)
             {
@@ -524,10 +524,10 @@ public class ConnectedMoveBlock : ConnectedSolid
                 customSoundEffectPath = $"event:/{customSoundEffectPath}";
             }
 
-            LoadIfPresent($"{customSoundEffectPath}_activate", ref ActivateSoundEffect);
-            LoadIfPresent($"{customSoundEffectPath}_break", ref BreakSoundEffect);
-            LoadIfPresent($"{customSoundEffectPath}_reform_begin", ref ReformBeginSoundEffect);
-            LoadIfPresent($"{customSoundEffectPath}_reappear", ref ReappearSoundEffect);
+            LoadSfxIfPresent($"{customSoundEffectPath}_activate", ref ActivateSoundEffect);
+            LoadSfxIfPresent($"{customSoundEffectPath}_break", ref BreakSoundEffect);
+            LoadSfxIfPresent($"{customSoundEffectPath}_reform_begin", ref ReformBeginSoundEffect);
+            LoadSfxIfPresent($"{customSoundEffectPath}_reappear", ref ReappearSoundEffect);
         }
     }
 
