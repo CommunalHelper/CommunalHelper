@@ -506,6 +506,15 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected void LoadCustomSounds(string customSoundEffectPath)
     {
+        static void LoadIfPresent(string sfxPath, ref string target)
+        {
+            if (Audio.GetEventDescription(sfxPath) != null)
+            {
+                target = sfxPath;
+            }
+        }
+
+
         customSoundEffectPath = customSoundEffectPath.Trim().TrimEnd('/');
         if (!string.IsNullOrWhiteSpace(customSoundEffectPath))
         {
@@ -515,25 +524,10 @@ public class ConnectedMoveBlock : ConnectedSolid
                 customSoundEffectPath = $"event:/{customSoundEffectPath}";
             }
 
-            if (Audio.GetEventDescription($"{customSoundEffectPath}_activate") != null)
-            {
-                ActivateSoundEffect = $"{customSoundEffectPath}_activate";
-            }
-
-            if (Audio.GetEventDescription($"{customSoundEffectPath}_break") != null)
-            {
-                BreakSoundEffect = $"{customSoundEffectPath}_break";
-            }
-
-            if (Audio.GetEventDescription($"{customSoundEffectPath}_reform_begin") != null)
-            {
-                ReformBeginSoundEffect = $"{customSoundEffectPath}_reform_begin";
-            }
-
-            if (Audio.GetEventDescription($"{customSoundEffectPath}_reappear") != null)
-            {
-                ReappearSoundEffect = $"{customSoundEffectPath}_reappear";
-            }
+            LoadIfPresent($"{customSoundEffectPath}_activate", ref ActivateSoundEffect);
+            LoadIfPresent($"{customSoundEffectPath}_break", ref BreakSoundEffect);
+            LoadIfPresent($"{customSoundEffectPath}_reform_begin", ref ReformBeginSoundEffect);
+            LoadIfPresent($"{customSoundEffectPath}_reappear", ref ReappearSoundEffect);
         }
     }
 
