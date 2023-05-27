@@ -55,67 +55,6 @@ public class ConnectedMoveBlock : ConnectedSolid
         Breaking
     }
 
-    protected class DynamicSoundEffect
-    {
-        private string _soundEffectPath;
-        public string SoundEffectPath
-        {
-            get { return _soundEffectPath; }
-        }
-
-        public readonly string SoundEffectAction;
-
-        public DynamicSoundEffect(string soundEffectPath)
-        {
-            int lastUnderscoreIndex = soundEffectPath.LastIndexOf('_');
-            if (lastUnderscoreIndex == -1)
-            {
-                throw new Exception($"Supplied sound effect path '{soundEffectPath}' didn't contain an '_' to derive an soundEffectAction from.");
-            }
-
-            SoundEffectAction = soundEffectPath.Substring(lastUnderscoreIndex + 1);
-
-            if (!TryLoadNewSoundEffect(soundEffectPath))
-            {
-                _soundEffectPath = SFX.NONE;
-            }
-
-        }
-
-        public DynamicSoundEffect(string soundEffectPrefix, string soundEffectAction) : this(BuildSoundEffectPath(soundEffectPrefix, soundEffectAction)) { }
-
-        public void LoadNewSoundEffectPrefix(string soundEffectPrefix)
-        {
-            if (!TryLoadNewSoundEffectPrefix(soundEffectPrefix))
-            {
-                Util.Log($"Failed to load {SoundEffectAction} from {BuildSoundEffectPath(soundEffectPrefix, SoundEffectAction)}, 'SoundEffectPath' unchanged from '{SoundEffectPath}'.");
-            }
-        }
-
-        public bool TryLoadNewSoundEffectPrefix(string soundEffectPrefix)
-        {
-            return TryLoadNewSoundEffect(BuildSoundEffectPath(soundEffectPrefix, SoundEffectAction));
-        }
-
-        private bool TryLoadNewSoundEffect(string soundEffectPath)
-        {
-            if (Audio.GetEventDescription(soundEffectPath) != null)
-            {
-                _soundEffectPath = soundEffectPath;
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private static string BuildSoundEffectPath(string soundEffectPrefix, string soundEffectAction)
-        {
-            return $"{soundEffectPrefix}_{soundEffectAction}";
-        }
-    }
-
     public MovementState State;
 
     public MoveBlockGroup Group { get; internal set; }
@@ -133,10 +72,10 @@ public class ConnectedMoveBlock : ConnectedSolid
     protected List<MTexture> arrows;
 
     //Custom Sound support
-    protected DynamicSoundEffect ActivateSoundEffect = new(SFX.game_04_arrowblock_activate);
-    protected DynamicSoundEffect BreakSoundEffect = new(SFX.game_04_arrowblock_break);
-    protected DynamicSoundEffect ReformBeginSoundEffect = new(SFX.game_04_arrowblock_reform_begin);
-    protected DynamicSoundEffect ReappearSoundEffect = new(SFX.game_04_arrowblock_reappear);
+    protected string ActivateSoundEffect = SFX.game_04_arrowblock_activate;
+    protected string BreakSoundEffect = SFX.game_04_arrowblock_break;
+    protected string ReformBeginSoundEffect = SFX.game_04_arrowblock_reform_begin;
+    protected string ReappearSoundEffect = SFX.game_04_arrowblock_reappear;
 
     //ColorModifiers added to entityData constructor.
     protected readonly Color idleBgFill = Calc.HexToColor("474070");
@@ -254,21 +193,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         }
         GFX.Game.PopFallback();
 
-        string customSoundEffectPath = data.Attr("customSoundEffect").Trim().TrimEnd('/').TrimEnd('_');
-        if (!string.IsNullOrWhiteSpace(customSoundEffectPath))
-        {
-            if (!customSoundEffectPath.StartsWith("event:/"))
-            {
-                customSoundEffectPath = customSoundEffectPath.TrimStart('/');
-                customSoundEffectPath = $"event:/{customSoundEffectPath}";
-            }
-
-            ActivateSoundEffect.LoadNewSoundEffectPrefix(customSoundEffectPath);
-            BreakSoundEffect.LoadNewSoundEffectPrefix(customSoundEffectPath);
-            ReformBeginSoundEffect.LoadNewSoundEffectPrefix(customSoundEffectPath);
-            ReappearSoundEffect.LoadNewSoundEffectPrefix(customSoundEffectPath);
-        }
-
+        LoadCustomSounds(data.Attr("customSoundEffect"));
 
         ActivatorFlags.AddRange(data.Attr("activatorFlags", "_pressed").Split('|').Select(l => l.Split(',').ToList()));
         BreakerFlags.AddRange(data.Attr("breakerFlags", "_obstructed").Split('|').Select(l => l.Split(',').ToList()));
@@ -339,7 +264,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 GroupSignal = false; // reset
             }
 
-            Audio.Play(ActivateSoundEffect.SoundEffectPath, Position);
+            Audio.Play(ActivateSoundEffect, Position);
             State = MovementState.Moving;
             StartShaking(0.2f);
             ActivateParticles();
@@ -435,7 +360,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 yield return null;
             }
 
-            Audio.Play(BreakSoundEffect.SoundEffectPath, Position);
+            Audio.Play(BreakSoundEffect, Position);
             moveSfx.Stop();
             State = MovementState.Breaking;
             speed = targetSpeed = 0f;
@@ -521,7 +446,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             }
 
             Collidable = true;
-            EventInstance instance = Audio.Play(ReformBeginSoundEffect.SoundEffectPath, debris[0].Position);
+            EventInstance instance = Audio.Play(ReformBeginSoundEffect, debris[0].Position);
             Coroutine component;
             Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(instance, debris));
             Add(component);
@@ -545,7 +470,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
             CheckGroupRespawn = false;
         Rebuild:
-            Audio.Play(ReappearSoundEffect.SoundEffectPath, Position);
+            Audio.Play(ReappearSoundEffect, Position);
             Visible = true;
             Collidable = true;
             EnableStaticMovers();
@@ -576,6 +501,39 @@ public class ConnectedMoveBlock : ConnectedSolid
             zero /= debris.Count;
             Audio.Position(instance, zero);
             yield return null;
+        }
+    }
+
+    protected void LoadCustomSounds(string customSoundEffectPath)
+    {
+        customSoundEffectPath = customSoundEffectPath.Trim().TrimEnd('/');
+        if (!string.IsNullOrWhiteSpace(customSoundEffectPath))
+        {
+            if (!customSoundEffectPath.StartsWith("event:/"))
+            {
+                customSoundEffectPath = customSoundEffectPath.TrimStart('/');
+                customSoundEffectPath = $"event:/{customSoundEffectPath}";
+            }
+
+            if (Audio.GetEventDescription($"{customSoundEffectPath}_activate") != null)
+            {
+                ActivateSoundEffect = $"{customSoundEffectPath}_activate";
+            }
+
+            if (Audio.GetEventDescription($"{customSoundEffectPath}_break") != null)
+            {
+                BreakSoundEffect = $"{customSoundEffectPath}_break";
+            }
+
+            if (Audio.GetEventDescription($"{customSoundEffectPath}_reform_begin") != null)
+            {
+                ReformBeginSoundEffect = $"{customSoundEffectPath}_reform_begin";
+            }
+
+            if (Audio.GetEventDescription($"{customSoundEffectPath}_reappear") != null)
+            {
+                ReappearSoundEffect = $"{customSoundEffectPath}_reappear";
+            }
         }
     }
 
