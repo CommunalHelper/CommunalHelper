@@ -57,13 +57,13 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected class DynamicSoundEffect
     {
-        private string _soundEffect;
+        private string _soundEffectPath;
         public string SoundEffectPath
         {
-            get { return _soundEffect; }
+            get { return _soundEffectPath; }
         }
 
-        public readonly string soundEffectAction;
+        public readonly string SoundEffectAction;
 
         public DynamicSoundEffect(string soundEffectPath)
         {
@@ -73,11 +73,11 @@ public class ConnectedMoveBlock : ConnectedSolid
                 throw new Exception($"Supplied sound effect path '{soundEffectPath}' didn't contain an '_' to derive an soundEffectAction from.");
             }
 
-            soundEffectAction = soundEffectPath.Substring(lastUnderscoreIndex + 1);
+            SoundEffectAction = soundEffectPath.Substring(lastUnderscoreIndex + 1);
 
             if (!TryLoadNewSoundEffect(soundEffectPath))
             {
-                _soundEffect = SFX.NONE;
+                _soundEffectPath = SFX.NONE;
             }
 
         }
@@ -88,20 +88,20 @@ public class ConnectedMoveBlock : ConnectedSolid
         {
             if (!TryLoadNewSoundEffectPrefix(soundEffectPrefix))
             {
-                Util.Log($"Failed to load {soundEffectAction} from {BuildSoundEffectPath(soundEffectPrefix, soundEffectAction)}, 'SoundEffectPath' unchanged from '{SoundEffectPath}'.");
+                Util.Log($"Failed to load {SoundEffectAction} from {BuildSoundEffectPath(soundEffectPrefix, SoundEffectAction)}, 'SoundEffectPath' unchanged from '{SoundEffectPath}'.");
             }
         }
 
         public bool TryLoadNewSoundEffectPrefix(string soundEffectPrefix)
         {
-            return TryLoadNewSoundEffect(BuildSoundEffectPath(soundEffectPrefix, soundEffectAction));
+            return TryLoadNewSoundEffect(BuildSoundEffectPath(soundEffectPrefix, SoundEffectAction));
         }
 
         private bool TryLoadNewSoundEffect(string soundEffectPath)
         {
             if (Audio.GetEventDescription(soundEffectPath) != null)
             {
-                _soundEffect = soundEffectPath;
+                _soundEffectPath = soundEffectPath;
                 return true;
             }
             else
