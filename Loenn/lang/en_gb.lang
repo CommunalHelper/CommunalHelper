@@ -354,6 +354,7 @@ entities.CommunalHelper/ConnectedMoveBlock.placements.name.flag_controlled=Conne
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.moveSpeed=The speed at which the block moves (accepts any number).
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.direction=The direction in which the Connected Move Block should travel.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.customBlockTexture=The path to the custom texture for the Connected Block, starting from Graphics/Atlases/Gameplay/objects/. A template is provided in Mods/CommunalHelper/Graphics/Atlases/Gameplay/objects/CommunalHelper/customConnectedBlock. The filename should NOT include the file extension (.png).\nFor adding arrow textures, name the texture for tiles "tileset.png", the arrow textures "arrowXX.png" (00 thru 08), and the breaking "X" sprite as "x.png".
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.customSoundEffect=The path to the custom sound effect for the Connected Block.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.idleColor=The color of the arrow when not moving.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.pressedColor=The color of the arrow when moving.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.

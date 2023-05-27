@@ -54,6 +54,68 @@ public class ConnectedMoveBlock : ConnectedSolid
         Moving,
         Breaking
     }
+
+    protected class DynamicSoundEffect
+    {
+        private string _soundEffect;
+        public string SoundEffectPath
+        {
+            get { return _soundEffect; }
+        }
+
+        public readonly string soundEffectAction;
+
+        public DynamicSoundEffect(string soundEffectPath)
+        {
+            int lastUnderscoreIndex = soundEffectPath.LastIndexOf('_');
+            if (lastUnderscoreIndex == -1)
+            {
+                throw new Exception($"Supplied sound effect path '{soundEffectPath}' didn't contain an '_' to derive an soundEffectAction from.");
+            }
+
+            soundEffectAction = soundEffectPath.Substring(lastUnderscoreIndex + 1);
+
+            if (!TryLoadNewSoundEffect(soundEffectPath))
+            {
+                _soundEffect = SFX.NONE;
+            }
+
+        }
+
+        public DynamicSoundEffect(string soundEffectPrefix, string soundEffectAction) : this(BuildSoundEffectPath(soundEffectPrefix, soundEffectAction)) { }
+
+        public void LoadNewSoundEffectPrefix(string soundEffectPrefix)
+        {
+            if (!TryLoadNewSoundEffectPrefix(soundEffectPrefix))
+            {
+                Util.Log($"Failed to load {soundEffectAction} from {BuildSoundEffectPath(soundEffectPrefix, soundEffectAction)}, 'SoundEffectPath' unchanged from '{SoundEffectPath}'.");
+            }
+        }
+
+        public bool TryLoadNewSoundEffectPrefix(string soundEffectPrefix)
+        {
+            return TryLoadNewSoundEffect(BuildSoundEffectPath(soundEffectPrefix, soundEffectAction));
+        }
+
+        private bool TryLoadNewSoundEffect(string soundEffectPath)
+        {
+            if (Audio.GetEventDescription(soundEffectPath) != null)
+            {
+                _soundEffect = soundEffectPath;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static string BuildSoundEffectPath(string soundEffectPrefix, string soundEffectAction)
+        {
+            return $"{soundEffectPrefix}_{soundEffectAction}";
+        }
+    }
+
     public MovementState State;
 
     public MoveBlockGroup Group { get; internal set; }
@@ -69,6 +131,12 @@ public class ConnectedMoveBlock : ConnectedSolid
     protected bool customTexture;
     protected Tuple<MTexture[,], MTexture[,]> tiles;
     protected List<MTexture> arrows;
+
+    //Custom Sound support
+    protected DynamicSoundEffect ActivateSoundEffect = new(SFX.game_04_arrowblock_activate);
+    protected DynamicSoundEffect BreakSoundEffect = new(SFX.game_04_arrowblock_break);
+    protected DynamicSoundEffect ReformBeginSoundEffect = new(SFX.game_04_arrowblock_reform_begin);
+    protected DynamicSoundEffect ReappearSoundEffect = new(SFX.game_04_arrowblock_reappear);
 
     //ColorModifiers added to entityData constructor.
     protected readonly Color idleBgFill = Calc.HexToColor("474070");
@@ -130,27 +198,27 @@ public class ConnectedMoveBlock : ConnectedSolid
         pressedBgFill = Util.TryParseColor(data.Attr("pressedColor", "30b335"));
         breakingBgFill = Util.TryParseColor(data.Attr("breakColor", "cc2541"));
         fillColor = idleBgFill;
-        string customPath = data.Attr("customBlockTexture").Trim().TrimEnd('/');
+        string customTexturePath = data.Attr("customBlockTexture").Trim().TrimEnd('/');
         GFX.Game.PushFallback(null);
-        customTexture = !string.IsNullOrWhiteSpace(customPath);
+        customTexture = !string.IsNullOrWhiteSpace(customTexturePath);
         if (customTexture)
         {
             string temp;
-            if (!GFX.Game.Has("objects/" + customPath))
+            if (!GFX.Game.Has("objects/" + customTexturePath))
             {
-                if (GFX.Game["objects/" + customPath + "/tileset"] == null)
+                if (GFX.Game["objects/" + customTexturePath + "/tileset"] == null)
                 {
-                    throw new Exception($"No valid tileset found, searched @ objects/{customPath}.png & objects/{customPath}/tileset.png\nFor custom arrow textures, use 'objects/{customPath}/arrow', 'objects/{customPath}/tileset' for tiles, and 'objects/{customPath}/x.png' for the breaking X sprite.");
+                    throw new Exception($"No valid tileset found, searched @ objects/{customTexturePath}.png & objects/{customTexturePath}/tileset.png\nFor custom arrow textures, use 'objects/{customTexturePath}/arrow', 'objects/{customTexturePath}/tileset' for tiles, and 'objects/{customTexturePath}/x.png' for the breaking X sprite.");
                 }
 
-                arrows = GFX.Game.GetAtlasSubtextures("objects/" + customPath + "/arrow");
+                arrows = GFX.Game.GetAtlasSubtextures("objects/" + customTexturePath + "/arrow");
                 if (arrows.Count != 8)
                 {
                     Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                     arrows = null;
                 }
-                temp = customPath + "/tileset";
-                xTexture = GFX.Game[$"objects/{customPath}/x"];
+                temp = customTexturePath + "/tileset";
+                xTexture = GFX.Game[$"objects/{customTexturePath}/x"];
                 if (xTexture == null)
                 {
                     Util.Log("No breaking texture found, defaulting to normal");
@@ -160,7 +228,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             else
             {
                 List<string> temp1 = new();
-                temp1.AddRange(customPath.Split('/'));
+                temp1.AddRange(customTexturePath.Split('/'));
                 temp1.RemoveAt(temp1.Count - 1);
                 string temp2 = string.Join("/", temp1);
                 arrows = GFX.Game.GetAtlasSubtextures("objects/" + temp2 + "/arrow");
@@ -169,7 +237,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                     Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                     arrows = null;
                 }
-                temp = customPath;
+                temp = customTexturePath;
                 xTexture = GFX.Game[$"objects/{temp2}/x"];
                 if (xTexture == null)
                 {
@@ -185,6 +253,22 @@ public class ConnectedMoveBlock : ConnectedSolid
             xTexture = GFX.Game["objects/moveBlock/x"];
         }
         GFX.Game.PopFallback();
+
+        string customSoundEffectPath = data.Attr("customSoundEffect").Trim().TrimEnd('/').TrimEnd('_');
+        if (!string.IsNullOrWhiteSpace(customSoundEffectPath))
+        {
+            if (!customSoundEffectPath.StartsWith("event:/"))
+            {
+                customSoundEffectPath = customSoundEffectPath.TrimStart('/');
+                customSoundEffectPath = $"event:/{customSoundEffectPath}";
+            }
+
+            ActivateSoundEffect.LoadNewSoundEffectPrefix(customSoundEffectPath);
+            BreakSoundEffect.LoadNewSoundEffectPrefix(customSoundEffectPath);
+            ReformBeginSoundEffect.LoadNewSoundEffectPrefix(customSoundEffectPath);
+            ReappearSoundEffect.LoadNewSoundEffectPrefix(customSoundEffectPath);
+        }
+
 
         ActivatorFlags.AddRange(data.Attr("activatorFlags", "_pressed").Split('|').Select(l => l.Split(',').ToList()));
         BreakerFlags.AddRange(data.Attr("breakerFlags", "_obstructed").Split('|').Select(l => l.Split(',').ToList()));
@@ -255,7 +339,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 GroupSignal = false; // reset
             }
 
-            Audio.Play(SFX.game_04_arrowblock_activate, Position);
+            Audio.Play(ActivateSoundEffect.SoundEffectPath, Position);
             State = MovementState.Moving;
             StartShaking(0.2f);
             ActivateParticles();
@@ -351,7 +435,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 yield return null;
             }
 
-            Audio.Play(SFX.game_04_arrowblock_break, Position);
+            Audio.Play(BreakSoundEffect.SoundEffectPath, Position);
             moveSfx.Stop();
             State = MovementState.Breaking;
             speed = targetSpeed = 0f;
@@ -437,7 +521,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             }
 
             Collidable = true;
-            EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
+            EventInstance instance = Audio.Play(ReformBeginSoundEffect.SoundEffectPath, debris[0].Position);
             Coroutine component;
             Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(instance, debris));
             Add(component);
@@ -461,7 +545,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
             CheckGroupRespawn = false;
         Rebuild:
-            Audio.Play(SFX.game_04_arrowblock_reappear, Position);
+            Audio.Play(ReappearSoundEffect.SoundEffectPath, Position);
             Visible = true;
             Collidable = true;
             EnableStaticMovers();
@@ -705,8 +789,10 @@ public class ConnectedMoveBlock : ConnectedSolid
         }
 
         // Allow this block to be redirected by MoveBlockRedirects if it has a single rectangular collider.
-        if (Colliders.Length == 1) {
-            Add(new MoveBlockRedirectable(new DynamicData(this)) {
+        if (Colliders.Length == 1)
+        {
+            Add(new MoveBlockRedirectable(new DynamicData(this))
+            {
                 Get_CanSteer = () => false,
                 Get_Direction = () => Direction,
                 Set_Direction = dir => Direction = dir,
