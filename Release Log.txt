@@ -1,3 +1,6 @@
+--1.17.4 (21/06/2023)--
+* Fixed settings not showing savedata value for AlwaysActiveDreamRefillCharge.
+
 --1.17.3 (29/05/2023)--
 * Add custom sound options to Connected Move Blocks.
 
