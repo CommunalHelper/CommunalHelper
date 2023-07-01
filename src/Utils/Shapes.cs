@@ -9,7 +9,7 @@ internal class Shapes
 
     public static Mesh<VertexPositionColorTexture> Box(float sx, float sy, float sz, MTexture back, MTexture front, MTexture left, MTexture right, MTexture top, MTexture bottom)
     {
-        Mesh<VertexPositionColorTexture> mesh = new(null);
+        Mesh<VertexPositionColorTexture> mesh = new();
 
         sx /= 2f;
         sy /= 2f;

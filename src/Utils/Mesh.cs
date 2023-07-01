@@ -41,17 +41,6 @@ public class Mesh<T> : IDisposable where T : struct, IVertexType
     /// </summary>
     public bool Baked { get; private set; }
 
-    private readonly Effect effect;
-
-    /// <summary>
-    /// Creates a new mesh.
-    /// </summary>
-    /// <param name="effect">The effect used to draw vertices.</param>
-    public Mesh(Effect effect)
-    {
-        this.effect = effect;
-    }
-
     /// <summary>
     /// Adds a single vertex to this mesh.<br/>
     /// This can only be done if the mesh is unbaked.
@@ -116,7 +105,7 @@ public class Mesh<T> : IDisposable where T : struct, IVertexType
     /// This can only be done if the mesh is baked.
     /// </summary>
     /// <param name="matrix"></param>
-    public void Celeste_DrawVertices(Matrix? matrix = null)
+    public void Celeste_DrawVertices(Effect effect, Matrix? matrix = null)
     {
         if (!Baked)
             throw new InvalidOperationException("A mesh must be baked in order for its vertices to be drawn!");
