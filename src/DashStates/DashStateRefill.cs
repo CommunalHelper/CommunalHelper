@@ -21,7 +21,7 @@ public abstract class DashStateRefill : Refill
     protected DashStateRefill(EntityData data, Vector2 offset)
         : base(data, offset)
     {
-        baseData = DynamicData.For(this);
+        baseData = new(typeof(Refill), this);
 
         respawnTime = data.Float("respawnTime", 2.5f); // default is 2.5 sec.
 
