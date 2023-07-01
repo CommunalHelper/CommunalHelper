@@ -14,6 +14,11 @@ public static class CommunalHelperGFX
 
     public static XmlElement CustomPlayerFrameMetadata { get; private set; }
 
+    public static Texture2D Blank { get; private set; }
+
+    public static Effect PCTN_MRT { get; private set; }
+    public static Effect PCTN_COMPOSE { get; private set; }
+
     internal static void LoadContent()
     {
         SpriteBank = new SpriteBank(GFX.Game, "Graphics/CommunalHelper/Sprites.xml");
@@ -22,6 +27,12 @@ public static class CommunalHelperGFX
         CloudscapeShader = LoadShader("cloudscape");
 
         CustomPlayerFrameMetadata = Everest.Content.Map["CommunalHelper:/Graphics/CommunalHelper/CustomPlayerFrameMetadata"].LoadXML()["Metadata"];
+
+        Blank = new Texture2D(Engine.Graphics.GraphicsDevice, 1, 1);
+        Blank.SetData(new Color[] { Color.White });
+
+        PCTN_MRT = LoadShader("3d_pctn_mrt");
+        PCTN_COMPOSE = LoadShader("3d_pctn_compose");
     }
 
     internal static void Load()
