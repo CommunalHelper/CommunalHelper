@@ -19,12 +19,12 @@ internal class MultiDashHeartGem : HeartGem
     private int health = 3;
     private readonly string[] cutscenes = new string[3];
 
-    private readonly DynData<HeartGem> baseData;
+    private readonly DynamicData baseData;
 
     public MultiDashHeartGem(EntityData data, Vector2 offset)
         : base(data, offset)
     {
-        baseData = new DynData<HeartGem>(this);
+        baseData = new(typeof(HeartGem), this);
 
         // Load cutscene ids
         string cutsceneList = data.Attr("cutscenes");
@@ -83,12 +83,12 @@ internal class MultiDashHeartGem : HeartGem
                         if (gem.baseData.Get<float>("bounceSfxDelay") <= 0f)
                         {
                             Audio.Play(SFX.game_gen_crystalheart_bounce, gem.Position);
-                            gem.baseData["bounceSfxDelay"] = 0.1f;
+                            gem.baseData.Set("bounceSfxDelay", 0.1f);
                         }
                         player.PointBounce(self.Center);
                         gem.baseData.Get<Wiggler>("moveWiggler").Start();
                         gem.ScaleWiggler.Start();
-                        gem.baseData["moveWiggleDir"] = (gem.Center - player.Center).SafeNormalize(Vector2.UnitY);
+                        gem.baseData.Set("moveWiggleDir", (gem.Center - player.Center).SafeNormalize(Vector2.UnitY));
                         Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                     }
                     Console.WriteLine(gem.health);
@@ -115,12 +115,12 @@ internal class MultiDashHeartGem : HeartGem
                     if (gem.baseData.Get<float>("bounceSfxDelay") <= 0f)
                     {
                         Audio.Play(SFX.game_gen_crystalheart_bounce, gem.Position);
-                        gem.baseData["bounceSfxDelay"] = 0.1f;
+                        gem.baseData.Set("bounceSfxDelay", 0.1f);
                     }
                     h.PointBounce(self.Center);
                     gem.baseData.Get<Wiggler>("moveWiggler").Start();
                     gem.ScaleWiggler.Start();
-                    gem.baseData["moveWiggleDir"] = (gem.Center - player.Center).SafeNormalize(Vector2.UnitY);
+                    gem.baseData.Set("moveWiggleDir", (gem.Center - player.Center).SafeNormalize(Vector2.UnitY));
                     Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 }
                 else

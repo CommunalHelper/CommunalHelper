@@ -104,14 +104,14 @@ public class MoveSwapBlock : SwapBlock
     private Vector2 moveLiftSpeed;
     protected new Vector2 LiftSpeed => moveLiftSpeed + swapLiftSpeed;
 
-    protected DynData<SwapBlock> swapBlockData;
+    protected DynamicData swapBlockData;
 
     private readonly Chooser<MTexture> debrisTextures;
 
     public MoveSwapBlock(EntityData data, Vector2 offset)
         : base(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, Themes.Normal)
     {
-        swapBlockData = new DynData<SwapBlock>(this);
+        swapBlockData = new(typeof(SwapBlock), this);
         Theme = Themes.Moon; // base() gets Normal for the block texture, then we set to Moon to remove the path background
 
         doesReturn = data.Bool("returns", true);
@@ -138,7 +138,7 @@ public class MoveSwapBlock : SwapBlock
         // Structs are value types
         startingRect = swapBlockData.Get<Rectangle>("moveRect");
 
-        swapBlockData["maxForwardSpeed"] = maxForwardSpeed = 360f * data.Float("swapSpeedMultiplier", 1f) / Vector2.Distance(start, end);
+        swapBlockData.Set("maxForwardSpeed", maxForwardSpeed = 360f * data.Float("swapSpeedMultiplier", 1f) / Vector2.Distance(start, end));
         startPosition = Position;
 
         // Replace/Add SwapBlock textures
@@ -148,8 +148,8 @@ public class MoveSwapBlock : SwapBlock
         middleArrow.CenterOrigin();
 
         Remove(swapBlockData.Get<Sprite>("middleGreen"), swapBlockData.Get<Sprite>("middleRed"));
-        swapBlockData["middleGreen"] = middleGreen = CommunalHelperGFX.SpriteBank.Create("swapBlockLight");
-        swapBlockData["middleRed"] = middleRed = CommunalHelperGFX.SpriteBank.Create("swapBlockLightRed");
+        swapBlockData.Set("middleGreen", middleGreen = CommunalHelperGFX.SpriteBank.Create("swapBlockLight"));
+        swapBlockData.Set("middleRed", middleRed = CommunalHelperGFX.SpriteBank.Create("swapBlockLightRed"));
         Add(middleGreen, middleRed);
 
         Add(middleOrange = new Image(GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockOrange"]));
@@ -223,7 +223,7 @@ public class MoveSwapBlock : SwapBlock
         }
 
         int target = swapBlockData.Get<int>("target");
-        swapBlockData["redAlpha"] = Calc.Approach(swapBlockData.Get<float>("redAlpha"), (target != 1) ? 1 : 0, Engine.DeltaTime * 32f);
+        swapBlockData.Set("redAlpha", Calc.Approach(swapBlockData.Get<float>("redAlpha"), (target != 1) ? 1 : 0, Engine.DeltaTime * 32f));
 
         float lerp = swapBlockData.Get<float>("lerp");
         if (lerp is 0f or 1f)
@@ -232,12 +232,12 @@ public class MoveSwapBlock : SwapBlock
             middleGreen.SetAnimationFrame(0);
         }
 
-        swapBlockData["speed"] = Calc.Approach(swapBlockData.Get<float>("speed"), maxForwardSpeed, maxForwardSpeed / 0.2f * Engine.DeltaTime);
+        swapBlockData.Set("speed", Calc.Approach(swapBlockData.Get<float>("speed"), maxForwardSpeed, maxForwardSpeed / 0.2f * Engine.DeltaTime));
 
         Direction = difference * (target == 0 && Swapping ? -1 : 1);
 
         float previousLerp = lerp;
-        swapBlockData["lerp"] = lerp = Calc.Approach(lerp, target, swapBlockData.Get<float>("speed") * Engine.DeltaTime);
+        swapBlockData.Set("lerp", lerp = Calc.Approach(lerp, target, swapBlockData.Get<float>("speed") * Engine.DeltaTime));
         if (lerp != previousLerp)
         {
             Vector2 liftSpeed = difference * maxForwardSpeed;
@@ -283,16 +283,16 @@ public class MoveSwapBlock : SwapBlock
     {
         float lerp = swapBlockData.Get<float>("lerp");
         Swapping = lerp is <= 1f and >= 0f;
-        swapBlockData["target"] = swapBlockData.Get<int>("target") ^ 1;
-        swapBlockData["burst"] = (Scene as Level).Displacement.AddBurst(Center, 0.2f, 0f, 16f);
-        swapBlockData["speed"] = lerp >= 0.2f ? maxForwardSpeed : (object) MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, lerp / 0.2f);
+        swapBlockData.Set("target", swapBlockData.Get<int>("target") ^ 1);
+        swapBlockData.Set("burst", (Scene as Level).Displacement.AddBurst(Center, 0.2f, 0f, 16f));
+        swapBlockData.Set("speed", lerp >= 0.2f ? maxForwardSpeed : (object) MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, lerp / 0.2f));
 
         Audio.Stop(swapBlockData.Get<EventInstance>("returnSfx"));
         Audio.Stop(swapBlockData.Get<EventInstance>("moveSfx"));
         if (!Swapping)
-            swapBlockData["returnSfx"] = Audio.Play(SFX.game_05_swapblock_move_end, Center);
+            swapBlockData.Set("returnSfx", Audio.Play(SFX.game_05_swapblock_move_end, Center));
         else
-            swapBlockData["moveSfx"] = Audio.Play(SFX.game_05_swapblock_move, Center);
+            swapBlockData.Set("moveSfx", Audio.Play(SFX.game_05_swapblock_move, Center));
     }
 
     private void MoveParticles(Vector2 normal)
@@ -417,10 +417,10 @@ public class MoveSwapBlock : SwapBlock
                     moveRect = swapBlockData.Get<Rectangle>("moveRect");
                     moveRect.X = (int) Math.Min(start.X, end.X);
                     moveRect.Y = (int) Math.Min(start.Y, end.Y);
-                    swapBlockData["moveRect"] = moveRect;
+                    swapBlockData.Set("moveRect", moveRect);
 
-                    swapBlockData["start"] = start;
-                    swapBlockData["end"] = end;
+                    swapBlockData.Set("start", start);
+                    swapBlockData.Set("end", end);
 
                     if (shouldBreak)
                     {
@@ -483,10 +483,10 @@ public class MoveSwapBlock : SwapBlock
             DisableStaticMovers();
 
             // Reset everything
-            swapBlockData["moveRect"] = startingRect;
+            swapBlockData.Set("moveRect", startingRect);
 
-            swapBlockData["start"] = start = startPosition;
-            swapBlockData["end"] = end = startPosition + difference;
+            swapBlockData.Set("start", start = startPosition);
+            swapBlockData.Set("end", end = startPosition + difference);
             Position = startPosition;
 
             Audio.Stop(swapBlockData.Get<EventInstance>("returnSfx"));
@@ -527,10 +527,10 @@ public class MoveSwapBlock : SwapBlock
                 debris.RemoveSelf();
             }
 
-            swapBlockData["target"] = 0;
-            swapBlockData["lerp"] = 0f;
-            swapBlockData["returnTimer"] = 0f;
-            swapBlockData["speed"] = 0f;
+            swapBlockData.Set("target", 0);
+            swapBlockData.Set("lerp", 0.0f);
+            swapBlockData.Set("returnTimer", 0.0f);
+            swapBlockData.Set("speed", 0.0f);
             Swapping = false;
 
             Audio.Play(SFX.game_04_arrowblock_reappear, Position);

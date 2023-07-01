@@ -183,7 +183,7 @@ public class AttachedWallBooster : WallBooster
     private static WallBooster Player_WallBoosterCheck(On.Celeste.Player.orig_WallBoosterCheck orig, Player self)
     {
         WallBooster entity = orig(self);
-        self.GetData()[Player_lastWallBooster] = entity;
+        self.GetData().Set(Player_lastWallBooster, entity);
         return entity;
     }
 
@@ -191,19 +191,19 @@ public class AttachedWallBooster : WallBooster
     {
         orig(self, position, spriteMode);
 
-        DynData<Player> data = self.GetData();
-        data[Player_attachedWallBoosterCurrentSpeed] = 0f;
-        data[Player_attachedWallBoosterLiftSpeedTimer] = 0f;
+        DynamicData data = self.GetData();
+        data.Set(Player_attachedWallBoosterCurrentSpeed, 0f);
+        data.Set(Player_attachedWallBoosterLiftSpeedTimer, 0f);
     }
 
     private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self)
     {
         orig(self);
 
-        DynData<Player> data = self.GetData();
-        float timer = (float) data[Player_attachedWallBoosterLiftSpeedTimer];
+        DynamicData data = self.GetData();
+        float timer = data.Get<float>(Player_attachedWallBoosterLiftSpeedTimer);
         if (timer > 0)
-            data[Player_attachedWallBoosterLiftSpeedTimer] = Calc.Approach(timer, 0f, Engine.DeltaTime);
+            data.Set(Player_attachedWallBoosterLiftSpeedTimer, Calc.Approach(timer, 0f, Engine.DeltaTime));
     }
 
     private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
@@ -220,10 +220,10 @@ public class AttachedWallBooster : WallBooster
 
     private static void PlayerWallBoost(Player player)
     {
-        DynData<Player> data = player.GetData();
+        DynamicData data = player.GetData();
 
-        float timer = (float) data[Player_attachedWallBoosterLiftSpeedTimer];
-        float currentSpeed = (float) data[Player_attachedWallBoosterCurrentSpeed];
+        float timer = data.Get<float>(Player_attachedWallBoosterLiftSpeedTimer);
+        float currentSpeed = data.Get<float>(Player_attachedWallBoosterCurrentSpeed);
 
         /*
          * So...
@@ -239,19 +239,20 @@ public class AttachedWallBooster : WallBooster
          * 
          * Wall booster boosts now work with moving blocks.
          */
-        if (timer > 0 && currentSpeed < 0 && data[Player_lastWallBooster] is AttachedWallBooster wb && !wb.IceMode)
+        if (timer > 0 && currentSpeed < 0 && data.Get<WallBooster>(Player_lastWallBooster) is AttachedWallBooster wb && !wb.IceMode)
         {
             if (player.LiftSpeed.Y >= 0 || !wb.legacyBoost)
                 player.LiftSpeed += Vector2.UnitY * Calc.Max(currentSpeed, -80f);
 
-            data[Player_attachedWallBoosterCurrentSpeed] = data[Player_attachedWallBoosterLiftSpeedTimer] = 0f;
+            data.Set(Player_attachedWallBoosterCurrentSpeed, 0.0f);
+            data.Set(Player_attachedWallBoosterLiftSpeedTimer, 0.0f);
         }
     }
 
     private static void Player_ClimbBegin(On.Celeste.Player.orig_ClimbBegin orig, Player self)
     {
         orig(self);
-        self.GetData()[Player_attachedWallBoosterLiftSpeedTimer] = 0f;
+        self.GetData().Set(Player_attachedWallBoosterLiftSpeedTimer, 0.0f);
     }
 
     private static void Player_ClimbUpdate(ILContext il)
@@ -261,7 +262,7 @@ public class AttachedWallBooster : WallBooster
         cursor.GotoNext(instr => instr.MatchLdstr(SFX.char_mad_grab_letgo));
         cursor.GotoNext(MoveType.After, instr => instr.Match(OpCodes.Brfalse_S));
         cursor.Emit(OpCodes.Ldarg_0);
-        cursor.EmitDelegate<Action<Player>>(PlayerWallBoost);
+        cursor.EmitDelegate(PlayerWallBoost);
 
         cursor.GotoNext(instr => instr.MatchLdstr(SFX.game_09_conveyor_activate));
         cursor.GotoNext(instr => instr.MatchMul());
@@ -269,9 +270,9 @@ public class AttachedWallBooster : WallBooster
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.EmitDelegate<Action<Player>>(self =>
         {
-            DynData<Player> data = self.GetData();
-            data[Player_attachedWallBoosterCurrentSpeed] = self.Speed.Y;
-            data[Player_attachedWallBoosterLiftSpeedTimer] = .25f;
+            DynamicData data = self.GetData();
+            data.Set(Player_attachedWallBoosterCurrentSpeed, self.Speed.Y);
+            data.Set(Player_attachedWallBoosterLiftSpeedTimer, 0.25f);
         });
     }
 

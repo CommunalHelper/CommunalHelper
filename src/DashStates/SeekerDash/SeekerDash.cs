@@ -219,7 +219,7 @@ public static class SeekerDash
 
         self.Scene.Tracker.GetEntities<SeekerBarrier>().ForEach(e => e.Collidable = false);
 
-        DynData<Player> playerData = self.GetData();
+        DynamicData playerData = self.GetData();
 
         // launchPossible is a bad hack to fix wavedashing
         bool resetLaunchPossible = false;
@@ -394,7 +394,7 @@ public static class SeekerDash
     // Bop the seeker if SeekerAttacking, kill the seeker if player was launched from seekerdash
     private static void Seeker_OnAttackPlayer(On.Celeste.Seeker.orig_OnAttackPlayer orig, Seeker self, Player player)
     {
-        DynData<Seeker> seekerData = new(self);
+        DynamicData seekerData = DynamicData.For(self);
         int state = seekerData.Get<StateMachine>("State").State;
         if (SeekerAttacking)
         {
@@ -421,7 +421,7 @@ public static class SeekerDash
     {
         if (SeekerAttacking)
         {
-            DynData<AngryOshiro> oshiroData = new(self);
+            DynamicData oshiroData = DynamicData.For(self);
             Audio.Play(SFX.game_gen_thing_booped, self.Position);
             Celeste.Freeze(0.2f);
             player.Bounce(player.CenterY + 2f);
@@ -471,7 +471,7 @@ public static class SeekerDash
     /// <param name="onEnd">Action to perform on completion.</param>
     private static IEnumerator TrappedDash(this Player player, Entity barrier, Action onEnd = null)
     {
-        DynData<Player> playerData = player.GetData();
+        DynamicData playerData = player.GetData();
 
         player.Dashes = Math.Max(0, player.Dashes - 1);
         Input.Dash.ConsumeBuffer();
@@ -481,7 +481,7 @@ public static class SeekerDash
             Celeste.Freeze(0.05f);
         }
 
-        playerData["dashCooldownTimer"] = 0.2f;
+        playerData.Set("dashCooldownTimer", 0.2f);
         Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
         player.Speed = -Vector2.UnitY * 5f;
         yield return null;
@@ -494,7 +494,7 @@ public static class SeekerDash
         DisplacementRenderer.Burst burst = barrier.SceneAs<Level>().Displacement.AddBurst(player.Center, 0.8f, 8f, 64f, 0.5f, Ease.QuadOut, Ease.QuadOut);
         burst.WorldClipCollider = barrier.Collider;
 
-        player.DashDir = (Vector2) m_Player_CorrectDashPrecision.Invoke(player, new object[] { playerData["lastAim"] });
+        player.DashDir = (Vector2) m_Player_CorrectDashPrecision.Invoke(player, new object[] { playerData.Get<Vector2>("lastAim") });
 
         player.SceneAs<Level>().DirectionalShake(player.DashDir, 0.2f);
         m_Player_CallDashEvents.Invoke(player, null);

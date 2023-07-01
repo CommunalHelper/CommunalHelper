@@ -9,7 +9,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 
 public abstract class CustomBooster : Booster
 {
-    protected DynData<Booster> BoosterData;
+    protected DynamicData BoosterData;
 
     public ParticleType P_CustomAppear, P_CustomBurst;
 
@@ -26,7 +26,7 @@ public abstract class CustomBooster : Booster
     public CustomBooster(Vector2 position, bool redBoost)
         : base(position, redBoost)
     {
-        BoosterData = new DynData<Booster>(this);
+        BoosterData = DynamicData.For(this);
 
         P_CustomAppear = P_Appear;
         P_CustomBurst = redBoost ? P_BurstRed : P_Burst;
@@ -36,16 +36,16 @@ public abstract class CustomBooster : Booster
     {
         Sprite oldSprite = BoosterData.Get<Sprite>("sprite");
         Remove(oldSprite);
-        BoosterData["sprite"] = newSprite;
+        BoosterData.Set("sprite", newSprite);
         Add(newSprite);
     }
 
     protected void SetParticleColors(Color burstColor, Color appearColor)
     {
-        BoosterData["particleType"] = P_CustomBurst = new ParticleType(P_Burst)
+        BoosterData.Set("particleType", P_CustomBurst = new ParticleType(P_Burst)
         {
             Color = burstColor
-        };
+        });
         P_CustomAppear = new ParticleType(P_Appear)
         {
             Color = appearColor
@@ -199,17 +199,16 @@ public abstract class CustomBooster : Booster
             {
                 if (justEntered)
                 {
-                    booster.BoosterData["cannotUseTimer"] = 0.45f;
+                    booster.BoosterData.Set("cannotUseTimer", 0.45f);
+
                     if (booster.RedBoost)
-                    {
                         player.RedBoost(self);
-                    }
                     else
-                    {
                         player.Boost(self);
-                    }
+
                     Audio.Play(booster.enterSoundEvent, self.Position);
                     booster.BoosterData.Get<Wiggler>("wiggler").Start();
+
                     Sprite sprite = booster.BoosterData.Get<Sprite>("sprite");
                     sprite.Play("inside");
                     sprite.FlipX = player.Facing == Facings.Left;

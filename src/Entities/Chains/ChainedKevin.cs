@@ -16,7 +16,7 @@ internal class ChainedKevin : CrushBlock
     private readonly bool chainOutline;
     private readonly MTexture chainTexture;
 
-    private DynData<CrushBlock> crushBlockData;
+    private DynamicData crushBlockData;
     private List<Image> idleImages, activeTopImages, activeRightImages, activeLeftImages, activeBottomImages;
 
     public ChainedKevin(EntityData data, Vector2 offset)
@@ -171,7 +171,7 @@ internal class ChainedKevin : CrushBlock
     {
         if (self is ChainedKevin chainedKevin)
         {
-            chainedKevin.crushBlockData = new DynData<CrushBlock>(chainedKevin);
+            chainedKevin.crushBlockData = new(typeof(CrushBlock), chainedKevin);
             chainedKevin.vectorDirection = (chainedKevin.direction = data.Enum("direction", Directions.Right)).Vector();
             chainedKevin.centeredChain = data.Bool("centeredChain");
         }

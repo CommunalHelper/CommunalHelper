@@ -14,14 +14,7 @@ namespace Celeste.Mod.CommunalHelper;
 
 public static class Extensions
 {
-    private static DynData<Player> cachedPlayerData;
-
-    public static DynData<Player> GetData(this Player player)
-    {
-        return cachedPlayerData != null && cachedPlayerData.IsAlive && cachedPlayerData.Target == player
-            ? cachedPlayerData
-            : (cachedPlayerData = new DynData<Player>(player));
-    }
+    public static DynamicData GetData(this Player player) => DynamicData.For(player);
 
     public static void LoseDreamSeeds(this Player player)
     {
@@ -378,7 +371,7 @@ public static class Extensions
 
     public static void ForceAdd(this EntityList list, params Entity[] entities)
     {
-        DynData<EntityList> listData = new(list);
+        DynamicData listData = DynamicData.For(list);
         HashSet<Entity> current = listData.Get<HashSet<Entity>>("current");
         List<Entity> listEntities = listData.Get<List<Entity>>("entities");
         Scene scene = list.Scene;

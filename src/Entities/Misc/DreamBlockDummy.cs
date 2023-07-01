@@ -25,7 +25,7 @@ public class DreamBlockDummy : DreamBlock
 
     public Action OnSetup;
 
-    public DynData<DreamBlock> Data;
+    public DynamicData Data;
 
     public DreamBlockDummy(Entity entity)
         : base(Vector2.Zero, 0, 0, null, false, false)
@@ -33,7 +33,7 @@ public class DreamBlockDummy : DreamBlock
         Collidable = Active = Visible = false;
         Entity = entity;
 
-        Data = new DynData<DreamBlock>(this);
+        Data = new(typeof(DreamBlock), this);
     }
 
     [MonoModLinkTo("Monocle.Entity", "System.Void Added(Monocle.Scene)")]
@@ -45,7 +45,7 @@ public class DreamBlockDummy : DreamBlock
     public override void Added(Scene scene)
     {
         base_Added(scene);
-        Data["playerHasDreamDash"] = SceneAs<Level>().Session.Inventory.DreamDash;
+        Data.Set("playerHasDreamDash", SceneAs<Level>().Session.Inventory.DreamDash);
     }
 
     public override void Update() { }
@@ -84,7 +84,7 @@ public class DreamBlockDummy : DreamBlock
     {
         if (self is DreamBlockDummy dummy && dummy.OnActivate != null)
         {
-            dummy.Data["playerHasDreamDash"] = true;
+            dummy.Data.Set("playerHasDreamDash", true);
             dummy.Entity.Add(new Coroutine(dummy.OnActivate()));
             return null;
         }
@@ -95,7 +95,7 @@ public class DreamBlockDummy : DreamBlock
     {
         if (self is DreamBlockDummy dummy && dummy.OnFastActivate != null)
         {
-            dummy.Data["playerHasDreamDash"] = true;
+            dummy.Data.Set("playerHasDreamDash", true);
             dummy.Entity.Add(new Coroutine(dummy.OnFastActivate()));
             return null;
         }
@@ -106,7 +106,7 @@ public class DreamBlockDummy : DreamBlock
     {
         if (self is DreamBlockDummy dummy && dummy.OnActivateNoRoutine != null)
         {
-            dummy.Data["playerHasDreamDash"] = true;
+            dummy.Data.Set("playerHasDreamDash", true);
             dummy.OnActivateNoRoutine();
             return;
         }
@@ -117,7 +117,7 @@ public class DreamBlockDummy : DreamBlock
     {
         if (self is DreamBlockDummy dummy && dummy.OnDeactivate != null)
         {
-            dummy.Data["playerHasDreamDash"] = false;
+            dummy.Data.Set("playerHasDreamDash", false);
             dummy.Entity.Add(new Coroutine(dummy.OnDeactivate()));
             return null;
         }
@@ -128,7 +128,7 @@ public class DreamBlockDummy : DreamBlock
     {
         if (self is DreamBlockDummy dummy && dummy.OnFastDeactivate != null)
         {
-            dummy.Data["playerHasDreamDash"] = false;
+            dummy.Data.Set("playerHasDreamDash", false);
             dummy.Entity.Add(new Coroutine(dummy.OnFastDeactivate()));
             return null;
         }
@@ -139,7 +139,7 @@ public class DreamBlockDummy : DreamBlock
     {
         if (self is DreamBlockDummy dummy && dummy.OnDeactivateNoRoutine != null)
         {
-            dummy.Data["playerHasDreamDash"] = false;
+            dummy.Data.Set("playerHasDreamDash", false);
             dummy.OnDeactivateNoRoutine();
             return;
         }

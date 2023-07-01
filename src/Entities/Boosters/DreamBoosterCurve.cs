@@ -136,7 +136,7 @@ public class DreamBoosterCurve : DreamBooster
     {
         base.RedDashUpdateBefore(player);
 
-        DynData<Player> data = player.GetData();
+        DynamicData data = player.GetData();
 
         Vector2 prev = player.Position;
 
@@ -155,8 +155,8 @@ public class DreamBoosterCurve : DreamBooster
         // this is here so that the player doesn't die to spikes that it shouldn't die to.
         player.Speed = derivative.SafeNormalize();
 
-        player.MoveToX(next.X, (Collision) data["onCollideH"]);
-        player.MoveToY(next.Y + offY, (Collision) data["onCollideV"]);
+        player.MoveToX(next.X, data.Get<Collision>("onCollideH"));
+        player.MoveToY(next.Y + offY, data.Get<Collision>("onCollideV"));
 
         // Then finish overriding.
         GravityHelper.EndOverride?.Invoke();

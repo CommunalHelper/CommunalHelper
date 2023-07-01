@@ -148,7 +148,7 @@ public class CurvedBooster : CustomBooster
     {
         base.RedDashUpdateBefore(player);
 
-        DynData<Player> data = player.GetData();
+        DynamicData data = player.GetData();
 
         Vector2 prev = player.Position;
 

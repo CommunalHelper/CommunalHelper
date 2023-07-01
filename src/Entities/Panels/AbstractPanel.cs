@@ -224,7 +224,7 @@ public abstract class AbstractPanel : Entity
 
     private static int Platform_GetLandOrStepSoundIndex(Func<Platform, Entity, int> orig, Platform self, Entity entity)
     {
-        foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers"))
+        foreach (StaticMover sm in DynamicData.For(self).Get<List<StaticMover>>("staticMovers"))
         {
             if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null && panel.Orientation == Directions.Up && entity.CollideCheck(panel, entity.Position + Vector2.UnitY))
             {
@@ -236,7 +236,7 @@ public abstract class AbstractPanel : Entity
 
     private static int Platform_GetWallSoundIndex(Func<Platform, Player, int, int> orig, Platform self, Player player, int side)
     {
-        foreach (StaticMover sm in new DynData<Platform>(self).Get<List<StaticMover>>("staticMovers"))
+        foreach (StaticMover sm in DynamicData.For(self).Get<List<StaticMover>>("staticMovers"))
         {
             if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null)
             {
@@ -265,13 +265,13 @@ public abstract class AbstractPanel : Entity
     {
         bool collidable = solid.Collidable;
         solid.Collidable = true;
-        DynData<Solid> solidData = null;
+        DynamicData solidData = null;
         foreach (AbstractPanel panel in scene.Tracker.GetEntities<AbstractPanel>())
         {
             StaticMover staticMover = panel.staticMover;
             if (panel.overrideAllowStaticMovers && staticMover.Platform == null && staticMover.IsRiding(solid))
             {
-                solidData ??= new DynData<Solid>(solid);
+                solidData ??= DynamicData.For(solid);
                 solidData.Get<List<StaticMover>>("staticMovers").Add(staticMover);
                 staticMover.Platform = solid;
                 staticMover.OnAttach?.Invoke(solid);
