@@ -5,6 +5,7 @@ global using System;
 using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Entities.Misc;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using Celeste.Mod.CommunalHelper.States;
 using Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
@@ -93,6 +94,8 @@ public class CommunalHelperModule : EverestModule
         ExpiringDashRefill.Load();
         WormholeBooster.Load();
 
+        Shape3DRenderer.Load();
+
         St.Load();
 
         CommunalHelperGFX.Load();
@@ -165,6 +168,8 @@ public class CommunalHelperModule : EverestModule
         ExplodingStrawberry.Unload();
         ExpiringDashRefill.Unload();
         WormholeBooster.Unload();
+
+        Shape3DRenderer.Unload();
 
         St.Unload();
 

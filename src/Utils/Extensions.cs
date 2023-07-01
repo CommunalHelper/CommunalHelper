@@ -602,4 +602,6 @@ public static class Extensions
         xml.Load(asset.Stream);
         return xml;
     }
+
+    public static Vector2 XY(this Vector3 v) => new(v.X, v.Y);
 }
