@@ -40,7 +40,6 @@ public static class Util
         int toIndex = Mod(fromIndex + 1, colors.Length);
         float clampedLerp = m - fromIndex;
 
-        Console.WriteLine(fromIndex + " " + toIndex);
         return Color.Lerp(colors[fromIndex], colors[toIndex], clampedLerp);
     }
 
