@@ -111,9 +111,19 @@ public static class CustomSFX
 
     #endregion
 
-    public const string game_elytra_deploy = "null";
-    public const string game_elytra_gliding = "null";
-    public const string game_elytra_refill = "null";
+    public const string game_elytra_deploy = "event:/CommunalHelperEvents/game/elytra/deploy";
+    public const string game_elytra_gliding = "event:/CommunalHelperEvents/game/elytra/gliding";
+    public const string game_elytra_refill = "event:/CommunalHelperEvents/game/elytra/refill";
+    public const string game_aero_block_deploy_propeller = "event:/CommunalHelperEvents/game/aero_block/deploy_propeller";
+    public const string game_aero_block_failure = "event:/CommunalHelperEvents/game/aero_block/failure";
+    public const string game_aero_block_launch_sequence = "event:/CommunalHelperEvents/game/aero_block/launch_sequence";
+    public const string game_aero_block_loop = "event:/CommunalHelperEvents/game/aero_block/loop";
+    public const string game_aero_block_morse = "event:/CommunalHelperEvents/game/aero_block/morse";
+    public const string game_aero_block_retract_propeller = "event:/CommunalHelperEvents/game/aero_block/retract_propeller";
+    public const string game_aero_block_smash = "event:/CommunalHelperEvents/game/aero_block/smash";
+    public const string game_aero_block_static = "event:/CommunalHelperEvents/game/aero_block/static";
+    public const string game_aero_block_success = "event:/CommunalHelperEvents/game/aero_block/success";
+    public const string game_aero_block_warn = "event:/CommunalHelperEvents/game/aero_block/warn";
 }
 
 public static class CustomBanks

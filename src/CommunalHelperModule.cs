@@ -169,6 +169,7 @@ public class CommunalHelperModule : EverestModule
         St.Unload();
 
         Cloudscape.Unload();
+        BetaCube.Unload();
 
         CommunalHelperGFX.Unload();
     }
@@ -185,6 +186,8 @@ public class CommunalHelperModule : EverestModule
 
         // We may hook methods in other mods, so this needs to be done after they're loaded
         AbstractPanel.LoadDelayed();
+
+        BetaCube.Initialize();
 
         /*
          * Some Communal Helper mechanics don't work well with Gravity Helper.
