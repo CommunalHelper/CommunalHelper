@@ -6,6 +6,7 @@ using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
+using Celeste.Mod.CommunalHelper.States;
 using Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
 using MonoMod.ModInterop;
 
@@ -92,6 +93,8 @@ public class CommunalHelperModule : EverestModule
         ExpiringDashRefill.Load();
         WormholeBooster.Load();
 
+        St.Load();
+
         CommunalHelperGFX.Load();
 
         #region Imports
@@ -163,6 +166,8 @@ public class CommunalHelperModule : EverestModule
         ExpiringDashRefill.Unload();
         WormholeBooster.Unload();
 
+        St.Unload();
+
         Cloudscape.Unload();
 
         CommunalHelperGFX.Unload();
@@ -228,6 +233,8 @@ public class CommunalHelperModule : EverestModule
 
         LoopBlock.InitializeTextures();
         WormholeBooster.InitializeParticles();
+
+        St.Initialize();
 
         Cloudscape.Initalize();
     }

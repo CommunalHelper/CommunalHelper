@@ -61,4 +61,7 @@ public class CommunalHelperSettings : EverestModuleSettings
 
     [DefaultButtonBinding(Buttons.RightShoulder, Keys.Z)]
     public ButtonBinding ActivateFlagController { get; set; }
+
+    [DefaultButtonBinding(Buttons.LeftShoulder, Keys.W)]
+    public ButtonBinding DeployElytra { get; set; }
 }

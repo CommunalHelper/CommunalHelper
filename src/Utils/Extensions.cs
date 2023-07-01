@@ -23,6 +23,9 @@ public static class Extensions
             : (cachedPlayerData = new DynData<Player>(player));
     }
 
+    public static void FlashHair(this Player player)
+        => player.GetData().Set("hairFlashTimer", 0.12f);
+
     public static void LoseDreamSeeds(this Player player)
     {
         Follower[] followers
@@ -592,4 +595,11 @@ public static class Extensions
     }
 
     #endregion
+
+    public static XmlDocument LoadXML(this ModAsset asset)
+    {
+        XmlDocument xml = new();
+        xml.Load(asset.Stream);
+        return xml;
+    }
 }
