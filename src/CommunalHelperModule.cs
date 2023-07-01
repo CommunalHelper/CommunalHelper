@@ -192,6 +192,8 @@ public class CommunalHelperModule : EverestModule
         // We may hook methods in other mods, so this needs to be done after they're loaded
         AbstractPanel.LoadDelayed();
 
+        AeroBlock.Initialize();
+
         BetaCube.Initialize();
 
         /*
@@ -241,6 +243,8 @@ public class CommunalHelperModule : EverestModule
 
         LoopBlock.InitializeTextures();
         WormholeBooster.InitializeParticles();
+
+        AeroBlock.LoadContent();
 
         St.Initialize();
 
