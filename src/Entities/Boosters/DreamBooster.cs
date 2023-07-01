@@ -122,7 +122,7 @@ public class DreamBoosterHooks
     {
         if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster booster)
         {
-            DynamicData playerData = player.GetData();
+            DynamicData playerData = new(typeof(Actor), self);
             float pos = player.X;
             Vector2 counter = playerData.Get<Vector2>("movementCounter");
             dreamBoostMove = true;
@@ -143,7 +143,7 @@ public class DreamBoosterHooks
     {
         if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster booster)
         {
-            DynamicData playerData = player.GetData();
+            DynamicData playerData = new(typeof(Actor), self);
             float pos = player.Y;
             Vector2 counter = playerData.Get<Vector2>("movementCounter");
             dreamBoostMove = true;
