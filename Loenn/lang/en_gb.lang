@@ -754,3 +754,9 @@ style.effects.CommunalHelper/Cloudscape.description.outerRotation=The rotational
 style.effects.CommunalHelper/Cloudscape.description.rotationExponent=A number between 0 and 2 that describes the interpolation of the rotational speed between the inner and outer rings. 1 is linear, 0 makes the value approach the outer target value faster, 2 makes the value approach the outer target value sooner.\nThis is hard to describe.
 style.effects.CommunalHelper/Cloudscape.description.hasBackgroundColor=Whether the background should be filled with the `bgColor` color specified. Disabling this makes it so that styleground layers below this Cloudscape instance can be seen.
 style.effects.CommunalHelper/Cloudscape.description.additive=Whether this Cloudscape instance renders onto the screen with the additive blending mode.
+
+# BetaCube
+style.effects.CommunalHelper/BetaCube.name=Beta Cube
+style.effects.CommunalHelper/BetaCube.description.texture=The path to the texture used for the Beta Cube backdrop.
+style.effects.CommunalHelper/BetaCube.description.colors=A comma-separated list of hexadecimal color codes for the cube. Each vertex of the cube will take one of these colors and smoothly interpolate between them as time passes on.
+style.effects.CommunalHelper/BetaCube.description.scale=A positive real value that sets the cube's size.

@@ -35,11 +35,12 @@ public static class Util
 
     public static Color ColorArrayLerp(float lerp, params Color[] colors)
     {
-        float m = lerp % colors.Length;
+        float m = Mod(lerp, colors.Length);
         int fromIndex = (int) Math.Floor(m);
-        int toIndex = (fromIndex + 1) % colors.Length;
+        int toIndex = Mod(fromIndex + 1, colors.Length);
         float clampedLerp = m - fromIndex;
 
+        Console.WriteLine(fromIndex + " " + toIndex);
         return Color.Lerp(colors[fromIndex], colors[toIndex], clampedLerp);
     }
 
@@ -69,6 +70,11 @@ public static class Util
     }
 
     public static float Mod(float x, float m)
+    {
+        return ((x % m) + m) % m;
+    }
+
+    public static int Mod(int x, int m)
     {
         return ((x % m) + m) % m;
     }
