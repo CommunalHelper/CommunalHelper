@@ -727,6 +727,11 @@ triggers.CommunalHelper/CloudscapeLightningConfigurationTrigger.attributes.descr
 # Stop Lightning Controller Trigger
 triggers.CommunalHelper/StopLightningControllerTrigger.placements.name.trigger=Stop Lightning Controller
 
+# Configure Elytra Trigger
+triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.yes=Enable Elytra
+triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.no=Disable Elytra
+triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.allow=Whether the player can deploy its elytra after going through the trigger.\nThe elytra is deployed with a keybind configured in mod settings.\nDefault is W on keyboard, and Left Shoulder on controller.
+
 # Cloudscape
 style.effects.CommunalHelper/Cloudscape.name=Cloudscape
 style.effects.CommunalHelper/Cloudscape.description.seed=The RNG seed that this cloudscape instance will be generated with.

@@ -413,7 +413,7 @@ public static class Elytra
         }
         else
         {
-            if (CommunalHelperModule.Settings.DeployElytra.Pressed)
+            if (CommunalHelperModule.Session.CanDeployElytra && CommunalHelperModule.Settings.DeployElytra.Pressed)
             {
                 CommunalHelperModule.Settings.DeployElytra.ConsumePress();
                 
