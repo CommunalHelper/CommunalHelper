@@ -110,6 +110,10 @@ public static class CustomSFX
     public const string game_strawberryJam_triple_boost_flower_glider_movement = "event:/CommunalHelperEvents/game/strawberryJam/game/triple_boost_flower/glider_movement";
 
     #endregion
+
+    public const string game_elytra_deploy = "null";
+    public const string game_elytra_gliding = "null";
+    public const string game_elytra_refill = "null";
 }
 
 public static class CustomBanks

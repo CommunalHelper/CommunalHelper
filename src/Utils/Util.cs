@@ -128,4 +128,24 @@ public static class Util
     {
         return time % (duration * 2) < duration;
     }
+
+    /// <summary>
+    /// Checks if two line segments are intersecting.
+    /// </summary>
+    /// <param name="p0">The first end of the first line segment.</param>
+    /// <param name="p1">The second end of the first line segment.</param>
+    /// <param name="p2">The first end of the second line segment.</param>
+    /// <param name="p3">The second end of the second line segment.</param>
+    /// <returns>The result of the intersection check.</returns>
+    public static bool SegmentIntersection(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
+    {
+        float sax = p1.X - p0.X; float say = p1.Y - p0.Y;
+        float sbx = p3.X - p2.X; float sby = p3.Y - p2.Y;
+
+        float s = (-say * (p0.X - p2.X) + sax * (p0.Y - p2.Y)) / (-sbx * say + sax * sby);
+        float t = (sbx * (p0.Y - p2.Y) - sby * (p0.X - p2.X)) / (-sbx * say + sax * sby);
+
+        return s is >= 0 and <= 1
+            && t is >= 0 and <= 1;
+    }
 }
