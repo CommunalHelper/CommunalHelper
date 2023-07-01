@@ -26,7 +26,7 @@ public abstract class CustomBooster : Booster
     public CustomBooster(Vector2 position, bool redBoost)
         : base(position, redBoost)
     {
-        BoosterData = DynamicData.For(this);
+        BoosterData = new(typeof(Booster), this);
 
         P_CustomAppear = P_Appear;
         P_CustomBurst = redBoost ? P_BurstRed : P_Burst;
