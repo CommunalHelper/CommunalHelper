@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -8,7 +7,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 public class AeroBlockCharged : AeroBlockFlying
 {
     [Flags]
-    public enum ButtonCombination : byte
+    private enum ButtonCombination : byte
     {
         NONE    = 0,
         TOP     = 1 << 0,
@@ -21,11 +20,97 @@ public class AeroBlockCharged : AeroBlockFlying
         ALL = TOP | LEFT | RIGHT,
     }
 
+    public static MTexture ButtonFillTexture, ButtonOutlineTexture;
+
+    private class Button
+    {
+        private readonly Image[] buttonImages, buttonOutlineImages;
+
+        private bool visible;
+        public bool Visible
+        {
+            get => visible;
+            set
+            {
+                if (visible != value)
+                    for (int i = 0; i < buttonImages.Length; i++)
+                        buttonImages[i].Visible = buttonOutlineImages[i].Visible = value;
+                visible = value;
+            }
+        }
+
+        private bool pressed;
+        public bool Pressed
+        {
+            get => pressed;
+            private set
+            {
+                if (pressed != value)
+                {
+                    Vector2 offset = perp * (pressed ? -2 : +2);
+                    for (int i = 0; i < buttonImages.Length; i++)
+                    {
+                        buttonImages[i].Position += offset;
+                        buttonOutlineImages[i].Position += offset;
+                    }
+                }
+                pressed = value;
+            }
+        }
+
+        private readonly Vector2 perp;
+
+        private Button(Entity entity, int length, bool visible, Vector2 offset, Vector2 dir, float angle)
+        {
+            buttonImages = new Image[length];
+            buttonOutlineImages = new Image[length];
+
+            this.visible = visible;
+            perp = dir.Perpendicular();
+
+            for (int i = 0; i < length; ++i)
+            {
+                int tx = i == 0 ? 0 : (i == length - 1 ? 16 : 8);
+                Vector2 pos = offset + dir * (i * 8);
+
+                buttonImages[i] = new Image(ButtonFillTexture.GetSubtexture(tx, 0, 8, 8))
+                {
+                    Rotation = angle,
+                    Position = pos,
+                    Visible = visible,
+                };
+                buttonOutlineImages[i] = new Image(ButtonOutlineTexture.GetSubtexture(tx, 0, 8, 8))
+                {
+                    Rotation = angle,
+                    Position = pos,
+                    Visible = visible,
+                };
+                buttonImages[i].CenterOrigin();
+                buttonOutlineImages[i].CenterOrigin();
+                entity.Add(buttonImages[i], buttonOutlineImages[i]);
+            }
+        }
+
+        public static Button LeftButton(AeroBlockCharged entity, bool visible)
+            => new(entity, (int)entity.Height / 8, visible, Vector2.UnitY * (entity.Height - 4), -Vector2.UnitY, -MathHelper.PiOver2);
+
+        public static Button RightButton(AeroBlockCharged entity, bool visible)
+            => new(entity, (int) entity.Height / 8, visible, new(entity.Width, 4), Vector2.UnitY, +MathHelper.PiOver2);
+
+        public static Button TopButton(AeroBlockCharged entity, bool visible)
+            => new(entity, (int) entity.Width / 8, visible, Vector2.UnitX * 4, Vector2.UnitX, 0.0f);
+
+        public void Update(AeroBlockCharged self)
+        {
+            Pressed = self.CollideCheck<Player>(self.Position - perp * 2);
+        }
+    }
+
     private const string DEFAULT_BUTTON_SEQUENCE = "horizontal";
     private ButtonCombination[] sequence;
     private int index;
 
-    private readonly Image[] buttonImages, buttonOutlineImages;
+    private Button leftButton, rightButton, topButton;
 
     public AeroBlockCharged(EntityData data, Vector2 offset)
         : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
@@ -40,31 +125,9 @@ public class AeroBlockCharged : AeroBlockFlying
         sequence = ParseButtonSequence(buttonSequence, positions.Length);
         BlockPath = GetBlockPath(sequence[0]);
 
-        // side button
-        MTexture button = GFX.Game["objects/CommunalHelper/aero_block/button/fill"];
-        MTexture outline = GFX.Game["objects/CommunalHelper/aero_block/button/outline"];
-        int h = height / 8;
-        buttonImages = new Image[h];
-        buttonOutlineImages = new Image[h];
-        for (int i = 0; i < h; ++i)
-        {
-            int tx = i == 0 ? 16 : (i == h - 1 ? 0 : 8);
-
-            Add(buttonImages[i] = new Image(button.GetSubtexture(tx, 0, 8, 8))
-            {
-                Rotation = -MathHelper.PiOver2,
-                Position = new(0, i * 8 + 4),
-                Color = Color.White,
-            });
-            Add(buttonOutlineImages[i] = new Image(outline.GetSubtexture(tx, 0, 8, 8))
-            {
-                Rotation = -MathHelper.PiOver2,
-                Position = new(0, i * 8 + 4),
-            });
-
-            buttonImages[i].CenterOrigin();
-            buttonOutlineImages[i].CenterOrigin();
-        }
+        if (sequence[0].HasFlag(ButtonCombination.LEFT)) leftButton = Button.LeftButton(this, true);
+        if (sequence[0].HasFlag(ButtonCombination.RIGHT)) rightButton = Button.RightButton(this, true);
+        if (sequence[0].HasFlag(ButtonCombination.TOP)) topButton = Button.TopButton(this, true);
     }
 
     private static ButtonCombination[] ParseButtonSequence(string sequence, int max)
@@ -116,21 +179,16 @@ public class AeroBlockCharged : AeroBlockFlying
         (Scene as Level).DirectionalShake(Vector2.UnitY);
     }
 
-    private bool PlayerIsOnButton()
-    {
-        return CollideCheck<Player>(Position - Vector2.UnitX);
-    }
-
     public override void Update()
     {
         base.Update();
 
-        bool buttonPressed = PlayerIsOnButton();
-        for (int i = 0; i < buttonImages.Length; ++i)
-        {
-            buttonImages[i].X = buttonOutlineImages[i].X = buttonPressed ? 2 : 0;
-        }
+        leftButton?.Update(this);
+        rightButton?.Update(this);
+        topButton?.Update(this);
     }
+
+    #region Hooks
 
     internal static void Load()
     {
@@ -207,4 +265,5 @@ public class AeroBlockCharged : AeroBlockFlying
             block.GivePlayerBoostAndSlamBackwards(self, new(self.Speed.X * 1.2f, -350));
     }
 
+    #endregion
 }

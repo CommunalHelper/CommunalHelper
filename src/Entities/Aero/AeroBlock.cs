@@ -251,6 +251,9 @@ public abstract class AeroBlock : Solid
     internal static void LoadContent()
     {
         innerCogs = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/aero_block/innercogs/").ToArray();
+
+        AeroBlockCharged.ButtonFillTexture = GFX.Game["objects/CommunalHelper/aero_block/button/fill"];
+        AeroBlockCharged.ButtonOutlineTexture = GFX.Game["objects/CommunalHelper/aero_block/button/outline"];
     }
 }
 
