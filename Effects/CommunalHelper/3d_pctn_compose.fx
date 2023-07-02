@@ -39,6 +39,12 @@ const float2 offset_unit = float2(1.0 / 320.0, 1.0 / 180.0);
 const float3 normal_edge_bias = 1.0;
 
 float time = 0.0;
+float4x4 MatrixTransform;
+
+void vertex_shader(inout float4 color: COLOR0, inout float2 uv: TEXCOORD0, inout float4 position: SV_POSITION)
+{
+    position = mul(position, MatrixTransform);
+}
 
 float4 sample_at(sampler2D s, float2 at, float2 offset)
 {
@@ -136,6 +142,7 @@ technique pctn_compose
 {
     pass compose
     {
+        VertexShader = compile vs_3_0 vertex_shader();
         PixelShader = compile ps_3_0 pixel_shader();
     }
 };

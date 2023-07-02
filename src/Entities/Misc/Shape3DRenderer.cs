@@ -34,10 +34,10 @@ public sealed class Shape3DRenderer : Entity
     {
         base.Added(scene);
 
-        albedo = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, true, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-        depth = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, true, SurfaceFormat.Vector4, DepthFormat.Depth24Stencil8);
-        normal = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, true, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-        final = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, true, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+        albedo = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+        depth = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+        normal = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+        final = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
     }
 
     public override void Removed(Scene scene)
@@ -66,6 +66,10 @@ public sealed class Shape3DRenderer : Entity
 
     private void BeforeRender()
     {
+        var samplerState0 = Engine.Graphics.GraphicsDevice.SamplerStates[0];
+        var samplerState1 = Engine.Graphics.GraphicsDevice.SamplerStates[1];
+        var samplerState2 = Engine.Graphics.GraphicsDevice.SamplerStates[2];
+
         Draw.SpriteBatch.GraphicsDevice.SetRenderTargets(new(albedo), new(depth), new(normal));
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
 
@@ -101,7 +105,7 @@ public sealed class Shape3DRenderer : Entity
             CommunalHelperGFX.PCTN_MRT.Parameters["highlight_upper_bound"].SetValue(shape.HighlightUpperBound);
             CommunalHelperGFX.PCTN_MRT.Parameters["highlight_strength"].SetValue(shape.HighlightStrength);
 
-            Engine.Instance.GraphicsDevice.Textures[0] = shape.Texture;
+            CommunalHelperGFX.PCTN_MRT.Parameters["atlas_texture"].SetValue(shape.Texture);
 
             foreach (EffectPass pass in CommunalHelperGFX.PCTN_MRT.CurrentTechnique.Passes)
             {
@@ -117,16 +121,20 @@ public sealed class Shape3DRenderer : Entity
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["depth_texture"].SetValue(depth);
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["normal_texture"].SetValue(normal);
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["time"].SetValue(Scene.TimeActive * 10);
+        CommunalHelperGFX.PCTN_COMPOSE.Parameters["MatrixTransform"]
+            .SetValue(
+                Matrix.CreateOrthographic(Engine.Graphics.GraphicsDevice.Viewport.Width, Engine.Graphics.GraphicsDevice.Viewport.Height, 0, 1) *
+                Matrix.CreateTranslation(-1.0f, -1.0f, 0) * Matrix.CreateScale(1, -1, 1)
+            );
+
 
         Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, RasterizerState.CullNone, CommunalHelperGFX.PCTN_COMPOSE);
         Draw.SpriteBatch.Draw(albedo, new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), Color.White);
         Draw.SpriteBatch.End();
 
-        // reset the sample states, as they are used somewhere else internally in celeste (or deeper).
-        // sampler state n°1 seems to be the most important one, as forgetting to reset it leads to pretty cursed issues (color banding).
-        Engine.Graphics.GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-        Engine.Graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
-        Engine.Graphics.GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
+        Engine.Graphics.GraphicsDevice.SamplerStates[0] = samplerState0;
+        Engine.Graphics.GraphicsDevice.SamplerStates[1] = samplerState1;
+        Engine.Graphics.GraphicsDevice.SamplerStates[2] = samplerState2;
     }
 
     public override void Render()
