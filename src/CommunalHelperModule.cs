@@ -94,6 +94,8 @@ public class CommunalHelperModule : EverestModule
         ExpiringDashRefill.Load();
         WormholeBooster.Load();
 
+        AeroBlockCharged.Load();
+
         Shape3DRenderer.Load();
 
         St.Load();
@@ -168,6 +170,8 @@ public class CommunalHelperModule : EverestModule
         ExplodingStrawberry.Unload();
         ExpiringDashRefill.Unload();
         WormholeBooster.Unload();
+
+        AeroBlockCharged.Unload();
 
         Shape3DRenderer.Unload();
 

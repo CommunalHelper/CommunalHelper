@@ -45,7 +45,7 @@ public abstract class AeroBlock : Solid
 
     protected float Rotation { get; set; }
 
-    protected string BlockPath { get; set; } = "objects/CommunalHelper/aero_block/block";
+    protected string BlockPath { get; set; } = "objects/CommunalHelper/aero_block/blocks/nnn";
 
     public AeroBlock(Vector2 position, int width, int height)
         : base(position, width, height, safe: false)
@@ -250,7 +250,7 @@ public abstract class AeroBlock : Solid
 
     internal static void LoadContent()
     {
-        innerCogs = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/aero_block/innercog").ToArray();
+        innerCogs = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/aero_block/innercogs/").ToArray();
     }
 }
 
