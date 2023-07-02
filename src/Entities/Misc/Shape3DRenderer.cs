@@ -7,6 +7,10 @@ namespace Celeste.Mod.CommunalHelper.Entities.Misc;
 [Tracked]
 public sealed class Shape3DRenderer : Entity
 {
+    private enum Framework { FNA, XNA }
+
+    private static Framework type;
+
     private const int SCREEN_WIDTH = 320;
     private const int SCREEN_HEIGHT = 180;
 
@@ -112,6 +116,10 @@ public sealed class Shape3DRenderer : Entity
 
         Draw.SpriteBatch.GraphicsDevice.SetRenderTarget(final);
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
+        
+        // end me
+        var orthoProjW = type is Framework.FNA ? SCREEN_WIDTH : SCREEN_WIDTH + 1;
+        var orthoProjH = type is Framework.FNA ? SCREEN_HEIGHT : SCREEN_HEIGHT + 1;
 
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["albedo_texture"].SetValue(albedo);
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["depth_texture"].SetValue(depth);
@@ -119,7 +127,7 @@ public sealed class Shape3DRenderer : Entity
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["time"].SetValue(Scene.TimeActive * 10);
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["MatrixTransform"]
             .SetValue(
-                Matrix.CreateOrthographic(SCREEN_WIDTH + 1, SCREEN_HEIGHT + 1, 0, 1) *
+                Matrix.CreateOrthographic(orthoProjW, orthoProjH, 0, 1) *
                 Matrix.CreateTranslation(-1.0f, -1.0f, 0) * Matrix.CreateScale(1, -1, 1)
             );
 
@@ -138,7 +146,6 @@ public sealed class Shape3DRenderer : Entity
         Engine.Graphics.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
         Engine.Graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearClamp;
         Engine.Graphics.GraphicsDevice.SamplerStates[2] = SamplerState.LinearClamp;
-
     }
 
     public override void Render()
@@ -157,6 +164,9 @@ public sealed class Shape3DRenderer : Entity
 
     internal static void Load()
     {
+        type = typeof(Game).Assembly.FullName.Contains("FNA")
+            ? Framework.FNA
+            : Framework.XNA;
         On.Celeste.LevelLoader.LoadingThread += LevelLoader_LoadingThread;
     }
 
