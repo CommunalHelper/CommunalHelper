@@ -7,9 +7,10 @@
 		<RootNamespace>Celeste.Mod.CommunalHelper</RootNamespace>
 		<LangVersion>latest</LangVersion>
 
-		<!--Find Celeste relative path (defaults to ..\..\.. for GitHub action build)-->
+		<!--Find Celeste relative path (defaults to ..\..\..)-->
 		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\Celeste.exe')">..\..</CelestePrefix>
 		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\Celeste.exe')">..\..\..</CelestePrefix>
+		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\lib-stripped\Celeste.exe')">..\..\..\lib-stripped</CelestePrefix>
 		<CelestePrefix Condition="'$(CelestePrefix)' == ''">..\..\..</CelestePrefix>
 
 		<!--Determine build type (FNA or XNA)-->
