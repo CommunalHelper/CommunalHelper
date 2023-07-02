@@ -55,13 +55,14 @@ public class BetaCube : Backdrop
         base.BeforeRender(scene);
 
         if (buffer == null || buffer.IsDisposed)
-            buffer = VirtualContent.CreateRenderTarget("elytrahelper-betacube", 320, 180);
+            buffer = VirtualContent.CreateRenderTarget("elytrahelper-betacube", 320, 180, false);
 
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
         Engine.Graphics.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
-        Engine.Graphics.GraphicsDevice.Textures[0] = face.Texture.Texture_Safe;
         Engine.Instance.GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+
+        shader.Texture = face.Texture.Texture_Safe;
 
         float time = Engine.Scene.TimeActive * 0.6f;
         shader.World = Matrix.CreateFromYawPitchRoll(time, time, time) * Matrix.CreateScale(scale);
