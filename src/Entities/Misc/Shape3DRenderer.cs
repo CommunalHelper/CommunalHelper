@@ -66,10 +66,6 @@ public sealed class Shape3DRenderer : Entity
 
     private void BeforeRender()
     {
-        var samplerState0 = Engine.Graphics.GraphicsDevice.SamplerStates[0];
-        var samplerState1 = Engine.Graphics.GraphicsDevice.SamplerStates[1];
-        var samplerState2 = Engine.Graphics.GraphicsDevice.SamplerStates[2];
-
         Draw.SpriteBatch.GraphicsDevice.SetRenderTargets(new(albedo), new(depth), new(normal));
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
 
@@ -123,18 +119,26 @@ public sealed class Shape3DRenderer : Entity
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["time"].SetValue(Scene.TimeActive * 10);
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["MatrixTransform"]
             .SetValue(
-                Matrix.CreateOrthographic(Engine.Graphics.GraphicsDevice.Viewport.Width, Engine.Graphics.GraphicsDevice.Viewport.Height, 0, 1) *
+                Matrix.CreateOrthographic(SCREEN_WIDTH + 1, SCREEN_HEIGHT + 1, 0, 1) *
                 Matrix.CreateTranslation(-1.0f, -1.0f, 0) * Matrix.CreateScale(1, -1, 1)
             );
 
+        Engine.Graphics.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
+        Engine.Graphics.GraphicsDevice.SamplerStates[1] = SamplerState.PointWrap;
+        Engine.Graphics.GraphicsDevice.SamplerStates[2] = SamplerState.PointWrap;
 
         Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, RasterizerState.CullNone, CommunalHelperGFX.PCTN_COMPOSE);
         Draw.SpriteBatch.Draw(albedo, new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), Color.White);
         Draw.SpriteBatch.End();
+        
+        Engine.Graphics.GraphicsDevice.Textures[0] = null;
+        Engine.Graphics.GraphicsDevice.Textures[1] = null;
+        Engine.Graphics.GraphicsDevice.Textures[2] = null;
 
-        Engine.Graphics.GraphicsDevice.SamplerStates[0] = samplerState0;
-        Engine.Graphics.GraphicsDevice.SamplerStates[1] = samplerState1;
-        Engine.Graphics.GraphicsDevice.SamplerStates[2] = samplerState2;
+        Engine.Graphics.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+        Engine.Graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearClamp;
+        Engine.Graphics.GraphicsDevice.SamplerStates[2] = SamplerState.LinearClamp;
+
     }
 
     public override void Render()
