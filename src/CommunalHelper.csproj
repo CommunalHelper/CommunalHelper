@@ -10,8 +10,7 @@
 		<!--Find Celeste relative path (defaults to ..\..\..)-->
 		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\Celeste.exe')">..\..</CelestePrefix>
 		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\Celeste.exe')">..\..\..</CelestePrefix>
-		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\lib-stripped\Celeste.exe')">..\..\..\lib-stripped</CelestePrefix>
-		<CelestePrefix Condition="'$(CelestePrefix)' == ''">..\..\..</CelestePrefix>
+		<CelestePrefix Condition="'$(CelestePrefix)' == ''">..\lib-stripped</CelestePrefix>
 
 		<!--Determine build type (FNA or XNA)-->
 		<CelesteType Condition="'$(CelesteType)' == '' And Exists('$(CelestePrefix)\BuildIsXNA.txt')">XNA</CelesteType>
