@@ -7,10 +7,10 @@
 		<RootNamespace>Celeste.Mod.CommunalHelper</RootNamespace>
 		<LangVersion>latest</LangVersion>
 
-		<!--Find Celeste relative path (defaults to stripped-lib by default if not found)-->
+		<!--Find Celeste relative path (defaults to ..\..\.. for GitHub action build)-->
 		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\Celeste.exe')">..\..</CelestePrefix>
 		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\Celeste.exe')">..\..\..</CelestePrefix>
-		<CelestePrefix Condition="'$(CelestePrefix)' == ''">lib-stripped</CelestePrefix>
+		<CelestePrefix Condition="'$(CelestePrefix)' == ''">..\..\..</CelestePrefix>
 
 		<!--Determine build type (FNA or XNA)-->
 		<CelesteType Condition="'$(CelesteType)' == '' And Exists('$(CelestePrefix)\BuildIsXNA.txt')">XNA</CelesteType>
