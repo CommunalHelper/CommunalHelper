@@ -706,7 +706,7 @@ public static class Extensions
         for (int z = 0; z < sz; z++)
             for (int y = 0; y < sy; y++)
                 for (int x = 0; x < sx; x++)
-                    result[z, x, y] = array[z, y, sx - x - 1];
+                    result[z, x, y] = array[z, sy - y - 1, x];
         return result;
     }
 
@@ -717,7 +717,7 @@ public static class Extensions
         for (int z = 0; z < sz; z++)
             for (int y = 0; y < sy; y++)
                 for (int x = 0; x < sx; x++)
-                    result[z, x, y] = array[z, sy - y - 1, x];
+                    result[z, x, y] = array[z, y, sx - x - 1];
         return result;
     }
 

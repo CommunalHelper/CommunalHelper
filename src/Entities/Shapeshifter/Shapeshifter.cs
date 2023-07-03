@@ -101,7 +101,10 @@ public class Shapeshifter : Solid
         Add(mesh = new(Shapes.TileVoxel(voxel))
         {
             Texture = texture,
-            Depth = Depths.FGTerrain
+            Depth = Depths.FGTerrain,
+            NormalEdgeStrength = 0f,
+            DepthEdgeStrength = 0f,
+            RainbowMix = 0f
         });
 
         OnDashCollide = (player, dir) =>
@@ -170,6 +173,10 @@ public class Shapeshifter : Solid
             Collider = null;
         }
 
+        mesh.DepthEdgeStrength = 0.8f;
+        mesh.NormalEdgeStrength = 0.5f;
+        //mesh.RainbowMix = 0.2f;
+
         Vector2 offset = Position - path.Start;
         yield return Util.Interpolate(path.Duration, t =>
         {
@@ -181,9 +188,9 @@ public class Shapeshifter : Solid
             else
                 Position = next;
 
-            yaw = path.Yaw * MathHelper.PiOver2 * t;
-            pitch = path.Pitch * MathHelper.PiOver2 * t;
-            roll = path.Roll * MathHelper.PiOver2 * t;
+            yaw = path.Yaw * MathHelper.PiOver2 * ease;
+            pitch = path.Pitch * MathHelper.PiOver2 * ease;
+            roll = path.Roll * MathHelper.PiOver2 * ease;
         });
 
         BuildCollider();
