@@ -59,6 +59,40 @@ public static class Extensions
         return null;
     }
 
+    public static Ease.Easer Easer(this EntityData data, string key, Ease.Easer defaultEaser = null)
+        => data.Attr(key) switch
+        {
+            "Linear" => Ease.Linear,
+            "SineIn" => Ease.SineIn,
+            "SineOut" => Ease.SineOut,
+            "SineInOut" => Ease.SineInOut,
+            "QuadIn" => Ease.QuadIn,
+            "QuadOut" => Ease.QuadOut,
+            "QuadInOut" => Ease.QuadInOut,
+            "CubeIn" => Ease.CubeIn,
+            "CubeOut" => Ease.CubeOut,
+            "CubeInOut" => Ease.CubeInOut,
+            "QuintIn" => Ease.QuintIn,
+            "QuintOut" => Ease.QuintOut,
+            "QuintInOut" => Ease.QuintInOut,
+            "ExpoIn" => Ease.ExpoIn,
+            "ExpoOut" => Ease.ExpoOut,
+            "ExpoInOut" => Ease.ExpoInOut,
+            "BackIn" => Ease.BackIn,
+            "BackOut" => Ease.BackOut,
+            "BackInOut" => Ease.BackInOut,
+            "BigBackIn" => Ease.BigBackIn,
+            "BigBackOut" => Ease.BigBackOut,
+            "BigBackInOut" => Ease.BigBackInOut,
+            "ElasticIn" => Ease.ElasticIn,
+            "ElasticOut" => Ease.ElasticOut,
+            "ElasticInOut" => Ease.ElasticInOut,
+            "BounceIn" => Ease.BounceIn,
+            "BounceOut" => Ease.BounceOut,
+            "BounceInOut" => Ease.BounceInOut,
+            _ => defaultEaser ?? Ease.Linear,
+        };
+
     public static Vector2 CorrectJoystickPrecision(this Vector2 dir)
     {
         if (dir.X != 0f && Math.Abs(dir.X) < 0.001f)

@@ -1,17 +1,45 @@
 local drawableSprite = require "structs.drawable_sprite"
 local drawableLine = require "structs.drawable_line"
 local utils = require "utils"
+local mods = require "mods"
+local communalHelper = mods.requireFromPlugin "libraries.communal_helper"
 
 local path = {}
 
-path.name = "CommunalHelper/ShapeshiterPath"
+path.name = "CommunalHelper/ShapeshifterPath"
 path.depth = -1000000
 path.nodeLimits = {3, 3}
 path.nodeVisibility = "never"
 
+path.fieldInformation = {
+    duration = {
+        fieldType = "number",
+        minimumValue = 0.0
+    },
+    easer = {
+        editable = false,
+        options = communalHelper.easers,
+    },
+    rotateYaw = {
+        fieldType = "integer",
+    },
+    rotatePitch = {
+        fieldType = "integer",
+    },
+    rotateRoll = {
+        fieldType = "integer",
+    },
+}
+
 path.placements = {
     name = "shapeshiter_path",
-    data = {}
+    data = {
+        duration = 2.0,
+        easer = "Linear",
+        rotateYaw = 0,
+        rotatePitch = 0,
+        rotateRoll = 0,
+    }
 }
 
 local function getCubicCurvePoint(start, stop, controlA, controlB, t)

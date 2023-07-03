@@ -1,9 +1,54 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities.Misc;
 using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections;
 using System.Linq;
+using System.Threading;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
+
+[CustomEntity("CommunalHelper/ShapeshifterPath")]
+[Tracked]
+public sealed class ShapeshifterPath : Entity
+{
+    public BakedCurve Curve { get; }
+    public Vector2 Start { get; }
+
+    public Ease.Easer Easer { get; }
+    public float Duration { get; }
+
+    public int Yaw { get; }
+    public int Pitch { get; }
+    public int Roll { get; }
+
+    public ShapeshifterPath(EntityData data, Vector2 offset)
+        : this
+        (
+            data.NodesWithPosition(offset),
+            data.Easer("easer"),
+            data.Float("duration", 2.0f),
+            data.Int("rotateYaw"),
+            data.Int("rotatePitch"),
+            data.Int("rotateRoll")
+        )
+    { }
+
+    public ShapeshifterPath(Vector2[] points, Ease.Easer easer, float duration, int yaw, int pitch, int roll)
+    {
+        if (points.Length is not 4)
+            throw new ArgumentException("points must be an array of 4 points", nameof(points));
+
+        Start = points[0];
+        Curve = new BakedCurve(points, CurveType.Cubic, 32);
+
+        Easer = easer;
+        Duration = duration;
+
+        Yaw = yaw;
+        Pitch = pitch;
+        Roll = roll;
+    }
+}
 
 [CustomEntity("CommunalHelper/Shapeshifter")]
 public class Shapeshifter : Solid
@@ -12,6 +57,9 @@ public class Shapeshifter : Solid
     private readonly int width, height, depth;
 
     private readonly Shape3D mesh;
+    private float yaw, pitch, roll;
+
+    private ShapeshifterPath path;
 
     public Shapeshifter(EntityData data, Vector2 offset)
         : this
@@ -56,13 +104,18 @@ public class Shapeshifter : Solid
             Depth = Depths.FGTerrain
         });
 
+        OnDashCollide = (player, dir) =>
+        {
+            if (path is not null)
+                Add(new Coroutine(Sequence()));
+            return DashCollisionResults.Rebound;
+        };
+
         BuildCollider();
     }
-    
+
     private void BuildCollider()
     {
-        float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
-
         int qYaw = Util.Mod((int) Math.Round(yaw / MathHelper.PiOver2), 4);
         int qPitch = Util.Mod((int) Math.Round(pitch / MathHelper.PiOver2), 4);
         int qRoll = Util.Mod((int) Math.Round(roll / MathHelper.PiOver2), 4);
@@ -107,5 +160,54 @@ public class Shapeshifter : Solid
             hitbox.Position += offset;
 
         //sfx.Position = Center - Position;
+    }
+
+    private IEnumerator Sequence()
+    {
+        if (path.Yaw != 0f || path.Pitch != 0f || path.Roll != 0f)
+        {
+            Collidable = false;
+            Collider = null;
+        }
+
+        Vector2 offset = Position - path.Start;
+        yield return Util.Interpolate(path.Duration, t =>
+        {
+            float ease = path.Easer(t);
+
+            Vector2 next = path.Curve.GetPointByDistance(ease * path.Curve.Length) + offset;
+            if (Collidable)
+                MoveTo(next);
+            else
+                Position = next;
+
+            yaw = path.Yaw * MathHelper.PiOver2 * t;
+            pitch = path.Pitch * MathHelper.PiOver2 * t;
+            roll = path.Roll * MathHelper.PiOver2 * t;
+        });
+
+        BuildCollider();
+        Collidable = true;
+    }
+
+    public override void Awake(Scene scene)
+    {
+        base.Awake(scene);
+
+        var bounds = Collider.Bounds;
+        var paths = Scene.Tracker.GetEntities<ShapeshifterPath>()
+                                 .Cast<ShapeshifterPath>();
+        foreach (ShapeshifterPath path in paths)
+        {
+            var ptRect = new Rectangle((int)path.Start.X - 2, (int)path.Start.Y - 2, 4, 4);
+            if (bounds.Intersects(ptRect))
+                this.path = path;
+        }
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        mesh.Matrix = Matrix.CreateFromYawPitchRoll(yaw, pitch, roll);
     }
 }

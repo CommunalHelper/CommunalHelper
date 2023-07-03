@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper;
@@ -231,5 +232,17 @@ public static class Util
         }
 
         return colliders.colliders.Length > 0 ? colliders : null;
+    }
+
+    public static IEnumerator Interpolate(float duration, Action<float> action)
+    {
+        float t = duration;
+        while (t > 0.0f)
+        {
+            action(1 - t / duration);
+            t = Calc.Approach(t, 0.0f, Engine.DeltaTime);
+            yield return null;
+        }
+        action(1.0f);
     }
 }

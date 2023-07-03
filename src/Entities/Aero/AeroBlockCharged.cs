@@ -148,7 +148,7 @@ public class AeroBlockCharged : AeroBlockFlying
         Hover = hover;
 
         if (positions.Length is 0)
-            throw new ArgumentException(nameof(positions), "The array of positions must have at least one element (the first one being the starting position of the entity).");
+            throw new ArgumentException("The array of positions must have at least one element (the first one being the starting position of the entity).", nameof(positions));
         this.positions = positions;
         
         sequence = ParseButtonSequence(buttonSequence, positions.Length);
