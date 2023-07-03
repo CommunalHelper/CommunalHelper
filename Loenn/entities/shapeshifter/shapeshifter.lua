@@ -30,6 +30,7 @@ shapeshifter.placements = {
             voxelHeight = 1,
             voxelDepth = 1,
             model = "",
+            atlas = "",
         }
     }
 }

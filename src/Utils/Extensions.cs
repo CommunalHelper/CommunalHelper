@@ -597,6 +597,109 @@ public static class Extensions
 
     #endregion
 
+    #region 3D-arrays
+
+    public static T[,,] RotateXCounterclockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sy, sz, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[y, z, x] = array[z, sy - y - 1, x];
+        return result;
+    }
+
+    public static T[,,] RotateXClockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sy, sz, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[y, z, x] = array[sz - z - 1, y, x];
+        return result;
+    }
+
+    public static T[,,] MirrorAboutX<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sy, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, y, x] = array[sz - z - 1, sy - y - 1, x];
+        return result;
+    }
+
+    public static T[,,] RotateYCounterclockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sx, sy, sz];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[x, y, z] = array[z, y, sx - x - 1];
+        return result;
+    }
+
+    public static T[,,] RotateYClockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sx, sy, sz];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[x, y, z] = array[sz - z - 1, y, x];
+        return result;
+    }
+
+    public static T[,,] MirrorAboutY<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sy, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, y, x] = array[sz - z - 1, y, sx - x - 1];
+        return result;
+    }
+
+    public static T[,,] RotateZCounterclockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sx, sy];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, x, y] = array[z, y, sx - x - 1];
+        return result;
+    }
+
+    public static T[,,] RotateZClockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sx, sy];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, x, y] = array[z, sy - y - 1, x];
+        return result;
+    }
+
+    public static T[,,] MirrorAboutZ<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sy, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, y, x] = array[z, sy - y - 1, sx - x - 1];
+        return result;
+    }
+
+    #endregion
+
     public static XmlDocument LoadXML(this ModAsset asset)
     {
         XmlDocument xml = new();
