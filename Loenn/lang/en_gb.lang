@@ -732,6 +732,11 @@ triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.yes=Enable Elytra
 triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.no=Disable Elytra
 triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.allow=Whether the player can deploy its elytra after going through the trigger.\nThe elytra is deployed with a keybind configured in mod settings.\nDefault is W on keyboard, and Left Shoulder on controller.
 
+# Solar Elevator Level Trigger
+triggers.CommunalHelper/SolarElevatorLevelTrigger.placements.name.trigger=Set Solar Elevator Level
+triggers.CommunalHelper/SolarElevatorLevelTrigger.attributes.description.elevatorID=The entity ID of the elevator to modify in this room. (integer)
+triggers.CommunalHelper/SolarElevatorLevelTrigger.attributes.description.position=Determines which of the two floors the elevator is sent to.\n- Closest: the one closest to the player when entering the trigger.\n- Bottom: always the bottom floor.\n- Top: always the top floor.
+
 # Cloudscape
 style.effects.CommunalHelper/Cloudscape.name=Cloudscape
 style.effects.CommunalHelper/Cloudscape.description.seed=The RNG seed that this cloudscape instance will be generated with.

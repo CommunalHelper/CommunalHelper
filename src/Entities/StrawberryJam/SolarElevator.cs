@@ -6,6 +6,7 @@ using System.Collections.Generic;
 namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 
 [CustomEntity("CommunalHelper/SJ/SolarElevator")]
+[Tracked]
 public class SolarElevator : Solid
 {
     private sealed class Background : Entity
@@ -72,8 +73,11 @@ public class SolarElevator : Solid
 
     private readonly HashSet<Actor> riders;
 
-    public SolarElevator(EntityData data, Vector2 offset)
+    public EntityID ID { get; }
+
+    public SolarElevator(EntityData data, Vector2 offset, EntityID id)
         : this(
+              id,
               data.Position + offset,
               data.Int("distance", 128),
               data.Int("bgDepth", Depths.BGDecals),
@@ -89,7 +93,7 @@ public class SolarElevator : Solid
         )
     { }
 
-    public SolarElevator(Vector2 position,
+    public SolarElevator(EntityID id, Vector2 position,
         int distance,
         int bgDepth,
         float time,
@@ -103,6 +107,8 @@ public class SolarElevator : Solid
         string reskinDirectory = "")
         : base(position, 56, 80, safe: true)
     {
+        ID = id;
+
         Depth = Depths.FGDecals;
         SurfaceSoundIndex = SurfaceIndex.MoonCafe;
 
@@ -224,6 +230,50 @@ public class SolarElevator : Solid
             if (CanCarry(holdable))
                 return true;
         return false;
+    }
+
+    public void SetLevel(StartPosition position)
+    {
+        if (Moving)
+        {
+            Get<Coroutine>()?.RemoveSelf();
+            sfx.Stop();
+            UpdateCollider(open: true);
+            interaction.Enabled = true;
+            Moving = false;
+        }
+
+        switch (position)
+        {
+            case StartPosition.Bottom:
+                Y = StartY;
+                AtGroundFloor = true;
+                break;
+
+            case StartPosition.Top:
+                Y = StartY - Distance;
+                AtGroundFloor = false;
+                break;
+
+            default:
+            case StartPosition.Closest:
+                Player player = Scene.Tracker.GetEntity<Player>();
+                if (player is null)
+                    return;
+                float distanceFromStart = Vector2.DistanceSquared(player.Center, Position);
+                float distanceFromEnd = Vector2.DistanceSquared(player.Center, Position - Vector2.UnitY * Distance);
+                if (distanceFromStart > distanceFromEnd)
+                {
+                    Y = StartY;
+                    AtGroundFloor = true;
+                }
+                else
+                {
+                    Y = StartY - Distance;
+                    AtGroundFloor = false;
+                }
+                break;
+        }
     }
 
     public override void Update()
