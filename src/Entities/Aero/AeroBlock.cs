@@ -96,8 +96,6 @@ public abstract class AeroBlock : Solid
                     });
             }
         }
-
-        Console.WriteLine("remade tiles " + path);
     }
 
     public override void Awake(Scene scene)
