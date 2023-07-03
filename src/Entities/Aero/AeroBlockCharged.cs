@@ -22,12 +22,11 @@ public class AeroBlockCharged : AeroBlockFlying
     }
 
     public static MTexture ButtonFillTexture, ButtonOutlineTexture;
+    private static readonly Color offColor = Calc.HexToColor("FFFFFF");
+    private static readonly Color onColor = Calc.HexToColor("4BC0C8");
 
     private class Button
     {
-        private static readonly Color offColor = Calc.HexToColor("FFFFFF");
-        private static readonly Color onColor = Calc.HexToColor("4BC0C8");
-
         private readonly Image[] buttonImages, buttonOutlineImages;
 
         private bool visible;
@@ -63,14 +62,11 @@ public class AeroBlockCharged : AeroBlockFlying
         }
 
         private readonly Vector2 perp;
-        private readonly Entity entity;
 
         private float lerp;
 
         private Button(Entity entity, int length, bool visible, Vector2 offset, Vector2 dir, float angle)
         {
-            this.entity = entity;
-
             buttonImages = new Image[length];
             buttonOutlineImages = new Image[length];
 
@@ -133,6 +129,9 @@ public class AeroBlockCharged : AeroBlockFlying
     private float buttonSfxLerp;
     private SoundSource buttonSfx;
 
+    private readonly AeroScreen_Wind windLayer;
+    private readonly SineWave windSine;
+
     public AeroBlockCharged(EntityData data, Vector2 offset)
         : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
     { }
@@ -155,6 +154,9 @@ public class AeroBlockCharged : AeroBlockFlying
             Position = new Vector2(width, height) / 2.0f,
             RemoveOnOneshotEnd = false,
         });
+
+        AddScreenLayer(windLayer = new(width, height));
+        Add(windSine = new(2.0f));
     }
 
     private static ButtonCombination[] ParseButtonSequence(string sequence, int max)
@@ -206,6 +208,7 @@ public class AeroBlockCharged : AeroBlockFlying
         Audio.Play(CustomSFX.game_aero_block_smash, Center, "magic", 1.0f);
         Input.Rumble(RumbleStrength.Strong, RumbleLength.Short);
         (Scene as Level).DirectionalShake(Vector2.UnitY);
+        windLayer.MulitplyVelocities(-0.5f);
     }
 
     public override void Update()
@@ -237,6 +240,17 @@ public class AeroBlockCharged : AeroBlockFlying
         }
 
         buttonSfx.Param("charge", buttonSfxLerp);
+
+        if (CheckLeftButton())
+            windLayer.Wind = new(-300, windSine.Value * 100);
+        else if (CheckRightButton())
+            windLayer.Wind = new(300, windSine.Value * 100);
+        else if (CheckTopButton())
+            windLayer.Wind = new(windSine.Value * 100, -300);
+        else
+            windLayer.Wind = new(windSine.Value * 3, 16);
+
+        windLayer.Color = Color.Lerp(Color.Transparent, onColor, buttonSfxLerp * 0.5f + 0.5f);
     }
 
     #region Hooks

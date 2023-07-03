@@ -29,6 +29,8 @@ public class AeroBlockFlying : AeroBlock
     private readonly SineWave sine;
     private readonly SoundSource sfx;
 
+    public bool Hover { get; set; } = true;
+
     public AeroBlockFlying(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Bool("inactive", false))
     { }
@@ -73,6 +75,7 @@ public class AeroBlockFlying : AeroBlock
 
         airborne = !CollideCheck<Platform>(Position + Vector2.UnitY);
     }
+
     public void GotoHome()
     {
         Vector2 offset = Home - Position;
@@ -138,13 +141,16 @@ public class AeroBlockFlying : AeroBlock
         }
         else
         {
-            Vector2 target = Carrying
+            Vector2 target = Carrying && Hover
                 ? Home + Vector2.UnitY * 18
                 : Home;
 
             carryLerp = Calc.Approach(carryLerp, Carrying ? 1 : 0, Engine.DeltaTime * 1.5f);
 
-            Vector2 to = target + Vector2.UnitY * sine.Value * 7f;
+            Vector2 to = target;
+            if (Hover)
+                to += Vector2.UnitY * sine.Value * 7f;
+
             bool slow = target.Y < Y && Speed.Y < 0 && !Carrying;
 
             accelLerp = Calc.Approach(accelLerp, Math.Sign(Speed.Y), Engine.DeltaTime * 1.12f);
