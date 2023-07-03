@@ -18,7 +18,9 @@ aeroBlockCharged.placements = {
         data = {
             width = 16,
             height = 16,
-            buttonSequence = "left -> right+top"
+            buttonSequence = "left -> right+top",
+            hover = true,
+            loop = false,
         }
     }
 }

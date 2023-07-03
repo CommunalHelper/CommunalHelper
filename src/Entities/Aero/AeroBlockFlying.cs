@@ -54,7 +54,7 @@ public class AeroBlockFlying : AeroBlock
             Matrix = Matrix.CreateRotationX(MathHelper.PiOver2),
             Texture = CommunalHelperGFX.Blank,
             HighlightStrength = 0.5f,
-            Depth = Depths.BGTerrain,
+            Depth = Depths.FGTerrain,
         });
         propeller.SetTint(propellerColor);
 

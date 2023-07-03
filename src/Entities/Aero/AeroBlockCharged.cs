@@ -25,7 +25,7 @@ public class AeroBlockCharged : AeroBlockFlying
     private static readonly Color onColor = Calc.HexToColor("4BC0C8");
     private static readonly Color endColor = Color.Tomato;
 
-    private class Button
+    private sealed class Button
     {
         private readonly Image[] buttonImages, buttonOutlineImages;
 
@@ -120,8 +120,10 @@ public class AeroBlockCharged : AeroBlockFlying
     }
 
     private const string DEFAULT_BUTTON_SEQUENCE = "horizontal";
-    private ButtonCombination[] sequence;
-    private int index;
+    private readonly ButtonCombination[] sequence;
+    private int positionIndex, combinationIndex;
+
+    private readonly bool loop;
 
     private bool alive = true;
 
@@ -129,7 +131,7 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private bool buttonSfxOn = false;
     private float buttonSfxLerp;
-    private SoundSource buttonSfx;
+    private readonly SoundSource buttonSfx;
 
     private readonly AeroScreen_Wind windLayer;
     private readonly SineWave windSine;
@@ -137,19 +139,22 @@ public class AeroBlockCharged : AeroBlockFlying
     private readonly Vector2[] positions;
 
     public AeroBlockCharged(EntityData data, Vector2 offset)
-        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
+        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("loop"), data.Bool("hover", true), data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
     { }
 
-    public AeroBlockCharged(Vector2[] positions, int width, int height, string buttonSequence = DEFAULT_BUTTON_SEQUENCE)
+    public AeroBlockCharged(Vector2[] positions, int width, int height, bool loop, bool hover = true, string buttonSequence = DEFAULT_BUTTON_SEQUENCE)
         : base(positions[0], width, height)
     {
+        Hover = hover;
+
         if (positions.Length is 0)
             throw new ArgumentException(nameof(positions), "The array of positions must have at least one element (the first one being the starting position of the entity).");
         this.positions = positions;
         
         sequence = ParseButtonSequence(buttonSequence, positions.Length);
-
         ChangeCombination(sequence[0], makeTiles: false);
+
+        this.loop = loop;
 
         Add(buttonSfx = new(CustomSFX.game_aero_block_button_charge)
         {
@@ -225,7 +230,6 @@ public class AeroBlockCharged : AeroBlockFlying
         alive = false;
 
         Deactivate();
-        RemoveScreenLayer(windLayer);
 
         MTexture icon = GFX.Game["objects/CommunalHelper/aero_block/icons/x5"];
         AeroScreen_Blinker blinker;
@@ -235,11 +239,15 @@ public class AeroBlockCharged : AeroBlockFlying
             BackgroundColor = Color.Tomato,
             IconColor = Color.White,
             Sound = CustomSFX.game_aero_block_success,
-            FadeIn = 0.5f,
-            Hold = 0.2f,
+            FadeIn = 0f,
+            Hold = 0.5f,
             FadeOut = 0.5f,
         });
-        Alarm.Set(this, 0.5f, () => blinker.Complete = true); 
+        Alarm.Set(this, 0.5f, () =>
+        {
+            blinker.Complete = true;
+            RemoveScreenLayer(windLayer);
+        }); 
     }
 
     private void Smash(Player player, Vector2 speed)
@@ -255,11 +263,14 @@ public class AeroBlockCharged : AeroBlockFlying
         (Scene as Level).DirectionalShake(Vector2.UnitY);
         windLayer.MulitplyVelocities(-0.5f);
 
-        index++;
-        if (index < positions.Length)
+        positionIndex++;
+        if (loop)
+            positionIndex %= positions.Length;
+        combinationIndex = (combinationIndex + 1) % sequence.Length;
+        if (positionIndex < positions.Length)
         {
-            Home = positions[index];
-            ChangeCombination(sequence[index % sequence.Length]);
+            Home = positions[positionIndex];
+            ChangeCombination(sequence[combinationIndex]);
         }
         else
         {
