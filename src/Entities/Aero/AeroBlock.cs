@@ -39,13 +39,13 @@ public abstract class AeroBlock : Solid
     private uint noise;
     private readonly HashSet<AeroScreen> screens = new(), removed = new();
 
-    protected HashSet<JumpThru> jumpthrus { get; private set; } = new();
-    protected HashSet<Solid> sidewaysJumpthruSolids { get; private set; } = new();
+    protected readonly HashSet<JumpThru> jumpthrus = new();
+    protected readonly HashSet<Solid> sidewaysJumpthruSolids = new();
     private const string AttachedSidewaysJumpThru = "Celeste.Mod.MaxHelpingHand.Entities.AttachedSidewaysJumpThru";
 
     protected float Rotation { get; set; }
 
-    protected string BlockPath { get; set; } = "objects/CommunalHelper/aero_block/blocks/nnn";
+    private Image[,] tiles;
 
     public AeroBlock(Vector2 position, int width, int height)
         : base(position, width, height, safe: false)
@@ -62,10 +62,27 @@ public abstract class AeroBlock : Solid
     public override void Added(Scene scene)
     {
         base.Added(scene);
+        scene.Add(outline = new(this));
+        RemakeBlockTiles(force: false);
+    }
+
+    protected void RemakeBlockTiles(string path = "objects/CommunalHelper/aero_block/blocks/nnn", bool force = true)
+    {
+        if (tiles is not null)
+        {
+            if (!force)
+                return;
+
+            foreach (Image image in tiles)
+                Remove(image);
+        }
 
         int w = (int) (Width / 8);
         int h = (int) (Height / 8);
-        MTexture nineSlice = GFX.Game[BlockPath];
+
+        tiles = new Image[w, h];
+
+        MTexture nineSlice = GFX.Game[path];
         for (int i = 0; i < w; i++)
         {
             for (int j = 0; j < h; j++)
@@ -73,14 +90,14 @@ public abstract class AeroBlock : Solid
                 int tx = i == 0 ? 0 : (i == w - 1 ? 16 : 8);
                 int ty = j == 0 ? 0 : (j == h - 1 ? 16 : 8);
                 if (tx is not 8 || ty is not 8)
-                    Add(new Image(nineSlice.GetSubtexture(tx, ty, 8, 8))
+                    Add(tiles[i, j] = new Image(nineSlice.GetSubtexture(tx, ty, 8, 8))
                     {
                         Position = new(i * 8, j * 8),
                     });
             }
         }
 
-        scene.Add(outline = new(this));
+        Console.WriteLine("remade tiles " + path);
     }
 
     public override void Awake(Scene scene)

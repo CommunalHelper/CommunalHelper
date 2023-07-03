@@ -2,7 +2,7 @@
 
 public sealed class AeroScreen_Wind : AeroScreen
 {
-    public override float Period => 0.05f;
+    public override float Period => 0.045f;
 
     private struct Particle
     {

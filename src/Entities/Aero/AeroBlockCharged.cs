@@ -1,5 +1,4 @@
-﻿using Mono.Cecil.Pdb;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -22,8 +21,9 @@ public class AeroBlockCharged : AeroBlockFlying
     }
 
     public static MTexture ButtonFillTexture, ButtonOutlineTexture;
-    private static readonly Color offColor = Calc.HexToColor("FFFFFF");
+    private static readonly Color offColor = Color.White;
     private static readonly Color onColor = Calc.HexToColor("4BC0C8");
+    private static readonly Color endColor = Color.Tomato;
 
     private class Button
     {
@@ -45,7 +45,7 @@ public class AeroBlockCharged : AeroBlockFlying
         private bool pressed;
         public bool Pressed
         {
-            get => pressed;
+            get => pressed && visible;
             private set
             {
                 if (pressed != value)
@@ -104,7 +104,7 @@ public class AeroBlockCharged : AeroBlockFlying
                 ? 1.0f
                 : Calc.Approach(lerp, 0.0f, Engine.DeltaTime * 4f);
 
-            Color color = Color.Lerp(offColor, onColor, lerp);
+            Color color = Color.Lerp(offColor, self.alive ? onColor : endColor, lerp);
             for (int i = 0; i < buttonImages.Length; i++)
                 buttonImages[i].Color = color;
         }
@@ -123,6 +123,8 @@ public class AeroBlockCharged : AeroBlockFlying
     private ButtonCombination[] sequence;
     private int index;
 
+    private bool alive = true;
+
     private Button leftButton, rightButton, topButton;
 
     private bool buttonSfxOn = false;
@@ -131,6 +133,8 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private readonly AeroScreen_Wind windLayer;
     private readonly SineWave windSine;
+
+    private readonly Vector2[] positions;
 
     public AeroBlockCharged(EntityData data, Vector2 offset)
         : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
@@ -141,13 +145,11 @@ public class AeroBlockCharged : AeroBlockFlying
     {
         if (positions.Length is 0)
             throw new ArgumentException(nameof(positions), "The array of positions must have at least one element (the first one being the starting position of the entity).");
-
+        this.positions = positions;
+        
         sequence = ParseButtonSequence(buttonSequence, positions.Length);
-        BlockPath = GetBlockPath(sequence[0]);
 
-        if (sequence[0].HasFlag(ButtonCombination.LEFT)) leftButton = Button.LeftButton(this, true);
-        if (sequence[0].HasFlag(ButtonCombination.RIGHT)) rightButton = Button.RightButton(this, true);
-        if (sequence[0].HasFlag(ButtonCombination.TOP)) topButton = Button.TopButton(this, true);
+        ChangeCombination(sequence[0], makeTiles: false);
 
         Add(buttonSfx = new(CustomSFX.game_aero_block_button_charge)
         {
@@ -200,8 +202,51 @@ public class AeroBlockCharged : AeroBlockFlying
     public bool CheckRightButton() => rightButton?.Pressed ?? false;
     public bool CheckAnyButton() => CheckLeftButton() || CheckTopButton() || CheckRightButton();
 
+    private void ChangeCombination(ButtonCombination combination, bool makeTiles = true)
+    {
+        if (makeTiles)
+           RemakeBlockTiles(GetBlockPath(combination));
+
+        leftButton ??= Button.LeftButton(this, true);
+        if (leftButton is not null)
+            leftButton.Visible = combination.HasFlag(ButtonCombination.LEFT);
+
+        rightButton ??= Button.RightButton(this, true);
+        if (rightButton is not null)
+            rightButton.Visible = combination.HasFlag(ButtonCombination.RIGHT);
+
+        topButton ??= Button.TopButton(this, true);
+        if (topButton is not null)
+            topButton.Visible = combination.HasFlag(ButtonCombination.TOP);
+    }
+
+    private void EndSequence()
+    {
+        alive = false;
+
+        Deactivate();
+        RemoveScreenLayer(windLayer);
+
+        MTexture icon = GFX.Game["objects/CommunalHelper/aero_block/icons/x5"];
+        AeroScreen_Blinker blinker;
+        AddScreenLayer(blinker = new(icon)
+        {
+            Offset = new Vector2(Width / 2 - 2, Height / 2 - 2),
+            BackgroundColor = Color.Tomato,
+            IconColor = Color.White,
+            Sound = CustomSFX.game_aero_block_success,
+            FadeIn = 0.5f,
+            Hold = 0.2f,
+            FadeOut = 0.5f,
+        });
+        Alarm.Set(this, 0.5f, () => blinker.Complete = true); 
+    }
+
     private void Smash(Player player, Vector2 speed)
     {
+        if (!alive)
+            return;
+
         player.Speed = speed;
         player.StateMachine.State = Player.StLaunch;
         Celeste.Freeze(0.05f);
@@ -209,6 +254,23 @@ public class AeroBlockCharged : AeroBlockFlying
         Input.Rumble(RumbleStrength.Strong, RumbleLength.Short);
         (Scene as Level).DirectionalShake(Vector2.UnitY);
         windLayer.MulitplyVelocities(-0.5f);
+
+        index++;
+        if (index < positions.Length)
+        {
+            Home = positions[index];
+            ChangeCombination(sequence[index % sequence.Length]);
+        }
+        else
+        {
+            EndSequence();
+        }
+    }
+
+    public override void Added(Scene scene)
+    {
+        RemakeBlockTiles(GetBlockPath(sequence[0]));
+        base.Added(scene);
     }
 
     public override void Update()
@@ -224,33 +286,36 @@ public class AeroBlockCharged : AeroBlockFlying
         {
             if (!buttonSfxOn)
             {
-                Audio.Play(CustomSFX.game_aero_block_button_press);
+                Audio.Play(CustomSFX.game_aero_block_button_press, Center);
                 buttonSfxOn = true;
             }
-            buttonSfxLerp = Calc.Approach(buttonSfxLerp, 1.0f, Engine.DeltaTime / 2f);
         }
         else
         {
             if (buttonSfxOn)
             {
-                Audio.Play(CustomSFX.game_aero_block_button_let_go);
+                Audio.Play(CustomSFX.game_aero_block_button_let_go, Center);
                 buttonSfxOn = false;
             }
-            buttonSfxLerp = Calc.Approach(buttonSfxLerp, 0.0f, Engine.DeltaTime / 3f);
         }
 
+        float chargeSoundRate = buttonSfxOn ? 2.0f : (alive ? 3.0f : 4.0f);
+        buttonSfxLerp = Calc.Approach(buttonSfxLerp, buttonSfxOn && alive ? 1.0f : 0.0f, Engine.DeltaTime / chargeSoundRate);
         buttonSfx.Param("charge", buttonSfxLerp);
 
-        if (CheckLeftButton())
-            windLayer.Wind = new(-300, windSine.Value * 100);
-        else if (CheckRightButton())
-            windLayer.Wind = new(300, windSine.Value * 100);
-        else if (CheckTopButton())
-            windLayer.Wind = new(windSine.Value * 100, -300);
-        else
-            windLayer.Wind = new(windSine.Value * 3, 16);
+        if (alive)
+        {
+            if (CheckLeftButton())
+                windLayer.Wind = new(-300, windSine.Value * 100);
+            else if (CheckRightButton())
+                windLayer.Wind = new(300, windSine.Value * 100);
+            else if (CheckTopButton())
+                windLayer.Wind = new(windSine.Value * 100, -300);
+            else
+                windLayer.Wind = new(windSine.Value * 3, 16);
 
-        windLayer.Color = Color.Lerp(Color.Transparent, onColor, buttonSfxLerp * 0.5f + 0.5f);
+            windLayer.Color = Color.Lerp(Color.Transparent, onColor, buttonSfxLerp * 0.5f + 0.5f);
+        }
     }
 
     #region Hooks
