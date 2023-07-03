@@ -92,4 +92,7 @@
 {5689c0ff-57a2-4051-aee6-aaebc041c3d0} event:/CommunalHelperEvents/game/aero_block/static
 {59ecb315-9286-48c5-97bd-971e5eebbee1} event:/CommunalHelperEvents/game/aero_block/success
 {e043cfe7-205b-4f4b-8477-5d7dcdf9d423} event:/CommunalHelperEvents/game/aero_block/warn
+{1fa352f4-ebb8-40ad-bd43-fa88388cfef2} event:/CommunalHelperEvents/game/aero_block/button_charge
+{9cde8f1f-089f-4884-8782-0940bf9b8c7b} event:/CommunalHelperEvents/game/aero_block/button_let_go
+{1dbe309d-5a57-472f-9f3f-110d0f51d297} event:/CommunalHelperEvents/game/aero_block/button_press
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank

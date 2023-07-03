@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.Helpers;
+using FMOD.Studio;
 using Microsoft.Xna.Framework.Graphics;
 using MonoMod.Utils;
 using System.Collections;
@@ -604,4 +605,9 @@ public static class Extensions
     }
 
     public static Vector2 XY(this Vector3 v) => new(v.X, v.Y);
+
+    public static void Rewind(this SoundSource sfx)
+        => DynamicData.For(sfx)
+                      .Get<EventInstance>("instance")
+                      .setTimelinePosition(0);
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Mono.Cecil.Pdb;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -24,6 +25,9 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private class Button
     {
+        private static readonly Color offColor = Calc.HexToColor("FFFFFF");
+        private static readonly Color onColor = Calc.HexToColor("4BC0C8");
+
         private readonly Image[] buttonImages, buttonOutlineImages;
 
         private bool visible;
@@ -59,9 +63,14 @@ public class AeroBlockCharged : AeroBlockFlying
         }
 
         private readonly Vector2 perp;
+        private readonly Entity entity;
+
+        private float lerp;
 
         private Button(Entity entity, int length, bool visible, Vector2 offset, Vector2 dir, float angle)
         {
+            this.entity = entity;
+
             buttonImages = new Image[length];
             buttonOutlineImages = new Image[length];
 
@@ -91,19 +100,27 @@ public class AeroBlockCharged : AeroBlockFlying
             }
         }
 
+        public void Update(AeroBlockCharged self)
+        {
+            Pressed = self.CollideCheck<Player>(self.Position - perp * 3);
+
+            lerp = pressed
+                ? 1.0f
+                : Calc.Approach(lerp, 0.0f, Engine.DeltaTime * 4f);
+
+            Color color = Color.Lerp(offColor, onColor, lerp);
+            for (int i = 0; i < buttonImages.Length; i++)
+                buttonImages[i].Color = color;
+        }
+
         public static Button LeftButton(AeroBlockCharged entity, bool visible)
-            => new(entity, (int)entity.Height / 8, visible, Vector2.UnitY * (entity.Height - 4), -Vector2.UnitY, -MathHelper.PiOver2);
+            => new(entity, (int) entity.Height / 8, visible, Vector2.UnitY * (entity.Height - 4), -Vector2.UnitY, -MathHelper.PiOver2);
 
         public static Button RightButton(AeroBlockCharged entity, bool visible)
             => new(entity, (int) entity.Height / 8, visible, new(entity.Width, 4), Vector2.UnitY, +MathHelper.PiOver2);
 
         public static Button TopButton(AeroBlockCharged entity, bool visible)
             => new(entity, (int) entity.Width / 8, visible, Vector2.UnitX * 4, Vector2.UnitX, 0.0f);
-
-        public void Update(AeroBlockCharged self)
-        {
-            Pressed = self.CollideCheck<Player>(self.Position - perp * 2);
-        }
     }
 
     private const string DEFAULT_BUTTON_SEQUENCE = "horizontal";
@@ -111,6 +128,10 @@ public class AeroBlockCharged : AeroBlockFlying
     private int index;
 
     private Button leftButton, rightButton, topButton;
+
+    private bool buttonSfxOn = false;
+    private float buttonSfxLerp;
+    private SoundSource buttonSfx;
 
     public AeroBlockCharged(EntityData data, Vector2 offset)
         : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
@@ -128,6 +149,12 @@ public class AeroBlockCharged : AeroBlockFlying
         if (sequence[0].HasFlag(ButtonCombination.LEFT)) leftButton = Button.LeftButton(this, true);
         if (sequence[0].HasFlag(ButtonCombination.RIGHT)) rightButton = Button.RightButton(this, true);
         if (sequence[0].HasFlag(ButtonCombination.TOP)) topButton = Button.TopButton(this, true);
+
+        Add(buttonSfx = new(CustomSFX.game_aero_block_button_charge)
+        {
+            Position = new Vector2(width, height) / 2.0f,
+            RemoveOnOneshotEnd = false,
+        });
     }
 
     private static ButtonCombination[] ParseButtonSequence(string sequence, int max)
@@ -166,15 +193,17 @@ public class AeroBlockCharged : AeroBlockFlying
         return $"objects/CommunalHelper/aero_block/blocks/{(left ? y : n)}{(top ? y : n)}{(right ? y : n)}";
     }
 
-    private void GivePlayerBoostAndSlamBackwards(Player player, Vector2 speed)
-    {
-        //if (!PlayerIsOnButton())
-        //    return;
+    public bool CheckTopButton() => topButton?.Pressed ?? false;
+    public bool CheckLeftButton() => leftButton?.Pressed ?? false;
+    public bool CheckRightButton() => rightButton?.Pressed ?? false;
+    public bool CheckAnyButton() => CheckLeftButton() || CheckTopButton() || CheckRightButton();
 
+    private void Smash(Player player, Vector2 speed)
+    {
         player.Speed = speed;
         player.StateMachine.State = Player.StLaunch;
         Celeste.Freeze(0.05f);
-        Audio.Play(CustomSFX.game_aero_block_smash, Center);
+        Audio.Play(CustomSFX.game_aero_block_smash, Center, "magic", 1.0f);
         Input.Rumble(RumbleStrength.Strong, RumbleLength.Short);
         (Scene as Level).DirectionalShake(Vector2.UnitY);
     }
@@ -186,6 +215,28 @@ public class AeroBlockCharged : AeroBlockFlying
         leftButton?.Update(this);
         rightButton?.Update(this);
         topButton?.Update(this);
+
+        bool check = CheckAnyButton();
+        if (check)
+        {
+            if (!buttonSfxOn)
+            {
+                Audio.Play(CustomSFX.game_aero_block_button_press);
+                buttonSfxOn = true;
+            }
+            buttonSfxLerp = Calc.Approach(buttonSfxLerp, 1.0f, Engine.DeltaTime / 2f);
+        }
+        else
+        {
+            if (buttonSfxOn)
+            {
+                Audio.Play(CustomSFX.game_aero_block_button_let_go);
+                buttonSfxOn = false;
+            }
+            buttonSfxLerp = Calc.Approach(buttonSfxLerp, 0.0f, Engine.DeltaTime / 3f);
+        }
+
+        buttonSfx.Param("charge", buttonSfxLerp);
     }
 
     #region Hooks
@@ -215,32 +266,33 @@ public class AeroBlockCharged : AeroBlockFlying
         if (!self.OnGround())
             return;
 
-        AeroBlockCharged block = self.CollideFirst<AeroBlockCharged>(self.Position + Vector2.UnitY);
-        if (block is not null)
-            block.GivePlayerBoostAndSlamBackwards(self, -Vector2.UnitY * 350);
+        // jump
+        var block = self.CollideFirst<AeroBlockCharged>(self.Position + Vector2.UnitY);
+        if (block is not null && block.CheckTopButton())
+            block.Smash(self, Vector2.UnitY * -350);
     }
 
     private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
         orig(self, dir);
 
-        AeroBlockCharged block = self.CollideFirst<AeroBlockCharged>(self.Position - Vector2.UnitX * dir * 3);
-        if (block is not null)
-            block.GivePlayerBoostAndSlamBackwards(self, Vector2.UnitX * dir * 300 - Vector2.UnitY * 300);
+        // walljump
+        var block = self.CollideFirst<AeroBlockCharged>(self.Position - Vector2.UnitX * dir * 3);
+        if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
+            block.Smash(self, new Vector2(dir * 300, -300));
     }
 
     private static void Player_ClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
     {
         orig(self);
 
+        // climbjump
         int dir = (int) self.Facing;
-        AeroBlockCharged block = self.CollideFirst<AeroBlockCharged>(self.Position + Vector2.UnitX * dir);
-        if (block is not null)
+        var block = self.CollideFirst<AeroBlockCharged>(self.Position + Vector2.UnitX * dir);
+        if (block is not null && (dir > 0 ? block.CheckLeftButton() : block.CheckRightButton()))
         {
-            float speed = dir == Math.Sign(Input.MoveX.Value)
-                ? 300
-                : -300;
-            block.GivePlayerBoostAndSlamBackwards(self, Vector2.UnitX * dir * speed - Vector2.UnitY * 300);
+            float speed = dir == Math.Sign(Input.MoveX.Value) ? 300 : -300;
+            block.Smash(self, new Vector2(dir * speed, -300));
         }
     }
 
@@ -248,9 +300,10 @@ public class AeroBlockCharged : AeroBlockFlying
     {
         orig(self, dir);
 
-        AeroBlockCharged block = self.CollideFirst<AeroBlockCharged>(self.Position - Vector2.UnitX * dir * 3);
-        if (block is not null)
-            block.GivePlayerBoostAndSlamBackwards(self, Vector2.UnitX * dir * 300 - Vector2.UnitY * 400);
+        // wallbounce
+        var block = self.CollideFirst<AeroBlockCharged>(self.Position - Vector2.UnitX * dir * 3);
+        if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
+            block.Smash(self, new Vector2(300 * dir, -400));
     }
 
     private static void Player_SuperJump(On.Celeste.Player.orig_SuperJump orig, Player self)
@@ -260,9 +313,9 @@ public class AeroBlockCharged : AeroBlockFlying
         if (!self.OnGround())
             return;
 
-        AeroBlockCharged block = self.CollideFirst<AeroBlockCharged>(self.Position + Vector2.UnitY);
-        if (block is not null)
-            block.GivePlayerBoostAndSlamBackwards(self, new(self.Speed.X * 1.2f, -350));
+        var block = self.CollideFirst<AeroBlockCharged>(self.Position + Vector2.UnitY);
+        if (block is not null && block.CheckTopButton())
+            block.Smash(self, new Vector2(self.Speed.X * 1.2f, -350));
     }
 
     #endregion

@@ -124,6 +124,9 @@ public static class CustomSFX
     public const string game_aero_block_static = "event:/CommunalHelperEvents/game/aero_block/static";
     public const string game_aero_block_success = "event:/CommunalHelperEvents/game/aero_block/success";
     public const string game_aero_block_warn = "event:/CommunalHelperEvents/game/aero_block/warn";
+    public const string game_aero_block_button_charge = "event:/CommunalHelperEvents/game/aero_block/button_charge";
+    public const string game_aero_block_button_let_go = "event:/CommunalHelperEvents/game/aero_block/button_let_go";
+    public const string game_aero_block_button_press = "event:/CommunalHelperEvents/game/aero_block/button_press";
 }
 
 public static class CustomBanks
