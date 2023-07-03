@@ -59,8 +59,6 @@ public class Shapeshifter : Solid
     private readonly Shape3D mesh;
     private float yaw, pitch, roll;
 
-    private ShapeshifterPath path;
-
     public Shapeshifter(EntityData data, Vector2 offset)
         : this
         (
@@ -106,13 +104,6 @@ public class Shapeshifter : Solid
             DepthEdgeStrength = 0f,
             RainbowMix = 0f
         });
-
-        OnDashCollide = (player, dir) =>
-        {
-            if (path is not null)
-                Add(new Coroutine(Sequence()));
-            return DashCollisionResults.Rebound;
-        };
 
         BuildCollider();
     }
@@ -165,7 +156,22 @@ public class Shapeshifter : Solid
         //sfx.Position = Center - Position;
     }
 
-    private IEnumerator Sequence()
+    private ShapeshifterPath FindPath()
+    {
+        var bounds = Collider.Bounds;
+        var paths = Scene.Tracker.GetEntities<ShapeshifterPath>()
+                                 .Cast<ShapeshifterPath>();
+        foreach (ShapeshifterPath path in paths)
+        {
+            var ptRect = new Rectangle((int) path.Start.X - 2, (int) path.Start.Y - 2, 4, 4);
+            if (bounds.Intersects(ptRect))
+                return path;
+        }
+
+        return null;
+    }
+
+    private IEnumerator Sequence(ShapeshifterPath path)
     {
         if (path.Yaw != 0f || path.Pitch != 0f || path.Roll != 0f)
         {
@@ -173,9 +179,9 @@ public class Shapeshifter : Solid
             Collider = null;
         }
 
-        mesh.DepthEdgeStrength = 0.8f;
-        mesh.NormalEdgeStrength = 0.5f;
-        //mesh.RainbowMix = 0.2f;
+        float yawa = yaw, yawb = yawa + path.Yaw * MathHelper.PiOver2;
+        float pitcha = pitch, pitchb = pitcha + path.Pitch * MathHelper.PiOver2;
+        float rolla = roll, rollb = rolla + path.Roll * MathHelper.PiOver2;
 
         Vector2 offset = Position - path.Start;
         yield return Util.Interpolate(path.Duration, t =>
@@ -188,28 +194,16 @@ public class Shapeshifter : Solid
             else
                 Position = next;
 
-            yaw = path.Yaw * MathHelper.PiOver2 * ease;
-            pitch = path.Pitch * MathHelper.PiOver2 * ease;
-            roll = path.Roll * MathHelper.PiOver2 * ease;
+            yaw = MathHelper.Lerp(yawa, yawb, ease);
+            pitch = MathHelper.Lerp(pitcha, pitchb, ease);
+            roll = MathHelper.Lerp(rolla, rollb, ease);
+
+            mesh.DepthEdgeStrength = Ease.UpDown(t) * 0.8f;
+            mesh.NormalEdgeStrength = Ease.UpDown(t) * 0.5f;
         });
 
         BuildCollider();
         Collidable = true;
-    }
-
-    public override void Awake(Scene scene)
-    {
-        base.Awake(scene);
-
-        var bounds = Collider.Bounds;
-        var paths = Scene.Tracker.GetEntities<ShapeshifterPath>()
-                                 .Cast<ShapeshifterPath>();
-        foreach (ShapeshifterPath path in paths)
-        {
-            var ptRect = new Rectangle((int)path.Start.X - 2, (int)path.Start.Y - 2, 4, 4);
-            if (bounds.Intersects(ptRect))
-                this.path = path;
-        }
     }
 
     public override void Update()
