@@ -3,7 +3,6 @@ using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections;
 using System.Linq;
-using System.Threading;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -21,7 +20,9 @@ public sealed class ShapeshifterPath : Entity
     public int Pitch { get; }
     public int Roll { get; }
 
-    public ShapeshifterPath(EntityData data, Vector2 offset)
+    public int ID { get; }
+
+    public ShapeshifterPath(EntityData data, Vector2 offset, EntityID id)
         : this
         (
             data.NodesWithPosition(offset),
@@ -29,11 +30,12 @@ public sealed class ShapeshifterPath : Entity
             data.Float("duration", 2.0f),
             data.Int("rotateYaw"),
             data.Int("rotatePitch"),
-            data.Int("rotateRoll")
+            data.Int("rotateRoll"),
+            id.ID
         )
     { }
 
-    public ShapeshifterPath(Vector2[] points, Ease.Easer easer, float duration, int yaw, int pitch, int roll)
+    public ShapeshifterPath(Vector2[] points, Ease.Easer easer, float duration, int yaw, int pitch, int roll, int id)
     {
         if (points.Length is not 4)
             throw new ArgumentException("points must be an array of 4 points", nameof(points));
@@ -47,21 +49,29 @@ public sealed class ShapeshifterPath : Entity
         Yaw = yaw;
         Pitch = pitch;
         Roll = roll;
+
+        ID = id;
     }
 }
 
 [CustomEntity("CommunalHelper/Shapeshifter")]
+[Tracked]
 public class Shapeshifter : Solid
 {
+    public int ID { get; }
+
     private readonly char[,,] voxel;
     private readonly int width, height, depth;
 
     private readonly Shape3D mesh;
     private float yaw, pitch, roll;
 
-    public Shapeshifter(EntityData data, Vector2 offset)
+    private bool moving;
+
+    public Shapeshifter(EntityData data, Vector2 offset, EntityID id)
         : this
         (
+            id.ID,
             data.Position + offset,
             data.Int("voxelWidth", 1),
             data.Int("voxelHeight", 1),
@@ -71,9 +81,11 @@ public class Shapeshifter : Solid
         )
     { }
 
-    public Shapeshifter(Vector2 position, int width, int height, int depth, string model, string atlas = null)
+    public Shapeshifter(int id, Vector2 position, int width, int height, int depth, string model, string atlas = null)
         : base(position, 0, 0, safe: true)
     {
+        ID = id;
+
         this.width = width;
         this.height = height;
         this.depth = depth;
@@ -171,6 +183,16 @@ public class Shapeshifter : Solid
         return null;
     }
 
+    internal void FollowPath(ShapeshifterPath path)
+    {
+        path ??= FindPath();
+        if (path is null || moving)
+            return;
+
+        moving = true;
+        Add(new Coroutine(Sequence(path)));
+    }
+
     private IEnumerator Sequence(ShapeshifterPath path)
     {
         if (path.Yaw != 0f || path.Pitch != 0f || path.Roll != 0f)
@@ -204,6 +226,7 @@ public class Shapeshifter : Solid
 
         BuildCollider();
         Collidable = true;
+        moving = true;
     }
 
     public override void Update()
