@@ -27,6 +27,15 @@ shapeshifter.fieldInformation = {
     finishShake = {
         fieldType = "number",
         minimumValue = 0.0,
+    },
+    quakeTime = {
+        fieldType = "number",
+        minimumValue = 0.0,
+    },
+    rainbowMix = {
+        fieldType = "number",
+        minimumValue = 0.0,
+        maximumValue = 1.0
     }
 }
 
@@ -41,6 +50,8 @@ shapeshifter.placements = {
             finishSound = "event:/game/general/touchswitch_gate_finish",
             startShake = 0.2,
             finishShake = 0.2,
+            quakeTime = 0.5,
+            rainbowMix = 0.2,
             model = "",
             atlas = "",
         }

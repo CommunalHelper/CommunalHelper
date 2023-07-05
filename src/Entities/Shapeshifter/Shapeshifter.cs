@@ -70,7 +70,9 @@ public class Shapeshifter : Solid
 
     private readonly string startSound, finishSound;
     private readonly float startShake, finishShake;
-
+    private readonly float quakeTime;
+    private readonly float rainbowMix;
+    
     private readonly SoundSource sfx;
 
     public Shapeshifter(EntityData data, Vector2 offset, EntityID id)
@@ -82,7 +84,9 @@ public class Shapeshifter : Solid
             data.Attr("startSound", SFX.game_10_quake_rockbreak),
             data.Attr("finishSound", SFX.game_gen_touchswitch_gate_finish),
             data.Float("startShake", 0.2f),
-            data.Float("finishShake", 0.2f)
+            data.Float("finishShake", 0.2f),
+            data.Float("rainbowMix", 0.2f),
+            data.Float("quakeTime", 0.5f)
         )
     { }
 
@@ -94,7 +98,9 @@ public class Shapeshifter : Solid
         string model, string atlas = null,
         string startSound = SFX.game_10_quake_rockbreak,
         string finishSound = SFX.game_gen_touchswitch_gate_finish,
-        float startShake = 0.2f, float finishShake = 0.2f
+        float startShake = 0.2f, float finishShake = 0.2f,
+        float rainbowMix = 0.2f,
+        float quakeTime = 0.5f
     )
         : base(position, 0, 0, safe: true)
     {
@@ -137,6 +143,8 @@ public class Shapeshifter : Solid
         this.finishSound = finishSound;
         this.startShake = startShake;
         this.finishShake = finishShake;
+        this.quakeTime = quakeTime;
+        this.rainbowMix = rainbowMix;
 
         Add(sfx = new(CustomSFX.game_shapeshifter_move));
         sfx.Pause();
@@ -219,6 +227,14 @@ public class Shapeshifter : Solid
     {
         Level level = Scene as Level;
 
+        if (quakeTime > 0.0f)
+        {
+            var quakeSfx = Audio.Play(CustomSFX.game_shapeshifter_shake, Position);
+            StartShaking(quakeTime);
+            yield return quakeTime;
+            quakeSfx.setParameterValue("end", 1.0f);
+        }
+
         Audio.Play(startSound, Position);
         level.Shake(startShake);
         if (startShake > 0.0f)
@@ -262,6 +278,7 @@ public class Shapeshifter : Solid
             float meshLerp = Ease.CubeOut(Ease.UpDown(t));
             mesh.DepthEdgeStrength = meshLerp * 0.8f;
             mesh.NormalEdgeStrength = meshLerp * 0.5f;
+            mesh.RainbowMix = meshLerp * rainbowMix;
 
             sfx.Param("move_speed", moveSpeed);
             sfx.Param("move_percent", ease);
