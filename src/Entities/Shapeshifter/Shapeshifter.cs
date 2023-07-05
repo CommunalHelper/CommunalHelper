@@ -71,6 +71,8 @@ public class Shapeshifter : Solid
     private readonly string startSound, finishSound;
     private readonly float startShake, finishShake;
 
+    private readonly SoundSource sfx;
+
     public Shapeshifter(EntityData data, Vector2 offset, EntityID id)
         : this
         (
@@ -135,6 +137,9 @@ public class Shapeshifter : Solid
         this.finishSound = finishSound;
         this.startShake = startShake;
         this.finishShake = finishShake;
+
+        Add(sfx = new(CustomSFX.game_shapeshifter_move));
+        sfx.Pause();
     }
 
     private void BuildCollider()
@@ -232,7 +237,10 @@ public class Shapeshifter : Solid
         float rolla = roll,
               rollb = rolla + path.Roll * MathHelper.PiOver2;
 
+        sfx.Resume();
+
         Vector2 offset = Position - path.Start;
+        Vector2 last = Position;
         yield return Util.Interpolate(path.Duration, t =>
         {
             float ease = path.Easer(t);
@@ -243,17 +251,34 @@ public class Shapeshifter : Solid
             else
                 Position = next;
 
+            Vector2 d = Position - last;
+            float moveSpeed = Calc.ClampedMap(d.Length(), 0.0f, 7.5f);
+            last = Position;
+
             yaw = MathHelper.Lerp(yawa, yawb, ease);
             pitch = MathHelper.Lerp(pitcha, pitchb, ease);
             roll = MathHelper.Lerp(rolla, rollb, ease);
 
-            mesh.DepthEdgeStrength = Ease.UpDown(t) * 0.8f;
-            mesh.NormalEdgeStrength = Ease.UpDown(t) * 0.5f;
+            float meshLerp = Ease.CubeOut(Ease.UpDown(t));
+            mesh.DepthEdgeStrength = meshLerp * 0.8f;
+            mesh.NormalEdgeStrength = meshLerp * 0.5f;
+
+            sfx.Param("move_speed", moveSpeed);
+            sfx.Param("move_percent", ease);
         });
 
         BuildCollider();
-        Collidable = true;
+        while (true)
+        {
+            Collidable = true;
+            if (!CollideCheck<Actor>())
+                break;
+            Collidable = false;
+            yield return null;
+        }
         moving = true;
+
+        sfx.Pause();
 
         Audio.Play(finishSound, Position);
         level.Shake(finishShake);
