@@ -68,20 +68,32 @@ public class Shapeshifter : Solid
 
     private bool moving;
 
+    private readonly string startSound, finishSound;
+    private readonly float startShake, finishShake;
+
     public Shapeshifter(EntityData data, Vector2 offset, EntityID id)
         : this
         (
-            id.ID,
-            data.Position + offset,
-            data.Int("voxelWidth", 1),
-            data.Int("voxelHeight", 1),
-            data.Int("voxelDepth", 1),
-            data.Attr("model", string.Empty),
-            data.Attr("atlas", null)
+            id.ID, data.Position + offset,
+            data.Int("voxelWidth", 1), data.Int("voxelHeight", 1), data.Int("voxelDepth", 1),
+            data.Attr("model", string.Empty), data.Attr("atlas", null),
+            data.Attr("startSound", SFX.game_10_quake_rockbreak),
+            data.Attr("finishSound", SFX.game_gen_touchswitch_gate_finish),
+            data.Float("startShake", 0.2f),
+            data.Float("finishShake", 0.2f)
         )
     { }
 
-    public Shapeshifter(int id, Vector2 position, int width, int height, int depth, string model, string atlas = null)
+
+    public Shapeshifter
+    (
+        int id, Vector2 position,
+        int width, int height, int depth,
+        string model, string atlas = null,
+        string startSound = SFX.game_10_quake_rockbreak,
+        string finishSound = SFX.game_gen_touchswitch_gate_finish,
+        float startShake = 0.2f, float finishShake = 0.2f
+    )
         : base(position, 0, 0, safe: true)
     {
         ID = id;
@@ -118,6 +130,11 @@ public class Shapeshifter : Solid
         });
 
         BuildCollider();
+
+        this.startSound = startSound;
+        this.finishSound = finishSound;
+        this.startShake = startShake;
+        this.finishShake = finishShake;
     }
 
     private void BuildCollider()
@@ -195,15 +212,25 @@ public class Shapeshifter : Solid
 
     private IEnumerator Sequence(ShapeshifterPath path)
     {
+        Level level = Scene as Level;
+
+        Audio.Play(startSound, Position);
+        level.Shake(startShake);
+        if (startShake > 0.0f)
+            Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+        
         if (path.Yaw != 0f || path.Pitch != 0f || path.Roll != 0f)
         {
             Collidable = false;
             Collider = null;
         }
 
-        float yawa = yaw, yawb = yawa + path.Yaw * MathHelper.PiOver2;
-        float pitcha = pitch, pitchb = pitcha + path.Pitch * MathHelper.PiOver2;
-        float rolla = roll, rollb = rolla + path.Roll * MathHelper.PiOver2;
+        float yawa = yaw,
+              yawb = yawa + path.Yaw * MathHelper.PiOver2;
+        float pitcha = pitch,
+              pitchb = pitcha + path.Pitch * MathHelper.PiOver2;
+        float rolla = roll,
+              rollb = rolla + path.Roll * MathHelper.PiOver2;
 
         Vector2 offset = Position - path.Start;
         yield return Util.Interpolate(path.Duration, t =>
@@ -227,6 +254,11 @@ public class Shapeshifter : Solid
         BuildCollider();
         Collidable = true;
         moving = true;
+
+        Audio.Play(finishSound, Position);
+        level.Shake(finishShake);
+        if (finishShake > 0.0f)
+            Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
     }
 
     public override void Update()

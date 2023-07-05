@@ -19,6 +19,14 @@ shapeshifter.fieldInformation = {
     voxelDepth = {
         fieldType = "integer",
         minimumValue = 1,
+    },
+    startShake = {
+        fieldType = "number",
+        minimumValue = 0.0,
+    },
+    finishShake = {
+        fieldType = "number",
+        minimumValue = 0.0,
     }
 }
 
@@ -29,6 +37,10 @@ shapeshifter.placements = {
             voxelWidth = 1,
             voxelHeight = 1,
             voxelDepth = 1,
+            startSound = "event:/new_content/game/10_farewell/quake_rockbreak",
+            finishSound = "event:/game/general/touchswitch_gate_finish",
+            startShake = 0.2,
+            finishShake = 0.2,
             model = "",
             atlas = "",
         }
