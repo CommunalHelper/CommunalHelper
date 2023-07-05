@@ -93,6 +93,8 @@ public sealed class Shape3DRenderer : Entity
                 continue;
 
             Vector2 pos = shape.Entity.Position + shape.Position.XY();
+            if (shape.Entity is Platform platform)
+                pos += platform.Shake;
 
             Matrix world = shape.Matrix * Matrix.CreateTranslation(pos.X - cam.X, cam.Y - pos.Y, shape.Position.Z);
             CommunalHelperGFX.PCTN_MRT.Parameters["world"].SetValue(world);
