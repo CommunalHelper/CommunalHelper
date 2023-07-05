@@ -4,10 +4,6 @@ return {
         pathID = {
             fieldType = "integer",
             minimumValue = -1,
-        },
-        shapeshifterID = {
-            fieldType = "integer",
-            minimumValue = 0,
         }
     },
     placements = {
@@ -15,7 +11,7 @@ return {
             name = "follow_path",
             data = {
                 pathID = -1,
-                shapeshifterID = 0,
+                shapeshifterID = "",
                 once = true,
             }
         }

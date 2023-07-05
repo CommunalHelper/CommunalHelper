@@ -619,6 +619,22 @@ entities.CommunalHelper/AeroBlockCharged.attributes.description.buttonSequence=T
 entities.CommunalHelper/AeroBlockCharged.attributes.description.hover=Whether this block has a hovering "floating" movement to it. If disable, the block stays in place until it needs to move.
 entities.CommunalHelper/AeroBlockCharged.attributes.description.loop=Whether this block's sequence has no ending. When the last node is reached, it loops back around to the initial position.
 
+# Shapeshifter
+entities.CommunalHelper/Shapeshifter.placements.name.shapeshifter=Shapeshifter
+entities.CommunalHelper/Shapeshifter.attributes.description.voxelWidth=The width in tiles of the 3D voxel.
+entities.CommunalHelper/Shapeshifter.attributes.description.voxelHeight=The height in tiles of the 3D voxel.
+entities.CommunalHelper/Shapeshifter.attributes.description.voxelDepth=The depth in tiles of the 3D voxel.
+entities.CommunalHelper/Shapeshifter.attributes.description.atlas=The path to the atlas texture used for the 3D voxel mesh. Defaults to the vanilla GFX.Game atlas, containing almost every in-game element including all tilesets.\nIf you're using a custom tileset, you must put the path to the tileset image file (starting from Graphics/Atlases/Gameplay), including the name, in order for it to show up properly.\nNote that you can combine multiple vanilla tilesets in this voxel, but as soon as you use one custom tileset in the model, you'll have to ONLY use that one and specify its path in the atlas field.\nBecause of how Everest loads mod graphics content (images), you cannot combine them unless you make a single image containing all of the tilesets you want to use in a single atlas image, somehow getting it to work with the tileset XML configuration.\nI reckon that's not going to be pleasant to work with, but it is possible.
+entities.CommunalHelper/Shapeshifter.attributes.description.model=A string representation of a 3D-array of characters corresponding to tile IDs. The size of this array is width * height * depth.\n\nHow to populate this field (manually):\n * The first 3D-tile is the first top-left tile at the first depth layer (the one closest to the camera in terms of the third dimension).\n * Each character (tile ID) is added, you move one 3D tile to the right (+X). Once you exceed the width, you wrap back around horizontally, and move one tile down (+Y).\n * Once you exceed the height, because remember, this is a 3D voxel, you'll wrap around the whole 2D-grid you just filled, but will drop down one layer in depth (+Z). You must complete as many depth layers as the `voxelDepth` value.\n * If this field isn't complete (i.e. its length isn't width * height * depth), the missing character will be implied as '0', or you can set the default value in the `defaultTile` field (useful for filling the whole 3D-grid if you want to make a trivial 3D block).\n\nHere's how I like thinking about it. You have `depth` amount of 2D-tilegrids (like regular Celeste levels) of size (width * height).\nYou write down their string representation for each one of them, and condense them into a single line. Do that for all the 2D-tilegrids, and condense again into a single line.\nAnd THAT is the field representation of a 3D voxel.\n\n\nRead more on the Communal Helper wiki.
+
+# Shapeshifter Path
+entities.CommunalHelper/ShapeshifterPath.placements.name.shapeshiter_path=Shapeshifter Path
+entities.CommunalHelper/ShapeshifterPath.attributes.description.duration=How long it takes for shapeshifters to travel along this path.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.easer=The easing mode that atler the feel & smoothness of the movement of blocks taking this path.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.rotateYaw=How much quarter turns about the YAW axis (the Y axis) the blocks taking this path will make.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.rotatePitch=How much quarter turns about the PITCH axis (the X axis) the blocks taking this path will make.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.rotateRoll=How much quarter turns about the ROLL axis (the Z axis) the blocks taking this path will make.
+
 # [Strawberry Jam] Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]
 entities.CommunalHelper/SJ/BulletTimeController.placements.description.controller=Slows down time while the player has dashes.
@@ -741,6 +757,12 @@ triggers.CommunalHelper/StopLightningControllerTrigger.placements.name.trigger=S
 triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.yes=Enable Elytra
 triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.no=Disable Elytra
 triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.allow=Whether the player can deploy its elytra after going through the trigger.\nThe elytra is deployed with a keybind configured in mod settings.\nDefault is W on keyboard, and Left Shoulder on controller.
+
+# Follow Shapeshifter Path Trigger
+triggers.CommunalHelper/FollowShapeshifterPathTrigger.placements.name.follow_path=Follow Shapeshifter Path
+triggers.CommunalHelper/FollowShapeshifterPathTrigger.attributes.description.once=Whether this trigger can only be used once. If enabled, this trigger becomes uncollidable as soon it is stepped into.
+triggers.CommunalHelper/FollowShapeshifterPathTrigger.attributes.description.shapeshifterID=A comma-separated list of integer entity IDs of the Shapeshifter entities to move. Invalid values are discared, and warnings will be printed in the log.\nYou can also use this field to input in a single Shapeshifter entity ID.\nThis field is required.
+triggers.CommunalHelper/FollowShapeshifterPathTrigger.attributes.description.pathID=Optional field for specifying which path the Shapeshifter(s) will be borrowing. If this is left at -1, each Shapeshifter will look at the first path it finds in their bounds (rectangle).\nImportant: note that the movement along a path for a Shapeshifter is relative. The blocks don't teleport to the beginning of the path, but rather, they apply the movement of the path they follow, starting at their initial position.\nNote also that shapeshifters that are told to move while they are already moving will simply ignore the request, and keep moving along the path they were already following.
 
 # Cloudscape
 style.effects.CommunalHelper/Cloudscape.name=Cloudscape
