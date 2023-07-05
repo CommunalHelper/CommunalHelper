@@ -71,6 +71,7 @@ public class Shapeshifter : Solid
     private readonly string startSound, finishSound;
     private readonly float startShake, finishShake;
     private readonly float quakeTime;
+    private readonly float fakeoutTime, fakeoutDistance;
     private readonly float rainbowMix;
     
     private readonly SoundSource sfx;
@@ -83,10 +84,10 @@ public class Shapeshifter : Solid
             data.Attr("model", string.Empty), data.Attr("atlas", null),
             data.Attr("startSound", SFX.game_10_quake_rockbreak),
             data.Attr("finishSound", SFX.game_gen_touchswitch_gate_finish),
-            data.Float("startShake", 0.2f),
-            data.Float("finishShake", 0.2f),
-            data.Float("rainbowMix", 0.2f),
-            data.Float("quakeTime", 0.5f)
+            data.Float("startShake", 0.2f), data.Float("finishShake", 0.2f),
+            data.Float("quakeTime", 0.5f),
+            data.Float("fakeoutTime", 0.75f), data.Float("fakeoutDistance", 32.0f),
+            data.Float("rainbowMix", 0.2f)
         )
     { }
 
@@ -99,8 +100,9 @@ public class Shapeshifter : Solid
         string startSound = SFX.game_10_quake_rockbreak,
         string finishSound = SFX.game_gen_touchswitch_gate_finish,
         float startShake = 0.2f, float finishShake = 0.2f,
-        float rainbowMix = 0.2f,
-        float quakeTime = 0.5f
+        float quakeTime = 0.5f,
+        float fakeoutTime = 0.75f, float fakeoutDistance = 32.0f,
+        float rainbowMix = 0.2f
     )
         : base(position, 0, 0, safe: true)
     {
@@ -134,7 +136,7 @@ public class Shapeshifter : Solid
             Depth = Depths.FGTerrain,
             NormalEdgeStrength = 0f,
             DepthEdgeStrength = 0f,
-            RainbowMix = 0f
+            RainbowMix = 0f,
         });
 
         BuildCollider();
@@ -144,6 +146,8 @@ public class Shapeshifter : Solid
         this.startShake = startShake;
         this.finishShake = finishShake;
         this.quakeTime = quakeTime;
+        this.fakeoutTime = fakeoutTime;
+        this.fakeoutDistance = fakeoutDistance;
         this.rainbowMix = rainbowMix;
 
         Add(sfx = new(CustomSFX.game_shapeshifter_move));
@@ -232,7 +236,7 @@ public class Shapeshifter : Solid
             var quakeSfx = Audio.Play(CustomSFX.game_shapeshifter_shake, Position);
             StartShaking(quakeTime);
             yield return quakeTime;
-            quakeSfx.setParameterValue("end", 1.0f);
+            quakeSfx.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         }
 
         Audio.Play(startSound, Position);
@@ -247,43 +251,84 @@ public class Shapeshifter : Solid
             Collider = null;
         }
 
-        float yawa = yaw,
-              yawb = yawa + path.Yaw * MathHelper.PiOver2;
-        float pitcha = pitch,
-              pitchb = pitcha + path.Pitch * MathHelper.PiOver2;
-        float rolla = roll,
-              rollb = rolla + path.Roll * MathHelper.PiOver2;
+        Vector2 offset = Position - path.Start;
+
+        float pathYaw = path.Yaw * MathHelper.PiOver2;
+        float pathPitch = path.Pitch * MathHelper.PiOver2;
+        float pathRoll = path.Roll * MathHelper.PiOver2;
+
+        float finalYaw = yaw + pathYaw;
+        float finalPitch = pitch  + pathPitch;
+        float finalRoll = roll  + pathRoll;
+
+        float distance = 0.0f;
+
+        IEnumerator Travel
+        (
+            float duration,
+            Ease.Easer easer,
+            float distanceTo,
+            float yawTo,
+            float pitchTo,
+            float rollTo,
+            Action<float, float, float> travelCallback_t_ease_moveSpeed
+        )
+        {
+            Vector2 last = Position;
+            float distanceFrom = distance;
+            float yawFrom = yaw, pitchFrom = pitch, rollFrom = roll;
+            return Util.Interpolate(duration, t =>
+            {
+                float ease = easer(t);
+
+                distance = MathHelper.Lerp(distanceFrom, distanceTo, ease);
+                Vector2 next = path.Curve.GetPointByDistance(distance) + offset;
+                if (Collidable)
+                    MoveTo(next);
+                else
+                    Position = next;
+
+                Vector2 d = Position - last;
+                float moveSpeed = Calc.ClampedMap(d.Length(), 0.0f, 7.5f);
+                last = Position;
+
+                yaw = MathHelper.Lerp(yawFrom, yawTo, ease);
+                pitch = MathHelper.Lerp(pitchFrom, pitchTo, ease);
+                roll = MathHelper.Lerp(rollFrom, rollTo, ease);
+
+                travelCallback_t_ease_moveSpeed?.Invoke(t, ease, moveSpeed);
+            });
+        }
+
+        if (fakeoutTime > 0.0f)
+            yield return Travel
+            (
+                fakeoutTime, Ease.CubeOut, fakeoutDistance,
+                -pathYaw / 4f, -pathPitch / 4f, -pathRoll / 4f,
+                (t, _, _) =>
+                {
+                    mesh.DepthEdgeStrength = t * 0.8f;
+                    mesh.NormalEdgeStrength = t * 0.5f;
+                    mesh.RainbowMix = t * rainbowMix;
+                }
+            );
 
         sfx.Resume();
+        yield return Travel
+        (
+            path.Duration, path.Easer, path.Curve.Length,
+            finalYaw, finalPitch, finalRoll,
+            (t, ease, moveSpeed) =>
+            {
+                float meshLerp = Ease.CubeOut(fakeoutTime > 0.0f ? (1 - t) : Ease.UpDown(t));
+                mesh.DepthEdgeStrength = meshLerp * 0.8f;
+                mesh.NormalEdgeStrength = meshLerp * 0.5f;
+                mesh.RainbowMix = meshLerp * rainbowMix;
 
-        Vector2 offset = Position - path.Start;
-        Vector2 last = Position;
-        yield return Util.Interpolate(path.Duration, t =>
-        {
-            float ease = path.Easer(t);
-
-            Vector2 next = path.Curve.GetPointByDistance(ease * path.Curve.Length) + offset;
-            if (Collidable)
-                MoveTo(next);
-            else
-                Position = next;
-
-            Vector2 d = Position - last;
-            float moveSpeed = Calc.ClampedMap(d.Length(), 0.0f, 7.5f);
-            last = Position;
-
-            yaw = MathHelper.Lerp(yawa, yawb, ease);
-            pitch = MathHelper.Lerp(pitcha, pitchb, ease);
-            roll = MathHelper.Lerp(rolla, rollb, ease);
-
-            float meshLerp = Ease.CubeOut(Ease.UpDown(t));
-            mesh.DepthEdgeStrength = meshLerp * 0.8f;
-            mesh.NormalEdgeStrength = meshLerp * 0.5f;
-            mesh.RainbowMix = meshLerp * rainbowMix;
-
-            sfx.Param("move_speed", moveSpeed);
-            sfx.Param("move_percent", ease);
-        });
+                sfx.Param("move_speed", moveSpeed);
+                sfx.Param("move_percent", ease);
+            }
+        );
 
         BuildCollider();
         while (true)
