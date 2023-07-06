@@ -40,10 +40,4 @@ public class ElytraStopRing : ElytraRing
 
         player.StateMachine.State = Player.StNormal;
     }
-
-    public override void Render()
-    {
-        base.Render();
-        Draw.Line(A, B, Color.Red);
-    }
 }

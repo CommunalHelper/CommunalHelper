@@ -1,4 +1,6 @@
-﻿namespace Celeste.Mod.CommunalHelper.Entities;
+﻿using Celeste.Mod.CommunalHelper.Utils;
+
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 /// <summary>
 /// Base abstract entity class for the rings the player can traverse while gliding.
@@ -39,6 +41,9 @@ public abstract class ElytraRing : Entity
     public virtual float Delay => 0.04f;
     private float timer;
 
+    private readonly Shape3D front, back;
+    private readonly Matrix orientation;
+
     /// <summary>
     /// Instantiates a ring.
     /// </summary>
@@ -52,6 +57,30 @@ public abstract class ElytraRing : Entity
         Direction = (a - b).Perpendicular().SafeNormalize();
 
         Position = Middle;
+
+        var mesh = Shapes.HalfRing(Vector2.Distance(a, b), 4.0f);
+
+        Matrix tilt = Matrix.CreateRotationY(0.25f);
+        orientation = Matrix.CreateRotationZ(-Direction.Angle());
+
+        Add(front = new Shape3D(mesh)
+        {
+            Depth = Depths.FGTerrain,
+            HighlightStrength = 0.8f,
+            NormalEdgeStrength = 0.0f,
+            Texture = CommunalHelperGFX.Blank,
+            Matrix = tilt * orientation,
+        });
+
+        Add(back = new Shape3D(mesh)
+        {
+            Depth = Depths.BGTerrain,
+            HighlightStrength = 0.4f,
+            NormalEdgeStrength = 0.0f,
+            Texture = CommunalHelperGFX.Blank,
+            Matrix = Matrix.CreateRotationX(MathHelper.Pi) * tilt * orientation,
+            Tint = new(Vector3.One * 0.5f, 1.0f),
+        });
     }
 
     /// <summary>
@@ -76,6 +105,11 @@ public abstract class ElytraRing : Entity
     public override void Update()
     {
         timer = Calc.Approach(timer, 0.0f, Engine.DeltaTime);
+
+        Matrix m = Matrix.CreateRotationY(0.25f + (float)Math.Sin(Scene.TimeActive * 3f) * 0.1f) * orientation;
+        front.Matrix = m;
+        back.Matrix = Matrix.CreateRotationX(MathHelper.Pi) * m;
+
         base.Update();
     }
 }

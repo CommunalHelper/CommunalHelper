@@ -30,10 +30,4 @@ public class ElytraRefillRing : ElytraRing
         // sound
         Audio.Play(SFX.game_gen_diamond_touch, Position);
     }
-
-    public override void Render()
-    {
-        base.Render();
-        Draw.Line(A, B, Color.Green);
-    }
 }

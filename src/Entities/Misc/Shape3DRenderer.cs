@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Celeste.Mod.CommunalHelper.Entities.Misc;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [Tracked]
 public sealed class Shape3DRenderer : Entity

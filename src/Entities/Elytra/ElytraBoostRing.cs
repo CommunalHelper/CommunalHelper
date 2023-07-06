@@ -51,11 +51,4 @@ public class ElytraBoostRing : ElytraRing
 
         return;
     }
-
-    public override void Render()
-    {
-        base.Render();
-        Draw.Line(A, B, Color.Teal);
-        Draw.Line(Middle, Middle + Direction * 8, Color.Red);
-    }
 }

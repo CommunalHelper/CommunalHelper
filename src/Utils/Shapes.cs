@@ -551,6 +551,48 @@ internal class Shapes
         return BuildMesh(vertices, icosahedron_indices, color, rainbow, scale);
     }
 
+    public static Mesh<VertexPCTN> HalfRing(float height, float thickness)
+    {
+        const int circSub = 16;
+        const int ringSub = 4;
+        const int len = circSub * ringSub;
+
+        thickness /= 2.0f;
+
+        Vector3[] vertices = new Vector3[(circSub + 1) * ringSub];
+        int[] indices = new int[6 * len];
+
+        static Vector3 Circle(Vector3 x, Vector3 y, float angle)
+            => (float) Math.Cos(angle) * x + (float) Math.Sin(angle) * y;
+
+        int index = 0;
+        for (int i = 0; i <= circSub; i++)
+        {
+            Vector3 axis = Circle(Vector3.UnitZ * 16, Vector3.UnitY * height / 2f, MathHelper.Pi * i / circSub - MathHelper.PiOver2);
+            for (int j = 0; j < ringSub; j++)
+            {
+                vertices[i * ringSub + j] = axis + Circle(axis.SafeNormalize(), Vector3.UnitX, MathHelper.TwoPi * j / ringSub) * thickness;
+
+                if (i == circSub)
+                    continue;
+
+                int a = i * ringSub + ((j + 0) % ringSub) + 0 * ringSub;
+                int b = i * ringSub + ((j + 1) % ringSub) + 0 * ringSub;
+                int c = i * ringSub + ((j + 0) % ringSub) + 1 * ringSub;
+                int d = i * ringSub + ((j + 1) % ringSub) + 1 * ringSub;
+
+                indices[index++] = a;
+                indices[index++] = b;
+                indices[index++] = c;
+                indices[index++] = b;
+                indices[index++] = d;
+                indices[index++] = c;
+            }
+        }
+
+        return BuildMesh(vertices, indices, Color.Tomato);
+    }
+
     /// <summary>
     /// Generates vertices and indices for an n-icosphere.
     /// </summary>
