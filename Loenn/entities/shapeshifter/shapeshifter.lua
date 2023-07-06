@@ -68,7 +68,8 @@ shapeshifter.placements = {
     }
 }
 
-local function addTilesFromVoxel(sprites, vox, room, x, y, tx, ty)
+local function addTilesFromVoxel(sprites, vox, room, x, y)
+    local tx, ty = math.floor(x / 8) + 1, math.floor(y / 8) + 1
     local _, _, sz = vox:size()
     for z = sz, 1, -1 do
         local fakeTiles = fakeTilesHelper.generateFakeTiles(room, tx, ty, vox[z], "tilesFg", false)
@@ -80,19 +81,62 @@ local function addTilesFromVoxel(sprites, vox, room, x, y, tx, ty)
 end
 
 function shapeshifter.sprite(room, entity)
-    local sx, sy, sz = entity.voxelWidth or 1, entity.voxelHeight or 1, entity.voxelDepth or 1
+    local ex, ey = entity.x or 0, entity.y or 0
+    local esx, esy, esz = entity.voxelWidth or 1, entity.voxelHeight or 1, entity.voxelDepth or 1
 
     local model = entity.model or ""
-    local vox = voxel.fromStringRepresentation(model, sx, sy, sz, "0")
-
-    local x, y = entity.x or 0, entity.y or 0
-    local tx, ty = math.floor(x / 8) + 1, math.floor(y / 8) + 1
-
-    x = x - sx * 4
-    y = y - sy * 4
+    local evox = voxel.fromStringRepresentation(model, esx, esy, esz, "0")
 
     local sprites = {}
-    addTilesFromVoxel(sprites, vox, room, x, y, tx, ty)
+
+    local paths = {}
+    for _, other in ipairs(room.entities) do
+        if other._name == "CommunalHelper/ShapeshifterPath" then
+            table.insert(paths, {path = other, borrowed = false})
+        end
+    end
+
+    local function spread(x, y, vox)
+        local sx, sy, _ = vox:size()
+        addTilesFromVoxel(sprites, vox, room, x - sx * 4, y - sy * 4)
+        for _, current in ipairs(paths) do
+            if not current.borrowed then
+                local tarx = current.path.nodes[3].x + x - current.path.x
+                local tary = current.path.nodes[3].y + y - current.path.y
+
+                local pathBounds = utils.rectangle(current.path.x - 2, current.path.y - 2, 4, 4)
+                local blockBounds = utils.rectangle(x - sx * 4, y - sy * 4, sx * 8, sy * 8)
+
+                if utils.intersection(pathBounds, blockBounds) then
+                    local yaw = current.path.rotateYaw % 4
+                    local pitch = current.path.rotatePitch % 4
+                    local roll = current.path.rotateRoll % 4
+
+                    local next_vox = vox
+
+                    if roll == 1 then next_vox = voxel.counterclockwiseRotationAboutZ(next_vox, "0")
+                    elseif roll == 2 then next_vox = voxel.mirrorAboutZ(next_vox, "0")
+                    elseif roll == 3 then next_vox = voxel.clockwiseRotationAboutZ(next_vox, "0")
+                    end
+
+                    if pitch == 1 then next_vox = voxel.counterclockwiseRotationAboutX(next_vox, "0")
+                    elseif pitch == 2 then next_vox = voxel.mirrorAboutX(next_vox, "0")
+                    elseif pitch == 3 then next_vox = voxel.clockwiseRotationAboutX(next_vox, "0")
+                    end
+
+                    if yaw == 1 then next_vox = voxel.counterclockwiseRotationAboutY(next_vox, "0")
+                    elseif yaw == 2 then next_vox = voxel.mirrorAboutY(next_vox, "0")
+                    elseif yaw == 3 then next_vox = voxel.clockwiseRotationAboutY(next_vox, "0")
+                    end
+
+                    current.borrowed = true
+                    spread(tarx, tary, next_vox)
+                end
+            end
+        end
+    end
+
+    spread(ex, ey, evox)
 
     return sprites
 end

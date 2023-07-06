@@ -101,7 +101,7 @@ function voxel.mirrorAboutX(vox, default)
     )
 end
 
-function voxel.clockwiseRotationAboutX(vox, default)
+function voxel.counterclockwiseRotationAboutX(vox, default)
     return transform(
         vox,
         {
@@ -116,7 +116,7 @@ function voxel.clockwiseRotationAboutX(vox, default)
     )
 end
 
-function voxel.counterclockwiseRotationAboutX(vox, default)
+function voxel.clockwiseRotationAboutX(vox, default)
     return transform(
         vox,
         {
