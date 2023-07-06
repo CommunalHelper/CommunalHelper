@@ -630,10 +630,7 @@ entities.CommunalHelper/Shapeshifter.attributes.description.startSound=The sound
 entities.CommunalHelper/Shapeshifter.attributes.description.finishSound=The sound that plays when this block stops moving.
 entities.CommunalHelper/Shapeshifter.attributes.description.startShake=The strength of the shake when this block starts moving. Also plays short medium rumble on controllers.\nLeave at 0.0 for no shake nor rumble.
 entities.CommunalHelper/Shapeshifter.attributes.description.finishShake=The strength of the shake when this block stops moving. Also plays short medium rumble on controllers.\nLeave at 0.0 for no shake nor rumble.
-entities.CommunalHelper/Shapeshifter.attributes.description.quakeTime=The duration (in seconds) of the initial shaking sequence that plays before this block starts moving. Leave at 0.0 for no initial shaking, i.e. instant movement.\nThe initial shaking sequence makes the block slightly shaky for however amount of seconds you specify, and then starts moving.\nIt also plays a continuous shaking sound.
 entities.CommunalHelper/Shapeshifter.attributes.description.rainbowMix=A percentage (0.0 to 1.0) describing how rainbow the block should appear when moving. This helps to recognize shapeshifters that are currently moving (and if rotating, then uncollidable).\nLeave at 0.0 for no rainbowness. The more this value is close to 1.0, the more rainbow the block will appear, until you cannot see its texture, but only its shape (rainbowed out).
-entities.CommunalHelper/Shapeshifter.attributes.description.fakeoutTime=How much time (in seconds) should this block spend in the fakeout state.\nIf this value is non-zero, the block will start moving but stop at the beginning of the movement. After the amount of seconds specified in this field, it will resume its movement along the path.
-entities.CommunalHelper/Shapeshifter.attributes.description.fakeoutDistance=How far away (in pixels) the block should stop for the fakeout state (only useful if fakeoutTime is non-zero).\nNote that the fakeout movement still follows the path.
 
 # Shapeshifter Path
 entities.CommunalHelper/ShapeshifterPath.placements.name.shapeshiter_path=Shapeshifter Path
@@ -642,6 +639,9 @@ entities.CommunalHelper/ShapeshifterPath.attributes.description.easer=The easing
 entities.CommunalHelper/ShapeshifterPath.attributes.description.rotateYaw=How much quarter turns about the YAW axis (the Y axis) the blocks taking this path will make.
 entities.CommunalHelper/ShapeshifterPath.attributes.description.rotatePitch=How much quarter turns about the PITCH axis (the X axis) the blocks taking this path will make.
 entities.CommunalHelper/ShapeshifterPath.attributes.description.rotateRoll=How much quarter turns about the ROLL axis (the Z axis) the blocks taking this path will make.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.quakeTime=The duration (in seconds) of the initial shaking sequence that plays before this block starts moving. Leave at 0.0 for no initial shaking, i.e. instant movement.\nThe initial shaking sequence makes the block slightly shaky for however amount of seconds you specify, and then starts moving.\nIt also plays a continuous shaking sound.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.fakeoutTime=How much time (in seconds) should this block spend in the fakeout state.\nIf this value is non-zero, the block will start moving but stop at the beginning of the movement. After the amount of seconds specified in this field, it will resume its movement along the path.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.fakeoutDistance=How far away (in pixels) the block should stop for the fakeout state (only useful if fakeoutTime is non-zero).\nNote that the fakeout movement still follows the path.
 
 # [Strawberry Jam] Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]

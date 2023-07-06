@@ -29,6 +29,18 @@ path.fieldInformation = {
     rotateRoll = {
         fieldType = "integer",
     },
+    quakeTime = {
+        fieldType = "number",
+        minimumValue = 0.0,
+    },
+    fakeoutTime = {
+        fieldType = "number",
+        minimumValue = 0.0,
+    },
+    fakeoutDistance = {
+        fieldType = "number",
+        minimumValue = 0.0,
+    }
 }
 
 path.placements = {
@@ -39,6 +51,9 @@ path.placements = {
         rotateYaw = 0,
         rotatePitch = 0,
         rotateRoll = 0,
+        quakeTime = 0.5,
+        fakeoutTime = 0.75,
+        fakeoutDistance = 32.0
     }
 }
 
