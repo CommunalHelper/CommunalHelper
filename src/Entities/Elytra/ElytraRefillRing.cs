@@ -13,7 +13,7 @@ public class ElytraRefillRing : ElytraRing
     { }
 
     public ElytraRefillRing(Vector2 a, Vector2 b)
-        : base(a, b)
+        : base(a, b, Color.Lime)
     { }
 
     public override void OnPlayerTraversal(Player player)
@@ -25,6 +25,8 @@ public class ElytraRefillRing : ElytraRing
         Level level = Scene as Level;
         level.Shake(0.1f);
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+
+        TravelEffects();
 
         // particles
         // sound

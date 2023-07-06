@@ -44,12 +44,17 @@ public abstract class ElytraRing : Entity
     private readonly Shape3D front, back;
     private readonly Matrix orientation;
 
+    private float rotation;
+    private float saturation;
+
+    private float travelLerp = 0.0f;
+
     /// <summary>
     /// Instantiates a ring.
     /// </summary>
     /// <param name="a">Extremity A of the ring.</param>
     /// <param name="b">Extremity B of the ring.</param>
-    public ElytraRing(Vector2 a, Vector2 b)
+    public ElytraRing(Vector2 a, Vector2 b, Color color)
     {
         A = a;
         B = b;
@@ -58,7 +63,7 @@ public abstract class ElytraRing : Entity
 
         Position = Middle;
 
-        var mesh = Shapes.HalfRing(Vector2.Distance(a, b), 4.0f);
+        var mesh = Shapes.HalfRing(Vector2.Distance(a, b), 4.0f, color);
 
         Matrix tilt = Matrix.CreateRotationY(0.25f);
         orientation = Matrix.CreateRotationZ(-Direction.Angle());
@@ -68,6 +73,7 @@ public abstract class ElytraRing : Entity
             Depth = Depths.FGTerrain,
             HighlightStrength = 0.8f,
             NormalEdgeStrength = 0.0f,
+            RainbowMix = 0.1f,
             Texture = CommunalHelperGFX.Blank,
             Matrix = tilt * orientation,
         });
@@ -77,6 +83,7 @@ public abstract class ElytraRing : Entity
             Depth = Depths.BGTerrain,
             HighlightStrength = 0.4f,
             NormalEdgeStrength = 0.0f,
+            RainbowMix = 0.1f,
             Texture = CommunalHelperGFX.Blank,
             Matrix = Matrix.CreateRotationX(MathHelper.Pi) * tilt * orientation,
             Tint = new(Vector3.One * 0.5f, 1.0f),
@@ -102,13 +109,30 @@ public abstract class ElytraRing : Entity
         timer = Delay;
     }
 
+    protected void TravelEffects()
+    {
+        travelLerp = 1.0f;
+    }
+
     public override void Update()
     {
         timer = Calc.Approach(timer, 0.0f, Engine.DeltaTime);
 
-        Matrix m = Matrix.CreateRotationY(0.25f + (float)Math.Sin(Scene.TimeActive * 3f) * 0.1f) * orientation;
+        Matrix m = Matrix.CreateRotationY(rotation + 0.25f + (float)Math.Sin(Scene.TimeActive * 3f) * 0.1f) * orientation;
         front.Matrix = m;
         back.Matrix = Matrix.CreateRotationX(MathHelper.Pi) * m;
+
+        front.Tint = new Vector4(Vector3.One * (1 + saturation), 1.0f);
+        back.Tint = new Vector4(Vector3.One * (1 + saturation) / 2.0f, 1.0f);
+
+        front.RainbowMix = back.RainbowMix = 0.1f + travelLerp * 0.3f;
+
+        front.HighlightStrength = 0.8f + travelLerp * 0.2f;
+        back.HighlightStrength = 0.4f + travelLerp * 0.4f;
+
+        travelLerp = Calc.Approach(travelLerp, 0.0f, Engine.DeltaTime);
+        saturation = travelLerp * 1.5f;
+        rotation = Ease.BackIn(travelLerp) * MathHelper.PiOver2;
 
         base.Update();
     }

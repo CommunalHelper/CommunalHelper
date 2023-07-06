@@ -551,7 +551,7 @@ internal class Shapes
         return BuildMesh(vertices, icosahedron_indices, color, rainbow, scale);
     }
 
-    public static Mesh<VertexPCTN> HalfRing(float height, float thickness)
+    public static Mesh<VertexPCTN> HalfRing(float height, float thickness, Color color)
     {
         const int circSub = 16;
         const int ringSub = 4;
@@ -590,7 +590,7 @@ internal class Shapes
             }
         }
 
-        return BuildMesh(vertices, indices, Color.Tomato);
+        return BuildMesh(vertices, indices, color, 0.1f);
     }
 
     /// <summary>

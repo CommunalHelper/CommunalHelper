@@ -18,7 +18,7 @@ public class ElytraStopRing : ElytraRing
     { }
 
     public ElytraStopRing(Vector2 a, Vector2 b, bool refill = false)
-        : base(a, b)
+        : base(a, b, Color.Tomato)
     {
         this.refill = refill;
     }
@@ -33,6 +33,8 @@ public class ElytraStopRing : ElytraRing
         Level level = Scene as Level;
         level.Shake(0.1f);
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+
+        TravelEffects();
 
         // particles
         // sound
