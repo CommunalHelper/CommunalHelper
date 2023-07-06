@@ -1,6 +1,6 @@
 local mods = require("mods")
 
--- this entity plugin can only be shown with max's helping hand loaded
+-- this entity plugin can only be shown with Maddie's Helping Hand loaded
 if not mods.hasLoadedMod("MaxHelpingHand") then
     return
 end

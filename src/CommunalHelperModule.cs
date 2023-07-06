@@ -303,7 +303,7 @@ public class CommunalHelperModule : EverestModule
 
     private object CustomBirdTutorial_OnParseCommand(string command)
     {
-        // Thank you max480.
+        // Thank you maddie.
         if (command == "CommunalHelperSyncedZipMoverBinding")
         {
             return Settings.AllowActivateRebinding ?

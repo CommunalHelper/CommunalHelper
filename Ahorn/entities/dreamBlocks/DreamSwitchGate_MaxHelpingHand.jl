@@ -23,7 +23,7 @@ const entityData = appendkwargs(CustomDreamBlockData, :(
 const placements = Ahorn.PlacementDict()
 
 if isdefined(Ahorn, :MaxHelpingHand)
-    placements["Dream Flag Switch Gate (Communal Helper, max480's Helping Hand)"] = Ahorn.EntityPlacement(
+    placements["Dream Flag Switch Gate (Communal Helper, Maddie's Helping Hand)"] = Ahorn.EntityPlacement(
         DreamFlagSwitchGate,
         "rectangle",
         Dict{String,Any}(),
@@ -35,7 +35,7 @@ if isdefined(Ahorn, :MaxHelpingHand)
         end,
     )
 else
-    @warn "Max480's Helping Hand not detected: CommunalHelper+MaxHelpingHand plugins not loaded."
+    @warn "Maddie's Helping Hand not detected: CommunalHelper+MaxHelpingHand plugins not loaded."
 end
 
 function getIconSprite(entity::DreamFlagSwitchGate)

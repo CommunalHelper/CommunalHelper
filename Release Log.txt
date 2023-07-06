@@ -268,7 +268,7 @@
 
 --1.7.0 (27/02/2021)--
 * Added Melvin.
-* Added Dream Flag Switch Gate (requires Max's Helping Hand).
+* Added Dream Flag Switch Gate (requires Maddie's Helping Hand).
 * Added deleteBlock & oneUse attributes to MoveBlockRedirects.
 * Made Move Block Redirects able to edit its Move Block's speed.
 * Made Summit Gems work across maps.
@@ -293,7 +293,7 @@
 * Added Switch Track Trigger.
 * Deprecated doubleRefill attribute on CustomDreamBlocks.
 * Added refillCount attribute to CustomDreamBlocks.
-* Added grouping attribute to TimedTriggerSpikes (requires Max's Helping Hand).
+* Added grouping attribute to TimedTriggerSpikes (requires Maddie's Helping Hand).
 * Added rainbow attribute to TimedTriggerSpikes (requires Viv's Helper).
 * Support CollabUtils MiniHeart in SummitGemManager.
 

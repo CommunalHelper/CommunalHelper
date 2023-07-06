@@ -62,7 +62,7 @@ Ahorn.editingOptions(entity::TriggerSpikesUnion) = Dict{String,Any}(
     "type" => spikeTypes,
     "Grouped" => Dict{String,Bool}(
         "Not Grouped" => false,
-        "Grouped (Requires Max's Helping Hand)" => true,
+        "Grouped (Requires Max's Maddie Hand)" => true,
     ),
     "Rainbow" => Dict{String,Bool}(
         "Default" => false,

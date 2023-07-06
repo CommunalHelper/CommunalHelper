@@ -4,7 +4,7 @@ using System.Collections;
 namespace Celeste.Mod.CommunalHelper;
 
 /*
- * Lots of stuff taken from max480's Helping Hand Flag Switch Gate entity
+ * Lots of stuff taken from Maddie's Helping Hand Flag Switch Gate entity
  * https://github.com/max4805/MaxHelpingHand/blob/master/Entities/FlagSwitchGate.cs
  */
 
