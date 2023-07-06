@@ -1,4 +1,4 @@
-﻿namespace Celeste.Mod.CommunalHelper.States;
+﻿namespace Celeste.Mod.CommunalHelper.Entities;
 
 /// <summary>
 /// Base abstract entity class for the rings the player can traverse while gliding.

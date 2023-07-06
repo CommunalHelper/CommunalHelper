@@ -1,4 +1,5 @@
-﻿using FMOD.Studio;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using FMOD.Studio;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.Utils;

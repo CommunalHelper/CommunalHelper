@@ -643,6 +643,26 @@ entities.CommunalHelper/ShapeshifterPath.attributes.description.quakeTime=The du
 entities.CommunalHelper/ShapeshifterPath.attributes.description.fakeoutTime=How much time (in seconds) should this block spend in the fakeout state.\nIf this value is non-zero, the block will start moving but stop at the beginning of the movement. After the amount of seconds specified in this field, it will resume its movement along the path.
 entities.CommunalHelper/ShapeshifterPath.attributes.description.fakeoutDistance=How far away (in pixels) the block should stop for the fakeout state (only useful if fakeoutTime is non-zero).\nNote that the fakeout movement still follows the path.
 
+# Elytra Dash Block
+entities.CommunalHelper/ElytraDashBlock.placements.name.elytra_dash_block=Elytra Dash Block
+entities.CommunalHelper/ElytraDashBlock.attributes.description.tiletype=The tile type of this block.
+entities.CommunalHelper/ElytraDashBlock.attributes.description.blendin=Whether this block blends in with foreground tiles.
+entities.CommunalHelper/ElytraDashBlock.attributes.description.permanent=Whether this block should disappear permanently once broken.
+entities.CommunalHelper/ElytraDashBlock.attributes.description.requiredSpeed=The required speed in px/sec by the player in the elytra state.
+
+# Elytra Boost Ring
+entities.CommunalHelper/ElytraBoostRing.placements.name.elytra_boost_ring=Elytra Boost Ring
+entities.CommunalHelper/ElytraBoostRing.attributes.description.speed=The value in px/sec that is assigned to the player's speed.
+entities.CommunalHelper/ElytraBoostRing.attributes.description.duration=How long (in seconds) the player is locked in the elytra boost state. While in this state, the player maintains the angle at which it was boosted, and maintains its speed as well.\nThose cannot be changed until the specified time in this field has elapsed.
+entities.CommunalHelper/ElytraBoostRing.attributes.description.refill=Whether the player's elytra should be refilled when going through this ring.
+
+# Elytra Refill Ring
+entities.CommunalHelper/ElytraRefillRing.placements.name.elytra_refill_ring=Elytra Refill Ring
+
+# Elytra Stop Ring
+entities.CommunalHelper/ElytraStopRing.placements.name.elytra_stop_ring=Elytra Stop Ring
+entities.CommunalHelper/ElytraStopRing.attributes.description.refill=Whether the player's elytra should be refilled when going through this ring.
+
 # [Strawberry Jam] Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]
 entities.CommunalHelper/SJ/BulletTimeController.placements.description.controller=Slows down time while the player has dashes.
