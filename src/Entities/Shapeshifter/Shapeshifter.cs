@@ -219,8 +219,12 @@ public class Shapeshifter : Solid
 
     internal void FollowPath(ShapeshifterPath path)
     {
+
+        if (moving)
+            return;
+
         path ??= FindPath();
-        if (path is null || moving)
+        if (path is null)
             return;
 
         moving = true;
@@ -258,8 +262,8 @@ public class Shapeshifter : Solid
         float pathRoll = path.Roll * MathHelper.PiOver2;
 
         float finalYaw = yaw + pathYaw;
-        float finalPitch = pitch  + pathPitch;
-        float finalRoll = roll  + pathRoll;
+        float finalPitch = pitch + pathPitch;
+        float finalRoll = roll + pathRoll;
 
         float distance = 0.0f;
 
@@ -304,7 +308,7 @@ public class Shapeshifter : Solid
             yield return Travel
             (
                 fakeoutTime, Ease.CubeOut, fakeoutDistance,
-                -pathYaw / 4f, -pathPitch / 4f, -pathRoll / 4f,
+                yaw - pathYaw / 4f, pitch - pathPitch / 4f, roll - pathRoll / 4f,
                 (t, _, _) =>
                 {
                     mesh.DepthEdgeStrength = t * 0.8f;
@@ -339,7 +343,7 @@ public class Shapeshifter : Solid
             Collidable = false;
             yield return null;
         }
-        moving = true;
+        moving = false;
 
         sfx.Pause();
 
