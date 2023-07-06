@@ -85,7 +85,7 @@ function shapeshifter.sprite(room, entity)
     local esx, esy, esz = entity.voxelWidth or 1, entity.voxelHeight or 1, entity.voxelDepth or 1
 
     local model = entity.model or ""
-    local evox = voxel.fromStringRepresentation(model, esx, esy, esz, "0")
+    local vox = voxel.fromStringRepresentation(model, esx, esy, esz, "0")
 
     local sprites = {}
 
@@ -96,9 +96,31 @@ function shapeshifter.sprite(room, entity)
         end
     end
 
-    local function spread(x, y, vox)
-        local sx, sy, _ = vox:size()
-        addTilesFromVoxel(sprites, vox, room, x - sx * 4, y - sy * 4)
+    local function spread(x, y, yaw, pitch, roll)
+        local yawWrap = yaw % 4
+        local pitchWrap = pitch % 4
+        local rollWrap = roll % 4
+
+        local rotatedVox = vox
+
+        if rollWrap == 1 then rotatedVox = voxel.counterclockwiseRotationAboutZ(rotatedVox, "0")
+        elseif rollWrap == 2 then rotatedVox = voxel.mirrorAboutZ(rotatedVox, "0")
+        elseif rollWrap == 3 then rotatedVox = voxel.clockwiseRotationAboutZ(rotatedVox, "0")
+        end
+
+        if pitchWrap == 1 then rotatedVox = voxel.counterclockwiseRotationAboutX(rotatedVox, "0")
+        elseif pitchWrap == 2 then rotatedVox = voxel.mirrorAboutX(rotatedVox, "0")
+        elseif pitchWrap == 3 then rotatedVox = voxel.clockwiseRotationAboutX(rotatedVox, "0")
+        end
+
+        if yawWrap == 1 then rotatedVox = voxel.counterclockwiseRotationAboutY(rotatedVox, "0")
+        elseif yawWrap == 2 then rotatedVox = voxel.mirrorAboutY(rotatedVox, "0")
+        elseif yawWrap == 3 then rotatedVox = voxel.clockwiseRotationAboutY(rotatedVox, "0")
+        end
+
+        local sx, sy, _ = rotatedVox:size()
+        addTilesFromVoxel(sprites, rotatedVox, room, x - sx * 4, y - sy * 4)
+
         for _, current in ipairs(paths) do
             if not current.borrowed then
                 local tarx = current.path.nodes[3].x + x - current.path.x
@@ -108,35 +130,18 @@ function shapeshifter.sprite(room, entity)
                 local blockBounds = utils.rectangle(x - sx * 4, y - sy * 4, sx * 8, sy * 8)
 
                 if utils.intersection(pathBounds, blockBounds) then
-                    local yaw = current.path.rotateYaw % 4
-                    local pitch = current.path.rotatePitch % 4
-                    local roll = current.path.rotateRoll % 4
-
-                    local next_vox = vox
-
-                    if roll == 1 then next_vox = voxel.counterclockwiseRotationAboutZ(next_vox, "0")
-                    elseif roll == 2 then next_vox = voxel.mirrorAboutZ(next_vox, "0")
-                    elseif roll == 3 then next_vox = voxel.clockwiseRotationAboutZ(next_vox, "0")
-                    end
-
-                    if pitch == 1 then next_vox = voxel.counterclockwiseRotationAboutX(next_vox, "0")
-                    elseif pitch == 2 then next_vox = voxel.mirrorAboutX(next_vox, "0")
-                    elseif pitch == 3 then next_vox = voxel.clockwiseRotationAboutX(next_vox, "0")
-                    end
-
-                    if yaw == 1 then next_vox = voxel.counterclockwiseRotationAboutY(next_vox, "0")
-                    elseif yaw == 2 then next_vox = voxel.mirrorAboutY(next_vox, "0")
-                    elseif yaw == 3 then next_vox = voxel.clockwiseRotationAboutY(next_vox, "0")
-                    end
+                    local pathyaw = current.path.rotateYaw
+                    local pathpitch = current.path.rotatePitch
+                    local pathroll = current.path.rotateRoll
 
                     current.borrowed = true
-                    spread(tarx, tary, next_vox)
+                    spread(tarx, tary, yaw + pathyaw, pitch + pathpitch, roll + pathroll)
                 end
             end
         end
     end
 
-    spread(ex, ey, evox)
+    spread(ex, ey, 0, 0, 0)
 
     return sprites
 end
