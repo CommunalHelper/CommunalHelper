@@ -1,4 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Imports;
+using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -415,12 +417,16 @@ public static class DreamTunnelDash
     public static void CreateTrail(this Player player, Color color)
     {
         Vector2 scale = new(Math.Abs(player.Sprite.Scale.X) * (float) player.Facing, player.Sprite.Scale.Y);
+
+        if (player.IsInverted())
+            scale.Y *= -1.0f;
+
         TrailManager.Add(player, scale, color);
     }
 
     public static void CreateDreamTrail(this Player player)
     {
-        CreateTrail(player, DreamTrailColors[DreamTrailColorIndex]);
+        player.CreateTrail(DreamTrailColors[DreamTrailColorIndex]);
         ++DreamTrailColorIndex;
         DreamTrailColorIndex %= 5;
     }
@@ -468,7 +474,14 @@ public static class DreamTunnelDash
 
     private static bool DreamTunnelDashCheck(this Player player, Vector2 dir)
     {
-        if (dreamTunnelDashAttacking && player.DashAttacking && (dir.X == Math.Sign(player.DashDir.X) || dir.Y == Math.Sign(player.DashDir.Y)))
+        Vector2 dashdir = player.DashDir;
+        if (player.IsInverted())
+        {
+            dir.Y *= -1;
+            dashdir.Y *= -1;
+        }
+
+        if (dreamTunnelDashAttacking && player.DashAttacking && (dir.X == Math.Sign(dashdir.X) || dir.Y == Math.Sign(dashdir.Y)))
         {
             Rectangle bounds = player.SceneAs<Level>().Bounds;
             if (player.Left + dir.X < bounds.Left || player.Right + dir.X > bounds.Right || player.Top + dir.Y < bounds.Top || player.Bottom + dir.Y > bounds.Bottom)
@@ -662,7 +675,12 @@ public static class DreamTunnelDash
 
         Input.Rumble(RumbleStrength.Light, RumbleLength.Medium);
         Vector2 position = player.Position;
-        player.NaiveMove(player.Speed * Engine.DeltaTime);
+
+        Vector2 factor = Vector2.One;
+        if (player.IsInverted())
+            factor.Y = -1;
+        player.NaiveMove(player.Speed * factor * Engine.DeltaTime);
+
         float dreamDashCanEndTimer = playerData.Get<float>(Player_dreamTunnelDashCanEndTimer);
         if (dreamDashCanEndTimer > 0f)
         {
@@ -725,6 +743,7 @@ public static class DreamTunnelDash
                 burst.WorldClipPadding = 2;
             }
         }
+
         return StDreamTunnelDash;
     }
 
