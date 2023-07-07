@@ -9,6 +9,7 @@ public class ElytraBoostRing : ElytraRing
     {
         public SimpleCurve curve;
         public float t;
+        public bool inv;
     }
 
     private readonly Line[] lines;
@@ -51,6 +52,7 @@ public class ElytraBoostRing : ElytraRing
     private void ResetLine(int index)
     {
         lines[index].t = 0.0f;
+        lines[index].inv = bidirectional && Calc.Random.Chance(0.5f);
 
         Vector2 control = Vector2.Lerp(A, B, Calc.Random.Range(0.1f, 0.9f));
 
@@ -92,11 +94,13 @@ public class ElytraBoostRing : ElytraRing
 
         foreach (Line line in lines)
         {
-            float w = Ease.SineInOut(Ease.UpDown(line.t));
+            float t = line.inv ? 1 - line.t : line.t;
 
-            Vector2 a = line.curve.GetPoint(line.t + w * 0.2f);
-            Vector2 b = line.curve.GetPoint(line.t);
-            Vector2 c = line.curve.GetPoint(line.t - w * 0.2f);
+            float w = Ease.SineInOut(Ease.UpDown(t));
+
+            Vector2 a = line.curve.GetPoint(t + w * 0.2f);
+            Vector2 b = line.curve.GetPoint(t);
+            Vector2 c = line.curve.GetPoint(t - w * 0.2f);
 
             Color color = Color.Lerp(Color.Transparent, Color.White, w * 0.4f);
 
