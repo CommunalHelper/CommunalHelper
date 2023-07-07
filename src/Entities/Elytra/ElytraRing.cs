@@ -49,6 +49,8 @@ public abstract class ElytraRing : Entity
 
     private float travelLerp = 0.0f;
 
+    private readonly ParticleType p_traversal;
+
     /// <summary>
     /// Instantiates a ring.
     /// </summary>
@@ -88,6 +90,15 @@ public abstract class ElytraRing : Entity
             Matrix = Matrix.CreateRotationX(MathHelper.Pi) * tilt * orientation,
             Tint = new(Vector3.One * 0.5f, 1.0f),
         });
+
+        p_traversal = new(LightningBreakerBox.P_Smash)
+        {
+            Color = Color.Lerp(color, Color.White, 0.25f),
+            Color2 = Color.Lerp(color, Color.White, 0.75f),
+            SpeedMin = 50f,
+            SpeedMax = 100f,
+            SpeedMultiplier = 0.15f
+        };
     }
 
     /// <summary>
@@ -112,6 +123,16 @@ public abstract class ElytraRing : Entity
     protected void TravelEffects()
     {
         travelLerp = 1.0f;
+
+        Level level = Scene as Level;
+
+        float length = Vector2.Distance(A, B);
+        float angle = Direction.Angle();
+        for (float d = 0.0f; d <= length; d += 4.0f)
+        {
+            Vector2 at = Vector2.Lerp(A, B, d / length);
+            level.Particles.Emit(p_traversal, at, angle);
+        }
     }
 
     public override void Update()

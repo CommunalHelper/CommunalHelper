@@ -71,11 +71,7 @@ public class ElytraBoostRing : ElytraRing
         Level level = Scene as Level;
         level.DirectionalShake(Direction);
         Input.Rumble(RumbleStrength.Strong, RumbleLength.Short);
-
-        // particles
-        // sound
         Audio.Play(SFX.game_06_feather_bubble_renew, Middle);
-
         TravelEffects();
 
         Celeste.Freeze(0.05f);
