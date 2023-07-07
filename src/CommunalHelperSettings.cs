@@ -32,15 +32,15 @@ public class CommunalHelperSettings : EverestModuleSettings
 
     public void CreateAlwaysActiveDreamRefillChargeEntry(TextMenu menu, bool inGame)
     {
-        TextMenu.OnOff featherModeOption;
-        TextMenu.OnOff ignoreCollectiblesOption;
+        var featherModeOption = new TextMenu.OnOff(Dialog.Clean("SETTINGS_DREAMTUNNEL_FEATHERMODE"), _dreamDashFeatherMode)
+            .Change(v => _dreamDashFeatherMode = v);
+
+        var ignoreCollectiblesOption = new TextMenu.OnOff(Dialog.Clean("SETTINGS_DREAMTUNNEL_IGNORECOLLECTIBLES"), _dreamTunnelIgnoreCollidables)
+            .Change(v => _dreamTunnelIgnoreCollidables = v);
 
         TextMenuExt.OptionSubMenu subMenu = new TextMenuExt.OptionSubMenu(Dialog.Clean("SETTINGS_DREAMTUNNEL_ALWAYSACTIVE"))
             .Add(Dialog.Clean("OPTIONS_OFF"))
-            .Add(Dialog.Clean("OPTIONS_ON"),
-                featherModeOption = new TextMenu.OnOff(Dialog.Clean("SETTINGS_DREAMTUNNEL_FEATHERMODE"), _dreamDashFeatherMode),
-                ignoreCollectiblesOption = new TextMenu.OnOff(Dialog.Clean("SETTINGS_DREAMTUNNEL_IGNORECOLLECTIBLES"), _dreamTunnelIgnoreCollidables)
-            )
+            .Add(Dialog.Clean("OPTIONS_ON"), featherModeOption, ignoreCollectiblesOption)
             .Change(i => AlwaysActiveDreamRefillCharge = i == 1)
             .SetInitialSelection(Util.ToInt(AlwaysActiveDreamRefillCharge));
 

@@ -475,7 +475,7 @@ public static class DreamTunnelDash
     private static bool DreamTunnelDashCheck(this Player player, Vector2 dir)
     {
         Vector2 dashdir = player.DashDir;
-        if (player.IsInverted())
+        if (player.IsInverted())    
         {
             dir.Y *= -1;
             dashdir.Y *= -1;
