@@ -20,6 +20,8 @@ public class ElytraRefillRing : ElytraRing
     {
         base.OnPlayerTraversal(player);
 
+        player.RefillDash();
+        player.RefillStamina();
         player.RefillElytra();
 
         Level level = Scene as Level;
