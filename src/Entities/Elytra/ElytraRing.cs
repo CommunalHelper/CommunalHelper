@@ -11,29 +11,34 @@ public abstract class ElytraRing : Entity
     /// <summary>
     /// Extremity A of the ring.
     /// </summary>
-    protected Vector2 A { get; }
+    public Vector2 A { get; }
 
     /// <summary>
     /// Extremity B of the ring.
     /// </summary>
-    protected Vector2 B { get; }
+    public Vector2 B { get; }
 
     /// <summary>
     /// Center point of the ring.
     /// </summary>
-    protected Vector2 Middle { get; }
+    public Vector2 Middle { get; }
 
     /// <summary>
     /// The direction this ring is pointing towards.
     /// Set to <see cref="Vector2.Zero"/> if the two extremity points are equal.
     /// </summary>
-    protected Vector2 Direction { get; }
+    public Vector2 Direction { get; }
 
     /// <summary>
     /// Whether <see cref="OnPlayerTraversal(Player)"/> must be called in the same order the player traversed the rings.
     /// If <c>false</c>, this ring is prioritized in the list of traversed rings.
     /// </summary>
     public virtual bool PreserveTraversalOrder => true;
+
+    /// <summary>
+    /// The sound effect played when this ring is crossed. Defaults to <see cref="SFX.NONE"/>.
+    /// </summary>
+    public virtual string TraversalSFX => SFX.NONE;
 
     /// <summary>
     /// The minimum delay in seconds between two allowed traversals.
@@ -115,19 +120,21 @@ public abstract class ElytraRing : Entity
     /// Called when the player traverses the ring.
     /// </summary>
     /// <param name="player">A reference to the player.</param>
-    public virtual void OnPlayerTraversal(Player player)
+    /// <param name="sign">The sign of the traversal. +1 for crossing the ring in its direction, -1 for crossing it in the opposite direction.</param>
+    public virtual void OnPlayerTraversal(Player player, int sign)
     {
         timer = Delay;
-    }
 
-    protected void TravelEffects()
-    {
         travelLerp = 1.0f;
 
         Level level = Scene as Level;
+        level.Shake(0.1f);
+        Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+        Audio.Play(TraversalSFX, player.Center);
+        Celeste.Freeze(0.05f);
 
         float length = Vector2.Distance(A, B);
-        float angle = Direction.Angle();
+        float angle = (Direction * sign).Angle();
         for (float d = 0.0f; d <= length; d += 4.0f)
         {
             Vector2 at = Vector2.Lerp(A, B, d / length);

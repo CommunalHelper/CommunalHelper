@@ -17,6 +17,7 @@ public class ElytraBoostRing : ElytraRing
     private readonly bool refill;
 
     public override float Delay => 0.1f;
+    public override string TraversalSFX => SFX.game_06_feather_bubble_renew;
 
     public ElytraBoostRing(EntityData data, Vector2 offset)
         : this(
@@ -57,26 +58,18 @@ public class ElytraBoostRing : ElytraRing
         lines[index].curve = new(a, b, control);
     }
 
-    public override void OnPlayerTraversal(Player player)
+    public override void OnPlayerTraversal(Player player, int sign)
     {
-        base.OnPlayerTraversal(player);
-
         if (Direction == Vector2.Zero)
             return;
 
-        player.ElytraLaunch(Direction * speed, duration);
+        // force unidirectional boost for now
+        sign = 1;
+
+        base.OnPlayerTraversal(player, sign);
+        player.ElytraLaunch(Direction * speed * sign, duration);
         if (refill)
             player.RefillElytra();
-
-        Level level = Scene as Level;
-        level.DirectionalShake(Direction);
-        Input.Rumble(RumbleStrength.Strong, RumbleLength.Short);
-        Audio.Play(SFX.game_06_feather_bubble_renew, Middle);
-        TravelEffects();
-
-        Celeste.Freeze(0.05f);
-
-        return;
     }
 
     public override void Update()

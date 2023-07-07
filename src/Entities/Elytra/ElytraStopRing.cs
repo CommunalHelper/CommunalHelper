@@ -8,6 +8,7 @@ public class ElytraStopRing : ElytraRing
     private readonly bool refill;
 
     public override bool PreserveTraversalOrder => false;
+    public override string TraversalSFX => SFX.game_06_feather_state_end;
 
     public ElytraStopRing(EntityData data, Vector2 offset)
         : this(
@@ -23,20 +24,11 @@ public class ElytraStopRing : ElytraRing
         this.refill = refill;
     }
 
-    public override void OnPlayerTraversal(Player player)
+    public override void OnPlayerTraversal(Player player, int sign)
     {
-        base.OnPlayerTraversal(player);
-
+        base.OnPlayerTraversal(player, sign);
         if (refill)
             player.RefillElytra();
-
-        Level level = Scene as Level;
-        level.Shake(0.1f);
-        Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-        Audio.Play(SFX.game_06_feather_state_end, Position);
-        TravelEffects();
-
-        Celeste.Freeze(0.05f);
 
         player.StateMachine.State = Player.StNormal;
     }

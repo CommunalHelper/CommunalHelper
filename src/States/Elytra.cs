@@ -255,9 +255,13 @@ public static class Elytra
                                         .Cast<ElytraRing>()
                                         .Where(ring => ring.CanTraverse(from, at))
                                         .OrderBy(ring => ring.PreserveTraversalOrder ? Vector2.DistanceSquared(from, ring.Position) : -1.0f);
-        
+
         foreach (ElytraRing ring in rings)
-            ring.OnPlayerTraversal(player);
+        {
+            int sign = Math.Sign(Vector2.Dot(ring.Direction, at - from));
+            if (sign is 0) sign = 1;
+            ring.OnPlayerTraversal(player, sign);
+        }
     }
 
     public static IEnumerator GlideRoutine(this Player _)
