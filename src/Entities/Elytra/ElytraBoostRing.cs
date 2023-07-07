@@ -14,6 +14,7 @@ public class ElytraBoostRing : ElytraRing
     private readonly Line[] lines;
 
     private readonly float speed, duration;
+    private readonly bool bidirectional;
     private readonly bool refill;
 
     public override float Delay => 0.1f;
@@ -25,15 +26,17 @@ public class ElytraBoostRing : ElytraRing
             data.Nodes[0] + offset,
             data.Float("speed", 240.0f),
             data.Float("duration", 0.5f),
-            data.Bool("refill", false)
+            data.Bool("refill", false),
+            data.Bool("bidirectional", false)
         )
     { }
 
-    public ElytraBoostRing(Vector2 a, Vector2 b, float speed = 240.0f, float duration = 0.5f, bool refill = false)
+    public ElytraBoostRing(Vector2 a, Vector2 b, float speed = 240.0f, float duration = 0.5f, bool refill = false, bool bidirectional = false)
         : base(a, b, Color.Teal)
     {
         this.speed = speed;
         this.duration = duration;
+        this.bidirectional = bidirectional;
         this.refill = refill;
 
         int count = (int)Vector2.Distance(a, b) / 5;
@@ -63,8 +66,8 @@ public class ElytraBoostRing : ElytraRing
         if (Direction == Vector2.Zero)
             return;
 
-        // force unidirectional boost for now
-        sign = 1;
+        if (!bidirectional)
+            sign = 1;
 
         base.OnPlayerTraversal(player, sign);
         player.ElytraLaunch(Direction * speed * sign, duration);
@@ -104,12 +107,29 @@ public class ElytraBoostRing : ElytraRing
         float angle = MathHelper.PiOver4 + Direction.Angle();
         var arrow = GFX.Game["objects/CommunalHelper/elytraRing/arrow"];
 
-        void DrawArrow(float t)
+        if (bidirectional)
         {
-            arrow.DrawCentered(Position + Direction * (t * 2 - 1) * 10, Color.Red * Ease.CubeOut(Ease.UpDown(t)) * 0.5f, 6f, angle);
-        }
+            Vector2 along = (B - A).SafeNormalize() * 6;
 
-        DrawArrow((Scene.TimeActive * 0.65f + 0.0f) % 1.0f);
-        DrawArrow((Scene.TimeActive * 0.65f + 0.5f) % 1.0f);
+            float t1 = (Scene.TimeActive * 0.65f + 0.0f) % 1.0f;
+            float t2 = (Scene.TimeActive * 0.65f + 0.33f) % 1.0f;
+            float t3 = (Scene.TimeActive * 0.65f + 0.66f) % 1.0f;
+
+            arrow.DrawCentered(Position + Direction * (t1 * 2 - 1) * 10 + along, Color.Red * Ease.CubeOut(Ease.UpDown(t1)) * 0.5f, 4f, angle);
+            arrow.DrawCentered(Position + Direction * (t2 * 2 - 1) * 10 + along, Color.Red * Ease.CubeOut(Ease.UpDown(t2)) * 0.5f, 4f, angle);
+            arrow.DrawCentered(Position + Direction * (t3 * 2 - 1) * 10 + along, Color.Red * Ease.CubeOut(Ease.UpDown(t3)) * 0.5f, 4f, angle);
+
+            arrow.DrawCentered(Position - Direction * (t1 * 2 - 1) * 10 - along, Color.Red * Ease.CubeOut(Ease.UpDown(t1)) * 0.5f, 4f, angle + MathHelper.Pi);
+            arrow.DrawCentered(Position - Direction * (t2 * 2 - 1) * 10 - along, Color.Red * Ease.CubeOut(Ease.UpDown(t2)) * 0.5f, 4f, angle + MathHelper.Pi);
+            arrow.DrawCentered(Position - Direction * (t3 * 2 - 1) * 10 - along, Color.Red * Ease.CubeOut(Ease.UpDown(t3)) * 0.5f, 4f, angle + MathHelper.Pi);
+        }
+        else
+        {
+            float t1 = (Scene.TimeActive * 0.65f + 0.0f) % 1.0f;
+            float t2 = (Scene.TimeActive * 0.65f + 0.5f) % 1.0f;
+
+            arrow.DrawCentered(Position + Direction * (t1 * 2 - 1) * 10, Color.Red * Ease.CubeOut(Ease.UpDown(t1)) * 0.5f, 6f, angle);
+            arrow.DrawCentered(Position + Direction * (t2 * 2 - 1) * 10, Color.Red * Ease.CubeOut(Ease.UpDown(t2)) * 0.5f, 6f, angle);
+        }
     }
 }
