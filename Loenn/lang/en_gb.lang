@@ -651,10 +651,12 @@ entities.CommunalHelper/ElytraDashBlock.attributes.description.permanent=Whether
 entities.CommunalHelper/ElytraDashBlock.attributes.description.requiredSpeed=The required speed in px/sec by the player in the elytra state.
 
 # Elytra Boost Ring
-entities.CommunalHelper/ElytraBoostRing.placements.name.elytra_boost_ring=Elytra Boost Ring
+entities.CommunalHelper/ElytraBoostRing.placements.name.unidirectional=Elytra Boost Ring (Unidirectional)
+entities.CommunalHelper/ElytraBoostRing.placements.name.bidirectional=Elytra Boost Ring (Bidirectional)
 entities.CommunalHelper/ElytraBoostRing.attributes.description.speed=The value in px/sec that is assigned to the player's speed.
 entities.CommunalHelper/ElytraBoostRing.attributes.description.duration=How long (in seconds) the player is locked in the elytra boost state. While in this state, the player maintains the angle at which it was boosted, and maintains its speed as well.\nThose cannot be changed until the specified time in this field has elapsed.
 entities.CommunalHelper/ElytraBoostRing.attributes.description.refill=Whether the player's elytra should be refilled when going through this ring.
+entities.CommunalHelper/ElytraBoostRing.attributes.description.bidirectional=Whether this ring can boost the player in both directions. If disabled, the player is always boosted in the direction that this ring points to. 
 
 # Elytra Refill Ring
 entities.CommunalHelper/ElytraRefillRing.placements.name.elytra_refill_ring=Elytra Refill Ring

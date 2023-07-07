@@ -29,6 +29,6 @@ public class ElytraRefillRing : ElytraRing
         base.Render();
 
         GFX.Game["objects/CommunalHelper/elytraRing/dot"]
-           .DrawCentered(Position, Color.LimeGreen * 0.5f, 12f + (float) Math.Sin(Scene.TimeActive * 3) * 2, MathHelper.PiOver4 + Direction.Angle());
+           .DrawCentered(Position, Color.LimeGreen * 0.5f, 6f + (float) Math.Sin(Scene.TimeActive * 3), MathHelper.PiOver4 + Direction.Angle());
     }
 }

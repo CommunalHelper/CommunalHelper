@@ -38,6 +38,6 @@ public class ElytraStopRing : ElytraRing
         base.Render();
 
         GFX.Game["objects/CommunalHelper/elytraRing/x"]
-           .DrawCentered(Position, Color.Tomato * 0.5f, 6f + (float)Math.Sin(Scene.TimeActive * 3), MathHelper.PiOver4 + Direction.Angle());
+           .DrawCentered(Position, Color.Tomato * 0.5f, 3f + (float)Math.Sin(Scene.TimeActive * 3) / 2f, MathHelper.PiOver4 + Direction.Angle());
     }
 }
