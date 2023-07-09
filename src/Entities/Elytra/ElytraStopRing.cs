@@ -8,7 +8,7 @@ public class ElytraStopRing : ElytraRing
     private readonly bool refill;
 
     public override bool PreserveTraversalOrder => false;
-    public override string TraversalSFX => SFX.game_06_feather_state_end;
+    public override string TraversalSFX => CustomSFX.game_elytra_rings_stop;
 
     public ElytraStopRing(EntityData data, Vector2 offset)
         : this(

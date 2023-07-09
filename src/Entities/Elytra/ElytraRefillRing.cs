@@ -5,7 +5,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/ElytraRefillRing")]
 public class ElytraRefillRing : ElytraRing
 {
-    public override string TraversalSFX => SFX.game_gen_diamond_touch;
+    public override string TraversalSFX => CustomSFX.game_elytra_rings_refill;
 
     public ElytraRefillRing(EntityData data, Vector2 offset)
         : this(

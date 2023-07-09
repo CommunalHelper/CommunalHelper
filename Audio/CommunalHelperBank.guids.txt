@@ -44,6 +44,10 @@
 {64aa835a-801b-4057-87b3-dc886fe49e07} event:/CommunalHelperEvents/game/dreamZipMover/return
 {1707a709-7931-443e-b0f9-8a3f1ee10769} event:/CommunalHelperEvents/game/dreamZipMover/start
 {df422bf6-af85-43cf-b5f6-3380534654de} event:/CommunalHelperEvents/game/dreamZipMover/tick
+{b5980aaa-69d4-4308-8fc1-b3d74dceb154} event:/CommunalHelperEvents/game/elytra/rings/boost
+{96dd887a-18fc-4b5a-a0ac-c100a4fdb340} event:/CommunalHelperEvents/game/elytra/rings/stop
+{378d8bf9-59a6-443d-957b-8e5930e87b1e} event:/CommunalHelperEvents/game/elytra/rings/refill
+{5973deb4-795f-4cd5-8a69-c27a351ba994} event:/CommunalHelperEvents/game/elytra/rings/booster_ambience
 {427b769c-ce6d-45e9-8862-e1c6421c81cb} event:/CommunalHelperEvents/game/elytra/deploy
 {87cda551-81bb-4c54-a274-bf8839e8f742} event:/CommunalHelperEvents/game/elytra/gliding
 {4affb665-c868-4fde-8fac-542aed3e6fc6} event:/CommunalHelperEvents/game/elytra/refill
@@ -59,6 +63,9 @@
 {a2bc8729-8243-400b-85bf-7aee35017dae} event:/CommunalHelperEvents/game/seedCrystalHeart/shards_reform
 {bec19e82-685c-47cc-a4e2-fb13ed8e1d19} event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_return
 {53f31277-06a3-42e7-8d0b-60fffa30f1a0} event:/CommunalHelperEvents/game/seekerDashRefill/seeker_refill_touch
+{4d0ffdff-b036-4c3c-9692-42f572e34a8d} event:/CommunalHelperEvents/game/shapeshifter/move
+{592bce93-534d-48e3-9cf4-08363b1155dd} event:/CommunalHelperEvents/game/shapeshifter/shake
+{a65c5d03-1f80-4db0-9a77-7e9664fa9915} event:/CommunalHelperEvents/game/shapeshifter/supermove
 {d1f1922a-3775-4a18-9e19-d92581355d3f} event:/CommunalHelperEvents/game/shieldedRefill/diamond_return
 {8f721410-399c-4943-b780-0218ebabea14} event:/CommunalHelperEvents/game/shieldedRefill/diamondbubble_pop
 {065a8ad7-9307-4d5e-9e3a-6c647e721190} event:/CommunalHelperEvents/game/shieldedRefill/pinkdiamond_return
@@ -94,7 +101,4 @@
 {58664ac0-a862-437c-9486-4aacce943f4c} event:/CommunalHelperEvents/game/zipMover/normal/return
 {3ad2c47a-5b95-4451-92df-9e318bd9b0ea} event:/CommunalHelperEvents/game/zipMover/normal/start
 {5233c8a4-cc43-44ef-a67f-86cc683f6b36} event:/CommunalHelperEvents/game/zipMover/normal/tick
-{592bce93-534d-48e3-9cf4-08363b1155dd} event:/CommunalHelperEvents/game/shapeshifter/shake
-{a65c5d03-1f80-4db0-9a77-7e9664fa9915} event:/CommunalHelperEvents/game/shapeshifter/supermove
-{4d0ffdff-b036-4c3c-9692-42f572e34a8d} event:/CommunalHelperEvents/game/shapeshifter/move
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank

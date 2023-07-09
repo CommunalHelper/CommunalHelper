@@ -19,7 +19,7 @@ public class ElytraBoostRing : ElytraRing
     private readonly bool refill;
 
     public override float Delay => 0.1f;
-    public override string TraversalSFX => SFX.game_06_feather_bubble_renew;
+    public override string TraversalSFX => CustomSFX.game_elytra_rings_boost;
 
     public ElytraBoostRing(EntityData data, Vector2 offset)
         : this(
@@ -47,6 +47,8 @@ public class ElytraBoostRing : ElytraRing
             ResetLine(i);
             lines[i].t = Calc.Random.NextFloat();
         }
+
+        Add(new SoundSource(CustomSFX.game_elytra_rings_booster_ambience));
     }
 
     private void ResetLine(int index)
