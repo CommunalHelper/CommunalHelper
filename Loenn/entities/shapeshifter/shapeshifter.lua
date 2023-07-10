@@ -1,3 +1,4 @@
+local drawableRectangle = require "structs.drawable_rectangle"
 local utils = require "utils"
 local fakeTilesHelper = require "helpers.fake_tiles"
 local mods = require "mods"
@@ -111,6 +112,9 @@ function shapeshifter.sprite(room, entity)
         end
 
         local sx, sy, _ = rotatedVox:size()
+
+        table.insert(sprites, drawableRectangle.fromRectangle("bordered", x - sx * 4, y - sy * 4, sx * 8, sy * 8, {1.0, 1.0, 1.0, 0.25}, {1.0, 1.0, 1.0, 0.5}))
+
         addTilesFromVoxel(sprites, rotatedVox, room, x - sx * 4, y - sy * 4)
 
         for _, current in ipairs(paths) do
