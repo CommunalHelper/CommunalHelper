@@ -255,8 +255,11 @@ public class Shapeshifter : Solid
         }
 
         Audio.Play(startSound, Position);
-        StartShaking(startShake);
-        level.Shake(startShake);
+        if (startShake > 0.0f)
+        {
+            StartShaking(startShake);
+            level.Shake(startShake);
+        }
         if (startShake > 0.0f)
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
         
@@ -359,8 +362,11 @@ public class Shapeshifter : Solid
         sfx.Pause();
 
         Audio.Play(finishSound, Position);
-        StartShaking(finishShake);
-        level.Shake(finishShake);
+        if (finishShake > 0.0f)
+        {
+            StartShaking(finishShake);
+            level.Shake(finishShake);
+        }
         if (finishShake > 0.0f)
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
     }
