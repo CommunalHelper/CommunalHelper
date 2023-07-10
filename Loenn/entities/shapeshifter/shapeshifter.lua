@@ -2,6 +2,7 @@ local utils = require "utils"
 local fakeTilesHelper = require "helpers.fake_tiles"
 local mods = require "mods"
 local voxel = mods.requireFromPlugin "libraries.communal_helper_voxel"
+local enums = require "consts.celeste_enums"
 
 local shapeshifter = {}
 
@@ -32,6 +33,11 @@ shapeshifter.fieldInformation = {
         fieldType = "number",
         minimumValue = 0.0,
         maximumValue = 1.0
+    },
+    surfaceSoundIndex = {
+        editable = true,
+        options = enums.tileset_sound_ids,
+        fieldType = "integer",
     }
 }
 
@@ -47,6 +53,7 @@ shapeshifter.placements = {
             startShake = 0.2,
             finishShake = 0.2,
             rainbowMix = 0.2,
+            surfaceSoundIndex = 1,
             model = "",
             atlas = "",
         }

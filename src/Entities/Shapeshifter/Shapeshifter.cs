@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.CommunalHelper.Entities.Misc;
-using Celeste.Mod.CommunalHelper.Utils;
+﻿using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections;
 using System.Linq;
@@ -100,7 +99,8 @@ public class Shapeshifter : Solid
             data.Attr("startSound", SFX.game_10_quake_rockbreak),
             data.Attr("finishSound", SFX.game_gen_touchswitch_gate_finish),
             data.Float("startShake", 0.2f), data.Float("finishShake", 0.2f),
-            data.Float("rainbowMix", 0.2f)
+            data.Float("rainbowMix", 0.2f),
+            data.Int("surfaceSoundIndex", SurfaceIndex.Asphalt)
         )
     { }
 
@@ -113,7 +113,8 @@ public class Shapeshifter : Solid
         string startSound = SFX.game_10_quake_rockbreak,
         string finishSound = SFX.game_gen_touchswitch_gate_finish,
         float startShake = 0.2f, float finishShake = 0.2f,
-        float rainbowMix = 0.2f
+        float rainbowMix = 0.2f,
+        int surfaceSoundIndex = SurfaceIndex.Asphalt
     )
         : base(position, 0, 0, safe: true)
     {
@@ -160,6 +161,8 @@ public class Shapeshifter : Solid
 
         Add(sfx = new(CustomSFX.game_shapeshifter_move));
         sfx.Pause();
+
+        SurfaceSoundIndex = surfaceSoundIndex;
     }
 
     private void BuildCollider()
