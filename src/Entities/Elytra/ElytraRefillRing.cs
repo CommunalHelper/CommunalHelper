@@ -18,7 +18,7 @@ public class ElytraRefillRing : ElytraRing
         : base(a, b, Color.Lime)
     { }
 
-    public override void OnPlayerTraversal(Player player, int sign)
+    public override void OnPlayerTraversal(Player player, int sign, bool shake = true)
     {
         base.OnPlayerTraversal(player, sign);
         player.RefillElytra();

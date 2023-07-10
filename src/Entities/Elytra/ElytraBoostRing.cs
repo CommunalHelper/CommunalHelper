@@ -65,7 +65,7 @@ public class ElytraBoostRing : ElytraRing
         lines[index].curve = new(a, b, control);
     }
 
-    public override void OnPlayerTraversal(Player player, int sign)
+    public override void OnPlayerTraversal(Player player, int sign, bool shake = true)
     {
         if (Direction == Vector2.Zero)
             return;

@@ -48,6 +48,7 @@
 {96dd887a-18fc-4b5a-a0ac-c100a4fdb340} event:/CommunalHelperEvents/game/elytra/rings/stop
 {378d8bf9-59a6-443d-957b-8e5930e87b1e} event:/CommunalHelperEvents/game/elytra/rings/refill
 {5973deb4-795f-4cd5-8a69-c27a351ba994} event:/CommunalHelperEvents/game/elytra/rings/booster_ambience
+{60209fb7-07c6-4a48-b6b7-2286a1013d42} event:/CommunalHelperEvents/game/elytra/rings/note
 {427b769c-ce6d-45e9-8862-e1c6421c81cb} event:/CommunalHelperEvents/game/elytra/deploy
 {87cda551-81bb-4c54-a274-bf8839e8f742} event:/CommunalHelperEvents/game/elytra/gliding
 {4affb665-c868-4fde-8fac-542aed3e6fc6} event:/CommunalHelperEvents/game/elytra/refill

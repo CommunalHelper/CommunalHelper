@@ -121,17 +121,20 @@ public abstract class ElytraRing : Entity
     /// </summary>
     /// <param name="player">A reference to the player.</param>
     /// <param name="sign">The sign of the traversal. +1 for crossing the ring in its direction, -1 for crossing it in the opposite direction.</param>
-    public virtual void OnPlayerTraversal(Player player, int sign)
+    public virtual void OnPlayerTraversal(Player player, int sign, bool shake = true)
     {
         timer = Delay;
-
         travelLerp = 1.0f;
 
         Level level = Scene as Level;
-        level.Shake(0.1f);
-        Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-        Audio.Play(TraversalSFX, player.Center);
-        Celeste.Freeze(0.05f);
+        
+        if (shake)
+        {
+            level.Shake(0.1f);
+            Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+            Audio.Play(TraversalSFX, player.Center);
+            Celeste.Freeze(0.05f);
+        }
 
         float length = Vector2.Distance(A, B);
         float angle = (Direction * sign).Angle();

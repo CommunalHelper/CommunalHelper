@@ -24,7 +24,7 @@ public class ElytraStopRing : ElytraRing
         this.refill = refill;
     }
 
-    public override void OnPlayerTraversal(Player player, int sign)
+    public override void OnPlayerTraversal(Player player, int sign, bool shake = true)
     {
         base.OnPlayerTraversal(player, sign);
         if (refill)

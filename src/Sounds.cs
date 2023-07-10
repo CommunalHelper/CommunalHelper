@@ -118,6 +118,7 @@ public static class CustomSFX
     public const string game_elytra_rings_stop = "event:/CommunalHelperEvents/game/elytra/rings/stop";
     public const string game_elytra_rings_refill = "event:/CommunalHelperEvents/game/elytra/rings/refill";
     public const string game_elytra_rings_booster_ambience = "event:/CommunalHelperEvents/game/elytra/rings/booster_ambience";
+    public const string game_elytra_rings_note = "event:/CommunalHelperEvents/game/elytra/rings/note";
 
     public const string game_aero_block_deploy_propeller = "event:/CommunalHelperEvents/game/aero_block/deploy_propeller";
     public const string game_aero_block_failure = "event:/CommunalHelperEvents/game/aero_block/failure";
