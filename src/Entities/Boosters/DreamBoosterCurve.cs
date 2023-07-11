@@ -80,6 +80,8 @@ public class DreamBoosterCurve : DreamBooster
 
     public readonly Vector2 EndingSpeed;
 
+    public override bool IgnorePlayerSpeed => true;
+
     public DreamBoosterCurve(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
 

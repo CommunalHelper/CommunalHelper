@@ -1,7 +1,5 @@
-﻿using Microsoft.SqlServer.Server;
-using MonoMod.Utils;
+﻿using MonoMod.Utils;
 using System.Collections;
-using System.Text;
 
 namespace Celeste.Mod.CommunalHelper.Entities.Boosters;
 
@@ -21,8 +19,10 @@ public class SpiralBooster : CustomBooster
     private readonly Vector2 finishBoost;
 
     private Vector2 playerPos;
-    private float nearPlayerFade;
-    
+    private float nearPlayerFade;   
+
+    public override bool IgnorePlayerSpeed => true;
+
     public SpiralBooster(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Nodes[0] + offset, data.Bool("clockwise", true), data.Float("angle", 180f), data.Float("spiralSpeed", 240f), data.Float("beginTime", .75f), data.Float("delay", .2f))
     { }

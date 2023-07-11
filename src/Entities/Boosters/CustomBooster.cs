@@ -23,6 +23,8 @@ public abstract class CustomBooster : Booster
 
     public float MovementInBubbleFactor { get; set; } = 3f;
 
+    public virtual bool IgnorePlayerSpeed => false;
+
     public CustomBooster(Vector2 position, bool redBoost)
         : base(position, redBoost)
     {
@@ -325,9 +327,9 @@ public abstract class CustomBooster : Booster
     }
 
     private static bool UnaffectedBySpeed(Player player)
-    {
-        return player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBoosterCurve or CurvedBooster;
-    }
+        => player.StateMachine.State is Player.StRedDash
+        && player.LastBooster is CustomBooster booster
+        && booster.IgnorePlayerSpeed;
 
     #endregion
 }

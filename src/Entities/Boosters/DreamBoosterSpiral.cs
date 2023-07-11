@@ -20,7 +20,9 @@ public class DreamBoosterSpiral : DreamBooster
 
     private Vector2 playerPos;
     private float nearPlayerFade;
-    
+
+    public override bool IgnorePlayerSpeed => true;
+
     public DreamBoosterSpiral(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Nodes[0] + offset, data.Bool("clockwise", true), data.Float("angle", 180f), data.Float("spiralSpeed", 240f), data.Float("beginTime", .75f), data.Float("delay", .2f))
     { }

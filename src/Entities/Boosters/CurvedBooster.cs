@@ -91,6 +91,8 @@ public class CurvedBooster : CustomBooster
 
     private readonly Vector2 endingSpeed;
 
+    public override bool IgnorePlayerSpeed => true;
+
     public CurvedBooster(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
 
