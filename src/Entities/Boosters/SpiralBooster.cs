@@ -1,5 +1,7 @@
-﻿using MonoMod.Utils;
+﻿using Microsoft.SqlServer.Server;
+using MonoMod.Utils;
 using System.Collections;
+using System.Text;
 
 namespace Celeste.Mod.CommunalHelper.Entities.Boosters;
 
@@ -74,9 +76,16 @@ public class SpiralBooster : CustomBooster
         float th = 0f;
         while (th < angle)
         {
-            Vector2 target = Calc.AngleToVector(startAngle + th * f, radius) + Center;
+            Vector2 normal = Calc.AngleToVector(startAngle + th * f, 1.0f);
+
+            Vector2 target = normal * radius + Center;
             player.MoveToX(target.X, onCollideH);
             player.MoveToY(target.Y + 8, onCollideV);
+
+            Vector2 dir = normal.Perpendicular() * f;
+            player.Speed = player.DashDir = dir;
+            if (player.DashDir.X != 0.0f)
+                player.Facing = (Facings) Math.Sign(player.DashDir.X);
 
             float arcAngle = speed * Engine.DeltaTime / radius;
             th = Calc.Approach(th, angle, arcAngle);
