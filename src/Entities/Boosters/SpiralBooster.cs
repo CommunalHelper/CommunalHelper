@@ -7,7 +7,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.Boosters;
 public class SpiralBooster : CustomBooster
 {
     private readonly Vector2 node;
-    private readonly Vector2 dir, perp;
+    private readonly Vector2 dir;
 
     private readonly bool clockwise;
     private readonly float angle, startAngle;
@@ -30,7 +30,6 @@ public class SpiralBooster : CustomBooster
     {
         this.node = node;
         this.dir = (node - Center).SafeNormalize();
-        this.perp = dir.Perpendicular();
 
         this.clockwise = clockwise;
         this.angle = MathHelper.ToRadians(angle);
@@ -45,6 +44,50 @@ public class SpiralBooster : CustomBooster
         this.start = Calc.AngleToVector(startAngle, radius) + Center;
         this.end = endDir * radius + Center;
         this.finishBoost = endDir.Perpendicular() * (clockwise ? 1 : -1) * speed;
+    }
+
+    protected override IEnumerator RedDashCoroutineAfter(Player player)
+    {
+        DynamicData data = DynamicData.For(player);
+        Collision onCollideH = data.Get<Collision>("onCollideH");
+        Collision onCollideV = data.Get<Collision>("onCollideV");
+
+        player.Speed = Vector2.Zero;
+
+        float t = 0f;
+        while (t < prepare)
+        {
+            float percent = Ease.QuadOut(t / prepare);
+            Vector2 target = Vector2.Lerp(Center, node, percent);
+            player.MoveToX(target.X, onCollideH);
+            player.MoveToY(target.Y + 8, onCollideV);
+
+            t += Engine.DeltaTime;
+            yield return null;
+        }
+        player.MoveToX(node.X, onCollideH);
+        player.MoveToY(node.Y + 8, onCollideV);
+
+        yield return delay;
+
+        float f = clockwise ? 1 : -1;
+        float th = 0f;
+        while (th < angle)
+        {
+            Vector2 target = Calc.AngleToVector(startAngle + th * f, radius) + Center;
+            player.MoveToX(target.X, onCollideH);
+            player.MoveToY(target.Y + 8, onCollideV);
+
+            float arcAngle = speed * Engine.DeltaTime / radius;
+            th = Calc.Approach(th, angle, arcAngle);
+            yield return null;
+        }
+        player.MoveToX(end.X, onCollideH);
+        player.MoveToY(end.Y + 8, onCollideV);
+
+        player.StateMachine.State = Player.StNormal;
+        player.Speed = finishBoost;
+        yield break;
     }
 
     public override void Update()
