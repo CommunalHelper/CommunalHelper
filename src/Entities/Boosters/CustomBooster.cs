@@ -104,7 +104,7 @@ public abstract class CustomBooster : Booster
     /// </summary>
     /// <param name="player">The player.</param>
     /// <returns>The IEnumerator that represents the routine.</returns>
-    protected virtual IEnumerator BoostRoutine(Player player)
+    protected virtual IEnumerator BoostCoroutine(Player player)
     {
         yield return 0.25f;
         if (RedBoost)
@@ -256,7 +256,7 @@ public abstract class CustomBooster : Booster
     private static IEnumerator Player_BoostCoroutine(On.Celeste.Player.orig_BoostCoroutine orig, Player self)
     {
         IEnumerator routine = self.LastBooster is CustomBooster booster
-            ? booster.BoostRoutine(self)
+            ? booster.BoostCoroutine(self)
             : orig(self);
         while (routine.MoveNext())
             yield return routine.Current;

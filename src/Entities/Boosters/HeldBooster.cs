@@ -175,7 +175,7 @@ public class HeldBooster : CustomBooster
     }
 
     // prevents held boosters from starting automatically (which red boosters do after 0.25 seconds).
-    protected override IEnumerator BoostRoutine(Player player)
+    protected override IEnumerator BoostCoroutine(Player player)
     {
         if (deathTimer <= 0f)
         {
