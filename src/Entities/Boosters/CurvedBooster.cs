@@ -167,7 +167,8 @@ public class CurvedBooster : CustomBooster
 
         // player's speed won't matter, we won't allow it to move while in a curved booster.
         // this is here so that the player doesn't die to spikes that it shouldn't die to.
-        player.DashDir = player.Speed = derivative.SafeNormalize();
+        player.Speed = derivative.SafeNormalize();
+        player.DashDir = player.Speed.Snapped(16);
         if (player.DashDir.X != 0.0f)
             player.Facing = (Facings) Math.Sign(player.DashDir.X);
 

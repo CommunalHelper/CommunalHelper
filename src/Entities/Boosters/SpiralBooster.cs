@@ -83,7 +83,8 @@ public class SpiralBooster : CustomBooster
             player.MoveToY(target.Y + 8, onCollideV);
 
             Vector2 dir = normal.Perpendicular() * f;
-            player.Speed = player.DashDir = dir;
+            player.Speed = dir;
+            player.DashDir = dir.Snapped(16);
             if (player.DashDir.X != 0.0f)
                 player.Facing = (Facings) Math.Sign(player.DashDir.X);
 
