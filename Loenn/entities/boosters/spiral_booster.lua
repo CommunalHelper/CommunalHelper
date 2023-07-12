@@ -29,7 +29,7 @@ spiralBooster.fieldInformation = {
 spiralBooster.placements = {
     {
         name = "clockwise",
-        placementType = "point",
+        placementType = "line",
         data = {
             angle = 180.0,
             clockwise = true,
@@ -40,7 +40,7 @@ spiralBooster.placements = {
     },
     {
         name = "counterclockwise",
-        placementType = "point",
+        placementType = "line",
         data = {
             angle = 180.0,
             clockwise = false,
