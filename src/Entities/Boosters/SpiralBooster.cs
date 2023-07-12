@@ -89,6 +89,8 @@ public class SpiralBooster : CustomBooster
                 player.MoveToX(target.X, onCollideH);
                 player.MoveToY(target.Y + 8, onCollideV);
 
+                player.SetBoosterFacing(dir);
+
                 t += Engine.DeltaTime;
                 yield return null;
             }
@@ -108,11 +110,7 @@ public class SpiralBooster : CustomBooster
             player.MoveToX(target.X, onCollideH);
             player.MoveToY(target.Y + 8, onCollideV);
 
-            Vector2 dir = normal.Perpendicular() * f;
-            player.Speed = dir;
-            player.DashDir = dir.Snapped(16);
-            if (player.DashDir.X != 0.0f)
-                player.Facing = (Facings) Math.Sign(player.DashDir.X);
+            player.SetBoosterFacing(normal.Perpendicular() * f);
 
             float arcAngle = speed * Engine.DeltaTime / radius;
             th = Calc.Approach(th, angle, arcAngle);

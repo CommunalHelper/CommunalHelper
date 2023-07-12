@@ -309,6 +309,14 @@ public static class Extensions
         holdable.Release(vector);
     }
 
+    public static void SetBoosterFacing(this Player player, Vector2 dir, int slices = 16)
+    {
+        player.Speed = dir;
+        player.DashDir = dir.Snapped(slices);
+        if (player.DashDir.X != 0.0f)
+            player.Facing = (Facings) Math.Sign(player.DashDir.X);
+    }
+
     #region EnumExtensions
 
     public static StationBlockTrack.TrackSwitchState Invert(this StationBlockTrack.TrackSwitchState state)
