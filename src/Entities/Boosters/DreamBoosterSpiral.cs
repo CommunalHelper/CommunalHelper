@@ -40,6 +40,8 @@ public class DreamBoosterSpiral : DreamBooster
     public DreamBoosterSpiral(Vector2 position, Vector2 node, Color pathColor, bool clockwise = true, bool direct = false, float angle = 180f, float spiralSpeed = 240f, float beginTime = .75f, float delay = .2f)
         : base(position)
     {
+        Depth = Depths.DreamBlocks;
+
         this.dir = (node - Center).SafeNormalize();
 
         this.clockwise = clockwise;

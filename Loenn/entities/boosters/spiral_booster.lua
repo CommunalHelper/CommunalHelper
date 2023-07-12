@@ -5,7 +5,7 @@ local utils = require "utils"
 local spiralBooster = {}
 
 spiralBooster.name = "CommunalHelper/SpiralBooster"
-spiralBooster.depth = -8500
+spiralBooster.depth = -11000
 
 spiralBooster.nodeLimits = {1, 1}
 spiralBooster.nodeLineRenderType = "line"

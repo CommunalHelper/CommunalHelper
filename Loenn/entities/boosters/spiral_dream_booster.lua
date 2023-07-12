@@ -5,7 +5,7 @@ local utils = require "utils"
 local spiralDreamBooster = {}
 
 spiralDreamBooster.name = "CommunalHelper/SpiralDreamBooster"
-spiralDreamBooster.depth = -8500
+spiralDreamBooster.depth = -11000
 
 spiralDreamBooster.nodeLimits = {1, 1}
 spiralDreamBooster.nodeLineRenderType = "line"
