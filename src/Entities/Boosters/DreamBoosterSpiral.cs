@@ -21,18 +21,17 @@ public class DreamBoosterSpiral : DreamBooster
     private Vector2 playerPos;
     private float nearPlayerFade;
 
+    private readonly Color pathColor;
+
     public override bool IgnorePlayerSpeed => true;
 
     public DreamBoosterSpiral(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Nodes[0] + offset, data.Bool("clockwise", true), data.Float("angle", 180f), data.Float("spiralSpeed", 240f), data.Float("beginTime", .75f), data.Float("delay", .2f))
+        : this(data.Position + offset, data.Nodes[0] + offset, data.HexColor("pathColor", Color.White), data.Bool("clockwise", true), data.Float("angle", 180f), data.Float("spiralSpeed", 240f), data.Float("beginTime", .75f), data.Float("delay", .2f))
     { }
     
-    public DreamBoosterSpiral(Vector2 position, Vector2 node, bool clockwise = true, float angle = 180f, float spiralSpeed = 240f, float beginTime = .75f, float delay = .2f)
+    public DreamBoosterSpiral(Vector2 position, Vector2 node, Color pathColor, bool clockwise = true, float angle = 180f, float spiralSpeed = 240f, float beginTime = .75f, float delay = .2f)
         : base(position)
     {
-        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create(clockwise ? "clockwiseSpiralDreamBooster" : "counterclockwiseSpiralDreamBooster"));
-        SetSoundEvent(CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter, CustomSFX.game_customBoosters_dreamBooster_dreambooster_move, false);
-
         this.node = node;
         this.dir = (node - Center).SafeNormalize();
 
@@ -49,6 +48,11 @@ public class DreamBoosterSpiral : DreamBooster
         this.start = Calc.AngleToVector(startAngle, radius) + Center;
         this.end = endDir * radius + Center;
         this.finishBoost = endDir.Perpendicular() * (clockwise ? 1 : -1) * speed;
+
+        this.pathColor = pathColor;
+
+        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create(clockwise ? "clockwiseSpiralDreamBooster" : "counterclockwiseSpiralDreamBooster"));
+        SetSoundEvent(CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter, CustomSFX.game_customBoosters_dreamBooster_dreambooster_move, false);
     }
 
     protected override IEnumerator RedDashCoroutineAfter(Player player)
@@ -135,7 +139,7 @@ public class DreamBoosterSpiral : DreamBooster
             Vector2 to = Vector2.Lerp(Center, start, (float) (i + l) / lines);
 
             float highlight = Calc.Clamp((1 - Math.Abs(proj - percent * radius) * 0.02f) * nearPlayerFade, 0.2f, 0.85f);
-            Draw.Line(from, to, Color.White * highlight);
+            Draw.Line(from, to, pathColor * highlight);
         }
 
         float angleToPlayer = (playerPos - Center).Angle();
@@ -158,7 +162,7 @@ public class DreamBoosterSpiral : DreamBooster
 
             float dth = MathHelper.WrapAngle(angleToPlayer - angle);
             float highlight = Calc.Clamp((1 - Math.Abs(dth) * 1.5f) * nearPlayerFade, 0.2f, 0.85f);
-            Draw.Line(from, to, Color.White * highlight);
+            Draw.Line(from, to, pathColor * highlight);
 
             th += step;
         }

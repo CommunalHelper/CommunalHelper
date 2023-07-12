@@ -23,6 +23,9 @@ spiralBooster.fieldInformation = {
     },
     delay = {
         minimumValue = 0.0
+    },
+    pathColor = {
+        fieldType = "color",
     }
 }
 
@@ -35,7 +38,8 @@ spiralBooster.placements = {
             clockwise = true,
             spiralSpeed = 240.0,
             beginTime = 0.75,
-            delay = 0.2
+            delay = 0.2,
+            pathColor = "ffffff"
         }
     },
     {
@@ -46,7 +50,8 @@ spiralBooster.placements = {
             clockwise = false,
             spiralSpeed = 240.0,
             beginTime = 0.75,
-            delay = 0.2
+            delay = 0.2,
+            pathColor = "ffffff"
         }
     }
 }

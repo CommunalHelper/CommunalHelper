@@ -65,6 +65,7 @@ entities.CommunalHelper/SpiralBooster.attributes.description.clockwise=Spiral cl
 entities.CommunalHelper/SpiralBooster.attributes.description.spiralSpeed=The speed at which the player spirals around this booster's starting position.\nThe default value is the vanilla red booster speed, which is equal to 240.0.
 entities.CommunalHelper/SpiralBooster.attributes.description.beginTime=The time (in seconds) it takes for the bubble to move from it's starting position to the beginning position of the arc or circle.\nThe default value was arbitrarily chosen to be 0.75s.
 entities.CommunalHelper/SpiralBooster.attributes.description.delay=The time (in secondes) that is spent waiting between the straight line movement and the arc movement.\nThe default value was arbitrarily chosen to be 0.2s.
+entities.CommunalHelper/SpiralBooster.attributes.description.pathColor=The hexadecimal color code for the color of this booster's path.
 
 # Spiral Dream Booster
 entities.CommunalHelper/SpiralDreamBooster.placements.name.clockwise=Spiral Dream Booster (Clockwise)
@@ -74,6 +75,7 @@ entities.CommunalHelper/SpiralDreamBooster.attributes.description.clockwise=Spir
 entities.CommunalHelper/SpiralDreamBooster.attributes.description.spiralSpeed=The speed at which the player spirals around this booster's starting position.\nThe default value is the vanilla red booster speed, which is equal to 240.0.
 entities.CommunalHelper/SpiralDreamBooster.attributes.description.beginTime=The time (in seconds) it takes for the bubble to move from it's starting position to the beginning position of the arc or circle.\nThe default value was arbitrarily chosen to be 0.75s.
 entities.CommunalHelper/SpiralDreamBooster.attributes.description.delay=The time (in secondes) that is spent waiting between the straight line movement and the arc movement.\nThe default value was arbitrarily chosen to be 0.2s.
+entities.CommunalHelper/SpiralDreamBooster.attributes.description.pathColor=The hexadecimal color code for the color of this booster's path.
 
 # Summit Gem
 entities.CommunalHelper/CustomSummitGem.placements.name.summit_gem=Custom Summit Gem
