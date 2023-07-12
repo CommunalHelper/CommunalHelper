@@ -11,6 +11,8 @@ spiralBooster.nodeLimits = {1, 1}
 spiralBooster.nodeLineRenderType = "line"
 spiralBooster.nodeVisibility = "always"
 
+spiralBooster.ignoredFields = {"_name", "_id", "_type", "direct"}
+
 spiralBooster.fieldInformation = {
     spiralSpeed = {
         minimumValue = 0.0
@@ -39,7 +41,8 @@ spiralBooster.placements = {
             spiralSpeed = 240.0,
             beginTime = 0.75,
             delay = 0.2,
-            pathColor = "ffffff"
+            pathColor = "ffffff",
+            direct = false
         }
     },
     {
@@ -51,7 +54,30 @@ spiralBooster.placements = {
             spiralSpeed = 240.0,
             beginTime = 0.75,
             delay = 0.2,
-            pathColor = "ffffff"
+            pathColor = "ffffff",
+            direct = false
+        }
+    },
+    {
+        name = "direct_clockwise",
+        placementType = "line",
+        data = {
+            angle = 180.0,
+            clockwise = true,
+            spiralSpeed = 240.0,
+            pathColor = "ffffff",
+            direct = true
+        }
+    },
+    {
+        name = "direct_counterclockwise",
+        placementType = "line",
+        data = {
+            angle = 180.0,
+            clockwise = false,
+            spiralSpeed = 240.0,
+            pathColor = "ffffff",
+            direct = true
         }
     }
 }
@@ -64,8 +90,8 @@ local textureNodeCounterclockwise = "objects/CommunalHelper/boosters/spiralBoost
 local precision = 64
 local arrowTipLength = 5
 
-local function addArc(sprites, x, y, r, offsetAngle, arcAngle)
-    local points = {x, y}
+local function addArc(sprites, x, y, r, offsetAngle, arcAngle, direct)
+    local points = direct and {} or {x, y}
 
     for i = 0, precision do
         local th = offsetAngle + arcAngle * i / precision
@@ -74,6 +100,7 @@ local function addArc(sprites, x, y, r, offsetAngle, arcAngle)
     end
 
     table.insert(sprites, drawableLine.fromPoints(points))
+    table.insert(sprites, drawableLine.fromPoints({x, y, x + math.cos(offsetAngle) * r, y + math.sin(offsetAngle) * r}, {1.0, 1.0, 1.0, 0.3}))
 end
 
 function spiralBooster.sprite(room, entity)
@@ -91,9 +118,11 @@ function spiralBooster.sprite(room, entity)
     local angle = sign * (entity.angle or 180.0) * math.pi / 180.0
     -- multiplying by π/180 converts degrees to radians
 
+    local direct = entity.direct
+
     local sprites = {}
 
-    addArc(sprites, x, y, radius, angleOffset, angle)
+    addArc(sprites, x, y, radius, angleOffset, angle, direct)
 
     local arrowAngle = angleOffset + angle + 0.01 * sign
     local cos, sin = math.cos(arrowAngle), math.sin(arrowAngle)
@@ -110,14 +139,24 @@ function spiralBooster.sprite(room, entity)
     }
     table.insert(sprites, drawableLine.fromPoints(arrowPoints))
 
-    local texture = clockwise and textureClockwise or textureCounterclockwise
-    table.insert(sprites, drawableSprite.fromTexture(texture, entity))
+    if direct then
+        local texture = clockwise and textureNodeClockwise or textureNodeCounterclockwise
+        local sprite = drawableSprite.fromTexture(texture, entity)
+        sprite.color = {1.0, 1.0, 1.0, 0.25}
+        table.insert(sprites, sprite)
+    else
+        local texture = clockwise and textureClockwise or textureCounterclockwise
+        table.insert(sprites, drawableSprite.fromTexture(texture, entity))
+    end
 
     return sprites
 end
 
 function spiralBooster.nodeTexture(room, entity, _, _, _)
-    return entity.clockwise and textureNodeClockwise or textureNodeCounterclockwise
+    local direct = entity.direct
+    return entity.clockwise
+        and (direct and textureClockwise or textureNodeClockwise)
+         or (direct and textureCounterclockwise or textureNodeCounterclockwise)
 end
 
 
