@@ -7,9 +7,14 @@ local aeroBlock = {}
 aeroBlock.name = "CommunalHelper/AeroBlockFlying"
 aeroBlock.depth = 4999
 aeroBlock.minimumSize = {16, 16}
-
-aeroBlock.nodeLimits = {0, -1}
 aeroBlock.nodeLineRenderType = "line"
+
+function aeroBlock.nodeLimits(room, entity)
+    return (entity.inactive and 1 or 0), -1
+end
+
+
+aeroBlock.ignoredFields = {"_name", "_id", "_type", "inactive"}
 
 aeroBlock.fieldInformation = {
     travelSpeed = {
@@ -34,6 +39,16 @@ aeroBlock.placements = {
             width = 16,
             height = 16,
             inactive = false,
+            travelSpeed = 32.0,
+            travelMode = "Loop"
+        }
+    },
+    {
+        name = "inactive",
+        data = {
+            width = 16,
+            height = 16,
+            inactive = true,
             travelSpeed = 32.0,
             travelMode = "Loop"
         }
@@ -74,16 +89,16 @@ end
 function aeroBlock.selection(room, entity)
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 16, entity.height or 16
+    local nodes = entity.nodes or {}
 
     local rect = utils.rectangle(x, y, width, height)
+    local noderects = {}
 
-    local nodes = entity.nodes or {}
-    if #nodes == 1 then
-        local nx, ny = nodes[1].x or 0, nodes[1].y or 0
-        return rect, {utils.rectangle(nx, ny, width, height)}
+    for _, node in ipairs(nodes) do
+        table.insert(noderects, utils.rectangle(node.x, node.y, width, height))
     end
 
-    return rect
+    return rect, noderects
 end
 
 return aeroBlock
