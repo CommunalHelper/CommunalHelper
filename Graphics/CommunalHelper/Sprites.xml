@@ -414,6 +414,24 @@
         <Loop id="spin" path="roll" delay="0.06"/>
         <Anim id="pop" path="pop" delay="0.055"/>
     </curvedDreamBooster>
+    
+    <!--ClockwiseSpiralDreamBoosters-->
+    <clockwiseSpiralDreamBooster path="objects/CommunalHelper/boosters/dreamBooster/" start="loop">
+        <Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="idlespiral_cw" delay="0.1"/>
+        <Loop id="inside" path="insidespiral_cw" delay="0.1"/>
+        <Loop id="spin" path="roll" delay="0.06"/>
+        <Anim id="pop" path="pop" delay="0.055"/>
+    </clockwiseSpiralDreamBooster>
+
+    <!--CounterclockwiseSpiralDreamBoosters-->
+    <counterclockwiseSpiralDreamBooster path="objects/CommunalHelper/boosters/dreamBooster/" start="loop">
+        <Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="idlespiral_ccw" delay="0.1"/>
+        <Loop id="inside" path="insidespiral_ccw" delay="0.1"/>
+        <Loop id="spin" path="roll" delay="0.06"/>
+        <Anim id="pop" path="pop" delay="0.055"/>
+    </counterclockwiseSpiralDreamBooster>
 
     <!--SegmentBoosters-->
     <segmentBooster path="objects/CommunalHelper/boosters/curvedBooster/" start="loop">
@@ -432,6 +450,24 @@
         <Loop id="spin" path="booster" delay="0.06" frames="18-25"/>
         <Anim id="pop" path="booster" delay="0.08" frames="9-17"/>
     </curvedBooster>
+
+    <!--ClockwiseSpiralBoosters-->
+    <clockwiseSpiralBooster path="objects/CommunalHelper/boosters/spiralBooster/" start="loop">
+        <Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="cw" delay="0.1" frames="0-4"/>
+        <Loop id="inside" path="cw" delay="0.1" frames="5-8"/>
+        <Loop id="spin" path="booster" delay="0.06" frames="18-25"/>
+        <Anim id="pop" path="booster" delay="0.08" frames="9-17"/>
+    </clockwiseSpiralBooster>
+
+    <!--CounterclockwiseSpiralBoosters-->
+    <counterclockwiseSpiralBooster path="objects/CommunalHelper/boosters/spiralBooster/" start="loop">
+        <Justify x="0.5" y="0.5"/>
+        <Loop id="loop" path="ccw" delay="0.1" frames="0-4"/>
+        <Loop id="inside" path="ccw" delay="0.1" frames="5-8"/>
+        <Loop id="spin" path="booster" delay="0.06" frames="18-25"/>
+        <Anim id="pop" path="booster" delay="0.08" frames="9-17"/>
+    </counterclockwiseSpiralBooster>
     
     <!--GreenHeldBooster-->
     <greenHeldBooster path="objects/CommunalHelper/boosters/heldBooster/green/" start="loop">

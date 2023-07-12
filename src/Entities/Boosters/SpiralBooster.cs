@@ -6,6 +6,9 @@ namespace Celeste.Mod.CommunalHelper.Entities.Boosters;
 [CustomEntity("CommunalHelper/SpiralBooster")]
 public class SpiralBooster : CustomBooster
 {
+    private static readonly Color burstColor = Calc.HexToColor("c64782");
+    private static readonly Color appearColor = Calc.HexToColor("49b2d3");
+
     private readonly Vector2 node;
     private readonly Vector2 dir;
 
@@ -46,6 +49,9 @@ public class SpiralBooster : CustomBooster
         this.start = Calc.AngleToVector(startAngle, radius) + Center;
         this.end = endDir * radius + Center;
         this.finishBoost = endDir.Perpendicular() * (clockwise ? 1 : -1) * speed;
+
+        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create(clockwise ? "clockwiseSpiralBooster" : "counterclockwiseSpiralBooster"));
+        SetParticleColors(burstColor, appearColor);
     }
 
     protected override IEnumerator RedDashCoroutineAfter(Player player)
@@ -109,6 +115,10 @@ public class SpiralBooster : CustomBooster
         {
             playerPos = player.Center;
             nearPlayerFade = Ease.CubeOut(Math.Min(Vector2.Distance(playerPos, Center) / radius, 1));
+
+            // force-set this to false so that the arrow in the sprites does not get flipped.
+            if (player.StateMachine.State is not Player.StRedDash)
+                Sprite.FlipX = false;
         }
     }
 

@@ -51,7 +51,10 @@ spiralBooster.placements = {
     }
 }
 
-local texture = "objects/booster/boosterRed00"
+local textureClockwise = "objects/CommunalHelper/boosters/spiralBooster/cw00"
+local textureCounterclockwise = "objects/CommunalHelper/boosters/spiralBooster/ccw00"
+local textureNodeClockwise = "objects/CommunalHelper/boosters/spiralBooster/cw06"
+local textureNodeCounterclockwise = "objects/CommunalHelper/boosters/spiralBooster/ccw06"
 
 local precision = 64
 local arrowTipLength = 5
@@ -102,12 +105,16 @@ function spiralBooster.sprite(room, entity)
     }
     table.insert(sprites, drawableLine.fromPoints(arrowPoints))
 
+    local texture = clockwise and textureClockwise or textureCounterclockwise
     table.insert(sprites, drawableSprite.fromTexture(texture, entity))
 
     return sprites
 end
 
-spiralBooster.nodeTexture = "objects/booster/boosterRed00"
+function spiralBooster.nodeTexture(room, entity, _, _, _)
+    return entity.clockwise and textureNodeClockwise or textureNodeCounterclockwise
+end
+
 
 function spiralBooster.selection(room, entity)
     local x, y = entity.x or 0, entity.y or 0

@@ -30,7 +30,7 @@ public class DreamBoosterSpiral : DreamBooster
     public DreamBoosterSpiral(Vector2 position, Vector2 node, bool clockwise = true, float angle = 180f, float spiralSpeed = 240f, float beginTime = .75f, float delay = .2f)
         : base(position)
     {
-        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create("dreamBooster"));
+        ReplaceSprite(CommunalHelperGFX.SpriteBank.Create(clockwise ? "clockwiseSpiralDreamBooster" : "counterclockwiseSpiralDreamBooster"));
         SetSoundEvent(CustomSFX.game_customBoosters_dreamBooster_dreambooster_enter, CustomSFX.game_customBoosters_dreamBooster_dreambooster_move, false);
 
         this.node = node;
@@ -112,6 +112,10 @@ public class DreamBoosterSpiral : DreamBooster
         {
             playerPos = player.Center;
             nearPlayerFade = Ease.CubeOut(Math.Min(Vector2.Distance(playerPos, Center) / radius, 1));
+
+            // force-set this to false so that the arrow in the sprites does not get flipped.
+            if (player.StateMachine.State is not Player.StRedDash)
+                Sprite.FlipX = false;
         }
     }
 
