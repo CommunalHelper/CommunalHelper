@@ -164,7 +164,7 @@ public class SpiralBooster : CustomBooster
             }
         }
 
-        float angleToPlayer = (playerPos - Center).Angle();
+        float angleToPlayer = (playerPos - center).Angle();
         float f = clockwise ? 1 : -1;
 
         float step = 8 / radius;
