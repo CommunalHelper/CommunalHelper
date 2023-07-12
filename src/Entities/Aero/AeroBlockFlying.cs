@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.CommunalHelper.Entities.Misc;
-using Celeste.Mod.CommunalHelper.Utils;
+﻿using Celeste.Mod.CommunalHelper.Utils;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 

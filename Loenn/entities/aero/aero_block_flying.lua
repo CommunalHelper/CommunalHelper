@@ -8,22 +8,41 @@ aeroBlock.name = "CommunalHelper/AeroBlockFlying"
 aeroBlock.depth = 4999
 aeroBlock.minimumSize = {16, 16}
 
-aeroBlock.nodeLimits = {0, 1}
+aeroBlock.nodeLimits = {0, -1}
+aeroBlock.nodeLineRenderType = "line"
+
+aeroBlock.fieldInformation = {
+    travelSpeed = {
+        fieldType = "number",
+        minimumValue = 0.0
+    },
+    travelMode = {
+        editable = false,
+        options = {
+            ["Loop"] = "Loop",
+            ["Back and Forth"] = "BackAndForth",
+            ["With Player"] = "WithPlayer",
+            ["With Player Once"] = "WithPlayerOnce",
+        }
+    }
+}
 
 aeroBlock.placements = {
     {
-        name = "aero_block_flying",
+        name = "active",
         data = {
             width = 16,
             height = 16,
             inactive = false,
+            travelSpeed = 32.0,
+            travelMode = "Loop"
         }
     }
 }
 
 local backgroundColor = {20 / 255, 3 / 255, 3 / 255}
 local outlineColor = {0, 0, 0}
-local blockTexture = "objects/CommunalHelper/aero_block/block"
+local blockTexture = "objects/CommunalHelper/aero_block/blocks/nnn"
 
 local blockNinePatchOptions = {
     mode = "border",
