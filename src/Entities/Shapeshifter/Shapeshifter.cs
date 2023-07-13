@@ -142,7 +142,7 @@ public class Shapeshifter : Solid
             ? GFX.Game.Sources.First().Texture_Safe
             : GFX.Game[atlas].Texture.Texture;
 
-        Add(mesh = new(Shapes.TileVoxel(voxel))
+        Add(mesh = new(Shapes.TileVoxelPCTN(voxel))
         {
             Texture = texture,
             Depth = Depths.FGTerrain,

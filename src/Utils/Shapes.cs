@@ -222,6 +222,75 @@ internal class Shapes
         return mesh;
     }
 
+    public static Mesh<VertexPositionNormalTexture> Box_PositionNormalTexture(Vector3 pos, Vector3 size)
+    {
+        Mesh<VertexPositionNormalTexture> mesh = new();
+
+        size.X /= 2f;
+        size.Y /= 2f;
+        size.Z /= 2f;
+
+        Vector3 v0 = pos + new Vector3(-size.X, -size.Y, -size.Z);
+        Vector3 v1 = pos + new Vector3(size.X, -size.Y, -size.Z);
+        Vector3 v2 = pos + new Vector3(-size.X, size.Y, -size.Z);
+        Vector3 v3 = pos + new Vector3(size.X, size.Y, -size.Z);
+        Vector3 v4 = pos + new Vector3(-size.X, -size.Y, size.Z);
+        Vector3 v5 = pos + new Vector3(size.X, -size.Y, size.Z);
+        Vector3 v6 = pos + new Vector3(-size.X, size.Y, size.Z);
+        Vector3 v7 = pos + new Vector3(size.X, size.Y, size.Z);
+        
+        // i: 0, 1, 2, 3
+        mesh.AddVertex(new(v0, Vector3.Backward, Vector2.Zero));
+        mesh.AddVertex(new(v1, Vector3.Backward, Vector2.Zero));
+        mesh.AddVertex(new(v2, Vector3.Backward, Vector2.Zero));
+        mesh.AddVertex(new(v3, Vector3.Backward, Vector2.Zero));
+        mesh.AddTriangle(2, 0, 1);
+        mesh.AddTriangle(2, 1, 3);
+
+        // i: 4, 5, 6, 7
+        mesh.AddVertex(new(v4, Vector3.Forward, Vector2.Zero));
+        mesh.AddVertex(new(v5, Vector3.Forward, Vector2.Zero));
+        mesh.AddVertex(new(v6, Vector3.Forward, Vector2.Zero));
+        mesh.AddVertex(new(v7, Vector3.Forward, Vector2.Zero));
+        mesh.AddTriangle(5, 4, 6);
+        mesh.AddTriangle(7, 5, 6);
+
+        // i: 8, 9, 10, 11
+        mesh.AddVertex(new(v0, Vector3.Right, Vector2.Zero));
+        mesh.AddVertex(new(v4, Vector3.Right, Vector2.Zero));
+        mesh.AddVertex(new(v6, Vector3.Right, Vector2.Zero));
+        mesh.AddVertex(new(v2, Vector3.Right, Vector2.Zero));
+        mesh.AddTriangle(9, 8, 10);
+        mesh.AddTriangle(11, 10, 8);
+
+        // i: 12, 13, 14, 15
+        mesh.AddVertex(new(v1, Vector3.Left, Vector2.Zero));
+        mesh.AddVertex(new(v5, Vector3.Left, Vector2.Zero));
+        mesh.AddVertex(new(v3, Vector3.Left, Vector2.Zero));
+        mesh.AddVertex(new(v7, Vector3.Left, Vector2.Zero));
+        mesh.AddTriangle(14, 12, 13);
+        mesh.AddTriangle(14, 13, 15);
+
+        // i: 16, 17, 18, 19
+        mesh.AddVertex(new(v0, Vector3.Up, Vector2.Zero));
+        mesh.AddVertex(new(v1, Vector3.Up, Vector2.Zero));
+        mesh.AddVertex(new(v4, Vector3.Up, Vector2.Zero));
+        mesh.AddVertex(new(v5, Vector3.Up, Vector2.Zero));
+        mesh.AddTriangle(17, 16, 18);
+        mesh.AddTriangle(19, 17, 18);
+
+        // i: 20, 21, 22, 23
+        mesh.AddVertex(new(v2, Vector3.Down, Vector2.Zero));
+        mesh.AddVertex(new(v3, Vector3.Down, Vector2.Zero));
+        mesh.AddVertex(new(v6, Vector3.Down, Vector2.Zero));
+        mesh.AddVertex(new(v7, Vector3.Down, Vector2.Zero));
+        mesh.AddTriangle(22, 20, 21);
+        mesh.AddTriangle(22, 21, 23);
+
+        mesh.Bake();
+        return mesh;
+    }
+
     public static Mesh<VertexPositionColorTexture> Box(float sx, float sy, float sz, MTexture texture)
         => Box(sx, sy, sz, texture, texture, texture, texture, texture, texture);
 
@@ -297,7 +366,7 @@ internal class Shapes
     public static Mesh<VertexPCTN> Box(Vector3 offset, float sx, float sy, float sz, MTexture texture, Color color)
         => Box(offset, sx, sy, sz, texture, texture, texture, texture, texture, texture, color);
 
-    public static Mesh<VertexPCTN> TileVoxel(char[,,] voxel)
+    public static Mesh<VertexPCTN> TileVoxelPCTN(char[,,] voxel)
     {
         Mesh<VertexPCTN> mesh = new();
 
@@ -421,6 +490,142 @@ internal class Shapes
                         mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8 - 8, z * -8) + offset, Color.White, new(texture.LeftUV, texture.BottomUV), Vector3.Up));
                         mesh.AddVertex(new(new Vector3(x * 8, y * -8 - 8, z * -8 - 8) + offset, Color.White, new(texture.RightUV, texture.TopUV), Vector3.Up));
                         mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8 - 8, z * -8 - 8) + offset, Color.White, new(texture.RightUV, texture.BottomUV), Vector3.Up));
+                        mesh.AddTriangle(o + 2, o + 0, o + 1);
+                        mesh.AddTriangle(o + 3, o + 2, o + 1);
+                        o += 4;
+                    }
+                }
+            }
+        }
+
+        mesh.Bake();
+        return mesh;
+    }
+
+    public static Mesh<VertexPositionNormalTexture> TileVoxel(char[,,] voxel)
+    {
+        Mesh<VertexPositionNormalTexture> mesh = new();
+
+        int o = 0;
+
+        int sx = voxel.GetLength(2);
+        int sy = voxel.GetLength(1);
+        int sz = voxel.GetLength(0);
+        Vector3 offset = new(sx * -4, sy * 4, sz * 4);
+
+        Autotiler.Behaviour autotilerOptions = new();
+        for (int z = 0; z < sz; z++)
+        {
+            VirtualMap<char> slice = new(sx, sy, '0');
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    slice[x, y] = voxel[z, y, x];
+            VirtualMap<MTexture> tiles = GFX.FGAutotiler.GenerateMap(slice, autotilerOptions).TileGrid.Tiles;
+
+            for (int y = 0; y < sy; y++)
+            {
+                for (int x = 0; x < sx; x++)
+                {
+                    MTexture texture = tiles[x, y];
+                    if (texture is null) continue;
+
+                    if (z - 1 < 0 || voxel[z - 1, y, x] == '0')
+                    {
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8, z * -8) + offset, Vector3.Forward, new(texture.LeftUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8, z * -8) + offset, Vector3.Forward, new(texture.RightUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8 - 8, z * -8) + offset, Vector3.Forward, new(texture.LeftUV, texture.BottomUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8 - 8, z * -8) + offset, Vector3.Forward, new(texture.RightUV, texture.BottomUV)));
+                        mesh.AddTriangle(o + 2, o + 0, o + 1);
+                        mesh.AddTriangle(o + 3, o + 2, o + 1);
+                        o += 4;
+                    }
+
+                    if (z + 1 == sz || voxel[z + 1, y, x] == '0')
+                    {
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8, z * -8 - 8) + offset, Vector3.Backward, new(texture.LeftUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8, z * -8 - 8) + offset, Vector3.Backward, new(texture.RightUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8 - 8, z * -8 - 8) + offset, Vector3.Backward, new(texture.LeftUV, texture.BottomUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8 - 8, z * -8 - 8) + offset, Vector3.Backward, new(texture.RightUV, texture.BottomUV)));
+                        mesh.AddTriangle(o + 1, o + 0, o + 2);
+                        mesh.AddTriangle(o + 1, o + 2, o + 3);
+                        o += 4;
+                    }
+                }
+            }
+        }
+
+        for (int x = 0; x < sx; x++)
+        {
+            VirtualMap<char> slice = new(sz, sy, '0');
+            for (int y = 0; y < sy; y++)
+                for (int z = 0; z < sz; z++)
+                    slice[z, y] = voxel[z, y, x];
+            VirtualMap<MTexture> tiles = GFX.FGAutotiler.GenerateMap(slice, autotilerOptions).TileGrid.Tiles;
+
+            for (int y = 0; y < sy; y++)
+            {
+                for (int z = 0; z < sz; z++)
+                {
+                    MTexture texture = tiles[z, y];
+                    if (texture is null) continue;
+
+                    if (x - 1 < 0 || voxel[z, y, x - 1] == '0')
+                    {
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8, z * -8) + offset, Vector3.Right, new(texture.LeftUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8, z * -8 - 8) + offset, Vector3.Right, new(texture.RightUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8 - 8, z * -8) + offset, Vector3.Right, new(texture.LeftUV, texture.BottomUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8 - 8, z * -8 - 8) + offset, Vector3.Right, new(texture.RightUV, texture.BottomUV)));
+                        mesh.AddTriangle(o + 1, o + 0, o + 2);
+                        mesh.AddTriangle(o + 1, o + 2, o + 3);
+                        o += 4;
+                    }
+
+                    if (x + 1 == sx || voxel[z, y, x + 1] == '0')
+                    {
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8, z * -8) + offset, Vector3.Left, new(texture.LeftUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8, z * -8 - 8) + offset, Vector3.Left, new(texture.RightUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8 - 8, z * -8) + offset, Vector3.Left, new(texture.LeftUV, texture.BottomUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8 - 8, z * -8 - 8) + offset, Vector3.Left, new(texture.RightUV, texture.BottomUV)));
+                        mesh.AddTriangle(o + 2, o + 0, o + 1);
+                        mesh.AddTriangle(o + 3, o + 2, o + 1);
+                        o += 4;
+                    }
+                }
+            }
+        }
+
+        for (int y = 0; y < sy; y++)
+        {
+            VirtualMap<char> slice = new(sz, sx, '0');
+            for (int z = 0; z < sz; z++)
+                for (int x = 0; x < sx; x++)
+                    slice[z, x] = voxel[z, y, x];
+            VirtualMap<MTexture> tiles = GFX.FGAutotiler.GenerateMap(slice, autotilerOptions).TileGrid.Tiles;
+
+            for (int z = 0; z < sz; z++)
+            {
+                for (int x = 0; x < sx; x++)
+                {
+                    MTexture texture = tiles[z, x];
+                    if (texture is null) continue;
+
+                    if (y - 1 < 0 || voxel[z, y - 1, x] == '0')
+                    {
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8, z * -8) + offset, Vector3.Down, new(texture.LeftUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8, z * -8) + offset, Vector3.Down, new(texture.LeftUV, texture.BottomUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8, z * -8 - 8) + offset, Vector3.Down, new(texture.RightUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8, z * -8 - 8) + offset, Vector3.Down, new(texture.RightUV, texture.BottomUV)));
+                        mesh.AddTriangle(o + 1, o + 0, o + 2);
+                        mesh.AddTriangle(o + 1, o + 2, o + 3);
+                        o += 4;
+                    }
+
+                    if (y + 1 == sy || voxel[z, y + 1, x] == '0')
+                    {
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8 - 8, z * -8) + offset, Vector3.Up, new(texture.LeftUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8 - 8, z * -8) + offset, Vector3.Up, new(texture.LeftUV, texture.BottomUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8, y * -8 - 8, z * -8 - 8) + offset, Vector3.Up, new(texture.RightUV, texture.TopUV)));
+                        mesh.AddVertex(new(new Vector3(x * 8 + 8, y * -8 - 8, z * -8 - 8) + offset, Vector3.Up, new(texture.RightUV, texture.BottomUV)));
                         mesh.AddTriangle(o + 2, o + 0, o + 1);
                         mesh.AddTriangle(o + 3, o + 2, o + 1);
                         o += 4;
