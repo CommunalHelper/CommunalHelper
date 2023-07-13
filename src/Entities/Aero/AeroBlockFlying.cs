@@ -40,6 +40,8 @@ public class AeroBlockFlying : AeroBlock
 
     public bool Hover { get; set; } = true;
 
+    private AeroScreen_Blinker blinker;
+
     public AeroBlockFlying(EntityData data, Vector2 offset)
         : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("inactive", false), data.Float("travelSpeed", 32.0f), data.Enum("travelMode", TravelMode.Loop))
     { }
@@ -52,13 +54,21 @@ public class AeroBlockFlying : AeroBlock
         {
             sfx.Pause();
             hoverLerp = 0.0f;
-            deployLerp = 0.0f;
+            deployLerp = 0.0f;  
             showPropeller = false;
             propeller.Visible = false;
-        }
 
-        if (inactive)
+            MTexture icon = GFX.Game["objects/CommunalHelper/aero_block/icons/x5"];
+            AddScreenLayer(blinker = new(icon)
+            {
+                Offset = new Vector2(width / 2f - 2, height / 2f - 2),
+                BackgroundColor = Color.DarkOrange,
+                IconColor = Color.White,
+                Sound = CustomSFX.game_aero_block_failure,
+            });
+
             points = points.Skip(1).Distinct().ToArray();
+        }
 
         Add(new Coroutine(TravelRoutine(inactive, travelSpeed, mode, points)));
     }
@@ -225,8 +235,13 @@ public class AeroBlockFlying : AeroBlock
 
     private IEnumerator TravelRoutine(bool initiallyInactive, float speed, TravelMode mode, Vector2[] points)
     {
-        Home = points[0];
+        Color startColor = Calc.HexToColor("FEAC5E");
+        Color endColor = Calc.HexToColor("4BC0C8");
 
+        bool withPlayer = mode is TravelMode.WithPlayer or TravelMode.WithPlayerOnce;
+        AeroScreen_Percentage progressScreen = null;
+
+        Home = points[0];
         if (initiallyInactive)
         {
             while (!Carrying)
@@ -247,11 +262,40 @@ public class AeroBlockFlying : AeroBlock
             level.ParticlesFG.Emit(P_Steam, 16, BottomRight - Vector2.UnitX * 5, Vector2.UnitX * 8f, 0f);
             level.ParticlesFG.Emit(P_Steam, 16, BottomLeft + Vector2.UnitX * 5, Vector2.UnitX * 8f, MathHelper.Pi);
 
+            if (blinker is not null)
+            {
+                RemoveScreenLayer(blinker);
+                blinker = null;
+            }
+
+            if (withPlayer)
+                AddScreenLayer(progressScreen = new((int) Width, (int) Height));
+            AddScreenLayer(new AeroScreen_ParticleBurst(this)
+            {
+                Color = Color.DarkTurquoise,
+            });
+
             yield return 0.5f;
         }
 
         if (points.Length == 1)
             yield break;
+
+        float CalculateLength(float lerp)
+        {
+            float length = 0.0f;
+            Vector2 prev = points[0];
+            for (int i = 1; i <= Math.Floor(lerp); i++)
+            {
+                length += Vector2.Distance(prev, points[i]);
+                prev = points[i];
+            }
+            if (lerp < points.Length - 1)
+                length += Vector2.Distance(prev, Vector2.Lerp(points[(int) Math.Floor(lerp)], points[(int) Math.Floor(lerp) + 1], lerp - (float)Math.Floor(lerp)));
+            return length;
+        }
+
+        float totalLength = CalculateLength(points.Length - 1);
 
         float timer = 0.0f;
         while (true)
@@ -272,8 +316,12 @@ public class AeroBlockFlying : AeroBlock
             Home = Vector2.Lerp(from, to, lerp);
 
             float increment = Engine.DeltaTime * speed / Vector2.Distance(from, to);
-            if (mode is TravelMode.WithPlayer or TravelMode.WithPlayerOnce)
+            if (withPlayer)
+            {
                 timer = Calc.Approach(timer, Carrying ? points.Length - 1 : 0, increment);
+                progressScreen.Percentage = CalculateLength(timer) / totalLength;
+                progressScreen.Color = Color.Lerp(startColor, endColor, progressScreen.Percentage);
+            }
             else
                 timer += increment;
 
@@ -283,7 +331,30 @@ public class AeroBlockFlying : AeroBlock
             yield return null;
         }
 
-        yield return 0.6f;
+        if (withPlayer)
+        {
+            progressScreen.Percentage = 1.0f;
+            yield return Util.Interpolate(0.6f, t => progressScreen.Color = Color.Lerp(Color.Lerp(Color.White, Color.LimeGreen, t), Color.Transparent, Ease.CubeIn(t)));
+            RemoveScreenLayer(progressScreen);
+            progressScreen = null;
+        }
+        else
+            yield return 0.6f;
+
+        MTexture icon = GFX.Game["objects/CommunalHelper/aero_block/icons/x5"];
+        AeroScreen_Blinker finalblinker;
+        AddScreenLayer(finalblinker = new(icon)
+        {
+            Offset = new Vector2(Width / 2 - 2, Height / 2 - 2),
+            BackgroundColor = Color.Tomato,
+            IconColor = Color.White,
+            Sound = CustomSFX.game_aero_block_success,
+            Hold = 0.5f,
+            FadeOut = 0.5f,
+        });
+
+        yield return 0.5f;
+        finalblinker.Complete = true;
         Deactivate();
     }
 }
