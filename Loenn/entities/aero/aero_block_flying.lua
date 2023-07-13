@@ -13,7 +13,6 @@ function aeroBlock.nodeLimits(room, entity)
     return (entity.inactive and 1 or 0), -1
 end
 
-
 aeroBlock.ignoredFields = {"_name", "_id", "_type", "inactive"}
 
 aeroBlock.fieldInformation = {

@@ -1,10 +1,20 @@
 ﻿using Celeste.Mod.CommunalHelper.Utils;
+using System.Collections;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/AeroBlockFlying")]
 public class AeroBlockFlying : AeroBlock
 {
+    public enum TravelMode
+    {
+        Loop,
+        BackAndForth,
+        WithPlayer,
+        WithPlayerOnce,
+    }
+
     private static readonly Color propellerColor = Calc.HexToColor("686f99");
 
     public Vector2 Home { get; set; }
@@ -31,10 +41,29 @@ public class AeroBlockFlying : AeroBlock
     public bool Hover { get; set; } = true;
 
     public AeroBlockFlying(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Width, data.Height, data.Bool("inactive", false))
+        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("inactive", false), data.Float("travelSpeed", 32.0f), data.Enum("travelMode", TravelMode.Loop))
     { }
 
-    public AeroBlockFlying(Vector2 position, int width, int height, bool inactive = false)
+    public AeroBlockFlying(Vector2[] points, int width, int height, bool inactive, float travelSpeed = 32.0f, TravelMode mode = TravelMode.Loop)
+        : this(points[0], width, height)
+    {
+        this.inactive = inactive;
+        if (inactive)
+        {
+            sfx.Pause();
+            hoverLerp = 0.0f;
+            deployLerp = 0.0f;
+            showPropeller = false;
+            propeller.Visible = false;
+        }
+
+        if (inactive)
+            points = points.Skip(1).Distinct().ToArray();
+
+        Add(new Coroutine(TravelRoutine(inactive, travelSpeed, mode, points)));
+    }
+
+    public AeroBlockFlying(Vector2 position, int width, int height)
        : base(position, width, height)
     {
         Home = position;
@@ -53,19 +82,9 @@ public class AeroBlockFlying : AeroBlock
             Matrix = Matrix.CreateRotationX(MathHelper.PiOver2),
             Texture = CommunalHelperGFX.Blank,
             HighlightStrength = 0.5f,
-            Depth = Depths.FGTerrain,
+            Depth = Depths.BGTerrain,
         });
         propeller.SetTint(propellerColor);
-
-        this.inactive = inactive;
-        if (inactive)
-        {
-            sfx.Pause();
-            hoverLerp = 0.0f;
-            deployLerp = 0.0f;
-            showPropeller = false;
-            propeller.Visible = false;
-        }
     }
 
     public override void Awake(Scene scene)
@@ -127,7 +146,6 @@ public class AeroBlockFlying : AeroBlock
 
     public override void Update()
     {
-
         Level level = Scene as Level;
 
         Carrying = PlayerRiding();
@@ -203,5 +221,69 @@ public class AeroBlockFlying : AeroBlock
         propeller.Visible = deployLerp > 0.0f;
 
         base.Update();
+    }
+
+    private IEnumerator TravelRoutine(bool initiallyInactive, float speed, TravelMode mode, Vector2[] points)
+    {
+        Home = points[0];
+
+        if (initiallyInactive)
+        {
+            while (!Carrying)
+                yield return null;
+
+            Level level = Scene as Level;
+
+            var shakeSfx = Audio.Play(CustomSFX.game_shapeshifter_shake, Center);
+            StartShaking(0.25f);
+            yield return 0.25f;
+
+            Activate();
+
+            Audio.Stop(shakeSfx);
+            Audio.Play(CustomSFX.game_aero_block_smash, BottomCenter);
+
+            level.DirectionalShake(Vector2.UnitY, 0.4f);
+            level.ParticlesFG.Emit(P_Steam, 16, BottomRight - Vector2.UnitX * 5, Vector2.UnitX * 8f, 0f);
+            level.ParticlesFG.Emit(P_Steam, 16, BottomLeft + Vector2.UnitX * 5, Vector2.UnitX * 8f, MathHelper.Pi);
+
+            yield return 0.5f;
+        }
+
+        if (points.Length == 1)
+            yield break;
+
+        float timer = 0.0f;
+        while (true)
+        {
+            float t = mode switch
+            {
+                TravelMode.BackAndForth => Calc.Map(Util.TriangleWave(timer / points.Length), -1, 1, points.Length - 1, 0),
+                _ => timer,
+            };
+
+            int a = (int) Math.Floor(t) % points.Length;
+            int b = (int) (Math.Floor(t) + 1) % points.Length;
+            float lerp = t - (float) Math.Floor(t);
+
+            Vector2 from = points[a];
+            Vector2 to = points[b];
+
+            Home = Vector2.Lerp(from, to, lerp);
+
+            float increment = Engine.DeltaTime * speed / Vector2.Distance(from, to);
+            if (mode is TravelMode.WithPlayer or TravelMode.WithPlayerOnce)
+                timer = Calc.Approach(timer, Carrying ? points.Length - 1 : 0, increment);
+            else
+                timer += increment;
+
+            if (mode is TravelMode.WithPlayerOnce && timer == points.Length - 1)
+                break;
+
+            yield return null;
+        }
+
+        yield return 0.6f;
+        Deactivate();
     }
 }
