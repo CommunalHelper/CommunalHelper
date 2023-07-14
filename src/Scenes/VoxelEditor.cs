@@ -278,12 +278,14 @@ public sealed class VoxelEditor : Scene
             if (string.IsNullOrWhiteSpace(final))
             {
                 Console.WriteLine("------ GENERATED MESH WAS EMPTY, DID NOTHING ------");
+                Audio.Play(SFX.ui_main_button_invalid);
             }
             else
             {
                 TextInput.SetClipboardText(final);
                 Console.WriteLine($"------ GENERATED {sx}x{sy}x{sz} VOXEL COPIED TO CLIPBOARD ------");
                 Console.WriteLine(final);
+                Audio.Play(SFX.game_02_theoselfie_photo_filter);
             }
         }
 
