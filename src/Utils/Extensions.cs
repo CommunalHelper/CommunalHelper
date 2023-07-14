@@ -742,6 +742,15 @@ public static class Extensions
     }
 
     public static Vector2 XY(this Vector3 v) => new(v.X, v.Y);
+    
+    public static Vector3 Sign(this Vector3 v)
+        => new(Math.Sign(v.X), Math.Sign(v.Y), Math.Sign(v.Z));
+
+    public static Vector3 Abs(this Vector3 v)
+        => new(Math.Abs(v.X), Math.Abs(v.Y), Math.Abs(v.Z));
+
+    public static Vector3 Floor(this Vector3 v)
+        => new((float) Math.Floor(v.X), (float) Math.Floor(v.Y), (float) Math.Floor(v.Z));
 
     public static void Rewind(this SoundSource sfx)
         => DynamicData.For(sfx)

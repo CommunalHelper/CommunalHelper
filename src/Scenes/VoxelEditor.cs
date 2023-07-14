@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Scenes;
 
@@ -12,7 +13,8 @@ public sealed class VoxelEditor : Scene
 
     private readonly int sx, sy, sz;
     private readonly char[,,] voxel;
-    private Mesh<VertexPositionNormalTexture> mesh, box;
+    private Mesh<VertexPositionNormalTexture> mesh;
+    private readonly Mesh<VertexPositionNormalTexture> box;
 
     private Vector2 mouse;
 
@@ -110,8 +112,11 @@ public sealed class VoxelEditor : Scene
         Vector3 from = Unproject(-1.0f);
         Vector3 to = Unproject(1.0f);
         Vector3 dir = (to - from).SafeNormalize();
-        Ray ray = new(from, dir);
 
+        if (dir == Vector3.Zero)
+            return false;
+
+        Ray ray = new(from, dir);
         Vector3 s = new(sx, sy, sz);
         float? t = ray.Intersects(new BoundingBox(-s * 4f, s * 4f));
         if (t is null)
@@ -120,8 +125,10 @@ public sealed class VoxelEditor : Scene
         // if so, get the position in the voxel of the tile (empty or not) that was hit by the ray
 
         Vector3 flip = new(1, -1, -1);
-        Vector3 hitWorld = (from + dir * t.Value) * flip;
-        Vector3 hitVoxel = (hitWorld + s * 4) / 8f;
+        Vector3 pos = (((from + dir * t.Value) * flip) + s * 4) / 8f;
+        pos.X = Calc.Clamp(pos.X, 0, sx);
+        pos.Y = Calc.Clamp(pos.Y, 0, sy);
+        pos.Z = Calc.Clamp(pos.Z, 0, sz);
 
         dir *= flip;
 
@@ -129,53 +136,58 @@ public sealed class VoxelEditor : Scene
         // stop at first non-empty tile or at opposite bound
         // this way we are always able to place a tile, even in an empty voxel
 
-        static float intbound(float s, float ds)
+        Vector3 map = pos.Floor();
+        Vector3 delta = (Vector3.One / dir).Abs();
+        Vector3 dist = new(delta.X * (dir.X < 0 ? (pos.X - map.X) : (map.X + 1.0f - pos.X)),
+                           delta.Y * (dir.Y < 0 ? (pos.Y - map.Y) : (map.Y + 1.0f - pos.Y)),
+                           delta.Z * (dir.Z < 0 ? (pos.Z - map.Z) : (map.Z + 1.0f - pos.Z)));
+        Vector3 step = dir.Sign();
+
+        void Step(out int nx, out int ny, out int nz)
         {
-            if (ds < 0)
-                return intbound(-s, -ds);
-            return (1 - Util.Mod(s, 1.0f)) / ds;
+            nx = 0;
+            ny = 0;
+            nz = 0;
+
+            float min = Calc.Min(dist.X, dist.Y, dist.Z);
+            if (dir.X != 0.0f && min == dist.X)
+            {
+                map.X += step.X;
+                dist.X += delta.X;
+                nx = (int) -step.X;
+            }
+            else if (dir.Y != 0.0f && min == dist.Y)
+            {
+                map.Y += step.Y;
+                dist.Y += delta.Y;
+                ny = (int) -step.Y;
+            }
+            else if (dir.Z != 0.0f && min == dist.Z)
+            {
+                map.Z += step.Z;
+                dist.Z += delta.Z;
+                nz = (int) -step.Z;
+            }
         }
 
-        x = Calc.Clamp((int) Math.Floor(hitVoxel.X), 0, sx - 1);
-        y = Calc.Clamp((int) Math.Floor(hitVoxel.Y), 0, sy - 1);
-        z = Calc.Clamp((int) Math.Floor(hitVoxel.Z), 0, sz - 1);
-        int stepx = Math.Sign(dir.X), stepy = Math.Sign(dir.Y), stepz = Math.Sign(dir.Z);
-        float tx = dir.X != 0.0f ? intbound(hitVoxel.X, dir.X) : float.PositiveInfinity;
-        float ty = dir.Y != 0.0f ? intbound(hitVoxel.Y, dir.Y) : float.PositiveInfinity;
-        float tz = dir.Z != 0.0f ? intbound(hitVoxel.Z, dir.Z) : float.PositiveInfinity;
-        float dtx = 1 / dir.X, dty = 1 / dir.Y, dtz = 1 / dir.Z;
-        nx = 0; ny = 0; nz = 0;
+        if (map.X == sx || map.Y == sy || map.Z == sz)
+            Step(out nx, out ny, out nz);
 
         while (true)
         {
-            if (x < 0 || x >= sx ||
-                y < 0 || y >= sy ||
-                z < 0 || z >= sz)
+            x = (int) map.X;
+            y = (int) map.Y;
+            z = (int) map.Z;
+
+            if (map.X < 0 || map.X >= sx ||
+                map.Y < 0 || map.Y >= sy ||
+                map.Z < 0 || map.Z >= sz)
                 break;
 
             if (voxel[z, y, x] is not '0')
                 break;
 
-            float min = Calc.Min(tx, ty, tz);
-            if (dir.X != 0.0f && min == tx)
-            {
-                x += stepx;
-                tx += dtx;
-                nx = -stepx; ny = 0; nz = 0;
-            }
-            else if (dir.Y != 0.0f && min == ty)
-            {
-                y += stepy;
-                ty += dty;
-                nx = 0; ny = -stepy; nz = 0;
-            }
-            else if (dir.Z != 0.0f && min == tz)
-            {
-                z += stepz;
-                tz += dtz;
-                nx = 0; ny = 0; nz = -stepz;
-            }
-            else break;
+            Step(out nx, out ny, out nz);
         }
 
         return true;
@@ -190,7 +202,7 @@ public sealed class VoxelEditor : Scene
             mouse = new(MInput.Mouse.CurrentState.X, MInput.Mouse.CurrentState.Y);
             Vector2 delta = mouse - prev;
 
-            if (MInput.Mouse.CheckRightButton)
+            if (MInput.Mouse.CheckMiddleButton)
                 rotation *= Matrix.CreateFromYawPitchRoll(delta.X / 750, delta.Y / 750, 0f);
 
             scale *= (float) Math.Pow(2, Math.Sign(MInput.Mouse.WheelDelta));
@@ -204,9 +216,9 @@ public sealed class VoxelEditor : Scene
         if (!Raycast(out int x, out int y, out int z, out int nx, out int ny, out int nz))
             return;
 
-        if (MInput.Mouse.PressedLeftButton)
+        if (MInput.Mouse.PressedLeftButton || MInput.Mouse.PressedRightButton)
         {
-            bool delete = MInput.Keyboard.Check(Keys.LeftShift);
+            bool delete = MInput.Mouse.PressedRightButton;
             if (!delete)
             {
                 x += nx;
@@ -218,10 +230,8 @@ public sealed class VoxelEditor : Scene
             if (TrySetTile(x, y, z, c, out char replaced) && replaced != c)
             {
                 RemakeMesh();
-                if (SurfaceIndex.TileToIndex.TryGetValue(c, out int index))
+                if (SurfaceIndex.TileToIndex.TryGetValue(delete ? replaced : c, out int index))
                     Audio.Play(SFX.char_mad_grab, "surface_index", index);
-                else
-                    Audio.Play(SFX.game_assist_dash_aim);
             }
         }
     }
@@ -243,7 +253,6 @@ public sealed class VoxelEditor : Scene
         Draw.SpriteBatch.GraphicsDevice.SetRenderTarget(meshScreen);
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
         shader.CurrentTechnique.Passes[0].Apply();
-
         mesh.Draw();
 
         Engine.Instance.GraphicsDevice.Textures[0] = CommunalHelperGFX.Blank;
