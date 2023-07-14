@@ -17,7 +17,7 @@ public sealed class VoxelEditor : Scene
 
     private int width, height;
     private RenderTarget2D screen;
-    private BasicEffect shader;
+    private BasicEffect shader, lineShader;
 
     private char brush = 'h';
 
@@ -27,6 +27,7 @@ public sealed class VoxelEditor : Scene
 
     private Mesh<VertexPositionNormalTexture> tile;
     private readonly Mesh<VertexPositionNormalTexture> box;
+    private readonly VertexPositionColor[] axes;
 
     // stores old raycast results
     private int otx = -1, oty = -1, otz = -1;
@@ -54,6 +55,17 @@ public sealed class VoxelEditor : Scene
         box = Shapes.Box_PositionNormalTexture(Vector3.Zero, new Vector3(sx, sy, sz) * 8);
         for (int i = 0; i < box.VertexCount; i++)
             box.Vertices[i].Normal *= -1;
+
+        Vector3 origin = new Vector3(-sx, sy, sz) * 4;
+        axes = new VertexPositionColor[]
+        {
+            new(origin + Vector3.Zero, Color.Red),
+            new(origin + Vector3.UnitX * sx * 8, Color.Red),
+            new(origin + Vector3.Zero, Color.Lime),
+            new(origin + Vector3.UnitY * sy * -8, Color.Lime),
+            new(origin + Vector3.Zero, Color.Blue),
+            new(origin + Vector3.UnitZ * sz * -8, Color.Blue),
+        };
 
         var lookup = f_Autotiler_lookup.GetValue(GFX.FGAutotiler);
         availableTilesets = (IEnumerable<char>) lookup.GetType().GetProperty("Keys").GetValue(lookup);
@@ -113,13 +125,23 @@ public sealed class VoxelEditor : Scene
         shader.DirectionalLight0.Direction = Vector3.Backward;
         shader.DirectionalLight0.DiffuseColor = Vector3.One * (1 - AMBIENT_LIGHT);
 
+        lineShader = new(Engine.Graphics.GraphicsDevice)
+        {
+            VertexColorEnabled = true,
+        };
+
         TextInput.OnInput += ReceiveCharacterInput;
     }
 
     public override void End()
     {
         base.End();
+
         DestroyBuffers();
+
+        shader.Dispose();
+        lineShader.Dispose();
+
         Engine.Instance.IsMouseVisible = false;
         TextInput.OnInput -= ReceiveCharacterInput;
     }
@@ -278,9 +300,9 @@ public sealed class VoxelEditor : Scene
 
         // matrices update
         const float far = 20000;
-        shader.Projection = Matrix.CreateOrthographic(width, height, 1, far);
-        shader.View = Matrix.CreateLookAt(Vector3.Backward * far / 2f, Vector3.Zero, Vector3.Up);
-        shader.World = Matrix.CreateScale(scale) * rotation;
+        lineShader.Projection = shader.Projection = Matrix.CreateOrthographic(width, height, 1, far);
+        lineShader.View = shader.View = Matrix.CreateLookAt(Vector3.Backward * far / 2f, Vector3.Zero, Vector3.Up);
+        lineShader.World = shader.World = Matrix.CreateScale(scale) * rotation;
 
         // raycast in voxel
         if (!Raycast(out x, out y, out z, out int nx, out int ny, out int nz))
@@ -348,6 +370,9 @@ public sealed class VoxelEditor : Scene
         Engine.Instance.GraphicsDevice.Textures[0] = CommunalHelperGFX.Blank;
         Engine.Instance.GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
         box.Draw();
+
+        lineShader.CurrentTechnique.Passes[0].Apply();
+        Engine.Instance.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, axes, 0, axes.Length / 2);
     }
 
     public override void Render()
