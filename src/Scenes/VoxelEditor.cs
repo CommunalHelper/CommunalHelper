@@ -38,6 +38,8 @@ public sealed class VoxelEditor : Scene
     private float scale = 4;
     private Matrix rotation = Matrix.CreateRotationY(MathHelper.PiOver4 / 3.5f) * Matrix.CreateRotationX(MathHelper.PiOver4 / 2f);
 
+    private float infolerp;
+
     public VoxelEditor(int sx, int sy, int sz)
     {
         this.sx = sx;
@@ -304,6 +306,9 @@ public sealed class VoxelEditor : Scene
         lineShader.View = shader.View = Matrix.CreateLookAt(Vector3.Backward * far / 2f, Vector3.Zero, Vector3.Up);
         lineShader.World = shader.World = Matrix.CreateScale(scale) * rotation;
 
+        bool shouldShowInfo = !prevRaycast && !MInput.Keyboard.Check(Keys.Tab);
+        infolerp = Calc.Approach(infolerp, shouldShowInfo ? 1 : 0, Engine.DeltaTime * 3f);
+
         // raycast in voxel
         if (!Raycast(out x, out y, out z, out int nx, out int ny, out int nz))
         {
@@ -382,10 +387,10 @@ public sealed class VoxelEditor : Scene
         Engine.SetViewport(new(0, 0, width, height));
 
         Draw.SpriteBatch.Begin();
-
         Draw.SpriteBatch.Draw(screen, new Rectangle(0, 0, width, height), Color.White);
-
-        string msg = $"""
+        if (infolerp >= 0.0f)
+        {
+            string msg = $"""
             Commands:
               * Middle mouse: rotate the voxel
               * Left/Right click: Place/Delete tile respectively
@@ -400,8 +405,10 @@ public sealed class VoxelEditor : Scene
               * Currently editing {sx}x{sy}x{sz} voxel
               * Selected tile: '{brush}'
             """;
-        ActiveFont.DrawOutline(msg, Vector2.Zero, Vector2.Zero, Vector2.One * 0.5f, Color.White, 2f, Color.Black);
 
+            Vector2 pos = Vector2.UnitX * -64 * Ease.QuadIn(1 - infolerp);
+            ActiveFont.DrawOutline(msg, pos, Vector2.Zero, Vector2.One * 0.5f, Color.White * infolerp, 2f, Color.Black * infolerp);
+        }
         Draw.SpriteBatch.End();
     }
 }
