@@ -1,15 +1,25 @@
 ﻿using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Celeste.Mod.CommunalHelper.Scenes;
 
 public sealed class VoxelEditor : Scene
 {
+    private static readonly FieldInfo f_Autotiler_lookup
+        = typeof(Autotiler).GetField("lookup", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    private readonly IEnumerable<char> availableTilesets;
+
     private int width, height;
     private RenderTarget2D screen;
     private BasicEffect shader;
+
+    private char brush = 'h';
 
     private readonly int sx, sy, sz;
     private readonly char[,,] voxel;
@@ -20,7 +30,7 @@ public sealed class VoxelEditor : Scene
 
     // stores old raycast results
     private int otx = -1, oty = -1, otz = -1;
-    bool prevRaycast = false;
+    private bool prevRaycast = false;
 
     private Vector2 mouse;
 
@@ -44,6 +54,13 @@ public sealed class VoxelEditor : Scene
         box = Shapes.Box_PositionNormalTexture(Vector3.Zero, new Vector3(sx, sy, sz) * 8);
         for (int i = 0; i < box.VertexCount; i++)
             box.Vertices[i].Normal *= -1;
+
+        var lookup = f_Autotiler_lookup.GetValue(GFX.FGAutotiler);
+        availableTilesets = (IEnumerable<char>) lookup.GetType().GetProperty("Keys").GetValue(lookup);
+
+        if (!availableTilesets.Any())
+            throw new InvalidOperationException("Cannot open voxel editor as there are no registered tilesets to use");
+        brush = availableTilesets.First();
     }
 
     private bool InVoxelBounds(int x, int y, int z)
@@ -95,6 +112,8 @@ public sealed class VoxelEditor : Scene
         shader.DirectionalLight0.Enabled = true;
         shader.DirectionalLight0.Direction = Vector3.Backward;
         shader.DirectionalLight0.DiffuseColor = Vector3.One * (1 - AMBIENT_LIGHT);
+
+        TextInput.OnInput += ReceiveCharacterInput;
     }
 
     public override void End()
@@ -102,6 +121,27 @@ public sealed class VoxelEditor : Scene
         base.End();
         DestroyBuffers();
         Engine.Instance.IsMouseVisible = false;
+        TextInput.OnInput -= ReceiveCharacterInput;
+    }
+
+    private void ReceiveCharacterInput(char c)
+    {
+        if (!availableTilesets.Contains(c))
+            return;
+
+        if (brush != c)
+        {
+            brush = c;
+            RemakePreviewTileMesh(otx, oty, otz);
+        }
+    }
+
+    private void RemakePreviewTileMesh(int x, int y, int z)
+    {
+        tile = Shapes.TileVoxel(new char[1, 1, 1] { { { brush } } });
+        Vector3 tilePos = new((-sx / 2.0f + x) * 8 + 4, (sy / 2.0f - y) * 8 - 4, (sz / 2.0f - z) * 8 - 4);
+        for (int i = 0; i < tile.VertexCount; i++)
+            tile.Vertices[i].Position = tile.Vertices[i].Position * 6.5f / 8 + tilePos;
     }
 
     // x, y, z = tile coordinates
@@ -256,12 +296,7 @@ public sealed class VoxelEditor : Scene
 
         // update preview tile
         if ((tx != otx || ty != oty || tz != otz || !prevRaycast) && InVoxelBounds(tx, ty, tz))
-        {
-            tile = Shapes.TileVoxel(new char[1, 1, 1] { { { 'h' } } });
-            Vector3 tilePos = new((-sx / 2.0f + (x + nx)) * 8 + 4, (sy / 2.0f - (y + ny)) * 8 - 4, (sz / 2.0f - (z + nz)) * 8 - 4);
-            for (int i = 0; i < tile.VertexCount; i++)
-                tile.Vertices[i].Position = tile.Vertices[i].Position * 6.5f / 8 + tilePos;
-        }
+            RemakePreviewTileMesh(tx, ty, tz);
 
         // place | delete
         if (MInput.Mouse.PressedLeftButton || MInput.Mouse.PressedRightButton)
@@ -274,7 +309,7 @@ public sealed class VoxelEditor : Scene
                 z += nz;
             }
 
-            char c = delete ? '0' : 'h';
+            char c = delete ? '0' : brush;
             if (TrySetTile(x, y, z, c, out char replaced) && replaced != c)
             {
                 RemakeMesh();
@@ -322,7 +357,26 @@ public sealed class VoxelEditor : Scene
         Engine.SetViewport(new(0, 0, width, height));
 
         Draw.SpriteBatch.Begin();
+
         Draw.SpriteBatch.Draw(screen, new Rectangle(0, 0, width, height), Color.White);
+
+        string msg = $"""
+            Commands:
+              * Middle mouse: rotate the voxel
+              * Left/Right click: Place/Delete tile respectively
+              * Mouse wheel: zoom in/out
+              * Space: Reset rotation
+              * Enter: Copy voxel string to clipboard + output to log.txt
+              * `overworld` command to leave.
+              
+            Press the tile ID of the tile you want to paint with.
+
+            Info:
+              * Currently editing {sx}x{sy}x{sz} voxel
+              * Selected tile: '{brush}'
+            """;
+        ActiveFont.DrawOutline(msg, Vector2.Zero, Vector2.Zero, Vector2.One * 0.5f, Color.White, 2f, Color.Black);
+
         Draw.SpriteBatch.End();
     }
 }
