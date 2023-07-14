@@ -42,8 +42,20 @@ public static class Commands
         level.Add(berry);
     }
 
-    [Command("ch_make_voxel", help: "opens the voxel editor to create a new voxel of given size sx * sy * sz")]
-    public static void CH_MakeVoxel(int sx, int sy, int sz)
+    [Command("ch_fill_voxel", help: "opens the voxel editor to create a new voxel of given size sx * sy * sz, which will be entirely filled with the specified tile ID")]
+    public static void CH_FillVoxel(int sx, int sy, int sz, string c)
+    {
+        if (string.IsNullOrWhiteSpace(c) || c.Length != 1)
+        {
+            Engine.Commands.Log("The provided filler character is invalid or missing. It must be a 1-length character", Color.Red);
+            return;
+        }
+
+        CH_MakeVoxel(sx, sy, sz, new string(c[0], sx * sy * sz));
+    }
+
+    [Command("ch_make_voxel", help: "opens the voxel editor to create a new voxel of given size sx * sy * sz, and optionally a voxel string model to load")]
+    public static void CH_MakeVoxel(int sx, int sy, int sz, string model = null)
     {
         if (sx <= 0 || sy <= 0 || sz <= 0)
         {
@@ -53,7 +65,14 @@ public static class Commands
             return;
         }
 
-        Scene next = new VoxelEditor(sx, sy, sz);
+        if (model is not null && model.Length > sx * sy * sz)
+        {
+            Engine.Commands.Log("ERROR: The optional <model> argument was provided but its length is too long!", Color.Red);
+            Engine.Commands.Log("Please make sure that the length of <model> is less than or equal to <sx> * <sy> * <sz>", Color.Red);
+            return;
+        }
+
+        Scene next = new VoxelEditor(sx, sy, sz, model);
 
         Engine.Commands.Open = false;
         if (Engine.Scene is Level or Overworld)

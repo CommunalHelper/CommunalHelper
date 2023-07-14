@@ -40,8 +40,16 @@ public sealed class VoxelEditor : Scene
 
     private float infolerp;
 
-    public VoxelEditor(int sx, int sy, int sz)
+    public VoxelEditor(int sx, int sy, int sz, string model = null)
     {
+        var lookup = f_Autotiler_lookup.GetValue(GFX.FGAutotiler);
+        availableTilesets = (IEnumerable<char>) lookup.GetType().GetProperty("Keys").GetValue(lookup);
+
+        if (!availableTilesets.Any())
+            throw new InvalidOperationException("Cannot open voxel editor as there are no registered tilesets to use");
+        
+        brush = availableTilesets.First();
+
         this.sx = sx;
         this.sy = sy;
         this.sz = sz;
@@ -50,7 +58,15 @@ public sealed class VoxelEditor : Scene
         for (int z = 0; z < sz; z++)
             for (int y = 0; y < sy; y++)
                 for (int x = 0; x < sx; x++)
-                    voxel[z, y, x] = '0';
+                {
+                    int index = x + sx * y + sx * sy * z;
+                    char tile = (model is not null && index < model.Length) ? model[index] : '0';
+                    
+                    if (tile is not '0' && !availableTilesets.Contains(tile))
+                        throw new InvalidOperationException($"{tile} is an invalid tile ID. Make sure you load the correct level first.");
+
+                    voxel[z, y, x] = tile;
+                }
 
         RemakeMesh();
 
@@ -68,13 +84,6 @@ public sealed class VoxelEditor : Scene
             new(origin + Vector3.Zero, Color.Blue),
             new(origin + Vector3.UnitZ * sz * -8, Color.Blue),
         };
-
-        var lookup = f_Autotiler_lookup.GetValue(GFX.FGAutotiler);
-        availableTilesets = (IEnumerable<char>) lookup.GetType().GetProperty("Keys").GetValue(lookup);
-
-        if (!availableTilesets.Any())
-            throw new InvalidOperationException("Cannot open voxel editor as there are no registered tilesets to use");
-        brush = availableTilesets.First();
     }
 
     private bool InVoxelBounds(int x, int y, int z)
@@ -394,14 +403,15 @@ public sealed class VoxelEditor : Scene
         {
             string msg = $"""
             Commands:
-              * Middle mouse: rotate the voxel
-              * Left/Right click: Place/Delete tile respectively
-              * Mouse wheel: zoom in/out
-              * Space: Reset rotation
-              * Enter: Copy voxel string to clipboard + output to log.txt
-              * `overworld` command to leave.
-              
-            Press the tile ID of the tile you want to paint with.
+              * MIDDLE MOUSE: rotate the voxel
+              * LEFT|RIGHT CLICK: place|delete tile respectively
+              * MOUSE WHEEL: zoom in|out
+              * SPACE: reset rotation
+              * ENTER: copy voxel string to clipboard + output to log.txt
+              * TAB: hides this text
+              * COMMAND `overworld`: back to main menu
+
+            Input the tile ID of the tile you want to paint with.
 
             Info:
               * Currently editing {sx}x{sy}x{sz} voxel
