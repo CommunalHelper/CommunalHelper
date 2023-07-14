@@ -95,7 +95,7 @@ public class Shapeshifter : Solid
         (
             id.ID, data.Position + offset,
             data.Int("voxelWidth", 1), data.Int("voxelHeight", 1), data.Int("voxelDepth", 1),
-            data.Attr("model", string.Empty), data.Attr("atlas", null),
+            data.Attr("model", string.Empty), data.Char("defaultTile", '0'), data.Attr("atlas", null),
             data.Attr("startSound", SFX.game_10_quake_rockbreak),
             data.Attr("finishSound", SFX.game_gen_touchswitch_gate_finish),
             data.Float("startShake", 0.2f), data.Float("finishShake", 0.2f),
@@ -104,12 +104,11 @@ public class Shapeshifter : Solid
         )
     { }
 
-
     public Shapeshifter
     (
         int id, Vector2 position,
         int width, int height, int depth,
-        string model, string atlas = null,
+        string model, char defaultTile = '0', string atlas = null,
         string startSound = SFX.game_10_quake_rockbreak,
         string finishSound = SFX.game_gen_touchswitch_gate_finish,
         float startShake = 0.2f, float finishShake = 0.2f,
@@ -132,7 +131,7 @@ public class Shapeshifter : Solid
                 for (int x = 0; x < width; x++)
                 {
                     int index = x + width * y + width * height * z;
-                    char tile = index < model.Length ? model[index] : '0';
+                    char tile = index < model.Length ? model[index] : defaultTile;
                     voxel[z, y, x] = tile;
                 }
             }

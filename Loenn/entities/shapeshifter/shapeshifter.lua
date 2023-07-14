@@ -39,6 +39,11 @@ shapeshifter.fieldInformation = {
         editable = true,
         options = enums.tileset_sound_ids,
         fieldType = "integer",
+    },
+    defaultTile = {
+        validator = function(input)
+            return #input == 1
+        end
     }
 }
 
@@ -57,6 +62,7 @@ shapeshifter.placements = {
             surfaceSoundIndex = 1,
             model = "",
             atlas = "",
+            defaultTile = "0",
         }
     }
 }
@@ -77,8 +83,10 @@ function shapeshifter.sprite(room, entity)
     local ex, ey = entity.x or 0, entity.y or 0
     local esx, esy, esz = entity.voxelWidth or 1, entity.voxelHeight or 1, entity.voxelDepth or 1
 
+    local defaultTile = entity.defaultTile or "0"
+
     local model = entity.model or ""
-    local vox = voxel.fromStringRepresentation(model, esx, esy, esz, "0")
+    local vox = voxel.fromStringRepresentation(model, esx, esy, esz, defaultTile)
 
     local sprites = {}
 
