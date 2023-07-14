@@ -1,20 +1,24 @@
 ﻿using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Scenes;
 
 public sealed class VoxelEditor : Scene
 {
     private int width, height;
-    private RenderTarget2D meshScreen;
+    private RenderTarget2D screen;
     private BasicEffect shader;
 
     private readonly int sx, sy, sz;
     private readonly char[,,] voxel;
     private Mesh<VertexPositionNormalTexture> mesh;
+
+    private Mesh<VertexPositionNormalTexture> tile;
     private readonly Mesh<VertexPositionNormalTexture> box;
+
+    // stores old raycast results
+    private int otx = -1, oty = -1, otz = -1;
+    bool prevRaycast = false;
 
     private Vector2 mouse;
 
@@ -40,12 +44,13 @@ public sealed class VoxelEditor : Scene
             box.Vertices[i].Normal *= -1;
     }
 
+    private bool InVoxelBounds(int x, int y, int z)
+        => x >= 0 && x < sx && y >= 0 && y < sy && z >= 0 && z < sz;
+
     private bool TrySetTile(int x, int y, int z, char c, out char del)
     {
         del = '0';
-        if (x < 0 || x >= sx ||
-            y < 0 || y >= sy ||
-            z < 0 || z >= sz)
+        if (!InVoxelBounds(x, y, z))
             return false;
 
         del = voxel[z, y, x];
@@ -60,14 +65,14 @@ public sealed class VoxelEditor : Scene
 
     private void DestroyBuffers()
     {
-        meshScreen.Dispose();
+        screen.Dispose();
     }
 
     private void CreateBuffers()
     {
         width = Engine.Graphics.PreferredBackBufferWidth;
         height = Engine.Graphics.PreferredBackBufferHeight;
-        meshScreen = new RenderTarget2D(Engine.Graphics.GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+        screen = new RenderTarget2D(Engine.Graphics.GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
     }
 
     public override void Begin()
@@ -179,12 +184,7 @@ public sealed class VoxelEditor : Scene
             y = (int) map.Y;
             z = (int) map.Z;
 
-            if (map.X < 0 || map.X >= sx ||
-                map.Y < 0 || map.Y >= sy ||
-                map.Z < 0 || map.Z >= sz)
-                break;
-
-            if (voxel[z, y, x] is not '0')
+            if (!InVoxelBounds(x, y, z) || voxel[z, y, x] is not '0')
                 break;
 
             Step(out nx, out ny, out nz);
@@ -208,13 +208,29 @@ public sealed class VoxelEditor : Scene
             scale *= (float) Math.Pow(2, Math.Sign(MInput.Mouse.WheelDelta));
         }
 
-        const float far = 5000;
+        const float far = 20000;
         shader.Projection = Matrix.CreateOrthographic(width, height, 1, far);
         shader.View = Matrix.CreateLookAt(Vector3.Backward * far / 2f, Vector3.Zero, Vector3.Up);
         shader.World = Matrix.CreateScale(scale) * rotation;
 
         if (!Raycast(out int x, out int y, out int z, out int nx, out int ny, out int nz))
+        {
+            prevRaycast = false;
+            tile = null;
             return;
+        }
+
+        int tx = x + nx;
+        int ty = y + ny;
+        int tz = z + nz;
+
+        if ((tx != otx || ty != oty || tz != otz || !prevRaycast) && InVoxelBounds(tx, ty, tz))
+        {
+            tile = Shapes.TileVoxel(new char[1, 1, 1] { { { 'h' } } });
+            Vector3 tilePos = new((-sx / 2.0f + (x + nx)) * 8 + 4, (sy / 2.0f - (y + ny)) * 8 - 4, (sz / 2.0f - (z + nz)) * 8 - 4);
+            for (int i = 0; i < tile.VertexCount; i++)
+                tile.Vertices[i].Position = tile.Vertices[i].Position * 6.5f / 8 + tilePos;
+        }
 
         if (MInput.Mouse.PressedLeftButton || MInput.Mouse.PressedRightButton)
         {
@@ -234,6 +250,11 @@ public sealed class VoxelEditor : Scene
                     Audio.Play(SFX.char_mad_grab, "surface_index", index);
             }
         }
+
+        otx = tx;
+        oty = ty;
+        otz = tz;
+        prevRaycast = true;
     }
 
     public override void BeforeRender()
@@ -250,10 +271,11 @@ public sealed class VoxelEditor : Scene
         Engine.Instance.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
         Engine.Instance.GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
-        Draw.SpriteBatch.GraphicsDevice.SetRenderTarget(meshScreen);
+        Draw.SpriteBatch.GraphicsDevice.SetRenderTarget(screen);
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
         shader.CurrentTechnique.Passes[0].Apply();
         mesh.Draw();
+        tile?.Draw();
 
         Engine.Instance.GraphicsDevice.Textures[0] = CommunalHelperGFX.Blank;
         Engine.Instance.GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
@@ -267,7 +289,7 @@ public sealed class VoxelEditor : Scene
         Engine.SetViewport(new(0, 0, width, height));
 
         Draw.SpriteBatch.Begin();
-        Draw.SpriteBatch.Draw(meshScreen, new Rectangle(0, 0, width, height), Color.White);
+        Draw.SpriteBatch.Draw(screen, new Rectangle(0, 0, width, height), Color.White);
         Draw.SpriteBatch.End();
     }
 }
