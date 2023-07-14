@@ -1,5 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System.Text;
 
 namespace Celeste.Mod.CommunalHelper.Scenes;
 
@@ -23,7 +25,7 @@ public sealed class VoxelEditor : Scene
     private Vector2 mouse;
 
     private float scale = 4;
-    private Matrix rotation = Matrix.Identity; //Matrix.CreateRotationY(MathHelper.PiOver4) * Matrix.CreateRotationX(MathHelper.PiOver4 / 2f);
+    private Matrix rotation = Matrix.CreateRotationY(MathHelper.PiOver4 / 3.5f) * Matrix.CreateRotationX(MathHelper.PiOver4 / 2f);
 
     public VoxelEditor(int sx, int sy, int sz)
     {
@@ -197,23 +199,51 @@ public sealed class VoxelEditor : Scene
     {
         base.Update();
 
+        int x, y, z;
+        
+        // save voxel
+        if (MInput.Keyboard.Pressed(Keys.Enter))
         {
-            Vector2 prev = mouse;
-            mouse = new(MInput.Mouse.CurrentState.X, MInput.Mouse.CurrentState.Y);
-            Vector2 delta = mouse - prev;
+            var sb = new StringBuilder(capacity: sx * sy * sz);
+            for (z = 0; z < sz; z++)
+                for (y = 0; y < sy; y++)
+                    for (x = 0; x < sx; x++)
+                        sb.Append(voxel[z, y, x]);
 
-            if (MInput.Mouse.CheckMiddleButton)
-                rotation *= Matrix.CreateFromYawPitchRoll(delta.X / 750, delta.Y / 750, 0f);
-
-            scale *= (float) Math.Pow(2, Math.Sign(MInput.Mouse.WheelDelta));
+            string final = sb.ToString().TrimEnd('0');
+            if (string.IsNullOrWhiteSpace(final))
+            {
+                Console.WriteLine("------ GENERATED MESH WAS EMPTY, DID NOTHING ------");
+            }
+            else
+            {
+                TextInput.SetClipboardText(final);
+                Console.WriteLine($"------ GENERATED {sx}x{sy}x{sz} VOXEL COPIED TO CLIPBOARD ------");
+                Console.WriteLine(final);
+            }
         }
 
+        // rotation and scale
+        if (MInput.Keyboard.Pressed(Keys.Space))
+            rotation = Matrix.CreateRotationY(MathHelper.PiOver4 / 3.5f) * Matrix.CreateRotationX(MathHelper.PiOver4 / 2f);
+
+        Vector2 prev = mouse;
+        mouse = new(MInput.Mouse.CurrentState.X, MInput.Mouse.CurrentState.Y);
+        Vector2 delta = mouse - prev;
+
+        if (MInput.Mouse.CheckMiddleButton)
+            rotation *= Matrix.CreateFromYawPitchRoll(delta.X / 750, delta.Y / 750, 0f);
+
+        scale *= (float) Math.Pow(2, Math.Sign(MInput.Mouse.WheelDelta));
+
+        // matrices update
         const float far = 20000;
         shader.Projection = Matrix.CreateOrthographic(width, height, 1, far);
         shader.View = Matrix.CreateLookAt(Vector3.Backward * far / 2f, Vector3.Zero, Vector3.Up);
         shader.World = Matrix.CreateScale(scale) * rotation;
 
-        if (!Raycast(out int x, out int y, out int z, out int nx, out int ny, out int nz))
+        // raycast in voxel
+        if (!Raycast(out x, out y, out z, out int nx, out int ny, out int nz))
         {
             prevRaycast = false;
             tile = null;
@@ -224,6 +254,7 @@ public sealed class VoxelEditor : Scene
         int ty = y + ny;
         int tz = z + nz;
 
+        // update preview tile
         if ((tx != otx || ty != oty || tz != otz || !prevRaycast) && InVoxelBounds(tx, ty, tz))
         {
             tile = Shapes.TileVoxel(new char[1, 1, 1] { { { 'h' } } });
@@ -232,6 +263,7 @@ public sealed class VoxelEditor : Scene
                 tile.Vertices[i].Position = tile.Vertices[i].Position * 6.5f / 8 + tilePos;
         }
 
+        // place | delete
         if (MInput.Mouse.PressedLeftButton || MInput.Mouse.PressedRightButton)
         {
             bool delete = MInput.Mouse.PressedRightButton;
@@ -251,6 +283,7 @@ public sealed class VoxelEditor : Scene
             }
         }
 
+        // update with lastest raycast state
         otx = tx;
         oty = ty;
         otz = tz;
