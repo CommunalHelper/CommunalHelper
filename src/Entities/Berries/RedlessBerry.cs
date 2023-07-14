@@ -273,7 +273,6 @@ public class RedlessBerry : Entity, IStrawberry
     {
         Collidable = false;
         Depth = Depths.Top;
-        Console.WriteLine("yo");
         Add(new Coroutine(FlyAwayRoutine()));
         flyingAway = true;
     }
