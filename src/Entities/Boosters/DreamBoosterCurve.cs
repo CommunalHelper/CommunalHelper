@@ -136,7 +136,7 @@ public class DreamBoosterCurve : DreamBooster
     {
         base.RedDashUpdateBefore(player);
 
-        DynData<Player> data = player.GetData();
+        DynamicData data = player.GetData();
 
         Vector2 prev = player.Position;
 
@@ -157,8 +157,8 @@ public class DreamBoosterCurve : DreamBooster
         if (player.DashDir.X != 0.0f)
             player.Facing = (Facings) Math.Sign(player.DashDir.X);
 
-        player.MoveToX(next.X, (Collision) data["onCollideH"]);
-        player.MoveToY(next.Y + offY, (Collision) data["onCollideV"]);
+        player.MoveToX(next.X, data.Get<Collision>("onCollideH"));
+        player.MoveToY(next.Y + offY, data.Get<Collision>("onCollideV"));
 
         // Then finish overriding.
         GravityHelper.EndOverride?.Invoke();

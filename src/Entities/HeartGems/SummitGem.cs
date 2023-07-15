@@ -24,7 +24,7 @@ public class CustomSummitGem : SummitGem
     public string CustomGemSID;
 
     protected Color? particleColor;
-    protected DynData<SummitGem> baseData;
+    protected DynamicData baseData;
 
     static CustomSummitGem()
     {
@@ -37,7 +37,7 @@ public class CustomSummitGem : SummitGem
     public CustomSummitGem(EntityData data, Vector2 offset, EntityID gid)
         : base(data, offset, gid)
     {
-        baseData = new DynData<SummitGem>(this);
+        baseData = new(typeof(SummitGem), this);
 
         GemID = data.Int("index");
 
@@ -71,7 +71,7 @@ public class CustomSummitGem : SummitGem
             particleColor = Calc.HexToColor(meta.Color);
         }
 
-        baseData["sprite"] = sprite;
+        baseData.Set("sprite", sprite);
     }
 
     private IEnumerator SmashRoutine(Player player, Level level)

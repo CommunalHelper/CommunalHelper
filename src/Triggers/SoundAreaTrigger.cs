@@ -16,7 +16,7 @@ public class SoundAreaTrigger : Trigger
         string path = data.Attr("event");
 
         SoundSource sound = new(sourcePos - Position, path);
-        eventInstance = new DynData<SoundSource>(sound).Get<EventInstance>("instance");
+        eventInstance = DynamicData.For(sound).Get<EventInstance>("instance");
         Add(sound);
     }
 

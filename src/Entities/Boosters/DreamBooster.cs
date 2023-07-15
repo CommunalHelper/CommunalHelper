@@ -122,14 +122,14 @@ public class DreamBoosterHooks
     {
         if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster booster)
         {
-            DynData<Actor> playerData = new(player);
+            DynamicData playerData = new(typeof(Actor), self);
             float pos = player.X;
             Vector2 counter = playerData.Get<Vector2>("movementCounter");
             dreamBoostMove = true;
             if (orig(self, moveH, onCollide, pusher) && !dreamBoostStop)
             {
                 player.X = pos;
-                playerData["movementCounter"] = counter;
+                playerData.Set("movementCounter", counter);
                 player.NaiveMove(Vector2.UnitX * moveH);
             }
             dreamBoostStop = false;
@@ -143,14 +143,14 @@ public class DreamBoosterHooks
     {
         if (self is Player player && player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBooster booster)
         {
-            DynData<Actor> playerData = new(player);
+            DynamicData playerData = new(typeof(Actor), self);
             float pos = player.Y;
             Vector2 counter = playerData.Get<Vector2>("movementCounter");
             dreamBoostMove = true;
             if (orig(self, moveV, onCollide, pusher) && !dreamBoostStop)
             {
                 player.Y = pos;
-                playerData["movementCounter"] = counter;
+                playerData.Set("movementCounter", counter);
                 player.NaiveMove(Vector2.UnitY * moveV);
             }
             dreamBoostStop = false;
@@ -180,7 +180,7 @@ public class DreamBoosterHooks
                 return;
             }
 
-            if (new DynData<DreamBlock>(block).Get<bool>("playerHasDreamDash"))
+            if (DynamicData.For(block).Get<bool>("playerHasDreamDash"))
             {
                 self.Die(-data.Moved);
                 return;

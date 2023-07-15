@@ -6,12 +6,12 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/ResetStateCrystal")]
 public class ResetStateCrystal : Refill
 {
-    private readonly DynData<Refill> baseData;
+    private readonly DynamicData baseData;
 
     public ResetStateCrystal(EntityData data, Vector2 offset)
         : base(data, offset)
     {
-        baseData = new DynData<Refill>(this);
+        baseData = new(typeof(Refill), this);
 
         Remove(baseData.Get<Sprite>("sprite"));
         Sprite sprite = new(GFX.Game, "objects/CommunalHelper/resetStateCrystal/");
@@ -20,7 +20,7 @@ public class ResetStateCrystal : Refill
         sprite.CenterOrigin();
         sprite.Color = Calc.HexToColor("676767");
         Add(sprite);
-        baseData["sprite"] = sprite;
+        baseData.Set("sprite", sprite);
         Remove(Get<PlayerCollider>());
 
         Add(new PlayerCollider(OnCollide));
@@ -32,7 +32,7 @@ public class ResetStateCrystal : Refill
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
         Collidable = false;
         Add(new Coroutine(RefillRoutine(player)));
-        baseData["respawnTimer"] = 2.5f;
+        baseData.Set("respawnTimer", 2.5f);
     }
 
     public IEnumerator RefillRoutine(Player player)

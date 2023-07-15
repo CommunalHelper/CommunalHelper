@@ -106,17 +106,17 @@ internal class DreamDashCollider : Component
     private static void Player_DashBegin(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
         orig(self);
-        self.GetData()[Player_canEnterDreamDashCollider] = true;
+        self.GetData().Set(Player_canEnterDreamDashCollider, true);
     }
 
     private static void Player_DreamDashEnd(On.Celeste.Player.orig_DreamDashEnd orig, Player self)
     {
-        DynData<Player> playerData = self.GetData();
-        if ((DreamBlock) playerData["dreamBlock"] is DreamBlockDummy dummy)
+        DynamicData playerData = self.GetData();
+        if (playerData.Get<DreamBlock>("dreamBlock") is DreamBlockDummy dummy)
         {
             foreach (DreamDashCollider collider in dummy.Entity.Components.GetAll<DreamDashCollider>())
             {
-                playerData[Player_canEnterDreamDashCollider] = false;
+                playerData.Set(Player_canEnterDreamDashCollider, false);
                 collider.OnExit?.Invoke(self);
             }
         }

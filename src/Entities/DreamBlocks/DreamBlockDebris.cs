@@ -21,11 +21,11 @@ public class DreamBlockDebris : Debris
     private Color? disabledPointColor;
     private Vector2 pointOffset;
 
-    private readonly DynData<Debris> baseData;
+    private readonly DynamicData baseData;
 
     public DreamBlockDebris()
     {
-        baseData = new DynData<Debris>(this);
+        baseData = new(typeof(Debris), this);
     }
 
     public DreamBlockDebris Init(Vector2 pos, DreamBlockDummy block = null)
@@ -48,7 +48,7 @@ public class DreamBlockDebris : Debris
 
         Add(sprite);
         sprite.Play(Block.PlayerHasDreamDash ? "active" : "disabled", randomizeFrame: true);
-        baseData["image"] = this.sprite = sprite;
+        baseData.Set("image", this.sprite = sprite);
 
         if (Calc.Random.Next(4) == 0)
         {

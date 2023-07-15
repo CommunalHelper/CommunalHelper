@@ -74,7 +74,7 @@ public class CustomCassetteBlock : CassetteBlock
     // Whether the block is collidable according to cassette state
     private bool virtualCollidable = true;
 
-    protected DynData<CassetteBlock> blockData;
+    protected DynamicData blockData;
 
     public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
         : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.HexColorNullable("customColor")) { }
@@ -82,13 +82,13 @@ public class CustomCassetteBlock : CassetteBlock
     public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool dynamicHitbox = false, Color? overrideColor = null)
         : base(position, id, width, height, index, tempo)
     {
-        blockData = new DynData<CassetteBlock>(this);
+        blockData = new(typeof(CassetteBlock), this);
 
         Index = index;
         color = overrideColor ?? colorOptions[index];
         pressedColor = color.Mult(Calc.HexToColor("667da5"));
 
-        blockData["color"] = color;
+        blockData.Set("color", color);
 
         this.dynamicHitbox = dynamicHitbox;
         if (dynamicHitbox)

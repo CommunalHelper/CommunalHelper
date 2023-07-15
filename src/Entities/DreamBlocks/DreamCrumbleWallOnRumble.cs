@@ -9,7 +9,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 public class DreamCrumbleWallOnRumble : CustomDreamBlock
 {
     /// <summary>
-    /// DynData field for storing the List&lt;<see cref="DreamCrumbleWallOnRumble"/>&gt; in a <see cref="RumbleTrigger"/>
+    /// DynamicData field for storing the List&lt;<see cref="DreamCrumbleWallOnRumble"/>&gt; in a <see cref="RumbleTrigger"/>
     /// </summary>
     public const string RUMBLETRIGGER_DREAMCRUMBLES = "communalHelperDreamCrumbles";
 
@@ -74,7 +74,7 @@ public class DreamCrumbleWallOnRumble : CustomDreamBlock
     {
         orig(self, scene);
 
-        DynData<RumbleTrigger> triggerData = new(self);
+        DynamicData triggerData = DynamicData.For(self);
         bool constrainHeight = triggerData.Get<bool>("constrainHeight");
 
         // Reflection is slow
@@ -99,12 +99,12 @@ public class DreamCrumbleWallOnRumble : CustomDreamBlock
         }
         // Slightly unsafe, but only if someone else does some weird stuff with RumbleTriggers
         if (!triggered)
-            triggerData[RUMBLETRIGGER_DREAMCRUMBLES] = crumbles;
+            triggerData.Set(RUMBLETRIGGER_DREAMCRUMBLES, crumbles);
     }
 
     private static IEnumerator RumbleTrigger_RumbleRoutine(On.Celeste.RumbleTrigger.orig_RumbleRoutine orig, RumbleTrigger self, float delay)
     {
-        DynData<RumbleTrigger> triggerData = new(self);
+        DynamicData triggerData = DynamicData.For(self);
 
         yield return new SwapImmediately(orig(self, delay));
 

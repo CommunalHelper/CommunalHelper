@@ -63,8 +63,8 @@ public class CassetteJumpFixController : Entity
         if (MustApply(self.Scene))
         {
             self.MoveV(amount, 0f);
-            DynData<CassetteBlock> data = new(self);
-            data["blockHeight"] = data.Get<int>("blockHeight") - amount;
+            DynamicData data = DynamicData.For(self);
+            data.Set("blockHeight", data.Get<int>("blockHeight") - amount);
         }
         else
             orig(self, amount);

@@ -16,12 +16,12 @@ public abstract class DashStateRefill : Refill
 
     private readonly float respawnTime;
 
-    protected DynData<Refill> baseData;
+    protected DynamicData baseData;
 
     protected DashStateRefill(EntityData data, Vector2 offset)
         : base(data, offset)
     {
-        baseData = new DynData<Refill>(this);
+        baseData = new(typeof(Refill), this);
 
         respawnTime = data.Float("respawnTime", 2.5f); // default is 2.5 sec.
 
@@ -31,13 +31,13 @@ public abstract class DashStateRefill : Refill
         {
             Remove(baseData.Get<Sprite>("sprite"));
             Add(sprite);
-            baseData["sprite"] = sprite;
+            baseData.Set("sprite", sprite);
         }
 
         if (TryCreateCustomOutline(out Image outline))
         {
             Remove(baseData.Get<Image>("outline"));
-            baseData["outline"] = outline;
+            baseData.Set("outline", outline);
             Add(outline);
         }
 
@@ -45,7 +45,7 @@ public abstract class DashStateRefill : Refill
         {
             Remove(baseData.Get<Sprite>("flash"));
             Add(flash);
-            baseData["flash"] = flash;
+            baseData.Set("flash", flash);
         }
     }
 
@@ -60,7 +60,7 @@ public abstract class DashStateRefill : Refill
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
             Collidable = false;
             Add(new Coroutine((IEnumerator) m_Refill_RefillRoutine.Invoke(this, new object[] { player })));
-            baseData["respawnTimer"] = respawnTime;
+            baseData.Set("respawnTimer", respawnTime);
         }
     }
 

@@ -8,7 +8,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 public class CSGEN_HeartGemShards : CutsceneEntity
 {
     private readonly HeartGem heart;
-    private readonly DynData<HeartGem> heartData;
+    private readonly DynamicData heartData;
 
     private Vector2 cameraStart;
 
@@ -20,7 +20,7 @@ public class CSGEN_HeartGemShards : CutsceneEntity
         : base(true, false)
     {
         this.heart = heart;
-        heartData = new DynData<HeartGem>(heart);
+        heartData = new(typeof(HeartGem), heart);
     }
 
     public override void OnBegin(Level level)

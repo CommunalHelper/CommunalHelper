@@ -110,7 +110,7 @@ public abstract class CustomDreamBlock : DreamBlock
     private bool delayedSetupParticles;
     protected bool awake;
 
-    protected DynData<DreamBlock> baseData;
+    protected DynamicData baseData;
 
     public CustomDreamBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) { }
@@ -118,7 +118,7 @@ public abstract class CustomDreamBlock : DreamBlock
     public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below, bool quickDestroy)
         : base(position, width, height, null, false, oneUse, below)
     {
-        baseData = new DynData<DreamBlock>(this);
+        baseData = new(typeof(DreamBlock), this);
         QuickDestroy = quickDestroy;
         RefillCount = refillCount;
 
@@ -171,7 +171,7 @@ public abstract class CustomDreamBlock : DreamBlock
     {
         float countFactor = (FeatherMode ? 0.5f : 0.7f) * RefillCount != -1 ? 1.2f : 1;
         particles = new DreamParticle[(int) (canvasWidth / 8f * (canvasHeight / 8f) * 0.7f * countFactor)];
-        baseData["particles"] = Array.CreateInstance(DreamParticle.t_DreamParticle, particles.Length);
+        baseData.Set("particles", Array.CreateInstance(DreamParticle.t_DreamParticle, particles.Length));
 
         // Necessary to get the player's spritemode
         if (!awake && RefillCount != -1)
@@ -297,7 +297,7 @@ public abstract class CustomDreamBlock : DreamBlock
             {
                 shake.Y = Calc.Random.Next(-1, 2);
             }
-            baseData["shake"] = shake;
+            baseData.Set("shake", shake);
             shakeToggle = !shakeToggle;
             if (!shattering)
                 ShakeParticles();
@@ -602,7 +602,7 @@ public abstract class CustomDreamBlock : DreamBlock
     private static void Player_DreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player)
     {
         orig(player);
-        DynData<Player> playerData = player.GetData();
+        DynamicData playerData = player.GetData();
         DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
         if (dreamBlock is CustomDreamBlock customDreamBlock)
         {
@@ -625,7 +625,7 @@ public abstract class CustomDreamBlock : DreamBlock
 
     private static int Player_DreamDashUpdate(On.Celeste.Player.orig_DreamDashUpdate orig, Player player)
     {
-        DynData<Player> playerData = player.GetData();
+        DynamicData playerData = player.GetData();
         DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
         if (dreamBlock is CustomDreamBlock customDreamBlock && customDreamBlock.FeatherMode)
         {
@@ -652,7 +652,7 @@ public abstract class CustomDreamBlock : DreamBlock
         if (cursor.TryGotoNext(instr => instr.MatchCallvirt<Player>("RefillDash")))
         {
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Func<Player, bool>>(player => player.GetData()["dreamBlock"] is CustomDreamBlock block && block.RefillCount == -2);
+            cursor.EmitDelegate<Func<Player, bool>>(player => player.GetData().Get<DreamBlock>("dreamBlock") is CustomDreamBlock block && block.RefillCount == -2);
             cursor.Emit(OpCodes.Brtrue_S, cursor.Next.Next);
         }
     }

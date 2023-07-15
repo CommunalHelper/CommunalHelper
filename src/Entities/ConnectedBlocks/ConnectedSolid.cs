@@ -76,6 +76,8 @@ public class ConnectedSolid : Solid
     public List<Image> InnerCornerTiles = new();
     public List<Image> FillerTiles = new();
 
+    private readonly DynamicData data;
+
     public ConnectedSolid(Vector2 position, int width, int height, bool safe)
         : base(position, width, height, safe)
     {
@@ -84,6 +86,8 @@ public class ConnectedSolid : Solid
         MasterWidth = width;
         MasterHeight = height;
         MasterCollider = Collider;
+
+        data = new(typeof(Solid), this);
     }
 
     public override void Awake(Scene scene)
@@ -394,7 +398,7 @@ public class ConnectedSolid : Solid
         GetRiders();
         Player player = Scene.Tracker.GetEntity<Player>();
 
-        HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
+        HashSet<Actor> riders = data.Get<HashSet<Actor>>("riders");
 
         if (player != null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + (Vector2.UnitX * move) - Vector2.UnitY))
         {
@@ -457,7 +461,7 @@ public class ConnectedSolid : Solid
         //base.MoveVExact(move);
         GetRiders();
 
-        HashSet<Actor> riders = new DynData<Solid>(this).Get<HashSet<Actor>>("riders");
+        HashSet<Actor> riders = data.Get<HashSet<Actor>>("riders");
 
         Y += move;
         MoveStaticMovers(Vector2.UnitY * move);

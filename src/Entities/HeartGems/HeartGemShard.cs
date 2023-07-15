@@ -8,12 +8,12 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 public class HeartGemShard : Entity
 {
     /// <summary>
-    /// DynData field name for storing HeartGemShards in HeartGem.
+    /// DynamicData field name for storing HeartGemShards in HeartGem.
     /// </summary>
     public const string HeartGem_HeartGemPieces = "communalHelperGemPieces";
     /// <summary>
     /// Dictionary entry name for storing the HeartGem EntityID in EntityData.<br/>
-    /// Also used as DynData field name for storing EntityID in HeartGem.
+    /// Also used as DynamicData field name for storing EntityID in HeartGem.
     /// </summary>
     public const string HeartGem_HeartGemID = "communalHelperHeartGemID";
 
@@ -24,7 +24,7 @@ public class HeartGemShard : Entity
 
     public XNAColor? Color;
 
-    protected DynData<HeartGem> heartData;
+    protected DynamicData heartData;
     protected int index;
 
     // Separated sprite from outline for cleaner tinting
@@ -74,7 +74,7 @@ public class HeartGemShard : Entity
         : base(position)
     {
         Heart = heart;
-        heartData = new DynData<HeartGem>(Heart);
+        heartData = new(typeof(HeartGem), Heart);
 
         this.index = index;
 
@@ -276,18 +276,20 @@ public class HeartGemShard : Entity
 
     #region HeartGem Extensions
 
-    protected static string GotShardFlag(DynData<HeartGem> heartData)
+    protected static string GotShardFlag(DynamicData heartData)
     {
-        return "collected_shards_of_" + heartData[HeartGem_HeartGemID].ToString();
+        return "collected_shards_of_" + heartData.Get(HeartGem_HeartGemID).ToString();
     }
 
-    public static void CollectedPieces(DynData<HeartGem> heartData)
+    public static void CollectedPieces(DynamicData heartData)
     {
-        heartData.Target.Visible = true;
-        heartData.Target.Active = true;
-        heartData.Target.Collidable = true;
+        HeartGem heart = heartData.Target as HeartGem;
+
+        heart.Visible = true;
+        heart.Active = true;
+        heart.Collidable = true;
         heartData.Get<BloomPoint>("bloom").Visible = heartData.Get<VertexLight>("light").Visible = true;
-        heartData.Target.SceneAs<Level>().Session.SetFlag(GotShardFlag(heartData));
+        heart.SceneAs<Level>().Session.SetFlag(GotShardFlag(heartData));
     }
 
     #endregion
@@ -314,7 +316,7 @@ public class HeartGemShard : Entity
         if (data.Has(HeartGem_HeartGemID))
         {
 
-            DynData<HeartGem> heartData = new(self);
+            DynamicData heartData = DynamicData.For(self);
             if (data.Nodes != null && data.Nodes.Length != 0)
             {
                 List<HeartGemShard> pieces = new();
@@ -326,12 +328,12 @@ public class HeartGemShard : Entity
                         shard.Color = Calc.HexToColor(data.Attr("color", "00a81f"));
                     pieces.Add(shard);
                 }
-                heartData[HeartGem_HeartGemPieces] = pieces;
+                heartData.Set(HeartGem_HeartGemPieces, pieces);
 
             }
             else
-                heartData[HeartGem_HeartGemPieces] = null;
-            heartData[HeartGem_HeartGemID] = data.Values[HeartGem_HeartGemID];
+                heartData.Set(HeartGem_HeartGemPieces, null);
+            heartData.Set(HeartGem_HeartGemID, data.Values[HeartGem_HeartGemID]);
 
 
         }
@@ -341,7 +343,7 @@ public class HeartGemShard : Entity
     {
         orig(self, scene);
 
-        DynData<HeartGem> heartData = new(self);
+        DynamicData heartData = DynamicData.For(self);
         if (heartData.Data.TryGetValue(HeartGem_HeartGemPieces, out object result))
         {
             if (result is List<HeartGemShard> pieces && pieces.Count > 0 && !(scene as Level).Session.GetFlag(GotShardFlag(heartData)))

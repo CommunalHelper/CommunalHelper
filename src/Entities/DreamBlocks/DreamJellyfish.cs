@@ -37,7 +37,7 @@ internal class DreamJellyfish : Glider
         set => dreamDashCollider.Active = value;
     }
 
-    private readonly DynData<Glider> gliderData;
+    private readonly DynamicData gliderData;
 
     public Sprite Sprite;
 
@@ -47,11 +47,11 @@ internal class DreamJellyfish : Glider
     public DreamJellyfish(Vector2 position, bool bubble, bool tutorial)
         : base(position, bubble, tutorial)
     {
-        gliderData = new DynData<Glider>(this);
+        gliderData = new DynamicData(typeof(Glider), this);
 
         Sprite oldSprite = gliderData.Get<Sprite>("sprite");
         Remove(oldSprite);
-        gliderData["sprite"] = Sprite = CommunalHelperGFX.SpriteBank.Create("dreamJellyfish");
+        gliderData.Set("sprite", Sprite = CommunalHelperGFX.SpriteBank.Create("dreamJellyfish"));
         Add(Sprite);
 
         Visible = Sprite.Visible = false;
@@ -127,8 +127,8 @@ internal class DreamJellyfish : Glider
         if (Input.GrabCheck && player.DashDir.Y <= 0)
         {
             // force-allow pickup
-            player.GetData()["minHoldTimer"] = 0f;
-            new DynData<Holdable>(Hold)["cannotHoldTimer"] = 0;
+            player.GetData().Set("minHoldTimer", 0f);
+            DynamicData.For(Hold).Set("cannotHoldTimer", 0);
 
             if ((bool) m_Player_Pickup.Invoke(player, new object[] { Hold }))
             {

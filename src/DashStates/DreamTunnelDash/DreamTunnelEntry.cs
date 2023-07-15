@@ -530,7 +530,7 @@ public class DreamTunnelEntry : AbstractPanel
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.EmitDelegate<Func<Platform, Player, Platform>>((platform, player) =>
         {
-            foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers"))
+            foreach (StaticMover sm in DynamicData.For(platform).Get<List<StaticMover>>("staticMovers"))
             {
                 Vector2 origin = player.Position + new Vector2((float) player.Facing * 3, -4f);
                 if (sm.Entity is DreamTunnelEntry entry
@@ -552,7 +552,7 @@ public class DreamTunnelEntry : AbstractPanel
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.EmitDelegate<Func<Platform, Player, Platform>>((platform, player) =>
         {
-            foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers"))
+            foreach (StaticMover sm in DynamicData.For(platform).Get<List<StaticMover>>("staticMovers"))
             {
                 if (sm.Entity is DreamTunnelEntry entry && entry.Orientation == Spikes.Directions.Up
                     && player.CollideCheck(entry, player.Position + Vector2.UnitY))
@@ -573,7 +573,7 @@ public class DreamTunnelEntry : AbstractPanel
         cursor.Emit(OpCodes.Ldarg_1);
         cursor.EmitDelegate<Func<Platform, Player, int, Platform>>((platform, player, dir) =>
         {
-            foreach (StaticMover sm in new DynData<Platform>(platform).Get<List<StaticMover>>("staticMovers"))
+            foreach (StaticMover sm in DynamicData.For(platform).Get<List<StaticMover>>("staticMovers"))
             {
                 if (sm.Entity is DreamTunnelEntry entry
                     && (entry.Orientation is Spikes.Directions.Left or Spikes.Directions.Right)

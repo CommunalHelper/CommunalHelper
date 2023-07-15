@@ -47,7 +47,7 @@ public class FrictionlessPanel : AbstractPanel
             {
                 if (v && actor is Player player && !(player.StateMachine.State == Player.StClimb))
                 {
-                    DynData<Solid> solidData = new(solid);
+                    DynamicData solidData = DynamicData.For(solid);
                     List<StaticMover> staticMovers = solidData.Get<List<StaticMover>>("staticMovers");
                     foreach (StaticMover mover in staticMovers)
                     {
@@ -79,7 +79,7 @@ public class FrictionlessPanel : AbstractPanel
             {
                 if (v && actor is Player player && player.StateMachine.State == Player.StClimb)
                 {
-                    DynData<Solid> solidData = new(solid);
+                    DynamicData solidData = DynamicData.For(solid);
                     List<StaticMover> staticMovers = solidData.Get<List<StaticMover>>("staticMovers");
                     foreach (StaticMover mover in staticMovers)
                     {
