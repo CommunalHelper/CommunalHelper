@@ -84,7 +84,7 @@ public sealed class Shape3DRenderer : Entity
         Engine.Instance.GraphicsDevice.BlendState = BlendState.Opaque;
 
         const float far = 1200;
-        Matrix proj = Matrix.CreateOrthographic(320, 180, 100, far);
+        Matrix proj = Matrix.CreateOrthographic(320, 180, 1, far);
         Matrix view = Matrix.CreateLookAt(Vector3.Backward * far / 2, Vector3.Zero, Vector3.Up);
 
         CommunalHelperGFX.PCTN_MRT.Parameters["view"].SetValue(view);
