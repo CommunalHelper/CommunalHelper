@@ -792,8 +792,10 @@ triggers.CommunalHelper/StopLightningControllerTrigger.placements.name.trigger=S
 
 # Configure Elytra Trigger
 triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.yes=Enable Elytra
+triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.yes_infinite=Enable Elytra (Infinite)
 triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.no=Disable Elytra
 triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.allow=Whether the player can deploy its elytra after going through the trigger.\nThe elytra is deployed with a keybind configured in mod settings.\nDefault is W on keyboard, and Left Shoulder on controller.
+triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.infinite=If this trigger enables the elytra, this option will make it so that deploying the elytra does not consume a dash. Note that this can potentially be used to build infinite height (over long distances).
 
 # Follow Shapeshifter Path Trigger
 triggers.CommunalHelper/FollowShapeshifterPathTrigger.placements.name.follow_path=Follow Shapeshifter Path

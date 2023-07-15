@@ -17,6 +17,8 @@ public static class Elytra
     private const string f_Player_elytraPrevPos     = nameof(f_Player_elytraPrevPos);       // Vector2
     private const string f_Player_elytraStableTimer = nameof(f_Player_elytraStableTimer);   // float
     private const string f_Player_elytraRefillSound = nameof(f_Player_elytraRefillSound);   // bool
+    private const string f_Player_elytraIsInfinite  = nameof(f_Player_elytraIsInfinite);    // bool
+    private const string f_Player_elytraCooldown    = nameof(f_Player_elytraCooldown);      // float
 
     private const float STABLE_ANGLE = 0.2f;
     private const float ANGLE_RANGE = 2f;
@@ -27,6 +29,7 @@ public static class Elytra
     private const float FAST_DECEL = 220f;
     private const float MAX_ANGLE_CHANGE_INV_SPEED_FACTOR = 480f;
     private const float SPEED_FACING_THRESHOLD = Player.MaxRun + 60f;
+    private const float COOLDOWN = 7 / 60f;
 
     private const string ELYTRA_ANIM = "anim_player_elytra_fly";
 
@@ -40,6 +43,9 @@ public static class Elytra
         player.RefillDash();
         player.RefillStamina();
     }
+
+    public static void SetInfiniteElytra(this Player player, bool enabled)
+        => DynamicData.For(player).Set(f_Player_elytraIsInfinite, enabled);
 
     private static void PlayElytraRefillSound(this Player player)
     {
@@ -106,6 +112,7 @@ public static class Elytra
         if (sfx is not null)
             Audio.Stop(sfx);
         data.Set(f_Player_elytraRefillSound, true);
+        data.Set(f_Player_elytraCooldown, COOLDOWN);
     }
 
     public static int GlideUpdate(this Player player)
@@ -336,6 +343,8 @@ public static class Elytra
 
         DynamicData data = DynamicData.For(self);
         data.Set(f_Player_elytraRefillSound, false);
+        data.Set(f_Player_elytraIsInfinite, false);
+        data.Set(f_Player_elytraCooldown, 0.0f);
     }
 
     private static void Mod_Player_OnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player self, CollisionData data)
@@ -366,12 +375,20 @@ public static class Elytra
     {
         int next = orig(self);
 
-        if (!self.OnGround())
+        var data = DynamicData.For(self);
+
+        float cooldown = data.Get<float>(f_Player_elytraCooldown);
+        cooldown = Calc.Approach(cooldown, 0.0f, Engine.DeltaTime);
+        data.Set(f_Player_elytraCooldown, cooldown);
+
+        if (cooldown == 0.0f && !self.OnGround())
         {
             if (CommunalHelperModule.Session.CanDeployElytra && CommunalHelperModule.Settings.DeployElytra.Pressed)
             {
                 CommunalHelperModule.Settings.DeployElytra.ConsumePress();
-                if (self.Dashes > 0)
+                if (data.Get<bool>(f_Player_elytraIsInfinite))
+                    return St.Elytra;
+                else if (self.Dashes > 0)
                 {
                     self.Dashes = Math.Max(0, self.Dashes - 1);
                     return St.Elytra;
