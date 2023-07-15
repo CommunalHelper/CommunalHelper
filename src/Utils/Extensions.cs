@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.Helpers;
+using FMOD.Studio;
 using Microsoft.Xna.Framework.Graphics;
 using MonoMod.Utils;
 using System.Collections;
@@ -50,6 +51,40 @@ public static class Extensions
         }
         return null;
     }
+
+    public static Ease.Easer Easer(this EntityData data, string key, Ease.Easer defaultEaser = null)
+        => data.Attr(key) switch
+        {
+            "Linear" => Ease.Linear,
+            "SineIn" => Ease.SineIn,
+            "SineOut" => Ease.SineOut,
+            "SineInOut" => Ease.SineInOut,
+            "QuadIn" => Ease.QuadIn,
+            "QuadOut" => Ease.QuadOut,
+            "QuadInOut" => Ease.QuadInOut,
+            "CubeIn" => Ease.CubeIn,
+            "CubeOut" => Ease.CubeOut,
+            "CubeInOut" => Ease.CubeInOut,
+            "QuintIn" => Ease.QuintIn,
+            "QuintOut" => Ease.QuintOut,
+            "QuintInOut" => Ease.QuintInOut,
+            "ExpoIn" => Ease.ExpoIn,
+            "ExpoOut" => Ease.ExpoOut,
+            "ExpoInOut" => Ease.ExpoInOut,
+            "BackIn" => Ease.BackIn,
+            "BackOut" => Ease.BackOut,
+            "BackInOut" => Ease.BackInOut,
+            "BigBackIn" => Ease.BigBackIn,
+            "BigBackOut" => Ease.BigBackOut,
+            "BigBackInOut" => Ease.BigBackInOut,
+            "ElasticIn" => Ease.ElasticIn,
+            "ElasticOut" => Ease.ElasticOut,
+            "ElasticInOut" => Ease.ElasticInOut,
+            "BounceIn" => Ease.BounceIn,
+            "BounceOut" => Ease.BounceOut,
+            "BounceInOut" => Ease.BounceInOut,
+            _ => defaultEaser ?? Ease.Linear,
+        };
 
     public static Vector2 CorrectJoystickPrecision(this Vector2 dir)
     {
@@ -597,10 +632,129 @@ public static class Extensions
 
     #endregion
 
+    #region 3D-arrays
+
+    public static T[,,] RotateXCounterclockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sy, sz, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[y, z, x] = array[z, sy - y - 1, x];
+        return result;
+    }
+
+    public static T[,,] RotateXClockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sy, sz, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[y, z, x] = array[sz - z - 1, y, x];
+        return result;
+    }
+
+    public static T[,,] MirrorAboutX<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sy, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, y, x] = array[sz - z - 1, sy - y - 1, x];
+        return result;
+    }
+
+    public static T[,,] RotateYCounterclockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sx, sy, sz];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[x, y, z] = array[z, y, sx - x - 1];
+        return result;
+    }
+
+    public static T[,,] RotateYClockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sx, sy, sz];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[x, y, z] = array[sz - z - 1, y, x];
+        return result;
+    }
+
+    public static T[,,] MirrorAboutY<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sy, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, y, x] = array[sz - z - 1, y, sx - x - 1];
+        return result;
+    }
+
+    public static T[,,] RotateZCounterclockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sx, sy];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, x, y] = array[z, sy - y - 1, x];
+        return result;
+    }
+
+    public static T[,,] RotateZClockwise<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sx, sy];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, x, y] = array[z, y, sx - x - 1];
+        return result;
+    }
+
+    public static T[,,] MirrorAboutZ<T>(this T[,,] array)
+    {
+        int sz = array.GetLength(0), sy = array.GetLength(1), sx = array.GetLength(2);
+        T[,,] result = new T[sz, sy, sx];
+        for (int z = 0; z < sz; z++)
+            for (int y = 0; y < sy; y++)
+                for (int x = 0; x < sx; x++)
+                    result[z, y, x] = array[z, sy - y - 1, sx - x - 1];
+        return result;
+    }
+
+    #endregion
+
     public static XmlDocument LoadXML(this ModAsset asset)
     {
         XmlDocument xml = new();
         xml.Load(asset.Stream);
         return xml;
     }
+
+    public static Vector2 XY(this Vector3 v) => new(v.X, v.Y);
+    
+    public static Vector3 Sign(this Vector3 v)
+        => new(Math.Sign(v.X), Math.Sign(v.Y), Math.Sign(v.Z));
+
+    public static Vector3 Abs(this Vector3 v)
+        => new(Math.Abs(v.X), Math.Abs(v.Y), Math.Abs(v.Z));
+
+    public static Vector3 Floor(this Vector3 v)
+        => new((float) Math.Floor(v.X), (float) Math.Floor(v.Y), (float) Math.Floor(v.Z));
+
+    public static void Rewind(this SoundSource sfx)
+        => DynamicData.For(sfx)
+                      .Get<EventInstance>("instance")
+                      .setTimelinePosition(0);
 }

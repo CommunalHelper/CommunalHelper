@@ -342,4 +342,37 @@ communalHelper.lerpDirections = {
     "RightToLeft"
 }
 
+-- easers
+
+communalHelper.easers = {
+    ["Linear"] = "Linear",
+    ["Sine In"] = "SineIn",
+    ["Sine Out"] = "SineOut",
+    ["Sine In Out"] = "SineInOut",
+    ["Quad In"] = "QuadIn",
+    ["Quad Out"] = "QuadOut",
+    ["Quad In Out"] = "QuadInOut",
+    ["Cube In"] = "CubeIn",
+    ["Cube Out"] = "CubeOut",
+    ["Cube In Out"] = "CubeInOut",
+    ["Quint In"] = "QuintIn",
+    ["Quint Out"] = "QuintOut",
+    ["Quint In Out"] = "QuintInOut",
+    ["Expo In"] = "ExpoIn",
+    ["Expo Out"] = "ExpoOut",
+    ["Expo In Out"] = "ExpoInOut",
+    ["Back In"] = "BackIn",
+    ["Back Out"] = "BackOut",
+    ["Back In Out"] = "BackInOut",
+    ["BigBack In"] = "BigBackIn",
+    ["BigBack Out"] = "BigBackOut",
+    ["BigBack In Out"] = "BigBackInOut",
+    ["Elastic In"] = "ElasticIn",
+    ["Elastic Out"] = "ElasticOut",
+    ["Elastic In Out"] = "ElasticInOut",
+    ["Bounce In"] = "BounceIn",
+    ["Bounce Out"] = "BounceOut",
+    ["Bounce In Out"] = "BounceInOut",
+}
+
 return communalHelper

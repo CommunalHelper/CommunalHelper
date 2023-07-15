@@ -244,7 +244,7 @@ public class Cloudscape : Backdrop
 
         Calc.PushRandom(options.Seed);
 
-        mesh = new(null);
+        mesh = new();
 
         List<WarpedCloud> clouds = new();
         List<Ring> rings = new();

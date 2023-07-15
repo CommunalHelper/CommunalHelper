@@ -5,6 +5,7 @@ global using System;
 using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Entities.Misc;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using Celeste.Mod.CommunalHelper.States;
 using Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
@@ -93,6 +94,10 @@ public class CommunalHelperModule : EverestModule
         ExpiringDashRefill.Load();
         WormholeBooster.Load();
 
+        AeroBlockCharged.Load();
+
+        Shape3DRenderer.Load();
+
         St.Load();
 
         CommunalHelperGFX.Load();
@@ -166,6 +171,10 @@ public class CommunalHelperModule : EverestModule
         ExpiringDashRefill.Unload();
         WormholeBooster.Unload();
 
+        AeroBlockCharged.Unload();
+
+        Shape3DRenderer.Unload();
+
         St.Unload();
 
         Cloudscape.Unload();
@@ -186,6 +195,8 @@ public class CommunalHelperModule : EverestModule
 
         // We may hook methods in other mods, so this needs to be done after they're loaded
         AbstractPanel.LoadDelayed();
+
+        AeroBlock.Initialize();
 
         BetaCube.Initialize();
 
@@ -236,6 +247,8 @@ public class CommunalHelperModule : EverestModule
 
         LoopBlock.InitializeTextures();
         WormholeBooster.InitializeParticles();
+
+        AeroBlock.LoadContent();
 
         St.Initialize();
 

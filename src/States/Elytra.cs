@@ -1,6 +1,5 @@
-﻿using FMOD.Studio;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using FMOD.Studio;
 using MonoMod.Utils;
 using System.Collections;
 using System.Linq;
@@ -15,9 +14,11 @@ public static class Elytra
     private const string f_Player_elytraGlideSpeed  = nameof(f_Player_elytraGlideSpeed);    // float
     private const string f_Player_elytraGlideFacing = nameof(f_Player_elytraGlideFacing);   // Facings
     private const string f_Player_elytraGlideSfx    = nameof(f_Player_elytraGlideSfx);      // EventInstance
-    private const string f_Player_elytraDashes      = nameof(f_Player_elytraDashes);        // int
     private const string f_Player_elytraPrevPos     = nameof(f_Player_elytraPrevPos);       // Vector2
     private const string f_Player_elytraStableTimer = nameof(f_Player_elytraStableTimer);   // float
+    private const string f_Player_elytraRefillSound = nameof(f_Player_elytraRefillSound);   // bool
+    private const string f_Player_elytraIsInfinite  = nameof(f_Player_elytraIsInfinite);    // bool
+    private const string f_Player_elytraCooldown    = nameof(f_Player_elytraCooldown);      // float
 
     private const float STABLE_ANGLE = 0.2f;
     private const float ANGLE_RANGE = 2f;
@@ -28,8 +29,33 @@ public static class Elytra
     private const float FAST_DECEL = 220f;
     private const float MAX_ANGLE_CHANGE_INV_SPEED_FACTOR = 480f;
     private const float SPEED_FACING_THRESHOLD = Player.MaxRun + 60f;
+    private const float COOLDOWN = 7 / 60f;
 
     private const string ELYTRA_ANIM = "anim_player_elytra_fly";
+
+    /// <summary>
+    /// Refills the player's dashes and stamina.
+    /// Because the player can deploy its elytra with at least one dashes, refilling dashes is like refilling elytra.
+    /// </summary>
+    /// <param name="player">The player instance.</param>
+    public static void RefillElytra(this Player player)
+    {
+        player.RefillDash();
+        player.RefillStamina();
+    }
+
+    public static void SetInfiniteElytra(this Player player, bool enabled)
+        => DynamicData.For(player).Set(f_Player_elytraIsInfinite, enabled);
+
+    private static void PlayElytraRefillSound(this Player player)
+    {
+        DynamicData data = DynamicData.For(player);
+        if (CommunalHelperModule.Session.CanDeployElytra && data.Get<bool>(f_Player_elytraRefillSound))
+        {
+            Audio.Play(CustomSFX.game_elytra_refill, player.Center);
+            data.Set(f_Player_elytraRefillSound, false);
+        }
+    }
 
     public static void GlideBegin(this Player player)
     {
@@ -38,7 +64,6 @@ public static class Elytra
         const float squish = 0.4f;
         player.Sprite.Scale.X = 1.0f + squish;
         player.Sprite.Scale.Y = 1.0f - squish;
-        player.OverrideHairColor = Player.FlashHairColor;
 
         // if the horizontal speed is lower than a certain threshold, let the player facing dictate the direction of the gliding
         // otherwise, the gliding facing is determined by the sign of the speed (even if the player is facing the other way).
@@ -86,6 +111,8 @@ public static class Elytra
         EventInstance sfx = data.Get<EventInstance>(f_Player_elytraGlideSfx);
         if (sfx is not null)
             Audio.Stop(sfx);
+        data.Set(f_Player_elytraRefillSound, true);
+        data.Set(f_Player_elytraCooldown, COOLDOWN);
     }
 
     public static int GlideUpdate(this Player player)
@@ -235,32 +262,18 @@ public static class Elytra
                                         .Cast<ElytraRing>()
                                         .Where(ring => ring.CanTraverse(from, at))
                                         .OrderBy(ring => ring.PreserveTraversalOrder ? Vector2.DistanceSquared(from, ring.Position) : -1.0f);
-        
+
         foreach (ElytraRing ring in rings)
-            ring.OnPlayerTraversal(player);
+        {
+            int sign = Math.Sign(Vector2.Dot(ring.Direction, at - from));
+            if (sign is 0) sign = 1;
+            ring.OnPlayerTraversal(player, sign);
+        }
     }
 
     public static IEnumerator GlideRoutine(this Player _)
     {
         yield return null;
-    }
-
-    public static void RefillElytra(this Player player)
-    {
-        DynamicData data = DynamicData.For(player);
-        int elytraDashes = data.Get<int>(f_Player_elytraDashes);
-        if (elytraDashes < 1)
-        {
-            data.Set(f_Player_elytraDashes, 1);
-            player.FlashHair();
-            Audio.Play(CustomSFX.game_elytra_refill, player.Center);
-        }
-    }
-
-    public static bool CanRefillElytra(this Player player)
-    {
-        DynamicData data = DynamicData.For(player);
-        return data.Get<int>(f_Player_elytraDashes) < 1;
     }
 
     public static void ElytraLaunch(this Player player, Vector2 speed, float duration = 0.5f)
@@ -302,73 +315,36 @@ public static class Elytra
     {
         On.Celeste.Player.Die += Mod_Player_Die;
         On.Celeste.PlayerSprite.ctor += Mod_PlayerSprite_ctor;
-        On.Celeste.Player.UpdateHair += Player_UpdateHair;
         On.Celeste.Player.UpdateSprite += Mod_Player_UpdateSprite;
         On.Celeste.Player.NormalUpdate += Mod_Player_NormalUpdate;
         On.Celeste.Player.OnCollideH += Mod_Player_OnCollideH;
         On.Celeste.Player.OnCollideV += Mod_Player_OnCollideV;
-        On.Celeste.Player.ctor += Mod_Player_ctor;
         On.Celeste.Player.RefillDash += Player_RefillDash;
-        IL.Celeste.Player.UseRefill += Player_UseRefill;
+        On.Celeste.Player.UseRefill += Player_UseRefill;
+        On.Celeste.Player.ctor += Player_ctor;
     }
 
     internal static void Unload()
     {
         On.Celeste.Player.Die -= Mod_Player_Die;
         On.Celeste.PlayerSprite.ctor -= Mod_PlayerSprite_ctor;
-        On.Celeste.Player.UpdateHair -= Player_UpdateHair;
         On.Celeste.Player.UpdateSprite -= Mod_Player_UpdateSprite;
         On.Celeste.Player.NormalUpdate -= Mod_Player_NormalUpdate;
         On.Celeste.Player.OnCollideH -= Mod_Player_OnCollideH;
         On.Celeste.Player.OnCollideV -= Mod_Player_OnCollideV;
-        On.Celeste.Player.ctor -= Mod_Player_ctor;
         On.Celeste.Player.RefillDash -= Player_RefillDash;
-        IL.Celeste.Player.UseRefill -= Player_UseRefill;
+        On.Celeste.Player.UseRefill -= Player_UseRefill;
+        On.Celeste.Player.ctor -= Player_ctor;
     }
 
-    private static void Player_UseRefill(ILContext il)
+    private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode)
     {
-        ILCursor cursor = new(il);
+        orig(self, position, spriteMode);
 
-        cursor.GotoNext(instr => instr.MatchCallvirt<Player>(nameof(Player.RefillStamina)));
-
-        cursor.Emit(OpCodes.Ldarg_0);
-        cursor.EmitDelegate(RefillElytra);
-
-        cursor.GotoPrev(instr => instr.MatchStfld<Player>(nameof(Player.Dashes)));
-        cursor.GotoPrev(instr => instr.MatchLdarg(0));
-
-        ILLabel label = cursor.MarkLabel();
-
-        cursor.GotoPrev(instr => instr.MatchLdfld<Player>(nameof(Player.Stamina)));
-        cursor.GotoPrev(instr => instr.MatchLdarg(0));
-
-        cursor.Emit(OpCodes.Ldarg_0);
-        cursor.EmitDelegate(CanRefillElytra);
-        cursor.Emit(OpCodes.Brtrue_S, label);
-    }
-
-    private static bool Player_RefillDash(On.Celeste.Player.orig_RefillDash orig, Player self)
-    {
-        self.RefillElytra();
-        return orig(self);
-    }
-
-    private static void Player_UpdateHair(On.Celeste.Player.orig_UpdateHair orig, Player self, bool applyGravity)
-    {
-        orig(self, applyGravity);
-        
         DynamicData data = DynamicData.For(self);
-        int elytraDashes = data.Get<int>(f_Player_elytraDashes);
-        if (elytraDashes < 1)
-        {
-            Color color = self.Sprite.Mode == PlayerSpriteMode.Badeline
-                ? Player.UsedBadelineHairColor
-                : Player.UsedHairColor;
-            self.OverrideHairColor = Color.Lerp(self.Hair.Color, color, 6f * Engine.DeltaTime);
-        }
-        else
-            self.OverrideHairColor = null;
+        data.Set(f_Player_elytraRefillSound, false);
+        data.Set(f_Player_elytraIsInfinite, false);
+        data.Set(f_Player_elytraCooldown, 0.0f);
     }
 
     private static void Mod_Player_OnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player self, CollisionData data)
@@ -395,33 +371,26 @@ public static class Elytra
         orig(self, data);
     }
 
-    private static void Mod_Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode)
-    {
-        orig(self, position, spriteMode);
-
-        DynamicData data = DynamicData.For(self);
-        data.Set(f_Player_elytraDashes, 1);
-    }
-
     private static int Mod_Player_NormalUpdate(On.Celeste.Player.orig_NormalUpdate orig, Player self)
     {
         int next = orig(self);
 
-        if (self.OnGround())
-        {
-            self.RefillElytra();
-        }
-        else
+        var data = DynamicData.For(self);
+
+        float cooldown = data.Get<float>(f_Player_elytraCooldown);
+        cooldown = Calc.Approach(cooldown, 0.0f, Engine.DeltaTime);
+        data.Set(f_Player_elytraCooldown, cooldown);
+
+        if (cooldown == 0.0f && !self.OnGround())
         {
             if (CommunalHelperModule.Session.CanDeployElytra && CommunalHelperModule.Settings.DeployElytra.Pressed)
             {
                 CommunalHelperModule.Settings.DeployElytra.ConsumePress();
-                
-                DynamicData data = DynamicData.For(self);
-                int elytraDashes = data.Get<int>(f_Player_elytraDashes);
-                if (elytraDashes > 0)
+                if (data.Get<bool>(f_Player_elytraIsInfinite))
+                    return St.Elytra;
+                else if (self.Dashes > 0)
                 {
-                    data.Set(f_Player_elytraDashes, --elytraDashes);
+                    self.Dashes = Math.Max(0, self.Dashes - 1);
                     return St.Elytra;
                 }
             }
@@ -475,5 +444,21 @@ public static class Elytra
         }
 
         self.Sprite.SetAnimationFrame(Calc.Clamp(frame, 0, FRAME_COUNT - 1));
+    }
+
+    private static bool Player_RefillDash(On.Celeste.Player.orig_RefillDash orig, Player self)
+    {
+        bool result = orig(self);
+        if (result)
+            self.PlayElytraRefillSound();
+        return result;
+    }
+
+    private static bool Player_UseRefill(On.Celeste.Player.orig_UseRefill orig, Player self, bool twoDashes)
+    {
+        bool result = orig(self, twoDashes);
+        if (result)
+            self.PlayElytraRefillSound();
+        return result;
     }
 }

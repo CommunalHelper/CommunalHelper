@@ -41,17 +41,6 @@ public class Mesh<T> : IDisposable where T : struct, IVertexType
     /// </summary>
     public bool Baked { get; private set; }
 
-    private readonly Effect effect;
-
-    /// <summary>
-    /// Creates a new mesh.
-    /// </summary>
-    /// <param name="effect">The effect used to draw vertices.</param>
-    public Mesh(Effect effect)
-    {
-        this.effect = effect;
-    }
-
     /// <summary>
     /// Adds a single vertex to this mesh.<br/>
     /// This can only be done if the mesh is unbaked.
@@ -76,6 +65,64 @@ public class Mesh<T> : IDisposable where T : struct, IVertexType
             throw new InvalidOperationException("Cannot add vertices to a baked mesh!");
 
         _vertices.AddRange(vertices);
+    }
+
+    /// <summary>
+    /// Adds the vertices and indices to make a quadrilated mesh.
+    /// </summary>
+    /// <param name="a">The 1st point.</param>
+    /// <param name="b">The 2nd point.</param>
+    /// <param name="c">The 3rd point.</param>
+    /// <param name="d">The 4th point.</param>
+    public void AddQuad(T a, T b, T c, T d)
+    {
+        if (Baked)
+            throw new InvalidOperationException("Cannot add vertices to a baked mesh!");
+
+        int o = VertexCount;
+
+        _vertices.Add(a);
+        _vertices.Add(b);
+        _vertices.Add(c);
+        _vertices.Add(d);
+
+        _indices.Add(o + 1);
+        _indices.Add(o + 0);
+        _indices.Add(o + 2);
+        _indices.Add(o + 1);
+        _indices.Add(o + 2);
+        _indices.Add(o + 3);
+
+        Triangles += 2;
+    }
+
+    /// <summary>
+    /// Adds the vertices and indices to make a quadrilated mesh. Winding order is inverted.
+    /// </summary>
+    /// <param name="a">The 1st point.</param>
+    /// <param name="b">The 2nd point.</param>
+    /// <param name="c">The 3rd point.</param>
+    /// <param name="d">The 4th point.</param>
+    public void AddQuadInverted(T a, T b, T c, T d)
+    {
+        if (Baked)
+            throw new InvalidOperationException("Cannot add vertices to a baked mesh!");
+
+        int o = VertexCount;
+
+        _vertices.Add(a);
+        _vertices.Add(b);
+        _vertices.Add(c);
+        _vertices.Add(d);
+
+        _indices.Add(o + 2);
+        _indices.Add(o + 0);
+        _indices.Add(o + 1);
+        _indices.Add(o + 3);
+        _indices.Add(o + 2);
+        _indices.Add(o + 1);
+
+        Triangles += 2;
     }
 
     /// <summary>
@@ -116,7 +163,7 @@ public class Mesh<T> : IDisposable where T : struct, IVertexType
     /// This can only be done if the mesh is baked.
     /// </summary>
     /// <param name="matrix"></param>
-    public void Celeste_DrawVertices(Matrix? matrix = null)
+    public void Celeste_DrawVertices(Effect effect, Matrix? matrix = null)
     {
         if (!Baked)
             throw new InvalidOperationException("A mesh must be baked in order for its vertices to be drawn!");

@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper;
 
@@ -152,5 +154,95 @@ public static class Util
 
         return s is >= 0 and <= 1
             && t is >= 0 and <= 1;
+    }
+
+    public static ColliderList GenerateColliderGrid(bool[,] tilemap)
+    {
+        bool[,] copy = tilemap.Clone() as bool[,];
+
+        ColliderList colliders = new();
+
+        int sx = copy.GetLength(0), sy = copy.GetLength(1);
+        for (int x = 0; x < sx; x++)
+        {
+            List<Hitbox> prevColliders = new();
+            Hitbox currentPrevCollider = null;
+            for (int y = 0; y <= sy; y++)
+            {
+                if (y == sy)
+                {
+                    if (currentPrevCollider is not null)
+                        prevColliders.Add(currentPrevCollider);
+                    break;
+                }
+
+                // basic vertical expansion of the colliders.
+                if (copy[x, y])
+                {
+                    copy[x, y] = false;
+
+                    if (currentPrevCollider == null)
+                        currentPrevCollider = new Hitbox(8, 8, x * 8, y * 8);
+                    else
+                        currentPrevCollider.Height += 8;
+
+                }
+                else if (currentPrevCollider != null)
+                {
+                    prevColliders.Add((Hitbox) currentPrevCollider.Clone());
+                    currentPrevCollider = null;
+                }
+            }
+
+            // once we are done with them, we can extend them horizontally to the right as much as possible.
+            foreach (Hitbox prevCollider in prevColliders)
+            {
+                int cx = (int) prevCollider.Position.X / 8;
+                int cy = (int) prevCollider.Position.Y / 8;
+                int cw = (int) prevCollider.Width / 8;
+                int ch = (int) prevCollider.Height / 8;
+
+                while (cx + cw < sx)
+                {
+                    bool canExtend = true;
+
+                    for (int j = cy; j < cy + ch; j++)
+                    {
+                        if (!copy[cx + cw, j])
+                        {
+                            canExtend = false;
+                            break;
+                        }
+                    }
+
+                    if (canExtend)
+                    {
+                        for (int j = cy; j < cy + ch; j++)
+                        {
+                            copy[cx + cw, j] = false;
+                        }
+                        prevCollider.Width += 8;
+                        cw++;
+                    }
+                    else break;
+                }
+
+                colliders.Add(prevCollider);
+            }
+        }
+
+        return colliders.colliders.Length > 0 ? colliders : null;
+    }
+
+    public static IEnumerator Interpolate(float duration, Action<float> action)
+    {
+        float t = duration;
+        while (t > 0.0f)
+        {
+            action(1 - t / duration);
+            t = Calc.Approach(t, 0.0f, Engine.DeltaTime);
+            yield return null;
+        }
+        action(1.0f);
     }
 }

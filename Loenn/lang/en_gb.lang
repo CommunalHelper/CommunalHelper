@@ -633,6 +633,69 @@ entities.CommunalHelper/MoveBlockGroup.attributes.description.color=The display 
 entities.CommunalHelper/MoveBlockGroup.attributes.description.syncActivation=Whether all Move Blocks from this group are bound to activate simultaneously.
 entities.CommunalHelper/MoveBlockGroup.attributes.description.respawnBehavior=Dictates how Move Blocks respawn within this group.\n* Immediate: the Move Blocks respawn immediately, like they normally do outside of a group.\n* Simultaneous: all Move Blocks from this group must have first broken in order for them to respawn.\n* Sequential: each Move Block will only respawn once all the ones that came before it in the group have respawned.   
 
+# Aero Block Flying
+entities.CommunalHelper/AeroBlockFlying.placements.name.active=Flying Aero Block
+entities.CommunalHelper/AeroBlockFlying.placements.name.inactive=Flying Aero Block (Initially Inactive)
+entities.CommunalHelper/AeroBlockFlying.attributes.description.inactive=Whether this block should spawn as inactive - that means it's not flying. It will activate once the player touch it.\nIMPORTANT: if this option is enabled, the first node of this block will define its initial position.
+entities.CommunalHelper/AeroBlockFlying.attributes.description.travelSpeed=The speed (in px/sec) at which this block's target moves. Note that this does not directly affect the exact speed of the block, but its target point, which the block constantly smoothly approaches.\nThis field is only useful is this entity has at least one node.
+entities.CommunalHelper/AeroBlockFlying.attributes.description.travelMode=The type of movement this block will execute.\n  * Loop: the block goes to each of its nodes sequentially, and loops around once the last one is reached.\n  * Back and Forth: the block goes through each of its nodes sequencially, and then in reverse, and so on forever.\n  * With Player: The block does not move until the player rides it. When the player is riding the block, the block moves towards the end of its sequence of nodes, and stops at the end. If the player leaves off the block, it starts going backwards to its starting position.\n  * With Player Once: Same as "With Player", except the block turns off at the end of its sequence, and becomes unsable (stops flying).
+
+# Aero Block Charged
+entities.CommunalHelper/AeroBlockCharged.placements.name.aero_block_charged=Charged Aero Block
+entities.CommunalHelper/AeroBlockCharged.attributes.description.buttonSequence=Text that describes how the buttons of this block are shown and hidden as the block moves to each node. It is parsed by the entity, so this field must follow a specified format:\n\nFor each node, you can have the LEFT, RIGHT, and TOP buttons enabled or not.\nTo combine multiple buttons, use the + operator. For instance: LEFT+RIGHT represents both the left and right button enabled, while the top one is off.\n\nThere are other keywords that represent multiple buttons at once: HORIZONTAL, VERTICAL, ALL, NONE:\n  * HORIZONTAL = LEFT + RIGHT\n  * VERTICAL = TOP\n  * ALL = TOP + LEFT + RIGHT\n  * NONE: (no buttons)\n\nIf you have multiple nodes, you must use the -> operator (a hyphen followed by a right-chevron, aka. "greater than") to indicate that whatever follows is for the next node.\nFor instance: LEFT+RIGHT -> TOP will start the block with the left and right buttons on, and when the blocks moves at the next node, only the top button will be on.\nYou don't necessarily have to write as many -> transitions as nodes this entity has, because the button sequence will just loop back if it reaches its end before the block ends its node sequence.\nYou must not have more transitions than nodes. In such a case, the extra button combinations are discarded.\n\nEvery word can be lowercase (they are case-insensitive).\nOther words that are not LEFT, RIGHT, TOP, HORIZONTAL, VERTICAL, ALL, NONE, will be dismissed and a warning will be printed in the log.\nLeading & trailing whitespaces are discarded, so feel free to format the string the way you prefer.\n\nHere are more examples of valid sequences:\n  * LEFT\n  * HORIZONTAL -> TOP + LEFT\n  * right->left->tOP->All\n  * ALL -> none + LEFT+right -> rIgHt\n\nCheck the log if something goes wrong, you'll find the error messages there.
+entities.CommunalHelper/AeroBlockCharged.attributes.description.hover=Whether this block has a hovering "floating" movement to it. If disable, the block stays in place until it needs to move.
+entities.CommunalHelper/AeroBlockCharged.attributes.description.loop=Whether this block's sequence has no ending. When the last node is reached, it loops back around to the initial position.
+
+# Shapeshifter
+entities.CommunalHelper/Shapeshifter.placements.name.shapeshifter=Shapeshifter
+entities.CommunalHelper/Shapeshifter.attributes.description.voxelWidth=The width in tiles of the 3D voxel.
+entities.CommunalHelper/Shapeshifter.attributes.description.voxelHeight=The height in tiles of the 3D voxel.
+entities.CommunalHelper/Shapeshifter.attributes.description.voxelDepth=The depth in tiles of the 3D voxel.
+entities.CommunalHelper/Shapeshifter.attributes.description.model=A string representation of a 3D-array of characters corresponding to tile IDs. The size of this array is width * height * depth.\nIf this field isn't complete (i.e. its length isn't width * height * depth), the missing character will be implied as '0', or you can set the default value in the `defaultTile` field (useful for filling the whole 3D-grid if you want to make a trivial 3D block).\n\nYou don't have to fill this out manually by yourself. Use Communal Helper's voxel editor by using the ch_make_voxel or ch_fill_voxel command:\n  * ch_make_voxel <width> <height> <depth> [model]\n  * ch_fill_voxel <width> <height> <depth> [model]\n\nRead more on the Communal Helper wiki, and watch the tutorial video for an explanation of how you can use this entity.
+entities.CommunalHelper/Shapeshifter.attributes.description.startSound=The sound that plays when this block starts moving along a path.
+entities.CommunalHelper/Shapeshifter.attributes.description.finishSound=The sound that plays when this block stops moving.
+entities.CommunalHelper/Shapeshifter.attributes.description.startShake=The strength of the shake when this block starts moving. Also plays short medium rumble on controllers.\nLeave at 0.0 for no shake nor rumble.
+entities.CommunalHelper/Shapeshifter.attributes.description.finishShake=The strength of the shake when this block stops moving. Also plays short medium rumble on controllers.\nLeave at 0.0 for no shake nor rumble.
+entities.CommunalHelper/Shapeshifter.attributes.description.rainbowMix=A percentage (0.0 to 1.0) describing how rainbow the block should appear when moving. This helps to recognize shapeshifters that are currently moving (and if rotating, then uncollidable).\nLeave at 0.0 for no rainbowness. The more this value is close to 1.0, the more rainbow the block will appear, until you cannot see its texture, but only its shape (rainbowed out).
+entities.CommunalHelper/Shapeshifter.attributes.description.defaultTile=The default tile for this model.
+
+# Shapeshifter Path
+entities.CommunalHelper/ShapeshifterPath.placements.name.shapeshiter_path=Shapeshifter Path
+entities.CommunalHelper/ShapeshifterPath.attributes.description.duration=How long it takes for shapeshifters to travel along this path.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.easer=The easing mode that atler the feel & smoothness of the movement of blocks taking this path.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.rotateYaw=How much quarter turns about the YAW axis (the Y axis) the blocks taking this path will make.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.rotatePitch=How much quarter turns about the PITCH axis (the X axis) the blocks taking this path will make.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.rotateRoll=How much quarter turns about the ROLL axis (the Z axis) the blocks taking this path will make.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.quakeTime=The duration (in seconds) of the initial shaking sequence that plays before this block starts moving. Leave at 0.0 for no initial shaking, i.e. instant movement.\nThe initial shaking sequence makes the block slightly shaky for however amount of seconds you specify, and then starts moving.\nIt also plays a continuous shaking sound.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.fakeoutTime=How much time (in seconds) should this block spend in the fakeout state.\nIf this value is non-zero, the block will start moving but stop at the beginning of the movement. After the amount of seconds specified in this field, it will resume its movement along the path.
+entities.CommunalHelper/ShapeshifterPath.attributes.description.fakeoutDistance=How far away (in pixels) the block should stop for the fakeout state (only useful if fakeoutTime is non-zero).\nNote that the fakeout movement still follows the path.
+
+# Elytra Dash Block
+entities.CommunalHelper/ElytraDashBlock.placements.name.elytra_dash_block=Elytra Dash Block
+entities.CommunalHelper/ElytraDashBlock.attributes.description.tiletype=The tile type of this block.
+entities.CommunalHelper/ElytraDashBlock.attributes.description.blendin=Whether this block blends in with foreground tiles.
+entities.CommunalHelper/ElytraDashBlock.attributes.description.permanent=Whether this block should disappear permanently once broken.
+entities.CommunalHelper/ElytraDashBlock.attributes.description.requiredSpeed=The required speed in px/sec by the player in the elytra state.
+
+# Elytra Boost Ring
+entities.CommunalHelper/ElytraBoostRing.placements.name.unidirectional=Elytra Boost Ring (Unidirectional)
+entities.CommunalHelper/ElytraBoostRing.placements.name.bidirectional=Elytra Boost Ring (Bidirectional)
+entities.CommunalHelper/ElytraBoostRing.attributes.description.speed=The value in px/sec that is assigned to the player's speed.
+entities.CommunalHelper/ElytraBoostRing.attributes.description.duration=How long (in seconds) the player is locked in the elytra boost state. While in this state, the player maintains the angle at which it was boosted, and maintains its speed as well.\nThose cannot be changed until the specified time in this field has elapsed.
+entities.CommunalHelper/ElytraBoostRing.attributes.description.refill=Whether the player's elytra should be refilled when going through this ring.
+entities.CommunalHelper/ElytraBoostRing.attributes.description.bidirectional=Whether this ring can boost the player in both directions. If disabled, the player is always boosted in the direction that this ring points to. 
+
+# Elytra Refill Ring
+entities.CommunalHelper/ElytraRefillRing.placements.name.elytra_refill_ring=Elytra Refill Ring
+
+# Elytra Stop Ring
+entities.CommunalHelper/ElytraStopRing.placements.name.elytra_stop_ring=Elytra Stop Ring
+entities.CommunalHelper/ElytraStopRing.attributes.description.refill=Whether the player's elytra should be refilled when going through this ring.
+
+# Elytra Note Ring
+entities.CommunalHelper/ElytraNoteRing.placements.name.elytra_note_ring=Elytra Note Ring
+entities.CommunalHelper/ElytraNoteRing.attributes.description.semitone=The note to play when this ring is crossed. You can input your own integer value if you want to go above or below the range available in the dropdown options.\n0 is C4, input negative integer to go below.
+
 # [Strawberry Jam] Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]
 entities.CommunalHelper/SJ/BulletTimeController.placements.description.controller=Slows down time while the player has dashes.
@@ -753,8 +816,16 @@ triggers.CommunalHelper/StopLightningControllerTrigger.placements.name.trigger=S
 
 # Configure Elytra Trigger
 triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.yes=Enable Elytra
+triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.yes_infinite=Enable Elytra (Infinite)
 triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.no=Disable Elytra
 triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.allow=Whether the player can deploy its elytra after going through the trigger.\nThe elytra is deployed with a keybind configured in mod settings.\nDefault is W on keyboard, and Left Shoulder on controller.
+triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.infinite=If this trigger enables the elytra, this option will make it so that deploying the elytra does not consume a dash. Note that this can potentially be used to build infinite height (over long distances).
+
+# Follow Shapeshifter Path Trigger
+triggers.CommunalHelper/FollowShapeshifterPathTrigger.placements.name.follow_path=Follow Shapeshifter Path
+triggers.CommunalHelper/FollowShapeshifterPathTrigger.attributes.description.once=Whether this trigger can only be used once. If enabled, this trigger becomes uncollidable as soon it is stepped into.
+triggers.CommunalHelper/FollowShapeshifterPathTrigger.attributes.description.shapeshifterID=A comma-separated list of integer entity IDs of the Shapeshifter entities to move. Invalid values are discared, and warnings will be printed in the log.\nYou can also use this field to input in a single Shapeshifter entity ID.\nThis field is required.
+triggers.CommunalHelper/FollowShapeshifterPathTrigger.attributes.description.pathID=Optional field for specifying which path the Shapeshifter(s) will be borrowing. If this is left at -1, each Shapeshifter will look at the first path it finds in their bounds (rectangle).\nImportant: note that the movement along a path for a Shapeshifter is relative. The blocks don't teleport to the beginning of the path, but rather, they apply the movement of the path they follow, starting at their initial position.\nNote also that shapeshifters that are told to move while they are already moving will simply ignore the request, and keep moving along the path they were already following.
 
 # Solar Elevator Level Trigger
 triggers.CommunalHelper/SolarElevatorLevelTrigger.placements.name.trigger=Set Solar Elevator Level

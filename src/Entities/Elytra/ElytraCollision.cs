@@ -1,4 +1,4 @@
-﻿namespace Celeste.Mod.CommunalHelper.States;
+﻿namespace Celeste.Mod.CommunalHelper.Entities;
 
 [Tracked]
 public class ElytraCollision : Component

@@ -114,6 +114,12 @@ public static class CustomSFX
     public const string game_elytra_deploy = "event:/CommunalHelperEvents/game/elytra/deploy";
     public const string game_elytra_gliding = "event:/CommunalHelperEvents/game/elytra/gliding";
     public const string game_elytra_refill = "event:/CommunalHelperEvents/game/elytra/refill";
+    public const string game_elytra_rings_boost = "event:/CommunalHelperEvents/game/elytra/rings/boost";
+    public const string game_elytra_rings_stop = "event:/CommunalHelperEvents/game/elytra/rings/stop";
+    public const string game_elytra_rings_refill = "event:/CommunalHelperEvents/game/elytra/rings/refill";
+    public const string game_elytra_rings_booster_ambience = "event:/CommunalHelperEvents/game/elytra/rings/booster_ambience";
+    public const string game_elytra_rings_note = "event:/CommunalHelperEvents/game/elytra/rings/note";
+
     public const string game_aero_block_deploy_propeller = "event:/CommunalHelperEvents/game/aero_block/deploy_propeller";
     public const string game_aero_block_failure = "event:/CommunalHelperEvents/game/aero_block/failure";
     public const string game_aero_block_launch_sequence = "event:/CommunalHelperEvents/game/aero_block/launch_sequence";
@@ -124,6 +130,13 @@ public static class CustomSFX
     public const string game_aero_block_static = "event:/CommunalHelperEvents/game/aero_block/static";
     public const string game_aero_block_success = "event:/CommunalHelperEvents/game/aero_block/success";
     public const string game_aero_block_warn = "event:/CommunalHelperEvents/game/aero_block/warn";
+    public const string game_aero_block_button_charge = "event:/CommunalHelperEvents/game/aero_block/button_charge";
+    public const string game_aero_block_button_let_go = "event:/CommunalHelperEvents/game/aero_block/button_let_go";
+    public const string game_aero_block_button_press = "event:/CommunalHelperEvents/game/aero_block/button_press";
+    
+    public const string game_shapeshifter_shake = "event:/CommunalHelperEvents/game/shapeshifter/shake";
+    public const string game_shapeshifter_supermove = "event:/CommunalHelperEvents/game/shapeshifter/supermove";
+    public const string game_shapeshifter_move = "event:/CommunalHelperEvents/game/shapeshifter/move";
 }
 
 public static class CustomBanks
