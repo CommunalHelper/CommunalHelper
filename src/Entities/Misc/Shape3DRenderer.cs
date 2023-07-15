@@ -70,17 +70,22 @@ public sealed class Shape3DRenderer : Entity
 
     private void BeforeRender()
     {
+        // WHAT THE FUCK ????????????????????
+        Vector2 renderOffset = type is Framework.FNA
+            ? Vector2.Zero
+            : -Vector2.One * 0.5f;
+
         Draw.SpriteBatch.GraphicsDevice.SetRenderTargets(new(albedo), new(depth), new(normal));
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
 
-        Engine.Instance.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
+        Engine.Instance.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
         Engine.Instance.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
         Engine.Instance.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
         Engine.Instance.GraphicsDevice.BlendState = BlendState.Opaque;
 
         const float far = 1200;
-        Matrix proj = Matrix.CreateOrthographic(320, 180, 0, far);
-        Matrix view = Matrix.CreateLookAt(Vector3.Backward * far / 2f, Vector3.Zero, Vector3.Up);
+        Matrix proj = Matrix.CreateOrthographic(320, 180, 100, far);
+        Matrix view = Matrix.CreateLookAt(Vector3.Backward * far / 2, Vector3.Zero, Vector3.Up);
 
         CommunalHelperGFX.PCTN_MRT.Parameters["view"].SetValue(view);
         CommunalHelperGFX.PCTN_MRT.Parameters["proj"].SetValue(proj);
@@ -92,7 +97,7 @@ public sealed class Shape3DRenderer : Entity
             if (!shape.Visible || !shape.Entity.Visible)
                 continue;
 
-            Vector2 pos = shape.Entity.Position + shape.Position.XY();
+            Vector2 pos = shape.Entity.Position + shape.Position.XY() + renderOffset;
             if (shape.Entity is Platform platform)
                 pos += platform.Shake;
 
@@ -122,10 +127,6 @@ public sealed class Shape3DRenderer : Entity
 
         Draw.SpriteBatch.GraphicsDevice.SetRenderTarget(final);
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
-        
-        // end me
-        var orthoProjW = type is Framework.FNA ? SCREEN_WIDTH : SCREEN_WIDTH + 1;
-        var orthoProjH = type is Framework.FNA ? SCREEN_HEIGHT : SCREEN_HEIGHT + 1;
 
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["albedo_texture"].SetValue(albedo);
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["depth_texture"].SetValue(depth);
@@ -133,7 +134,7 @@ public sealed class Shape3DRenderer : Entity
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["time"].SetValue(Scene.TimeActive * 10);
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["MatrixTransform"]
             .SetValue(
-                Matrix.CreateOrthographic(orthoProjW, orthoProjH, 0, 1) *
+                Matrix.CreateOrthographic(SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1) *
                 Matrix.CreateTranslation(-1.0f, -1.0f, 0) * Matrix.CreateScale(1, -1, 1)
             );
 
@@ -141,8 +142,8 @@ public sealed class Shape3DRenderer : Entity
         Engine.Graphics.GraphicsDevice.SamplerStates[1] = SamplerState.PointWrap;
         Engine.Graphics.GraphicsDevice.SamplerStates[2] = SamplerState.PointWrap;
 
-        Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, RasterizerState.CullNone, CommunalHelperGFX.PCTN_COMPOSE);
-        Draw.SpriteBatch.Draw(albedo, new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), Color.White);
+        Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, CommunalHelperGFX.PCTN_COMPOSE);
+        Draw.SpriteBatch.Draw(albedo, renderOffset, Color.White);
         Draw.SpriteBatch.End();
         
         Engine.Graphics.GraphicsDevice.Textures[0] = null;
