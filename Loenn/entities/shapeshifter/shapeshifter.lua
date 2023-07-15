@@ -61,7 +61,6 @@ shapeshifter.placements = {
             rainbowMix = 0.2,
             surfaceSoundIndex = 1,
             model = "",
-            atlas = "",
             defaultTile = "0",
         }
     }

@@ -107,12 +107,16 @@ public sealed class Shape3DRenderer : Entity
             CommunalHelperGFX.PCTN_MRT.Parameters["highlight_upper_bound"].SetValue(shape.HighlightUpperBound);
             CommunalHelperGFX.PCTN_MRT.Parameters["highlight_strength"].SetValue(shape.HighlightStrength);
 
-            CommunalHelperGFX.PCTN_MRT.Parameters["atlas_texture"].SetValue(shape.Texture);
+            var textureParameter = CommunalHelperGFX.PCTN_MRT.Parameters["atlas_texture"];
+            textureParameter.SetValue(shape.Texture);
 
-            foreach (EffectPass pass in CommunalHelperGFX.PCTN_MRT.CurrentTechnique.Passes)
+            EffectPass pass = CommunalHelperGFX.PCTN_MRT.CurrentTechnique.Passes[0];
+            foreach (var pair in shape.Meshes)
             {
+                if (pair.Item2 is not null)
+                    textureParameter.SetValue(pair.Item2);
                 pass.Apply();
-                shape.Mesh.Draw();
+                pair.Item1.Draw();
             }
         }
 

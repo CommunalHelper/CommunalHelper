@@ -23,9 +23,9 @@ public sealed class VoxelEditor : Scene
 
     private readonly int sx, sy, sz;
     private readonly char[,,] voxel;
-    private Mesh<VertexPositionNormalTexture> mesh;
+    private IEnumerable<Tuple<Mesh<VertexPositionNormalTexture>, Texture2D>> voxelMeshes;
 
-    private Mesh<VertexPositionNormalTexture> tile;
+    private Tuple<Mesh<VertexPositionNormalTexture>, Texture2D> tile;
     private readonly Mesh<VertexPositionNormalTexture> box;
     private readonly VertexPositionColor[] axes;
 
@@ -102,7 +102,7 @@ public sealed class VoxelEditor : Scene
 
     private void RemakeMesh()
     {
-        mesh = Shapes.TileVoxel(voxel);
+        voxelMeshes = Shapes.TileVoxel(voxel);
     }
 
     private void DestroyBuffers()
@@ -171,10 +171,10 @@ public sealed class VoxelEditor : Scene
 
     private void RemakePreviewTileMesh(int x, int y, int z)
     {
-        tile = Shapes.TileVoxel(new char[1, 1, 1] { { { brush } } });
+        tile = Shapes.TileVoxel(new char[1, 1, 1] { { { brush } } }).FirstOrDefault();
         Vector3 tilePos = new((-sx / 2.0f + x) * 8 + 4, (sy / 2.0f - y) * 8 - 4, (sz / 2.0f - z) * 8 - 4);
-        for (int i = 0; i < tile.VertexCount; i++)
-            tile.Vertices[i].Position = tile.Vertices[i].Position * 6.5f / 8 + tilePos;
+        for (int i = 0; i < tile.Item1.VertexCount; i++)
+            tile.Item1.Vertices[i].Position = tile.Item1.Vertices[i].Position * 6.5f / 8 + tilePos;
     }
 
     // x, y, z = tile coordinates
@@ -353,6 +353,7 @@ public sealed class VoxelEditor : Scene
                 RemakeMesh();
                 if (SurfaceIndex.TileToIndex.TryGetValue(delete ? replaced : c, out int index))
                     Audio.Play(SFX.char_mad_grab, "surface_index", index);
+                    Audio.Play(SFX.char_mad_grab, "surface_index", index);
             }
         }
 
@@ -373,15 +374,23 @@ public sealed class VoxelEditor : Scene
 
         Engine.Instance.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
         Engine.Instance.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-        Engine.Instance.GraphicsDevice.Textures[0] = GFX.Game.Sources[0].Texture_Safe;
         Engine.Instance.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
         Engine.Instance.GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
         Draw.SpriteBatch.GraphicsDevice.SetRenderTarget(screen);
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
         shader.CurrentTechnique.Passes[0].Apply();
-        mesh.Draw();
-        tile?.Draw();
+        foreach (var pair in voxelMeshes)
+        {
+            Engine.Instance.GraphicsDevice.Textures[0] = pair.Item2;
+            pair.Item1.Draw();
+        }
+
+        if (tile is not null)
+        {
+            Engine.Instance.GraphicsDevice.Textures[0] = tile.Item2;
+            tile.Item1.Draw();
+        }
 
         Engine.Instance.GraphicsDevice.Textures[0] = CommunalHelperGFX.Blank;
         Engine.Instance.GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;

@@ -1,11 +1,12 @@
 ﻿using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
 public sealed class Shape3D : Component
 {
-    internal readonly Mesh<VertexPCTN> Mesh = new();
+    internal readonly List<Tuple<Mesh<VertexPCTN>, Texture2D>> Meshes = new();
 
     public Vector3 Position { get; set; }
 
@@ -49,7 +50,13 @@ public sealed class Shape3D : Component
     public Shape3D(Mesh<VertexPCTN> mesh)
         : base(active: false, visible: true)
     {
-        Mesh = mesh;
+        Meshes.Add(Tuple.Create(mesh, (Texture2D) null));
+    }
+
+    public Shape3D(IEnumerable<Tuple<Mesh<VertexPCTN>, Texture2D>> meshes)
+        : base(active: false, visible: true)
+    {
+        Meshes.AddRange(meshes);
     }
 
     private void TrackSelf(Scene scene) => Shape3DRenderer.Get3DRenderer(scene, Depth)?.Track(this);
