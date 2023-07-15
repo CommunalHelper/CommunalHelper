@@ -57,6 +57,30 @@ entities.CommunalHelper/HeldBooster.attributes.description.speed=The speed of th
 entities.CommunalHelper/HeldBooster.attributes.description.deathTimer=The maximum time the player can wait before starting a dash. If exceeded, the player is killed.\nSet this option to a negative value to ignore this behavior.
 entities.CommunalHelper/HeldBooster.attributes.description.blinkSfx=Whether the booster should play a beep sound every time it blinks when ticking down.
 
+# Spiral Booster
+entities.CommunalHelper/SpiralBooster.placements.name.clockwise=Spiral Booster (Clockwise)
+entities.CommunalHelper/SpiralBooster.placements.name.counterclockwise=Spiral Booster (Counterclockwise)
+entities.CommunalHelper/SpiralBooster.placements.name.direct_clockwise=Spiral Booster (Direct, Clockwise)
+entities.CommunalHelper/SpiralBooster.placements.name.direct_counterclockwise=Spiral Booster (Direct, Counterclockwise)
+entities.CommunalHelper/SpiralBooster.attributes.description.angle=The angle (in degrees) of the arc along which this booster travels.\nThis value can go above 360° to create a path that continues past a full turn, but that doesn't keep going indefinitely.\n\nThe default value is set to 180°, or half a full turn.
+entities.CommunalHelper/SpiralBooster.attributes.description.clockwise=Spiral clockwise around the starting position of this Spiral Booster.
+entities.CommunalHelper/SpiralBooster.attributes.description.spiralSpeed=The speed at which the player spirals around this booster's starting position.\nThe default value is the vanilla red booster speed, which is equal to 240.0.
+entities.CommunalHelper/SpiralBooster.attributes.description.beginTime=The time (in seconds) it takes for the bubble to move from it's starting position to the beginning position of the arc or circle.\nThe default value was arbitrarily chosen to be 0.75s.
+entities.CommunalHelper/SpiralBooster.attributes.description.delay=The time (in secondes) that is spent waiting between the straight line movement and the arc movement.\nThe default value was arbitrarily chosen to be 0.2s.
+entities.CommunalHelper/SpiralBooster.attributes.description.pathColor=The hexadecimal color code for the color of this booster's path.
+
+# Spiral Dream Booster
+entities.CommunalHelper/SpiralDreamBooster.placements.name.clockwise=Spiral Dream Booster (Clockwise)
+entities.CommunalHelper/SpiralDreamBooster.placements.name.counterclockwise=Spiral Dream Booster (Counterclockwise)
+entities.CommunalHelper/SpiralDreamBooster.placements.name.direct_clockwise=Spiral Dream Booster (Direct, Clockwise)
+entities.CommunalHelper/SpiralDreamBooster.placements.name.direct_counterclockwise=Spiral Dream Booster (Direct, Counterclockwise)
+entities.CommunalHelper/SpiralDreamBooster.attributes.description.angle=The angle (in degrees) of the arc along which this booster travels.\nThis value can go above 360° to create a path that continues past a full turn, but that doesn't keep going indefinitely.\n\nThe default value is set to 180°, or half a full turn.
+entities.CommunalHelper/SpiralDreamBooster.attributes.description.clockwise=Spiral clockwise around the starting position of this Spiral Dream Booster.
+entities.CommunalHelper/SpiralDreamBooster.attributes.description.spiralSpeed=The speed at which the player spirals around this booster's starting position.\nThe default value is the vanilla red booster speed, which is equal to 240.0.
+entities.CommunalHelper/SpiralDreamBooster.attributes.description.beginTime=The time (in seconds) it takes for the bubble to move from it's starting position to the beginning position of the arc or circle.\nThe default value was arbitrarily chosen to be 0.75s.
+entities.CommunalHelper/SpiralDreamBooster.attributes.description.delay=The time (in secondes) that is spent waiting between the straight line movement and the arc movement.\nThe default value was arbitrarily chosen to be 0.2s.
+entities.CommunalHelper/SpiralDreamBooster.attributes.description.pathColor=The hexadecimal color code for the color of this booster's path.
+
 # Summit Gem
 entities.CommunalHelper/CustomSummitGem.placements.name.summit_gem=Custom Summit Gem
 entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines the texture and sound used for this gem (clamped within 0 and 7). Must be unique within a room. To use a custom texture, put it at Graphics/Atlases/Gameplay/collectables/summitgems/$mapSID/$roomName/$index.

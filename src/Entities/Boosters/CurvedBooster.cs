@@ -91,6 +91,8 @@ public class CurvedBooster : CustomBooster
 
     private readonly Vector2 endingSpeed;
 
+    public override bool IgnorePlayerSpeed => true;
+
     public CurvedBooster(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
 
@@ -165,9 +167,7 @@ public class CurvedBooster : CustomBooster
 
         // player's speed won't matter, we won't allow it to move while in a curved booster.
         // this is here so that the player doesn't die to spikes that it shouldn't die to.
-        player.DashDir = player.Speed = derivative.SafeNormalize();
-        if (player.DashDir.X != 0.0f)
-            player.Facing = (Facings) Math.Sign(player.DashDir.X);
+        player.SetBoosterFacing(derivative.SafeNormalize());
 
         bool stopped = false;
         player.MoveToX(next.X, _ => stopped = true);

@@ -23,6 +23,8 @@ public abstract class CustomBooster : Booster
 
     public float MovementInBubbleFactor { get; set; } = 3f;
 
+    public virtual bool IgnorePlayerSpeed => false;
+
     public CustomBooster(Vector2 position, bool redBoost)
         : base(position, redBoost)
     {
@@ -104,7 +106,7 @@ public abstract class CustomBooster : Booster
     /// </summary>
     /// <param name="player">The player.</param>
     /// <returns>The IEnumerator that represents the routine.</returns>
-    protected virtual IEnumerator BoostRoutine(Player player)
+    protected virtual IEnumerator BoostCoroutine(Player player)
     {
         yield return 0.25f;
         if (RedBoost)
@@ -255,7 +257,7 @@ public abstract class CustomBooster : Booster
     private static IEnumerator Player_BoostCoroutine(On.Celeste.Player.orig_BoostCoroutine orig, Player self)
     {
         IEnumerator routine = self.LastBooster is CustomBooster booster
-            ? booster.BoostRoutine(self)
+            ? booster.BoostCoroutine(self)
             : orig(self);
         while (routine.MoveNext())
             yield return routine.Current;
@@ -324,9 +326,9 @@ public abstract class CustomBooster : Booster
     }
 
     private static bool UnaffectedBySpeed(Player player)
-    {
-        return player.StateMachine.State == Player.StRedDash && player.LastBooster is DreamBoosterCurve or CurvedBooster;
-    }
+        => player.StateMachine.State is Player.StRedDash
+        && player.LastBooster is CustomBooster booster
+        && booster.IgnorePlayerSpeed;
 
     #endregion
 }

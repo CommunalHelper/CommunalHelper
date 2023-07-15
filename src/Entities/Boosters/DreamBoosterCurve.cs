@@ -80,6 +80,8 @@ public class DreamBoosterCurve : DreamBooster
 
     public readonly Vector2 EndingSpeed;
 
+    public override bool IgnorePlayerSpeed => true;
+
     public DreamBoosterCurve(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
 
@@ -153,9 +155,7 @@ public class DreamBoosterCurve : DreamBooster
 
         // player's speed won't matter, we won't allow it to move while in a curved booster.
         // this is here so that the player doesn't die to spikes that it shouldn't die to.
-        player.DashDir = player.Speed = derivative.SafeNormalize();
-        if (player.DashDir.X != 0.0f)
-            player.Facing = (Facings) Math.Sign(player.DashDir.X);
+        player.SetBoosterFacing(derivative.SafeNormalize());
 
         player.MoveToX(next.X, data.Get<Collision>("onCollideH"));
         player.MoveToY(next.Y + offY, data.Get<Collision>("onCollideV"));
