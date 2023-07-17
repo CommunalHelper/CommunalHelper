@@ -156,7 +156,6 @@ function moveBlockRedirect.sprite(room, entity)
     -- https://github.com/CelestialCartographers/Loenn/commit/0389b59e2b0f2a50b50b691eb6141d4f53c0350f
     local ninePatchOptions = {
         mode = "border",
-        borderMode = "random",
         color = themeData.color
     }
     local frameSprites = drawableNinePatch.fromTexture(frameTexture, ninePatchOptions, x - 8, y - 8, width + 16, height + 16):getDrawableSprite()
