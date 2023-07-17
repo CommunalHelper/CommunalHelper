@@ -11,6 +11,7 @@
 * Fixed Timed Trigger Spikes with Grouped + WaitForPlayer behavior.
 * Fixed Curved Booster & Dream Curved Booster.
 * Fixed Move Block Redirect colors in Lönn plugin.
+* Fixed Dash Collision Panels not having a overrideAllowStaticMovers option.
 * Removed debug print in Redless Berry code.
 * Replace usage of DynData with DynamicData.
 
