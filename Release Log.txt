@@ -1,14 +1,16 @@
 --1.18.0 (??/07/2023)--
 * Added Elytra state.
 * Added Elytra Boost, Stop, Refill & Note Rings.
+* Added Elytra Dash Block.
 * Added Charged & Flying Aero Blocks.
 * Added Spiral Boosters.
-* Added Shapeshifters & Shapeshifter Paths.
+* Added Shapeshifters, Shapeshifter Paths & Follow Shapeshifter Path Triggers.
 * Added Voxel Editor utility.
 * Added Beta Cube backdrop.
 * Added Solar Elevator Set Level trigger.
 * Fixed Timed Trigger Spikes with Grouped + WaitForPlayer behavior.
 * Fixed Curved Booster & Dream Curved Booster.
+* Fixed Move Block Redirect colors in Lönn plugin.
 * Removed debug print in Redless Berry code.
 * Replace usage of DynData with DynamicData.
 
