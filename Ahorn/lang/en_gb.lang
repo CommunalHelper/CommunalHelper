@@ -352,6 +352,7 @@ placements.entities.CommunalHelper/BouncyPanel.tooltips.sfx=The sound that plays
 # -- Dash Collision Panel --
 placements.entities.CommunalHelper/DashCollisionPanel.tooltips.orientation=The way this Dash Collision Panel faces.
 placements.entities.CommunalHelper/DashCollisionPanel.tooltips.dashCollideResult=The type of collision result returned when the player dashes into the solid on which this panel is placed.
+placements.entities.CommunalHelper/DashCollisionPanel.tooltips.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
 
 # -- Frictionless Panel --
 placements.entities.CommunalHelper/FrictionlessPanel.tooltips.orientation=The way this Frictionless Panel faces.

@@ -7,6 +7,7 @@ using Ahorn.CommunalHelper
     x::Integer,
     y::Integer,
     dashCollideResult::String="None",
+    overrideAllowStaticMovers::Bool = false,
 )
 
 const placements = Ahorn.PlacementDict(

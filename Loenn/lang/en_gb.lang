@@ -428,6 +428,7 @@ entities.CommunalHelper/DashCollisionPanel.placements.name.left=Dash Collision P
 entities.CommunalHelper/DashCollisionPanel.placements.name.right=Dash Collision Panel (Right)
 entities.CommunalHelper/DashCollisionPanel.attributes.description.orientation=The way this Dash Collision Panel faces.
 entities.CommunalHelper/DashCollisionPanel.attributes.description.dashCollideResult=The type of collision result returned when the player dashes into the solid on which this panel is placed.
+entities.CommunalHelper/DashCollisionPanel.attributes.description.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
 
 # Dream Tunnel Entry
 entities.CommunalHelper/DreamTunnelEntry.placements.name.up=Dream Tunnel Entry (Up)

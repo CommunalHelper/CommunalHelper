@@ -34,7 +34,8 @@ for i, direction in ipairs(directions) do
             width = 8,
             height = 8,
             orientation = direction,
-            dashCollideResult = "None"
+            dashCollideResult = "None",
+            overrideAllowStaticMovers = false,
         }
     }
 end
