@@ -85,13 +85,13 @@ public class Falling : Component
     private void OnShakeSfx()
     {
         if (Entity is not null)
-            Audio.Play("event:/game/general/fallblock_shake", Entity.Center);
+            Audio.Play(SFX.game_gen_fallblock_shake, Entity.Center);
     }
 
     private void OnImpactSfx()
     {
         if (Entity is not null)
-            Audio.Play("event:/game/general/fallblock_impact", Entity.BottomCenter);
+            Audio.Play(SFX.game_gen_fallblock_impact, Entity.BottomCenter);
     }
 
     private void OnFallParticles()
