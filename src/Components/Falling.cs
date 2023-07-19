@@ -48,7 +48,7 @@ public class Falling : Component
 
         if (entity is not Solid)
         {
-            Logger.Log(LogLevel.Warn, "CommunalHelper", $"Attempted to add {nameof(Falling)} to a non-Solid ({entity.GetType().Name})");
+            Util.Log(LogLevel.Warn, $"Attempted to add {nameof(Falling)} to a non-Solid ({entity.GetType().Name})");
             RemoveSelf();
             return;
         }
