@@ -393,14 +393,14 @@ public class ConnectedDreamBlock : CustomDreamBlock
     }
 
     protected virtual DashCollisionResults OnDash(Player player, Vector2 dir)
-    {
-        return DashCollisionResults.NormalCollision;
-    }
+        => PlayerHasDreamDash
+            ? DashCollisionResults.NormalOverride
+            : DashCollisionResults.NormalCollision;
 
     protected virtual DashCollisionResults OnDashJumpThru(Player player, Vector2 dir)
-    {
-        return DashCollisionResults.NormalCollision;
-    }
+        => PlayerHasDreamDash
+            ? DashCollisionResults.NormalOverride
+            : DashCollisionResults.NormalCollision;
 
     public override void Render()
     {
