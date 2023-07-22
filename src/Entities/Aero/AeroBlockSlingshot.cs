@@ -86,11 +86,10 @@ public class AeroBlockSlingshot : AeroBlock
 
         Add(new Coroutine(Sequence()));
 
-        Add(sfx = new SoundSource(CustomSFX.game_aero_block_push)
+        Add(sfx = new SoundSource()
         {
             Position = new Vector2(width, height) / 2.0f,
-        });;
-        sfx.Pause();
+        });
     }
 
     public override void Added(Scene scene)
@@ -133,7 +132,9 @@ public class AeroBlockSlingshot : AeroBlock
             while (releaseTimer > 0 || !HasMoved())
             {
                 if (HasMoved() && !sfx.Playing)
-                    sfx.Resume();
+                    sfx.Play(CustomSFX.game_aero_block_push);
+                else if (!HasMoved() && sfx.Playing)
+                    sfx.Stop();
 
                 releaseTimer -= Engine.DeltaTime;
                 var trackLength = Position.X > startPosition.X ? rightPosition.X - startPosition.X : startPosition.X - leftPosition.X;
