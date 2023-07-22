@@ -11,6 +11,11 @@
 {5689c0ff-57a2-4051-aee6-aaebc041c3d0} event:/CommunalHelperEvents/game/aero_block/static
 {59ecb315-9286-48c5-97bd-971e5eebbee1} event:/CommunalHelperEvents/game/aero_block/success
 {e043cfe7-205b-4f4b-8477-5d7dcdf9d423} event:/CommunalHelperEvents/game/aero_block/warn
+{1266c33a-e998-4555-961d-c9849450bffe} event:/CommunalHelperEvents/game/aero_block/push
+{592c0f6a-c5f0-4e14-8208-9d0a4df2e0a8} event:/CommunalHelperEvents/game/aero_block/lock
+{52861a53-fe03-4714-b0d7-baf481d0cd33} event:/CommunalHelperEvents/game/aero_block/ding
+{150f8b8c-cc3b-4bd5-8972-2efa809fdeaa} event:/CommunalHelperEvents/game/aero_block/wind_up
+{4fe8703f-807b-4718-b41e-2f23083d126c} event:/CommunalHelperEvents/game/aero_block/impact
 {1f895ee0-332f-4566-9b37-cd493c1326e0} event:/CommunalHelperEvents/game/berries/redless/break
 {04be58d6-a721-48ec-9c87-f0052cb89036} event:/CommunalHelperEvents/game/berries/redless/warning
 {6f5a9b5e-9410-41ac-bba6-e79e93ba367b} event:/CommunalHelperEvents/game/chain/move

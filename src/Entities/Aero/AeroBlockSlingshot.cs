@@ -24,6 +24,8 @@ public class AeroBlockSlingshot : AeroBlock
     private float percent;
     private PathRenderer pathRenderer;
 
+    private readonly SoundSource sfx;
+
     public readonly float LaunchTime;
     public readonly float CooldownTime;
     public readonly float SetTime;
@@ -83,6 +85,12 @@ public class AeroBlockSlingshot : AeroBlock
         });
 
         Add(new Coroutine(Sequence()));
+
+        Add(sfx = new SoundSource(CustomSFX.game_aero_block_push)
+        {
+            Position = new Vector2(width, height) / 2.0f,
+        });;
+        sfx.Pause();
     }
 
     public override void Added(Scene scene)
@@ -124,6 +132,9 @@ public class AeroBlockSlingshot : AeroBlock
 
             while (releaseTimer > 0 || !HasMoved())
             {
+                if (HasMoved() && !sfx.Playing)
+                    sfx.Resume();
+
                 releaseTimer -= Engine.DeltaTime;
                 var trackLength = Position.X > startPosition.X ? rightPosition.X - startPosition.X : startPosition.X - leftPosition.X;
                 percent = trackLength == 0 ? 0 : (Position.X - startPosition.X) / trackLength;
@@ -132,9 +143,14 @@ public class AeroBlockSlingshot : AeroBlock
 
             State = SlingshotStates.Ready;
             pushable.Active = false;
+            sfx.Param("lock", 1.0f);
+            Audio.Play(CustomSFX.game_aero_block_lock, Center);
 
-            // TODO: play sound, do animations, etc.
+            // TODO: do animations, etc.
             yield return DelayTime;
+
+            Audio.Play(CustomSFX.game_aero_block_ding, Center);
+            sfx.Play(CustomSFX.game_aero_block_wind_up);
 
             State = SlingshotStates.Launching;
             var releasePosition = Position;
@@ -145,10 +161,14 @@ public class AeroBlockSlingshot : AeroBlock
                     pathRenderer.CreateSparks();
                 var target = Vector2.Lerp(releasePosition, startPosition, percent);
                 MoveTo(target);
+                sfx.Param("wind_percent", percent);
             });
 
             percent = 0;
 
+            Audio.Play(CustomSFX.game_aero_block_impact, Center);
+            sfx.Play(CustomSFX.game_aero_block_push);
+            sfx.Pause();
             State = SlingshotStates.Cooldown;
             yield return CooldownTime;
         }
