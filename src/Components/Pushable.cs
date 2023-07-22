@@ -48,7 +48,8 @@ public class Pushable : Component
         var collideAt = player.Position + Vector2.UnitX * (int) player.Facing;
 
         // verify that we're allowed to move it
-        if (PushCheck is not null && !PushCheck(Input.MoveX.Value, moveAction))
+        if (!MoveActions.HasFlag(moveAction) ||
+            PushCheck is not null && !PushCheck(Input.MoveX.Value, moveAction))
             return;
 
         // if we're trying to pull
