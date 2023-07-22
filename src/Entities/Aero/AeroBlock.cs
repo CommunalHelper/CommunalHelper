@@ -149,6 +149,9 @@ public abstract class AeroBlock : Solid
     public void RemoveScreenLayer(AeroScreen screen)
         => removed.Add(screen);
 
+    public bool HasScreenLayer(AeroScreen screen)
+        => screens.Contains(screen);
+
     public void FlushScreenLayerRemoval()
     {
         foreach (AeroScreen screen in removed)

@@ -16,16 +16,18 @@ public sealed class AeroScreen_Wind : AeroScreen
     private readonly int width, height;
     private readonly Particle[] particles;
 
-    public AeroScreen_Wind(int width, int height)
+    public AeroScreen_Wind(int width, int height, Vector2? velocity = null)
     {
         this.width = width;
         this.height = height;
 
+        Vector2 vel = velocity ?? Vector2.Zero;
         int count = width * height / 48;
         particles = new Particle[count];
         for (int i = 0; i < count; i++)
         {
             particles[i].last = particles[i].pos = new Vector2(Calc.Random.Range(1, width - 1), Calc.Random.Range(1, height - 1));
+            particles[i].vel = vel;
             particles[i].depth = Calc.Random.NextFloat() * 0.75f + 0.25f;
         }
     }

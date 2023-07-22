@@ -124,21 +124,41 @@ public class AeroBlockSlingshot : AeroBlock
 
     private IEnumerator Sequence()
     {
+        Color startColor = Calc.HexToColor("4BC0C8");
+        Color endColor = Calc.HexToColor("FEAC5E");
+
         while (true)
         {
+            AeroScreen_Percentage progressScreen = new((int) Width, (int) Height)
+            {
+                Color = Color.Tomato
+            };
+
             State = SlingshotStates.Idle;
             pushable.Active = true;
 
             while (releaseTimer > 0 || !HasMoved())
             {
-                if (HasMoved() && !sfx.Playing)
-                    sfx.Play(CustomSFX.game_aero_block_push);
-                else if (!HasMoved() && sfx.Playing)
-                    sfx.Stop();
+                if (HasMoved())
+                {
+                    if (!sfx.Playing)
+                        sfx.Play(CustomSFX.game_aero_block_push);
+                    AddScreenLayer(progressScreen);
+                }
+                else
+                {
+                    if (sfx.Playing)
+                        sfx.Stop();
+                    RemoveScreenLayer(progressScreen);
+                }
 
                 releaseTimer -= Engine.DeltaTime;
                 var trackLength = Position.X > startPosition.X ? rightPosition.X - startPosition.X : startPosition.X - leftPosition.X;
                 percent = trackLength == 0 ? 0 : (Position.X - startPosition.X) / trackLength;
+                
+                progressScreen.Percentage = Math.Abs(percent);
+                progressScreen.Color = Color.Lerp(startColor, endColor, Math.Abs(percent));
+                
                 yield return null;
             }
 
@@ -148,12 +168,42 @@ public class AeroBlockSlingshot : AeroBlock
             Audio.Play(CustomSFX.game_aero_block_lock, Center);
             StartShaking(0.2f);
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+            progressScreen.ShowNumbers = false;
+            
+            Color currentColor = progressScreen.Color = Color.Lerp(startColor, endColor, percent);
+            float currentPercent = Math.Abs(percent);
 
-            // TODO: do animations, etc.
-            yield return DelayTime;
+            // wait, but do progress screen animation stuff at the same time.
+            yield return Util.Interpolate(DelayTime, t =>
+            {
+                progressScreen.Color = Color.Lerp(Color.White, currentColor, t);
+                progressScreen.Percentage = (1 - t) * currentPercent;
+            });
 
             Audio.Play(CustomSFX.game_aero_block_ding, Center);
             sfx.Play(CustomSFX.game_aero_block_wind_up);
+
+            RemoveScreenLayer(progressScreen);
+
+            AeroScreen_Blinker blinker;
+            AddScreenLayer(blinker = new AeroScreen_Blinker(null)
+            {
+                BackgroundColor = currentColor,
+                FadeIn = 0.0f,
+                Hold = 0.1f,
+                FadeOut = 0.5f,
+            });
+
+            blinker.Update();
+            blinker.Complete = true;
+
+            Vector2 windVel = Vector2.UnitX * Math.Sign(startPosition.X - Position.X) * 200;
+            AeroScreen_Wind windScreen;
+            AddScreenLayer(windScreen = new((int) Width, (int) Height, windVel)
+            {
+                Color = currentColor,
+                Wind = windVel,
+            });
 
             State = SlingshotStates.Launching;
             var releasePosition = Position;
@@ -170,15 +220,23 @@ public class AeroBlockSlingshot : AeroBlock
             percent = 0;
 
             Level level = Scene as Level;
+            level.Shake();
 
             Audio.Play(CustomSFX.game_aero_block_impact, Center);
             sfx.Play(CustomSFX.game_aero_block_push);
             sfx.Pause();
-            level.Shake();
             StartShaking(0.3f);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             State = SlingshotStates.Cooldown;
-            yield return CooldownTime;
+            windScreen.Wind = Vector2.Zero;  
+
+            // wait, but do wind particle stuff at the same time.
+            yield return Util.Interpolate(CooldownTime, t =>
+            {
+                windScreen.Color = Color.Lerp(currentColor, Color.Transparent, t);
+            });
+
+            RemoveScreenLayer(windScreen);
         }
     }
 
