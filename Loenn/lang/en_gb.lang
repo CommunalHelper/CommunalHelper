@@ -647,6 +647,15 @@ entities.CommunalHelper/AeroBlockCharged.attributes.description.buttonSequence=T
 entities.CommunalHelper/AeroBlockCharged.attributes.description.hover=Whether this block has a hovering "floating" movement to it. If disable, the block stays in place until it needs to move.
 entities.CommunalHelper/AeroBlockCharged.attributes.description.loop=Whether this block's sequence has no ending. When the last node is reached, it loops back around to the initial position.
 
+# Aero Block Slingshot
+entities.CommunalHelper/AeroBlockSlingshot.placements.name.normal=Slingshot Aero Block
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.launchTime=The time in seconds that it takes the block to return after being released. Defaults to 0.5.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.cooldownTime=The time in seconds before the player can push the block again after being reset. Defaults to 0.5.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.setTime=The time in seconds that the player must stop pushing to prepare the block to launch. Defaults to 0.2.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.delayTime=The time in seconds after the block is set that the launch will occur. Defaults to 0.2.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.pushSpeed=The speed in pixels-per-second that the player can push the block. Defaults to 35.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.pushActions=The actions that the player may perform on the block. Options are None, Push, Pull, or Both. Defaults to Push.
+
 # Shapeshifter
 entities.CommunalHelper/Shapeshifter.placements.name.shapeshifter=Shapeshifter
 entities.CommunalHelper/Shapeshifter.attributes.description.voxelWidth=The width in tiles of the 3D voxel.
