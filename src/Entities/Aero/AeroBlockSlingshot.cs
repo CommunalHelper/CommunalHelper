@@ -145,6 +145,8 @@ public class AeroBlockSlingshot : AeroBlock
             pushable.Active = false;
             sfx.Param("lock", 1.0f);
             Audio.Play(CustomSFX.game_aero_block_lock, Center);
+            StartShaking(0.2f);
+            Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
 
             // TODO: do animations, etc.
             yield return DelayTime;
@@ -166,9 +168,14 @@ public class AeroBlockSlingshot : AeroBlock
 
             percent = 0;
 
+            Level level = Scene as Level;
+
             Audio.Play(CustomSFX.game_aero_block_impact, Center);
             sfx.Play(CustomSFX.game_aero_block_push);
             sfx.Pause();
+            level.Shake();
+            StartShaking(0.3f);
+            Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             State = SlingshotStates.Cooldown;
             yield return CooldownTime;
         }
