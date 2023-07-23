@@ -116,8 +116,6 @@ public class AeroBlockSlingshot : AeroBlock
             MoveActions = pushActions,
         });
 
-        // Add(new Coroutine(Sequence()));
-
         Add(sfx = new SoundSource()
         {
             Position = new Vector2(width, height) / 2.0f,
