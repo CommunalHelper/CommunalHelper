@@ -216,7 +216,7 @@ public class AeroBlockSlingshot : AeroBlock
     {
         var t = 1f - Calc.Clamp(updateTimer / DelayTime, 0f, 1f);
         progressScreen.Color = Color.Lerp(Color.White, lockColor, t);
-        progressScreen.Percentage = (1 - t) * lockPercent;
+        progressScreen.Percentage = 1 - t;
         return updateTimer <= 0 ? (int) SlingshotStates.Launch : (int) SlingshotStates.Locked;
     }
 
