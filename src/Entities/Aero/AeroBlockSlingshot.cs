@@ -96,8 +96,13 @@ public class AeroBlockSlingshot : AeroBlock
         StartColor = Calc.HexToColor(startColor);
         EndColor = Calc.HexToColor(endColor);
 
-        this.positions = positions;
         startPosition = Position;
+
+        for (int i = 0; i < positions.Length; i++)
+            positions[i].Y = startPosition.Y;
+
+        this.positions = positions;
+
         sortedPositions = positions.OrderBy(p => p.X).ToArray();
         leftPosition = sortedPositions.First();
         rightPosition = sortedPositions.Last();
