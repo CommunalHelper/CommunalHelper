@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
-using System.Collections;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -7,39 +6,58 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/AeroBlockSlingshot")]
 public class AeroBlockSlingshot : AeroBlock
 {
+    // default values
     private const float DefaultLaunchTime = 0.5f;
     private const float DefaultCooldownTime = 0.5f;
-    private const float DefaultSetTime = 0.2f;
-    private const float DefaultDelayTime = 0.2f;
+    private const float DefaultSetTime = 0.25f;
+    private const float DefaultDelayTime = 0.75f;
     private const float DefaultPushSpeed = 35f;
     private const Pushable.MoveActionType DefaultPushActions = Pushable.MoveActionType.Push;
+    private const bool DefaultAllowAdjustments = true;
+    private const string DefaultStartColor = "4BC0C8";
+    private const string DefaultEndColor = "FEAC5E";
 
-    private float releaseTimer = -1;
+    // state values
+    private float updateTimer = -1;
+    private Color lockColor = Color.White;
+    private float lockPercent;
+    private Vector2 launchPosition;
+
+    // cached positions
     private readonly Vector2 startPosition;
-    private readonly Pushable pushable;
     private readonly Vector2[] positions;
     private readonly Vector2[] sortedPositions;
     private readonly Vector2 leftPosition;
     private readonly Vector2 rightPosition;
-    private float percent;
-    private PathRenderer pathRenderer;
 
+    // entities/components
+    private readonly Pushable pushable;
     private readonly SoundSource sfx;
+    private readonly StateMachine stateMachine;
+    private PathRenderer pathRenderer;
+    private AeroScreen_Percentage progressScreen;
+    private AeroScreen_Wind windScreen;
+    private AeroScreen_Blinker blinkerScreen;
 
+    // config
     public readonly float LaunchTime;
     public readonly float CooldownTime;
     public readonly float SetTime;
     public readonly float DelayTime;
     public readonly float PushSpeed;
+    public readonly bool AllowAdjustments;
+    public readonly Color StartColor = Calc.HexToColor("4BC0C8");
+    public readonly Color EndColor = Calc.HexToColor("FEAC5E");
 
-    public SlingshotStates State = SlingshotStates.Idle;
+    private float GetTrackLength() => Position.X > startPosition.X ? rightPosition.X - startPosition.X : startPosition.X - leftPosition.X;
+    private float GetPercentFromPosition() => GetTrackLength() == 0 ? 0 : (Position.X - startPosition.X) / GetTrackLength();
 
     public enum SlingshotStates
     {
         Idle,
-        WindingUp,
-        Ready,
-        Launching,
+        Windup,
+        Locked,
+        Launch,
         Cooldown,
     }
 
@@ -50,7 +68,10 @@ public class AeroBlockSlingshot : AeroBlock
             data.Float("setTime", DefaultSetTime),
             data.Float("delayTime", DefaultDelayTime),
             data.Float("pushSpeed", DefaultPushSpeed),
-            data.Enum("pushActions", DefaultPushActions))
+            data.Enum("pushActions", DefaultPushActions),
+            data.Bool("allowAdjustments", DefaultAllowAdjustments),
+            data.Attr("startColor", DefaultStartColor),
+            data.Attr("endColor", DefaultEndColor))
     {
     }
 
@@ -60,7 +81,10 @@ public class AeroBlockSlingshot : AeroBlock
         float setTime = DefaultSetTime,
         float delayTime = DefaultDelayTime,
         float pushSpeed = DefaultPushSpeed,
-        Pushable.MoveActionType pushActions = DefaultPushActions)
+        Pushable.MoveActionType pushActions = DefaultPushActions,
+        bool allowAdjustments = DefaultAllowAdjustments,
+        string startColor = DefaultStartColor,
+        string endColor = DefaultEndColor)
         : base(positions[0], width, height)
     {
         LaunchTime = launchTime;
@@ -68,6 +92,9 @@ public class AeroBlockSlingshot : AeroBlock
         SetTime = setTime;
         DelayTime = delayTime;
         PushSpeed = pushSpeed;
+        AllowAdjustments = allowAdjustments;
+        StartColor = Calc.HexToColor(startColor);
+        EndColor = Calc.HexToColor(endColor);
 
         this.positions = positions;
         startPosition = Position;
@@ -84,12 +111,211 @@ public class AeroBlockSlingshot : AeroBlock
             MoveActions = pushActions,
         });
 
-        Add(new Coroutine(Sequence()));
+        // Add(new Coroutine(Sequence()));
 
         Add(sfx = new SoundSource()
         {
             Position = new Vector2(width, height) / 2.0f,
         });
+
+        stateMachine = new StateMachine();
+        stateMachine.SetCallbacks((int) SlingshotStates.Idle, IdleUpdate, begin: IdleBegin, end: IdleEnd);
+        stateMachine.SetCallbacks((int) SlingshotStates.Windup, WindupUpdate, begin: WindupBegin, end: WindupEnd);
+        stateMachine.SetCallbacks((int) SlingshotStates.Locked, LockedUpdate, begin: LockedBegin, end: LockedEnd);
+        stateMachine.SetCallbacks((int) SlingshotStates.Launch, LaunchUpdate, begin: LaunchBegin, end: LaunchEnd);
+        stateMachine.SetCallbacks((int) SlingshotStates.Cooldown, CooldownUpdate, begin: CooldownBegin, end: CooldownEnd);
+        stateMachine.State = (int) SlingshotStates.Idle;
+        Add(stateMachine);
+
+        progressScreen = new((int) Width, (int) Height)
+        {
+            Color = Color.Tomato,
+        };
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        updateTimer -= Engine.DeltaTime;
+    }
+
+    private void IdleBegin()
+    {
+        pushable.Active = true;
+
+        if (sfx.Playing)
+            sfx.Stop();
+    }
+
+    private int IdleUpdate()
+    {
+        return (int) SlingshotStates.Idle;
+    }
+
+    private void IdleEnd()
+    {
+    }
+
+    private void WindupBegin()
+    {
+        pushable.Active = true;
+        updateTimer = SetTime;
+
+        sfx.Stop();
+        sfx.Param("lock", 0f);
+        sfx.Play(CustomSFX.game_aero_block_push);
+
+        progressScreen.ShowNumbers = true;
+
+        if (!HasScreenLayer(progressScreen))
+            AddScreenLayer(progressScreen);
+    }
+
+    private int WindupUpdate()
+    {
+        var currentPercent = GetPercentFromPosition();
+        progressScreen.Percentage = Math.Abs(currentPercent);
+        progressScreen.Color = Color.Lerp(StartColor, EndColor, Math.Abs(currentPercent));
+        return updateTimer <= 0 ? (int) SlingshotStates.Locked : (int) SlingshotStates.Windup;
+    }
+
+    private void WindupEnd()
+    {
+        progressScreen.ShowNumbers = false;
+
+        if (!HasMoved() && HasScreenLayer(progressScreen))
+            RemoveScreenLayer(progressScreen);
+    }
+
+    private void LockedBegin()
+    {
+        pushable.Active = AllowAdjustments;
+        updateTimer = DelayTime;
+        lockPercent = Math.Abs(GetPercentFromPosition());
+        lockColor = progressScreen.Color = Color.Lerp(StartColor, EndColor, lockPercent);
+
+        sfx.Param("lock", 1f);
+        if (!sfx.Playing)
+            sfx.Play(CustomSFX.game_aero_block_push);
+
+        Audio.Play(CustomSFX.game_aero_block_lock, Center);
+
+        StartShaking(0.2f);
+        Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+
+        if (!HasScreenLayer(progressScreen))
+            AddScreenLayer(progressScreen);
+    }
+
+    private int LockedUpdate()
+    {
+        var t = 1f - Calc.Clamp(updateTimer / DelayTime, 0f, 1f);
+        progressScreen.Color = Color.Lerp(Color.White, lockColor, t);
+        progressScreen.Percentage = (1 - t) * lockPercent;
+        return updateTimer <= 0 ? (int) SlingshotStates.Launch : (int) SlingshotStates.Locked;
+    }
+
+    private void LockedEnd()
+    {
+    }
+
+    private void LaunchBegin()
+    {
+        pushable.Active = false;
+        updateTimer = LaunchTime;
+        launchPosition = Position;
+
+        Audio.Play(CustomSFX.game_aero_block_ding, Center);
+        sfx.Play(CustomSFX.game_aero_block_wind_up);
+
+        if (HasScreenLayer(progressScreen))
+            RemoveScreenLayer(progressScreen);
+
+        if (blinkerScreen is not null && HasScreenLayer(blinkerScreen))
+            RemoveScreenLayer(blinkerScreen);
+
+        if (windScreen is not null && HasScreenLayer(windScreen))
+            RemoveScreenLayer(windScreen);
+
+        AddScreenLayer(blinkerScreen = new AeroScreen_Blinker(null)
+        {
+            BackgroundColor = lockColor,
+            FadeIn = 0.0f,
+            Hold = 0.1f,
+            FadeOut = 0.5f,
+        });
+
+        blinkerScreen.Update();
+        blinkerScreen.Complete = true;
+
+        Vector2 windVel = Vector2.UnitX * Math.Sign(startPosition.X - Position.X) * 200;
+        AddScreenLayer(windScreen = new((int) Width, (int) Height, windVel)
+        {
+            Color = lockColor,
+            Wind = windVel,
+        });
+    }
+
+    private int LaunchUpdate()
+    {
+        if (Scene.OnInterval(0.1f))
+            pathRenderer.CreateSparks();
+
+        var t = 1f - Calc.Clamp(updateTimer / LaunchTime, 0f, 1f);
+        var percent = Ease.SineIn(t);
+
+        var target = Vector2.Lerp(launchPosition, startPosition, percent);
+        MoveTo(target);
+        sfx.Param("wind_percent", percent);
+
+        return updateTimer <= 0 ? (int) SlingshotStates.Cooldown : (int) SlingshotStates.Launch;
+    }
+
+    private void LaunchEnd()
+    {
+        var level = SceneAs<Level>();
+        level.Shake();
+
+        Audio.Play(CustomSFX.game_aero_block_impact, Center);
+        sfx.Play(CustomSFX.game_aero_block_push);
+        sfx.Pause();
+        StartShaking(0.3f);
+        Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
+
+        if (HasScreenLayer(blinkerScreen))
+            RemoveScreenLayer(blinkerScreen);
+    }
+
+    private void CooldownBegin()
+    {
+        pushable.Active = false;
+        updateTimer = CooldownTime;
+
+        if (windScreen is not null)
+            windScreen.Wind = Vector2.Zero;
+
+        if (sfx.Playing)
+            sfx.Stop();
+
+        if (HasScreenLayer(progressScreen))
+            RemoveScreenLayer(progressScreen);
+    }
+
+    private int CooldownUpdate()
+    {
+        if (windScreen is not null)
+        {
+            var t = 1f - Calc.Clamp(updateTimer / CooldownTime, 0f, 1f);
+            windScreen.Color = Color.Lerp(lockColor, Color.Transparent, t);
+        }
+
+        return updateTimer <= 0 ? (int) SlingshotStates.Idle : (int) SlingshotStates.Cooldown;
+    }
+
+    private void CooldownEnd()
+    {
+        if (windScreen is not null && HasScreenLayer(windScreen))
+            RemoveScreenLayer(windScreen);
     }
 
     public override void Added(Scene scene)
@@ -116,129 +342,11 @@ public class AeroBlockSlingshot : AeroBlock
 
     private void OnPush(int moveX, Pushable.MoveActionType moveAction)
     {
-        State = SlingshotStates.WindingUp;
-        releaseTimer = SetTime;
+        stateMachine.State = (int) SlingshotStates.Windup;
+        updateTimer = SetTime;
     }
 
     private bool HasMoved() => Math.Abs(Position.X - startPosition.X) > 0.01f;
-
-    private IEnumerator Sequence()
-    {
-        Color startColor = Calc.HexToColor("4BC0C8");
-        Color endColor = Calc.HexToColor("FEAC5E");
-
-        while (true)
-        {
-            AeroScreen_Percentage progressScreen = new((int) Width, (int) Height)
-            {
-                Color = Color.Tomato
-            };
-
-            State = SlingshotStates.Idle;
-            pushable.Active = true;
-
-            while (releaseTimer > 0 || !HasMoved())
-            {
-                if (HasMoved())
-                {
-                    if (!sfx.Playing)
-                        sfx.Play(CustomSFX.game_aero_block_push);
-                    AddScreenLayer(progressScreen);
-                }
-                else
-                {
-                    if (sfx.Playing)
-                        sfx.Stop();
-                    RemoveScreenLayer(progressScreen);
-                }
-
-                releaseTimer -= Engine.DeltaTime;
-                var trackLength = Position.X > startPosition.X ? rightPosition.X - startPosition.X : startPosition.X - leftPosition.X;
-                percent = trackLength == 0 ? 0 : (Position.X - startPosition.X) / trackLength;
-                
-                progressScreen.Percentage = Math.Abs(percent);
-                progressScreen.Color = Color.Lerp(startColor, endColor, Math.Abs(percent));
-                
-                yield return null;
-            }
-
-            State = SlingshotStates.Ready;
-            pushable.Active = false;
-            sfx.Param("lock", 1.0f);
-            Audio.Play(CustomSFX.game_aero_block_lock, Center);
-            StartShaking(0.2f);
-            Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-            progressScreen.ShowNumbers = false;
-            
-            Color currentColor = progressScreen.Color = Color.Lerp(startColor, endColor, percent);
-            float currentPercent = Math.Abs(percent);
-
-            // wait, but do progress screen animation stuff at the same time.
-            yield return Util.Interpolate(DelayTime, t =>
-            {
-                progressScreen.Color = Color.Lerp(Color.White, currentColor, t);
-                progressScreen.Percentage = (1 - t) * currentPercent;
-            });
-
-            Audio.Play(CustomSFX.game_aero_block_ding, Center);
-            sfx.Play(CustomSFX.game_aero_block_wind_up);
-
-            RemoveScreenLayer(progressScreen);
-
-            AeroScreen_Blinker blinker;
-            AddScreenLayer(blinker = new AeroScreen_Blinker(null)
-            {
-                BackgroundColor = currentColor,
-                FadeIn = 0.0f,
-                Hold = 0.1f,
-                FadeOut = 0.5f,
-            });
-
-            blinker.Update();
-            blinker.Complete = true;
-
-            Vector2 windVel = Vector2.UnitX * Math.Sign(startPosition.X - Position.X) * 200;
-            AeroScreen_Wind windScreen;
-            AddScreenLayer(windScreen = new((int) Width, (int) Height, windVel)
-            {
-                Color = currentColor,
-                Wind = windVel,
-            });
-
-            State = SlingshotStates.Launching;
-            var releasePosition = Position;
-            yield return Util.Interpolate(LaunchTime, at =>
-            {
-                percent = Ease.SineIn(at);
-                if (Scene.OnInterval(0.1f))
-                    pathRenderer.CreateSparks();
-                var target = Vector2.Lerp(releasePosition, startPosition, percent);
-                MoveTo(target);
-                sfx.Param("wind_percent", percent);
-            });
-
-            percent = 0;
-
-            Level level = Scene as Level;
-            level.Shake();
-
-            Audio.Play(CustomSFX.game_aero_block_impact, Center);
-            sfx.Play(CustomSFX.game_aero_block_push);
-            sfx.Pause();
-            StartShaking(0.3f);
-            Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
-            State = SlingshotStates.Cooldown;
-            windScreen.Wind = Vector2.Zero;  
-
-            // wait, but do wind particle stuff at the same time.
-            yield return Util.Interpolate(CooldownTime, t =>
-            {
-                windScreen.Color = Color.Lerp(currentColor, Color.Transparent, t);
-            });
-
-            RemoveScreenLayer(windScreen);
-        }
-    }
 
     private class PathRenderer : Entity
     {
@@ -275,7 +383,7 @@ public class AeroBlockSlingshot : AeroBlock
 
         private void DrawCogs(Vector2 offset, Color? colorOverride = null)
         {
-            var percent = slingshot.percent;
+            var percent = slingshot.GetPercentFromPosition();
             offset += new Vector2(slingshot.Width / 2, slingshot.Height / 2).Round();
 
             for (int i = 0; i < slingshot.sortedPositions.Length - 1; i++)

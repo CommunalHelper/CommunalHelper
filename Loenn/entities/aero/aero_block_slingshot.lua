@@ -28,6 +28,12 @@ aeroBlockSlingshot.fieldInformation = {
     delayTime = {
         fieldType = "number",
     },
+    startColor = {
+        fieldType = "color",
+    },
+    endColor = {
+        fieldType = "color",
+    },
     pushActions = {
         fieldType = "string",
         editable = false,
@@ -40,6 +46,14 @@ aeroBlockSlingshot.fieldInformation = {
     }
 }
 
+aeroBlockSlingshot.fieldOrder = {
+    "x", "y", "width", "height",
+    "launchTime", "cooldownTime", "setTime", "delayTime",
+    "pushSpeed", "pushActions",
+    "startColor", "endColor",
+    "allowAdjustments",
+}
+
 aeroBlockSlingshot.placements = {
     {
         name = "normal",
@@ -48,10 +62,13 @@ aeroBlockSlingshot.placements = {
             height = 16,
             launchTime = 0.5,
             cooldownTime = 0.5,
-            setTime = 0.2,
-            delayTime = 0.2,
+            setTime = 0.4,
+            delayTime = 0.75,
             pushSpeed = 35,
             pushActions = "Push",
+            allowAdjustments = true,
+            startColor = "4BC0C8",
+            endColor = "FEAC5E",
         },
     },
 }
