@@ -65,11 +65,8 @@ public static class Elytra
         player.Sprite.Scale.X = 1.0f + squish;
         player.Sprite.Scale.Y = 1.0f - squish;
 
-        // if the horizontal speed is lower than a certain threshold, let the player facing dictate the direction of the gliding
-        // otherwise, the gliding facing is determined by the sign of the speed (even if the player is facing the other way).
+        // elytra direction is player facing
         Facings facing = player.Facing;
-        if (player.Speed.X > SPEED_FACING_THRESHOLD)
-            facing = (Facings)Math.Sign(player.Speed.X);
         data.Set(f_Player_elytraGlideFacing, facing);
 
         // get fliped speed if facing left
