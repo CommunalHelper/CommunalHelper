@@ -718,6 +718,7 @@ entities.CommunalHelper/SJ/GrabTempleGate.attributes.description.closed=Whether 
 entities.CommunalHelper/SJ/LoopBlock.placements.name.loop_block=Loop Block [Strawberry Jam]
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.edgeThickness=How thick this loop block's edges are, measured in tiles.
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.color=The hexadecimal color code for this block's tint.
+entities.CommunalHelper/SJ/LoopBlock.attributes.description.texture=The path to this loop block's texture in the Gameplay atlas. Leave at default value or empty for the default texture (original texture from Strawberry Jam).
 
 # [Strawberry Jam] Solar Elevator
 entities.CommunalHelper/SJ/SolarElevator.placements.name.solar_elevator=Solar Elevator [Strawberry Jam]

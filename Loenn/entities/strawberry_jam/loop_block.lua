@@ -4,6 +4,8 @@ local matrix = require("utils.matrix")
 
 local loopBlock = {}
 
+local defaultTexture = "objects/CommunalHelper/strawberryJam/loopBlock/tiles"
+
 loopBlock.name = "CommunalHelper/SJ/LoopBlock"
 loopBlock.minimumSize = {24, 24}
 
@@ -14,6 +16,10 @@ loopBlock.fieldInformation = {
     },
     color = {
         fieldType = "color"
+    },
+    texture = {
+        options = { defaultTexture },
+        editable = true,
     }
 }
 
@@ -24,12 +30,11 @@ loopBlock.placements = {
             width = 24,
             height = 24,
             edgeThickness = 1,
-            color = "FFFFFF"
+            color = "FFFFFF",
+            texture = defaultTexture,
         }
     }
 }
-
-local tileset = "objects/CommunalHelper/strawberryJam/loopBlock/tiles"
 
 -- generates a 2d array of boolean that represent whether the block has a tile, at each index
 local function generateTorusTiles(w, h, thickness)
@@ -52,6 +57,7 @@ function loopBlock.sprite(room, entity)
 
     local sprites = {}
 
+    local tileset = entity.texture or defaultTexture
     local tiles = generateTorusTiles(w, h, entity.edgeThickness or 1)
 
     for i = 0, w - 1 do

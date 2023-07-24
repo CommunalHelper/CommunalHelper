@@ -245,7 +245,6 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerHair.InitializeTextures();
 
-        LoopBlock.InitializeTextures();
         WormholeBooster.InitializeParticles();
 
         AeroBlock.LoadContent();

@@ -4,12 +4,12 @@
 public class LoopBlock : Solid
 {
     // The third dimension is to store the same tiles with different details and variations.
-    private static readonly MTexture[,,] outerEdges = new MTexture[3, 3, 3];
-    private static readonly MTexture[,,] wallEdges = new MTexture[3, 2, 3];
+    private readonly MTexture[,,] outerEdges = new MTexture[3, 3, 3];
+    private readonly MTexture[,,] wallEdges = new MTexture[3, 2, 3];
     // This one has no variation, always used 4 times, or never.
-    private static readonly MTexture[,] innerCorners = new MTexture[2, 2];
+    private readonly MTexture[,] innerCorners = new MTexture[2, 2];
     // Center tile doesn't need to be stored in a structured 2d array, but it has 8 variations.
-    private static readonly MTexture[] centerTiles = new MTexture[8];
+    private readonly MTexture[] centerTiles = new MTexture[8];
 
     private Vector2 start;
     private Vector2 speed;
@@ -34,12 +34,13 @@ public class LoopBlock : Solid
     private readonly int edgeThickness;
 
     private const float SIDEBOOST_SPEED = 310f; // decided by mapper
+    private const string DEFAULT_TEXTURE = "objects/CommunalHelper/strawberryJam/loopBlock/tiles"; // original sj texture
 
     public LoopBlock(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Width, data.Height, data.Int("edgeThickness", 1), data.HexColor("color"))
+        : this(data.Position + offset, data.Width, data.Height, data.Int("edgeThickness", 1), data.HexColor("color"), data.Attr("texture", DEFAULT_TEXTURE))
     { }
 
-    public LoopBlock(Vector2 position, int width, int height, int edgeThickness, Color color)
+    public LoopBlock(Vector2 position, int width, int height, int edgeThickness, Color color, string texture = DEFAULT_TEXTURE)
         : base(position, width, height, false)
     {
         Depth = Depths.FGTerrain + 1;
@@ -58,6 +59,7 @@ public class LoopBlock : Solid
 
         OnDashCollide = OnDashed;
 
+        InitializeTextures(texture);
         SetupTiles();
     }
 
@@ -335,9 +337,9 @@ public class LoopBlock : Solid
         }
     }
 
-    public static void InitializeTextures()
+    public void InitializeTextures(string texture)
     {
-        MTexture tiles = GFX.Game["objects/CommunalHelper/strawberryJam/loopBlock/tiles"];
+        MTexture tiles = GFX.Game[texture];
         for (int i = 0; i < 3; i++)
         {
             int tx = i * 8;
