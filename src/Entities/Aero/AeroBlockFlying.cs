@@ -241,8 +241,6 @@ public class AeroBlockFlying : AeroBlock
         bool withPlayer = mode is TravelMode.WithPlayer or TravelMode.WithPlayerOnce;
 
         AeroScreen_Percentage progressScreen = null;
-        if (withPlayer)
-            AddScreenLayer(progressScreen = new((int) Width, (int) Height));
 
         Home = points[0];
         if (initiallyInactive)
@@ -277,6 +275,9 @@ public class AeroBlockFlying : AeroBlock
 
             yield return 0.5f;
         }
+
+        if (withPlayer)
+            AddScreenLayer(progressScreen = new((int) Width, (int) Height));
 
         if (points.Length == 1)
             yield break;
