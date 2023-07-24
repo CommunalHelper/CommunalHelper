@@ -2,12 +2,13 @@
 * Added Elytra state.
 * Added Elytra Boost, Stop, Refill & Note Rings.
 * Added Elytra Dash Block.
-* Added Charged & Flying Aero Blocks.
+* Added Slingshot, Charged & Flying Aero Blocks.
 * Added Spiral Boosters.
 * Added Shapeshifters, Shapeshifter Paths & Follow Shapeshifter Path Triggers.
 * Added Voxel Editor utility.
 * Added Beta Cube backdrop.
 * Added Solar Elevator Set Level trigger.
+* Added custom texture option to Loop Blocks.
 * Fixed Timed Trigger Spikes with Grouped + WaitForPlayer behavior.
 * Fixed Curved Booster & Dream Curved Booster.
 * Fixed Move Block Redirect colors in Lönn plugin.
