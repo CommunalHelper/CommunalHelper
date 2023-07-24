@@ -239,7 +239,10 @@ public class AeroBlockFlying : AeroBlock
         Color endColor = Calc.HexToColor("4BC0C8");
 
         bool withPlayer = mode is TravelMode.WithPlayer or TravelMode.WithPlayerOnce;
+
         AeroScreen_Percentage progressScreen = null;
+        if (withPlayer)
+            AddScreenLayer(progressScreen = new((int) Width, (int) Height));
 
         Home = points[0];
         if (initiallyInactive)
@@ -267,9 +270,6 @@ public class AeroBlockFlying : AeroBlock
                 RemoveScreenLayer(blinker);
                 blinker = null;
             }
-
-            if (withPlayer)
-                AddScreenLayer(progressScreen = new((int) Width, (int) Height));
             AddScreenLayer(new AeroScreen_ParticleBurst(this)
             {
                 Color = Color.DarkTurquoise,
