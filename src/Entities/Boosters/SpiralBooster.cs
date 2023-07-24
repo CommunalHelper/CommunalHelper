@@ -25,6 +25,7 @@ public class SpiralBooster : CustomBooster
     private readonly Color pathColor;
 
     public override bool IgnorePlayerSpeed => true;
+    public override bool OffsetCameraBySpeed => false;
 
     public SpiralBooster(EntityData data, Vector2 offset)
         : this

@@ -22,6 +22,7 @@ public class DreamBoosterSpiral : DreamBooster
     private readonly Color pathColor;
 
     public override bool IgnorePlayerSpeed => true;
+    public override bool OffsetCameraBySpeed => false;
 
     public DreamBoosterSpiral(EntityData data, Vector2 offset)
         : this

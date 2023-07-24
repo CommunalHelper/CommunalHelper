@@ -4,6 +4,7 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System.Collections;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -24,6 +25,7 @@ public abstract class CustomBooster : Booster
     public float MovementInBubbleFactor { get; set; } = 3f;
 
     public virtual bool IgnorePlayerSpeed => false;
+    public virtual bool OffsetCameraBySpeed => true;
 
     public CustomBooster(Vector2 position, bool redBoost)
         : base(position, redBoost)
@@ -118,7 +120,11 @@ public abstract class CustomBooster : Booster
     private static readonly MethodInfo m_Player_orig_Update
         = typeof(Player).GetMethod("orig_Update", BindingFlags.Public | BindingFlags.Instance);
 
+    private static readonly MethodInfo m_Player_get_CameraTarget
+        = typeof(Player).GetProperty(nameof(Player.CameraTarget)).GetGetMethod();
+
     private static ILHook IL_Player_orig_Update;
+    private static ILHook IL_Player_get_CameraTarget;
 
     public static void Load()
     {
@@ -137,6 +143,7 @@ public abstract class CustomBooster : Booster
         On.Celeste.Player.RedDashCoroutine += Player_RedDashCoroutine;
 
         IL_Player_orig_Update = new ILHook(m_Player_orig_Update, Player_orig_Update);
+        IL_Player_get_CameraTarget = new ILHook(m_Player_get_CameraTarget, Player_get_CameraTarget);
     }
 
     public static void Unload()
@@ -155,6 +162,7 @@ public abstract class CustomBooster : Booster
         On.Celeste.Player.RedDashCoroutine -= Player_RedDashCoroutine;
 
         IL_Player_orig_Update.Dispose();
+        IL_Player_get_CameraTarget.Dispose();
     }
 
     private static void Booster_Respawn(On.Celeste.Booster.orig_Respawn orig, Booster self)
@@ -329,6 +337,23 @@ public abstract class CustomBooster : Booster
         => player.StateMachine.State is Player.StRedDash
         && player.LastBooster is CustomBooster booster
         && booster.IgnorePlayerSpeed;
+
+    private static void Player_get_CameraTarget(ILContext il)
+    {
+        ILCursor cursor = new(il);
+
+        cursor.GotoNext(MoveType.After, instr => instr.MatchLdcI4(Player.StRedDash));
+        ILLabel label = (ILLabel) cursor.Next.Operand;
+
+        cursor.GotoNext(MoveType.After, instr => instr.MatchBneUn(label));
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.EmitDelegate<Predicate<Player>>(DoesNotAffectCamera);
+        cursor.Emit(OpCodes.Brtrue, label);
+    }
+
+    private static bool DoesNotAffectCamera(Player player)
+        => player.LastBooster is CustomBooster booster
+        && !booster.OffsetCameraBySpeed;
 
     #endregion
 }
