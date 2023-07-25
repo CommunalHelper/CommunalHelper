@@ -108,11 +108,7 @@ public class AeroBlockFlying : AeroBlock
     {
         Vector2 offset = Home - Position;
         MoveTo(Home);
-        foreach (JumpThru jt in jumpthrus)
-        {
-            jt.MoveH(offset.X);
-            jt.MoveV(offset.Y);
-        }
+        MoveJumpthrus(offset);
     }
 
     public void ActivateQuietly()
@@ -203,11 +199,7 @@ public class AeroBlockFlying : AeroBlock
         bool collideX = MoveHCollideSolids(Speed.X * Engine.DeltaTime, thruDashBlocks: true);
         bool collideY = MoveVCollideSolids(Speed.Y * Engine.DeltaTime, thruDashBlocks: true);
 
-        foreach (JumpThru jt in jumpthrus)
-        {
-            jt.MoveH(Position.X - prev.X, Speed.X);
-            jt.MoveV(Position.Y - prev.Y, Speed.Y);
-        }
+        MoveJumpthrus(Position - prev, Speed);
 
         if (inactive && collideY)
         {

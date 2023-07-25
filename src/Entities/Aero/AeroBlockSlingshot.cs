@@ -268,6 +268,7 @@ public class AeroBlockSlingshot : AeroBlock
         var percent = Ease.SineIn(t);
 
         var target = Vector2.Lerp(launchPosition, startPosition, percent);
+        MoveJumpthrus(target - ExactPosition);
         MoveTo(target);
         sfx.Param("wind_percent", percent);
 
@@ -347,6 +348,9 @@ public class AeroBlockSlingshot : AeroBlock
     {
         stateMachine.State = (int) SlingshotStates.Windup;
         updateTimer = SetTime;
+
+        var speed = (pushable.MaxPushSpeed < 0 ? 70f : Math.Min(Player.MaxRun, pushable.MaxPushSpeed)) * Input.MoveX.Value;
+        MoveJumpthrus(Vector2.UnitX * speed * Engine.DeltaTime);
     }
 
     private bool HasMoved() => Math.Abs(Position.X - startPosition.X) > 0.01f;
