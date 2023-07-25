@@ -21,9 +21,8 @@ public class AeroBlockCharged : AeroBlockFlying
     }
 
     public static MTexture ButtonFillTexture, ButtonOutlineTexture;
-    private static readonly Color offColor = Color.White;
-    private static readonly Color onColor = Calc.HexToColor("4BC0C8");
-    private static readonly Color endColor = Color.Tomato;
+    private static readonly Color defaultOnColor = Calc.HexToColor("4BC0C8");
+    private static readonly Color defaultEndColor = Color.Tomato;
 
     private sealed class Button
     {
@@ -104,7 +103,7 @@ public class AeroBlockCharged : AeroBlockFlying
                 ? 1.0f
                 : Calc.Approach(lerp, 0.0f, Engine.DeltaTime * 4f);
 
-            Color color = Color.Lerp(offColor, self.alive ? onColor : endColor, lerp);
+            Color color = Color.Lerp(Color.White, self.alive ? self.activeColor : self.inactiveColor, lerp);
             for (int i = 0; i < buttonImages.Length; i++)
                 buttonImages[i].Color = color;
         }
@@ -138,11 +137,13 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private readonly Vector2[] positions;
 
+    private readonly Color activeColor, inactiveColor;
+
     public AeroBlockCharged(EntityData data, Vector2 offset)
-        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("loop"), data.Bool("hover", true), data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
+        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("loop"), data.HexColor("activeColor", defaultOnColor), data.HexColor("inactiveColor", defaultEndColor), data.Bool("hover", true), data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
     { }
 
-    public AeroBlockCharged(Vector2[] positions, int width, int height, bool loop, bool hover = true, string buttonSequence = DEFAULT_BUTTON_SEQUENCE)
+    public AeroBlockCharged(Vector2[] positions, int width, int height, bool loop, Color activeColor, Color inactiveColor, bool hover = true, string buttonSequence = DEFAULT_BUTTON_SEQUENCE)
         : base(positions[0], width, height)
     {
         Hover = hover;
@@ -164,6 +165,9 @@ public class AeroBlockCharged : AeroBlockFlying
 
         AddScreenLayer(windLayer = new(width, height));
         Add(windSine = new(2.0f));
+
+        this.activeColor = activeColor;
+        this.inactiveColor = inactiveColor;
     }
 
     private static ButtonCombination[] ParseButtonSequence(string sequence, int max)
@@ -236,7 +240,7 @@ public class AeroBlockCharged : AeroBlockFlying
         AddScreenLayer(blinker = new(icon)
         {
             Offset = new Vector2(Width / 2 - 2, Height / 2 - 2),
-            BackgroundColor = Color.Tomato,
+            BackgroundColor = inactiveColor,
             IconColor = Color.White,
             Sound = CustomSFX.game_aero_block_success,
             FadeIn = 0f,
@@ -325,7 +329,7 @@ public class AeroBlockCharged : AeroBlockFlying
             else
                 windLayer.Wind = new(windSine.Value * 3, 16);
 
-            windLayer.Color = Color.Lerp(Color.Transparent, onColor, buttonSfxLerp * 0.5f + 0.5f);
+            windLayer.Color = Color.Lerp(Color.Transparent, activeColor, buttonSfxLerp * 0.5f + 0.5f);
         }
     }
 

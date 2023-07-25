@@ -8,9 +8,17 @@ aeroBlockCharged.name = "CommunalHelper/AeroBlockCharged"
 aeroBlockCharged.depth = 4999
 aeroBlockCharged.minimumSize = {16, 16}
 
+aeroBlockCharged.nodeLimits = {0, -1}
 aeroBlockCharged.nodeLineRenderType = "line"
 
-aeroBlockCharged.nodeLimits = {0, -1}
+aeroBlockCharged.fieldInformation = {
+    activeColor = {
+        fieldType = "color"
+    },
+    inactiveColor = {
+        fieldType = "color"
+    }
+}
 
 aeroBlockCharged.placements = {
     {
@@ -21,6 +29,8 @@ aeroBlockCharged.placements = {
             buttonSequence = "left -> right+top",
             hover = true,
             loop = false,
+            activeColor = "4BC0C8",
+            inactiveColor = "FF6347"
         }
     }
 }

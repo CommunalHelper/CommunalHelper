@@ -28,6 +28,12 @@ aeroBlock.fieldInformation = {
             ["With Player"] = "WithPlayer",
             ["With Player Once"] = "WithPlayerOnce",
         }
+    },
+    startColor = {
+        fieldType = "color"
+    },
+    endColor = {
+        fieldType = "color"
     }
 }
 
@@ -39,7 +45,9 @@ aeroBlock.placements = {
             height = 16,
             inactive = false,
             travelSpeed = 32.0,
-            travelMode = "Loop"
+            travelMode = "Loop",
+            startColor = "FEAC5E",
+            endColor = "4BC0C8",
         }
     },
     {
@@ -49,7 +57,9 @@ aeroBlock.placements = {
             height = 16,
             inactive = true,
             travelSpeed = 32.0,
-            travelMode = "Loop"
+            travelMode = "Loop",
+            startColor = "FEAC5E",
+            endColor = "4BC0C8",
         }
     }
 }
