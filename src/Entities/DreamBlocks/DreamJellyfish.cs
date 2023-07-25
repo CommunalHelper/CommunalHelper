@@ -108,17 +108,11 @@ internal class DreamJellyfish : Glider
         DynamicData data = DynamicData.For(player);
 
         BloomPoint starFlyBloom = data.Get<BloomPoint>("starFlyBloom");
-        SoundSource starFlyLoopSfx = data.Get<SoundSource>("starFlyLoopSfx");
-        SoundSource starFlyWarningSfx = data.Get<SoundSource>("starFlyWarningSfx");
 
         // Prevents a crash caused by entering the feather fly state while dream dashing through a dream jellyfish.
         starFlyBloom ??= new(new Vector2(0f, -6f), 0f, 16f) { Visible = false };
-        starFlyWarningSfx ??= new() { DisposeOnTransition = false };
-        starFlyLoopSfx ??= new() { DisposeOnTransition = false };
 
         data.Set("starFlyBloom", starFlyBloom);
-        data.Set("starFlyLoopSfx", starFlyLoopSfx);
-        data.Set("starFlyWarningSfx", starFlyWarningSfx);
     }
 
     public void OnDreamDashExit(Player player)
