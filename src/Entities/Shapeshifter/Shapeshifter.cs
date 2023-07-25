@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.CommunalHelper.Utils;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections;
 using System.Linq;
 
@@ -209,6 +208,9 @@ public class Shapeshifter : Solid
 
     private ShapeshifterPath FindPath()
     {
+        if (Collider is null)
+            return null;
+
         var bounds = Collider.Bounds;
         var paths = Scene.Tracker.GetEntities<ShapeshifterPath>()
                                  .Cast<ShapeshifterPath>();
@@ -224,7 +226,6 @@ public class Shapeshifter : Solid
 
     internal void FollowPath(ShapeshifterPath path)
     {
-
         if (moving)
             return;
 
