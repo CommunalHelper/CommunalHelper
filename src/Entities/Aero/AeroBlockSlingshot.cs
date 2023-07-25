@@ -349,7 +349,7 @@ public class AeroBlockSlingshot : AeroBlock
         stateMachine.State = (int) SlingshotStates.Windup;
         updateTimer = SetTime;
 
-        var speed = (pushable.MaxPushSpeed < 0 ? 70f : Math.Min(Player.MaxRun, pushable.MaxPushSpeed)) * Input.MoveX.Value;
+        var speed = (pushable.MaxPushSpeed < 0 ? 70f : Math.Min(Player.MaxRun, pushable.MaxPushSpeed)) * moveX;
         MoveJumpthrus(Vector2.UnitX * speed * Engine.DeltaTime);
     }
 
