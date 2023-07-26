@@ -651,6 +651,18 @@ entities.CommunalHelper/AeroBlockCharged.attributes.description.loop=Whether thi
 entities.CommunalHelper/AeroBlockCharged.attributes.description.activeColor=This block's button and screen particles color when it is active (flying). 
 entities.CommunalHelper/AeroBlockCharged.attributes.description.inactiveColor=This block's button colors when it is inactive.
 
+# Aero Block Slingshot
+entities.CommunalHelper/AeroBlockSlingshot.placements.name.normal=Slingshot Aero Block
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.launchTime=The time in seconds that it takes the block to return after being released. Defaults to 0.5.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.cooldownTime=The time in seconds before the player can push the block again after being reset. Defaults to 0.5.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.setTime=The time in seconds that the player must stop pushing to prepare the block to launch. Defaults to 0.2.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.delayTime=The time in seconds after the block is set that the launch will occur. Defaults to 0.2.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.pushSpeed=The speed in pixels-per-second that the player can push the block. Defaults to 35.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.pushActions=The actions that the player may perform on the block. Options are None, Push, Pull, or Both. Defaults to Push.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.allowAdjustments=If false, the player cannot move the block once it has been "set" and the timer has started. If true, the player can adjust the block's position while the timer counts down, and it will reset the timer. Defaults to true.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.startColor=The color to tint the progress bar when the player pushes the block from the idle state. This will be lerped to endColor as the player continues to push.
+entities.CommunalHelper/AeroBlockSlingshot.attributes.description.endColor=The color to tint the progress bar when the player pushes the block to the end of the track.
+
 # Shapeshifter
 entities.CommunalHelper/Shapeshifter.placements.name.shapeshifter=Shapeshifter
 entities.CommunalHelper/Shapeshifter.attributes.description.voxelWidth=The width in tiles of the 3D voxel.

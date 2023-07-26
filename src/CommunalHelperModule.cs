@@ -3,6 +3,7 @@ global using Microsoft.Xna.Framework;
 global using Monocle;
 global using System;
 using Celeste.Mod.CommunalHelper.Backdrops;
+using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.Entities.Misc;
@@ -101,6 +102,7 @@ public class CommunalHelperModule : EverestModule
         St.Load();
 
         CommunalHelperGFX.Load();
+        Pushable.Load();
 
         #region Imports
 
@@ -181,6 +183,7 @@ public class CommunalHelperModule : EverestModule
         BetaCube.Unload();
 
         CommunalHelperGFX.Unload();
+        Pushable.Unload();
     }
 
     public override void Initialize()

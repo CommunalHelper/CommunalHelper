@@ -149,6 +149,9 @@ public abstract class AeroBlock : Solid
     public void RemoveScreenLayer(AeroScreen screen)
         => removed.Add(screen);
 
+    public bool HasScreenLayer(AeroScreen screen)
+        => screens.Contains(screen);
+
     public void FlushScreenLayerRemoval()
     {
         foreach (AeroScreen screen in removed)
@@ -157,6 +160,24 @@ public abstract class AeroBlock : Solid
             screen.Finish();
         }
         removed.Clear();
+    }
+
+    public void MoveJumpthrus(Vector2 move)
+    {
+        foreach (JumpThru jt in jumpthrus)
+        {
+            jt.MoveH(move.X);
+            jt.MoveV(move.Y);
+        }
+    }
+
+    public void MoveJumpthrus(Vector2 move, Vector2 liftspeed)
+    {
+        foreach (JumpThru jt in jumpthrus)
+        {
+            jt.MoveH(move.X, liftspeed.X);
+            jt.MoveV(move.Y, liftspeed.Y);
+        }
     }
 
     public override void Update()

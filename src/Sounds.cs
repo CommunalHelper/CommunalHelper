@@ -133,7 +133,12 @@ public static class CustomSFX
     public const string game_aero_block_button_charge = "event:/CommunalHelperEvents/game/aero_block/button_charge";
     public const string game_aero_block_button_let_go = "event:/CommunalHelperEvents/game/aero_block/button_let_go";
     public const string game_aero_block_button_press = "event:/CommunalHelperEvents/game/aero_block/button_press";
-    
+    public const string game_aero_block_push = "event:/CommunalHelperEvents/game/aero_block/push";
+    public const string game_aero_block_lock = "event:/CommunalHelperEvents/game/aero_block/lock";
+    public const string game_aero_block_ding = "event:/CommunalHelperEvents/game/aero_block/ding";
+    public const string game_aero_block_wind_up = "event:/CommunalHelperEvents/game/aero_block/wind_up";
+    public const string game_aero_block_impact = "event:/CommunalHelperEvents/game/aero_block/impact";
+
     public const string game_shapeshifter_shake = "event:/CommunalHelperEvents/game/shapeshifter/shake";
     public const string game_shapeshifter_supermove = "event:/CommunalHelperEvents/game/shapeshifter/supermove";
     public const string game_shapeshifter_move = "event:/CommunalHelperEvents/game/shapeshifter/move";
