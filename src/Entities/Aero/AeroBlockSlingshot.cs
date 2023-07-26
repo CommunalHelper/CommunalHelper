@@ -179,7 +179,12 @@ public class AeroBlockSlingshot : AeroBlock
         var currentPercent = GetPercentFromPosition();
         progressScreen.Percentage = Math.Abs(currentPercent);
         progressScreen.Color = Color.Lerp(StartColor, EndColor, Math.Abs(currentPercent));
-        return updateTimer <= 0 ? (int) SlingshotStates.Locked : (int) SlingshotStates.Windup;
+
+        return updateTimer <= 0.0f
+            ? HasMoved()
+                ? (int) SlingshotStates.Locked
+                : (int) SlingshotStates.Idle
+            : (int) SlingshotStates.Windup;
     }
 
     private void WindupEnd()
