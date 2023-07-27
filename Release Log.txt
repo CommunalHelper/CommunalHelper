@@ -1,4 +1,4 @@
---1.18.0 (??/07/2023)--
+--1.18.0 (28/07/2023)--
 * Added Elytra state.
 * Added Elytra Boost, Stop, Refill & Note Rings.
 * Added Elytra Dash Block.
