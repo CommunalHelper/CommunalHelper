@@ -1,4 +1,6 @@
-﻿namespace Celeste.Mod.CommunalHelper.Entities;
+﻿using Celeste.Mod.CommunalHelper.Components;
+
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/ElytraDashBlock")]
 public class ElytraDashBlock : Solid

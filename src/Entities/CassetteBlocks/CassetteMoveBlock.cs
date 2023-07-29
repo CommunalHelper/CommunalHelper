@@ -1,4 +1,5 @@
-﻿using FMOD.Studio;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using FMOD.Studio;
 using System.Collections;
 using System.Collections.Generic;
 using Directions = Celeste.MoveBlock.Directions;

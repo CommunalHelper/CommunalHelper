@@ -1,9 +1,10 @@
-﻿using Mono.Cecil;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.Utils;
 
-namespace Celeste.Mod.CommunalHelper.Entities;
+namespace Celeste.Mod.CommunalHelper.Components;
 
 [Tracked]
 internal class DreamDashCollider : Component
@@ -28,7 +29,7 @@ internal class DreamDashCollider : Component
 
     public Action<Player> OnEnter, OnExit;
 
-    public DreamDashCollider(Collider collider, Action<Player> onEnter = null, Action < Player> onExit = null)
+    public DreamDashCollider(Collider collider, Action<Player> onEnter = null, Action<Player> onExit = null)
         : base(active: true, visible: false)
     {
         Collider = collider;
@@ -68,9 +69,7 @@ internal class DreamDashCollider : Component
     {
         base.Update();
         if (Util.TryGetPlayer(out Player player) && Check(player) && player.DashAttacking && player.Speed != Vector2.Zero && player.StateMachine.State != Player.StDreamDash)
-        {
             player.StateMachine.State = Player.StDreamDash;
-        }
     }
 
     public override void DebugRender(Camera camera)
@@ -113,13 +112,11 @@ internal class DreamDashCollider : Component
     {
         DynamicData playerData = self.GetData();
         if (playerData.Get<DreamBlock>("dreamBlock") is DreamBlockDummy dummy)
-        {
             foreach (DreamDashCollider collider in dummy.Entity.Components.GetAll<DreamDashCollider>())
             {
                 playerData.Set(Player_canEnterDreamDashCollider, false);
                 collider.OnExit?.Invoke(self);
             }
-        }
         orig(self);
     }
 
@@ -147,9 +144,7 @@ internal class DreamDashCollider : Component
 
             DreamBlock oldDreamBlock = data.Get<DreamBlock>("dreamBlock");
             if (dreamBlock != oldDreamBlock && dreamBlock is ColliderDummy dummy)
-            {
                 dummy.DreamDashCollider.OnEnter?.Invoke(self);
-            }
 
             return dreamBlock;
         });

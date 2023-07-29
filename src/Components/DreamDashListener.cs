@@ -1,4 +1,4 @@
-﻿namespace Celeste.Mod.CommunalHelper.Entities;
+﻿namespace Celeste.Mod.CommunalHelper.Components;
 
 [Tracked(false)]
 public class DreamDashListener : Component
@@ -37,9 +37,7 @@ public class DreamDashListener : Component
 
         // Handles DreamDashListeners whenever you enter the DreamDash State
         foreach (DreamDashListener component in self.Scene.Tracker.GetComponents<DreamDashListener>())
-        {
             component.OnDreamDash?.Invoke(self.DashDir);
-        }
         return;
     }
 

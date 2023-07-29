@@ -1,4 +1,4 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
+﻿using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.Imports;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;

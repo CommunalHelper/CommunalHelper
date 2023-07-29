@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.Utils;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.Utils;
 using System.Collections;
 using System.Linq;
 

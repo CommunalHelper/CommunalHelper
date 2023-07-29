@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using Celeste;
+using Celeste.Mod.CommunalHelper.Entities;
 using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using Directions = Celeste.MoveBlock.Directions;
 
-namespace Celeste.Mod.CommunalHelper.Entities;
+namespace Celeste.Mod.CommunalHelper.Components;
 
 /// <summary>
 /// get/set
@@ -149,9 +151,7 @@ public class MoveBlockRedirectable : Component
             reflectionCache[targetData.TargetType] = f_Controller_this;
         }
         else
-        {
             t_Controller = f_Controller_this.DeclaringType;
-        }
 
         return orig =>
         {

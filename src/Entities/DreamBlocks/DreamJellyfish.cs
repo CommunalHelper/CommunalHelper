@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.Imports;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.Imports;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.Utils;

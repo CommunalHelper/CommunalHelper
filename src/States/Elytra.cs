@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.Entities;
 using FMOD.Studio;
 using MonoMod.Utils;
 using System.Collections;

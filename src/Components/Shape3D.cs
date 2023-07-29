@@ -1,8 +1,9 @@
-﻿using Celeste.Mod.CommunalHelper.Utils;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
-namespace Celeste.Mod.CommunalHelper.Entities;
+namespace Celeste.Mod.CommunalHelper.Components;
 
 public sealed class Shape3D : Component
 {
