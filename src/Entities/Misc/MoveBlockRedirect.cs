@@ -44,7 +44,7 @@ public class MoveBlockRedirect : Entity
     private float maskAlpha, alpha = 1f;
     private List<Image> borders;
 
-    private MoveBlockRedirectable lastMoveBlock;
+    private Redirectable lastMoveBlock;
 
     private readonly string reskinFolder;
     private Icon icon;
@@ -193,7 +193,7 @@ public class MoveBlockRedirect : Entity
             maskAlpha = Calc.Approach(maskAlpha, 0f, (FastRedirect && !DeleteBlock ? 2.5f : 4f) * Engine.DeltaTime);
         }
 
-        MoveBlockRedirectable redirectable = Scene.Tracker.GetComponents<MoveBlockRedirectable>().FirstOrDefault(c => CollideCheck(c.Entity)) as MoveBlockRedirectable;
+        Redirectable redirectable = Scene.Tracker.GetComponents<Redirectable>().FirstOrDefault(c => CollideCheck(c.Entity)) as Redirectable;
         Entity block = redirectable?.Entity; // Non-null if redirectible isn't null
 
         if (Collidable && redirectable != null && redirectable != lastMoveBlock && !redirectable.CanSteer &&
@@ -258,7 +258,7 @@ public class MoveBlockRedirect : Entity
         icon.RemoveSelf();
     }
 
-    private void SetBlockData(MoveBlockRedirectable redirectable)
+    private void SetBlockData(Redirectable redirectable)
     {
         redirectable.InitialAngle ??= redirectable.HomeAngle;
         redirectable.InitialDirection ??= redirectable.Direction;
@@ -275,7 +275,7 @@ public class MoveBlockRedirect : Entity
         UsedParticles();
     }
 
-    private IEnumerator BreakBlock(MoveBlockRedirectable redirectable, Coroutine orig, bool fast, bool oneUse)
+    private IEnumerator BreakBlock(Redirectable redirectable, Coroutine orig, bool fast, bool oneUse)
     {
         redirectable.MoveTo(Position);
         redirectable.MoveSfx.Stop();
@@ -319,7 +319,7 @@ public class MoveBlockRedirect : Entity
             Disappear();
     }
 
-    private IEnumerator RedirectRoutine(MoveBlockRedirectable redirectable, Coroutine orig)
+    private IEnumerator RedirectRoutine(Redirectable redirectable, Coroutine orig)
     {
         Entity block = redirectable.Entity;
         float duration = 1f;

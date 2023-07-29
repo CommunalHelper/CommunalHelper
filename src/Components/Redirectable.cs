@@ -25,7 +25,7 @@ namespace Celeste.Mod.CommunalHelper.Components;
 ///     angle
 /// </summary>
 [Tracked]
-public class MoveBlockRedirectable : Component
+public class Redirectable : Component
 {
     // Pre-initialize this with some known types
     private static readonly Dictionary<Type, FieldInfo> reflectionCache = new()
@@ -133,7 +133,7 @@ public class MoveBlockRedirectable : Component
 
     public DynamicData Data;
 
-    public MoveBlockRedirectable(DynamicData entityData, Action<Coroutine>? onResume = null, Action<Coroutine>? onBreak = null)
+    public Redirectable(DynamicData entityData, Action<Coroutine>? onResume = null, Action<Coroutine>? onBreak = null)
         : base(false, false)
     {
         Data = entityData;
@@ -200,13 +200,13 @@ public class MoveBlockRedirectable : Component
     {
         orig(self, position, width, height, direction, canSteer, fast);
         if (self.GetType() == typeof(MoveBlock))
-            self.Add(new MoveBlockRedirectable(new DynamicData(typeof(MoveBlock), self)));
+            self.Add(new Redirectable(new DynamicData(typeof(MoveBlock), self)));
     }
 
     private static void MoveBlock_BreakParticles(On.Celeste.MoveBlock.orig_BreakParticles orig, MoveBlock self)
     {
         orig(self);
-        self.Get<MoveBlockRedirectable>()?.ResetBlock();
+        self.Get<Redirectable>()?.ResetBlock();
     }
 
 }

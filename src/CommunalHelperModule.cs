@@ -60,7 +60,7 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Hook();
         MoveBlockRedirect.Load();
-        MoveBlockRedirectable.Load();
+        Redirectable.Load();
         MoveSwapBlock.Load();
 
         AbstractInputController.Load();
@@ -140,7 +140,7 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Unhook();
         MoveBlockRedirect.Unload();
-        MoveBlockRedirectable.Unload();
+        Redirectable.Unload();
         MoveSwapBlock.Unload();
         AbstractInputController.Unload();
         CassetteJumpFixController.Unload();
