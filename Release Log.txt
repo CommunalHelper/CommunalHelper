@@ -1,3 +1,7 @@
+--1.18.1 (29/07/2023)--
+* Fix Shape3DRenderer + savestates crash.
+* Move most component types into Components namespace (breaking).
+
 --1.18.0 (28/07/2023)--
 * Added Elytra state.
 * Added Elytra Boost, Stop, Refill & Note Rings.
