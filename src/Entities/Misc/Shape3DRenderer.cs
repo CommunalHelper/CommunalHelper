@@ -34,14 +34,26 @@ public sealed class Shape3DRenderer : Entity
     public void Track(Shape3D shape) => shapes.Add(shape);
     public void Untrack(Shape3D shape) => shapes.Remove(shape);
 
-    public override void Added(Scene scene)
+    private void CreateBuffers()
     {
-        base.Added(scene);
-
         albedo = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
         depth = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
         normal = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
         final = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+    }
+
+    private void DestroyBuffers()
+    {
+        albedo?.Dispose(); albedo = null;
+        depth?.Dispose(); depth = null;
+        normal?.Dispose(); normal = null;
+        final?.Dispose(); final = null;
+    }
+
+    public override void Added(Scene scene)
+    {
+        base.Added(scene);
+        CreateBuffers();
     }
 
     public override void Removed(Scene scene)
@@ -58,18 +70,14 @@ public sealed class Shape3DRenderer : Entity
 
     private void Clean()
     {
-        albedo?.Dispose();
-        albedo = null;
-        depth?.Dispose();
-        depth = null;
-        normal?.Dispose();
-        normal = null;
-        final?.Dispose();
-        final = null;
+        DestroyBuffers();
     }
 
     private void BeforeRender()
     {
+        if (albedo is null || depth is null || normal is null || final is null)
+            CreateBuffers();
+
         var prevTexture1 = Engine.Graphics.GraphicsDevice.Textures[1];
         var prevTexture2 = Engine.Graphics.GraphicsDevice.Textures[2];
 
