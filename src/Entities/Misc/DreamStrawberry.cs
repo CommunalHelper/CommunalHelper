@@ -1,4 +1,5 @@
-﻿using Mono.Cecil.Cil;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Reflection;

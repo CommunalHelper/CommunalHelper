@@ -1,3 +1,4 @@
+using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.DashStates;
 using MonoMod.ModInterop;
 
