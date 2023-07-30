@@ -334,28 +334,33 @@ public class StationBlock : Solid
     {
         MoveDir = dir;
 
-        if (MoveDir == -Vector2.UnitY && CurrentNode.NodeUp != null)
+        if (MoveDir == -Vector2.UnitY && CurrentNode.NodeUp is not null)
         {
             nextNode = CurrentNode.NodeUp;
             currentTrack = CurrentNode.TrackUp;
         }
-        else if (MoveDir == Vector2.UnitY && CurrentNode.NodeDown != null)
+        else if (MoveDir == Vector2.UnitY && CurrentNode.NodeDown is not null)
         {
             nextNode = CurrentNode.NodeDown;
             currentTrack = CurrentNode.TrackDown;
         }
-        else if (MoveDir == -Vector2.UnitX && CurrentNode.NodeLeft != null)
+        else if (MoveDir == -Vector2.UnitX && CurrentNode.NodeLeft is not null)
         {
             nextNode = CurrentNode.NodeLeft;
             currentTrack = CurrentNode.TrackLeft;
         }
-        else if (MoveDir == Vector2.UnitX && CurrentNode.NodeRight != null)
+        else if (MoveDir == Vector2.UnitX && CurrentNode.NodeRight is not null)
         {
             nextNode = CurrentNode.NodeRight;
             currentTrack = CurrentNode.TrackRight;
         }
+        else
+        {
+            nextNode = null;
+            currentTrack = null;
+        }
 
-        IsMoving = force && currentTrack.CanBeUsed;
+        IsMoving = force && (currentTrack?.CanBeUsed ?? false);
         if (!force)
         {
             scale = new Vector2(
