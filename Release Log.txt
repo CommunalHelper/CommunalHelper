@@ -1,3 +1,6 @@
+--1.18.2 (30/07/2023)--
+* Fix station blocks being able to travel along one-way paths by dashing into an incorrect side.
+
 --1.18.1 (29/07/2023)--
 * Fix Shape3DRenderer + savestates crash.
 * Move most component types into Components namespace (breaking).
