@@ -22,7 +22,7 @@ public sealed class Shape3D : Component
     public float HighlightUpperBound { get; set; } = 1.0f;
     public float HighlightStrength { get; set; } = 0.0f;
 
-    private int depth = 0;
+    private int depth = Depths.FGTerrain;
     public int Depth
     {
         get => depth;
@@ -37,8 +37,8 @@ public sealed class Shape3D : Component
             Scene scene = Entity?.Scene;
             if (scene is not null)
             {
-                Shape3DRenderer.Get3DRenderer(scene, prev)?.Untrack(this);
-                Shape3DRenderer.Get3DRenderer(scene, depth)?.Track(this);
+                Shape3DRenderer.Get3DRenderer(scene, prev).Untrack(this);
+                Shape3DRenderer.Get3DRenderer(scene, depth).Track(this);
             }
         }
     }
@@ -60,8 +60,8 @@ public sealed class Shape3D : Component
         Meshes.AddRange(meshes);
     }
 
-    private void TrackSelf(Scene scene) => Shape3DRenderer.Get3DRenderer(scene, Depth)?.Track(this);
-    private void UntrackSelf(Scene scene) => Shape3DRenderer.Get3DRenderer(scene, Depth)?.Untrack(this);
+    private void TrackSelf(Scene scene) => Shape3DRenderer.Get3DRenderer(scene, Depth).Track(this);
+    private void UntrackSelf(Scene scene) => Shape3DRenderer.Get3DRenderer(scene, Depth).Untrack(this);
 
     public override void EntityAdded(Scene scene)
     {

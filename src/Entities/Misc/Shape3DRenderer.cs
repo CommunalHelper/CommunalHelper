@@ -9,75 +9,32 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 public sealed class Shape3DRenderer : Entity
 {
     private enum Framework { FNA, XNA }
-
     private static Framework type;
 
-    private const int SCREEN_WIDTH = 320;
-    private const int SCREEN_HEIGHT = 180;
-
+    private readonly int rendererDepth;
     private readonly HashSet<Shape3D> shapes = new();
 
-    private RenderTarget2D albedo, depth, normal, final;
-
-    public Shape3DRenderer(int depth)
+    public Shape3DRenderer(int rendererDepth)
     {
         Tag = Tags.Global | Tags.TransitionUpdate;
         Active = false;
         Visible = true;
 
-        Depth = depth;
+        Depth = this.rendererDepth = rendererDepth;
 
         Add(new BeforeRenderHook(BeforeRender));
-
-        Logger.Log(LogLevel.Info, nameof(Shape3DRenderer), $"new 3d renderer created, @ depth {depth}");
     }
 
     public void Track(Shape3D shape) => shapes.Add(shape);
     public void Untrack(Shape3D shape) => shapes.Remove(shape);
 
-    private void CreateBuffers()
-    {
-        albedo = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-        depth = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-        normal = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-        final = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-    }
-
-    private void DestroyBuffers()
-    {
-        albedo?.Dispose(); albedo = null;
-        depth?.Dispose(); depth = null;
-        normal?.Dispose(); normal = null;
-        final?.Dispose(); final = null;
-    }
-
-    public override void Added(Scene scene)
-    {
-        base.Added(scene);
-        CreateBuffers();
-    }
-
-    public override void Removed(Scene scene)
-    {
-        base.Removed(scene);
-        Clean();
-    }
-
-    public override void SceneEnd(Scene scene)
-    {
-        base.SceneEnd(scene);
-        Clean();
-    }
-
-    private void Clean()
-    {
-        DestroyBuffers();
-    }
+    private const int SCREEN_WIDTH = 320;
+    private const int SCREEN_HEIGHT = 180;
 
     private void BeforeRender()
     {
-        if (albedo is null || depth is null || normal is null || final is null)
-            CreateBuffers();
+        // cannot store buffers as they may be deep-cloned by state-saving
+        CommunalHelperGFX.QueryMRTBuffers(rendererDepth, out var albedo, out var depth, out var normal, out var final);
 
         var prevTexture1 = Engine.Graphics.GraphicsDevice.Textures[1];
         var prevTexture2 = Engine.Graphics.GraphicsDevice.Textures[2];
@@ -168,15 +125,21 @@ public sealed class Shape3DRenderer : Entity
 
     public override void Render()
     {
+        CommunalHelperGFX.QueryMRTBuffers(rendererDepth, out var _, out var _, out var _, out var final);
         Vector2 cam = (Scene as Level).Camera.Position;
         Draw.SpriteBatch.Draw(final, cam, Color.White);
     }
 
     public static Shape3DRenderer Get3DRenderer(Scene scene, int depth)
     {
-        var renderer = scene.Tracker.GetEntities<Shape3DRenderer>()
-                        .FirstOrDefault(r => r.Depth == depth)
-                        as Shape3DRenderer;
+        if (scene.Tracker.GetEntities<Shape3DRenderer>()
+                         .FirstOrDefault(r => r.Depth == depth)
+                         is not Shape3DRenderer renderer)
+        {
+            scene.Add(renderer = new(depth));
+            Util.Log(LogLevel.Info, $"creating new Shape3DRenderer at depth {depth}.");
+        }
+
         return renderer;
     }
 
@@ -185,21 +148,7 @@ public sealed class Shape3DRenderer : Entity
         type = typeof(Game).Assembly.FullName.Contains("FNA")
             ? Framework.FNA
             : Framework.XNA;
-        On.Celeste.LevelLoader.LoadingThread += LevelLoader_LoadingThread;
     }
 
-    internal static void Unload()
-    {
-        On.Celeste.LevelLoader.LoadingThread -= LevelLoader_LoadingThread;
-    }
-
-    private static void LevelLoader_LoadingThread(On.Celeste.LevelLoader.orig_LoadingThread orig, LevelLoader self)
-    {
-        orig(self);
-
-        self.Level.Add(
-            new Shape3DRenderer(Depths.BGTerrain),
-            new Shape3DRenderer(Depths.FGTerrain)
-        );
-    }
+    internal static void Unload() { }
 }

@@ -1,6 +1,8 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Celeste.Mod.CommunalHelper.Entities;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Xml;
 
 namespace Celeste.Mod.CommunalHelper;
@@ -18,6 +20,10 @@ public static class CommunalHelperGFX
 
     public static Effect PCTN_MRT { get; private set; }
     public static Effect PCTN_COMPOSE { get; private set; }
+
+    private const int SCREEN_WIDTH = 320;
+    private const int SCREEN_HEIGHT = 180;
+    private static readonly Dictionary<int, Tuple<RenderTarget2D, RenderTarget2D, RenderTarget2D, RenderTarget2D>> mrtBuffers = new();
 
     internal static void LoadContent()
     {
@@ -48,6 +54,35 @@ public static class CommunalHelperGFX
         CloudscapeShader.Dispose();
 
         CustomPlayerFrameMetadata = null;
+
+        foreach (var buffers in mrtBuffers.Values)
+        {
+            buffers.Item1.Dispose();
+            buffers.Item2.Dispose();
+            buffers.Item3.Dispose();
+            buffers.Item4.Dispose();
+        }
+        Util.Log(LogLevel.Info, "destroyed all PCTN-MRT buffer quadruplets.");
+    }
+
+    public static void QueryMRTBuffers(int rendererDepth, out RenderTarget2D albedo, out RenderTarget2D depth, out RenderTarget2D normal, out RenderTarget2D final)
+    {
+        if (!mrtBuffers.TryGetValue(rendererDepth, out var buffers))
+        {
+            buffers = Tuple.Create(
+                new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8),
+                new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8),
+                new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8),
+                new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8)
+            );
+            mrtBuffers.Add(rendererDepth, buffers);
+            Logger.Log(LogLevel.Info, nameof(Shape3DRenderer), $"new PCTN-MRT buffer quadruplet created, at depth {rendererDepth}.");
+        }
+
+        albedo = buffers.Item1;
+        depth = buffers.Item2;
+        normal = buffers.Item3;
+        final = buffers.Item4;
     }
 
     private static Effect LoadShader(string id)
