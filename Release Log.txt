@@ -1,3 +1,6 @@
+--1.18.3 (01/08/2023)--
+* Move Shape3DRenderer render targets to a static class so savestates cannot interfere with them.
+
 --1.18.2 (30/07/2023)--
 * Fix station blocks being able to travel along one-way paths by dashing into an incorrect side.
 
