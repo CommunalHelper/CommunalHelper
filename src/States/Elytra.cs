@@ -286,7 +286,7 @@ public static class Elytra
         float length = speed.Length();
 
         DynamicData data = DynamicData.For(player);
-        data.Set(f_Player_elytraGlideFacing, player.Facing = (Facings)sign);
+        data.Set(f_Player_elytraGlideFacing, player.Facing = sign is 0 ? player.Facing : (Facings) sign);
         data.Set(f_Player_elytraGlideAngle, angle);
         data.Set(f_Player_elytraGlideSpeed, length);
         data.Set(f_Player_elytraStableTimer, duration);
