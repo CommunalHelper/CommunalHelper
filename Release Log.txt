@@ -1,3 +1,7 @@
+--1.18.4 (04/08/2023)--
+* Fixed Shape3DRenderers of same layer being added more than once to the scene.
+* Fixed Elytra launches zeroing-out player facing.
+
 --1.18.3 (01/08/2023)--
 * Move Shape3DRenderer render targets to a static class so savestates cannot interfere with them.
 
