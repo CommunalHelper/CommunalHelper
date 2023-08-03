@@ -133,7 +133,8 @@ public sealed class Shape3DRenderer : Entity
     public static Shape3DRenderer Get3DRenderer(Scene scene, int depth)
     {
         if (scene.Tracker.GetEntities<Shape3DRenderer>()
-                         .FirstOrDefault(r => r.Depth == depth)
+                         .Concat(scene.Entities.ToAdd)
+                         .FirstOrDefault(r => r is Shape3DRenderer && r.Depth == depth)
                          is not Shape3DRenderer renderer)
         {
             scene.Add(renderer = new(depth));
