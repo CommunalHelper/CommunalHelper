@@ -6,6 +6,7 @@ using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Entities.BadelineBoosters;
 using Celeste.Mod.CommunalHelper.Entities.Misc;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using Celeste.Mod.CommunalHelper.States;
@@ -104,6 +105,8 @@ public class CommunalHelperModule : EverestModule
         CommunalHelperGFX.Load();
         Pushable.Load();
 
+        BadelineBoostKeepHoldables.Hook();
+
         #region Imports
 
         typeof(Imports.CavernHelper).ModInterop();
@@ -184,6 +187,8 @@ public class CommunalHelperModule : EverestModule
 
         CommunalHelperGFX.Unload();
         Pushable.Unload();
+
+        BadelineBoostKeepHoldables.Unhook();
     }
 
     public override void Initialize()
