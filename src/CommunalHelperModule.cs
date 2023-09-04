@@ -6,7 +6,6 @@ using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
-using Celeste.Mod.CommunalHelper.Entities.BadelineBoosters;
 using Celeste.Mod.CommunalHelper.Entities.Misc;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using Celeste.Mod.CommunalHelper.States;

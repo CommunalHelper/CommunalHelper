@@ -4,7 +4,7 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System.Reflection;
 
-namespace Celeste.Mod.CommunalHelper.Entities.BadelineBoosters;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/BadelineBoostKeepHoldables")]
 public class BadelineBoostKeepHoldables : BadelineBoost
