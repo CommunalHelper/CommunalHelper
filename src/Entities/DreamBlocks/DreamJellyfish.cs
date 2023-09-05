@@ -123,7 +123,7 @@ internal class DreamJellyfish : Glider
         {
             // force-allow pickup
             player.GetData().Set("minHoldTimer", 0f);
-            DynamicData.For(Hold).Set("cannotHoldTimer", 0);
+            DynamicData.For(Hold).Set("cannotHoldTimer", 0f);
 
             if ((bool) m_Player_Pickup.Invoke(player, new object[] { Hold }))
             {

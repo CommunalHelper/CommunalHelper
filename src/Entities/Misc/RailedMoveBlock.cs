@@ -1,5 +1,4 @@
-﻿using MonoMod.Utils;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -126,7 +125,6 @@ internal class RailedMoveBlock : Solid
     public static readonly Color StopBgFill = Calc.HexToColor("cc2541");
     public static readonly Color PlacementErrorBgFill = Calc.HexToColor("cc7c27");
 
-    private readonly DynamicData platformData;
     private Vector2 start, target, dir;
     private float percent;
     private readonly float length;
@@ -235,8 +233,6 @@ internal class RailedMoveBlock : Solid
         });
         sfx.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_move, "arrow_stop", 1f);
         Add(new LightOcclude(0.5f));
-
-        platformData = new(typeof(Platform), this);
     }
 
     private void AddImage(MTexture tex, Vector2 position, float rotation, Vector2 scale, List<Image> addTo)

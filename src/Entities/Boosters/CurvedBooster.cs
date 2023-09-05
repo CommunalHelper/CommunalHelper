@@ -150,8 +150,6 @@ public class CurvedBooster : CustomBooster
     {
         base.RedDashUpdateBefore(player);
 
-        DynamicData data = player.GetData();
-
         Vector2 prev = player.Position;
 
         travel += 240f * Engine.DeltaTime; // booster speed constant
