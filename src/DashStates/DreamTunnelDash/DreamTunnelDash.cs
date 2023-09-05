@@ -550,13 +550,13 @@ public static class DreamTunnelDash
                 player.StateMachine.State = StDreamTunnelDash;
                 solid.Components.GetAll<DreamTunnelInteraction>().ToList().ForEach(i => i.OnPlayerEnter(player));
                 playerData.Set(Player_solid, solid);
-                playerData.Set("dashAttackTimer", 0);
-                playerData.Set("gliderBoostTimer", 0);
+                playerData.Set("dashAttackTimer", 0f);
+                playerData.Set("gliderBoostTimer", 0f);
                 return true;
             }
             else if (solid is DashSwitch)
             {
-                // Why is this necesarry? Good question!
+                // Why is this necessary? Good question!
                 // I don't know the answer, but for some reason, Celeste registers
                 // dashing into a button upwards as colliding with both the button and the
                 // tile behind it. In order to prevent this from making you dash
