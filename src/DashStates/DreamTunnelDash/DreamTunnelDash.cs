@@ -491,8 +491,8 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
                     player.StateMachine.State = StDreamTunnelDash;
                     solid.Components.GetAll<DreamTunnelInteraction>().ToList().ForEach(i => i.OnPlayerEnter(player));
                     playerData[Player_solid] = solid;
-                    playerData["dashAttackTimer"] = 0;
-                    playerData["gliderBoostTimer"] = 0;
+                    playerData["dashAttackTimer"] = 0f;
+                    playerData["gliderBoostTimer"] = 0f;
                     return true;
                 } else if (solid is DashSwitch) {
                     // Why is this necesarry? Good question!

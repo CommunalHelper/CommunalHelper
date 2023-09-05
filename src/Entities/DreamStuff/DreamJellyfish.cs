@@ -102,7 +102,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             if (Input.GrabCheck && player.DashDir.Y <= 0) {
                 // force-allow pickup
                 player.GetData()["minHoldTimer"] = 0f;
-                new DynData<Holdable>(Hold)["cannotHoldTimer"] = 0;
+                new DynData<Holdable>(Hold)["cannotHoldTimer"] = 0f;
 
                 if ((bool) m_Player_Pickup.Invoke(player, new object[] { Hold })) {
                     player.StateMachine.State = Player.StPickup;

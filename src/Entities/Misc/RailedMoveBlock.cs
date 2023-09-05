@@ -117,8 +117,7 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         public static readonly Color MoveBgFill = Calc.HexToColor("30b335");
         public static readonly Color StopBgFill = Calc.HexToColor("cc2541");
         public static readonly Color PlacementErrorBgFill = Calc.HexToColor("cc7c27");
-
-        private DynData<Platform> platformData;
+        
         private Vector2 start, target, dir;
         private float percent, length;
 
@@ -217,8 +216,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
             });
             sfx.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_move, "arrow_stop", 1f);
             Add(new LightOcclude(0.5f));
-
-            platformData = new DynData<Platform>(this);
         }
 
         private void AddImage(MTexture tex, Vector2 position, float rotation, Vector2 scale, List<Image> addTo) {

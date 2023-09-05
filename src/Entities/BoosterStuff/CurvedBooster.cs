@@ -128,8 +128,6 @@ namespace Celeste.Mod.CommunalHelper.Entities {
         protected override int? RedDashUpdateBefore(Player player) {
             base.RedDashUpdateBefore(player);
 
-            DynData<Player> data = player.GetData();
-
             Vector2 prev = player.Position;
 
             travel += 240f * Engine.DeltaTime; // booster speed constant
