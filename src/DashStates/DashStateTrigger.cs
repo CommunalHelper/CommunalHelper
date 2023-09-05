@@ -15,7 +15,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates {
 
         public DashStates DashState;
 
-        protected DashStateTrigger(EntityData data, Vector2 offset)
+        public DashStateTrigger(EntityData data, Vector2 offset)
             : base(data, offset) {
             Mode = data.Enum("mode", Modes.Trigger);
             DashState = data.Enum("dashState", DashStates.DreamTunnelDash);
