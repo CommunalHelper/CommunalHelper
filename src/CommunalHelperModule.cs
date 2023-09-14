@@ -104,6 +104,8 @@ public class CommunalHelperModule : EverestModule
         CommunalHelperGFX.Load();
         Pushable.Load();
 
+        BadelineBoostKeepHoldables.Hook();
+
         #region Imports
 
         typeof(Imports.CavernHelper).ModInterop();
@@ -184,6 +186,8 @@ public class CommunalHelperModule : EverestModule
 
         CommunalHelperGFX.Unload();
         Pushable.Unload();
+
+        BadelineBoostKeepHoldables.Unhook();
     }
 
     public override void Initialize()

@@ -713,6 +713,14 @@ entities.CommunalHelper/ElytraStopRing.attributes.description.refill=Whether the
 entities.CommunalHelper/ElytraNoteRing.placements.name.elytra_note_ring=Elytra Note Ring
 entities.CommunalHelper/ElytraNoteRing.attributes.description.semitone=The note to play when this ring is crossed. You can input your own integer value if you want to go above or below the range available in the dropdown options.\n0 is C4, input negative integer to go below.
 
+# Badeline Boost (Keep Holdables)
+entities.CommunalHelper/BadelineBoostKeepHoldables.placements.name.boost=Badeline Boost (Keep Holdables)
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.lockCamera=Upon activation, the camera cannot pan away from the entity.
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.canSkip=Badeline will skip to the next position if the player is too far to the right of the current one  (100 pixels).
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9Boost=Whether this boost should be able to end the level, transporting the player to room "end-granny". If the player has a golden berry, and this isn't a golden boost, they are transported to the golden room "end-golden" instead.\nRequires a Blackhole in the background, does not work if it is in the foreground.
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9GoldenBoost=Used to indicate that we are in the golden room and boosting out. Prevents the check in finalCh9Boost, and always ends the level if finalCh9Boost is also set.
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9Dialog=If finalCh9Boost is also set and doesn't go to golden room, this will trigger the Farewell ending dialog.
+
 # [Strawberry Jam] Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]
 entities.CommunalHelper/SJ/BulletTimeController.placements.description.controller=Slows down time while the player has dashes.
