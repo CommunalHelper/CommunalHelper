@@ -1,4 +1,5 @@
-﻿using MonoMod.Cil;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Linq;
 
@@ -78,11 +79,13 @@ public class ManualCassetteController : AbstractInputController
     private static IDetour hook_Level_orig_LoadLevel;
     internal static new void Load()
     {
+        IL.Celeste.CassetteBlockManager.ctor += CassetteBlockManager_ctor;
         hook_Level_orig_LoadLevel = new ILHook(typeof(Level).GetMethod("orig_LoadLevel"), Level_orig_LoadLevel);
     }
 
     internal static new void Unload()
     {
+        IL.Celeste.CassetteBlockManager.ctor -= CassetteBlockManager_ctor;
         hook_Level_orig_LoadLevel.Dispose();
     }
 
@@ -114,4 +117,26 @@ public class ManualCassetteController : AbstractInputController
         });
     }
 
+    private static void CassetteBlockManager_ctor(ILContext il)
+    {
+        // we need to ensure that the TransitionListener.OnOutBegin checks that Scene isn't null before doing anything
+        // so we will replace the Action in TransitionListener.OnOutBegin with our Action
+
+        ILCursor cursor = new(il);
+
+        cursor.GotoNext(MoveType.Before, instr => instr.MatchStfld("Celeste.TransitionListener", "OnOutBegin"));
+
+        cursor.Emit(OpCodes.Ldarg_0);
+
+        cursor.EmitDelegate((Action originalOnOutBeginAction, CassetteBlockManager cassetteBlockManager) =>
+        {
+            return () =>
+            {
+                if (cassetteBlockManager.Scene != null)
+                {
+                    originalOnOutBeginAction();
+                }
+            };
+        });
+    }
 }
