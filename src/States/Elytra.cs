@@ -202,23 +202,26 @@ public static class Elytra
 
         // determine new speed :
         newSpeed = oldSpeed;
-        if (newAngle < STABLE_ANGLE)
+        if (stableTimer <= 0f)
         {
-            // going above middle angle, slow down.
-            // if the player goes at a higher speed than the maximum speed, decelerate faster.
-            float decel = oldSpeed > MAX_SPEED
-                ? FAST_DECEL
-                : DECEL;
-            newSpeed = Calc.Approach(oldSpeed, MIN_SPEED, Engine.DeltaTime * decel * absYInput);
-        }
-        else if (newAngle > STABLE_ANGLE)
-        {
-            // speed up, relative to how vertical the player's input is.
+            if (newAngle < STABLE_ANGLE)
+            {
+                // going above middle angle, slow down.
+                // if the player goes at a higher speed than the maximum speed, decelerate faster.
+                float decel = oldSpeed > MAX_SPEED
+                    ? FAST_DECEL
+                    : DECEL;
+                newSpeed = Calc.Approach(oldSpeed, MIN_SPEED, Engine.DeltaTime * decel * absYInput);
+            }
+            else if (newAngle > STABLE_ANGLE)
+            {
+                // speed up, relative to how vertical the player's input is.
 
-            // if the speed is already greater than the max diving speed, then don't change it.
-            // in that case, it's only going to decrease if the player decides to glide up.
-            if (oldSpeed < MAX_SPEED)
-                newSpeed = Calc.Approach(oldSpeed, MAX_SPEED, Engine.DeltaTime * ACCEL * absYInput);
+                // if the speed is already greater than the max diving speed, then don't change it.
+                // in that case, it's only going to decrease if the player decides to glide up.
+                if (oldSpeed < MAX_SPEED)
+                    newSpeed = Calc.Approach(oldSpeed, MAX_SPEED, Engine.DeltaTime * ACCEL * absYInput);
+            }
         }
 
         // update new values.
