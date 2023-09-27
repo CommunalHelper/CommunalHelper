@@ -186,7 +186,7 @@ public class MoveBlockRedirect : Entity
         base.Update();
         UpdateAppearance();
 
-        if (lastMoveBlock != null && !CollideCheck(lastMoveBlock.Entity))
+        if (lastMoveBlock != null && (lastMoveBlock.Entity == null || !CollideCheck(lastMoveBlock.Entity)))
             lastMoveBlock = null;
         else if ((lastMoveBlock == null || FastRedirect) && maskAlpha != 0f)
         {

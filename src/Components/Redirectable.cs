@@ -24,7 +24,7 @@ namespace Celeste.Mod.CommunalHelper.Components;
 ///     targetAngle
 ///     angle
 /// </summary>
-[Tracked]
+[Tracked(true)]
 public class Redirectable : Component
 {
     // Pre-initialize this with some known types

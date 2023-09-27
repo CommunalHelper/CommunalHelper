@@ -48,6 +48,8 @@ public class CommunalHelperModule : EverestModule
         CustomDreamBlock.Load();
         ConnectedTempleCrackedBlock.Load();
 
+        CrushBlockRedirectable.Load();
+
         // Individual Dream Blocks hooked in CustomDreamBlock.Load
 
         DreamDashCollider.Load();
@@ -132,6 +134,8 @@ public class CommunalHelperModule : EverestModule
         CustomDreamBlock.Unload();
         ConnectedTempleCrackedBlock.Unload();
 
+        CrushBlockRedirectable.Unload();
+
         // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
         AbstractPanel.Unload();
@@ -167,7 +171,7 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Unhook();
         PlayerSeekerBarrierRenderer.Unhook();
-        
+
         ShowHitboxTrigger.Unload();
         GrabTempleGate.Unhook();
         SolarElevator.Unhook();
