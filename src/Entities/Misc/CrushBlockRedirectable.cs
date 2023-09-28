@@ -6,7 +6,6 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -17,7 +16,12 @@ internal class CrushBlockRedirectable : Redirectable
     public float currentSpeed = 0;
     public float maxSpeed = CRASH_BLOCK_DEFAULT_MAX_SPEED;
 
-    private static readonly ConstructorInfo MoveState_Contractor = typeof(CrushBlock).GetNestedType("MoveState", BindingFlags.NonPublic).GetConstructors()[0];
+    private static readonly ConstructorInfo MoveState_Constructor =
+        typeof(CrushBlock).GetNestedType("MoveState", BindingFlags.NonPublic).GetConstructor(new Type[]
+        {
+            typeof(Vector2), typeof(Vector2)
+        });
+
     private static readonly MethodInfo m_AttackSequence =
         typeof(CrushBlock).GetMethod("AttackSequence", BindingFlags.Instance | BindingFlags.NonPublic).GetStateMachineTarget();
 
@@ -122,7 +126,7 @@ internal class CrushBlockRedirectable : Redirectable
 
         if (oldDirection != newDirection && oldDirection != -newDirection)
         {
-            object newMoveState = MoveState_Contractor.Invoke(new object[] { Entity.Position, newDirection });
+            object newMoveState = MoveState_Constructor.Invoke(new object[] { Entity.Position, newDirection });
             IList returnStack = Data.Get<IList>("returnStack");
             returnStack.Add(newMoveState);
         }
