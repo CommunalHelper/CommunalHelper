@@ -198,7 +198,7 @@ public class MoveSwapBlock : SwapBlock
         Add(moveBlockSfx = new SoundSource());
         Add(new Coroutine(Controller()));
 
-        Add(new Redirectable(new DynamicData(this))
+        Add(new RedirectableMoveBlock(new DynamicData(this))
         {
             Get_Speed = () => moveSpeed,
             Get_TargetSpeed = () => targetMoveSpeed,
@@ -466,7 +466,7 @@ public class MoveSwapBlock : SwapBlock
             yield return 0.2f;
 
             BreakParticles();
-            Get<Redirectable>()?.ResetBlock();
+            ((RedirectableMoveBlock) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debrisList = new();
             for (int i = 0; i < Width; i += 8)
             {

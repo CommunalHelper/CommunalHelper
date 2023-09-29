@@ -48,8 +48,6 @@ public class CommunalHelperModule : EverestModule
         CustomDreamBlock.Load();
         ConnectedTempleCrackedBlock.Load();
 
-        CrushBlockRedirectable.Load();
-
         // Individual Dream Blocks hooked in CustomDreamBlock.Load
 
         DreamDashCollider.Load();
@@ -62,7 +60,7 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Hook();
         MoveBlockRedirect.Load();
-        Redirectable.Load();
+        RedirectableMoveBlock.Load();
         MoveSwapBlock.Load();
 
         AbstractInputController.Load();
@@ -134,7 +132,6 @@ public class CommunalHelperModule : EverestModule
         CustomDreamBlock.Unload();
         ConnectedTempleCrackedBlock.Unload();
 
-        CrushBlockRedirectable.Unload();
 
         // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
@@ -146,7 +143,7 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Unhook();
         MoveBlockRedirect.Unload();
-        Redirectable.Unload();
+        RedirectableMoveBlock.Unload();
         MoveSwapBlock.Unload();
         AbstractInputController.Unload();
         CassetteJumpFixController.Unload();

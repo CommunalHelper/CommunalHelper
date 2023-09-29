@@ -108,7 +108,7 @@ public class DreamMoveBlock : CustomDreamBlock
         Add(controller = new Coroutine(Controller()));
         Add(new LightOcclude(0.5f));
 
-        Add(new Redirectable(new MonoMod.Utils.DynamicData(this))
+        Add(new RedirectableMoveBlock(new MonoMod.Utils.DynamicData(this))
         {
             Get_CanSteer = () => false,
             Get_Direction = () => Direction,
@@ -235,7 +235,7 @@ public class DreamMoveBlock : CustomDreamBlock
 
 
             BreakParticles();
-            Get<Redirectable>()?.ResetBlock();
+            ((RedirectableMoveBlock) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debris = new();
             for (int x = 0; x < Width; x += 8)
             {
