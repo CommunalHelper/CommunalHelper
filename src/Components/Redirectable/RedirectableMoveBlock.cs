@@ -11,7 +11,7 @@ using Directions = Celeste.MoveBlock.Directions;
 namespace Celeste.Mod.CommunalHelper.Components;
 
 [Tracked(true)]
-public class RedirectableMoveBlock : Redirectable
+public class MoveBlockRedirectable : SlowRedirectable
 {
     // Pre-initialize this with some known types
     private static readonly Dictionary<Type, FieldInfo> reflectionCache = new()
@@ -22,13 +22,10 @@ public class RedirectableMoveBlock : Redirectable
         { typeof(MoveSwapBlock), typeof(MoveSwapBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this") },
     };
 
-    public DynamicData Data;
     private Action<Coroutine> onResumeAction;
     private Action<Coroutine> onBreakAction;
-    public RedirectableMoveBlock(DynamicData Data) : base()
+    public MoveBlockRedirectable(DynamicData Data) : base(Data)
     {
-        this.Data = Data;
-
         onResumeAction = GetControllerDelegate(Data, 3);
         onBreakAction = GetControllerDelegate(Data, 4);
     }
@@ -169,13 +166,13 @@ public class RedirectableMoveBlock : Redirectable
     {
         orig(self, position, width, height, direction, canSteer, fast);
         if (self.GetType() == typeof(MoveBlock))
-            self.Add(new RedirectableMoveBlock(new DynamicData(typeof(MoveBlock), self)));
+            self.Add(new MoveBlockRedirectable(new DynamicData(typeof(MoveBlock), self)));
     }
 
     private static void MoveBlock_BreakParticles(On.Celeste.MoveBlock.orig_BreakParticles orig, MoveBlock self)
     {
         orig(self);
-        ((RedirectableMoveBlock) self.Get<Redirectable>())?.ResetBlock();
+        ((MoveBlockRedirectable) self.Get<Redirectable>())?.ResetBlock();
     }
 
     protected override float GetInitialAngle()

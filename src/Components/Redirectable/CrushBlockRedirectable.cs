@@ -13,8 +13,11 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 internal class CrushBlockRedirectable : Redirectable
 {
     private const float CRASH_BLOCK_DEFAULT_MAX_SPEED = 240f;
-    public float currentSpeed = 0;
-    public float maxSpeed = CRASH_BLOCK_DEFAULT_MAX_SPEED;
+    public override float Speed { get; set; } = 0;
+    public override float TargetSpeed { get; set; } = CRASH_BLOCK_DEFAULT_MAX_SPEED;
+
+    private bool isStuck = false;
+
 
     private static readonly ConstructorInfo MoveState_Constructor =
         typeof(CrushBlock).GetNestedType("MoveState", BindingFlags.NonPublic).GetConstructor(new Type[]
@@ -25,55 +28,9 @@ internal class CrushBlockRedirectable : Redirectable
     private static readonly MethodInfo m_AttackSequence =
         typeof(CrushBlock).GetMethod("AttackSequence", BindingFlags.Instance | BindingFlags.NonPublic).GetStateMachineTarget();
 
-    public CrushBlockRedirectable(DynamicData entityData) : base(entityData, (_) => { }, (_) => { })
+    public CrushBlockRedirectable(DynamicData Data) : base(Data)
     {
-        OnBreak = (_) => { _.Cancel(); StopInPlace(); };
-        Get_Speed = () => currentSpeed;
-        Set_Speed = (float speed) =>
-        {
-            currentSpeed = speed;
-        };
-        Get_TargetSpeed = () => maxSpeed;
-        Set_TargetSpeed = (maxSpeed) =>
-        {
-            this.maxSpeed = maxSpeed;
-        };
-        Get_Direction = () =>
-            {
-                Vector2 direction = Data.Get<Vector2>("crushDir");
-                if (direction.X > 0)
-                {
-                    return MoveBlock.Directions.Right;
-                }
-                else if (direction.X < 0)
-                {
-                    return MoveBlock.Directions.Left;
-                }
-                else if (direction.Y > 0)
-                {
-                    return MoveBlock.Directions.Down;
-                }
-                else
-                {
-                    return MoveBlock.Directions.Up;
-                }
-            };
-        Set_Direction = (direction) => Redirect(direction.Vector());
-        Get_HomeAngle = () => 0;
-        Set_HomeAngle = (_) => { };
-        Get_CanSteer = () => false;
-        Get_MoveSfx = () => entityData.Get<SoundSource>("returnLoopSfx");
-        Set_TargetAngle = (_) => { };
-        Set_Angle = (_) => { };
-    }
-
-    private void StopInPlace()
-    {
-        Data.Get<Sprite>("face").Play("idle");
-        Data.Invoke("ClearRemainder");
-        Data.Invoke("TurnOffImages");
-        Audio.Play("event:/game/06_reflection/crushblock_impact", Entity.Center);
-        Data.Get<SoundSource>("currentMoveLoopSfx")?.Param("end", 1f);
+        CanRedirect = false;
     }
 
     private void Redirect(Vector2 newDirection)
@@ -81,7 +38,7 @@ internal class CrushBlockRedirectable : Redirectable
         Vector2 oldDirection = Data.Get<Vector2>("crushDir");
 
         Data.Set("crushDir", newDirection);
-
+        Audio.Play("event:/game/06_reflection/crushblock_impact", Entity.Center);
         Audio.Play("event:/game/06_reflection/crushblock_activate", Entity.Center);
         Data.Get<Sprite>("face").Play("hit");
         Data.Invoke("ClearRemainder");
@@ -132,24 +89,81 @@ internal class CrushBlockRedirectable : Redirectable
         }
     }
 
+    public override MoveBlock.Directions Direction
+    {
+        get => Data.Get<Vector2>("crushDir").Direction();
+        set => Redirect(value.Vector());
+    }
+
+
+    // we don't care about angle in crush block leave defaulted
+    public override float Angle { get; set; }
+
+    public override bool CanSteer => false;
+
+    public override void MoveTo(Vector2 to)
+    {
+
+        (Entity as Platform)?.MoveTo(to);
+    }
+
+    public override void OnBreak(Coroutine moveCoroutine)
+    {
+        Data.Get<Sprite>("face").Play("idle");
+        Data.Invoke("ClearRemainder");
+        Data.Invoke("TurnOffImages");
+        Audio.Play("event:/game/06_reflection/crushblock_impact", Entity.Center);
+        Data.Get<SoundSource>("currentMoveLoopSfx")?.Param("end", 1f);
+        CanRedirect = false;
+        isStuck = true;
+        moveCoroutine.Cancel();
+    }
+
+    protected override float GetInitialAngle()
+    {
+        return 0;
+    }
+
+    protected override MoveBlock.Directions GetInitialDirection()
+    {
+        return Direction;
+    }
 
 
     private static ILHook hook_CrashBlock_AttackSequence;
-    public static new void Load()
+
+    public static void Load()
     {
         hook_CrashBlock_AttackSequence = new(m_AttackSequence, CrashBlock_AttackSequence);
+        On.Celeste.CrushBlock.OnDashed += CrushBlock_OnDashed;
         On.Celeste.CrushBlock.Attack += CrushBlock_Attack;
         On.Celeste.CrushBlock.MoveHCheck += CrushBlock_MoveHCheck;
         On.Celeste.CrushBlock.MoveVCheck += CrushBlock_MoveVCheck;
+        On.Celeste.CrushBlock.ctor_Vector2_float_float_Axes_bool += CrushBlock_ctor;
     }
 
-    public static new void Unload()
+    public static void Unload()
     {
         hook_CrashBlock_AttackSequence?.Dispose();
         hook_CrashBlock_AttackSequence = null;
+        On.Celeste.CrushBlock.OnDashed -= CrushBlock_OnDashed;
         On.Celeste.CrushBlock.Attack -= CrushBlock_Attack;
         On.Celeste.CrushBlock.MoveHCheck -= CrushBlock_MoveHCheck;
         On.Celeste.CrushBlock.MoveVCheck -= CrushBlock_MoveVCheck;
+        On.Celeste.CrushBlock.ctor_Vector2_float_float_Axes_bool -= CrushBlock_ctor;
+    }
+
+    public static void CrushBlock_ctor(On.Celeste.CrushBlock.orig_ctor_Vector2_float_float_Axes_bool orig,
+                                       CrushBlock self,
+                                       Vector2 position,
+                                       float width,
+                                       float height,
+                                       CrushBlock.Axes axes,
+                                       bool chillOut)
+    {
+        orig(self, position, width, height, axes, chillOut);
+        if (self.GetType() == typeof(CrushBlock))
+            self.Add(new CrushBlockRedirectable(new DynamicData(self)));
     }
 
     static private void CrashBlock_AttackSequence(ILContext context)
@@ -163,7 +177,7 @@ internal class CrushBlockRedirectable : Redirectable
             cursor.EmitDelegate((float maxSpeed, CrushBlock crushBlock) =>
             {
                 CrushBlockRedirectable redirectable = (CrushBlockRedirectable) crushBlock.Components.Get<Redirectable>();
-                return redirectable?.maxSpeed ?? CRASH_BLOCK_DEFAULT_MAX_SPEED;
+                return redirectable?.TargetSpeed ?? maxSpeed;
             });
         }
 
@@ -200,11 +214,28 @@ internal class CrushBlockRedirectable : Redirectable
 
     }
 
+    private static DashCollisionResults CrushBlock_OnDashed(On.Celeste.CrushBlock.orig_OnDashed orig, CrushBlock self, Player player, Vector2 direction)
+    {
+        CrushBlockRedirectable redirectable = (CrushBlockRedirectable) self.Components.Get<Redirectable>();
+        if (redirectable != null && redirectable.isStuck)
+        {
+            return DashCollisionResults.NormalCollision;
+        }
+        return orig(self, player, direction);
+    }
+
+
     private static void CrushBlock_Attack(On.Celeste.CrushBlock.orig_Attack orig, CrushBlock self, Vector2 direction)
     {
-        if (self.Components.Get<Redirectable>() == null)
+        CrushBlockRedirectable redirectable = (CrushBlockRedirectable) self.Components.Get<Redirectable>();
+        if (redirectable != null)
         {
-            self.Add(new CrushBlockRedirectable(new DynamicData(typeof(CrushBlock), self)));
+            if (redirectable.isStuck)
+            {
+                return;
+            }
+
+            redirectable.CanRedirect = true;
         }
         orig(self, direction);
     }
@@ -234,9 +265,10 @@ internal class CrushBlockRedirectable : Redirectable
     private static void OnWallCoalition(CrushBlock self)
     {
         Redirectable redirectable = self.Components.Get<Redirectable>();
+
         if (redirectable != null)
         {
-            redirectable.RemoveSelf();
+            redirectable.CanRedirect = false;
         }
     }
 }

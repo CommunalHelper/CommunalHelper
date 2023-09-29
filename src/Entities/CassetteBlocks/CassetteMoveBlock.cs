@@ -77,7 +77,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
         P_Break = new ParticleType(MoveBlock.P_Break) { Color = color };
         P_BreakPressed = new ParticleType(MoveBlock.P_Break) { Color = pressedColor };
 
-        Add(new RedirectableMoveBlock(new MonoMod.Utils.DynamicData(this))
+        Add(new MoveBlockRedirectable(new MonoMod.Utils.DynamicData(this))
         {
             Get_CanSteer = () => false,
             Get_Direction = () => Direction,
@@ -220,7 +220,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
             yield return 0.2f;
 
             BreakParticles();
-            ((RedirectableMoveBlock) Get<Redirectable>())?.ResetBlock();
+            ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debris = new();
             for (int x = 0; x < Width; x += 8)
             {

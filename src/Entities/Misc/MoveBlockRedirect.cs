@@ -49,7 +49,7 @@ public class MoveBlockRedirect : Entity
     public MoveBlockRedirect(EntityData data, Vector2 offset)
         : base(data.Position + offset)
     {
-        Depth = Depths.Above;
+        Depth = Depths.Solids - 1;
         Collider = new Hitbox(data.Width, data.Height);
 
         FastRedirect = data.Bool("fastRedirect");
@@ -185,7 +185,7 @@ public class MoveBlockRedirect : Entity
 
         if (lastMoveBlock != null && !CollideCheck(lastMoveBlock.Entity))
             lastMoveBlock = null;
-        else if ((lastMoveBlock == null || FastRedirect) && maskAlpha != 0f)
+        else if ((lastMoveBlock == null || FastRedirect || !lastMoveBlock.CanRedirect) && maskAlpha != 0f)
         {
             maskAlpha = Calc.Approach(maskAlpha, 0f, (FastRedirect && !DeleteBlock ? 2.5f : 4f) * Engine.DeltaTime);
         }
@@ -232,18 +232,18 @@ public class MoveBlockRedirect : Entity
             }
             else
             {
-                if (FastRedirect)
+                if (!FastRedirect && redirectable is SlowRedirectable slowRedirectable)
+                {
+                    Coroutine routine = block.Get<Coroutine>();
+                    block.Remove(routine);
+                    Add(new Coroutine(RedirectRoutine(slowRedirectable, routine)));
+                }
+                else
                 {
                     SetBlockData(redirectable);
                     maskAlpha = 1f;
                     if (OneUse)
                         Disappear();
-                }
-                else
-                {
-                    Coroutine routine = block.Get<Coroutine>();
-                    block.Remove(routine);
-                    Add(new Coroutine(RedirectRoutine(redirectable, routine)));
                 }
             }
         }
@@ -258,7 +258,7 @@ public class MoveBlockRedirect : Entity
     private void SetBlockData(Redirectable redirectable)
     {
         redirectable.InitializeInitialValues();
-        
+
         redirectable.Angle = angle;
         redirectable.Direction = Direction;
 
@@ -274,7 +274,10 @@ public class MoveBlockRedirect : Entity
     private IEnumerator BreakBlock(Redirectable redirectable, Coroutine orig, bool fast, bool oneUse)
     {
         redirectable.MoveTo(Position);
-        redirectable.BeforeBreakEffect();
+        if (redirectable is SlowRedirectable slowRedirectable)
+        {
+            slowRedirectable.BeforeBreakEffect();
+        }
 
         //state = MovementState.Breaking;
         redirectable.Speed = redirectable.TargetSpeed = 0f;
@@ -282,12 +285,7 @@ public class MoveBlockRedirect : Entity
 
         //redirectable.Entity.StopPlayerRunIntoAnimation = true; // Unused in Vanilla so we ignore it
 
-        if (fast)
-        {
-            maskAlpha = 1f;
-            Audio.Play(CustomSFX.game_redirectMoveBlock_arrowblock_break_fast, redirectable.Entity.Position);
-        }
-        else
+        if (!fast && redirectable is SlowRedirectable)
         {
             float duration = 0.15f;
             float timer = 0f;
@@ -299,6 +297,11 @@ public class MoveBlockRedirect : Entity
                 maskAlpha = Ease.SineIn(timer / duration);
                 yield return null;
             }
+        }
+        else
+        {
+            maskAlpha = 1f;
+            Audio.Play(CustomSFX.game_redirectMoveBlock_arrowblock_break_fast, redirectable.Entity.Position);
         }
 
         UsedParticles();
@@ -314,7 +317,7 @@ public class MoveBlockRedirect : Entity
             Disappear();
     }
 
-    private IEnumerator RedirectRoutine(Redirectable redirectable, Coroutine orig)
+    private IEnumerator RedirectRoutine(SlowRedirectable redirectable, Coroutine orig)
     {
         Entity block = redirectable.Entity;
         float duration = 1f;

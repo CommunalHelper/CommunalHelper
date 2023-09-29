@@ -1,11 +1,15 @@
-﻿using Directions = Celeste.MoveBlock.Directions;
+﻿using MonoMod.Utils;
+using Directions = Celeste.MoveBlock.Directions;
 
 namespace Celeste.Mod.CommunalHelper.Components;
 
 [Tracked(true)]
 public abstract class Redirectable : Component
 {
-    public Redirectable() : base(false, false) { }
+    public Redirectable(DynamicData Data) : base(false, false)
+    {
+        this.Data = Data;
+    }
 
     public bool CanRedirect { get; set; } = true;
     public abstract float Speed { get; set; }
@@ -16,14 +20,10 @@ public abstract class Redirectable : Component
 
     public Directions InitialDirection;
     public float InitialAngle;
+    public DynamicData Data;
 
     public abstract void MoveTo(Vector2 to);
-    public abstract void OnPause(Coroutine moveCoroutine, float shakeTime);
-    public abstract void OnResume(Coroutine moveCoroutine);
     public abstract void OnBreak(Coroutine moveCoroutine);
-
-    public abstract void BeforeBreakEffect();
-    public abstract void OnRedirectEffect(float shakeTime);
 
 
     private bool boolInitialized = false;

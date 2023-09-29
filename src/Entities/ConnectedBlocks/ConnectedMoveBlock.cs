@@ -744,7 +744,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         // Allow this block to be redirected by MoveBlockRedirects if it has a single rectangular collider.
         if (Colliders.Length == 1)
         {
-            Add(new RedirectableMoveBlock(new DynamicData(this))
+            Add(new MoveBlockRedirectable(new DynamicData(this))
             {
                 Get_CanSteer = () => false,
                 Get_Direction = () => Direction,

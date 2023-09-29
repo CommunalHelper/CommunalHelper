@@ -60,7 +60,8 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Hook();
         MoveBlockRedirect.Load();
-        RedirectableMoveBlock.Load();
+        MoveBlockRedirectable.Load();
+        CrushBlockRedirectable.Load();
         MoveSwapBlock.Load();
 
         AbstractInputController.Load();
@@ -87,7 +88,7 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Hook();
         PlayerSeekerBarrierRenderer.Hook();
-        
+
         ShowHitboxTrigger.Load();
         GrabTempleGate.Hook();
         SolarElevator.Hook();
@@ -143,7 +144,8 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Unhook();
         MoveBlockRedirect.Unload();
-        RedirectableMoveBlock.Unload();
+        MoveBlockRedirectable.Unload();
+        CrushBlockRedirectable.Unload();
         MoveSwapBlock.Unload();
         AbstractInputController.Unload();
         CassetteJumpFixController.Unload();
