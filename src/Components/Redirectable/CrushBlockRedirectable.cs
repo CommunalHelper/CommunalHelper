@@ -30,7 +30,7 @@ internal class CrushBlockRedirectable : Redirectable
 
     public CrushBlockRedirectable(DynamicData Data) : base(Data)
     {
-        CanRedirect = false;
+        IsRedirectable = false;
     }
 
     private void Redirect(Vector2 newDirection)
@@ -113,8 +113,8 @@ internal class CrushBlockRedirectable : Redirectable
         Data.Invoke("ClearRemainder");
         Data.Invoke("TurnOffImages");
         Audio.Play("event:/game/06_reflection/crushblock_impact", Entity.Center);
-        Data.Get<SoundSource>("currentMoveLoopSfx")?.Param("end", 1f);
-        CanRedirect = false;
+        Data.Get<SoundSource>("currentMoveLoopSfx")?.RemoveSelf();
+        IsRedirectable = false;
         isStuck = true;
         moveCoroutine.Cancel();
     }
@@ -230,12 +230,7 @@ internal class CrushBlockRedirectable : Redirectable
         CrushBlockRedirectable redirectable = (CrushBlockRedirectable) self.Components.Get<Redirectable>();
         if (redirectable != null)
         {
-            if (redirectable.isStuck)
-            {
-                return;
-            }
-
-            redirectable.CanRedirect = true;
+            redirectable.IsRedirectable = true;
         }
         orig(self, direction);
     }
@@ -268,7 +263,7 @@ internal class CrushBlockRedirectable : Redirectable
 
         if (redirectable != null)
         {
-            redirectable.CanRedirect = false;
+            redirectable.IsRedirectable = false;
         }
     }
 }

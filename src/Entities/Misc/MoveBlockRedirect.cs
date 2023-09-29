@@ -185,7 +185,7 @@ public class MoveBlockRedirect : Entity
 
         if (lastMoveBlock != null && !CollideCheck(lastMoveBlock.Entity))
             lastMoveBlock = null;
-        else if ((lastMoveBlock == null || FastRedirect || !lastMoveBlock.CanRedirect) && maskAlpha != 0f)
+        else if ((lastMoveBlock == null || FastRedirect || !lastMoveBlock.IsRedirectable) && maskAlpha != 0f)
         {
             maskAlpha = Calc.Approach(maskAlpha, 0f, (FastRedirect && !DeleteBlock ? 2.5f : 4f) * Engine.DeltaTime);
         }
@@ -193,7 +193,7 @@ public class MoveBlockRedirect : Entity
         Redirectable redirectable = Scene.Tracker.GetComponents<Redirectable>().FirstOrDefault(c => CollideCheck(c.Entity)) as Redirectable;
         Entity block = redirectable?.Entity; // Non-null if redirectible isn't null
 
-        if (Collidable && redirectable != null && redirectable != lastMoveBlock && redirectable.CanRedirect && !redirectable.CanSteer &&
+        if (Collidable && redirectable != null && redirectable != lastMoveBlock && redirectable.IsRedirectable && !redirectable.CanSteer &&
             block.Width == Width && block.Height == Height)
         {
 
@@ -257,7 +257,7 @@ public class MoveBlockRedirect : Entity
 
     private void SetBlockData(Redirectable redirectable)
     {
-        redirectable.InitializeInitialValues();
+        redirectable.SaveInitialValues();
 
         redirectable.Angle = angle;
         redirectable.Direction = Direction;

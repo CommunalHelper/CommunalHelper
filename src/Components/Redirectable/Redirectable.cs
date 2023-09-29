@@ -11,7 +11,7 @@ public abstract class Redirectable : Component
         this.Data = Data;
     }
 
-    public bool CanRedirect { get; set; } = true;
+    public bool IsRedirectable { get; set; } = true;
     public abstract float Speed { get; set; }
     public abstract float TargetSpeed { get; set; }
     public abstract Directions Direction { get; set; }
@@ -26,17 +26,16 @@ public abstract class Redirectable : Component
     public abstract void OnBreak(Coroutine moveCoroutine);
 
 
-    private bool boolInitialized = false;
-
+    private bool initialized = false;
     protected abstract float GetInitialAngle();
     protected abstract Directions GetInitialDirection();
-    public void InitializeInitialValues()
+    public void SaveInitialValues()
     {
-        if (!boolInitialized)
+        if (!initialized)
         {
             InitialDirection = GetInitialDirection();
             InitialAngle = GetInitialAngle();
-            boolInitialized = true;
+            initialized = true;
         }
     }
 }
