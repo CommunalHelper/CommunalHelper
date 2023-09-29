@@ -14,7 +14,7 @@ namespace Celeste.Mod.CommunalHelper.DashStates;
 // Localized glitch/seekerslowdown effect field
 public static class SeekerDash
 {
-    private static bool hasSeekerDash;
+    private static bool hasSeekerDash = false;
     public static bool HasSeekerDash
     {
         get => hasSeekerDash || CommunalHelperModule.Settings.AlwaysActiveSeekerDash;
@@ -66,6 +66,9 @@ public static class SeekerDash
         On.Celeste.Seeker.OnAttackPlayer += Seeker_OnAttackPlayer;
 
         On.Celeste.AngryOshiro.OnPlayer += AngryOshiro_OnPlayer;
+
+        On.Celeste.Level.Reload += Level_Reload;
+        On.Celeste.LevelLoader.StartLevel += LevelLoader_StartLevel;
     }
 
     internal static void Unload()
@@ -101,7 +104,7 @@ public static class SeekerDash
     private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode)
     {
         orig(self, position, spriteMode);
-        HasSeekerDash = seekerDashAttacking = seekerDashLaunched = launchPossible = false;
+        seekerDashAttacking = seekerDashLaunched = launchPossible = false;
     }
 
     private static void IL_Player_ctor(ILContext il)
@@ -432,6 +435,18 @@ public static class SeekerDash
         }
 
         orig(self, player);
+    }
+
+    private static void Level_Reload(On.Celeste.Level.orig_Reload orig, Level self)
+    {
+        hasSeekerDash = seekerDashAttacking = seekerDashLaunched = launchPossible = false;
+        orig(self);
+    }
+
+    private static void LevelLoader_StartLevel(On.Celeste.LevelLoader.orig_StartLevel orig, LevelLoader self)
+    {
+        hasSeekerDash = seekerDashAttacking = seekerDashLaunched = launchPossible = false;
+        orig(self);
     }
 
     #endregion
