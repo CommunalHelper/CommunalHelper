@@ -257,8 +257,6 @@ public class MoveBlockRedirect : Entity
 
     private void SetBlockData(Redirectable redirectable)
     {
-        redirectable.SaveInitialValues();
-
         redirectable.Angle = angle;
         redirectable.Direction = Direction;
 
@@ -280,8 +278,8 @@ public class MoveBlockRedirect : Entity
         }
 
         //state = MovementState.Breaking;
+        redirectable.ResetBlock();
         redirectable.Speed = redirectable.TargetSpeed = 0f;
-        redirectable.Angle = redirectable.InitialAngle;
 
         //redirectable.Entity.StopPlayerRunIntoAnimation = true; // Unused in Vanilla so we ignore it
 

@@ -22,10 +22,14 @@ public class MoveBlockRedirectable : SlowRedirectable
         { typeof(MoveSwapBlock), typeof(MoveSwapBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this") },
     };
 
+    private float initialAngle;
+    private Directions initialDirection;
     private Action<Coroutine> onResumeAction;
     private Action<Coroutine> onBreakAction;
     public MoveBlockRedirectable(DynamicData Data) : base(Data)
     {
+        initialAngle = Angle;
+        initialDirection = Direction;
         onResumeAction = GetControllerDelegate(Data, 3);
         onBreakAction = GetControllerDelegate(Data, 4);
     }
@@ -78,7 +82,7 @@ public class MoveBlockRedirectable : SlowRedirectable
 
     public override float Angle
     {
-        get => Data.Get<float>("Angle"); set
+        get => Data.Get<float>("angle"); set
         {
             Data.Set("angle", value);
             Data.Set("homeAngle", value);
@@ -113,10 +117,10 @@ public class MoveBlockRedirectable : SlowRedirectable
     }
 
 
-    public void ResetBlock()
+    public override void ResetBlock()
     {
-        Angle = InitialAngle;
-        Direction = InitialDirection;
+        Angle = initialAngle;
+        Direction = initialDirection;
     }
 
     public override void MoveTo(Vector2 to)
@@ -173,15 +177,5 @@ public class MoveBlockRedirectable : SlowRedirectable
     {
         orig(self);
         ((MoveBlockRedirectable) self.Get<Redirectable>())?.ResetBlock();
-    }
-
-    protected override float GetInitialAngle()
-    {
-        return Data.Get<float>("homeAngle");
-    }
-
-    protected override Directions GetInitialDirection()
-    {
-        return Direction;
     }
 }

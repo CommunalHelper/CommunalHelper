@@ -18,7 +18,6 @@ internal class CrushBlockRedirectable : Redirectable
 
     private bool isStuck = false;
 
-
     private static readonly ConstructorInfo MoveState_Constructor =
         typeof(CrushBlock).GetNestedType("MoveState", BindingFlags.NonPublic).GetConstructor(new Type[]
         {
@@ -31,6 +30,11 @@ internal class CrushBlockRedirectable : Redirectable
     public CrushBlockRedirectable(DynamicData Data) : base(Data)
     {
         IsRedirectable = false;
+    }
+
+    public override void ResetBlock()
+    {
+        TargetSpeed = CRASH_BLOCK_DEFAULT_MAX_SPEED;
     }
 
     private void Redirect(Vector2 newDirection)
@@ -103,12 +107,12 @@ internal class CrushBlockRedirectable : Redirectable
 
     public override void MoveTo(Vector2 to)
     {
-
         (Entity as Platform)?.MoveTo(to);
     }
 
     public override void OnBreak(Coroutine moveCoroutine)
     {
+        // we can't break crush block so we will make them get stuck instead
         Data.Get<Sprite>("face").Play("idle");
         Data.Invoke("ClearRemainder");
         Data.Invoke("TurnOffImages");
@@ -118,17 +122,6 @@ internal class CrushBlockRedirectable : Redirectable
         isStuck = true;
         moveCoroutine.Cancel();
     }
-
-    protected override float GetInitialAngle()
-    {
-        return 0;
-    }
-
-    protected override MoveBlock.Directions GetInitialDirection()
-    {
-        return Direction;
-    }
-
 
     private static ILHook hook_CrashBlock_AttackSequence;
 
@@ -264,6 +257,7 @@ internal class CrushBlockRedirectable : Redirectable
         if (redirectable != null)
         {
             redirectable.IsRedirectable = false;
+            redirectable.ResetBlock();
         }
     }
 }
