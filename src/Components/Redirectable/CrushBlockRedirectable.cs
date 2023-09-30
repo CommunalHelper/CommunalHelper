@@ -35,6 +35,7 @@ internal class CrushBlockRedirectable : Redirectable
     public override void ResetBlock()
     {
         TargetSpeed = CRASH_BLOCK_DEFAULT_MAX_SPEED;
+        Data.Set("crushDir", Vector2.Zero);
     }
 
     private void Redirect(Vector2 newDirection)
@@ -102,8 +103,6 @@ internal class CrushBlockRedirectable : Redirectable
 
     // we don't care about angle in crush block leave defaulted
     public override float Angle { get; set; }
-
-    public override bool CanSteer => false;
 
     public override void MoveTo(Vector2 to)
     {

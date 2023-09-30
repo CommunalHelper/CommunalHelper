@@ -193,8 +193,8 @@ public class MoveBlockRedirect : Entity
         Redirectable redirectable = Scene.Tracker.GetComponents<Redirectable>().FirstOrDefault(c => CollideCheck(c.Entity)) as Redirectable;
         Entity block = redirectable?.Entity; // Non-null if redirectible isn't null
 
-        if (Collidable && redirectable != null && redirectable != lastMoveBlock && redirectable.IsRedirectable && !redirectable.CanSteer &&
-            block.Width == Width && block.Height == Height)
+        if (Collidable && redirectable != null && redirectable != lastMoveBlock && redirectable.IsRedirectable &&
+                block.Width == Width && block.Height == Height)
         {
 
             if (!Collider.Contains(block.Collider, 0.001f))
@@ -342,7 +342,7 @@ public class MoveBlockRedirect : Entity
             yield return null;
         }
 
-        redirectable.OnRedirectEffect(0.18f);
+        redirectable.DuringRedirectEffect(0.18f);
 
         while (timer > 0)
         {

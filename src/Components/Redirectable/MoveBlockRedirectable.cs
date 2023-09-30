@@ -28,6 +28,7 @@ public class MoveBlockRedirectable : SlowRedirectable
     private Action<Coroutine> onBreakAction;
     public MoveBlockRedirectable(DynamicData Data) : base(Data)
     {
+        IsRedirectable = !(Get_CanSteer?.Invoke() ?? Data.Get<bool>("canSteer"));
         initialAngle = Angle;
         initialDirection = Direction;
         onResumeAction = GetControllerDelegate(Data, 3);
@@ -91,7 +92,6 @@ public class MoveBlockRedirectable : SlowRedirectable
     }
 
     public Func<bool>? Get_CanSteer = null;
-    public override bool CanSteer => Get_CanSteer?.Invoke() ?? Data.Get<bool>("canSteer");
 
     public Func<SoundSource>? Get_MoveSfx = null;
     public SoundSource MoveSfx => Get_MoveSfx?.Invoke() ?? Data.Get<SoundSource>("moveSfx");
@@ -149,7 +149,7 @@ public class MoveBlockRedirectable : SlowRedirectable
         MoveSfx?.Stop();
     }
 
-    public override void OnRedirectEffect(float shakeTime)
+    public override void DuringRedirectEffect(float shakeTime)
     {
         (Entity as Platform)?.StartShaking(shakeTime);
         MoveSfx?.Param("redirect_slowdown", 0f);
