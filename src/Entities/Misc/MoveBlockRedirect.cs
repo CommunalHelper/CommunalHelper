@@ -232,18 +232,18 @@ public class MoveBlockRedirect : Entity
             }
             else
             {
-                if (!FastRedirect && redirectable is SlowRedirectable slowRedirectable)
-                {
-                    Coroutine routine = block.Get<Coroutine>();
-                    block.Remove(routine);
-                    Add(new Coroutine(RedirectRoutine(slowRedirectable, routine)));
-                }
-                else
+                if (FastRedirect)
                 {
                     SetBlockData(redirectable);
                     maskAlpha = 1f;
                     if (OneUse)
                         Disappear();
+                }
+                else
+                {
+                    Coroutine routine = block.Get<Coroutine>();
+                    block.Remove(routine);
+                    Add(new Coroutine(RedirectRoutine(redirectable, routine)));
                 }
             }
         }
@@ -272,10 +272,7 @@ public class MoveBlockRedirect : Entity
     private IEnumerator BreakBlock(Redirectable redirectable, Coroutine orig, bool fast, bool oneUse)
     {
         redirectable.MoveTo(Position);
-        if (redirectable is SlowRedirectable slowRedirectable)
-        {
-            slowRedirectable.BeforeBreakEffect();
-        }
+        redirectable.BeforeBreakAnimation();
 
         //state = MovementState.Breaking;
         redirectable.ResetBlock();
@@ -283,7 +280,12 @@ public class MoveBlockRedirect : Entity
 
         //redirectable.Entity.StopPlayerRunIntoAnimation = true; // Unused in Vanilla so we ignore it
 
-        if (!fast && redirectable is SlowRedirectable)
+        if (fast)
+        {
+            maskAlpha = 1f;
+            Audio.Play(CustomSFX.game_redirectMoveBlock_arrowblock_break_fast, redirectable.Entity.Position);
+        }
+        else
         {
             float duration = 0.15f;
             float timer = 0f;
@@ -295,11 +297,6 @@ public class MoveBlockRedirect : Entity
                 maskAlpha = Ease.SineIn(timer / duration);
                 yield return null;
             }
-        }
-        else
-        {
-            maskAlpha = 1f;
-            Audio.Play(CustomSFX.game_redirectMoveBlock_arrowblock_break_fast, redirectable.Entity.Position);
         }
 
         UsedParticles();
@@ -315,14 +312,14 @@ public class MoveBlockRedirect : Entity
             Disappear();
     }
 
-    private IEnumerator RedirectRoutine(SlowRedirectable redirectable, Coroutine orig)
+    private IEnumerator RedirectRoutine(Redirectable redirectable, Coroutine orig)
     {
         Entity block = redirectable.Entity;
         float duration = 1f;
 
         redirectable.MoveTo(Position);
 
-        redirectable.OnPause(orig, 0.2f);
+        redirectable.OnPause(orig);
 
         float timer = 0f;
         while (timer < duration)
@@ -342,7 +339,7 @@ public class MoveBlockRedirect : Entity
             yield return null;
         }
 
-        redirectable.DuringRedirectEffect(0.18f);
+        redirectable.BeforeResumeAnimation();
 
         while (timer > 0)
         {

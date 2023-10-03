@@ -18,8 +18,14 @@ public abstract class Redirectable : Component
     public abstract float TargetSpeed { get; set; }
     public abstract Directions Direction { get; set; }
     public abstract float Angle { get; set; }
-    
+
     public abstract void ResetBlock();
     public abstract void MoveTo(Vector2 to);
+    
+    public abstract void BeforeBreakAnimation();
     public abstract void OnBreak(Coroutine moveCoroutine);
+
+    public abstract void OnPause(Coroutine moveCoroutine);
+    public abstract void BeforeResumeAnimation();
+    public abstract void OnResume(Coroutine moveCoroutine);
 }

@@ -11,7 +11,7 @@ using Directions = Celeste.MoveBlock.Directions;
 namespace Celeste.Mod.CommunalHelper.Components;
 
 [Tracked(true)]
-public class MoveBlockRedirectable : SlowRedirectable
+public class MoveBlockRedirectable : Redirectable
 {
     // Pre-initialize this with some known types
     private static readonly Dictionary<Type, FieldInfo> reflectionCache = new()
@@ -128,10 +128,10 @@ public class MoveBlockRedirectable : SlowRedirectable
         (Entity as Platform)?.MoveTo(to);
     }
 
-    public override void OnPause(Coroutine moveCoroutine, float shakeTime)
+    public override void OnPause(Coroutine moveCoroutine)
     {
         MoveSfx?.Param("redirect_slowdown", 1f);
-        (Entity as Platform)?.StartShaking(shakeTime);
+        (Entity as Platform)?.StartShaking(0.2f);
     }
 
     public override void OnResume(Coroutine moveCoroutine)
@@ -144,14 +144,14 @@ public class MoveBlockRedirectable : SlowRedirectable
         onBreakAction(moveCoroutine);
     }
 
-    public override void BeforeBreakEffect()
+    public override void BeforeBreakAnimation()
     {
         MoveSfx?.Stop();
     }
 
-    public override void DuringRedirectEffect(float shakeTime)
+    public override void BeforeResumeAnimation()
     {
-        (Entity as Platform)?.StartShaking(shakeTime);
+        (Entity as Platform)?.StartShaking(0.18f);
         MoveSfx?.Param("redirect_slowdown", 0f);
     }
 

@@ -43,8 +43,6 @@ internal class CrushBlockRedirectable : Redirectable
         Vector2 oldDirection = Data.Get<Vector2>("crushDir");
 
         Data.Set("crushDir", newDirection);
-        Audio.Play("event:/game/06_reflection/crushblock_impact", Entity.Center);
-        Audio.Play("event:/game/06_reflection/crushblock_activate", Entity.Center);
         Data.Get<Sprite>("face").Play("hit");
         Data.Invoke("ClearRemainder");
         Data.Invoke("TurnOffImages");
@@ -120,6 +118,31 @@ internal class CrushBlockRedirectable : Redirectable
         IsRedirectable = false;
         isStuck = true;
         moveCoroutine.Cancel();
+    }
+
+    public override void OnPause(Coroutine moveCoroutine)
+    {
+        Data.Invoke("ClearRemainder");
+        Data.Invoke("TurnOffImages");
+        Audio.Play("event:/game/06_reflection/crushblock_activate", Entity.Center);
+        Data.Get<Sprite>("face").Play("hurt");
+        (Entity as Platform)?.StartShaking(0.4f);
+    }
+
+    public override void BeforeResumeAnimation()
+    {
+        (Entity as Platform)?.StartShaking(0.4f);
+    }
+
+    public override void OnResume(Coroutine moveCoroutine)
+    {
+        Audio.Play("event:/game/06_reflection/crushblock_activate", Entity.Center);
+    }
+
+    public override void BeforeBreakAnimation()
+    {
+        Audio.Play("event:/game/06_reflection/crushblock_impact", Entity.Center);
+        (Entity as Platform)?.StartShaking(0.4f);
     }
 
     private static ILHook hook_CrashBlock_AttackSequence;
