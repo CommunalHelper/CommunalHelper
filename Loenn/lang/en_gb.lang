@@ -495,10 +495,17 @@ entities.CommunalHelper/CoreModeMusicController.attributes.description.disable=I
 entities.CommunalHelper/CrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards)
 entities.CommunalHelper/CrystalHeart.attributes.description.removeCameraTriggers=Whether the heart should remove camera triggers onces its triggered.
 
-# Heart Gem Shards, Aventure Helper
+# Heart Gem Shards, Adventure Helper
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards) [Adventure Helper]
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.color=Determines the glow and particle color of the heart as well as its tint if no sprite path is set.
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.path=If set, determines what sprite will be used for the heart. The hitbox is not altered! If not set, the fake heart's white heart will be tinted.\nThe sprites of the default 4 hearts are treated differently and they will take the behavior of those. They are the following:\n* 'heartgem0' : A-side, Blue\n* 'heartgem1' : B-side, Red\n* 'heartgem2' : C-side, Gold\n* 'heartgem3' : Farewell, White
+
+# Hint Controller
+entities.CommunalHelper/HintController.placements.name.controller=Hint Controller
+entities.CommunalHelper/HintController.attributes.description.dialogIds=A comma separated list of keys into Dialog/<language>.txt for each hint entry.
+entities.CommunalHelper/HintController.attributes.description.singleUses=A comma separated list of numbers, where 0 means the corresponding hint entry can be used multiple times, and anything else means it can only be used once.\nDefaults to empty string, which means all entries can be used multiple times.
+entities.CommunalHelper/HintController.attributes.description.selectorCounter=The name of the session counter that selects the current dialog.\nDefaults to empty string, which means that there is no counter and only the first hint will be available.
+entities.CommunalHelper/HintController.attributes.description.selectNextHint=If true, the selector defined in selectorCounter will be automatically incremented when a hint is shown. Defaults to false.
 
 # Input Flag Controller
 entities.CommunalHelper/InputFlagController.placements.name.controller=Input Flag Controller
