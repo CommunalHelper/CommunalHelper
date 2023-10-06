@@ -14,6 +14,12 @@ entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether t
 # Dream Booster
 entities.CommunalHelper/DreamBoosterAny.placements.name.dream_booster=Dream Booster (Any Direction)
 
+#Dream Spring
+entities.CommunalHelper/DreamSpringUp.placements.name.up=Dream Spring (Up)
+entities.CommunalHelper/DreamSpringRight.placements.name.right=Dream Spring (Right)
+entities.CommunalHelper/DreamSpringLeft.placements.name.left=Dream Spring (Left)
+entities.CommunalHelper/DreamSpringDown.placements.name.down=Dream Spring (Down)
+
 # Segment Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.normal=Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (Hidden Path)
@@ -286,6 +292,15 @@ entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollide=Whether 
 entities.CommunalHelper/DreamMoveBlock.attributes.description.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.oneUse=Whether the Dream Move Block should shatter upon exit.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.quickDestroy=Makes this Dream Move Block shatter a little faster.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.idleButtonsColor=Body and buttons's color when the block is idle.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.idleArrowColor=Arrow's color when the block is idle.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.idleWobbleLinesColor=Wobble lines's color when the block is idle.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.movingButtonsColor=Body and buttons's colors when the block is moving.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.movingArrowColor=Arrow's color when the block is moving.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.movingWobbleLinesColor=Wobble lines's color when the block is moving.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.breakingWobbleLinesColor=Wobble lines's color when the block is breaking.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.breakingCrossColor=Cross's color when the block is breaking.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.canSteer=Makes the block steerable (comes with buttons and new body).
 
 # Dream Falling Block
 entities.CommunalHelper/DreamFallingBlock.placements.name.normal=Dream Falling Block
