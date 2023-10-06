@@ -232,10 +232,7 @@ public class DreamMoveBlock : CustomDreamBlock
                 AddImage(mTexture.GetSubtexture(num5 * 8, num6 * 8, 8, 8), new Vector2(k, l) * 8f, 0f, new Vector2(1f, 1f), body);
             }
         }
-        if (canSteer)
-        {
-            UpdateColors();
-        }
+        UpdateColors();
     }
 
     private IEnumerator Controller()
@@ -250,7 +247,7 @@ public class DreamMoveBlock : CustomDreamBlock
             }
 
 
-            Audio.Play(playerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_activate : SFX.game_04_arrowblock_activate, Position);
+            Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_activate : SFX.game_04_arrowblock_activate, Position);
             state = MovementState.Moving;
             StartShaking(0.2f);
             ActivateParticles();
@@ -374,7 +371,7 @@ public class DreamMoveBlock : CustomDreamBlock
             }
 
 
-            Audio.Play(playerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_break : SFX.game_04_arrowblock_break, Position);
+            Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_break : SFX.game_04_arrowblock_break, Position);
             moveSfx.Stop();
             state = MovementState.Breaking;
             speed = targetSpeed = 0f;
@@ -397,7 +394,7 @@ public class DreamMoveBlock : CustomDreamBlock
                     MoveBlockDebris d = Engine.Pooler.Create<MoveBlockDebris>()
                         .Init(Position + offset, Center, startPosition + offset, spr =>
                         {
-                            spr.Texture = playerHasDreamDash ? texture : altTexture;
+                            spr.Texture = PlayerHasDreamDash ? texture : altTexture;
                         });
                     debris.Add(d);
                     Scene.Add(d);
@@ -449,17 +446,14 @@ public class DreamMoveBlock : CustomDreamBlock
             {
                 d.RemoveSelf();
             }
-            Audio.Play(playerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_reappear : SFX.game_04_arrowblock_reappear, Position);
+            Audio.Play(PlayerHasDreamDash ? CustomSFX.game_dreamMoveBlock_dream_move_block_reappear : SFX.game_04_arrowblock_reappear, Position);
             Visible = true;
             EnableStaticMovers();
             speed = targetSpeed = 0f;
             angle = targetAngle = homeAngle;
             noSquish = null;
             this.fillColor = this.idleButtonsColor;
-            if (canSteer)
-            {
-                UpdateColors();
-            }
+            UpdateColors();
             flash = 1f;
         }
     }
@@ -481,7 +475,7 @@ public class DreamMoveBlock : CustomDreamBlock
     public override void SetupCustomParticles(float canvasWidth, float canvasHeight)
     {
         base.SetupCustomParticles(canvasWidth, canvasHeight);
-        if (playerHasDreamDash)
+        if (PlayerHasDreamDash)
         {
             dreamParticles[0].Color = Calc.HexToColor("FFEF11");
             dreamParticles[0].Color2 = Calc.HexToColor("FF00D0");
@@ -564,10 +558,7 @@ public class DreamMoveBlock : CustomDreamBlock
             moveSfx.Param("arrow_influence", num2 + 1);
         }
         flash = Calc.Approach(flash, 0f, Engine.DeltaTime * 5f);
-        if (canSteer)
-        {
-            UpdateColors();
-        }
+        UpdateColors();
     }
 
     public override void OnStaticMoverTrigger(StaticMover sm)
@@ -719,12 +710,18 @@ public class DreamMoveBlock : CustomDreamBlock
     {
         if (direction == MoveBlock.Directions.Left || direction == MoveBlock.Directions.Right)
         {
-            base.topWobble = false;
+            if (canSteer)
+            {
+                base.topWobble = false;
+            }
         }
         else if (direction == MoveBlock.Directions.Up || direction == MoveBlock.Directions.Down)
         {
-            base.leftWobble = false;
-            base.rightWobble = false;
+            if (canSteer)
+            {
+                base.leftWobble = false;
+                base.rightWobble = false;
+            }
         }
         if (state == MovementState.Idling)
         {
@@ -736,7 +733,7 @@ public class DreamMoveBlock : CustomDreamBlock
             this.fillColor = Color.Lerp(fillColor, this.movingButtonsColor, 10f * Engine.DeltaTime);
             base.wobbleLineColor = this.movingWobbleLinesColor;
         }
-        else if(state == MovementState.Breaking)
+        else if(state == MovementState.Breaking && canSteer)
         {
             base.topWobble = true;
             base.bottomWobble = true;
@@ -745,22 +742,24 @@ public class DreamMoveBlock : CustomDreamBlock
             base.wobbleLineColor = this.breakingWobbleLinesColor;
         }
 
-        
-        foreach (Image item in topButton)
+        if (canSteer)
         {
-            item.Color = this.fillColor;
-        }
-        foreach (Image item2 in leftButton)
-        {
-            item2.Color = this.fillColor;
-        }
-        foreach (Image item3 in rightButton)
-        {
-            item3.Color = this.fillColor;
-        }
-        foreach(Image item4 in body)
-        {
-            item4.Color = this.fillColor; 
+            foreach (Image item in topButton)
+            {
+                item.Color = this.fillColor;
+            }
+            foreach (Image item2 in leftButton)
+            {
+                item2.Color = this.fillColor;
+            }
+            foreach (Image item3 in rightButton)
+            {
+                item3.Color = this.fillColor;
+            }
+            foreach (Image item4 in body)
+            {
+                item4.Color = this.fillColor;
+            }
         }
     }
 

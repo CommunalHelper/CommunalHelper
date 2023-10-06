@@ -79,7 +79,7 @@ public abstract class CustomDreamBlock : DreamBlock
     protected DreamParticle[] particles;
     protected MTexture[] doubleRefillStarTextures;
 
-    public bool playerHasDreamDash => baseData.Get<bool>("playerHasDreamDash");
+    public bool PlayerHasDreamDash => baseData.Get<bool>("playerHasDreamDash");
 
     public static Color ActiveLineColor => (Color) f_DreamBlock_activeLineColor.GetValue(null);
     private static readonly FieldInfo f_DreamBlock_activeLineColor = typeof(DreamBlock).GetField("activeLineColor", BindingFlags.NonPublic | BindingFlags.Static);
@@ -222,7 +222,7 @@ public abstract class CustomDreamBlock : DreamBlock
 
     private Color GetParticleColor(int layer, Color[] dashColors)
     {
-        return playerHasDreamDash
+        return PlayerHasDreamDash
             ? RefillCount != -1
                 ? dashColors[layer]
                 : layer switch
@@ -292,7 +292,7 @@ public abstract class CustomDreamBlock : DreamBlock
             UpdateParticles();
         }
 
-        if (Visible && playerHasDreamDash && baseData.Get<bool>("oneUse") && Scene.OnInterval(0.03f))
+        if (Visible && PlayerHasDreamDash && baseData.Get<bool>("oneUse") && Scene.OnInterval(0.03f))
         {
             Vector2 shake = baseData.Get<Vector2>("shake");
             if (shakeToggle)
@@ -312,7 +312,7 @@ public abstract class CustomDreamBlock : DreamBlock
 
     protected virtual void UpdateParticles()
     {
-        if (playerHasDreamDash)
+        if (PlayerHasDreamDash)
         {
             for (int i = 0; i < particles.Length; i++)
             {
@@ -347,8 +347,8 @@ public abstract class CustomDreamBlock : DreamBlock
         float whiteFill = baseData.Get<float>("whiteFill");
         float whiteHeight = baseData.Get<float>("whiteHeight");
 
-        Color backColor = Color.Lerp(playerHasDreamDash ? ActiveBackColor : DisabledBackColor, Color.White, ColorLerp);
-        Color lineColor = playerHasDreamDash ? ActiveLineColor : DisabledLineColor;
+        Color backColor = Color.Lerp(PlayerHasDreamDash ? ActiveBackColor : DisabledBackColor, Color.White, ColorLerp);
+        Color lineColor = PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
 
         Draw.Rect(shake.X + X, shake.Y + Y, Width, Height, backColor);
         var field = typeof(DreamBlock).GetField("activeLineColor", BindingFlags.NonPublic | BindingFlags.Static);
