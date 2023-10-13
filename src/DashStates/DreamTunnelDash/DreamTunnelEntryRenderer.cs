@@ -23,22 +23,29 @@ public class DreamTunnelEntryRenderer : Entity
         {
             foreach (DreamTunnelEntry e in list)
             {
-                Vector2 shake = e.Shake;
-
-                Vector2 start = shake + e.Start;
-                Vector2 end = shake + e.End;
-
-                Draw.Rect(shake.X + e.X, shake.Y + e.Y, e.Width, e.Height, e.PlayerHasDreamDash ? CustomDreamBlock.ActiveBackColor : CustomDreamBlock.DisabledBackColor * e.Alpha);
-                if (e.Whitefill > 0f)
+                if (e.Visible)
                 {
-                    Draw.Rect(e.X + shake.X, e.Y + shake.Y, e.Width, e.Height * e.WhiteHeight, Color.White * e.Whitefill * e.Alpha);
+                    Vector2 shake = e.Shake;
+
+                    Vector2 start = shake + e.Start;
+                    Vector2 end = shake + e.End;
+
+                    Draw.Rect(shake.X + e.X, shake.Y + e.Y, e.Width, e.Height, e.PlayerHasDreamDash ? CustomDreamBlock.ActiveBackColor : CustomDreamBlock.DisabledBackColor * e.Alpha);
+                    if (e.Whitefill > 0f)
+                    {
+                        Draw.Rect(e.X + shake.X, e.Y + shake.Y, e.Width, e.Height * e.WhiteHeight, Color.White * e.Whitefill * e.Alpha);
+                    }
+                    e.WobbleLine(start, end, 0f, false, true);
                 }
-                e.WobbleLine(start, end, 0f, false, true);
+                
             }
 
             foreach (DreamTunnelEntry e in list)
             {
-                e.WobbleLine(e.Shake + e.Start, e.Shake + e.End, 0f, true, false);
+                if (e.Visible)
+                {
+                    e.WobbleLine(e.Shake + e.Start, e.Shake + e.End, 0f, true, false);
+                }
             }
         }
     }
