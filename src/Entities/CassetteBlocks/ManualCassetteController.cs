@@ -1,6 +1,8 @@
-﻿using MonoMod.Cil;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Linq;
+using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -76,13 +78,19 @@ public class ManualCassetteController : AbstractInputController
     }
 
     private static IDetour hook_Level_orig_LoadLevel;
+    private static IDetour hook_TransitionListener_OnOutBegin_Closure;
+
     internal static new void Load()
     {
+        MethodInfo m_TransitionListener_Closure = typeof(CassetteBlockManager).GetMethod("<.ctor>b__10_0", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        hook_TransitionListener_OnOutBegin_Closure = new ILHook(m_TransitionListener_Closure, TransitionListener_OnOutBegin_Closure);
         hook_Level_orig_LoadLevel = new ILHook(typeof(Level).GetMethod("orig_LoadLevel"), Level_orig_LoadLevel);
     }
 
     internal static new void Unload()
     {
+        hook_TransitionListener_OnOutBegin_Closure.Dispose();
         hook_Level_orig_LoadLevel.Dispose();
     }
 
@@ -114,4 +122,20 @@ public class ManualCassetteController : AbstractInputController
         });
     }
 
+    private static void TransitionListener_OnOutBegin_Closure(ILContext il)
+    {
+        // we need to add a null check over Scene before doing anything
+        ILCursor cursor = new(il);
+
+        var m_getScene = typeof(Entity).GetProperty("Scene").GetGetMethod(true);
+
+        ILLabel afterReturnLabel = cursor.DefineLabel();
+
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.Emit(OpCodes.Callvirt, m_getScene);
+        cursor.Emit(OpCodes.Brtrue, afterReturnLabel);
+        cursor.Emit(OpCodes.Ret);
+
+        cursor.MarkLabel(afterReturnLabel);
+    }
 }
