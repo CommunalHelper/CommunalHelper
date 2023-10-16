@@ -109,7 +109,6 @@ public class ConnectedDreamBlock : CustomDreamBlock
     public bool HasGroup { get; private set; }
 
     public bool MasterOfGroup { get; private set; }
-
     public Dictionary<Platform, Vector2> Moves;
     public List<ConnectedDreamBlock> Group;
     public List<JumpThru> JumpThrus;
@@ -339,7 +338,6 @@ public class ConnectedDreamBlock : CustomDreamBlock
         }
 
         from.HasGroup = true;
-        from.OnDashCollide = new DashCollision(OnDash);
         Group.Add(from);
         Moves.Add(from, from.Position);
         if (from != this)
@@ -377,8 +375,7 @@ public class ConnectedDreamBlock : CustomDreamBlock
     }
 
     private void AddJumpThru(JumpThru jp)
-    {
-        jp.OnDashCollide = new DashCollision(OnDashJumpThru);
+    { 
         JumpThrus.Add(jp);
         Moves.Add(jp, jp.Position);
         foreach (Entity entity in Scene.Tracker.GetEntities<ConnectedDreamBlock>())
