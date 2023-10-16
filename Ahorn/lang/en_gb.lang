@@ -441,10 +441,31 @@ placements.entities.CommunalHelper/SJ/AirTimeMusicController.tooltips.musicParam
 placements.entities.CommunalHelper/SJ/WormholeBooster.tooltips.deathColor=The color to use for the booster when it becomes deadly.
 placements.entities.CommunalHelper/SJ/WormholeBooster.tooltips.instantCamera=Whether the camera should transition instantly or not.
 
+# -- [Strawberry Jam] Flag Breaker Box --
+placements.entities.CommunalHelper/SJ/FlagBreakerBox.tooltips.flag=The flag to control.
+placements.entities.CommunalHelper/SJ/FlagBreakerBox.tooltips.aliveState=The value to set the flag to when the box is alive (sets to the oposite when destroyed).
+placements.entities.CommunalHelper/SJ/FlagBreakerBox.tooltips.music=The music to play when the box is broken.
+placements.entities.CommunalHelper/SJ/FlagBreakerBox.tooltips.flipX=Whether or not to flip the sprite across the X axis.
+placements.entities.CommunalHelper/SJ/FlagBreakerBox.tooltips.music_progress=The progress to set the music to when the box is broken.
+placements.entities.CommunalHelper/SJ/FlagBreakerBox.tooltips.music_session=Whether or not to store the music changes in the session.
+
+# -- [Strawberry Jam] Momentum Block --
+placements.entities.CommunalHelper/SJ/MomentumBlock.tooltips.speed=The speed magnitude to impart on the player.
+placements.entities.CommunalHelper/SJ/MomentumBlock.tooltips.speedFlagged=The speed magnitude to impart on the player when the given flag is set.
+placements.entities.CommunalHelper/SJ/MomentumBlock.tooltips.direction=The angle of the momentum imparted on the player.
+placements.entities.CommunalHelper/SJ/MomentumBlock.tooltips.directionFlagged=The angle of the momentum imparted on the player when the given flag is set.
+placements.entities.CommunalHelper/SJ/MomentumBlock.tooltips.flag=When this flag is set, the speedFlagged and directionFlagged attributes will be used instead of speed/direction.\nLeave blank for speed/direction to always be used.
+
 # -- Triggers --
 
 # -- [Strawberry Jam] Show Hitbox Trigger --
 placements.triggers.CommunalHelper/SJ/ShowHitboxTrigger.tooltips.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill
+
+# -- [Strawberry Jam] Oshiro Attack Time Trigger --
+placements.triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.tooltips.Enable=If true, makes Oshiro attack after a second, like in B and C sides. Otherwise, makes the attack time normal for the current map's side.
+
+# -- Player Visual Modification Trigger --
+placements.triggers.CommunalHelper/PlayerVisualModTrigger.tooltips.modifier=The path to the Player Visual Modifier to set for the Player.\n`Skateboard` mimics the visuals in Forest Rush from Strawberry Jam. Leaving the field blank removes any visual modifiers on the player.\nPath relative to Graphics/CommunalHelper/PlayerVisualModifiers/
 
 # -- Dash State Trigger --
 placements.triggers.CommunalHelper/DashStateTrigger.tooltips.dashState=The dash state to set.

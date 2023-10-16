@@ -9,6 +9,7 @@ using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.Entities.Misc;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using Celeste.Mod.CommunalHelper.States;
+using Celeste.Mod.CommunalHelper.Triggers;
 using Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
 using MonoMod.ModInterop;
 
@@ -94,6 +95,8 @@ public class CommunalHelperModule : EverestModule
         ExplodingStrawberry.Load();
         ExpiringDashRefill.Load();
         WormholeBooster.Load();
+        OshiroAttackTimeTrigger.Load();
+        PlayerVisualModifier.Load();
 
         AeroBlockCharged.Load();
 
@@ -172,6 +175,8 @@ public class CommunalHelperModule : EverestModule
         ExplodingStrawberry.Unload();
         ExpiringDashRefill.Unload();
         WormholeBooster.Unload();
+        OshiroAttackTimeTrigger.Unload();
+        PlayerVisualModifier.Unload();
 
         AeroBlockCharged.Unload();
 

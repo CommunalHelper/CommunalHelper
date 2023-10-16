@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Triggers;
 using System.Collections.Generic;
 using static Celeste.Mod.CommunalHelper.Entities.StationBlockTrack;
 
@@ -22,8 +23,12 @@ public class CommunalHelperSession : EverestModuleSession
 
     public bool CanDeployElytra { get; set; }
 
+    public PlayerVisualModifier visualAddition { get; set; } = null;
+    public bool OshiroBsideTimer { get; set; } = false;
+
     public CommunalHelperSession()
     {
         SummitGems = new SortedSet<string>(StringComparer.InvariantCulture);
     }
 }
+

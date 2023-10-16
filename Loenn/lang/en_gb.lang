@@ -720,6 +720,26 @@ entities.CommunalHelper/SJ/BulletTimeController.attributes.description.timerate=
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.flag=If present, time will only be affected if this flag is set.
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.minDashes=The number of dashes required for time to be slowed down.
 
+# [Strawberry Jam] Dash Zip Mover
+entities.CommunalHelper/SJ/DashZipMover.placements.name.main=Dash Zip Mover [Strawberry Jam]
+entities.CommunalHelper/SJ/DashZipMover.placements.description.main=A zip mover that moves when the player dashes into it.
+
+# [Strawberry Jam] Flag Breaker Box 
+entities.CommunalHelper/SJ/FlagBreakerBox.placements.name.breaker_box=Flag Breaker Box [Strawberry Jam]
+entities.CommunalHelper/SJ/FlagBreakerBox.placements.description.breaker_box=A Lightning Breaker Box that sets a flag when broken instead of turning off lightning in that room.
+entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.flag=The flag to be set or unset
+entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.flipX=Whether the sprite should be vertically mirrored.
+entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.music=Change the currently playing music to this when box is broken.\nLeave empty to not change song.
+entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.music_progress=The new music progress once box is broken.\n-1 keeps the same progress.
+
+# [Strawberry Jam] Momentum Block
+entities.CommunalHelper/SJ/MomentumBlock.placements.name.momentum=Boost Block [Strawberry Jam]
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.speed=The speed magnitude to impart on the player.
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.speedFlagged=The speed magnitude to impart on the player when the given flag is set.
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.direction=The angle of the momentum imparted on the player.
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.directionFlagged=The angle of the momentum imparted on the player when the given flag is set.
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.flag=When this flag is set, the speedFlagged and directionFlagged attributes will be used instead of speed/direction.\nLeave blank for speed/direction to always be used.
+
 # [Strawberry Jam] Photosensitive Flag Controller
 entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.name.controller=Photosensitive Flag Controller [Strawberry Jam]
 entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.description.controller=Sets a flag when photosensitive mode is enabled.
@@ -771,10 +791,22 @@ entities.CommunalHelper/SJ/WormholeBooster.placements.description.booster=Booste
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.deathColor=The color to use for the booster when it becomes deadly.
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.instantCamera=Whether the camera should transition instantly or not.
 
+# ---------------------- TRIGGERS --------------------------
+
 # [Strawberry Jam] Show Hitbox Trigger
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox [Strawberry Jam]
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.description.trigger=Shows the hitboxes of specified entities while inside.
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.attributes.description.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill
+
+# [Strawberry Jam] Oshiro Attack Time Trigger
+triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.name.trigger=Oshiro Faster Attack [Strawberry Jam]
+triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.description.trigger=Toggles Oshiro attacking in his B-side pattern (every 1.916 seconds) in A-side maps.
+
+# Player Visual Modifier Trigger
+entities.CommunalHelper/PlayerVisualModTrigger.placements.name.trigger=Player Visual Modifier Trigger
+entities.CommunalHelper/PlayerVisualModTrigger.placements.description.trigger=Creates a visual extension to the player regardless of skinmods.\nExpands on the Skateboard Trigger from Strawberry Jam.
+entities.CommunalHelper/PlayerVisualModTrigger.attributes.description.revertOnLeave=If true, removes the visual modifier from the player to whatever it was before entering the trigger.
+entities.CommunalHelper/PlayerVisualModTrigger.attributes.description.modifier=Selects a file relative to `$ModContent/Graphics/CommunalHelper/PlayerVisualModifiers/`\nto modify the player with. Check the CommunalHelper github wiki for notes on how to create your own modifier.
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
