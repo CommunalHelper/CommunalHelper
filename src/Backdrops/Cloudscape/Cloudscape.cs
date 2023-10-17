@@ -61,6 +61,7 @@ public class Cloudscape : Backdrop
 
         public bool HasBackgroundColor { get; } = true;
         public bool Additive { get; } = false;
+        public float BufferAlpha { get; } = 1.0f;
 
         public Options() { }
 
@@ -70,9 +71,9 @@ public class Cloudscape : Backdrop
 
             Colors = child.Attr("colors", "6d8ada,aea0c1,d9cbbc")
                           .Split(',')
-                          .Select(str => Calc.HexToColor(str.Trim()))
+                          .Select(str => Util.HexToColorWithAlphaNonPremultiplied(str.Trim()))
                           .ToArray();
-            Sky = Calc.HexToColor(child.Attr("bgColor", "4f9af7").Trim());
+            Sky = Util.HexToColorWithAlphaNonPremultiplied(child.Attr("bgColor", "4f9af7").Trim());
 
             InnerRadius = MathHelper.Max(child.AttrFloat("innerRadius", 40f), 10);
             OuterRadius = child.AttrFloat("outerRadius", 400f);
@@ -102,6 +103,7 @@ public class Cloudscape : Backdrop
 
             HasBackgroundColor = child.AttrBool("hasBackgroundColor", true);
             Additive = child.AttrBool("additive", false);
+            BufferAlpha = child.AttrFloat("alpha", 1f);
         }
     }
 
@@ -209,6 +211,7 @@ public class Cloudscape : Backdrop
     private readonly Ring[] rings;
 
     private readonly Color[] colors;
+    private readonly float BufferAlpha;
 
     public Cloudscape(BinaryPacker.Element child)
         : this(new Options(child)) { }
@@ -241,6 +244,8 @@ public class Cloudscape : Backdrop
         innerRotation = options.InnerRotation;
         outerRotation = options.OuterRotation;
         rotationExponent = options.RotationExponent;
+
+        BufferAlpha = options.BufferAlpha;
 
         Calc.PushRandom(options.Seed);
 
@@ -441,7 +446,7 @@ public class Cloudscape : Backdrop
 
         BackdropRenderer renderer = (scene as Level).Background;
         renderer.StartSpritebatch(blend);
-        Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White);
+        Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White * BufferAlpha);
         renderer.EndSpritebatch();
     }
 

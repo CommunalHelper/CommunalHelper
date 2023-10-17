@@ -48,13 +48,17 @@ cloudscape.fieldInformation = {
     rotationExponent = {
         minimumValue = 0.0,
         maximumValue = 2.0
+    },
+    alpha = {
+        minimumValue = 0.0,
+        maximumValue = 1.0
     }
 }
 
 cloudscape.defaultData = {
     seed = "",
-    colors = "6d8ada,aea0c1,d9cbbc",
-    bgColor = "4f9af7",
+    colors = "6d8adaff,aea0c1ff,d9cbbcff",
+    bgColor = "4f9af7ff",
     innerRadius = 40.0,
     outerRadius = 400.0,
     rings = 24,
@@ -77,6 +81,7 @@ cloudscape.defaultData = {
     rotationExponent = 2.0,
     hasBackgroundColor = true,
     additive = false,
+    alpha = 1.0,
 }
 
 return cloudscape
