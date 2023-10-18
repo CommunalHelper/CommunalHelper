@@ -24,8 +24,6 @@ public class MoveBlockRedirectable : Redirectable
 
     private float initialAngle;
     private Directions initialDirection;
-    private Action<Coroutine> onResumeAction;
-    private Action<Coroutine> onBreakAction;
 
     public MoveBlockRedirectable(DynamicData Data, Func<bool> canSteer = null, Func<Directions> get_Direction = null, Action<Directions> set_Direction = null) : base(Data)
     {
@@ -34,10 +32,12 @@ public class MoveBlockRedirectable : Redirectable
         Set_Direction = set_Direction;
         initialAngle = Angle;
         initialDirection = Direction;
-        onResumeAction = GetControllerDelegate(Data, 3);
-        onBreakAction = GetControllerDelegate(Data, 4);
+        OnResumeAction = GetControllerDelegate(Data, 3);
+        OnBreakAction = GetControllerDelegate(Data, 4);
     }
 
+    public Action<Coroutine> OnResumeAction;
+    public Action<Coroutine> OnBreakAction;
     public Func<float>? Get_Speed = null;
     public Action<float>? Set_Speed = null;
 
@@ -137,12 +137,12 @@ public class MoveBlockRedirectable : Redirectable
 
     public override void OnResume(Coroutine moveCoroutine)
     {
-        onResumeAction(moveCoroutine);
+        OnResumeAction(moveCoroutine);
     }
 
     public override void OnBreak(Coroutine moveCoroutine)
     {
-        onBreakAction(moveCoroutine);
+        OnBreakAction(moveCoroutine);
     }
 
     public override void BeforeBreakAnimation()
