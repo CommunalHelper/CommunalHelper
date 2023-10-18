@@ -198,11 +198,13 @@ public class MoveSwapBlock : SwapBlock
         Add(moveBlockSfx = new SoundSource());
         Add(new Coroutine(Controller()));
 
-        DynamicData dynamicData = new DynamicData(this);
+        DynamicData dynamicData = new(this);
         Add(new MoveBlockRedirectable(dynamicData, () => false, () => MoveDirection, dir => MoveDirection = dir)
         {
             Get_Speed = () => moveSpeed,
+            Set_Speed = (speed) => moveSpeed = speed,
             Get_TargetSpeed = () => targetMoveSpeed,
+            Set_TargetSpeed = (targetSpeed) => targetMoveSpeed = targetSpeed,
             Get_MoveSfx = () => moveBlockSfx,
             OnBreakAction = (coroutine) =>
             {
