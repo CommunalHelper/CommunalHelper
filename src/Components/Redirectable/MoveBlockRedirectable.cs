@@ -26,9 +26,12 @@ public class MoveBlockRedirectable : Redirectable
     private Directions initialDirection;
     private Action<Coroutine> onResumeAction;
     private Action<Coroutine> onBreakAction;
-    public MoveBlockRedirectable(DynamicData Data) : base(Data)
+
+    public MoveBlockRedirectable(DynamicData Data, Func<bool> canSteer = null, Func<Directions> get_Direction = null, Action<Directions> set_Direction = null) : base(Data)
     {
-        IsRedirectable = !(Get_CanSteer?.Invoke() ?? Data.Get<bool>("canSteer"));
+        IsRedirectable = !(canSteer?.Invoke() ?? Data.Get<bool>("canSteer"));
+        Get_Direction = get_Direction;
+        Set_Direction = set_Direction;
         initialAngle = Angle;
         initialDirection = Direction;
         onResumeAction = GetControllerDelegate(Data, 3);
@@ -90,8 +93,6 @@ public class MoveBlockRedirectable : Redirectable
             Data.Set("targetAngle", value);
         }
     }
-
-    public Func<bool>? Get_CanSteer = null;
 
     public Func<SoundSource>? Get_MoveSfx = null;
     public SoundSource MoveSfx => Get_MoveSfx?.Invoke() ?? Data.Get<SoundSource>("moveSfx");
