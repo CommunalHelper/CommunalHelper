@@ -290,9 +290,9 @@ public class AddVisualToPlayerTrigger : Trigger
         : base(data, offset)
     {
         RevertOnLeave = data.Bool("revertOnLeave");
-        string s = data.Attr("modifier");
-        if(!string.IsNullOrWhiteSpace(s))
-            PlayerVisualModifier.TryGetModifier(data.Attr("modifier"), out pvm);
+        string modifier = data.Attr("modifier");
+        if(!string.IsNullOrWhiteSpace(modifier))
+            PlayerVisualModifier.TryGetModifier(modifier, out pvm);
     }
 
     public override void OnEnter(Player player)
