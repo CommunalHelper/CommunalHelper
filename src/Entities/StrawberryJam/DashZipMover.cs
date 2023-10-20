@@ -46,7 +46,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
                 sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
 
-                cog = GFX.Game["objects/StrawberryJam2021/dashZipMover/cog"];
+                cog = GFX.Game["objects/CommunalHelper/strawberryJam/dashZipMover/cog"];
             }
 
             public void CreateSparks()
