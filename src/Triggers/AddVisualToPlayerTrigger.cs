@@ -81,9 +81,7 @@ public class PlayerVisualModifier
             return;
         }
         Vector2 v = va.modifiersByAnim.TryGetValue(self.Sprite.CurrentAnimationID, out var pam) && pam.playerOffset.HasValue ? pam.playerOffset.Value : va.defaultPlayerOffset;
-        {
-            self.Sprite.RenderPosition += v;
-        }
+        self.Sprite.RenderPosition += v;
         orig(self);
         self.Sprite.RenderPosition -= v;
         if (va.image == null) return;
