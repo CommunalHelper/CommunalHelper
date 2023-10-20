@@ -21,6 +21,7 @@ namespace Celeste.Mod.CommunalHelper.Triggers.StrawberryJam {
 		}
 		public static void Unload() {
 			oshiroHook?.Dispose();
+			oshiroHook = null;
 		}
 
 		private static void ModAttackTime(ILContext il) {
