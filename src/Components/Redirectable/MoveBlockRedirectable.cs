@@ -24,17 +24,20 @@ public class MoveBlockRedirectable : Redirectable
 
     private float initialAngle;
     private Directions initialDirection;
-    private Action<Coroutine> onResumeAction;
-    private Action<Coroutine> onBreakAction;
-    public MoveBlockRedirectable(DynamicData Data) : base(Data)
+
+    public MoveBlockRedirectable(DynamicData Data, Func<bool> canSteer = null, Func<Directions> get_Direction = null, Action<Directions> set_Direction = null) : base(Data)
     {
-        IsRedirectable = !(Get_CanSteer?.Invoke() ?? Data.Get<bool>("canSteer"));
+        IsRedirectable = !(canSteer?.Invoke() ?? Data.Get<bool>("canSteer"));
+        Get_Direction = get_Direction;
+        Set_Direction = set_Direction;
         initialAngle = Angle;
         initialDirection = Direction;
-        onResumeAction = GetControllerDelegate(Data, 3);
-        onBreakAction = GetControllerDelegate(Data, 4);
+        OnResumeAction = GetControllerDelegate(Data, 3);
+        OnBreakAction = GetControllerDelegate(Data, 4);
     }
 
+    public Action<Coroutine> OnResumeAction;
+    public Action<Coroutine> OnBreakAction;
     public Func<float>? Get_Speed = null;
     public Action<float>? Set_Speed = null;
 
@@ -91,8 +94,6 @@ public class MoveBlockRedirectable : Redirectable
         }
     }
 
-    public Func<bool>? Get_CanSteer = null;
-
     public Func<SoundSource>? Get_MoveSfx = null;
     public SoundSource MoveSfx => Get_MoveSfx?.Invoke() ?? Data.Get<SoundSource>("moveSfx");
 
@@ -136,12 +137,12 @@ public class MoveBlockRedirectable : Redirectable
 
     public override void OnResume(Coroutine moveCoroutine)
     {
-        onResumeAction(moveCoroutine);
+        OnResumeAction(moveCoroutine);
     }
 
     public override void OnBreak(Coroutine moveCoroutine)
     {
-        onBreakAction(moveCoroutine);
+        OnBreakAction(moveCoroutine);
     }
 
     public override void BeforeBreakAnimation()

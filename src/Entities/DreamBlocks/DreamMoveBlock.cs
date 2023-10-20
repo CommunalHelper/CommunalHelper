@@ -108,12 +108,7 @@ public class DreamMoveBlock : CustomDreamBlock
         Add(controller = new Coroutine(Controller()));
         Add(new LightOcclude(0.5f));
 
-        Add(new MoveBlockRedirectable(new MonoMod.Utils.DynamicData(this))
-        {
-            Get_CanSteer = () => false,
-            Get_Direction = () => Direction,
-            Set_Direction = dir => Direction = dir
-        });
+        Add(new MoveBlockRedirectable(new MonoMod.Utils.DynamicData(this), () => false, () => Direction, dir => Direction = dir));
     }
 
     private IEnumerator Controller()

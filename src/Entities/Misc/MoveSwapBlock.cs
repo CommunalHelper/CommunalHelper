@@ -198,13 +198,19 @@ public class MoveSwapBlock : SwapBlock
         Add(moveBlockSfx = new SoundSource());
         Add(new Coroutine(Controller()));
 
-        Add(new MoveBlockRedirectable(new DynamicData(this))
+        DynamicData dynamicData = new(this);
+        Add(new MoveBlockRedirectable(dynamicData, () => false, () => MoveDirection, dir => MoveDirection = dir)
         {
             Get_Speed = () => moveSpeed,
+            Set_Speed = (speed) => moveSpeed = speed,
             Get_TargetSpeed = () => targetMoveSpeed,
+            Set_TargetSpeed = (targetSpeed) => targetMoveSpeed = targetSpeed,
             Get_MoveSfx = () => moveBlockSfx,
-            Get_Direction = () => MoveDirection,
-            Set_Direction = dir => MoveDirection = dir,
+            OnBreakAction = (coroutine) =>
+            {
+                State = MovementState.Breaking;
+                MoveBlockRedirectable.GetControllerDelegate(dynamicData, 4)(coroutine);
+            },
         });
     }
 
@@ -458,6 +464,7 @@ public class MoveSwapBlock : SwapBlock
             Audio.Play(SFX.game_04_arrowblock_break, Position);
             moveBlockSfx.Stop();
             State = MovementState.Breaking;
+
             moveSpeed = targetMoveSpeed = 0f;
             angle = targetAngle = homeAngle;
 
