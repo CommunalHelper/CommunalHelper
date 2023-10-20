@@ -22,7 +22,6 @@ public class PlayerVisualModifier
     private const string SPRITEBANKPREF = "PVI/";
 
     #region Hooks
-    private static Hook OrigUpdateSpriteHook;
     private static bool ModifySpritePlay = false;
 
     public static void Load()
