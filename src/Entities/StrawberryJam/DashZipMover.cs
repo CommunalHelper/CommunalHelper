@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
 {
-    [CustomEntity("CommunalHelper/SJ/DashZipMover)]
+    [CustomEntity("CommunalHelper/SJ/DashZipMover")]
     public class DashZipMover : Solid
     {
         public const string game_dash_zip_mover_zip_mover = "event:/communalhelper/sj/game/dash_zip_mover/zip_mover";
