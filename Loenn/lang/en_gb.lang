@@ -728,6 +728,23 @@ entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalC
 entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9GoldenBoost=Used to indicate that we are in the golden room and boosting out. Prevents the check in finalCh9Boost, and always ends the level if finalCh9Boost is also set.
 entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9Dialog=If finalCh9Boost is also set and doesn't go to golden room, this will trigger the Farewell ending dialog.
 
+# Glow Controller
+entities.CommunalHelper/GlowController.placements.name.controller=Glow Controller
+entities.CommunalHelper/GlowController.attributes.description.lightWhitelist=A comma-separated list of fully qualified entity class names to apply VertexLights to.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.lightBlacklist=A comma-separated list of fully qualified entity class names to remove VertexLights from.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.lightColor=The colour to use for the lights, as a hex representation.  Defaults to white (FFFFFF).
+entities.CommunalHelper/GlowController.attributes.description.lightAlpha=The opacity of the light, ranging from 0 (invisible) to 1 (opaque).  Defaults to 1.
+entities.CommunalHelper/GlowController.attributes.description.lightStartFade=The distance from the entity's position at which the light should begin to fade in.  Defaults to 24.
+entities.CommunalHelper/GlowController.attributes.description.lightEndFade=The distance from the entity's position at which the light should begin to fade out.  Defaults to 48.
+entities.CommunalHelper/GlowController.attributes.description.lightOffsetX=The X offset from the entity's position at which to place the VertexLight.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.lightOffsetY=The Y offset from the entity's position at which to place the VertexLight.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.bloomWhitelist=A comma-separated list of fully qualified entity class names to apply BloomPoints to.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.bloomBlacklist=A comma-separated list of fully qualified entity class names to remove BloomPoints and CustomBlooms from.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.bloomAlpha=The opacity of the bloom, ranging from 0 (invisible) to 1 (opaque).  Defaults to 1.
+entities.CommunalHelper/GlowController.attributes.description.bloomRadius=The radius of the bloom in pixels.  Defaults to 8.
+entities.CommunalHelper/GlowController.attributes.description.bloomOffsetX=The X offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.bloomOffsetY=The Y offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
+
 # [Strawberry Jam] Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]
 entities.CommunalHelper/SJ/BulletTimeController.placements.description.controller=Slows down time while the player has dashes.

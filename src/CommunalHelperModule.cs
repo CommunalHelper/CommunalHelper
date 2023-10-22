@@ -105,6 +105,7 @@ public class CommunalHelperModule : EverestModule
         CommunalHelperGFX.Load();
         Pushable.Load();
         HintController.Load();
+        GlowController.Load();
 
         BadelineBoostKeepHoldables.Hook();
 
@@ -191,6 +192,7 @@ public class CommunalHelperModule : EverestModule
         CommunalHelperGFX.Unload();
         Pushable.Unload();
         HintController.Unload();
+        GlowController.Unload();
 
         BadelineBoostKeepHoldables.Unhook();
     }
