@@ -3,8 +3,8 @@ return {
     placements = {
         name = "trigger",
         data = {
-            revertOnLeave=false,
-            modifier="Skateboard"
+            revertOnLeave = false,
+            modifier = "Skateboard"
         }
     }
 }
