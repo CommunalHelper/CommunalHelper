@@ -27,8 +27,7 @@ mb.placements = {
 mb.sprite = function(entity, room) 
     local startColor = utils.getColor(entity.startColor)
     local endColor = utils.getColor(entity.endColor)
-    local g = 1 - math.abs((1 - (entity.speed / 282)) % 2.0 - 1)
-    g = 1 - g -- This is directly copied from the SJ source. i have no clue why it was done like this.
+    local g = math.abs((1 - (entity.speed / 282)) % 2.0 - 1)
     local color = communalHelper.colorLerp(startColor, endColor, g)
     return drawableRect.fromRectangle("bordered", entity.x, entity.y, entity.width, entity.height, color, {0,0,0,0})
 end
