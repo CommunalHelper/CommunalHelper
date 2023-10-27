@@ -23,11 +23,11 @@ public class Cloudscape : Backdrop
 
         public Color[] Colors { get; } = new[]
         {
-            Calc.HexToColor("6d8ada"),
-            Calc.HexToColor("aea0c1"),
-            Calc.HexToColor("d9cbbc"),
+            Util.HexToColorWithAlphaNonPremultiplied("6d8adaff"),
+            Util.HexToColorWithAlphaNonPremultiplied("aea0c1ff"),
+            Util.HexToColorWithAlphaNonPremultiplied("d9cbbcff"),
         };
-        public Color Sky { get; } = Calc.HexToColor("4f9af7");
+        public Color Sky { get; } = Util.HexToColorWithAlphaNonPremultiplied("4f9af7ff");
 
         public float InnerRadius { get; } = 40.0f;
         public float OuterRadius { get; } = 400.0f;
@@ -69,11 +69,11 @@ public class Cloudscape : Backdrop
         {
             Seed = child.Attr("seed").GetHashCode();
 
-            Colors = child.Attr("colors", "6d8ada,aea0c1,d9cbbc")
+            Colors = child.Attr("colors", "6d8adaff,aea0c1ff,d9cbbcff")
                           .Split(',')
                           .Select(str => Util.HexToColorWithAlphaNonPremultiplied(str.Trim()))
                           .ToArray();
-            Sky = Util.HexToColorWithAlphaNonPremultiplied(child.Attr("bgColor", "4f9af7").Trim());
+            Sky = Util.HexToColorWithAlphaNonPremultiplied(child.Attr("bgColor", "4f9af7ff").Trim());
 
             InnerRadius = MathHelper.Max(child.AttrFloat("innerRadius", 40f), 10);
             OuterRadius = child.AttrFloat("outerRadius", 400f);
