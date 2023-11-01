@@ -38,4 +38,3 @@ public class OshiroAttackTimeTrigger : Trigger {
         CommunalHelperModule.Session.OshiroBsideTimer = Enable;
     }
 }
-}
