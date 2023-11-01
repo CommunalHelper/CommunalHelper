@@ -22,7 +22,6 @@ public class PlayerVisualModifier
     private const string SPRITEBANKPREF = "PVI/";
 
     #region Hooks
-    private static Hook OrigUpdateSpriteHook;
     private static bool ModifySpritePlay = false;
 
     public static void Load()
@@ -82,9 +81,7 @@ public class PlayerVisualModifier
             return;
         }
         Vector2 v = va.modifiersByAnim.TryGetValue(self.Sprite.CurrentAnimationID, out var pam) && pam.playerOffset.HasValue ? pam.playerOffset.Value : va.defaultPlayerOffset;
-        {
-            self.Sprite.RenderPosition += v;
-        }
+        self.Sprite.RenderPosition += v;
         orig(self);
         self.Sprite.RenderPosition -= v;
         if (va.image == null) return;
@@ -291,9 +288,9 @@ public class AddVisualToPlayerTrigger : Trigger
         : base(data, offset)
     {
         RevertOnLeave = data.Bool("revertOnLeave");
-        string s = data.Attr("modifier");
-        if(!string.IsNullOrWhiteSpace(s))
-            PlayerVisualModifier.TryGetModifier(data.Attr("modifier"), out pvm);
+        string modifier = data.Attr("modifier");
+        if(!string.IsNullOrWhiteSpace(modifier))
+            PlayerVisualModifier.TryGetModifier(modifier, out pvm);
     }
 
     public override void OnEnter(Player player)

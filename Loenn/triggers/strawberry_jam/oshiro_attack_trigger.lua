@@ -3,7 +3,7 @@ return {
     placements = {
         name = "trigger",
         data = {
-            Enable=true
+            Enable = true
         }
     }
 }

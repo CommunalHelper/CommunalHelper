@@ -18,7 +18,8 @@ breakerBox.placements = {
         music_progress = -1,
         music_session = false,
         music = "",
-        flag = false
+        flag = "",
+        aliveState = true
     }
 }
 
