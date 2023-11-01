@@ -4,6 +4,13 @@ namespace Celeste.Mod.CommunalHelper;
 
 public class CommunalHelperSettings : EverestModuleSettings
 {
+    public enum ElytraModes
+    {
+        UseGrabMode = 0,
+        Hold = 1,
+        Invert = 2,
+        Toggle = 3,
+    }
     // If saving settings, always return true;
     private bool SaveOverride(bool val)
     {
@@ -64,6 +71,8 @@ public class CommunalHelperSettings : EverestModuleSettings
 
     [DefaultButtonBinding(Buttons.LeftShoulder, Keys.W)]
     public ButtonBinding DeployElytra { get; set; }
+
+    public ElytraModes ElytraMode { get; set; } = ElytraModes.Hold;
 
     public bool RequireGrabToPush { get; set; } = true;
 }
