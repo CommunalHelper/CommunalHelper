@@ -121,6 +121,28 @@ public static class Extensions
         }
     }
 
+    public static MoveBlock.Directions Direction(this Vector2 vec)
+    {
+        vec = vec.SafeNormalize();
+
+        if (vec.X > 0)
+        {
+            return MoveBlock.Directions.Right;
+        }
+        else if (vec.X < 0)
+        {
+            return MoveBlock.Directions.Left;
+        }
+        else if (vec.Y < 0)
+        {
+            return MoveBlock.Directions.Up;
+        }
+        else
+        {
+            return MoveBlock.Directions.Down;
+        }
+    }
+
     public static List<Type> GetSubClasses(this Type type)
     {
         List<Type> list = new();
@@ -743,7 +765,7 @@ public static class Extensions
     }
 
     public static Vector2 XY(this Vector3 v) => new(v.X, v.Y);
-    
+
     public static Vector3 Sign(this Vector3 v)
         => new(Math.Sign(v.X), Math.Sign(v.Y), Math.Sign(v.Z));
 

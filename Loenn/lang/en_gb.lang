@@ -495,10 +495,17 @@ entities.CommunalHelper/CoreModeMusicController.attributes.description.disable=I
 entities.CommunalHelper/CrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards)
 entities.CommunalHelper/CrystalHeart.attributes.description.removeCameraTriggers=Whether the heart should remove camera triggers onces its triggered.
 
-# Heart Gem Shards, Aventure Helper
+# Heart Gem Shards, Adventure Helper
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards) [Adventure Helper]
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.color=Determines the glow and particle color of the heart as well as its tint if no sprite path is set.
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.path=If set, determines what sprite will be used for the heart. The hitbox is not altered! If not set, the fake heart's white heart will be tinted.\nThe sprites of the default 4 hearts are treated differently and they will take the behavior of those. They are the following:\n* 'heartgem0' : A-side, Blue\n* 'heartgem1' : B-side, Red\n* 'heartgem2' : C-side, Gold\n* 'heartgem3' : Farewell, White
+
+# Hint Controller
+entities.CommunalHelper/HintController.placements.name.controller=Hint Controller
+entities.CommunalHelper/HintController.attributes.description.dialogIds=A comma separated list of keys into Dialog/<language>.txt for each hint entry.
+entities.CommunalHelper/HintController.attributes.description.singleUses=A comma separated list of numbers, where 0 means the corresponding hint entry can be used multiple times, and anything else means it can only be used once.\nDefaults to empty string, which means all entries can be used multiple times.
+entities.CommunalHelper/HintController.attributes.description.selectorCounter=The name of the session counter that selects the current dialog.\nDefaults to empty string, which means that there is no counter and only the first hint will be available.
+entities.CommunalHelper/HintController.attributes.description.selectNextHint=If true, the selector defined in selectorCounter will be automatically incremented when a hint is shown. Defaults to false.
 
 # Input Flag Controller
 entities.CommunalHelper/InputFlagController.placements.name.controller=Input Flag Controller
@@ -712,6 +719,31 @@ entities.CommunalHelper/ElytraStopRing.attributes.description.refill=Whether the
 # Elytra Note Ring
 entities.CommunalHelper/ElytraNoteRing.placements.name.elytra_note_ring=Elytra Note Ring
 entities.CommunalHelper/ElytraNoteRing.attributes.description.semitone=The note to play when this ring is crossed. You can input your own integer value if you want to go above or below the range available in the dropdown options.\n0 is C4, input negative integer to go below.
+
+# Badeline Boost (Keep Holdables)
+entities.CommunalHelper/BadelineBoostKeepHoldables.placements.name.boost=Badeline Boost (Keep Holdables)
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.lockCamera=Upon activation, the camera cannot pan away from the entity.
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.canSkip=Badeline will skip to the next position if the player is too far to the right of the current one  (100 pixels).
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9Boost=Whether this boost should be able to end the level, transporting the player to room "end-granny". If the player has a golden berry, and this isn't a golden boost, they are transported to the golden room "end-golden" instead.\nRequires a Blackhole in the background, does not work if it is in the foreground.
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9GoldenBoost=Used to indicate that we are in the golden room and boosting out. Prevents the check in finalCh9Boost, and always ends the level if finalCh9Boost is also set.
+entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9Dialog=If finalCh9Boost is also set and doesn't go to golden room, this will trigger the Farewell ending dialog.
+
+# Glow Controller
+entities.CommunalHelper/GlowController.placements.name.controller=Glow Controller
+entities.CommunalHelper/GlowController.attributes.description.lightWhitelist=A comma-separated list of fully qualified entity class names to apply VertexLights to.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.lightBlacklist=A comma-separated list of fully qualified entity class names to remove VertexLights from.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.lightColor=The colour to use for the lights, as a hex representation.  Defaults to white (FFFFFF).
+entities.CommunalHelper/GlowController.attributes.description.lightAlpha=The opacity of the light, ranging from 0 (invisible) to 1 (opaque).  Defaults to 1.
+entities.CommunalHelper/GlowController.attributes.description.lightStartFade=The distance from the entity's position at which the light should begin to fade in.  Defaults to 24.
+entities.CommunalHelper/GlowController.attributes.description.lightEndFade=The distance from the entity's position at which the light should begin to fade out.  Defaults to 48.
+entities.CommunalHelper/GlowController.attributes.description.lightOffsetX=The X offset from the entity's position at which to place the VertexLight.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.lightOffsetY=The Y offset from the entity's position at which to place the VertexLight.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.bloomWhitelist=A comma-separated list of fully qualified entity class names to apply BloomPoints to.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.bloomBlacklist=A comma-separated list of fully qualified entity class names to remove BloomPoints and CustomBlooms from.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.bloomAlpha=The opacity of the bloom, ranging from 0 (invisible) to 1 (opaque).  Defaults to 1.
+entities.CommunalHelper/GlowController.attributes.description.bloomRadius=The radius of the bloom in pixels.  Defaults to 8.
+entities.CommunalHelper/GlowController.attributes.description.bloomOffsetX=The X offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.bloomOffsetY=The Y offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
 
 # [Strawberry Jam] Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]

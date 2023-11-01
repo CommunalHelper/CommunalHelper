@@ -29,7 +29,7 @@ public static class DreamTunnelDash
     #endregion
 
     public static int StDreamTunnelDash = -1;
-    private static bool hasDreamTunnelDash;
+    private static bool hasDreamTunnelDash = false;
     public static bool HasDreamTunnelDash
     {
         get => hasDreamTunnelDash || CommunalHelperModule.Settings.AlwaysActiveDreamRefillCharge;
@@ -82,6 +82,8 @@ public static class DreamTunnelDash
             State_DreamDashEqual);
 
         On.Celeste.Level.EnforceBounds += Level_EnforceBounds;
+        On.Celeste.Level.Reload += Level_Reload;
+        On.Celeste.LevelLoader.StartLevel += LevelLoader_StartLevel;
         On.Celeste.Player.OnBoundsH += Player_OnBoundsH;
         On.Celeste.Player.OnBoundsV += Player_OnBoundsV;
 
@@ -110,6 +112,8 @@ public static class DreamTunnelDash
         hook_Player_orig_UpdateSprite.Dispose();
 
         On.Celeste.Level.EnforceBounds -= Level_EnforceBounds;
+        On.Celeste.Level.Reload -= Level_Reload;
+        On.Celeste.LevelLoader.StartLevel -= LevelLoader_StartLevel;
         On.Celeste.Player.OnBoundsH -= Player_OnBoundsH;
         On.Celeste.Player.OnBoundsV -= Player_OnBoundsV;
 
@@ -138,7 +142,7 @@ public static class DreamTunnelDash
     private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player player, Vector2 position, PlayerSpriteMode spriteMode)
     {
         orig(player, position, spriteMode);
-        HasDreamTunnelDash = dreamTunnelDashAttacking = false;
+        dreamTunnelDashAttacking = false;
 
         if (StDreamTunnelDash != -1)
             Extensions.UnregisterState(StDreamTunnelDash);
@@ -386,6 +390,18 @@ public static class DreamTunnelDash
         orig(self, player);
     }
 
+    private static void Level_Reload(On.Celeste.Level.orig_Reload orig, Level self)
+    {
+        hasDreamTunnelDash = dreamTunnelDashAttacking = false;
+        orig(self);
+    }
+
+    private static void LevelLoader_StartLevel(On.Celeste.LevelLoader.orig_StartLevel orig, LevelLoader self)
+    {
+        hasDreamTunnelDash = dreamTunnelDashAttacking = false;
+        orig(self);
+    }
+
     // Handles cases with locked camera
     private static void Player_OnBoundsH(On.Celeste.Player.orig_OnBoundsH orig, Player self)
     {
@@ -475,7 +491,7 @@ public static class DreamTunnelDash
     private static bool DreamTunnelDashCheck(this Player player, Vector2 dir)
     {
         Vector2 dashdir = player.DashDir;
-        if (player.IsInverted())    
+        if (player.IsInverted())
         {
             dir.Y *= -1;
             dashdir.Y *= -1;

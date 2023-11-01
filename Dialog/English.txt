@@ -6,3 +6,4 @@ SETTINGS_DREAMTUNNEL_FEATHERMODE= Dream Tunnel Feather Mode
 SETTINGS_DREAMTUNNEL_IGNORECOLLECTIBLES= Dream Tunnel Ignore Collectibles
 
 communalhelper_entities_strawberry_jam_solar_elevator_hint=This elevator requires a holdable entity.
+communalhelper_entities_hint_controller_menu=Hint
