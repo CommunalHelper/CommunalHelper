@@ -4,7 +4,7 @@ local drawableNinePatch = require("structs.drawable_nine_patch")
 local drawableRectangle = require("structs.drawable_rectangle")
 local utils = require("utils")
 
-local zipMover = {}
+local dashZipMover = {}
 
 local themeTextures = {
     nodeCog = "objects/CommunalHelper/strawberryJam/dashZipMover/cog",
@@ -20,12 +20,12 @@ local blockNinePatchOptions = {
 local centerColor = {0, 0, 0}
 local ropeColor = {6 / 255, 82 / 255, 23 / 255}
 
-zipMover.name = "CommunalHelper/SJ/DashZipMover"
-zipMover.depth = -9999
-zipMover.nodeVisibility = "never"
-zipMover.nodeLimits = {1, 1}
-zipMover.minimumSize = {16, 16}
-zipMover.placements = {
+dashZipMover.name = "CommunalHelper/SJ/DashZipMover"
+dashZipMover.depth = -9999
+dashZipMover.nodeVisibility = "never"
+dashZipMover.nodeLimits = {1, 1}
+dashZipMover.minimumSize = {16, 16}
+dashZipMover.placements = {
     name = "main",
     data = {
         width = 16,
@@ -80,7 +80,7 @@ local function addBlockSprites(sprites, entity, blockTexture, lightsTexture, x, 
     table.insert(sprites, lightsSprite)
 end
 
-function zipMover.sprite(room, entity)
+function dashZipMover.sprite(room, entity)
     local sprites = {}
 
     local x, y = entity.x or 0, entity.y or 0
@@ -99,7 +99,7 @@ function zipMover.sprite(room, entity)
     return sprites
 end
 
-function zipMover.selection(room, entity)
+function dashZipMover.selection(room, entity)
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 8, entity.height or 8
     local halfWidth, halfHeight = math.floor(entity.width / 2), math.floor(entity.height / 2)
@@ -118,4 +118,4 @@ function zipMover.selection(room, entity)
     return mainRectangle, {nodeRectangle}
 end
 
-return zipMover
+return dashZipMover

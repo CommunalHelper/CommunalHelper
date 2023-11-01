@@ -37,7 +37,7 @@ public class PlayerVisualModifier
 
     private static void Sprite_Play(On.Monocle.Sprite.orig_Play orig, Sprite self, string id, bool restart, bool randomizeFrame)
     {
-        if(!(ModifySpritePlay && CommunalHelperModule.Session.visualAddition is { } va && self is PlayerSprite))
+        if(!(ModifySpritePlay && CommunalHelperModule.Session.VisualAddition is { } va && self is PlayerSprite))
         {
             orig(self, id, restart, randomizeFrame);
             return;
@@ -76,7 +76,7 @@ public class PlayerVisualModifier
 
     private static void Player_Render(On.Celeste.Player.orig_Render orig, Player self)
     {
-        if (!(CommunalHelperModule.Session.visualAddition is { } va))
+        if (!(CommunalHelperModule.Session.VisualAddition is { } va))
         {
             orig(self);
             return;
@@ -95,7 +95,7 @@ public class PlayerVisualModifier
 
     static void PlayerHair_Render(On.Celeste.PlayerHair.orig_Render orig, PlayerHair self)
     {
-        if (!(CommunalHelperModule.Session.visualAddition is { } va))
+        if (!(CommunalHelperModule.Session.VisualAddition is { } va))
         {
             orig(self);
             return;
@@ -299,13 +299,13 @@ public class AddVisualToPlayerTrigger : Trigger
     public override void OnEnter(Player player)
     {
         base.OnEnter(player);
-        if (RevertOnLeave) prev = CommunalHelperModule.Session.visualAddition;
-        CommunalHelperModule.Session.visualAddition = pvm;
+        if (RevertOnLeave) prev = CommunalHelperModule.Session.VisualAddition;
+        CommunalHelperModule.Session.VisualAddition = pvm;
     }
     
     public override void OnLeave(Player player)
     {
         base.OnLeave(player);
-        if (RevertOnLeave) CommunalHelperModule.Session.visualAddition = prev;
+        if (RevertOnLeave) CommunalHelperModule.Session.VisualAddition = prev;
     }
 }

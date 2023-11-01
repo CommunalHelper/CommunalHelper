@@ -26,10 +26,7 @@ class FlagBreakerBox : Solid
     private bool makeSparks;
     private bool smashParticles;
     private SoundSource firstHitSfx;
-    private bool spikesLeft;
-    private bool spikesRight;
-    private bool spikesUp;
-    private bool spikesDown;
+    private bool spikesLeft, spikesRight, spikesUp, spikesDown;
 
     public FlagBreakerBox(Vector2 position, bool flipX)
         : base(position, 32f, 32f, true)

@@ -23,7 +23,7 @@ public class CommunalHelperSession : EverestModuleSession
 
     public bool CanDeployElytra { get; set; }
 
-    public PlayerVisualModifier visualAddition { get; set; } = null;
+    public PlayerVisualModifier VisualAddition { get; set; } = null;
     public bool OshiroBsideTimer { get; set; } = false;
 
     public CommunalHelperSession()

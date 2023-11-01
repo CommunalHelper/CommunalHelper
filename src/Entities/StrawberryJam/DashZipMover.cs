@@ -11,7 +11,6 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
     [CustomEntity("CommunalHelper/DashZipMover")]
     public class DashZipMover : Solid
     {
-        public const string game_dash_zip_mover_zip_mover = "event:/communalhelper/sj/game/dash_zip_mover/zip_mover";
         private class DashZipMoverPathRenderer : Entity
         {
             public DashZipMover zipMover;
@@ -185,8 +184,6 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
 
                 scale = new Vector2(1f + Math.Abs(dir.Y) * 0.4f - Math.Abs(dir.X) * 0.4f, 1f + Math.Abs(dir.X) * 0.4f - Math.Abs(dir.Y) * 0.4f);
 
-                //Audio.Play("event:/new_content/game/10_farewell/fusebox_hit_1", Center);
-                // Was a test sound (for the smash vibe), cannot use because of never ending event with unrelated SFX.
                 return DashCollisionResults.Rebound;
             }
 
@@ -239,7 +236,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 int prevOffset = offset;
                 for (int y = 4; y <= Width - 4f; y += 8)
                 {
-                    int index = (int) (Mod((angle + offset * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
+                    int index = (int) (Util.Mod((angle + offset * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * count);
 
                     MTexture innerCog = innerCogs[index];
                     Rectangle rectangle = new Rectangle(0, 0, innerCog.Width, innerCog.Height);
@@ -363,7 +360,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                     continue;
                 }
 
-                sfx.Play(game_dash_zip_mover_zip_mover);
+                sfx.Play(CustomSFX.game_strawberryJam_dash_zip_mover_zip_mover);
 
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                 StartShaking(0.1f);
@@ -400,12 +397,6 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 start = Position;
                 sfx.Stop();
             }
-        }
-
-        // Works with negatives, might be useful to move this in some util class?
-        private float Mod(float x, float m)
-        {
-            return (x % m + m) % m;
         }
     }
 }
