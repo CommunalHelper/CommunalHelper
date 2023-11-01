@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
+
 [CustomEntity("CommunalHelper/SJ/MomentumBlock")]
 public class MomentumBlock : Solid
 {
