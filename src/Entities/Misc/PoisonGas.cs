@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace Celeste.Mod.CommunalHelper.Entities.Misc;
 
+// Ported from xolimono's Midway Contest and the road lightly toasted
+
 [CustomEntity(new string[] { "CommunalHelper/PoisonGas" })]
 [Tracked(false)]
 public class PoisonGas : Entity
@@ -76,22 +78,22 @@ public class PoisonGas : Entity
 
     private bool kill = false;
 
-    public PoisonGas(Vector2 position, string spriteDirectory, int scale)
+    public PoisonGas(Vector2 position, string spritePath, int radius)
         : base(position)
     {
-        c = new Circle(48f, position.X, position.Y);
+        c = new Circle(radius, position.X, position.Y);
         base.Collider = c;
-        r = 48f;
-        Add(i = new Image(GFX.Game[spriteDirectory]));
+        r = radius;
+        Add(i = new Image(Calc.Random.Choose(GFX.Game.GetAtlasSubtextures(spritePath.TrimEnd('0','1','2','3','4','5','6','7','8','9')))));
         Add(sine = new SineWave(0.33f, 0f).Randomize());
-        i.Scale.X = (i.Scale.Y = scale);
+        i.Scale.X = i.Scale.Y = radius / 24f;
         i.CenterOrigin();
         base.Depth = -101;
         anchor = position;
     }
 
     public PoisonGas(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Attr("spriteDirectory", "objects/MWC2022/xolimono/badGas/gas"), data.Int("scale", 2))
+        : this(data.Position + offset, data.Attr("spritePath", "objects/MWC2022/xolimono/badGas/gas"), data.Int("radius", 48))
     {
     }
 
@@ -124,6 +126,6 @@ public class PoisonGas : Entity
     public override void DebugRender(Camera camera)
     {
         base.DebugRender(camera);
-        Draw.Circle(Position, r, Color.Green, );
+        Draw.Circle(Position, r, Color.Green, (int)(Math.Max(r, 24)/2));
     }
 }
