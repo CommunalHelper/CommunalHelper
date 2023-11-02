@@ -23,18 +23,30 @@ public class PlayerVisualModifier
 
     #region Hooks
     private static bool ModifySpritePlay = false;
+    private static Hook SpritePlayHook = null; // This is being added for specifically a future PR for Everest so we dont need to rewrite everything
 
     public static void Load()
     {
         knownModifiers = new Dictionary<string, PlayerVisualModifier>();
         Everest.Content.OnUpdate += Content_OnUpdate;
         On.Celeste.Player.UpdateSprite += Player_UpdateSprite;
-        On.Monocle.Sprite.Play += Sprite_Play;
+        MethodInfo sprite_Play = typeof(Sprite).GetMethod("orig_Play") ?? typeof(Sprite).GetMethod("Play");
+        SpritePlayHook = new Hook(sprite_Play, Sprite_Play);
         On.Celeste.Player.Render += Player_Render;
         On.Celeste.PlayerHair.Render += PlayerHair_Render;
     }
 
-    private static void Sprite_Play(On.Monocle.Sprite.orig_Play orig, Sprite self, string id, bool restart, bool randomizeFrame)
+    public static void Unload()
+    {
+        Everest.Content.OnUpdate -= Content_OnUpdate;
+        On.Celeste.Player.UpdateSprite -= Player_UpdateSprite;
+        SpritePlayHook?.Dispose();
+        SpritePlayHook = null;
+        On.Celeste.Player.Render -= Player_Render;
+        On.Celeste.PlayerHair.Render -= PlayerHair_Render;
+    }
+
+    private static void Sprite_Play(Action<Sprite, string, bool, bool> orig, Sprite self, string id, bool restart, bool randomizeFrame)
     {
         if(!(ModifySpritePlay && CommunalHelperModule.Session.VisualAddition is { } va && self is PlayerSprite))
         {
@@ -108,15 +120,6 @@ public class PlayerVisualModifier
             self.Nodes[i] -= v;
         }
     }
-
-    public static void Unload()
-    {
-        Everest.Content.OnUpdate -= Content_OnUpdate;
-        On.Celeste.Player.UpdateSprite -= Player_UpdateSprite;
-        On.Monocle.Sprite.Play -= Sprite_Play;
-        On.Celeste.Player.Render -= Player_Render;
-        On.Celeste.PlayerHair.Render -= PlayerHair_Render;
-    }
     #endregion
 
     private static Dictionary<string, PlayerVisualModifier> knownModifiers;
@@ -132,33 +135,31 @@ public class PlayerVisualModifier
         if (LoadModifier(mod, out modifier))
         {
             knownModifiers[filePath] = modifier;
-            PrintPVM(filePath, modifier);
             return true;
         }
         return false;
         
     }
 
-    private static void PrintPVM(string filePath, PlayerVisualModifier modifier)
+    // Keeping this in for the sake of, we're definitely going to get requests and it'll be useful to just have this for the future i feel like.
+    private static void DebugPVM(string filePath, PlayerVisualModifier modifier)
     {
-        Console.WriteLine("PlayerVisualModifier @ " + filePath);
-        Console.WriteLine("playerOffset: " + modifier.defaultPlayerOffset);
-        Console.Write("image: ");
-        if (modifier.image == null) Console.WriteLine("null");
-        else if (modifier.image is Sprite sprite) Console.WriteLine("Sprite with path " + sprite.Path ?? "null");
-        else Console.WriteLine("Image with texture asset path " + modifier.image.Texture.Metadata.PathVirtual);
-        Console.Write("Overrides:");
-        if (modifier.modifiersByAnim == null) Console.WriteLine(" none");
+        Logger.Log(LogLevel.Debug, "CommunalHelper", "PlayerVisualModifier @ " + filePath);
+        Logger.Log(LogLevel.Debug, "CommunalHelper", "playerOffset: " + modifier.defaultPlayerOffset);
+        if (modifier.image == null) Logger.Log(LogLevel.Debug, "CommunalHelper", "image: null");
+        else if (modifier.image is Sprite sprite) Logger.Log(LogLevel.Debug, "CommunalHelper", "image: Sprite with path " + sprite.Path ?? "null");
+        else Logger.Log(LogLevel.Debug, "CommunalHelper", "image: Image with texture asset path " + modifier.image.Texture.Metadata.PathVirtual);
+        if (modifier.modifiersByAnim == null) Logger.Log(LogLevel.Debug, "CommunalHelper", "Overrides: none");
         else
         {
-            Console.WriteLine();
+            Logger.Log(LogLevel.Debug, "CommunalHelper", "Overrides:");
             foreach (var kvp in modifier.modifiersByAnim)
             {
-                Console.WriteLine("Anim: " + kvp.Key);
-                if (kvp.Value.@override != null) Console.WriteLine("  ReplaceWith: " + kvp.Value.@override);
-                if (kvp.Value.imagePlay != null) Console.WriteLine("  ImagePlays: " + kvp.Value.imagePlay);
-                Console.WriteLine("  PlayerOffset: " + kvp.Value.playerOffset?.ToString() ?? "none");
-                if (modifier.image != null) Console.WriteLine("  ImageOffset: " + kvp.Value.playerOffset?.ToString() ?? "none");
+                Logger.Log(LogLevel.Debug, "CommunalHelper", "Anim: " + kvp.Key);
+                if (kvp.Value.@override != null) Logger.Log(LogLevel.Debug, "CommunalHelper", "  ReplaceWith: " + kvp.Value.@override);
+                if (kvp.Value.imagePlay != null) Logger.Log(LogLevel.Debug, "CommunalHelper", "  ImagePlays: " + kvp.Value.imagePlay);
+                Logger.Log(LogLevel.Debug, "CommunalHelper", "  PlayerOffset: " + kvp.Value.playerOffset?.ToString() ?? "none");
+                if (modifier.image != null) Logger.Log(LogLevel.Debug, "CommunalHelper", "  ImageOffset: " + kvp.Value.playerOffset?.ToString() ?? "none");
             }
         }
     }
@@ -188,13 +189,11 @@ public class PlayerVisualModifier
             }
             if (c == null) return false;
             foreach(XmlNode a in c.ChildNodes) { 
-                Console.WriteLine(a.Name + " : " + a.NodeType.ToString());
                 XmlElement el = a as XmlElement; // This is pretty naive, but it's fiiine
                 switch (a.Name)
                 {
                     case "PlayerOffset": modifier.defaultPlayerOffset = getVectorFromXML(el.InnerText); break;
                     case "Image":
-                        Console.WriteLine("textureSource: " + el.InnerText);
                         modifier.image = new Image(GFX.Game[el.InnerText]);
                         if(el.Attributes.GetNamedItem("offset") is XmlAttribute x)
                             modifier.defaultImageOffset = getVectorFromXML(x.Value);
@@ -214,7 +213,6 @@ public class PlayerVisualModifier
                             d2.Set("name", el.Attr("name")); // This is setting XmlElement.name.name
                             d2.Dispose(); // We don't need to dispose d1 because we may use it again, even though it's unlikely.
                             el.RemoveAttribute("name");
-                            Console.WriteLine(el.Name);
                             sd.Add(el);
                             CommunalHelperGFX.SpriteBank.SpriteData[SPRITEBANKPREF + name] = sd;
                             modifier.image = CommunalHelperGFX.SpriteBank.Create(SPRITEBANKPREF + name);
@@ -228,7 +226,6 @@ public class PlayerVisualModifier
                         PlayerAnimMod m = new PlayerAnimMod();
                         foreach (XmlNode n in a.ChildNodes)
                         {
-                            Console.WriteLine(n.Name + ": " + n.InnerText);
                             switch (n.Name)
                             {
                                 case "AnimReplace":
