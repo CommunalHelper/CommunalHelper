@@ -61,7 +61,8 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Hook();
         MoveBlockRedirect.Load();
-        Redirectable.Load();
+        MoveBlockRedirectable.Load();
+        CrushBlockRedirectable.Load();
         MoveSwapBlock.Load();
 
         AbstractInputController.Load();
@@ -88,7 +89,7 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Hook();
         PlayerSeekerBarrierRenderer.Hook();
-        
+
         ShowHitboxTrigger.Load();
         GrabTempleGate.Hook();
         SolarElevator.Hook();
@@ -106,6 +107,10 @@ public class CommunalHelperModule : EverestModule
 
         CommunalHelperGFX.Load();
         Pushable.Load();
+        HintController.Load();
+        GlowController.Load();
+
+        BadelineBoostKeepHoldables.Hook();
 
         #region Imports
 
@@ -133,6 +138,7 @@ public class CommunalHelperModule : EverestModule
         CustomDreamBlock.Unload();
         ConnectedTempleCrackedBlock.Unload();
 
+
         // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
         AbstractPanel.Unload();
@@ -143,7 +149,8 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Unhook();
         MoveBlockRedirect.Unload();
-        Redirectable.Unload();
+        MoveBlockRedirectable.Unload();
+        CrushBlockRedirectable.Unload();
         MoveSwapBlock.Unload();
         AbstractInputController.Unload();
         CassetteJumpFixController.Unload();
@@ -168,7 +175,7 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Unhook();
         PlayerSeekerBarrierRenderer.Unhook();
-        
+
         ShowHitboxTrigger.Unload();
         GrabTempleGate.Unhook();
         SolarElevator.Unhook();
@@ -189,6 +196,10 @@ public class CommunalHelperModule : EverestModule
 
         CommunalHelperGFX.Unload();
         Pushable.Unload();
+        HintController.Unload();
+        GlowController.Unload();
+
+        BadelineBoostKeepHoldables.Unhook();
     }
 
     public override void Initialize()

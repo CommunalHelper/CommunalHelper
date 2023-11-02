@@ -289,7 +289,6 @@ public class ConnectedMoveBlock : ConnectedSolid
             else
                 State = MovementState.Breaking;
             yield return 0.2f;
-
             targetSpeed = moveSpeed;
             moveSfx.Play(SFX.game_04_arrowblock_move_loop);
             moveSfx.Param("arrow_stop", 0f);
@@ -744,11 +743,23 @@ public class ConnectedMoveBlock : ConnectedSolid
         // Allow this block to be redirected by MoveBlockRedirects if it has a single rectangular collider.
         if (Colliders.Length == 1)
         {
-            Add(new Redirectable(new DynamicData(this))
+            DynamicData dynamicData = new(this);
+            Add(new MoveBlockRedirectable(dynamicData, () => false, () => Direction, dir => Direction = dir)
             {
-                Get_CanSteer = () => false,
-                Get_Direction = () => Direction,
-                Set_Direction = dir => Direction = dir,
+                Get_Speed = () => speed,
+                Set_Speed = (speed) => this.speed = speed,
+                Get_TargetSpeed = () => targetSpeed,
+                Set_TargetSpeed = (targetSpeed) => this.targetSpeed = targetSpeed,
+                Get_MoveSfx = () => moveSfx,
+                OnBreakAction = (coroutine) =>
+                {
+                    State = MovementState.Breaking;
+                    MoveBlockRedirectable.GetControllerDelegate(dynamicData, 5)(coroutine);
+                },
+                OnResumeAction = (coroutine) =>
+                {
+                    MoveBlockRedirectable.GetControllerDelegate(dynamicData, 4)(coroutine);
+                },
             });
         }
     }

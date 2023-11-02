@@ -181,12 +181,7 @@ public sealed class VoxelEditor : Scene
     // nx, ny, nz = normal vector to tile
     private bool Raycast(out int x, out int y, out int z, out int nx, out int ny, out int nz)
     {
-        x = 0;
-        y = 0;
-        z = 0;
-        nx = 0;
-        ny = 0;
-        nz = 0;
+        x = 0; y = 0; z = 0; nx = 0; ny = 0; nz = 0;
         // raycast to check if the bounds are reached by the mouse
         Vector2 ndc = new(Calc.Map(mouse.X, 0, width, -1, 1), Calc.Map(mouse.Y, 0, height, 1, -1));
         Vector3 Unproject(float z)
