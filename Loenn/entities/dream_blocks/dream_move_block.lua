@@ -24,30 +24,30 @@ dreamMoveBlock.fieldInformation = {
     refillCount = {
         fieldType = "integer"
     },
-	idleButtonsColor = {
-		fieldType = "color"
-	},
-	idleArrowColor = {
-		fieldType = "color"
-	},
-	idleWobbleLinesColor = {
-		fieldType = "color"
-	},
-	movingButtonsColor = {
-		fieldType = "color"
-	},
-	movingArrowColor = {
-		fieldType = "color"
-	},
-	movingWobbleLinesColor = {
-		fieldType = "color"
-	},
-	breakingWobbleLinesColor = {
-		fieldType = "color"
-	},
-	breakingCrossColor = {
-		fieldType = "color"
-	}
+    idleButtonsColor = {
+        fieldType = "color"
+    },
+    idleArrowColor = {
+        fieldType = "color"
+    },
+    idleWobbleLinesColor = {
+        fieldType = "color"
+    },
+    movingButtonsColor = {
+        fieldType = "color"
+    },
+    movingArrowColor = {
+        fieldType = "color"
+    },
+    movingWobbleLinesColor = {
+        fieldType = "color"
+    },
+    breakingWobbleLinesColor = {
+        fieldType = "color"
+    },
+    breakingCrossColor = {
+        fieldType = "color"
+    }
 }
 
 function dreamMoveBlock.depth(room, entity)
@@ -68,25 +68,25 @@ dreamMoveBlock.placements = {
             direction = "Right",
             moveSpeed = 60.0,
             noCollide = false,
-			canSteer = false,
-			idleButtonsColor = "FFFFFF",
-			movingButtonsColor = "FFFFFF",
-			idleArrowColor = "FFFFFF",
-			movingArrowColor = "FFFFFF",
-			idleWobbleLinesColor = "FFFFFF",
-			movingWobbleLinesColor = "FFFFFF",
-			breakingWobbleLinesColor = "FFFFFF",
-			breakingCrossColor = "FFFFFF",
+            canSteer = false,
+            idleButtonsColor = "FFFFFF",
+            movingButtonsColor = "FFFFFF",
+            idleArrowColor = "FFFFFF",
+            movingArrowColor = "FFFFFF",
+            idleWobbleLinesColor = "FFFFFF",
+            movingWobbleLinesColor = "FFFFFF",
+            breakingWobbleLinesColor = "FFFFFF",
+            breakingCrossColor = "FFFFFF",
         }
     }
 }
 
 dreamMoveBlock.fieldOrder = {
-	"x", "y", "width", "height",
-	"direction", "moveSpeed",
-	"idleButtonsColor", "idleArrowColor", "idleWobbleLinesColor",
-	"movingButtonsColor", "movingArrowColor", "movingWobbleLinesColor",
-	"breakingWobbleLinesColor", "breakingCrossColor"
+    "x", "y", "width", "height",
+    "direction", "moveSpeed",
+    "idleButtonsColor", "idleArrowColor", "idleWobbleLinesColor",
+    "movingButtonsColor", "movingArrowColor", "movingWobbleLinesColor",
+    "breakingWobbleLinesColor", "breakingCrossColor"
 }
 
 local arrowTextures = {

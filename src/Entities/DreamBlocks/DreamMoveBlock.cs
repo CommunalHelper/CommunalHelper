@@ -63,11 +63,9 @@ public class DreamMoveBlock : CustomDreamBlock
 
     private Player noSquish;
 
-    private List<Image> topButton = new List<Image>();
-
-    private List<Image> leftButton = new List<Image>();
-
-    private List<Image> rightButton = new List<Image>();
+    private List<Image> topButton = new();
+    private List<Image> leftButton = new();
+    private List<Image> rightButton = new();
 
     private readonly List<MTexture> arrows = new();
 
