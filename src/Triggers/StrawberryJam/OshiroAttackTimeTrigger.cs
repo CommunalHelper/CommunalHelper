@@ -28,7 +28,7 @@ public class OshiroAttackTimeTrigger : Trigger {
     private static void ModAttackTime(ILContext il) {
         ILCursor cursor = new ILCursor(il);
         while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdfld<AreaKey>("Mode"))) {
-            cursor.EmitDelegate<Func<int, int>>(orig => CommunalHelperModule.Session.OshiroBsideTimer ? 1 : orig);
+            cursor.EmitDelegate<Func<AreaMode, AreaMode>>(orig => CommunalHelperModule.Session.OshiroBsideTimer ? AreaMode.BSide : orig);
             break;
         }
     }
