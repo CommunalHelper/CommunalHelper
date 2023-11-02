@@ -14,12 +14,6 @@ entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether t
 # Dream Booster
 entities.CommunalHelper/DreamBoosterAny.placements.name.dream_booster=Dream Booster (Any Direction)
 
-#Dream Spring
-entities.CommunalHelper/DreamSpringUp.placements.name.up=Dream Spring (Up)
-entities.CommunalHelper/DreamSpringRight.placements.name.right=Dream Spring (Right)
-entities.CommunalHelper/DreamSpringLeft.placements.name.left=Dream Spring (Left)
-entities.CommunalHelper/DreamSpringDown.placements.name.down=Dream Spring (Down)
-
 # Segment Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.normal=Dream Booster
 entities.CommunalHelper/DreamBooster.placements.name.hidden_path=Dream Booster (Hidden Path)
