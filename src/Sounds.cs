@@ -111,6 +111,8 @@ public static class CustomSFX
 
     #endregion
 
+    public const string game_poisonGas_timer = "event:/CommunalHelperEvents/game/poisonGas/timer";
+
     public const string game_elytra_deploy = "event:/CommunalHelperEvents/game/elytra/deploy";
     public const string game_elytra_gliding = "event:/CommunalHelperEvents/game/elytra/gliding";
     public const string game_elytra_refill = "event:/CommunalHelperEvents/game/elytra/refill";

@@ -21,6 +21,8 @@ public class CommunalHelperSession : EverestModuleSession
     public float ExpiringDashFlashThreshold { get; set; }
 
     public bool CanDeployElytra { get; set; }
+    internal float PrevGasTimer { get; set; }
+    public float GasTimer { get; set; }
 
     public CommunalHelperSession()
     {
