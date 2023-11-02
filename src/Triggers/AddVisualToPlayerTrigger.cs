@@ -164,10 +164,13 @@ public class PlayerVisualModifier
         }
     }
 
-    private static Vector2 getVectorFromXML(string text)
+    private static Vector2 getVectorFromXML(string text, bool forceFloat = false)
     {
         string[] pos = text.Split(',');
-        return new Vector2(Convert.ToInt32(pos[0]), Convert.ToInt32(pos[1]));
+        if(forceFloat)
+            return new Vector2(Convert.ToSingle(pos[0]), Convert.ToSingle(pos[1]));
+        else
+            return new Vector2(Convert.ToInt32(pos[0]), Convert.ToInt32(pos[1]));
     }
 
     private static bool LoadModifier(ModAsset mod, out PlayerVisualModifier modifier)
@@ -197,6 +200,8 @@ public class PlayerVisualModifier
                         modifier.image = new Image(GFX.Game[el.InnerText]);
                         if(el.Attributes.GetNamedItem("offset") is XmlAttribute x)
                             modifier.defaultImageOffset = getVectorFromXML(x.Value);
+                        if (el.Attributes.GetNamedItem("justify") is XmlAttribute y)
+                            modifier.imageJustify = getVectorFromXML(y.Value, true);
                         break;
                     case "Sprite":
                         string name = el.Attr("name");
@@ -218,8 +223,10 @@ public class PlayerVisualModifier
                             modifier.image = CommunalHelperGFX.SpriteBank.Create(SPRITEBANKPREF + name);
                             // We're going to add to this SpriteBank because no other mod can mess with it without cursed shit anyways.
                         }
-                        if (el.Attributes.GetNamedItem("offset") is XmlAttribute y)
-                            modifier.defaultImageOffset = getVectorFromXML(y.Value);
+                        if (el.Attributes.GetNamedItem("offset") is XmlAttribute z)
+                            modifier.defaultImageOffset = getVectorFromXML(z.Value);
+                        if (el.Attributes.GetNamedItem("justify") is XmlAttribute w)
+                            modifier.imageJustify = getVectorFromXML(w.Value, true);
                         break;
                     case "Override":
                         if (modifier.modifiersByAnim == null) modifier.modifiersByAnim = new Dictionary<string, PlayerAnimMod>();
@@ -261,7 +268,7 @@ public class PlayerVisualModifier
 
     private ModAsset source;
     private Image image;
-    private Vector2 defaultPlayerOffset, defaultImageOffset;
+    private Vector2 defaultPlayerOffset, defaultImageOffset, imageJustify;
     private Dictionary<string, PlayerAnimMod> modifiersByAnim;
 
     private struct PlayerAnimMod
