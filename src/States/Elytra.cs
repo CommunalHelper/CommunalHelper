@@ -341,9 +341,8 @@ public static class Elytra
         On.Celeste.Player.UseRefill += Player_UseRefill;
         On.Celeste.Player.ctor += Player_ctor;
         On.Celeste.Input.UpdateGrab += Input_UpdateGrab;
+        On.Celeste.Input.ResetGrab += Input_ResetGrab;
     }
-
-    
 
     internal static void Unload()
     {
@@ -357,6 +356,7 @@ public static class Elytra
         On.Celeste.Player.UseRefill -= Player_UseRefill;
         On.Celeste.Player.ctor -= Player_ctor;
         On.Celeste.Input.UpdateGrab -= Input_UpdateGrab;
+        On.Celeste.Input.ResetGrab -= Input_ResetGrab;
     }
 
     private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode)
@@ -492,5 +492,11 @@ public static class Elytra
         {
             elytraToggle = !elytraToggle;
         }
+    }
+
+    private static void Input_ResetGrab(On.Celeste.Input.orig_ResetGrab orig)
+    {
+        orig();
+        elytraToggle = false;
     }
 }
