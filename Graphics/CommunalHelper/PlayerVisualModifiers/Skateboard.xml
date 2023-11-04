@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Want to make your own? Check the wiki @ https://github.com/CommunalHelper/CommunalHelper/wiki#player-visual-additions -->
+<PlayerVisualModifier>
+    <PlayerOffset>0,-2</PlayerOffset>
+    <Image offset="-8,-4">objects/CommunalHelper/strawberryJam/skateboard</Image>
+    <Override anim="runSlow,runFast">
+        <AnimReplace>idle</AnimReplace>
+    </Override>
+    <Override anim="runSlow_carry">
+        <AnimReplace>idle_carry</AnimReplace>
+    </Override>
+</PlayerVisualModifier>

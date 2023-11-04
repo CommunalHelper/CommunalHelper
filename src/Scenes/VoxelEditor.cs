@@ -206,7 +206,7 @@ public sealed class VoxelEditor : Scene
         // if so, get the position in the voxel of the tile (empty or not) that was hit by the ray
 
         Vector3 flip = new(1, -1, -1);
-        Vector3 pos = (((from + dir * t.Value) * flip) + s * 4) / 8f;
+        Vector3 pos = ((from + dir * t.Value) * flip + s * 4) / 8f;
         pos.X = Calc.Clamp(pos.X, 0, sx);
         pos.Y = Calc.Clamp(pos.Y, 0, sy);
         pos.Z = Calc.Clamp(pos.Z, 0, sz);
@@ -219,9 +219,9 @@ public sealed class VoxelEditor : Scene
 
         Vector3 map = pos.Floor();
         Vector3 delta = (Vector3.One / dir).Abs();
-        Vector3 dist = new(delta.X * (dir.X < 0 ? (pos.X - map.X) : (map.X + 1.0f - pos.X)),
-                           delta.Y * (dir.Y < 0 ? (pos.Y - map.Y) : (map.Y + 1.0f - pos.Y)),
-                           delta.Z * (dir.Z < 0 ? (pos.Z - map.Z) : (map.Z + 1.0f - pos.Z)));
+        Vector3 dist = new(delta.X * (dir.X < 0 ? pos.X - map.X : map.X + 1.0f - pos.X),
+                           delta.Y * (dir.Y < 0 ? pos.Y - map.Y : map.Y + 1.0f - pos.Y),
+                           delta.Z * (dir.Z < 0 ? pos.Z - map.Z : map.Z + 1.0f - pos.Z));
         Vector3 step = dir.Sign();
 
         void Step(out int nx, out int ny, out int nz)
