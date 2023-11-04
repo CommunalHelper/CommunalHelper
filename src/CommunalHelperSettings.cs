@@ -10,6 +10,7 @@ public class CommunalHelperSettings : EverestModuleSettings
         Hold = 1,
         Invert = 2,
         Toggle = 3,
+        ToggleOnce = 4,
     }
     // If saving settings, always return true;
     private bool SaveOverride(bool val)
