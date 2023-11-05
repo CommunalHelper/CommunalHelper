@@ -40,6 +40,7 @@ public static class Elytra
     {
         CommunalHelperSettings.ElytraModes.Invert => !CommunalHelperModule.Settings.DeployElytra.Check,
         CommunalHelperSettings.ElytraModes.Toggle => elytraToggle,
+        CommunalHelperSettings.ElytraModes.ToggleOnce => elytraToggle,
         CommunalHelperSettings.ElytraModes.Hold => CommunalHelperModule.Settings.DeployElytra.Check,
         _ => Settings.Instance.GrabMode switch
         {
@@ -128,6 +129,8 @@ public static class Elytra
             Audio.Stop(sfx);
         data.Set(f_Player_elytraRefillSound, true);
         data.Set(f_Player_elytraCooldown, COOLDOWN);
+        if (CommunalHelperModule.Settings.ElytraMode == CommunalHelperSettings.ElytraModes.ToggleOnce)
+            elytraToggle = false;
     }
 
     public static int GlideUpdate(this Player player)
@@ -341,9 +344,8 @@ public static class Elytra
         On.Celeste.Player.UseRefill += Player_UseRefill;
         On.Celeste.Player.ctor += Player_ctor;
         On.Celeste.Input.UpdateGrab += Input_UpdateGrab;
+        On.Celeste.Input.ResetGrab += Input_ResetGrab;
     }
-
-    
 
     internal static void Unload()
     {
@@ -357,6 +359,7 @@ public static class Elytra
         On.Celeste.Player.UseRefill -= Player_UseRefill;
         On.Celeste.Player.ctor -= Player_ctor;
         On.Celeste.Input.UpdateGrab -= Input_UpdateGrab;
+        On.Celeste.Input.ResetGrab -= Input_ResetGrab;
     }
 
     private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode)
@@ -487,10 +490,17 @@ public static class Elytra
     {
         orig();
         if ((CommunalHelperModule.Settings.ElytraMode == CommunalHelperSettings.ElytraModes.Toggle ||
+             CommunalHelperModule.Settings.ElytraMode == CommunalHelperSettings.ElytraModes.ToggleOnce ||
              (CommunalHelperModule.Settings.ElytraMode == CommunalHelperSettings.ElytraModes.UseGrabMode && Settings.Instance.GrabMode == GrabModes.Toggle))
              && CommunalHelperModule.Settings.DeployElytra.Pressed)
         {
             elytraToggle = !elytraToggle;
         }
+    }
+
+    private static void Input_ResetGrab(On.Celeste.Input.orig_ResetGrab orig)
+    {
+        orig();
+        elytraToggle = false;
     }
 }
