@@ -418,6 +418,13 @@ placements.entities.CommunalHelper/GlowController.tooltips.bloomRadius=The radiu
 placements.entities.CommunalHelper/GlowController.tooltips.bloomOffsetX=The X offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
 placements.entities.CommunalHelper/GlowController.tooltips.bloomOffsetY=The Y offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
 
+# -- Hint Controller -- 
+placements.entities.CommunalHelper/HintController.tooltips.titleDialog=A key in Dialog/<language>.txt which is what will display in the Pause menu for this entry.\nBy default, uses `communalhelper_entities_hint_controller_menu` which points to "Hint."
+placements.entities.CommunalHelper/HintController.tooltips.dialogIds=A comma separated list of keys into Dialog/<language>.txt for each hint entry.
+placements.entities.CommunalHelper/HintController.tooltips.singleUses=A comma separated list of numbers, where 0 means the corresponding hint entry can be used multiple times, and anything else means it can only be used once.\nDefaults to empty string, which means all entries can be used multiple times.
+placements.entities.CommunalHelper/HintController.tooltips.selectorCounter=The name of the session counter that selects the current dialog.\nDefaults to empty string, which means that there is no counter and only the first hint will be available.
+placements.entities.CommunalHelper/HintController.tooltips.selectNextHint=If true, the selector defined in selectorCounter will be automatically incremented when a hint is shown. Defaults to false.
+
 # -- Poison Gas -- 
 placements.entities.CommunalHelper/PoisonGas.tooltips.radius=The radius of the poison gas region, in pixels. Defaults to 48.
 placements.entities.CommunalHelper/PoisonGas.tooltips.spritePath=The game will pick a random image from Graphics/Atlases/Gameplay/<spritePath>##.png to display the poison gas region.\nImages should be 24x24px.

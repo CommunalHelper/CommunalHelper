@@ -502,6 +502,7 @@ entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.descriptio
 
 # Hint Controller
 entities.CommunalHelper/HintController.placements.name.controller=Hint Controller
+entities.CommunalHelper/HintController.attributes.descrption.titleDialog=A key in Dialog/<language>.txt which is what will display in the Pause menu for this entry.\nBy default, uses `communalhelper_entities_hint_controller_menu` which points to "Hint."
 entities.CommunalHelper/HintController.attributes.description.dialogIds=A comma separated list of keys into Dialog/<language>.txt for each hint entry.
 entities.CommunalHelper/HintController.attributes.description.singleUses=A comma separated list of numbers, where 0 means the corresponding hint entry can be used multiple times, and anything else means it can only be used once.\nDefaults to empty string, which means all entries can be used multiple times.
 entities.CommunalHelper/HintController.attributes.description.selectorCounter=The name of the session counter that selects the current dialog.\nDefaults to empty string, which means that there is no counter and only the first hint will be available.

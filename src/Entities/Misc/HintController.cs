@@ -7,6 +7,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/HintController")]
 public class HintController : Entity
 {
+    public string TitleDialog { get; private set; }
     public string[] DialogIds { get; }
     public bool[] SingleUses { get; }
     public string SelectorCounter { get; }
@@ -47,6 +48,9 @@ public class HintController : Entity
     public HintController(EntityData data, Vector2 offset)
         : base(data.Position + offset)
     {
+        TitleDialog = data.Attr("titleDialog", "");
+        if (string.IsNullOrWhiteSpace(TitleDialog)) TitleDialog = "communalhelper_entities_hint_controller_menu";
+
         DialogIds = data.Attr("dialogIds")
             .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
             .ToArray();
@@ -111,19 +115,22 @@ public class HintController : Entity
             return;
         }
 
-        var hintController = level.Entities.FindFirst<HintController>();
-
-        if (hintController != null)
+        var hintControllers = level.Entities.FindAll<HintController>();
+        int index = retryIndex;
+        if (hintControllers != null && hintControllers.Count > 0)
         {
-            menu.Insert(retryIndex + 1, new TextMenu.Button(Dialog.Clean("communalhelper_entities_hint_controller_menu"))
+            foreach (HintController hintController in hintControllers)
             {
-                OnPressed = () =>
+                menu.Insert(++index, new TextMenu.Button(Dialog.Clean(hintController.TitleDialog))
                 {
-                    menu.OnCancel();
-                    hintController.ShowHint();
-                },
-                Disabled = hintController.CurrentSingleUse && hintController.CurrentIsUsed,
-            });
+                    OnPressed = () =>
+                    {
+                        menu.OnCancel();
+                        hintController.ShowHint();
+                    },
+                    Disabled = hintController.CurrentSingleUse && hintController.CurrentIsUsed,
+                });
+            }
         }
     }
 

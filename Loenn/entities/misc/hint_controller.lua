@@ -8,6 +8,7 @@ hintController.placements = {
     {
         name = "controller",
         data = {
+            titleDialog = "communalhelper_entities_hint_controller_menu"
             dialogIds = "",
             singleUses = "",
             selectorCounter = "",
