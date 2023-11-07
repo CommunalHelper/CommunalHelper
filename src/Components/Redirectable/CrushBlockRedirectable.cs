@@ -185,7 +185,7 @@ internal class CrushBlockRedirectable : Redirectable
     {
         ILCursor cursor = new(context);
         FieldReference f_speed = null;
-
+        // Checks all `ldc.r4 240 and adds a delegate to return 
         while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdcR4(CRASH_BLOCK_DEFAULT_MAX_SPEED)))
         {
             cursor.Emit(OpCodes.Ldloc_1);
@@ -226,7 +226,6 @@ internal class CrushBlockRedirectable : Redirectable
                 }
             });
         }
-
     }
 
     private static DashCollisionResults CrushBlock_OnDashed(On.Celeste.CrushBlock.orig_OnDashed orig, CrushBlock self, Player player, Vector2 direction)
@@ -255,7 +254,7 @@ internal class CrushBlockRedirectable : Redirectable
         bool result = orig(self, amount);
         if (result)
         {
-            OnWallCoalition(self);
+            OnWallCollision(self);
         }
 
         return result;
@@ -266,20 +265,20 @@ internal class CrushBlockRedirectable : Redirectable
         bool result = orig(self, amount);
         if (result)
         {
-            OnWallCoalition(self);
+            OnWallCollision(self);
         }
 
         return result;
     }
 
-    private static void OnWallCoalition(CrushBlock self)
+    private static void OnWallCollision(CrushBlock self)
     {
         Redirectable redirectable = self.Components.Get<Redirectable>();
 
         if (redirectable != null)
         {
             redirectable.IsRedirectable = false;
-            redirectable.ResetBlock();
+            redirectable.TargetSpeed = CRASH_BLOCK_DEFAULT_MAX_SPEED;
         }
     }
 }

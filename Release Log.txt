@@ -1,3 +1,6 @@
+--1.19.1 (07/11/2023)--
+* Fixed CrushBlockRedirects preventing Falling Blocks from falling when hit by any crush block
+
 --1.19.0 (07/11/2023)--
 * Added SJ Entities - 
   * Hint Controller
@@ -17,7 +20,6 @@
 * Fixed Red Booster being unable to vertically enter Connected Dream Blocks
 * Fixed Elytra losing speed while entering Boost ring while holding Up
 * Implemented a "grabmode" for Elytra controls
-
 
 --1.18.4 (04/08/2023)--
 * Fixed Shape3DRenderers of same layer being added more than once to the scene.
