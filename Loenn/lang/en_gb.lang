@@ -747,7 +747,7 @@ entities.CommunalHelper/GlowController.attributes.description.bloomOffsetX=The X
 entities.CommunalHelper/GlowController.attributes.description.bloomOffsetY=The Y offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
 
 # Poison Gas
-entities.CommunalHelper/PoisonGas.attributes.name.main=Poison Gas
+entities.CommunalHelper/PoisonGas.placements.name.main=Poison Gas
 entities.CommunalHelper/PoisonGas.attributes.description.main=Ported from xolimono's Midway Contest map. Creates a region of poison gas where if they stay inside poison for more than 3 seconds, the player dies.
 entities.CommunalHelper/PoisonGas.attributes.description.radius=The radius of the poison gas region, in pixels. Defaults to 48.
 entities.CommunalHelper/PoisonGas.attributes.description.spritePath=The game will pick a random image from Graphics/Atlases/Gameplay/<spritePath>##.png to display the poison gas region.\nImages should be 24x24px.

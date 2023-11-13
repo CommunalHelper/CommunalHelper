@@ -104,7 +104,7 @@ public class PlayerVisualModifier
 
     static void PlayerHair_Render(On.Celeste.PlayerHair.orig_Render orig, PlayerHair self)
     {
-        if (!(CommunalHelperModule.Session.VisualAddition is { } va))
+        if (!(CommunalHelperModule.Session.VisualAddition is { } va) || self == null)
         {
             orig(self);
             return;

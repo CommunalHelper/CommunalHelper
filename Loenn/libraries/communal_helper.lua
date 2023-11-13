@@ -325,12 +325,17 @@ function communalHelper.getCubicCurve(start, stop, controlA, controlB, resolutio
 end
 function communalHelper.lerp(a,b,t) return a * (1-t) + b * t end
 function communalHelper.colorLerp(col1, col2, lerp) 
-    return {
-        r = communalHelper.lerp(col1.r,col2.r,lerp),
-        g = communalHelper.lerp(col1.g,col2.g,lerp),
-        b = communalHelper.lerp(col1.b,col2.b,lerp),
-        a = communalHelper.lerp(col1.a,col2.a,lerp),
+    local ret = {
+        communalHelper.lerp(col1.r or col1[1] or 1,col2.r or col2[1] or 1,lerp),
+        communalHelper.lerp(col1.g or col1[2] or 1,col2.g or col2[2] or 1,lerp),
+        communalHelper.lerp(col1.b or col1[3] or 1,col2.b or col2[3] or 1,lerp),
+        communalHelper.lerp(col1.a or col1[4] or 1,col2.a or col2[4] or 1,lerp)
     }
+    ret.r = ret[1]
+    ret.g = ret[2]
+    ret.b = ret[3]
+    ret.a = ret[4]
+    return ret
 end
 
 -- dream boosters

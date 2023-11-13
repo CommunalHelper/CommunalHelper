@@ -285,18 +285,19 @@ public sealed class VoxelEditor : Scene
                         sb.Append(voxel[z, y, x]);
 
             string final = sb.ToString().TrimEnd('0');
+            string log = null;
             if (string.IsNullOrWhiteSpace(final))
             {
-                Console.WriteLine("------ GENERATED MESH WAS EMPTY, DID NOTHING ------");
+                log = "\n------ GENERATED MESH WAS EMPTY, DID NOTHING ------";
                 Audio.Play(SFX.ui_main_button_invalid);
             }
             else
             {
                 TextInput.SetClipboardText(final);
-                Console.WriteLine($"------ GENERATED {sx}x{sy}x{sz} VOXEL COPIED TO CLIPBOARD ------");
-                Console.WriteLine(final);
+                log = $"\n------ GENERATED {sx}x{sy}x{sz} VOXEL COPIED TO CLIPBOARD ------\n" + final;
                 Audio.Play(SFX.game_02_theoselfie_photo_filter);
             }
+            Logger.Log("CommunalHelper", log);
         }
 
         // rotation and scale

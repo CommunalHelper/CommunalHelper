@@ -1,3 +1,7 @@
+--1.19.2 (12/11/2023)--
+* Fixed Loenn plugins for Flag Breaker Box and PoisonGas
+* Fully implemented Momentum Block and resolved crashes
+
 --1.19.1 (07/11/2023)--
 * Fixed CrushBlockRedirects preventing Falling Blocks from falling when hit by any crush block
 

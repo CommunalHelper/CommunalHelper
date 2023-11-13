@@ -9,7 +9,6 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 [CustomEntity("CommunalHelper/SJ/MomentumBlock")]
 public class MomentumBlock : Solid
 {
-    public const string game_boost_block_boost = "event:/commhelper/sj/game/boost_block/boost";
     const float MAX_SPEED = 282; //internally the player has a max lift boost in each direction
     const float MAX_SPEED_X = 250;
     const float MAX_SPEED_Y = -130;
@@ -74,7 +73,7 @@ public class MomentumBlock : Solid
     {
         int value = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
         if (((8 > Width - 1) || (8 > Height - 1))) //use a different texture if the size is small for readability
-            return GFX.Game.GetAtlasSubtextures("objects/StrawberryJam2021/momentumBlock/trianglearrow")[Calc.Clamp(value, 0, 7)];
+            return GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/strawberryJam/momentumBlock/trianglearrow")[Calc.Clamp(value, 0, 7)];
         return GFX.Game.GetAtlasSubtextures("objects/moveBlock/arrow")[Calc.Clamp(value, 0, 7)];
     }
 
@@ -82,8 +81,8 @@ public class MomentumBlock : Solid
     {
         int value = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
         if (((8 > Width - 1) || (8 > Height - 1))) //use a different texture if the size is small for readability
-            return GFX.Game.GetAtlasSubtextures("objects/StrawberryJam2021/momentumBlock/trianglearrowflash")[Calc.Clamp(value, 0, 7)];
-        return GFX.Game.GetAtlasSubtextures("objects/StrawberryJam2021/momentumBlock/arrowflash")[Calc.Clamp(value, 0, 7)];
+            return GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/strawberryJam/momentumBlock/trianglearrowflash")[Calc.Clamp(value, 0, 7)];
+        return GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/strawberryJam/momentumBlock/arrowflash")[Calc.Clamp(value, 0, 7)];
     }
 
     public static Vector2 ClampLiftBoost(Vector2 liftBoost)
@@ -112,7 +111,7 @@ public class MomentumBlock : Solid
         Player player = GetPlayerRider();
         if (ridingPlayer != null && player == null && ridingPlayer.Speed.Y < 0 && speed.Length() > 1f)
         {
-            Audio.Play(game_boost_block_boost).setVolume(0.5f);
+            Audio.Play(CustomSFX.game_strawberryJam_boost_block_boost).setVolume(0.5f); // -6dB
             Flash();
         }
 

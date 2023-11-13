@@ -3,7 +3,7 @@ local drawableSprite = require("structs.drawable_sprite")
 
 local breakerBox = {}
 
-breakerBox.name = "CommunalHelper/SJ/FlagBreakerBlock"
+breakerBox.name = "CommunalHelper/SJ/FlagBreakerBox"
 breakerBox.depth = -10550
 breakerBox.texture = "objects/breakerBox/Idle00"
 breakerBox.fieldInformation = {
