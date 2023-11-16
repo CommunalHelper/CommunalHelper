@@ -436,12 +436,6 @@ public static class Elytra
     private static void Mod_PlayerSprite_ctor(On.Celeste.PlayerSprite.orig_ctor orig, PlayerSprite self, PlayerSpriteMode mode)
     {
         orig(self, mode);
-
-        self.Animations[ELYTRA_ANIM] = new()
-        {
-            Frames = GFX.Game.GetAtlasSubtextures("characters/player_no_backpack/CommunalHelper/fly").ToArray(),
-            Delay = 10f,
-        };
     }   
 
     private static void Mod_Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self)
@@ -454,6 +448,14 @@ public static class Elytra
         const int STABLE_FRAME = 6;
         const int FRAME_COUNT = 9;
 
+        if (!self.Sprite.Has(ELYTRA_ANIM))
+        {
+            self.Sprite.Animations[ELYTRA_ANIM] = new()
+            {
+                Frames = GFX.Game.GetAtlasSubtextures("characters/player_no_backpack/CommunalHelper/fly").ToArray(),
+                Delay = 10f,
+            };
+        }
         self.Sprite.Play(ELYTRA_ANIM);
 
         DynamicData data = DynamicData.For(self);
@@ -467,8 +469,10 @@ public static class Elytra
             else
                 frame -= (int)(t * STABLE_FRAME);
         }
-
-        self.Sprite.SetAnimationFrame(Calc.Clamp(frame, 0, FRAME_COUNT - 1));
+        if (self.Sprite.CurrentAnimationTotalFrames !< frame)
+        {
+            self.Sprite.SetAnimationFrame(Calc.Clamp(frame, 0, FRAME_COUNT - 1));
+        } 
     }
 
     private static bool Player_RefillDash(On.Celeste.Player.orig_RefillDash orig, Player self)
