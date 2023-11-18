@@ -335,9 +335,7 @@ public static class Elytra
     internal static void Load()
     {
         On.Celeste.Player.Die += Mod_Player_Die;
-
         On.Celeste.PlayerSprite.CreateFramesMetadata += Mod_PlayerSprite_CreateFramesMetadata;
-
         On.Celeste.Player.UpdateSprite += Mod_Player_UpdateSprite;
         On.Celeste.Player.NormalUpdate += Mod_Player_NormalUpdate;
         On.Celeste.Player.OnCollideH += Mod_Player_OnCollideH;
@@ -352,6 +350,7 @@ public static class Elytra
     internal static void Unload()
     {
         On.Celeste.Player.Die -= Mod_Player_Die;
+        On.Celeste.PlayerSprite.CreateFramesMetadata -= Mod_PlayerSprite_CreateFramesMetadata;
         On.Celeste.Player.UpdateSprite -= Mod_Player_UpdateSprite;
         On.Celeste.Player.NormalUpdate -= Mod_Player_NormalUpdate;
         On.Celeste.Player.OnCollideH -= Mod_Player_OnCollideH;
@@ -475,7 +474,7 @@ public static class Elytra
             else
                 frame -= (int)(t * STABLE_FRAME);
         }
-        if (self.Sprite.CurrentAnimationTotalFrames >= frame)
+        if ((self.Sprite.CurrentAnimationTotalFrames - 1) >= frame)
         {
             self.Sprite.SetAnimationFrame(Calc.Clamp(frame, 0, FRAME_COUNT - 1));
         } 
