@@ -100,8 +100,6 @@ public static class CommunalHelperGFX
         foreach (XmlElement element in CustomPlayerFrameMetadata.GetElementsByTagName("Frames"))
         {
             string path = !string.IsNullOrEmpty(data.Sources[0].OverridePath) ? data.Sources[0].OverridePath : data.Sources[0].Path;
-            if (!GFX.Game.HasAtlasSubtextures($"{path}CommunalHelper/fly"))
-                path = "characters/player_no_backpack/";
 
             path = $"{path}{element.Attr("path", "")}";
 
