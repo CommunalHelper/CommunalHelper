@@ -335,7 +335,9 @@ public static class Elytra
     internal static void Load()
     {
         On.Celeste.Player.Die += Mod_Player_Die;
-        On.Celeste.PlayerSprite.ctor += Mod_PlayerSprite_ctor;
+
+        On.Celeste.PlayerSprite.CreateFramesMetadata += Mod_PlayerSprite_CreateFramesMetadata;
+
         On.Celeste.Player.UpdateSprite += Mod_Player_UpdateSprite;
         On.Celeste.Player.NormalUpdate += Mod_Player_NormalUpdate;
         On.Celeste.Player.OnCollideH += Mod_Player_OnCollideH;
@@ -350,7 +352,6 @@ public static class Elytra
     internal static void Unload()
     {
         On.Celeste.Player.Die -= Mod_Player_Die;
-        On.Celeste.PlayerSprite.ctor -= Mod_PlayerSprite_ctor;
         On.Celeste.Player.UpdateSprite -= Mod_Player_UpdateSprite;
         On.Celeste.Player.NormalUpdate -= Mod_Player_NormalUpdate;
         On.Celeste.Player.OnCollideH -= Mod_Player_OnCollideH;
@@ -433,10 +434,22 @@ public static class Elytra
         return orig(self, direction, evenIfInvincible, registerDeathInStats);
     }
 
-    private static void Mod_PlayerSprite_ctor(On.Celeste.PlayerSprite.orig_ctor orig, PlayerSprite self, PlayerSpriteMode mode)
+    private static void Mod_PlayerSprite_CreateFramesMetadata(On.Celeste.PlayerSprite.orig_CreateFramesMetadata orig, string sprite)
     {
-        orig(self, mode);
-    }   
+        SpriteData data = GFX.SpriteBank.SpriteData[sprite];
+        if (!data.Sprite.Has(ELYTRA_ANIM))
+        {
+            string path = !string.IsNullOrEmpty(data.Sources[0].OverridePath) ? data.Sources[0].OverridePath : data.Sources[0].Path;
+            path = GFX.Game.HasAtlasSubtextures($"{path}CommunalHelper/fly") ? path : "characters/player_no_backpack/";
+
+            data.Sprite.Animations[ELYTRA_ANIM] = new()
+            {
+                Frames = GFX.Game.GetAtlasSubtextures($"{path}CommunalHelper/fly").ToArray(),
+                Delay = 10f,
+            };
+        }
+        orig(sprite);
+    }
 
     private static void Mod_Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self)
     {
@@ -448,14 +461,6 @@ public static class Elytra
         const int STABLE_FRAME = 6;
         const int FRAME_COUNT = 9;
 
-        if (!self.Sprite.Has(ELYTRA_ANIM))
-        {
-            self.Sprite.Animations[ELYTRA_ANIM] = new()
-            {
-                Frames = GFX.Game.GetAtlasSubtextures("characters/player_no_backpack/CommunalHelper/fly").ToArray(),
-                Delay = 10f,
-            };
-        }
         self.Sprite.Play(ELYTRA_ANIM);
 
         DynamicData data = DynamicData.For(self);
@@ -469,7 +474,7 @@ public static class Elytra
             else
                 frame -= (int)(t * STABLE_FRAME);
         }
-        if (self.Sprite.CurrentAnimationTotalFrames !< frame)
+        if (self.Sprite.CurrentAnimationTotalFrames >= frame)
         {
             self.Sprite.SetAnimationFrame(Calc.Clamp(frame, 0, FRAME_COUNT - 1));
         } 
