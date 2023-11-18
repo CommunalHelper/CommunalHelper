@@ -439,7 +439,7 @@ public static class Elytra
         if (!data.Sprite.Has(ELYTRA_ANIM))
         {
             string path = !string.IsNullOrEmpty(data.Sources[0].OverridePath) ? data.Sources[0].OverridePath : data.Sources[0].Path;
-            if (GFX.Game.HasAtlasSubtextures($"{path}CommunalHelper/fly"))
+            if (!(GFX.Game.HasAtlasSubtextures($"{path}CommunalHelper/fly")))
                 path = "characters/player_no_backpack/";
 
             data.Sprite.Animations[ELYTRA_ANIM] = new()
@@ -474,7 +474,7 @@ public static class Elytra
             else
                 frame -= (int)(t * STABLE_FRAME);
         }
-        if ((self.Sprite.CurrentAnimationTotalFrames - 1) >= frame)
+        if (frame < self.Sprite.CurrentAnimationTotalFrames)
         {
             self.Sprite.SetAnimationFrame(Calc.Clamp(frame, 0, FRAME_COUNT - 1));
         } 
