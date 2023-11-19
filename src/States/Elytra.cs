@@ -460,8 +460,8 @@ public static class Elytra
 
         self.Sprite.Play(ELYTRA_ANIM);
 
-        int FRAME_COUNT = self.Sprite.CurrentAnimationTotalFrames;
-        int STABLE_FRAME = (int)(2f / 3f * FRAME_COUNT);
+        int FRAME_COUNT = self.Sprite.CurrentAnimationTotalFrames; // The default expected value is 9
+        int STABLE_FRAME = (int)(FRAME_COUNT / 9f * 7f) - 1; //The default expected value is 6
 
         DynamicData data = DynamicData.For(self);
         int frame = STABLE_FRAME;
