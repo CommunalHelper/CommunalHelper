@@ -458,10 +458,10 @@ public static class Elytra
         if (self.StateMachine.State != St.Elytra)
             return;
 
-        const int STABLE_FRAME = 6;
-        const int FRAME_COUNT = 9;
-
         self.Sprite.Play(ELYTRA_ANIM);
+
+        int FRAME_COUNT = self.Sprite.CurrentAnimationTotalFrames;
+        int STABLE_FRAME = (int)(2f / 3f * FRAME_COUNT);
 
         DynamicData data = DynamicData.For(self);
         int frame = STABLE_FRAME;
@@ -474,10 +474,7 @@ public static class Elytra
             else
                 frame -= (int)(t * STABLE_FRAME);
         }
-        if (frame < self.Sprite.CurrentAnimationTotalFrames)
-        {
-            self.Sprite.SetAnimationFrame(Calc.Clamp(frame, 0, FRAME_COUNT - 1));
-        } 
+        self.Sprite.SetAnimationFrame(Calc.Clamp(frame, 0, FRAME_COUNT - 1));
     }
 
     private static bool Player_RefillDash(On.Celeste.Player.orig_RefillDash orig, Player self)
