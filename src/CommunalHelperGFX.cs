@@ -101,6 +101,9 @@ public static class CommunalHelperGFX
         {
             string path = !string.IsNullOrEmpty(data.Sources[0].OverridePath) ? data.Sources[0].OverridePath : data.Sources[0].Path;
 
+            if (!(GFX.Game.HasAtlasSubtextures($"{path}{element.Attr("path", "")}")))
+                path = "characters/player_no_backpack/";
+
             path = $"{path}{element.Attr("path", "")}";
 
             string[] hairData = element.Attr("hair").Split('|');
