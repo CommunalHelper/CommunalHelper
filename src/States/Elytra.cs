@@ -460,8 +460,11 @@ public static class Elytra
 
         self.Sprite.Play(ELYTRA_ANIM);
 
-        int FRAME_COUNT = self.Sprite.CurrentAnimationTotalFrames; // The default expected value is 9
-        int STABLE_FRAME = (int)(FRAME_COUNT / 9f * 7f) - 1; //The default expected value is 6
+        int FRAME_COUNT = self.Sprite.CurrentAnimationTotalFrames; // The default expected value is 9.
+        int STABLE_FRAME = (int)(FRAME_COUNT / 9f * 7f) - 1;
+
+        if (FRAME_COUNT > 17) // Made excess frames always assigned to going-up pose that frames more low.
+            STABLE_FRAME -= (int)((FRAME_COUNT - 9) / 9f);
 
         DynamicData data = DynamicData.For(self);
         int frame = STABLE_FRAME;
