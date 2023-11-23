@@ -337,15 +337,18 @@ public class CommunalHelperModule : EverestModule
     private object CustomBirdTutorial_OnParseCommand(string command)
     {
         // Thank you maddie.
-        if (command == "CommunalHelperSyncedZipMoverBinding")
-        {
-            return Settings.AllowActivateRebinding ?
-                Settings.ActivateSyncedZipMovers.Button : Input.Grab;
-        }
 
-        return command == "CommunalHelperCycleCassetteBlocksBinding"
-            ? Settings.CycleCassetteBlocks.Button
-            : command == "CommunalHelperActivateFlagControllerBinding" ? Settings.ActivateFlagController.Button : (object) null;
+        const string COMMAND_PREFIX = "CommunalHelper";
+
+        return command switch
+        {
+            COMMAND_PREFIX + "SyncedZipMoverBinding" => 
+                Settings.AllowActivateRebinding ? Settings.ActivateSyncedZipMovers.Button : Input.Grab,
+            COMMAND_PREFIX + "CycleCassetteBlocksBinding" => Settings.CycleCassetteBlocks.Button,
+            COMMAND_PREFIX + "ActivateFlagControllerBinding" => Settings.ActivateFlagController.Button,
+            COMMAND_PREFIX + "DeployElytraBinding" => Settings.DeployElytra.Button,
+            _ => null,
+        };
     }
 }
 
