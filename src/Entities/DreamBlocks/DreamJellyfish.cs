@@ -119,7 +119,7 @@ internal class DreamJellyfish : Glider
     public void OnDreamDashExit(Player player)
     {
         DisableDreamDash();
-        if (Input.GrabCheck && player.DashDir.Y <= 0)
+        if (Input.GrabCheck && player.DashDir.Y <= 0 && player.Holding == null)
         {
             // force-allow pickup
             player.GetData().Set("minHoldTimer", 0f);
