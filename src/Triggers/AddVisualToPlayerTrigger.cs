@@ -48,7 +48,7 @@ public class PlayerVisualModifier
 
     private static void Sprite_Play(Action<Sprite, string, bool, bool> orig, Sprite self, string id, bool restart, bool randomizeFrame)
     {
-        if(!(ModifySpritePlay && CommunalHelperModule.Session.VisualAddition is { } va && self is PlayerSprite))
+        if(!(ModifySpritePlay && self is PlayerSprite && CommunalHelperModule.Session.VisualAddition is string _va && knownModifiers.TryGetValue(_va, out var va)))
         {
             orig(self, id, restart, randomizeFrame);
             return;
@@ -87,12 +87,13 @@ public class PlayerVisualModifier
 
     private static void Player_Render(On.Celeste.Player.orig_Render orig, Player self)
     {
-        if (!(CommunalHelperModule.Session.VisualAddition is { } va))
+        if (!(CommunalHelperModule.Session.VisualAddition is string _va && knownModifiers.TryGetValue(_va, out var va)) || (self?.Sprite == null))
         {
             orig(self);
             return;
         }
-        Vector2 v = va.modifiersByAnim.TryGetValue(self.Sprite.CurrentAnimationID, out var pam) && pam.playerOffset.HasValue ? pam.playerOffset.Value : va.defaultPlayerOffset;
+        Vector2 v = (va.modifiersByAnim?.TryGetValue(self.Sprite.CurrentAnimationID, out var pam) ?? false) && pam.playerOffset.HasValue ? pam.playerOffset.Value : va.defaultPlayerOffset;
+        
         self.Sprite.RenderPosition += v;
         orig(self);
         self.Sprite.RenderPosition -= v;
@@ -104,12 +105,13 @@ public class PlayerVisualModifier
 
     static void PlayerHair_Render(On.Celeste.PlayerHair.orig_Render orig, PlayerHair self)
     {
-        if (!(CommunalHelperModule.Session.VisualAddition is { } va) || self == null)
+        if (!(CommunalHelperModule.Session.VisualAddition is string _va && knownModifiers.TryGetValue(_va, out var va)) || (self?.Sprite == null))
         {
             orig(self);
             return;
         }
-        Vector2 v = va.modifiersByAnim.TryGetValue(self.Sprite.CurrentAnimationID, out var pam) && pam.playerOffset.HasValue ? pam.playerOffset.Value : va.defaultPlayerOffset;
+        Vector2 v = (va.modifiersByAnim?.TryGetValue(self.Sprite.CurrentAnimationID, out var pam) ?? false) && pam.playerOffset.HasValue ? pam.playerOffset.Value : va.defaultPlayerOffset;
+
         for (int i = 0; i < self.Nodes.Count; i++)
         {
             self.Nodes[i] += v;
@@ -285,16 +287,17 @@ public class PlayerVisualModifier
 public class AddVisualToPlayerTrigger : Trigger
 {
     private bool RevertOnLeave;
-    private PlayerVisualModifier pvm;
-    private PlayerVisualModifier prev;
+    private string pvm, prev;
 
     public AddVisualToPlayerTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
     {
         RevertOnLeave = data.Bool("revertOnLeave");
-        string modifier = data.Attr("modifier");
-        if(!string.IsNullOrWhiteSpace(modifier))
-            PlayerVisualModifier.TryGetModifier(modifier, out pvm);
+        pvm = data.Attr("modifier");
+        if (string.IsNullOrWhiteSpace(pvm) || PlayerVisualModifier.TryGetModifier(pvm, out _))
+        {
+            RemoveSelf();
+        }
     }
 
     public override void OnEnter(Player player)

@@ -54,12 +54,12 @@ The Player Visual Modifier is an abstraction that allows you to append images or
 
 It allows you to do any of the following:
 - [Add a positional offset to the player visuals](#add-a-positional-offset)
-- Add an image or sprite to render on top of the player with an offset (with facing angle preserved)
-- Override the behavior of any animation/loop on the player
-  - Replace an animation with another animation, e.g. "runCarry" on player could actually play "idle" on Player
-  - Change the positional offset to the player visuals for that animation
-  - Change the added image/sprite offset for that animation
-  - Play an animation from the added sprite, if one exists.
+- Add an [image](#add-an-image) or [sprite](#add-a-sprite) to render on top of the player with an offset (with facing angle preserved)
+- [Override](#overrides) the behavior of any animation/loop on the player
+  - [Replace an animation with another animation](#replace-an-animation-with-another), e.g. "runCarry" on player could actually play "idle" on Player
+  - [Change the positional offset](#change-player-offset) to the player visuals for that animation
+  - [Change the added image/sprite offset](#change-image-offset) for that animation
+  - [Play an animation](#animate-your-sprite) from the added sprite, if one exists.
 
 To use it, an XML must first be added to `Graphics/CommunalHelper/PlayerVisualModifiers/`.
 The XML should have a unique path, so it's recommended you also specify the modname as a folder, e.g. `Graphics/CommunalHelper/PlayerVisualModifiers/$ModNameHere/$XMLNameHere.xml`.

@@ -2,7 +2,7 @@
 
 using ..Ahorn, Maple
 
-@mapdef Entity "CommunalHelper/SJ/BulletTimeController" BTController(x::Integer, y::Integer, timerate::Number = 0.5, flag::String="", minDashes::Integer)
+@mapdef Entity "CommunalHelper/SJ/BulletTimeController" BTController(x::Integer, y::Integer, timerate::Number = 0.5, flag::String="", minDashes::Integer=1)
 
 const placements = Ahorn.PlacementDict(
     "Bullet Time Controller (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(

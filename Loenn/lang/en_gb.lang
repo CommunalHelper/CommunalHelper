@@ -842,10 +842,10 @@ triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.name.trigger=Oshir
 triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.description.trigger=Toggles Oshiro attacking in his B-side pattern (every 1.916 seconds) in A-side maps.
 
 # Player Visual Modifier Trigger
-entities.CommunalHelper/PlayerVisualModTrigger.placements.name.trigger=Player Visual Modifier Trigger
-entities.CommunalHelper/PlayerVisualModTrigger.placements.description.trigger=Creates a visual extension to the player regardless of skinmods.\nExpands on the Skateboard Trigger from Strawberry Jam.
-entities.CommunalHelper/PlayerVisualModTrigger.attributes.description.revertOnLeave=If true, removes the visual modifier from the player to whatever it was before entering the trigger.
-entities.CommunalHelper/PlayerVisualModTrigger.attributes.description.modifier=Selects a file relative to `$ModContent/Graphics/CommunalHelper/PlayerVisualModifiers/`\nto modify the player with. Check the CommunalHelper github wiki for notes on how to create your own modifier.
+triggers.CommunalHelper/PlayerVisualModTrigger.placements.name.trigger=Player Visual Modifier Trigger
+triggers.CommunalHelper/PlayerVisualModTrigger.placements.description.trigger=Creates a visual extension to the player regardless of skinmods.\nExpands on the Skateboard Trigger from Strawberry Jam.
+triggers.CommunalHelper/PlayerVisualModTrigger.attributes.description.revertOnLeave=If true, removes the visual modifier from the player to whatever it was before entering the trigger.
+triggers.CommunalHelper/PlayerVisualModTrigger.attributes.description.modifier=Selects a file relative to `$ModContent/Graphics/CommunalHelper/PlayerVisualModifiers/`\nto modify the player with. Check the CommunalHelper github wiki for notes on how to create your own modifier.
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State

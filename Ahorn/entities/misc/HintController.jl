@@ -17,17 +17,17 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
-Ahorn.editingOrder(entity::GlowController) = String[
+Ahorn.editingOrder(entity::HintController) = String[
     "x","y","titleDialog","dialogIDs","singleUses","selectorCounter","selectNextHint"
 ]
 
 const sprite = "objects/CommunalHelper/hintController/icon"
 
-function Ahorn.selection(entity::GlowController)
+function Ahorn.selection(entity::HintController)
     x, y = Ahorn.position(entity)
     return Ahorn.getSpriteRectangle(sprite, x, y)
 end
 
-Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::GlowController) = Ahorn.drawSprite(ctx, sprite, 0, 0)
+Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::HintController) = Ahorn.drawSprite(ctx, sprite, 0, 0)
 
 end

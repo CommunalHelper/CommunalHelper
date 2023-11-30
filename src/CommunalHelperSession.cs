@@ -25,7 +25,8 @@ public class CommunalHelperSession : EverestModuleSession
     internal float PrevGasTimer { get; set; }
     public float GasTimer { get; set; }
 
-    public PlayerVisualModifier VisualAddition { get; set; } = null;
+    // This breaks with PlayerVisualModifier as the object type, so I'm going to use this with knownModifiers everywhere.
+    public string VisualAddition { get; set; }
     public bool OshiroBsideTimer { get; set; } = false;
 
     public CommunalHelperSession()

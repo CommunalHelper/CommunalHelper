@@ -1,3 +1,7 @@
+--1.19.3 (30/11/2023)--
+* Fixed Nullref crash on Skateboard Trigger from a Save & Quit
+* Fixed small errors in Ahorn and Loenn
+
 --1.19.2 (12/11/2023)--
 * Fixed Loenn plugins for Flag Breaker Box and PoisonGas
 * Fully implemented Momentum Block and resolved crashes
