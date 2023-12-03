@@ -35,10 +35,13 @@ for i, steeringMode in ipairs(steeringModes) do
             width = 16,
             height = 16,
             steeringMode = steeringMode,
-            speed = 120.0
+            speed = 120.0,
+			easedVerticalMovement = false,
+			attachedAbove = false
         }
     }
 end
+
 
 local ninePatchOptions = {
     mode = "border",
