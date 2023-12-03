@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+using MonoMod.Utils;
+using System.Collections.Generic;
+
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -119,12 +121,16 @@ internal class RailedMoveBlock : Solid
     private readonly List<Image> rightButton = new();
     private bool leftPressed, rightPressed, topPressed, bottomPressed;
 
+    private readonly bool easedVerticalMovement;
+    private readonly bool attachedAbove;
+
     private Color fillColor = IdleBgFill;
     public static readonly Color IdleBgFill = Calc.HexToColor("474070");
     public static readonly Color MoveBgFill = Calc.HexToColor("30b335");
     public static readonly Color StopBgFill = Calc.HexToColor("cc2541");
     public static readonly Color PlacementErrorBgFill = Calc.HexToColor("cc7c27");
 
+    private readonly DynamicData platformData;
     private Vector2 start, target, dir;
     private float percent;
     private readonly float length;
@@ -142,14 +148,15 @@ internal class RailedMoveBlock : Solid
     private readonly float moveSpeed;
 
     public RailedMoveBlock(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Width, data.Height, data.NodesOffset(offset)[0], data.Enum("steeringMode", SteeringMode.Both), data.Float("speed", 120f)) { }
+        : this(data.Position + offset, data.Width, data.Height, data.NodesOffset(offset)[0], data.Enum("steeringMode", SteeringMode.Both), data.Float("speed", 120f), data.Bool("easedVerticalMovement", false), data.Bool("attachedAbove", false)) { }
 
-    public RailedMoveBlock(Vector2 position, int width, int height, Vector2 node, SteeringMode steeringMode, float speed)
+    public RailedMoveBlock(Vector2 position, int width, int height, Vector2 node, SteeringMode steeringMode, float speed, bool easedVerticalMovement, bool attachedAbove)
         : base(position, width, height, safe: false)
     {
         start = position;
         target = node;
-
+        this.easedVerticalMovement = easedVerticalMovement;
+        this.attachedAbove = attachedAbove;
         if (speed <= 0f)
             steeringMode = SteeringMode.None;
         else
@@ -233,6 +240,8 @@ internal class RailedMoveBlock : Solid
         });
         sfx.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_move, "arrow_stop", 1f);
         Add(new LightOcclude(0.5f));
+
+        platformData = new(typeof(Platform), this);
     }
 
     private void AddImage(MTexture tex, Vector2 position, float rotation, Vector2 scale, List<Image> addTo)
@@ -254,6 +263,15 @@ internal class RailedMoveBlock : Solid
 
         scene.Add(border = new Border(this));
         scene.Add(pathRenderer = new RailedMoveBlockPathRenderer(this));
+
+
+        if (attachedAbove)
+        {
+            foreach (StaticMover staticMover in this.staticMovers)
+            {
+                staticMover.Entity.Depth = this.Depth - 1;
+            }
+        }
     }
 
     public override void Removed(Scene scene)
@@ -308,21 +326,37 @@ internal class RailedMoveBlock : Solid
 
         if (dir != Vector2.Zero)
         {
+
             float newSpeed = 0f;
 
             icon = idleIcon;
-            if ((topPressed || bottomPressed) && HasPlayerRider() && Input.MoveY.Value != 0)
+            if (easedVerticalMovement)
             {
-                newSpeed = moveSpeed * Input.MoveY.Value * (dir.Y > 0f ? 1f : -1f);
-                newFillColor = MoveBgFill;
-                icon = Input.MoveY.Value == 1 ? DownIcon : UpIcon;
+                if ((topPressed || bottomPressed) && HasPlayerRider() && (Input.Feather.Value.Y > 0.4f || Input.Feather.Value.Y < -0.4f))
+                {
+                    newSpeed = moveSpeed * Math.Sign(Input.Feather.Value.Y) * (dir.Y > 0f ? 1f : -1f);
+                    newFillColor = MoveBgFill;
+                    icon = Input.MoveY.Value == 1 ? DownIcon : UpIcon;
+                }
             }
-            else if ((leftPressed || rightPressed) && HasPlayerClimbing() && Input.MoveX.Value != 0)
+            else
+            {
+                if ((topPressed || bottomPressed) && HasPlayerRider() && (Input.MoveY.Value !=0))
+                {
+                    newSpeed = moveSpeed * Input.MoveY.Value * (dir.Y > 0f ? 1f : -1f);
+                    newFillColor = MoveBgFill;
+                    icon = Input.MoveY.Value == 1 ? DownIcon : UpIcon;
+                }
+
+            }
+
+            if ((leftPressed || rightPressed) && HasPlayerClimbing() && Input.MoveX.Value != 0)
             {
                 newSpeed = moveSpeed * Input.MoveX.Value * (dir.X > 0f ? 1f : -1f);
                 newFillColor = MoveBgFill;
                 icon = Input.MoveX.Value == 1 ? RightIcon : LeftIcon;
             }
+
 
             if (Math.Sign(speed) != Math.Sign(newSpeed))
             {
