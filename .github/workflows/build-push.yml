@@ -39,4 +39,4 @@ jobs:
       uses: actions/upload-artifact@v1.0.0
       with:
         name: main
-        path: src/bin/Debug/net452
+        path: src/bin/Debug/net7.0
