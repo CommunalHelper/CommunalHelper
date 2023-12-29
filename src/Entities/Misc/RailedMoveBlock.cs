@@ -264,9 +264,9 @@ internal class RailedMoveBlock : Solid
 
         if (attachedAbove)
         {
-            foreach (StaticMover staticMover in this.staticMovers)
+            foreach (StaticMover staticMover in staticMovers)
             {
-                staticMover.Entity.Depth = this.Depth - 1;
+                staticMover.Entity.Depth = Depth - 1;
             }
         }
     }
@@ -327,33 +327,31 @@ internal class RailedMoveBlock : Solid
             float newSpeed = 0f;
 
             icon = idleIcon;
-            if (easedVerticalMovement)
+
+            if ((topPressed || bottomPressed) && HasPlayerRider())
             {
-                if ((topPressed || bottomPressed) && HasPlayerRider() && (Input.Feather.Value.Y > 0.4f || Input.Feather.Value.Y < -0.4f))
+                if (easedVerticalMovement && (Input.Feather.Value.Y > 0.4f || Input.Feather.Value.Y < -0.4f))
                 {
                     newSpeed = moveSpeed * Math.Sign(Input.Feather.Value.Y) * (dir.Y > 0f ? 1f : -1f);
                     newFillColor = MoveBgFill;
-                    icon = Input.MoveY.Value == 1 ? DownIcon : UpIcon;
+                    icon = Math.Sign(Input.Feather.Value.Y) == 1 ? DownIcon : UpIcon;
                 }
-            }
-            else
-            {
-                if ((topPressed || bottomPressed) && HasPlayerRider() && (Input.MoveY.Value !=0))
+                else if (Input.MoveY.Value != 0)
                 {
                     newSpeed = moveSpeed * Input.MoveY.Value * (dir.Y > 0f ? 1f : -1f);
                     newFillColor = MoveBgFill;
                     icon = Input.MoveY.Value == 1 ? DownIcon : UpIcon;
                 }
-
             }
 
-            if ((leftPressed || rightPressed) && HasPlayerClimbing() && Input.MoveX.Value != 0)
+            else if ((leftPressed || rightPressed) && HasPlayerClimbing() && Input.MoveX.Value != 0)
             {
                 newSpeed = moveSpeed * Input.MoveX.Value * (dir.X > 0f ? 1f : -1f);
                 newFillColor = MoveBgFill;
                 icon = Input.MoveX.Value == 1 ? RightIcon : LeftIcon;
             }
 
+        
 
             if (Math.Sign(speed) != Math.Sign(newSpeed))
             {
