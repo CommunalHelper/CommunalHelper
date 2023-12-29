@@ -36,8 +36,8 @@ for i, steeringMode in ipairs(steeringModes) do
             height = 16,
             steeringMode = steeringMode,
             speed = 120.0,
-			easedVerticalMovement = false,
-			attachedAbove = false
+	    easedVerticalMovement = false,
+	    attachedAbove = false
         }
     }
 end
