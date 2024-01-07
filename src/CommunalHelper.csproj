@@ -2,16 +2,13 @@
 
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net452</TargetFrameworks>
+		<TargetFrameworks>net7.0</TargetFrameworks>
 		<AssemblyName>CommunalHelper</AssemblyName>
 		<RootNamespace>Celeste.Mod.CommunalHelper</RootNamespace>
 		<LangVersion>latest</LangVersion>
 
 		<!--Find Celeste relative path (defaults to ..\lib-stripped)-->
-		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\Celeste.exe')">..\..</CelestePrefix>
-		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\Celeste.exe')">..\..\..</CelestePrefix>
-		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\legacyRef\Celeste.exe')">..\..\legacyRef</CelestePrefix>
-		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\legacyRef\Celeste.exe')">..\..\..\legacyRef</CelestePrefix>
+		<CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\Celeste.dll')">..\..\..</CelestePrefix>
 		<CelestePrefix Condition="'$(CelestePrefix)' == ''">..\lib-stripped</CelestePrefix>
 
 		<!--Determine build type (FNA or XNA)-->
@@ -37,13 +34,13 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<!--Include Celeste.exe and MMHOOK_Celeste.dll-->
+	<!--Include Celeste.dll and MMHOOK_Celeste.dll-->
 	<ItemGroup>
 		<Reference Include="$(CelestePrefix)\MMHOOK_Celeste.dll">
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="Celeste">
-		  <HintPath>..\..\..\legacyRef\Celeste.exe</HintPath>
+		<Reference Include="$(CelestePrefix)\Celeste.dll">
+			<Private>false</Private>
 		</Reference>
 	</ItemGroup>
 
