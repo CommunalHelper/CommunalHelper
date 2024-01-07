@@ -179,9 +179,7 @@ public static class SeekerDash
     private static void Player_DashUpdate(ILContext il)
     {
         ILCursor cursor = new(il);
-        cursor.GotoNext(MoveType.After, instr => instr.MatchLdsfld<Player>("P_DashB"));
-        object loc = cursor.Next.Operand;
-        cursor.GotoNext(MoveType.After, instr => instr.OpCode == OpCodes.Ldloc_S && instr.Operand == loc);
+        cursor.GotoNext(MoveType.After, i => i.MatchLdfld<Player>("level"), i => i.MatchLdfld<Level>("ParticlesFG"), i => i.OpCode == OpCodes.Ldloc_S);
         cursor.EmitDelegate<Func<ParticleType, ParticleType>>(type => seekerDashAttacking ? Seeker.P_Attack : type);
     }
 

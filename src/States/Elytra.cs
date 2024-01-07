@@ -437,12 +437,15 @@ public static class Elytra
     {
         orig(self, mode);
 
-        self.Animations[ELYTRA_ANIM] = new()
+        if (!self.Animations.ContainsKey(ELYTRA_ANIM))
         {
-            Frames = GFX.Game.GetAtlasSubtextures("characters/player_no_backpack/CommunalHelper/fly").ToArray(),
-            Delay = 10f,
-        };
-    }   
+            self.Animations[ELYTRA_ANIM] = new()
+            {
+                Frames = GFX.Game.GetAtlasSubtextures("characters/player_no_backpack/CommunalHelper/fly").ToArray(),
+                Delay = 10f,
+            };
+        }
+    }
 
     private static void Mod_Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self)
     {

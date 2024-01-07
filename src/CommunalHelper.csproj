@@ -39,11 +39,11 @@
 
 	<!--Include Celeste.exe and MMHOOK_Celeste.dll-->
 	<ItemGroup>
-		<Reference Include="$(CelestePrefix)\Celeste.exe">
-			<Private>false</Private>
-		</Reference>
 		<Reference Include="$(CelestePrefix)\MMHOOK_Celeste.dll">
 			<Private>false</Private>
+		</Reference>
+		<Reference Include="Celeste">
+		  <HintPath>..\..\..\legacyRef\Celeste.exe</HintPath>
 		</Reference>
 	</ItemGroup>
 
