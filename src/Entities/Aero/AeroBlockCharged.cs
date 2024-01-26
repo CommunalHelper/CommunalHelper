@@ -416,7 +416,7 @@ public class AeroBlockCharged : AeroBlockFlying
         orig(self);
 
         // climbjump
-        if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position + Vector2.UnitX * (int)self.Facing * 3) is AeroBlockCharged block)) { return; } 
+        if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position - Vector2.UnitX * (int)self.Facing * 3) is AeroBlockCharged block)) { return; } 
         if (block is not null && (self.Facing == Facings.Right ? block.CheckLeftButton() : block.CheckRightButton()))
         {
             float speed = ((int)self.Facing == Math.Sign(Input.MoveX.Value)) ? 300 : -300;
