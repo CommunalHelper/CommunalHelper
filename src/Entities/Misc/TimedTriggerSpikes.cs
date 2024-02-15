@@ -47,6 +47,7 @@ public class TimedTriggerSpikes : Entity
         public float Lerp;
 
         public Color color;
+        public float ReusableTimer;
 
         public void Update()
         {
@@ -71,6 +72,29 @@ public class TimedTriggerSpikes : Entity
                 else
                 {
                     Lerp = Calc.Approach(Lerp, 1f, 8f * Engine.DeltaTime);
+                    if (Lerp >= 1f && Parent.reusable)
+                    {
+                        ReusableTimer -= Engine.DeltaTime;
+                        if (ReusableTimer <= 0f)
+                        {
+                            Triggered = false;
+                            if (Parent.grouped)
+                            {
+                                SpikeInfo[] spikes = Parent.spikes;
+                                int length = spikes.Length;
+                                for (int i = 0; i < length; i++)
+                                {
+                                    spikes[i].ReusableTimer = Parent.reusableTimer;
+                                    spikes[i].DelayTimer = Parent.Delay;
+                                }
+                            }
+                            else
+                            {
+                                ReusableTimer = Parent.reusableTimer;
+                                DelayTimer = Parent.Delay;
+                            }
+                        }
+                    }
                 }
             }
             else
@@ -168,13 +192,25 @@ public class TimedTriggerSpikes : Entity
 
     private readonly bool triggerAlways;
 
+    private readonly bool reusable;
+    private readonly float reusableTimer;
 
     public TimedTriggerSpikes(EntityData data, Vector2 offset, Directions dir)
-        : this(data.Position, offset, GetSize(data, dir), dir, data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false), data.Bool("Grouped", false), data.Bool("Rainbow", false), data.Bool("TriggerAlways", false))
+        : this(
+              data.Position, offset, GetSize(data, dir), dir,
+              data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false),
+              data.Bool("Grouped", false), data.Bool("Rainbow", false), data.Bool("TriggerAlways", false),
+              data.Bool("Reusable"), data.Float("ReusableTimer")
+              )
     {
     }
 
-    public TimedTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, float Delay, bool waitForPlayer, bool grouped, bool rainbow, bool triggerAlways)
+    public TimedTriggerSpikes(
+        Vector2 position, Vector2 offset, int size, Directions direction,
+        string overrideType, float Delay, bool waitForPlayer,
+        bool grouped, bool rainbow, bool triggerAlways,
+        bool reusable, float reusableTimer
+        )
         : base(position + offset)
     {
         if (grouped && !OptionalDependencies.MaxHelpingHandLoaded)
@@ -195,6 +231,8 @@ public class TimedTriggerSpikes : Entity
         this.grouped = grouped;
         this.rainbow = rainbow;
         this.triggerAlways = triggerAlways;
+        this.reusable = reusable;
+        this.reusableTimer = reusableTimer;
 
         SafeGroundBlocker safeGroundBlocker = null;
         LedgeBlocker ledgeBlocker = null;
@@ -282,6 +320,7 @@ public class TimedTriggerSpikes : Entity
                 _ => throw new NotImplementedException(),
             };
             spikes[i].DelayTimer = Delay;
+            spikes[i].ReusableTimer = reusableTimer;
             spikes[i].color = Color.White;
         }
     }

@@ -236,6 +236,14 @@ entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Rainbow=Make
 entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Rainbow=Makes these spikes rainbow.
 entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Rainbow=Makes these spikes rainbow.
 entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Rainbow=Makes these spikes rainbow.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Reusable=Setting this to true will make the spike reusable and can be triggered multi-times.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Reusable=Setting this to true will make the spike reusable and can be triggered multi-times.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Reusable=Setting this to true will make the spike reusable and can be triggered multi-times.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Reusable=Setting this to true will make the spike reusable and can be triggered multi-times.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.ReusableTimer=The time the spike will cost to be reusable when "Reusable" is set to true.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.ReusableTimer=The time the spike will cost to be reusable when "Reusable" is set to true.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.ReusableTimer=The time the spike will cost to be reusable when "Reusable" is set to true.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.ReusableTimer=The time the spike will cost to be reusable when "Reusable" is set to true.
 
 # Connected Solid Extension
 entities.CommunalHelper/SolidExtension.placements.name.collidable=Connected Solid Extension
