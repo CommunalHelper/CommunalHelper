@@ -8,6 +8,7 @@ using ..Ahorn, Maple
     globalSwitch::Bool=false,
     floaty::Bool=true,
     bounce::Bool=true,
+    reverse::Bool=false,
 )
 
 const placements = Ahorn.PlacementDict(
