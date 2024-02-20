@@ -34,12 +34,15 @@ public class StationBlockTrack : Entity
     {
         None, On, Off
     }
+    private TrackMoveMode moveMode;
+    private TrackMoveMode initialMoveMode;
+
     private TrackSwitchState switchState;
     private readonly TrackSwitchState initialSwitchState;
 
     public bool CanBeUsed => switchState != TrackSwitchState.Off;
 
-    private enum MoveMode
+    public enum TrackMoveMode
     {
         None,
         ForwardOneWay, BackwardOneWay,
@@ -82,8 +85,13 @@ public class StationBlockTrack : Entity
         Depth = Depths.SolidsBelow;
 
         initialSwitchState = switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
+        initialMoveMode = moveMode = data.Enum("moveMode", TrackMoveMode.None);
         if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off && initialSwitchState != TrackSwitchState.None)
             Switch(TrackSwitchState.Off);
+        if (CommunalHelperModule.Session.TrackInitialMoveMode == TrackMoveMode.BackwardForce)
+        {
+            moveMode = Invert(moveMode);
+        }
 
         trackStatePercent = switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f;
 
@@ -102,9 +110,9 @@ public class StationBlockTrack : Entity
         bool hasIndicator = data.Bool("indicator", true);
 
         Vector2 dir = Horizontal ? Vector2.UnitX : Vector2.UnitY;
-        switch (data.Enum("moveMode", MoveMode.None))
+        switch (moveMode)
         {
-            case MoveMode.ForwardForce:
+            case TrackMoveMode.ForwardForce:
                 initialNodeData1.PushForce = Horizontal ? Vector2.UnitX : Vector2.UnitY;
                 initialNodeData1.HasIndicator = hasIndicator;
                 if (hasIndicator)
@@ -115,11 +123,11 @@ public class StationBlockTrack : Entity
                 OneWayDir = dir;
                 break;
 
-            case MoveMode.ForwardOneWay:
+            case TrackMoveMode.ForwardOneWay:
                 OneWayDir = dir;
                 break;
 
-            case MoveMode.BackwardForce:
+            case TrackMoveMode.BackwardForce:
                 initialNodeData2.PushForce = Horizontal ? -Vector2.UnitX : -Vector2.UnitY;
                 initialNodeData2.HasIndicator = hasIndicator;
                 if (hasIndicator)
@@ -130,7 +138,7 @@ public class StationBlockTrack : Entity
                 OneWayDir = -dir;
                 break;
 
-            case MoveMode.BackwardOneWay:
+            case TrackMoveMode.BackwardOneWay:
                 OneWayDir = -dir;
                 break;
 
@@ -483,11 +491,68 @@ public class StationBlockTrack : Entity
         }
     }
 
+    public static void ReverseTracks(Scene scene)
+    {
+        foreach (StationBlockTrack track in scene.Tracker.GetEntities<StationBlockTrack>())
+        {
+            if (track.MasterOfGroup)
+            {
+                foreach (StationBlockTrack child in track.Group)
+                {
+                    TrackMoveMode newMoveMode = child.Reverse();
+                    if (newMoveMode == TrackMoveMode.BackwardForce)
+                    {
+                        Node node1 = GetNodeAt(track.Track, child.initialNodeData1.Position);
+                        Node node2 = GetNodeAt(track.Track, child.initialNodeData2.Position);
+                        if ((child.Horizontal && node1.PushForce == Vector2.UnitX)
+                            || (!child.Horizontal && node1.PushForce == Vector2.UnitY))
+                        {
+                            node1.PushForce = Vector2.Zero;
+                        }
+                        node2.PushForce = child.Horizontal ? -Vector2.UnitX : -Vector2.UnitY;
+                    }
+                    else if (newMoveMode == TrackMoveMode.ForwardForce)
+                    {
+                        Node node1 = GetNodeAt(track.Track, child.initialNodeData1.Position);
+                        Node node2 = GetNodeAt(track.Track, child.initialNodeData2.Position);
+                        if ((child.Horizontal && node2.PushForce == -Vector2.UnitX)
+                            || (!child.Horizontal && node2.PushForce == -Vector2.UnitY))
+                        {
+                            node2.PushForce = Vector2.Zero;
+                        }
+                        node1.PushForce = child.Horizontal ? Vector2.UnitX : Vector2.UnitY;
+                    }
+                }
+            }
+        }
+    }
+
     private void Switch(TrackSwitchState state)
     {
         if (initialSwitchState == TrackSwitchState.None)
             return;
         switchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
+    }
+
+    private TrackMoveMode Reverse()
+    {
+        if (initialMoveMode == TrackMoveMode.None)
+            return TrackMoveMode.None;
+        
+        moveMode = Invert(moveMode);
+        OneWayDir = -OneWayDir;
+        return moveMode;
+    }
+
+    public static TrackMoveMode Invert(TrackMoveMode moveMode)
+    {
+        return moveMode switch {
+            TrackMoveMode.ForwardOneWay => TrackMoveMode.BackwardOneWay,
+            TrackMoveMode.BackwardOneWay => TrackMoveMode.ForwardOneWay,
+            TrackMoveMode.ForwardForce => TrackMoveMode.BackwardForce,
+            TrackMoveMode.BackwardForce => TrackMoveMode.ForwardForce,
+            _ => TrackMoveMode.None
+        };
     }
 
     internal static void InitializeTextures()

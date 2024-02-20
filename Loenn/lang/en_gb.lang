@@ -129,9 +129,10 @@ entities.CommunalHelper/StationBlockTrack.attributes.description.indicatorIncomi
 # Track Switch Box
 entities.CommunalHelper/TrackSwitchBox.placements.name.normal=Track Switch Box
 entities.CommunalHelper/TrackSwitchBox.placements.name.session=Track Switch Box (Session Switch)
-entities.CommunalHelper/TrackSwitchBox.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+entities.CommunalHelper/TrackSwitchBox.attributes.description.globalSwitch=Whether the level should keep the ON/OFF or direction state of the tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
 entities.CommunalHelper/TrackSwitchBox.attributes.description.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
 entities.CommunalHelper/TrackSwitchBox.attributes.description.bouncy=Whether the box should bounce away from the player when dashed into.
+entities.CommunalHelper/TrackSwitchBox.attributes.description.reverse=Whether the box should reverse one-way/force directions instead of toggling on/off
 
 # Custom Cassette Block
 entities.CommunalHelper/CustomCassetteBlock.placements.name.cassette_block_0=Custom Cassette Block (0 - Blue)
@@ -866,8 +867,8 @@ triggers.CommunalHelper/SoundAreaTrigger.attributes.description.event=The name o
 triggers.CommunalHelper/TrackSwitchTrigger.placements.name.trigger=Track Switch
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.oneUse=Allows for only one use of this trigger.
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.flash=Whether the screen should flash and shake when triggered.
-triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
-triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.globalSwitch=Whether the level should keep the ON/OFF or direction state of the tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF - REVERSE: will reverse directions on one-way/force move tracks.)
 
 # Cassette Music Fade Trigger
 triggers.CommunalHelper/CassetteMusicFadeTrigger.placements.name.trigger=Cassette Music Fade

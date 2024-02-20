@@ -11,6 +11,8 @@ public class CommunalHelperSession : EverestModuleSession
 
     public TrackSwitchState TrackInitialState = TrackSwitchState.On;
 
+    public TrackMoveMode TrackInitialMoveMode = TrackMoveMode.ForwardForce;
+
     public bool CassetteJumpFix = false;
 
     public HashSet<RedlessBerry.Info> RedlessBerries { get; set; } = new();

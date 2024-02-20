@@ -267,10 +267,10 @@ placements.entities.CommunalHelper/StationBlockTrack.tooltips.indicatorColor=The
 placements.entities.CommunalHelper/StationBlockTrack.tooltips.indicatorIncomingColor=The color of the indicator when a station block is moving towards this Track.
 
 # -- Track Switch Box --
-placements.entities.CommunalHelper/TrackSwitchBox.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+placements.entities.CommunalHelper/TrackSwitchBox.tooltips.globalSwitch=Whether the level should keep the ON/OFF or direction state of the tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
 placements.entities.CommunalHelper/TrackSwitchBox.tooltips.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
 placements.entities.CommunalHelper/TrackSwitchBox.tooltips.bouncy=Whether the box should bounce away from the player when dashed into.
-
+placements.entities.CommunalHelper/TrackSwitchBox.tooltips.reverse=Whether the box should reverse one-way/force directions instead of toggling on/off
 
 # -- Summit Gem --
 placements.entities.CommunalHelper/CustomSummitGem.tooltips.index=Determines the texture and sound used for this gem (clamped within 0 and 7). Must be unique within a room. To use a custom texture, put it at Graphics/Atlases/Gameplay/collectables/summitgems/$mapSID/$roomName/$index.
@@ -508,8 +508,8 @@ placements.triggers.CommunalHelper/MusicParamTrigger.tooltips.param=The name of 
 # -- Switch Track Trigger --
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.oneUse=Allows for only one use of this trigger.
 placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.flash=Whether the screen should flash and shake when triggered.
-placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
-placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)
+placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.globalSwitch=Whether the level should keep the ON/OFF or direction state of the tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+placements.triggers.CommunalHelper/TrackSwitchTrigger.tooltips.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF - REVERSE: will reverse directions on one-way/force move tracks.)
 
 # -- Sound Area Trigger --
 placements.triggers.CommunalHelper/SoundAreaTrigger.tooltips.event=The name of the audio event that plays inside the trigger.
