@@ -59,6 +59,7 @@ public class StationBlockTrack : Entity
     private List<Node> Track;
     private List<StationBlockTrack> Group;
     private readonly bool multiBlockTrack = false;
+    private readonly bool dynamicRouting = false;
 
     public Vector2? OneWayDir;
 
@@ -97,6 +98,7 @@ public class StationBlockTrack : Entity
 
         Horizontal = data.Bool("horizontal");
         multiBlockTrack = data.Bool("multiBlockTrack", false);
+        dynamicRouting = data.Bool("dynamicRouting", false);
         Collider = new Hitbox(Horizontal ? data.Width : 8, Horizontal ? 8 : data.Height);
 
         nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
@@ -196,8 +198,12 @@ public class StationBlockTrack : Entity
                 if (t.multiBlockTrack)
                 {
                     multiBlock = true;
-                    break;
                 }
+            }
+
+            if (dynamicRouting)
+            {
+                Reroute(this);
             }
 
             List<Tuple<StationBlock, Node>> toAttach = new();
@@ -487,6 +493,10 @@ public class StationBlockTrack : Entity
                 {
                     child.Switch(state);
                 }
+                if (track.dynamicRouting)
+                {
+                    Reroute(track);
+                }
             }
         }
     }
@@ -521,6 +531,37 @@ public class StationBlockTrack : Entity
                             node2.PushForce = Vector2.Zero;
                         }
                         node1.PushForce = child.Horizontal ? Vector2.UnitX : Vector2.UnitY;
+                    }
+                }
+            }
+        }
+    }
+
+    public static void Reroute(StationBlockTrack track)
+    {
+        foreach (StationBlockTrack child in track.Group)
+        {
+            if (child.dynamicRouting && child.moveMode is TrackMoveMode.ForwardForce or TrackMoveMode.BackwardForce)
+            {
+                // we just need the outgoing node
+                Node node = GetNodeAt(track.Track, child.moveMode == TrackMoveMode.ForwardForce ? child.initialNodeData2.Position : child.initialNodeData1.Position);
+                if (node.PushForce != Vector2.Zero)
+                {
+                    if (node.NodeUp != null && node.TrackUp != child && node.TrackUp.CanBeUsed && node.TrackUp.moveMode == TrackMoveMode.BackwardForce)
+                    {
+                        node.PushForce = -Vector2.UnitY;
+                    }
+                    else if (node.NodeDown != null && node.TrackDown != child && node.TrackDown.CanBeUsed && node.TrackDown.moveMode == TrackMoveMode.ForwardForce)
+                    {
+                        node.PushForce = Vector2.UnitY;
+                    }
+                    else if (node.NodeLeft != null && node.TrackLeft != child && node.TrackLeft.CanBeUsed && node.TrackLeft.moveMode == TrackMoveMode.BackwardForce)
+                    {
+                        node.PushForce = -Vector2.UnitX;
+                    }
+                    else if (node.NodeRight != null && node.TrackRight != child && node.TrackRight.CanBeUsed && node.TrackRight.moveMode == TrackMoveMode.ForwardForce)
+                    {
+                        node.PushForce = Vector2.UnitX;
                     }
                 }
             }
