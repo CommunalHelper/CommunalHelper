@@ -14,7 +14,6 @@ local moveModes = {
 
 stationBlockTrack.name = "CommunalHelper/StationBlockTrack"
 stationBlockTrack.depth = -5000
-stationBlockTrack.minimumSize = {24, 24}
 stationBlockTrack.fieldInformation = {
     indicatorColor = {
         fieldType = "color"
@@ -143,6 +142,14 @@ function stationBlockTrack.sprite(room, entity)
     addTrackSprites(sprites, entity, horiz, color, width, height, ty, ox, oy)
 
     return sprites
+end
+
+function stationBlockTrack.minimumSize(room, entity)
+    if entity.horizontal then
+        return 24, 8
+    else
+       return 8, 24
+    end
 end
 
 function stationBlockTrack.rectangle(room, entity)

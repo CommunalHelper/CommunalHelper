@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -54,8 +55,10 @@ public class StationBlockTrack : Entity
     public StationBlockTrack master;
 
     private Rectangle nodeRect1, nodeRect2, trackRect;
+    
     private readonly Node initialNodeData1, initialNodeData2;
-
+    private Node node1, node2;
+    
     private List<Node> Track;
     private List<StationBlockTrack> Group;
     private readonly bool multiBlockTrack = false;
@@ -360,13 +363,14 @@ public class StationBlockTrack : Entity
         return null;
     }
 
-    private void AddNodeToTrack(Node node, StationBlockTrack track)
+    private Node AddNodeToTrack(Node node, StationBlockTrack track)
     {
         Node foundNode = GetNodeAt(Track, node.Position);
 
         if (foundNode == null)
         {
             Track.Add(node);
+            return node;
         }
         else
         {
@@ -405,13 +409,14 @@ public class StationBlockTrack : Entity
                 foundNode.IndicatorColor = node.IndicatorColor;
                 foundNode.IndicatorIncomingColor = node.IndicatorIncomingColor;
             }
+            return foundNode;
         }
     }
 
     private void AddTrackSegmentToTrack(Node node1, Node node2, StationBlockTrack track)
     {
-        AddNodeToTrack(node1, track);
-        AddNodeToTrack(node2, track);
+        track.node1 = AddNodeToTrack(node1, track);
+        track.node2 = AddNodeToTrack(node2, track);
     }
 
     public override void Update()
@@ -512,25 +517,21 @@ public class StationBlockTrack : Entity
                     TrackMoveMode newMoveMode = child.Reverse();
                     if (newMoveMode == TrackMoveMode.BackwardForce)
                     {
-                        Node node1 = GetNodeAt(track.Track, child.initialNodeData1.Position);
-                        Node node2 = GetNodeAt(track.Track, child.initialNodeData2.Position);
-                        if ((child.Horizontal && node1.PushForce == Vector2.UnitX)
-                            || (!child.Horizontal && node1.PushForce == Vector2.UnitY))
+                        if ((child.Horizontal && child.node1.PushForce == Vector2.UnitX)
+                            || (!child.Horizontal && child.node1.PushForce == Vector2.UnitY))
                         {
-                            node1.PushForce = Vector2.Zero;
+                            child.node1.PushForce = Vector2.Zero;
                         }
-                        node2.PushForce = child.Horizontal ? -Vector2.UnitX : -Vector2.UnitY;
+                        child.node2.PushForce = child.Horizontal ? -Vector2.UnitX : -Vector2.UnitY;
                     }
                     else if (newMoveMode == TrackMoveMode.ForwardForce)
                     {
-                        Node node1 = GetNodeAt(track.Track, child.initialNodeData1.Position);
-                        Node node2 = GetNodeAt(track.Track, child.initialNodeData2.Position);
-                        if ((child.Horizontal && node2.PushForce == -Vector2.UnitX)
-                            || (!child.Horizontal && node2.PushForce == -Vector2.UnitY))
+                        if ((child.Horizontal && child.node2.PushForce == -Vector2.UnitX)
+                            || (!child.Horizontal && child.node2.PushForce == -Vector2.UnitY))
                         {
-                            node2.PushForce = Vector2.Zero;
+                            child.node2.PushForce = Vector2.Zero;
                         }
-                        node1.PushForce = child.Horizontal ? Vector2.UnitX : Vector2.UnitY;
+                        child.node1.PushForce = child.Horizontal ? Vector2.UnitX : Vector2.UnitY;
                     }
                 }
             }
@@ -544,7 +545,7 @@ public class StationBlockTrack : Entity
             if (child.dynamicRouting && child.moveMode is TrackMoveMode.ForwardForce or TrackMoveMode.BackwardForce)
             {
                 // we just need the outgoing node
-                Node node = GetNodeAt(track.Track, child.moveMode == TrackMoveMode.ForwardForce ? child.initialNodeData2.Position : child.initialNodeData1.Position);
+                Node node = child.moveMode == TrackMoveMode.ForwardForce ? child.node2 : child.node1 ;
                 if (node.PushForce != Vector2.Zero)
                 {
                     if (node.NodeUp != null && node.TrackUp != child && node.TrackUp.CanBeUsed && node.TrackUp.moveMode == TrackMoveMode.BackwardForce)
