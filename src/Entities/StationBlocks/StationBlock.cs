@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper.Imports;
 using Microsoft.Xna.Framework.Graphics;
+using MonoMod.Utils;
 using System.Collections;
 using Node = Celeste.Mod.CommunalHelper.Entities.StationBlockTrack.Node;
 
@@ -47,6 +48,7 @@ public class StationBlock : Solid
     private Vector2 offset;
     private Vector2 hitOffset;
     private readonly SoundSource Sfx;
+    private readonly DynamicData SfxData;
     public Themes Theme = Themes.Moon;
 
     private static readonly Color activatedButton = Calc.HexToColor("f25eff");
@@ -56,6 +58,8 @@ public class StationBlock : Solid
     private float colorLerp, bottomColorLerp;
 
     private readonly float speedFactor = 1f;
+
+    private readonly float volume = 1f;
 
     public bool IsAttachedToTrack = false;
     public Node CurrentNode = null;
@@ -74,6 +78,7 @@ public class StationBlock : Solid
         allowWavedash = data.Bool("allowWavedash", false);
         allowWavedashBottom = data.Bool("allowWavedashBottom", false);
         speedFactor = Calc.Clamp(data.Float("speedFactor", 1f), .1f, 2f);
+        volume = Calc.Clamp(data.Float("volume", 1f), 0f, 1f);
 
         buttonColor = data.HexColor("wavedashButtonColor", deactivatedButton);
         buttonPressedColor = data.HexColor("wavedashButtonPressedColor", activatedButton);
@@ -180,6 +185,7 @@ public class StationBlock : Solid
         SurfaceSoundIndex = SurfaceIndex.Girder;
         Add(new Coroutine(Sequence()));
         Add(Sfx = new SoundSource());
+        SfxData = DynamicData.For(Sfx);
         Sfx.Position = this.offset;
         OnDashCollide = OnDashed;
     }
@@ -481,6 +487,7 @@ public class StationBlock : Solid
                 !(currentTrack.OneWayDir.HasValue && currentTrack.OneWayDir.Value == -MoveDir);
 
             Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
+            SfxData.Get<FMOD.Studio.EventInstance>("instance").setVolume(volume);
 
             if (travel)
             {

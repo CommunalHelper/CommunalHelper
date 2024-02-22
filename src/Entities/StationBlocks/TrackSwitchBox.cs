@@ -20,6 +20,7 @@ public class TrackSwitchBox : Solid
     private bool canSwitch = true;
     private readonly bool canFloat = true;
     private readonly bool canBounce = true;
+    private readonly bool reverse = false;
 
     private float shakeCounter;
     private bool smashParticles = false;
@@ -42,7 +43,7 @@ public class TrackSwitchBox : Solid
 
     private bool spikesLeft, spikesRight, spikesUp, spikesDown;
 
-    public TrackSwitchBox(Vector2 position, bool global, bool canFloat, bool canBounce)
+    public TrackSwitchBox(Vector2 position, bool global, bool canFloat, bool canBounce, bool reverse)
         : base(position, 32f, 32f, safe: true)
     {
 
@@ -51,6 +52,7 @@ public class TrackSwitchBox : Solid
         this.global = global;
         this.canFloat = canFloat;
         this.canBounce = canBounce;
+        this.reverse = reverse;
 
         SurfaceSoundIndex = SurfaceIndex.ZipMover;
         start = Position;
@@ -77,7 +79,7 @@ public class TrackSwitchBox : Solid
     }
 
     public TrackSwitchBox(EntityData e, Vector2 levelOffset)
-        : this(e.Position + levelOffset, e.Bool("globalSwitch"), e.Bool("floaty"), e.Bool("bounce")) { }
+        : this(e.Position + levelOffset, e.Bool("globalSwitch"), e.Bool("floaty"), e.Bool("bounce"), e.Bool("reverse")) { }
 
     public override void Awake(Scene scene)
     {
@@ -124,7 +126,14 @@ public class TrackSwitchBox : Solid
             Add(new Coroutine(SwitchSequence()));
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
             canSwitch = false;
-            Switch(Scene, LocalTrackSwitchState.Invert(), global);
+            if (reverse)
+            {
+                Reverse(Scene, global);
+            }
+            else
+            {
+                Switch(Scene, LocalTrackSwitchState.Invert(), global);
+            }
             return DashCollisionResults.Rebound;
         }
 
@@ -140,6 +149,13 @@ public class TrackSwitchBox : Solid
         if (global)
             CommunalHelperModule.Session.TrackInitialState = state;
         return true;
+    }
+
+    public static void Reverse(Scene scene, bool global = false)
+    {
+        ReverseTracks(scene);
+        if (global)
+            CommunalHelperModule.Session.TrackInitialMoveMode = Invert(CommunalHelperModule.Session.TrackInitialMoveMode);
     }
 
     private void SmashParticles(Vector2 dir)

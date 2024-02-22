@@ -17,6 +17,7 @@ const behaviors = ["Pulling", "Pushing"]
     customArrowPath::String="",
     customTrackPath::String="",
     speedFactor::Number=1.0,
+    volume::Number=1.0,
     allowWavedash::Bool=false,
     allowWavedashBottom::Bool=false,
     wavedashButtonColor::String="5BF75B",

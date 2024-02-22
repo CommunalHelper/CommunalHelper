@@ -2,7 +2,7 @@ module CommunalHelperTrackSwitchTrigger
 
 using ..Ahorn, Maple
 
-modes = ["Alternate", "On", "Off"]
+modes = ["Alternate", "On", "Off", "Reverse"]
 
 @mapdef Trigger "CommunalHelper/TrackSwitchTrigger" TrackSwitchTrigger(
     x::Integer,

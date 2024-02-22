@@ -14,6 +14,7 @@ const moveModes = ["None", "ForwardOneWay", "BackwardOneWay", "ForwardForce", "B
     trackSwitchState::String="None",
     moveMode::String="None",
     multiBlockTrack::Bool=false,
+    dynamicRouting::Bool=false,
     indicator::Bool=true,
     indicatorColor::String="008080",
     indicatorIncomingColor::String="c92828",

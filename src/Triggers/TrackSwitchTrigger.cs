@@ -8,7 +8,7 @@ public class TrackSwitchTrigger : Trigger
 {
     public enum Modes
     {
-        Alternate, On, Off
+        Alternate, On, Off, Reverse
     }
 
     private readonly bool oneUse = true;
@@ -32,15 +32,23 @@ public class TrackSwitchTrigger : Trigger
         if (oneUse)
             Collidable = false;
 
-        TrackSwitchState state = Mode switch
-        {
-            Modes.On => TrackSwitchState.On,
-            Modes.Off => TrackSwitchState.Off,
-            _ => TrackSwitchBox.LocalTrackSwitchState.Invert()
-        };
-        // switches
-        bool switched = TrackSwitchBox.Switch(Scene, state, global);
+            bool switched;
 
+            if (Mode == Modes.Reverse)
+            {
+                TrackSwitchBox.Reverse(Scene, global);
+                switched = true;
+            }
+            else
+            {
+                TrackSwitchState state = Mode switch
+                {
+                        Modes.On => TrackSwitchState.On,
+                        Modes.Off => TrackSwitchState.Off,
+                        _ => TrackSwitchBox.LocalTrackSwitchState.Invert()
+                };
+                switched = TrackSwitchBox.Switch(Scene, state, global);
+            }
         if (flash && switched)
             Pulse();
     }

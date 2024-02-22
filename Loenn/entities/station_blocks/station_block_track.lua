@@ -14,7 +14,6 @@ local moveModes = {
 
 stationBlockTrack.name = "CommunalHelper/StationBlockTrack"
 stationBlockTrack.depth = -5000
-stationBlockTrack.minimumSize = {24, 24}
 stationBlockTrack.fieldInformation = {
     indicatorColor = {
         fieldType = "color"
@@ -44,6 +43,7 @@ for i, state in ipairs(switchStates) do
             trackSwitchState = state,
             moveMode = "None",
             multiBlockTrack = false,
+            dynamicRouting = false,
             indicator = true,
             indicatorColor = "008080",
             indicatorIncomingColor = "c92828"
@@ -59,6 +59,7 @@ for i, state in ipairs(switchStates) do
             trackSwitchState = state,
             moveMode = "None",
             multiBlockTrack = false,
+            dynamicRouting = false,
             indicator = true,
             indicatorColor = "008080",
             indicatorIncomingColor = "c92828"
@@ -141,6 +142,14 @@ function stationBlockTrack.sprite(room, entity)
     addTrackSprites(sprites, entity, horiz, color, width, height, ty, ox, oy)
 
     return sprites
+end
+
+function stationBlockTrack.minimumSize(room, entity)
+    if entity.horizontal then
+        return 24, 8
+    else
+       return 8, 24
+    end
 end
 
 function stationBlockTrack.rectangle(room, entity)

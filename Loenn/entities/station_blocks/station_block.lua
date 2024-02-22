@@ -27,6 +27,10 @@ stationBlock.fieldInformation = {
     },
     speedFactor = {
         minimumValue = 0.0
+    },
+    volume = {
+        minimumValue = 0.0,
+        maximumValue = 1.0
     }
 }
 
@@ -46,6 +50,7 @@ for i, theme in ipairs(themes) do
                 customArrowPath = "",
                 customTrackPath = "",
                 speedFactor = 1.0,
+                volume = 1.0,
                 allowWavedash = false,
                 allowWavedashBottom = false,
                 wavedashButtonColor = "5BF75B",
