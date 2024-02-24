@@ -348,9 +348,9 @@ public class AeroBlockCharged : AeroBlockFlying
         Vector2 liftSpeed = actor.LiftSpeed;
         float num = Math.Abs(liftSpeed.X);
         float y = liftSpeed.Y;
-        if(num > 250) // formerly (!(num > 250) && !(num > 0)) ? 0 : num - 250f
+        if(num > 250) // formerly num = (!(num > 250) && !(num > 0)) ? 0 : num - 250f
             num -= 250f;
-        y = y < 130f ? y + 130f : 0; // formerly (!(y < -130f) && !(y < 0)) ? 0 : y - -130f; ... what the fuck ???? that's just not how this should work
+        y = y < -130f ? y + 130f : 0; // formerly (!(y < -130f) && !(y < 0)) ? 0 : y - -130f; ... what the fuck ???? that's just not how this should work
         return new Vector2((float) Math.Sign(liftSpeed.X) * num, y);
     }
 
@@ -383,16 +383,20 @@ public class AeroBlockCharged : AeroBlockFlying
         {
             Vector2 v = ExcessBoost(self);
             orig(self, particles, playSfx);
+            if(self.OnGround() && block is not null && block.CheckTopButton())
+                block.Smash(self, Vector2.UnitY * -350);
             self.Speed += v;
-            player_varJumpSpeed.SetValue(self, self.Speed.Y); 
-        } else orig(self, particles, playSfx);
+            player_varJumpSpeed.SetValue(self, self.Speed.Y);
+        } else {
+            orig(self, particles, playSfx);
 
-        if (!self.OnGround())
-            return;
+            if (!self.OnGround())
+                return;
 
-        // jump
-        if (block is not null && block.CheckTopButton())
-            block.Smash(self, Vector2.UnitY * -350);
+            // jump
+            if (block is not null && block.CheckTopButton())
+                block.Smash(self, Vector2.UnitY * -350);
+        }
     }
 
     private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
@@ -402,13 +406,20 @@ public class AeroBlockCharged : AeroBlockFlying
         {
             Vector2 vector = ExcessBoost(self);
             orig.Invoke(self, dir);
+            // wallbounce
+            if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
+                block.Smash(self, new Vector2(300 * dir, -300));
             self.Speed += vector;
             player_varJumpSpeed.SetValue(self, self.Speed.Y);
-        } else orig(self, dir);
+        }
+        else
+        {
+            orig(self, dir);
 
-        // walljump
-        if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
-            block.Smash(self, new Vector2(dir * 300, -300));
+            // walljump
+            if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
+                block.Smash(self, new Vector2(dir * 300, -300));
+        }
     }
 
     private static void Player_ClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
@@ -431,13 +442,20 @@ public class AeroBlockCharged : AeroBlockFlying
         {
             Vector2 vector = ExcessBoost(self);
             orig.Invoke(self, dir);
+            // wallbounce
+            if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
+                block.Smash(self, new Vector2(300 * dir, -400));
             self.Speed += vector;
             player_varJumpSpeed.SetValue(self, self.Speed.Y);
-        } else orig(self, dir);
+        }
+        else
+        {
+            orig.Invoke(self, dir);
 
-        // wallbounce
-        if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
-            block.Smash(self, new Vector2(300 * dir, -400));
+            // wallbounce
+            if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
+                block.Smash(self, new Vector2(300 * dir, -400));
+        }
     }
 
     private static void Player_SuperJump(On.Celeste.Player.orig_SuperJump orig, Player self)
@@ -447,7 +465,9 @@ public class AeroBlockCharged : AeroBlockFlying
         {
             Vector2 vector = ExcessBoost(self);
             bool ducking = self.Ducking;
-            orig.Invoke(self);    
+            orig.Invoke(self);
+            if (self.OnGround() && block is not null && block.CheckTopButton())
+                block.Smash(self, new Vector2(self.Speed.X * 1.2f, -350));
             if (ducking)
             {
                 self.Speed += new Vector2(vector.X * 1.25f, vector.Y * 0.5f);
@@ -457,13 +477,17 @@ public class AeroBlockCharged : AeroBlockFlying
                 self.Speed += vector;
             }
             player_varJumpSpeed.SetValue(self, self.Speed.Y);
-        } else orig(self);
+        }
+        else
+        {
+            orig(self);
 
-        if (!self.OnGround())
-            return;
+            if (!self.OnGround())
+                return;
 
-        if (block is not null && block.CheckTopButton())
-            block.Smash(self, new Vector2(self.Speed.X * 1.2f, -350));
+            if (block is not null && block.CheckTopButton())
+                block.Smash(self, new Vector2(self.Speed.X * 1.2f, -350));
+        }
     }
 
     #endregion

@@ -14,7 +14,7 @@ local moveModes = {
 
 stationBlockTrack.name = "CommunalHelper/StationBlockTrack"
 stationBlockTrack.depth = -5000
-stationBlockTrack.minimumSize = {24, 24}
+stationBlockTrack.minimumSize = function(room, entity) if(entity.horizontal) then return {24,8} else return {8,24} end end
 stationBlockTrack.fieldInformation = {
     indicatorColor = {
         fieldType = "color"
