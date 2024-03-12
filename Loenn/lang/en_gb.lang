@@ -255,6 +255,8 @@ entities.CommunalHelper/DreamZipMover.attributes.description.permanent=Whether t
 entities.CommunalHelper/DreamZipMover.attributes.description.waiting=Whether this block requires the player to trigger it each node in the path.
 entities.CommunalHelper/DreamZipMover.attributes.description.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
 entities.CommunalHelper/DreamZipMover.attributes.description.quickDestroy=Makes this Dream Zip Mover shatter a little faster.
+entities.CommunalHelper/DreamZipMover.attributes.description.ropeColor=Overrides the default rope color. Also used for linking together zippers, if the `Linked` option is enabled.
+entities.CommunalHelper/DreamZipMover.attributes.description.linked=Whether the zipper is linked to other zippers with the same rope color.\nWhen a linked zipper gets activated, all other zippers linked to that rope color will be activated as well.
 
 # Connected Dream Block
 entities.CommunalHelper/ConnectedDreamBlock.placements.name.normal=Connected Dream Block (Normal)

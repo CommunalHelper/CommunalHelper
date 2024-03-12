@@ -11,7 +11,11 @@ dreamZipMover.nodeLimits = {1, -1}
 dreamZipMover.fieldInformation = {
     refillCount = {
         fieldType = "integer"
-    }
+    },
+    ropeColor = {
+        fieldType = "color",
+        allowEmpty = true,
+    },
 }
 
 function dreamZipMover.depth(room, entity)
@@ -34,12 +38,14 @@ dreamZipMover.placements = {
             permanent = false,
             waiting = false,
             ticking = false,
-            noReturn = false
+            noReturn = false,
+            ropeColor = "",
+            linked = false,
         }
     }
 }
 
-local zipMoverRoleColor = {102 / 255, 57 / 255, 49 / 255}
+local zipMoverRopeColor = {102 / 255, 57 / 255, 49 / 255}
 local dreamAestheticRopeColor = {0.9, 0.9, 0.9}
 
 function dreamZipMover.sprite(room, entity)
@@ -52,7 +58,15 @@ function dreamZipMover.sprite(room, entity)
 
     local dreamAesthetic = entity.dreamAesthetic
     local cogTexture = dreamAesthetic and "objects/CommunalHelper/dreamZipMover/cog" or "objects/zipmover/cog"
-    local ropeColor = entity.dreamAesthetic and dreamAestheticRopeColor or zipMoverRoleColor
+
+    local ropeColor
+    if entity.dreamAesthetic then
+        ropeColor = dreamAestheticRopeColor
+    elseif entity.ropeColor and entity.ropeColor ~= "" then
+        ropeColor = entity.ropeColor
+    else
+        ropeColor = zipMoverRopeColor
+    end
 
     local nodes = entity.nodes or {{x = 0, y = 0}}
     local nodeSprites = communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, cogTexture, {1, 1, 1}, ropeColor)

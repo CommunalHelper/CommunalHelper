@@ -73,7 +73,7 @@ public class DreamZipMover : CustomDreamBlock
                 Draw.Line(lineStartA, lineEndA, rope);
                 Draw.Line(lineStartB, lineEndB, rope);
 
-                float shiftProgress = zipMover.percent * eightPi;
+                float shiftProgress = 4f - (zipMover.percent * eightPi);
                 for (float d = shiftProgress % 4f; d < length; d += 4f)
                 {
                     Vector2 pos = dir * d;
@@ -84,7 +84,7 @@ public class DreamZipMover : CustomDreamBlock
                                     (zipMover.PlayerHasDreamDash ?
                                         activeDreamColors[(int) Util.Mod((float) Math.Round((d - shiftProgress) / 4f), 9f)] :
                                         disabledDreamColors[(int) Util.Mod((float) Math.Round((d - shiftProgress) / 4f), 4f)]
-                                    ) : ropeLightColor;
+                                    ) : zipMover.ropeLightColor;
                     Draw.Line(teethA, teethA + twodir, color);
                     Draw.Line(teethB, teethB - twodir, color);
                 }
@@ -98,7 +98,8 @@ public class DreamZipMover : CustomDreamBlock
                 Draw.Line(startA, lineEndA + Vector2.UnitY, Color.Black);
                 Draw.Line(lineStartB + Vector2.UnitY, endB, Color.Black);
 
-                for (float d = 4f - (percent * eightPi % 4f); d < length; d += 4f)
+                float shiftProgress = 4f - (percent * eightPi);
+                for (float d = shiftProgress % 4f; d < length; d += 4f)
                 {
                     Vector2 pos = dir * d;
                     Vector2 teethA = startA + perp + pos;
@@ -188,7 +189,7 @@ public class DreamZipMover : CustomDreamBlock
                 return;
 
             Color dreamRopeColor = zipMover.PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
-            Color color = Color.Lerp(zipMover.dreamAesthetic ? dreamRopeColor : ropeColor, ActiveLineColor, zipMover.ColorLerp);
+            Color color = Color.Lerp(zipMover.dreamAesthetic ? dreamRopeColor : zipMover.ropeColor, ActiveLineColor, zipMover.ColorLerp);
 
             foreach (Segment seg in segments)
                 if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
@@ -225,11 +226,16 @@ public class DreamZipMover : CustomDreamBlock
     private readonly MTexture cross;
     private MTexture cog;
 
-    private static readonly Color ropeColor = Calc.HexToColor("663931");
-    private static readonly Color ropeLightColor = Calc.HexToColor("9b6157");
+    private static readonly Color defaultRopeColor = Calc.HexToColor("663931");
+    private static readonly Color defaultRopeLightColor = Calc.HexToColor("9b6157");
     private static MTexture cogNormal, cogDream, cogDisabled, cogWhite;
 
     private float percent;
+
+    // Flag used to link zippers of the same color. Null if the zipper is not linked.
+    private readonly string linkFlag;
+    
+    private readonly Color ropeColor, ropeLightColor;
 
     public DreamZipMover(EntityData data, Vector2 offset)
         : base(data, offset)
@@ -242,6 +248,24 @@ public class DreamZipMover : CustomDreamBlock
         permanent = data.Bool("permanent");
         waits = data.Bool("waiting");
         ticking = data.Bool("ticking");
+
+        string ropeColorCode = data.Attr("ropeColor", "");
+        if (!string.IsNullOrWhiteSpace(ropeColorCode))
+        {
+            ropeColor = Calc.HexToColor(ropeColorCode);
+            ropeLightColor = ropeColor * 1.1f; // matches Adventure Helper
+        }
+        else
+        {
+            ropeColor = defaultRopeColor;
+            ropeLightColor = defaultRopeLightColor;
+            ropeColorCode = "663931";
+        }
+        
+        if (data.Bool("linked"))
+        {
+            linkFlag = $"ZipMoverSync:{ropeColorCode}"; // matches Adventure Helper
+        }
 
         Add(new Coroutine(Sequence()));
         Add(new LightOcclude());
@@ -270,6 +294,7 @@ public class DreamZipMover : CustomDreamBlock
     {
         scene.Remove(pathRenderer);
         pathRenderer = null;
+        SignalLinkedZippers(false);
         base.Removed(scene);
     }
 
@@ -342,16 +367,44 @@ public class DreamZipMover : CustomDreamBlock
         }
     }
 
+    // Whether the zipper should activate.
+    // isMain is whether the zipper should play sounds and do other effects
+    private bool ShouldActivate(out bool isMain)
+    {
+        if (Scene is not Level level)
+            return isMain = HasPlayerRider();
+        
+        // Handle linked zip movers
+        if (linkFlag is { } && level.Session.GetFlag(linkFlag))
+        {
+            isMain = false;
+            return true;
+        }
+
+        return isMain = HasPlayerRider();
+    }
+
+    // Controls the flag related to linked zip movers
+    private void SignalLinkedZippers(bool shouldActivate)
+    {
+        if (linkFlag is { } && Scene is Level level)
+        {
+            level.Session.SetFlag(linkFlag, shouldActivate);
+        }
+    }
+
     private IEnumerator Sequence()
     {
         // Infinite.
         while (true)
         {
-            if (!HasPlayerRider())
+            if (!ShouldActivate(out bool isMainZipper))
             {
                 yield return null;
                 continue;
             }
+
+            SignalLinkedZippers(true);
 
             Vector2 from = nodes[0];
             Vector2 to;
@@ -365,15 +418,20 @@ public class DreamZipMover : CustomDreamBlock
                 to = nodes[i];
 
                 // Start shaking.
-                sfx.Play(CustomSFX.game_dreamZipMover_start);
-                Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+                if (isMainZipper)
+                {
+                    sfx.Play(CustomSFX.game_dreamZipMover_start);
+                    Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+                }
                 StartShaking(0.1f);
                 yield return 0.1f;
+
+                SignalLinkedZippers(false);
 
                 // Start moving towards the target.
                 StopPlayerRunIntoAnimation = false;
                 at = 0f;
-                bool playedFinishSound = false;
+                bool playedFinishSound = !isMainZipper;
                 while (at < 1f)
                 {
                     yield return null;
@@ -408,7 +466,7 @@ public class DreamZipMover : CustomDreamBlock
                 {
                     float tickTime = 0.0f;
                     int tickNum = 0;
-                    while (!HasPlayerRider() && tickNum < 5)
+                    while (!ShouldActivate(out _) && tickNum < 5) // intentionally don't override isMainZipper here
                     {
                         yield return null;
 
@@ -417,21 +475,26 @@ public class DreamZipMover : CustomDreamBlock
                         {
                             tickTime = 0.0f;
                             tickNum++;
-                            Audio.Play(CustomSFX.game_dreamZipMover_tick, Center);
+                            if (isMainZipper)
+                                Audio.Play(CustomSFX.game_dreamZipMover_tick, Center);
                             StartShaking(0.1f);
                         }
                     }
 
-                    if (tickNum == 5 && !HasPlayerRider())
+                    if (tickNum == 5 && !ShouldActivate(out isMainZipper))
                     {
                         shouldCancel = true;
                         break;
                     }
+                    
+                    SignalLinkedZippers(true);
                 }
                 else if (waits && !last)
                 {
-                    while (!HasPlayerRider())
+                    while (!ShouldActivate(out isMainZipper))
                         yield return null;
+                    
+                    SignalLinkedZippers(true);
                 }
             }
 
@@ -449,9 +512,10 @@ public class DreamZipMover : CustomDreamBlock
 
                         // Goes back to start with a speed that is four times slower.
                         StopPlayerRunIntoAnimation = false;
-                        sfx.Play(CustomSFX.game_dreamZipMover_return);
+                        if (isMainZipper)
+                            sfx.Play(CustomSFX.game_dreamZipMover_return);
                         at = 0f;
-                        bool playedFinishSound = false;
+                        bool playedFinishSound = !isMainZipper;
                         while (at < 1f)
                         {
                             yield return null;
@@ -483,8 +547,11 @@ public class DreamZipMover : CustomDreamBlock
             {
                 // Done, will never be activated again.
                 StartShaking(0.3f);
-                Audio.Play(CustomSFX.game_dreamZipMover_tick, Center);
-                SceneAs<Level>().Shake(0.15f);
+                if (isMainZipper)
+                {
+                    Audio.Play(CustomSFX.game_dreamZipMover_tick, Center);
+                    SceneAs<Level>().Shake(0.15f);
+                }
                 while (true)
                     yield return null;
             }
