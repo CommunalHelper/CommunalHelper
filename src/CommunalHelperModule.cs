@@ -117,6 +117,7 @@ public class CommunalHelperModule : EverestModule
 
         typeof(Imports.CavernHelper).ModInterop();
         typeof(Imports.GravityHelper).ModInterop();
+        typeof(Imports.ReverseHelper).ModInterop();
 
         #endregion
 
@@ -221,6 +222,9 @@ public class CommunalHelperModule : EverestModule
 
         BetaCube.Initialize();
 
+        Imports.ReverseHelper.RegisterDreamBlockLike?.Invoke(typeof(DreamTunnelEntry),
+            e => (e as DreamTunnelEntry).ActivateNoRoutine(),
+            e => (e as DreamTunnelEntry).DeactivateNoRoutine());
         /*
          * Some Communal Helper mechanics don't work well with Gravity Helper.
          * To fix this, Gravity Helper has implemented hooks that patch some of Communal Helper's methods.
