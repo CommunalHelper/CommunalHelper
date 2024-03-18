@@ -15,6 +15,8 @@ for _, dir in ipairs(directions) do
         placement.data.WaitForPlayer = false
         placement.data.Grouped = false
         placement.data.Rainbow = false
+        placement.data.Reusable = false
+        placement.data.ReusableTimer = 0.0
     end
 
     table.insert(timedTriggerSpikes, spikes)
