@@ -452,7 +452,11 @@ public class ConnectedDreamBlock : CustomDreamBlock
                     position += Calc.AngleToVector(rotation, 4f);
                 }
                 position = PutInside(position, GroupRect);
-
+                
+                Rectangle positionBounds = new Rectangle((int) (position.X + 0.5f), (int) (position.Y + 0.5f), 8, 8);
+                if (!camera.GetBounds().Intersects(positionBounds))
+                    continue;
+    
                 bool particleIsInside = false;
                 foreach (ConnectedDreamBlock block in Group)
                 {
