@@ -361,3 +361,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 .idea
+.vscode/tasks.json
