@@ -1,5 +1,5 @@
 - Name: CommunalHelper
-  Version: 1.19.4
+  Version: 0.0.0-dev
   DLL: src/bin/Debug/net7.0/CommunalHelper.dll
   Dependencies:
     - Name: EverestCore
