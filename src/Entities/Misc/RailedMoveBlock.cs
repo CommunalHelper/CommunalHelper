@@ -238,7 +238,6 @@ internal class RailedMoveBlock : Solid
         });
         sfx.Play(CustomSFX.game_railedMoveBlock_railedmoveblock_move, "arrow_stop", 1f);
         Add(new LightOcclude(0.5f));
-
     }
 
     private void AddImage(MTexture tex, Vector2 position, float rotation, Vector2 scale, List<Image> addTo)
@@ -260,7 +259,6 @@ internal class RailedMoveBlock : Solid
 
         scene.Add(border = new Border(this));
         scene.Add(pathRenderer = new RailedMoveBlockPathRenderer(this));
-
 
         if (attachedAbove)
         {
@@ -323,7 +321,6 @@ internal class RailedMoveBlock : Solid
 
         if (dir != Vector2.Zero)
         {
-
             float newSpeed = 0f;
 
             icon = idleIcon;
@@ -350,8 +347,6 @@ internal class RailedMoveBlock : Solid
                 newFillColor = MoveBgFill;
                 icon = Input.MoveX.Value == 1 ? RightIcon : LeftIcon;
             }
-
-        
 
             if (Math.Sign(speed) != Math.Sign(newSpeed))
             {
