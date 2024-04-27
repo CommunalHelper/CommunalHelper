@@ -579,6 +579,8 @@ entities.CommunalHelper/RailedMoveBlock.placements.name.vertical=Railed Move Blo
 entities.CommunalHelper/RailedMoveBlock.placements.name.both=Railed Move Block (Both)
 entities.CommunalHelper/RailedMoveBlock.attributes.description.steeringMode=Represents the way in which you can steer the block using the side buttons.\n\n- "Horizontal" will enable buttons on the left and right side of the block.\n- "Vertical" will enable one button at the top of the block.\n- "Both" will enable the two above.
 entities.CommunalHelper/RailedMoveBlock.attributes.description.speed=The maximum speed this block can go at.
+entities.CommunalHelper/RailedMoveBlock.attributes.description.easedVerticalMovement=If checked, diagonal inputs will more easily move the Railed Move Block vertically. This is used to make some moves easier on analog.
+entities.CommunalHelper/RailedMoveBlock.attributes.description.attachedAbove=If checked, attached entities will be rendered above the steering buttons. (Springs, spikes, etc.) 
 
 # Reset State Crystal
 entities.CommunalHelper/ResetStateCrystal.placements.name.reset_state_crystal=Reset State Crystal
