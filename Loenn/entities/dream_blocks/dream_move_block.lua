@@ -23,6 +23,30 @@ dreamMoveBlock.fieldInformation = {
     },
     refillCount = {
         fieldType = "integer"
+    },
+    idleButtonsColor = {
+        fieldType = "color"
+    },
+    idleArrowColor = {
+        fieldType = "color"
+    },
+    idleWobbleLinesColor = {
+        fieldType = "color"
+    },
+    movingButtonsColor = {
+        fieldType = "color"
+    },
+    movingArrowColor = {
+        fieldType = "color"
+    },
+    movingWobbleLinesColor = {
+        fieldType = "color"
+    },
+    breakingWobbleLinesColor = {
+        fieldType = "color"
+    },
+    breakingCrossColor = {
+        fieldType = "color"
     }
 }
 
@@ -43,9 +67,26 @@ dreamMoveBlock.placements = {
             quickDestroy = false,
             direction = "Right",
             moveSpeed = 60.0,
-            noCollide = false
+            noCollide = false,
+            canSteer = false,
+            idleButtonsColor = "FFFFFF",
+            movingButtonsColor = "FFFFFF",
+            idleArrowColor = "FFFFFF",
+            movingArrowColor = "FFFFFF",
+            idleWobbleLinesColor = "FFFFFF",
+            movingWobbleLinesColor = "FFFFFF",
+            breakingWobbleLinesColor = "FFFFFF",
+            breakingCrossColor = "FFFFFF",
         }
     }
+}
+
+dreamMoveBlock.fieldOrder = {
+    "x", "y", "width", "height",
+    "direction", "moveSpeed",
+    "idleButtonsColor", "idleArrowColor", "idleWobbleLinesColor",
+    "movingButtonsColor", "movingArrowColor", "movingWobbleLinesColor",
+    "breakingWobbleLinesColor", "breakingCrossColor"
 }
 
 local arrowTextures = {

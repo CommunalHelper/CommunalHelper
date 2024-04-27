@@ -299,6 +299,15 @@ entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollide=Whether 
 entities.CommunalHelper/DreamMoveBlock.attributes.description.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.oneUse=Whether the Dream Move Block should shatter upon exit.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.quickDestroy=Makes this Dream Move Block shatter a little faster.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.idleButtonsColor=Body and buttons's color when the block is idle.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.idleArrowColor=Arrow's color when the block is idle.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.idleWobbleLinesColor=Wobble lines's color when the block is idle.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.movingButtonsColor=Body and buttons's colors when the block is moving.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.movingArrowColor=Arrow's color when the block is moving.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.movingWobbleLinesColor=Wobble lines's color when the block is moving.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.breakingWobbleLinesColor=Wobble lines's color when the block is breaking.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.breakingCrossColor=Cross's color when the block is breaking.
+entities.CommunalHelper/DreamMoveBlock.Attributes.description.canSteer=Makes the block steerable (comes with buttons and new body).
 
 # Dream Falling Block
 entities.CommunalHelper/DreamFallingBlock.placements.name.normal=Dream Falling Block
