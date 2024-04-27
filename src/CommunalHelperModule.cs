@@ -112,6 +112,8 @@ public class CommunalHelperModule : EverestModule
 
         BadelineBoostKeepHoldables.Hook();
         PoisonGas.Load();
+        
+        LaserEmitter.Load();
 
         #region Imports
 
@@ -203,6 +205,8 @@ public class CommunalHelperModule : EverestModule
 
         BadelineBoostKeepHoldables.Unhook();
         PoisonGas.Unload();
+        
+        LaserEmitter.Unload();
     }
 
     public override void Initialize()
