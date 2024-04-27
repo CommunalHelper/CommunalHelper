@@ -1,0 +1,43 @@
+
+<!-- Reading Notes:
+    anything in [] should be changed to fit the needs of the user and not taken literally.
+    Vector2 formatting is always in the form [integer],[integer] (in other words, no decimal points)
+    You can only have 1 PlayerVisualModification per file.
+    You do not need an Image or Sprite for the modifications to work.
+-->
+<PlayerVisualModifier>
+    <PlayerOffset>0,-3</PlayerOffset> <!-- This is the offset, in pixels, the player will be relative to its hitbox. -->
+<!-- The last instance of Image or Sprite tags will always take priority. -->
+    <Image offset="3,0">pathFromGameplayAtlas</Image> 
+<!-- offset refers to the *default* image offset. If a sprite animation requires a different offset, that can be set in the Override parameters -->
+    <Sprite name="[spriteID]" offset="2,2"/> <!-- spriteID should be from the "vanilla" sprites.xml, in other words, the common SpriteBank (Graphics/Sprites.xml) can be used here -->
+
+<!-- alternatively, you can build your own sprite in here directly. It will be put in CommunalHelper's SpriteBank, so you can *not* access it from the common spritebank.
+This is done as if you were writing it into the common SpriteBank (or any other xml-based SpriteBank), with one difference.
+Instead of starting with any string as the Tag name, you put the "Tag" name in the name parameter. This will go into CommunalHelper's SpriteBank @ "PVI/[nameOfSprite]".
+This example is equivalent to "granny" in the Common SpriteBank.
+Note that you need a UNIQUE identifier, to both PlayerVisualModifiers *and* the Common SpriteBank.
+Example being: using <Sprite name="granny" ...> would fail here. -->
+    <Sprite name="MyCustomGranny" path="characters/oldlady/" start="idle"> 
+        <Justify x=".5" y="1" />
+
+        <Loop id="idle" path="idle" delay="0.15" />
+        <Loop id="walk" path="walk" delay="0.1" />
+        <Loop id="laugh" path="laugh" delay="0.1" />
+        <Anim id="airQuotes" path="quotes" delay="0.16" frames="0-11" goto="pointCane"/>
+        <Loop id="pointCane" path="quotes" delay="0.16" frames="12-28" />
+    </Sprite>
+    <!-- Overrides an animation of Player with various features. -->
+    <Override anim="[animationToBeAffected]"> 
+    <!-- Replaces the old animation [animationToBeAffected] with the new animation [replacingAnimation]. [replacingAnimation] *is* whitespace and case sensitive. 
+         Replacing Animation only occurs once per animation play call -->
+        <AnimReplace>[replacingAnimation]</AnimReplace> 
+    <!-- If the visualAddition has a Sprite attached to it, the animation [spriteAnimation] will play on that Sprite when this animation plays. 
+    If replacing the animation, the animSprite tag should go into an Override of [replacingAnimation] with just AnimSprite (unless of course you need the other features, which will also work) -->
+        <AnimSprite>[spriteAnimation]</AnimSprite> 
+    <!-- Player/Image Offset is exactly what it sounds like: if you need a specific player animation to have a different player or image offset, this is where you would put it. -->
+        <PlayerOffset>0,4</PlayerOffset>
+        <ImageOffset>0,2</ImageOffset>
+    </Override>
+    <Override anim="[animation2]"> ... </Override> <!-- you can add multiple overrides for different animations, but not multiple overrides for the same animation. -->
+</PlayerVisualModifier>

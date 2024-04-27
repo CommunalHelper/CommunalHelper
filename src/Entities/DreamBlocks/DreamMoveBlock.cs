@@ -4,7 +4,6 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,8 +79,6 @@ public class DreamMoveBlock : CustomDreamBlock
     private Color movingWobbleLinesColor = Calc.HexToColor("FFFFFF");
     private Color breakingWobbleLinesColor = Calc.HexToColor("FFFFFF");
     private Color breakingCrossColor = Calc.HexToColor("FFFFFF");
-
-
 
     private float flash;
     private readonly SoundSource moveSfx;
@@ -191,12 +188,11 @@ public class DreamMoveBlock : CustomDreamBlock
         Add(controller = new Coroutine(Controller()));
         Add(new LightOcclude(0.5f));
 
-        Add(new Redirectable(new MonoMod.Utils.DynamicData(this))
-        {
-            Get_CanSteer = () => canSteer,
-            Get_Direction = () => direction,
-            Set_Direction = dir => direction = dir
-        });
+        Add(new MoveBlockRedirectable(new MonoMod.Utils.DynamicData(this),
+            () => false,
+            () => direction,
+            dir => direction = dir
+        ));
 
         int num = data.Width / 8;
         int num2 = data.Height / 8;
@@ -380,7 +376,7 @@ public class DreamMoveBlock : CustomDreamBlock
 
 
             BreakParticles();
-            Get<Redirectable>()?.ResetBlock();
+            ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debris = new();
             for (int x = 0; x < Width; x += 8)
             {
@@ -669,7 +665,6 @@ public class DreamMoveBlock : CustomDreamBlock
                 arrow.DrawCentered(Center + baseData.Get<Vector2>("shake"), this.idleArrowColor);
             }
             
-
             if(canSteer)
             {
                 foreach (Image item in leftButton)
@@ -702,7 +697,6 @@ public class DreamMoveBlock : CustomDreamBlock
 
     /// <summary>
     /// This method is called to update the buttons, arrow and body colors
-    /// 
     /// </summary>
     private void UpdateColors()
     {
@@ -957,5 +951,4 @@ public class DreamMoveBlock : CustomDreamBlock
     }
 
     #endregion
-
 }

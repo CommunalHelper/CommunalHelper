@@ -107,4 +107,5 @@
 {58664ac0-a862-437c-9486-4aacce943f4c} event:/CommunalHelperEvents/game/zipMover/normal/return
 {3ad2c47a-5b95-4451-92df-9e318bd9b0ea} event:/CommunalHelperEvents/game/zipMover/normal/start
 {5233c8a4-cc43-44ef-a67f-86cc683f6b36} event:/CommunalHelperEvents/game/zipMover/normal/tick
+{0f104c49-f481-403c-9d3d-9bc4ed1777fb} event:/CommunalHelperEvents/game/poisonGas/timer
 {c90e6fcd-5580-473a-978f-b0c8e4f2c361} bank:/CommunalHelperBank

@@ -34,7 +34,7 @@ internal class MultiDashHeartGem : HeartGem
             foreach (string cutscene in cutsceneList.Split(','))
             {
                 cutscenes[idx] = cutscene;
-                Console.WriteLine(cutscenes[idx]);
+                Logger.Log("CommunalHelper", cutscenes[idx]);
                 idx++;
             }
         }
@@ -73,7 +73,7 @@ internal class MultiDashHeartGem : HeartGem
     {
         if (self is MultiDashHeartGem gem)
         {
-            Console.WriteLine("IsMultiDashHeartGem");
+            Logger.Log("CommunalHelper", "IsMultiDashHeartGem");
             if (player.DashAttacking)
             {
                 if (!gem.baseData.Get<bool>("collected") && !gem.SceneAs<Level>().Frozen)
@@ -91,7 +91,7 @@ internal class MultiDashHeartGem : HeartGem
                         gem.baseData.Set("moveWiggleDir", (gem.Center - player.Center).SafeNormalize(Vector2.UnitY));
                         Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                     }
-                    Console.WriteLine(gem.health);
+                    Logger.Log("CommunalHelper", gem.health.ToString());
                     TryStartCutscene(gem.cutscenes[3 - gem.health], player);
                     gem.Crack(player);
                 }
@@ -128,7 +128,7 @@ internal class MultiDashHeartGem : HeartGem
                     // Collect normally
                     orig(self, h);
                 }
-                Console.WriteLine(gem.health);
+                Logger.Log("CommunalHelper", gem.health.ToString());
                 TryStartCutscene(gem.cutscenes[3 - gem.health], player);
                 gem.Crack(player);
             }

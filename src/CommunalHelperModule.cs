@@ -9,6 +9,7 @@ using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.Entities.Misc;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using Celeste.Mod.CommunalHelper.States;
+using Celeste.Mod.CommunalHelper.Triggers;
 using Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
 using MonoMod.ModInterop;
 
@@ -60,7 +61,8 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Hook();
         MoveBlockRedirect.Load();
-        Redirectable.Load();
+        MoveBlockRedirectable.Load();
+        CrushBlockRedirectable.Load();
         MoveSwapBlock.Load();
 
         AbstractInputController.Load();
@@ -87,13 +89,15 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Hook();
         PlayerSeekerBarrierRenderer.Hook();
-        
+
         ShowHitboxTrigger.Load();
         GrabTempleGate.Hook();
         SolarElevator.Hook();
         ExplodingStrawberry.Load();
         ExpiringDashRefill.Load();
         WormholeBooster.Load();
+        OshiroAttackTimeTrigger.Load();
+        PlayerVisualModifier.Load();
 
         AeroBlockCharged.Load();
 
@@ -103,13 +107,17 @@ public class CommunalHelperModule : EverestModule
 
         CommunalHelperGFX.Load();
         Pushable.Load();
+        HintController.Load();
+        GlowController.Load();
 
         BadelineBoostKeepHoldables.Hook();
+        PoisonGas.Load();
 
         #region Imports
 
         typeof(Imports.CavernHelper).ModInterop();
         typeof(Imports.GravityHelper).ModInterop();
+        typeof(Imports.ReverseHelper).ModInterop();
 
         #endregion
 
@@ -132,6 +140,7 @@ public class CommunalHelperModule : EverestModule
         CustomDreamBlock.Unload();
         ConnectedTempleCrackedBlock.Unload();
 
+
         // Individual Dream Blocks unhooked in CustomDreamBlock.Unload
 
         AbstractPanel.Unload();
@@ -142,7 +151,8 @@ public class CommunalHelperModule : EverestModule
 
         AttachedWallBooster.Unhook();
         MoveBlockRedirect.Unload();
-        Redirectable.Unload();
+        MoveBlockRedirectable.Unload();
+        CrushBlockRedirectable.Unload();
         MoveSwapBlock.Unload();
         AbstractInputController.Unload();
         CassetteJumpFixController.Unload();
@@ -167,13 +177,15 @@ public class CommunalHelperModule : EverestModule
 
         PlayerSeekerBarrier.Unhook();
         PlayerSeekerBarrierRenderer.Unhook();
-        
+
         ShowHitboxTrigger.Unload();
         GrabTempleGate.Unhook();
         SolarElevator.Unhook();
         ExplodingStrawberry.Unload();
         ExpiringDashRefill.Unload();
         WormholeBooster.Unload();
+        OshiroAttackTimeTrigger.Unload();
+        PlayerVisualModifier.Unload();
 
         AeroBlockCharged.Unload();
 
@@ -186,8 +198,11 @@ public class CommunalHelperModule : EverestModule
 
         CommunalHelperGFX.Unload();
         Pushable.Unload();
+        HintController.Unload();
+        GlowController.Unload();
 
         BadelineBoostKeepHoldables.Unhook();
+        PoisonGas.Unload();
     }
 
     public override void Initialize()
@@ -207,6 +222,9 @@ public class CommunalHelperModule : EverestModule
 
         BetaCube.Initialize();
 
+        Imports.ReverseHelper.RegisterDreamBlockLike?.Invoke(typeof(DreamTunnelEntry),
+            e => (e as DreamTunnelEntry).ActivateNoRoutine(),
+            e => (e as DreamTunnelEntry).DeactivateNoRoutine());
         /*
          * Some Communal Helper mechanics don't work well with Gravity Helper.
          * To fix this, Gravity Helper has implemented hooks that patch some of Communal Helper's methods.

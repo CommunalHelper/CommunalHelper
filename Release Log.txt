@@ -1,3 +1,34 @@
+--1.19.3 (30/11/2023)--
+* Fixed Nullref crash on Skateboard Trigger from a Save & Quit
+* Fixed small errors in Ahorn and Loenn
+
+--1.19.2 (12/11/2023)--
+* Fixed Loenn plugins for Flag Breaker Box and PoisonGas
+* Fully implemented Momentum Block and resolved crashes
+
+--1.19.1 (07/11/2023)--
+* Fixed CrushBlockRedirects preventing Falling Blocks from falling when hit by any crush block
+
+--1.19.0 (07/11/2023)--
+* Added SJ Entities - 
+  * Hint Controller
+  * Glow Controller
+  * Dash Zip Mover
+  * Flag Breaker Box
+  * Momentum Block
+  * Oshiro B-side Attack Pattern Trigger
+  * Skateboard Trigger*
+* Added refactored version of Skateboard Trigger that enables custom images and formats to be used - see Wiki
+* Added Badeline Boost (Keep Holdables) 
+* Added Poison Gas (ported from Midway Contest, thanks xolimono and Goldian for sprites and audio!)
+* Added alpha component to Cloudscape Effect
+* Added Redirectable Kevin
+* Fixed Dream Tunnel visibility issue
+* Fixed Dream Tunnel Dash / Seeker Dash not preserving through transitions/teleports
+* Fixed Red Booster being unable to vertically enter Connected Dream Blocks
+* Fixed Elytra losing speed while entering Boost ring while holding Up
+* Implemented a "grabmode" for Elytra controls
+
 --1.18.4 (04/08/2023)--
 * Fixed Shape3DRenderers of same layer being added more than once to the scene.
 * Fixed Elytra launches zeroing-out player facing.

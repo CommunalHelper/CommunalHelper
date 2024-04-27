@@ -34,6 +34,24 @@ public static class Elytra
 
     private const string ELYTRA_ANIM = "anim_player_elytra_fly";
 
+    private static bool elytraToggle;
+
+    public static bool ElytraCheck => CommunalHelperModule.Settings.ElytraMode switch
+    {
+        CommunalHelperSettings.ElytraModes.Invert => !CommunalHelperModule.Settings.DeployElytra.Check,
+        CommunalHelperSettings.ElytraModes.Toggle => elytraToggle,
+        CommunalHelperSettings.ElytraModes.ToggleOnce => elytraToggle,
+        CommunalHelperSettings.ElytraModes.Hold => CommunalHelperModule.Settings.DeployElytra.Check,
+        _ => Settings.Instance.GrabMode switch
+        {
+            GrabModes.Invert => !CommunalHelperModule.Settings.DeployElytra.Check,
+            GrabModes.Toggle => elytraToggle,
+            _ => CommunalHelperModule.Settings.DeployElytra.Check
+        }
+    };
+
+
+
     /// <summary>
     /// Refills the player's dashes and stamina.
     /// Because the player can deploy its elytra with at least one dashes, refilling dashes is like refilling elytra.
@@ -111,6 +129,8 @@ public static class Elytra
             Audio.Stop(sfx);
         data.Set(f_Player_elytraRefillSound, true);
         data.Set(f_Player_elytraCooldown, COOLDOWN);
+        if (CommunalHelperModule.Settings.ElytraMode == CommunalHelperSettings.ElytraModes.ToggleOnce)
+            elytraToggle = false;
     }
 
     public static int GlideUpdate(this Player player)
@@ -145,7 +165,7 @@ public static class Elytra
             return player.StartDash();
 
         // released elytra binding
-        if (!CommunalHelperModule.Settings.DeployElytra.Check)
+        if (!ElytraCheck)
             return Player.StNormal;
 
         DynamicData data = DynamicData.For(player);
@@ -202,23 +222,26 @@ public static class Elytra
 
         // determine new speed :
         newSpeed = oldSpeed;
-        if (newAngle < STABLE_ANGLE)
+        if (stableTimer <= 0f)
         {
-            // going above middle angle, slow down.
-            // if the player goes at a higher speed than the maximum speed, decelerate faster.
-            float decel = oldSpeed > MAX_SPEED
-                ? FAST_DECEL
-                : DECEL;
-            newSpeed = Calc.Approach(oldSpeed, MIN_SPEED, Engine.DeltaTime * decel * absYInput);
-        }
-        else if (newAngle > STABLE_ANGLE)
-        {
-            // speed up, relative to how vertical the player's input is.
+            if (newAngle < STABLE_ANGLE)
+            {
+                // going above middle angle, slow down.
+                // if the player goes at a higher speed than the maximum speed, decelerate faster.
+                float decel = oldSpeed > MAX_SPEED
+                    ? FAST_DECEL
+                    : DECEL;
+                newSpeed = Calc.Approach(oldSpeed, MIN_SPEED, Engine.DeltaTime * decel * absYInput);
+            }
+            else if (newAngle > STABLE_ANGLE)
+            {
+                // speed up, relative to how vertical the player's input is.
 
-            // if the speed is already greater than the max diving speed, then don't change it.
-            // in that case, it's only going to decrease if the player decides to glide up.
-            if (oldSpeed < MAX_SPEED)
-                newSpeed = Calc.Approach(oldSpeed, MAX_SPEED, Engine.DeltaTime * ACCEL * absYInput);
+                // if the speed is already greater than the max diving speed, then don't change it.
+                // in that case, it's only going to decrease if the player decides to glide up.
+                if (oldSpeed < MAX_SPEED)
+                    newSpeed = Calc.Approach(oldSpeed, MAX_SPEED, Engine.DeltaTime * ACCEL * absYInput);
+            }
         }
 
         // update new values.
@@ -320,6 +343,8 @@ public static class Elytra
         On.Celeste.Player.RefillDash += Player_RefillDash;
         On.Celeste.Player.UseRefill += Player_UseRefill;
         On.Celeste.Player.ctor += Player_ctor;
+        On.Celeste.Input.UpdateGrab += Input_UpdateGrab;
+        On.Celeste.Input.ResetGrab += Input_ResetGrab;
     }
 
     internal static void Unload()
@@ -333,6 +358,8 @@ public static class Elytra
         On.Celeste.Player.RefillDash -= Player_RefillDash;
         On.Celeste.Player.UseRefill -= Player_UseRefill;
         On.Celeste.Player.ctor -= Player_ctor;
+        On.Celeste.Input.UpdateGrab -= Input_UpdateGrab;
+        On.Celeste.Input.ResetGrab -= Input_ResetGrab;
     }
 
     private static void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode)
@@ -381,7 +408,7 @@ public static class Elytra
 
         if (cooldown == 0.0f && !self.OnGround())
         {
-            if (CommunalHelperModule.Session.CanDeployElytra && CommunalHelperModule.Settings.DeployElytra.Pressed)
+            if (CommunalHelperModule.Session.CanDeployElytra && ElytraCheck)
             {
                 CommunalHelperModule.Settings.DeployElytra.ConsumePress();
                 if (data.Get<bool>(f_Player_elytraIsInfinite))
@@ -410,12 +437,15 @@ public static class Elytra
     {
         orig(self, mode);
 
-        self.Animations[ELYTRA_ANIM] = new()
+        if (!self.Animations.ContainsKey(ELYTRA_ANIM))
         {
-            Frames = GFX.Game.GetAtlasSubtextures("characters/player_no_backpack/CommunalHelper/fly").ToArray(),
-            Delay = 10f,
-        };
-    }   
+            self.Animations[ELYTRA_ANIM] = new()
+            {
+                Frames = GFX.Game.GetAtlasSubtextures("characters/player_no_backpack/CommunalHelper/fly").ToArray(),
+                Delay = 10f,
+            };
+        }
+    }
 
     private static void Mod_Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self)
     {
@@ -458,5 +488,22 @@ public static class Elytra
         if (result)
             self.PlayElytraRefillSound();
         return result;
+    }
+    private static void Input_UpdateGrab(On.Celeste.Input.orig_UpdateGrab orig)
+    {
+        orig();
+        if ((CommunalHelperModule.Settings.ElytraMode == CommunalHelperSettings.ElytraModes.Toggle ||
+             CommunalHelperModule.Settings.ElytraMode == CommunalHelperSettings.ElytraModes.ToggleOnce ||
+             (CommunalHelperModule.Settings.ElytraMode == CommunalHelperSettings.ElytraModes.UseGrabMode && Settings.Instance.GrabMode == GrabModes.Toggle))
+             && CommunalHelperModule.Settings.DeployElytra.Pressed)
+        {
+            elytraToggle = !elytraToggle;
+        }
+    }
+
+    private static void Input_ResetGrab(On.Celeste.Input.orig_ResetGrab orig)
+    {
+        orig();
+        elytraToggle = false;
     }
 }

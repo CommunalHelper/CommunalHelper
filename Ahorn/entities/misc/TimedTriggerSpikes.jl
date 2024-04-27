@@ -14,6 +14,8 @@ const data = :(
     Grouped::Bool=false,
     Rainbow::Bool=false,
     TriggerAlways::Bool=false,
+    Reusable::Bool=false,
+    ReusableTimer::Number=0.0
 )
 const heightData = appendkwargs(pos, :(height::Integer=Maple.defaultSpikeHeight), data)
 const widthData = appendkwargs(pos, :(width::Integer=Maple.defaultSpikeWidth), data)

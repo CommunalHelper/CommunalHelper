@@ -23,9 +23,6 @@ public class MoveBlockRedirect : Entity
 
     private ParticleType p_Used;
 
-    internal const string MoveBlock_InitialAngle = "communalHelperInitialAngle";
-    internal const string MoveBlock_InitialDirection = "communalHelperInitialDirection";
-
     public static readonly Color Mask = new(200, 180, 190);
     public static readonly Color UsedColor = Calc.HexToColor("474070"); // From MoveBlock
     public static readonly Color DeleteColor = Calc.HexToColor("cc2541");
@@ -52,7 +49,7 @@ public class MoveBlockRedirect : Entity
     public MoveBlockRedirect(EntityData data, Vector2 offset)
         : base(data.Position + offset)
     {
-        Depth = Depths.Above;
+        Depth = Depths.Solids - 1;
         Collider = new Hitbox(data.Width, data.Height);
 
         FastRedirect = data.Bool("fastRedirect");
@@ -188,7 +185,7 @@ public class MoveBlockRedirect : Entity
 
         if (lastMoveBlock != null && !CollideCheck(lastMoveBlock.Entity))
             lastMoveBlock = null;
-        else if ((lastMoveBlock == null || FastRedirect) && maskAlpha != 0f)
+        else if ((lastMoveBlock == null || FastRedirect || !lastMoveBlock.IsRedirectable) && maskAlpha != 0f)
         {
             maskAlpha = Calc.Approach(maskAlpha, 0f, (FastRedirect && !DeleteBlock ? 2.5f : 4f) * Engine.DeltaTime);
         }
@@ -196,8 +193,8 @@ public class MoveBlockRedirect : Entity
         Redirectable redirectable = Scene.Tracker.GetComponents<Redirectable>().FirstOrDefault(c => CollideCheck(c.Entity)) as Redirectable;
         Entity block = redirectable?.Entity; // Non-null if redirectible isn't null
 
-        if (Collidable && redirectable != null && redirectable != lastMoveBlock && !redirectable.CanSteer &&
-            block.Width == Width && block.Height == Height)
+        if (Collidable && redirectable != null && redirectable != lastMoveBlock && redirectable.IsRedirectable &&
+                block.Width == Width && block.Height == Height)
         {
 
             if (!Collider.Contains(block.Collider, 0.001f))
@@ -260,10 +257,7 @@ public class MoveBlockRedirect : Entity
 
     private void SetBlockData(Redirectable redirectable)
     {
-        redirectable.InitialAngle ??= redirectable.HomeAngle;
-        redirectable.InitialDirection ??= redirectable.Direction;
-
-        redirectable.Angle = redirectable.TargetAngle = redirectable.HomeAngle = angle;
+        redirectable.Angle = angle;
         redirectable.Direction = Direction;
 
         float newSpeed = Operation.ApplyTo(redirectable.TargetSpeed, Modifier);
@@ -278,13 +272,12 @@ public class MoveBlockRedirect : Entity
     private IEnumerator BreakBlock(Redirectable redirectable, Coroutine orig, bool fast, bool oneUse)
     {
         redirectable.MoveTo(Position);
-        redirectable.MoveSfx.Stop();
+        redirectable.BeforeBreakAnimation();
 
         //state = MovementState.Breaking;
+        redirectable.ResetBlock();
         redirectable.Speed = redirectable.TargetSpeed = 0f;
-        redirectable.Angle = redirectable.TargetAngle = redirectable.HomeAngle;
 
-        redirectable.StartShaking(0.2f);
         //redirectable.Entity.StopPlayerRunIntoAnimation = true; // Unused in Vanilla so we ignore it
 
         if (fast)
@@ -326,10 +319,7 @@ public class MoveBlockRedirect : Entity
 
         redirectable.MoveTo(Position);
 
-        SoundSource moveSfx = redirectable.MoveSfx;
-        moveSfx.Param("redirect_slowdown", 1f);
-
-        redirectable.StartShaking(0.2f);
+        redirectable.OnPause(orig);
 
         float timer = 0f;
         while (timer < duration)
@@ -349,8 +339,7 @@ public class MoveBlockRedirect : Entity
             yield return null;
         }
 
-        redirectable.StartShaking(0.18f);
-        moveSfx.Param("redirect_slowdown", 0f);
+        redirectable.BeforeResumeAnimation();
 
         while (timer > 0)
         {

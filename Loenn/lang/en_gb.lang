@@ -102,6 +102,7 @@ entities.CommunalHelper/StationBlock.placements.name.moon_pulling=Station Block 
 entities.CommunalHelper/StationBlock.attributes.description.allowWavedash=Whether Wavedashing on top of the Station Block is allowed or not even while it's not moving (doesn't bounce you upwards).
 entities.CommunalHelper/StationBlock.attributes.description.allowWavedashBottom=Similarly to the allowWavedash option, allows an inverted player to wavedash on the Station Block.
 entities.CommunalHelper/StationBlock.attributes.description.speedFactor=The factor by which the speed of the Station Block is multiplied. This value can only be between 0.1 and 2.
+entities.CommunalHelper/StationBlock.attributes.description.volume=The volume of the banging sound from the block smash. The value can be between 0 and 1, where 0 is silent and 1 is normal. Useful for rooms with looping blocks that are too noisy.
 entities.CommunalHelper/StationBlock.attributes.description.theme=Aspect theme of the Station Block.
 entities.CommunalHelper/StationBlock.attributes.description.behavior=Behavior of the Station Block. Pulling will make it move towards you, and Pushing does the opposite. This changes slightly the appearance of the block, depending on the behavior.
 entities.CommunalHelper/StationBlock.attributes.description.customBlockPath=This is the path you should specify if you're using a custom texture for the block, leave empty for default textures. It looks for Graphics/Atlases/Gameplay/objects/<path>. The block should be a 24x24 texture, that preferably gets tiled correctly. Example: "catapillie/customStationBlock/custom_block", where the texture is located at Graphics/Atlases/Gameplay/objects/catapillie/customStationBlock/custom_block.png. DON'T add the ".png".
@@ -119,6 +120,7 @@ entities.CommunalHelper/StationBlockTrack.placements.name.verti_none=Station Blo
 entities.CommunalHelper/StationBlockTrack.placements.name.verti_on=Station Block Track (Vertical, Switched On)
 entities.CommunalHelper/StationBlockTrack.placements.name.verti_off=Station Block Track (Vertical, Switched Off)
 entities.CommunalHelper/StationBlockTrack.attributes.description.multiBlockTrack=Whether this set of tracks can support more than one Station Block.
+entities.CommunalHelper/StationBlockTrack.attributes.description.dynamicRouting=This option will cause tracks with force forward/backward move mode to recalculate their route after any on/off toggle. Enables more complex automated junctions.
 entities.CommunalHelper/StationBlockTrack.attributes.description.horizontal=Whether the track should be handled as a horizontal one.
 entities.CommunalHelper/StationBlockTrack.attributes.description.trackSwitchState=The starting state of the track. "None" will make it unswitchable. "On" will make it turned on by defaul, and "Off" will make it turned off.
 entities.CommunalHelper/StationBlockTrack.attributes.description.moveMode=This option will determine the behaviour of blocks sitting on this track.\n\n\n- "None" : Changes nothing.\n\n- "ForwardOneWay" : Makes blocks only able to travel along this track if they're moving RIGHT or DOWN.\n\n- "BackwardOneWay" : Makes blocks only able to travel along this track if they're moving LEFT or UP.\n\n- "ForwardForce" : If any block can travel along this track in the RIGHT or DOWN direction, they will be force to. Behaviour from "ForwardOneWay" also applies here.\n\n- "BackwardForce" : If any block can travel along this track in the LEFT or UP direction, they will be force to. Behaviour from "BackwardOneWay" also applies here.
@@ -129,9 +131,10 @@ entities.CommunalHelper/StationBlockTrack.attributes.description.indicatorIncomi
 # Track Switch Box
 entities.CommunalHelper/TrackSwitchBox.placements.name.normal=Track Switch Box
 entities.CommunalHelper/TrackSwitchBox.placements.name.session=Track Switch Box (Session Switch)
-entities.CommunalHelper/TrackSwitchBox.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+entities.CommunalHelper/TrackSwitchBox.attributes.description.globalSwitch=Whether the level should keep the ON/OFF or direction state of the tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
 entities.CommunalHelper/TrackSwitchBox.attributes.description.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
 entities.CommunalHelper/TrackSwitchBox.attributes.description.bouncy=Whether the box should bounce away from the player when dashed into.
+entities.CommunalHelper/TrackSwitchBox.attributes.description.reverse=Whether the box should reverse one-way/force directions instead of toggling on/off
 
 # Custom Cassette Block
 entities.CommunalHelper/CustomCassetteBlock.placements.name.cassette_block_0=Custom Cassette Block (0 - Blue)
@@ -236,6 +239,14 @@ entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Rainbow=Make
 entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Rainbow=Makes these spikes rainbow.
 entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Rainbow=Makes these spikes rainbow.
 entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Rainbow=Makes these spikes rainbow.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.Reusable=Setting this to true will make the spike reusable and can be triggered multi-times.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.Reusable=Setting this to true will make the spike reusable and can be triggered multi-times.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.Reusable=Setting this to true will make the spike reusable and can be triggered multi-times.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.Reusable=Setting this to true will make the spike reusable and can be triggered multi-times.
+entities.CommunalHelper/TimedTriggerSpikesUp.attributes.description.ReusableTimer=The time the spike will cost to be reusable when "Reusable" is set to true.
+entities.CommunalHelper/TimedTriggerSpikesRight.attributes.description.ReusableTimer=The time the spike will cost to be reusable when "Reusable" is set to true.
+entities.CommunalHelper/TimedTriggerSpikesDown.attributes.description.ReusableTimer=The time the spike will cost to be reusable when "Reusable" is set to true.
+entities.CommunalHelper/TimedTriggerSpikesLeft.attributes.description.ReusableTimer=The time the spike will cost to be reusable when "Reusable" is set to true.
 
 # Connected Solid Extension
 entities.CommunalHelper/SolidExtension.placements.name.collidable=Connected Solid Extension
@@ -255,6 +266,8 @@ entities.CommunalHelper/DreamZipMover.attributes.description.permanent=Whether t
 entities.CommunalHelper/DreamZipMover.attributes.description.waiting=Whether this block requires the player to trigger it each node in the path.
 entities.CommunalHelper/DreamZipMover.attributes.description.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
 entities.CommunalHelper/DreamZipMover.attributes.description.quickDestroy=Makes this Dream Zip Mover shatter a little faster.
+entities.CommunalHelper/DreamZipMover.attributes.description.ropeColor=Overrides the default rope color. Also used for linking together zippers, if the `Linked` option is enabled.
+entities.CommunalHelper/DreamZipMover.attributes.description.linked=Whether the zipper is linked to other zippers with the same rope color.\nWhen a linked zipper gets activated, all other zippers linked to that rope color will be activated as well.
 
 # Connected Dream Block
 entities.CommunalHelper/ConnectedDreamBlock.placements.name.normal=Connected Dream Block (Normal)
@@ -504,10 +517,18 @@ entities.CommunalHelper/CoreModeMusicController.attributes.description.disable=I
 entities.CommunalHelper/CrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards)
 entities.CommunalHelper/CrystalHeart.attributes.description.removeCameraTriggers=Whether the heart should remove camera triggers onces its triggered.
 
-# Heart Gem Shards, Aventure Helper
+# Heart Gem Shards, Adventure Helper
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.placements.name.heart_gem_shards=Crystal Heart (Shards) [Adventure Helper]
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.color=Determines the glow and particle color of the heart as well as its tint if no sprite path is set.
 entities.CommunalHelper/AdventureHelper/CustomCrystalHeart.attributes.description.path=If set, determines what sprite will be used for the heart. The hitbox is not altered! If not set, the fake heart's white heart will be tinted.\nThe sprites of the default 4 hearts are treated differently and they will take the behavior of those. They are the following:\n* 'heartgem0' : A-side, Blue\n* 'heartgem1' : B-side, Red\n* 'heartgem2' : C-side, Gold\n* 'heartgem3' : Farewell, White
+
+# Hint Controller
+entities.CommunalHelper/HintController.placements.name.controller=Hint Controller
+entities.CommunalHelper/HintController.attributes.descrption.titleDialog=A key in Dialog/<language>.txt which is what will display in the Pause menu for this entry.\nBy default, uses `communalhelper_entities_hint_controller_menu` which points to "Hint."
+entities.CommunalHelper/HintController.attributes.description.dialogIds=A comma separated list of keys into Dialog/<language>.txt for each hint entry.
+entities.CommunalHelper/HintController.attributes.description.singleUses=A comma separated list of numbers, where 0 means the corresponding hint entry can be used multiple times, and anything else means it can only be used once.\nDefaults to empty string, which means all entries can be used multiple times.
+entities.CommunalHelper/HintController.attributes.description.selectorCounter=The name of the session counter that selects the current dialog.\nDefaults to empty string, which means that there is no counter and only the first hint will be available.
+entities.CommunalHelper/HintController.attributes.description.selectNextHint=If true, the selector defined in selectorCounter will be automatically incremented when a hint is shown. Defaults to false.
 
 # Input Flag Controller
 entities.CommunalHelper/InputFlagController.placements.name.controller=Input Flag Controller
@@ -567,6 +588,8 @@ entities.CommunalHelper/RailedMoveBlock.placements.name.vertical=Railed Move Blo
 entities.CommunalHelper/RailedMoveBlock.placements.name.both=Railed Move Block (Both)
 entities.CommunalHelper/RailedMoveBlock.attributes.description.steeringMode=Represents the way in which you can steer the block using the side buttons.\n\n- "Horizontal" will enable buttons on the left and right side of the block.\n- "Vertical" will enable one button at the top of the block.\n- "Both" will enable the two above.
 entities.CommunalHelper/RailedMoveBlock.attributes.description.speed=The maximum speed this block can go at.
+entities.CommunalHelper/RailedMoveBlock.attributes.description.easedVerticalMovement=If checked, diagonal inputs will more easily move the Railed Move Block vertically. This is used to make some moves easier on analog.
+entities.CommunalHelper/RailedMoveBlock.attributes.description.attachedAbove=If checked, attached entities will be rendered above the steering buttons. (Springs, spikes, etc.) 
 
 # Reset State Crystal
 entities.CommunalHelper/ResetStateCrystal.placements.name.reset_state_crystal=Reset State Crystal
@@ -730,12 +753,55 @@ entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalC
 entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9GoldenBoost=Used to indicate that we are in the golden room and boosting out. Prevents the check in finalCh9Boost, and always ends the level if finalCh9Boost is also set.
 entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalCh9Dialog=If finalCh9Boost is also set and doesn't go to golden room, this will trigger the Farewell ending dialog.
 
+# Glow Controller
+entities.CommunalHelper/GlowController.placements.name.controller=Glow Controller
+entities.CommunalHelper/GlowController.attributes.description.lightWhitelist=A comma-separated list of fully qualified entity class names to apply VertexLights to.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.lightBlacklist=A comma-separated list of fully qualified entity class names to remove VertexLights from.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.lightColor=The colour to use for the lights, as a hex representation.  Defaults to white (FFFFFF).
+entities.CommunalHelper/GlowController.attributes.description.lightAlpha=The opacity of the light, ranging from 0 (invisible) to 1 (opaque).  Defaults to 1.
+entities.CommunalHelper/GlowController.attributes.description.lightStartFade=The distance from the entity's position at which the light should begin to fade in.  Defaults to 24.
+entities.CommunalHelper/GlowController.attributes.description.lightEndFade=The distance from the entity's position at which the light should begin to fade out.  Defaults to 48.
+entities.CommunalHelper/GlowController.attributes.description.lightOffsetX=The X offset from the entity's position at which to place the VertexLight.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.lightOffsetY=The Y offset from the entity's position at which to place the VertexLight.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.bloomWhitelist=A comma-separated list of fully qualified entity class names to apply BloomPoints to.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.bloomBlacklist=A comma-separated list of fully qualified entity class names to remove BloomPoints and CustomBlooms from.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.bloomAlpha=The opacity of the bloom, ranging from 0 (invisible) to 1 (opaque).  Defaults to 1.
+entities.CommunalHelper/GlowController.attributes.description.bloomRadius=The radius of the bloom in pixels.  Defaults to 8.
+entities.CommunalHelper/GlowController.attributes.description.bloomOffsetX=The X offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.bloomOffsetY=The Y offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
+
+# Poison Gas
+entities.CommunalHelper/PoisonGas.placements.name.main=Poison Gas
+entities.CommunalHelper/PoisonGas.attributes.description.main=Ported from xolimono's Midway Contest map. Creates a region of poison gas where if they stay inside poison for more than 3 seconds, the player dies.
+entities.CommunalHelper/PoisonGas.attributes.description.radius=The radius of the poison gas region, in pixels. Defaults to 48.
+entities.CommunalHelper/PoisonGas.attributes.description.spritePath=The game will pick a random image from Graphics/Atlases/Gameplay/<spritePath>##.png to display the poison gas region.\nImages should be 24x24px.
+
 # [Strawberry Jam] Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]
 entities.CommunalHelper/SJ/BulletTimeController.placements.description.controller=Slows down time while the player has dashes.
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.timerate=The timerate that the game should run at while the player has dashes, as a multiplier of normal speed.
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.flag=If present, time will only be affected if this flag is set.
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.minDashes=The number of dashes required for time to be slowed down.
+
+# [Strawberry Jam] Dash Zip Mover
+entities.CommunalHelper/SJ/DashZipMover.placements.name.main=Dash Zip Mover [Strawberry Jam]
+entities.CommunalHelper/SJ/DashZipMover.placements.description.main=A zip mover that moves when the player dashes into it.
+
+# [Strawberry Jam] Flag Breaker Box 
+entities.CommunalHelper/SJ/FlagBreakerBox.placements.name.breaker_box=Flag Breaker Box [Strawberry Jam]
+entities.CommunalHelper/SJ/FlagBreakerBox.placements.description.breaker_box=A Lightning Breaker Box that sets a flag when broken instead of turning off lightning in that room.
+entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.flag=The flag to be set or unset
+entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.flipX=Whether the sprite should be vertically mirrored.
+entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.music=Change the currently playing music to this when box is broken.\nLeave empty to not change song.
+entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.music_progress=The new music progress once box is broken.\n-1 keeps the same progress.
+
+# [Strawberry Jam] Momentum Block
+entities.CommunalHelper/SJ/MomentumBlock.placements.name.momentum=Boost Block [Strawberry Jam]
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.speed=The speed magnitude to impart on the player.
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.speedFlagged=The speed magnitude to impart on the player when the given flag is set.
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.direction=The angle of the momentum imparted on the player.
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.directionFlagged=The angle of the momentum imparted on the player when the given flag is set.
+entities.CommunalHelper/SJ/MomentumBlock.attributes.description.flag=When this flag is set, the speedFlagged and directionFlagged attributes will be used instead of speed/direction.\nLeave blank for speed/direction to always be used.
 
 # [Strawberry Jam] Photosensitive Flag Controller
 entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.name.controller=Photosensitive Flag Controller [Strawberry Jam]
@@ -788,10 +854,22 @@ entities.CommunalHelper/SJ/WormholeBooster.placements.description.booster=Booste
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.deathColor=The color to use for the booster when it becomes deadly.
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.instantCamera=Whether the camera should transition instantly or not.
 
+# ---------------------- TRIGGERS --------------------------
+
 # [Strawberry Jam] Show Hitbox Trigger
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox [Strawberry Jam]
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.description.trigger=Shows the hitboxes of specified entities while inside.
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.attributes.description.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill
+
+# [Strawberry Jam] Oshiro Attack Time Trigger
+triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.name.trigger=Oshiro Faster Attack [Strawberry Jam]
+triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.description.trigger=Toggles Oshiro attacking in his B-side pattern (every 1.916 seconds) in A-side maps.
+
+# Player Visual Modifier Trigger
+triggers.CommunalHelper/PlayerVisualModTrigger.placements.name.trigger=Player Visual Modifier Trigger
+triggers.CommunalHelper/PlayerVisualModTrigger.placements.description.trigger=Creates a visual extension to the player regardless of skinmods.\nExpands on the Skateboard Trigger from Strawberry Jam.
+triggers.CommunalHelper/PlayerVisualModTrigger.attributes.description.revertOnLeave=If true, removes the visual modifier from the player to whatever it was before entering the trigger.
+triggers.CommunalHelper/PlayerVisualModTrigger.attributes.description.modifier=Selects a file relative to `$ModContent/Graphics/CommunalHelper/PlayerVisualModifiers/`\nto modify the player with. Check the CommunalHelper github wiki for notes on how to create your own modifier.
 
 # Dash State Trigger
 triggers.CommunalHelper/DashStateTrigger.placements.name.trigger=Dash State
@@ -812,8 +890,8 @@ triggers.CommunalHelper/SoundAreaTrigger.attributes.description.event=The name o
 triggers.CommunalHelper/TrackSwitchTrigger.placements.name.trigger=Track Switch
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.oneUse=Allows for only one use of this trigger.
 triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.flash=Whether the screen should flash and shake when triggered.
-triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.globalSwitch=Whether the level should keep the state of the ON/OFF tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
-triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF.)
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.globalSwitch=Whether the level should keep the ON/OFF or direction state of the tracks, even after reloading or dying. If unticked, the state will be reset at every reload.
+triggers.CommunalHelper/TrackSwitchTrigger.attributes.description.mode=Specific switch mode -> (ON & OFF: switch to their corresponding state - ALTERNATE: will switch between ON and OFF - REVERSE: will reverse directions on one-way/force move tracks.)
 
 # Cassette Music Fade Trigger
 triggers.CommunalHelper/CassetteMusicFadeTrigger.placements.name.trigger=Cassette Music Fade

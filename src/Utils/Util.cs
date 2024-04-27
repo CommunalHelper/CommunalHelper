@@ -57,6 +57,36 @@ public static class Util
         return CopyColor(Calc.HexToColor(str.Trim('#')), alpha);
     }
 
+    public static Color HexToColorWithAlphaNonPremultiplied(string hex)
+    {
+        int num = 0;
+        if (hex.Length >= 1 && hex[0] == '#')
+        {
+            num = 1;
+        }
+
+        switch (hex.Length - num)
+        {
+            case 6:
+            {
+                int r2 = Calc.HexToByte(hex[num++]) * 16 + Calc.HexToByte(hex[num++]);
+                int g = Calc.HexToByte(hex[num++]) * 16 + Calc.HexToByte(hex[num++]);
+                int b = Calc.HexToByte(hex[num++]) * 16 + Calc.HexToByte(hex[num++]);
+                return new Color(r2, g, b);
+            }
+            case 8:
+            {
+                int r = Calc.HexToByte(hex[num++]) * 16 + Calc.HexToByte(hex[num++]);
+                int g = Calc.HexToByte(hex[num++]) * 16 + Calc.HexToByte(hex[num++]);
+                int b = Calc.HexToByte(hex[num++]) * 16 + Calc.HexToByte(hex[num++]);
+                int alpha = Calc.HexToByte(hex[num++]) * 16 + Calc.HexToByte(hex[num++]);
+                return new Color(r, g, b) * (alpha / 255f); //don't set alpha, multiply the color, i really still don't understand this... :3c
+            }
+            default:
+                return Color.White;
+        }
+    }
+
     public static int ToInt(bool b)
     {
         return b ? 1 : 0;
