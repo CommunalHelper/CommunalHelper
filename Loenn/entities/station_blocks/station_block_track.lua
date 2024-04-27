@@ -44,6 +44,7 @@ for i, state in ipairs(switchStates) do
             trackSwitchState = state,
             moveMode = "None",
             multiBlockTrack = false,
+            dynamicRouting = false,
             indicator = true,
             indicatorColor = "008080",
             indicatorIncomingColor = "c92828"
@@ -59,6 +60,7 @@ for i, state in ipairs(switchStates) do
             trackSwitchState = state,
             moveMode = "None",
             multiBlockTrack = false,
+            dynamicRouting = false,
             indicator = true,
             indicatorColor = "008080",
             indicatorIncomingColor = "c92828"

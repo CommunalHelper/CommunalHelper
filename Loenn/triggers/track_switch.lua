@@ -1,4 +1,4 @@
-local modes = {"Alternate", "On", "Off"}
+local modes = {"Alternate", "On", "Off", "Reverse"}
 
 return {
     name = "CommunalHelper/TrackSwitchTrigger",
