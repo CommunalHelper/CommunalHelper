@@ -17,7 +17,7 @@ public class CassetteFallingBlock : CustomCassetteBlock
     }
 
     public CassetteFallingBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior"), data.HexColorNullable("customColor"))
+        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.HexColorNullable("customColor"))
     {
     }
 
