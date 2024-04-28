@@ -41,20 +41,6 @@ communalHelper.cassetteBlockHexColors = {
     "38e04e"
 }
 
-local function getSearchPredicateOld(entity)
-    return function(target)
-        return entity._name == target._name and entity.index == target.index
-    end
-end
-
-local function getSearchPredicateNew(entity)
-    return function(target)
-        return entity._name == target._name
-            and entity.index == target.index
-            and entity.customColor == target.customColor
-    end
-end
-
 local function getTileSprite(entity, x, y, frame, color, depth, rectangles)
     local hasAdjacent = connectedEntities.hasAdjacent
 
@@ -121,7 +107,9 @@ end
 
 function communalHelper.getCustomCassetteBlockSprites(room, entity, lonely, oldBehavior)
     local relevantBlocks = (lonely and not oldBehavior) and { entity } or
-        utils.filter(oldBehavior and getSearchPredicateOld(entity) or getSearchPredicateNew(entity), room.entities)
+        utils.filter( function(target) 
+            return entity._name == target._name and entity.index == target.index and (not oldBehavior or entity.customColor == target.customColor) 
+        end, room.entities)
 
     connectedEntities.appendIfMissing(relevantBlocks, entity)
 
