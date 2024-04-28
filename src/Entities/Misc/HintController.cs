@@ -107,7 +107,7 @@ public class HintController : Entity
 
     private static void Level_OnCreatePauseMenuButtons(Level level, TextMenu menu, bool minimal)
     {
-        int retryIndex = menu.GetItems().FindIndex(item =>
+        int retryIndex = menu.Items.FindIndex(item =>
             item.GetType() == typeof(TextMenu.Button) && ((TextMenu.Button) item).Label == Dialog.Clean("menu_pause_retry"));
 
         if (retryIndex < 0)

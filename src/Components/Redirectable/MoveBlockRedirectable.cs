@@ -16,16 +16,16 @@ public class MoveBlockRedirectable : Redirectable
     // Pre-initialize this with some known types
     private static readonly Dictionary<Type, FieldInfo> reflectionCache = new()
     {
-        { typeof(MoveBlock), typeof(MoveBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this") },
-        { typeof(DreamMoveBlock), typeof(DreamMoveBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this") },
-        { typeof(CassetteMoveBlock), typeof(CassetteMoveBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this") },
-        { typeof(MoveSwapBlock), typeof(MoveSwapBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this") },
+        { typeof(MoveBlock), typeof(MoveBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this")! },
+        { typeof(DreamMoveBlock), typeof(DreamMoveBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this")! },
+        { typeof(CassetteMoveBlock), typeof(CassetteMoveBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this")! },
+        { typeof(MoveSwapBlock), typeof(MoveSwapBlock).GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>")).GetField("<>4__this")! },
     };
 
     private float initialAngle;
     private Directions initialDirection;
 
-    public MoveBlockRedirectable(DynamicData Data, Func<bool> canSteer = null, Func<Directions> get_Direction = null, Action<Directions> set_Direction = null) : base(Data)
+    public MoveBlockRedirectable(DynamicData Data, Func<bool>? canSteer = null, Func<Directions>? get_Direction = null, Action<Directions>? set_Direction = null) : base(Data)
     {
         IsRedirectable = !(canSteer?.Invoke() ?? Data.Get<bool>("canSteer"));
         Get_Direction = get_Direction;
@@ -100,20 +100,20 @@ public class MoveBlockRedirectable : Redirectable
     public static Action<Coroutine> GetControllerDelegate(DynamicData targetData, int jumpPoint)
     {
         Type t_Controller;
-        if (!reflectionCache.TryGetValue(targetData.TargetType, out FieldInfo f_Controller_this))
+        if (!reflectionCache.TryGetValue(targetData.TargetType, out FieldInfo? f_Controller_this))
         {
             t_Controller = targetData.TargetType.GetNestedTypes(BindingFlags.NonPublic).First(t => t.Name.StartsWith("<Controller>"));
             f_Controller_this = t_Controller.GetField("<>4__this", BindingFlags.Public | BindingFlags.Instance);
-            reflectionCache[targetData.TargetType] = f_Controller_this;
+            reflectionCache[targetData.TargetType] = f_Controller_this!;
         }
         else
-            t_Controller = f_Controller_this.DeclaringType;
+            t_Controller = f_Controller_this.DeclaringType!;
 
         return orig =>
         {
-            IEnumerator controller;
-            orig.Replace(controller = (IEnumerator) Activator.CreateInstance(t_Controller, jumpPoint));
-            f_Controller_this.SetValue(controller, targetData.Target);
+            var controller = Activator.CreateInstance(t_Controller, jumpPoint);
+            orig.Replace(controller as IEnumerator);
+            f_Controller_this?.SetValue(controller, targetData.Target);
         };
     }
 

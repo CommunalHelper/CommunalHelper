@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
-using Celeste.Mod.CommunalHelper.Triggers;
 using System.Collections.Generic;
 using static Celeste.Mod.CommunalHelper.Entities.StationBlockTrack;
 

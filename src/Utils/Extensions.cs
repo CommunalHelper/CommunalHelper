@@ -608,8 +608,10 @@ public static class Extensions
             if (Everest.Content.Map.TryGetValue(sourcePath, out ModAsset asset))
             {
                 VirtualTexture virtualTexture = VirtualContent.CreateTexture(asset);
-                MTexture source = new(virtualTexture);
-                source.SetAtlas(atlas);
+                MTexture source = new(virtualTexture)
+                {
+                    Atlas = atlas
+                };
                 atlas.Sources.Add(virtualTexture);
 
                 foreach (XmlElement img in tex)

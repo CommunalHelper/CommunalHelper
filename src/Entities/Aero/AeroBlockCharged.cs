@@ -129,8 +129,7 @@ public class AeroBlockCharged : AeroBlockFlying
     private readonly bool loop;
 
     private bool alive = true;
-    private bool SpirialisBug = false;
-    private Ease.Easer easer;
+    private readonly bool SpirialisBug = false;
 
     private Button leftButton, rightButton, topButton;
 

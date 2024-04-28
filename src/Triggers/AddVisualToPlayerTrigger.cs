@@ -1,13 +1,8 @@
-﻿using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
+﻿using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Celeste.Mod.CommunalHelper.Triggers;

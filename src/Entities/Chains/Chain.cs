@@ -1,6 +1,5 @@
 ﻿using FMOD.Studio;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
