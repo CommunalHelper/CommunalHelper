@@ -232,7 +232,7 @@ public class CassetteZipMover : CustomCassetteBlock
     }
 
     public CassetteZipMover(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.NodesWithPosition(offset), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior"),
+        : this(data.Position + offset, id, data.Width, data.Height, data.NodesWithPosition(offset), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true),
               data.Bool("noReturn", false),
               data.Bool("permanent"),
               data.Bool("waiting"),
