@@ -60,10 +60,10 @@ public class LaserEmitter : Entity
     }
 
     private static void setLaserSyncFlag(string colorChannel, bool value) =>
-        (Engine.Scene as Level)?.Session.SetFlag($"CHZipMoverSyncLaser:{colorChannel.ToLower()}", value);
+        (Engine.Scene as Level)?.Session.SetFlag($"ZipMoverSyncLaser:{colorChannel.ToLower()}", value);
 
     private static bool getLaserSyncFlag(string colorChannel) =>
-        (Engine.Scene as Level)?.Session.GetFlag($"CHZipMoverSyncLaser:{colorChannel.ToLower()}") ?? false;
+        (Engine.Scene as Level)?.Session.GetFlag($"ZipMoverSyncLaser:{colorChannel.ToLower()}") ?? false;
 
     public LaserEmitter(EntityData data, Vector2 offset)
         : base(data.Position + offset)
