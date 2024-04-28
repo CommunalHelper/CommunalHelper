@@ -3,6 +3,7 @@ using MonoMod.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Mono.Cecil.Cil;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -76,10 +77,28 @@ public class CustomCassetteBlock : CassetteBlock
 
     protected DynamicData blockData;
 
-    public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.HexColorNullable("customColor")) { }
+    // If true, this cassette block will not connect to any others
+    private bool lonely = false;
 
-    public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool dynamicHitbox = false, Color? overrideColor = null)
+    private bool oldConnectionBehavior = false;
+
+    protected bool Lonely
+    {
+        get
+        {
+            return !oldConnectionBehavior && lonely;
+        }
+
+        set
+        {
+            lonely = value;
+        }
+    }
+
+    public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
+        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.Bool("oldConnectionBehavior"), false, data.HexColorNullable("customColor")) { }
+
+    public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool lonely, bool oldConnectionBehavior, bool dynamicHitbox = false, Color? overrideColor = null)
         : base(position, id, width, height, index, tempo)
     {
         blockData = new(typeof(CassetteBlock), this);
@@ -98,6 +117,9 @@ public class CustomCassetteBlock : CassetteBlock
             hitboxes[1] = new Hitbox(Collider.Width, Collider.Height - 1);
             hitboxes[2] = Collider as Hitbox;
         }
+
+        this.oldConnectionBehavior = oldConnectionBehavior;
+        Lonely = lonely;
     }
 
     public override void Update()
@@ -191,6 +213,8 @@ public class CustomCassetteBlock : CassetteBlock
         On.Celeste.CassetteBlock.ShiftSize += CassetteBlock_ShiftSize;
         On.Celeste.CassetteBlock.UpdateVisualState += CassetteBlock_UpdateVisualState;
         IL.Celeste.CassetteBlock.Update += CassetteBlock_Update;
+        On.Celeste.CassetteBlock.FindInGroup += CassetteBlock_FindInGroup;
+        On.Celeste.CassetteBlock.CheckForSame += CassetteBlock_CheckForSame;
         On.Celeste.Level.LoadLevel += Level_LoadLevel;
         Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
 
@@ -203,6 +227,8 @@ public class CustomCassetteBlock : CassetteBlock
         On.Celeste.CassetteBlock.ShiftSize -= CassetteBlock_ShiftSize;
         On.Celeste.CassetteBlock.UpdateVisualState -= CassetteBlock_UpdateVisualState;
         IL.Celeste.CassetteBlock.Update -= CassetteBlock_Update;
+        On.Celeste.CassetteBlock.FindInGroup -= CassetteBlock_FindInGroup;
+        On.Celeste.CassetteBlock.CheckForSame -= CassetteBlock_CheckForSame;
         On.Celeste.Level.LoadLevel -= Level_LoadLevel;
         Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
 
@@ -256,6 +282,74 @@ public class CustomCassetteBlock : CassetteBlock
             group.RemoveAll(block => block.Scene is null); // Assume that the block has been removed from the scene.
             return group;
         });
+    }
+
+    private static void CassetteBlock_FindInGroup(On.Celeste.CassetteBlock.orig_FindInGroup orig, CassetteBlock self, CassetteBlock block)
+    {
+        DynamicData selfData = DynamicData.For(self);
+
+        CustomCassetteBlock selfBlock = self as CustomCassetteBlock;
+        bool selfLonely = selfBlock != null && selfBlock.Lonely;
+        bool selfOldConnectionBehavior = selfBlock != null && selfBlock.oldConnectionBehavior;
+        if (selfLonely)
+            return;
+
+        foreach (CassetteBlock entity in self.Scene.Tracker.GetEntities<CassetteBlock>())
+        {
+            DynamicData entityData = DynamicData.For(entity);
+
+            CustomCassetteBlock entityBlock = entity as CustomCassetteBlock;
+            bool entityLonely = entityBlock != null && entityBlock.Lonely;
+
+            bool oldBehaviorPredicate = entity != self
+                && entity != block
+                && entity.Index == self.Index
+                && (entity.CollideRect(new Rectangle((int) block.X - 1, (int) block.Y, (int) block.Width + 2, (int) block.Height)) || entity.CollideRect(new Rectangle((int) block.X, (int) block.Y - 1, (int) block.Width, (int) block.Height + 2)))
+                && !selfData.Get<List<CassetteBlock>>("group").Contains(entity);
+            bool newBehaviorPredicate = oldBehaviorPredicate
+                && entityData.Get<Color>("color") == selfData.Get<Color>("color")
+                && !entityLonely;
+
+            if (selfOldConnectionBehavior ? oldBehaviorPredicate : newBehaviorPredicate)
+            {
+                selfData.Get<List<CassetteBlock>>("group").Add(entity);
+                selfData.Invoke("FindInGroup", [entity]);
+                entityData.Set("group", selfData.Get<List<CassetteBlock>>("group"));
+            }
+        }
+    }
+
+    private static bool CassetteBlock_CheckForSame(On.Celeste.CassetteBlock.orig_CheckForSame orig, CassetteBlock self, float x, float y)
+    {
+        DynamicData selfData = DynamicData.For(self);
+
+        CustomCassetteBlock selfBlock = self as CustomCassetteBlock;
+        bool selfLonely = selfBlock != null && selfBlock.Lonely;
+        bool selfOldConnectionBehavior = selfBlock != null && selfBlock.oldConnectionBehavior;
+
+        foreach (CassetteBlock entity in self.Scene.Tracker.GetEntities<CassetteBlock>())
+        {
+            DynamicData entityData = DynamicData.For(entity);
+
+            CustomCassetteBlock entityBlock = entity as CustomCassetteBlock;
+            bool entityLonely = entityBlock != null && entityBlock.Lonely;
+
+            bool oldBehaviorPredicate = entity.Index == self.Index
+                && entity.Collider.Collide(new Rectangle((int) x, (int) y, 8, 8));
+            bool newBehaviorPredicate = oldBehaviorPredicate
+                && entityData.Get<Color>("color") == selfData.Get<Color>("color")
+                && !entityLonely;
+
+            if (selfLonely)
+            {
+                return self.Collider.Collide(new Rectangle((int) x, (int) y, 8, 8));
+            }
+            else if (selfOldConnectionBehavior ? oldBehaviorPredicate : newBehaviorPredicate)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void Level_LoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes introType, bool isFromLoader = false)
