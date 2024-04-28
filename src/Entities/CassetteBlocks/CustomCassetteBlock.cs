@@ -96,7 +96,7 @@ public class CustomCassetteBlock : CassetteBlock
     }
 
     public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.Bool("oldConnectionBehavior"), false, data.HexColorNullable("customColor")) { }
+        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.Bool("oldConnectionBehavior", true), false, data.HexColorNullable("customColor")) { }
 
     public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool lonely, bool oldConnectionBehavior, bool dynamicHitbox = false, Color? overrideColor = null)
         : base(position, id, width, height, index, tempo)
