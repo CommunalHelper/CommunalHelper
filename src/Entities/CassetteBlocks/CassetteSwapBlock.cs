@@ -108,7 +108,7 @@ public class CassetteSwapBlock : CustomCassetteBlock
     }
 
     public CassetteSwapBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior"), data.Bool("noReturn", false), data.HexColorNullable("customColor"))
+        : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.Bool("noReturn", false), data.HexColorNullable("customColor"))
     {
     }
 
