@@ -144,6 +144,7 @@ entities.CommunalHelper/CustomCassetteBlock.placements.name.cassette_block_3=Cus
 entities.CommunalHelper/CustomCassetteBlock.attributes.description.index=The color of the Custom Cassette Block.
 entities.CommunalHelper/CustomCassetteBlock.attributes.description.tempo=The tempo of the cassette music in the room.
 entities.CommunalHelper/CustomCassetteBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.oldConnectionBehavior=Revert back to the old texture connection behavior (cassette entities connect to anything around them that is on the same index).\nHas strange interactions if blocks with this property touch blocks without.
 
 # Cassette Falling Block
 entities.CommunalHelper/CassetteFallingBlock.placements.name.cassette_block_0=Cassette Falling Block (0 - Blue)
@@ -153,6 +154,7 @@ entities.CommunalHelper/CassetteFallingBlock.placements.name.cassette_block_3=Ca
 entities.CommunalHelper/CassetteFallingBlock.attributes.description.index=The color of the Cassette Falling Block.
 entities.CommunalHelper/CassetteFallingBlock.attributes.description.tempo=The tempo of the cassette music in the room.
 entities.CommunalHelper/CassetteFallingBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.oldConnectionBehavior=Revert back to the old texture connection behavior (cassette entities connect to anything around them that is on the same index).\nHas strange interactions if blocks with this property touch blocks without.
 
 # Cassette Zip Mover
 entities.CommunalHelper/CassetteZipMover.placements.name.cassette_block_0=Cassette Zip Mover (0 - Blue)
@@ -166,6 +168,7 @@ entities.CommunalHelper/CassetteZipMover.attributes.description.permanent=Whethe
 entities.CommunalHelper/CassetteZipMover.attributes.description.waiting=Whether this block requires the player to trigger it each node in the path.
 entities.CommunalHelper/CassetteZipMover.attributes.description.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
 entities.CommunalHelper/CassetteZipMover.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.oldConnectionBehavior=Revert back to the old texture connection behavior (cassette entities connect to anything around them that is on the same index).\nHas strange interactions if blocks with this property touch blocks without.
 
 # Cassette Move Block
 entities.CommunalHelper/CassetteMoveBlock.placements.name.cassette_block_0=Cassette Move Block (0 - Blue)
@@ -177,6 +180,7 @@ entities.CommunalHelper/CassetteMoveBlock.attributes.description.moveSpeed=The s
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.index=The color of the Cassette Move Block.
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.tempo=The tempo of the cassette music in the room.
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.oldConnectionBehavior=Revert back to the old texture connection behavior (cassette entities connect to anything around them that is on the same index).\nHas strange interactions if blocks with this property touch blocks without.
 
 # Cassette Swap Block
 entities.CommunalHelper/CassetteSwapBlock.placements.name.cassette_block_0=Cassette Swap Block (0 - Blue)
@@ -187,6 +191,7 @@ entities.CommunalHelper/CassetteSwapBlock.attributes.description.noReturn=Whethe
 entities.CommunalHelper/CassetteSwapBlock.attributes.description.index=The color of the Cassette Swap Block.
 entities.CommunalHelper/CassetteSwapBlock.attributes.description.tempo=The tempo of the cassette music in the room.
 entities.CommunalHelper/CassetteSwapBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.oldConnectionBehavior=Revert back to the old texture connection behavior (cassette entities connect to anything around them that is on the same index).\nHas strange interactions if blocks with this property touch blocks without.
 
 # Cassette Jump Fix Controller
 entities.CommunalHelper/CassetteJumpFixController.placements.name.controller=Cassette Jump Fix Controller

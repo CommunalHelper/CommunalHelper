@@ -8,15 +8,15 @@ local colorNames = communalHelper.cassetteBlockColorNames
 local colors = communalHelper.cassetteBlockHexColors
 
 local ropeColors = {
-    {110 / 255, 189 / 255, 245 / 255, 1.0},
-    {194 / 255, 116 / 255, 171 / 255, 1.0},
-    {227 / 255, 214 / 255, 148 / 255, 1.0},
-    {128 / 255, 224 / 255, 141 / 255, 1.0}
+    { 110 / 255, 189 / 255, 245 / 255, 1.0 },
+    { 194 / 255, 116 / 255, 171 / 255, 1.0 },
+    { 227 / 255, 214 / 255, 148 / 255, 1.0 },
+    { 128 / 255, 224 / 255, 141 / 255, 1.0 }
 }
 
 cassetteZipMover.name = "CommunalHelper/CassetteZipMover"
-cassetteZipMover.minimumSize = {16, 16}
-cassetteZipMover.nodeLimits = {1, -1}
+cassetteZipMover.minimumSize = { 16, 16 }
+cassetteZipMover.nodeLimits = { 1, -1 }
 cassetteZipMover.nodeVisibility = "never"
 cassetteZipMover.fieldInformation = {
     index = {
@@ -45,13 +45,14 @@ for i = 1, 4 do
             waiting = false,
             ticking = false,
             noReturn = false,
-            customColor = colors[i]
+            customColor = colors[i],
+            oldConnectionBehavior = false,
         }
     }
 end
 
 function cassetteZipMover.sprite(room, entity)
-    local sprites = communalHelper.getCustomCassetteBlockSprites(room, entity)
+    local sprites = communalHelper.getCustomCassetteBlockSprites(room, entity, true, entity.oldConnectionBehavior)
 
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 16, entity.height or 16
@@ -63,8 +64,9 @@ function cassetteZipMover.sprite(room, entity)
     local i = entity.index or 0
     local ropeColor = (entity.customColor ~= "" and color) or ropeColors[i + 1] or ropeColors[1]
 
-    local nodes = entity.nodes or {{x = 0, y = 0}}
-    local nodeSprites = communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, "objects/CommunalHelper/cassetteZipMover/cog", color, ropeColor)
+    local nodes = entity.nodes or { { x = 0, y = 0 } }
+    local nodeSprites = communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes,
+        "objects/CommunalHelper/cassetteZipMover/cog", color, ropeColor)
     for _, sprite in ipairs(nodeSprites) do
         table.insert(sprites, sprite)
     end
@@ -88,7 +90,7 @@ function cassetteZipMover.selection(room, entity)
 
     local mainRectangle = utils.rectangle(x, y, width, height)
 
-    local nodes = entity.nodes or {{x = 0, y = 0}}
+    local nodes = entity.nodes or { { x = 0, y = 0 } }
     local nodeRectangles = {}
     for _, node in ipairs(nodes) do
         local centerNodeX, centerNodeY = node.x + halfWidth, node.y + halfHeight

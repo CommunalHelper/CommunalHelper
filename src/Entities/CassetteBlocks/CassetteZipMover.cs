@@ -215,8 +215,8 @@ public class CassetteZipMover : CustomCassetteBlock
 
     private static MTexture cog, cogPressed, cogWhite;
 
-    public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] nodes, int index, float tempo, bool noReturn, bool perm, bool waits, bool ticking, Color? overrideColor)
-        : base(position, id, width, height, index, tempo, false, overrideColor)
+    public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] nodes, int index, float tempo, bool oldConnectionBehavior, bool noReturn, bool perm, bool waits, bool ticking, Color? overrideColor)
+        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor)
     {
         this.noReturn = noReturn;
         permanent = perm;
@@ -232,7 +232,7 @@ public class CassetteZipMover : CustomCassetteBlock
     }
 
     public CassetteZipMover(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.NodesWithPosition(offset), data.Int("index"), data.Float("tempo", 1f),
+        : this(data.Position + offset, id, data.Width, data.Height, data.NodesWithPosition(offset), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true),
               data.Bool("noReturn", false),
               data.Bool("permanent"),
               data.Bool("waiting"),

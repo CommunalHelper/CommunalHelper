@@ -11,9 +11,9 @@ local communalHelper = {}
 
 function communalHelper.hexToColor(hex, default)
     local success, r, g, b, a = utils.parseHexColor(hex)
-    local color = default or {1.0, 1.0, 1.0, 1.0}
+    local color = default or { 1.0, 1.0, 1.0, 1.0 }
     if success then
-        color = {r, g, b, a}
+        color = { r, g, b, a }
     end
     return color
 end
@@ -21,10 +21,10 @@ end
 -- cassette blocks
 
 communalHelper.cassetteBlockColors = {
-    {73 / 255, 170 / 255, 240 / 255},
-    {240 / 255, 73 / 255, 190 / 255},
-    {252 / 255, 220 / 255, 58 / 255},
-    {56 / 255, 224 / 255, 78 / 255}
+    { 73 / 255,  170 / 255, 240 / 255 },
+    { 240 / 255, 73 / 255,  190 / 255 },
+    { 252 / 255, 220 / 255, 58 / 255 },
+    { 56 / 255,  224 / 255, 78 / 255 }
 }
 
 communalHelper.cassetteBlockColorNames = {
@@ -40,12 +40,6 @@ communalHelper.cassetteBlockHexColors = {
     "fcdc3a",
     "38e04e"
 }
-
-local function getSearchPredicate(entity)
-    return function(target)
-        return entity._name == target._name and entity.index == target.index
-    end
-end
 
 local function getTileSprite(entity, x, y, frame, color, depth, rectangles)
     local hasAdjacent = connectedEntities.hasAdjacent
@@ -107,11 +101,15 @@ end
 
 function communalHelper.getCustomCassetteBlockColor(entity)
     local index = entity.index or 0
-    return (entity.customColor ~= "" and communalHelper.hexToColor(entity.customColor)) or communalHelper.cassetteBlockColors[index + 1] or communalHelper.cassetteBlockColors[1]
+    return (entity.customColor ~= "" and communalHelper.hexToColor(entity.customColor)) or
+        communalHelper.cassetteBlockColors[index + 1] or communalHelper.cassetteBlockColors[1]
 end
 
-function communalHelper.getCustomCassetteBlockSprites(room, entity)
-    local relevantBlocks = utils.filter(getSearchPredicate(entity), room.entities)
+function communalHelper.getCustomCassetteBlockSprites(room, entity, lonely, oldBehavior)
+    local relevantBlocks = (lonely and not oldBehavior) and { entity } or
+        utils.filter( function(target) 
+            return entity._name == target._name and entity.index == target.index and (not oldBehavior or entity.customColor == target.customColor) 
+        end, room.entities)
 
     connectedEntities.appendIfMissing(relevantBlocks, entity)
 
@@ -148,7 +146,7 @@ local function addNodeSprites(sprites, cogTexture, cogColor, ropeColor, centerX,
     nodeCogSprite:setPosition(centerNodeX, centerNodeY)
     nodeCogSprite:setJustification(0.5, 0.5)
 
-    local points = {centerX, centerY, centerNodeX, centerNodeY}
+    local points = { centerX, centerY, centerNodeX, centerNodeY }
     local leftLine = drawableLine.fromPoints(points, ropeColor, 1)
     local rightLine = drawableLine.fromPoints(points, ropeColor, 1)
 
@@ -205,7 +203,7 @@ function communalHelper.getTrailSprites(x, y, nodeX, nodeY, width, height, trail
     local frameSprites = frameNinePatch:getDrawableSprite()
 
     local depth = trailDepth or 8999
-    local color = trailColor or {1, 1, 1, 1}
+    local color = trailColor or { 1, 1, 1, 1 }
     for _, sprite in ipairs(frameSprites) do
         sprite.depth = depth
         sprite:setColor(color)
@@ -224,12 +222,12 @@ end
 
 -- dream blocks
 
-local featherColor = {0, 0.5, 0.5}
-local oneUseColor = {178 / 255, 34 / 255, 34 / 255}
+local featherColor = { 0, 0.5, 0.5 }
+local oneUseColor = { 178 / 255, 34 / 255, 34 / 255 }
 
 function communalHelper.getCustomDreamBlockSprites(x, y, width, height, feather, oneUse)
-    local fill = feather and featherColor or {0, 0, 0}
-    local border = oneUse and oneUseColor or {1, 1, 1}
+    local fill = feather and featherColor or { 0, 0, 0 }
+    local border = oneUse and oneUseColor or { 1, 1, 1 }
 
     local rectangleSprite = drawableRectangle.fromRectangle("bordered", x, y, width, height, fill, border)
     rectangleSprite.depth = 0
@@ -270,10 +268,12 @@ function communalHelper.getPanelSprite(entity, color)
     local right = orientation == "Right"
     local vertical = left or right
 
-    local rect = drawableRectangle.fromRectangle("fill", x, y, vertical and 8 or width, vertical and height or 8, color or {1.0, 0.5, 0.0, 0.4}):getDrawableSprite()
-    local border = drawableRectangle.fromRectangle("fill", right and (x + 7) or x, down and (y + 7) or y, vertical and 1 or width, vertical and height or 1):getDrawableSprite()
+    local rect = drawableRectangle.fromRectangle("fill", x, y, vertical and 8 or width, vertical and height or 8,
+        color or { 1.0, 0.5, 0.0, 0.4 }):getDrawableSprite()
+    local border = drawableRectangle.fromRectangle("fill", right and (x + 7) or x, down and (y + 7) or y,
+        vertical and 1 or width, vertical and height or 1):getDrawableSprite()
 
-    return {rect, border}
+    return { rect, border }
 end
 
 function communalHelper.fixAndGetPanelRectangle(entity)
@@ -323,13 +323,15 @@ function communalHelper.getCubicCurve(start, stop, controlA, controlB, resolutio
 
     return res
 end
-function communalHelper.lerp(a,b,t) return a * (1-t) + b * t end
-function communalHelper.colorLerp(col1, col2, lerp) 
+
+function communalHelper.lerp(a, b, t) return a * (1 - t) + b * t end
+
+function communalHelper.colorLerp(col1, col2, lerp)
     local ret = {
-        communalHelper.lerp(col1.r or col1[1] or 1,col2.r or col2[1] or 1,lerp),
-        communalHelper.lerp(col1.g or col1[2] or 1,col2.g or col2[2] or 1,lerp),
-        communalHelper.lerp(col1.b or col1[3] or 1,col2.b or col2[3] or 1,lerp),
-        communalHelper.lerp(col1.a or col1[4] or 1,col2.a or col2[4] or 1,lerp)
+        communalHelper.lerp(col1.r or col1[1] or 1, col2.r or col2[1] or 1, lerp),
+        communalHelper.lerp(col1.g or col1[2] or 1, col2.g or col2[2] or 1, lerp),
+        communalHelper.lerp(col1.b or col1[3] or 1, col2.b or col2[3] or 1, lerp),
+        communalHelper.lerp(col1.a or col1[4] or 1, col2.a or col2[4] or 1, lerp)
     }
     ret.r = ret[1]
     ret.g = ret[2]
