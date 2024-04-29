@@ -1,3 +1,8 @@
+--1.20.1 (29/04/2024)--
+* Resolved Laser Emitters breaking SJ hook @Viv-0
+* Connected Dream Block particles are now culled, reducing lag @Viv-0
+* Improve Connected Cassette Block rendering (with legacy option) @Viv-0, @aonkeeper4
+
 --1.20.0 (28/04/2024)--
 * Added 'easing' attribute to Aero Blocks. @Viv-0
 * Added 'reusable' attribute to Timed Trigger Spikes. @Saplonily
