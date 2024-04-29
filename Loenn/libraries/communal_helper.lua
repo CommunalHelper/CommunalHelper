@@ -107,8 +107,10 @@ end
 
 function communalHelper.getCustomCassetteBlockSprites(room, entity, lonely, oldBehavior)
     local relevantBlocks = (lonely and not oldBehavior) and { entity } or
-        utils.filter( function(target) 
-            return entity._name == target._name and entity.index == target.index and (not oldBehavior or entity.customColor == target.customColor) 
+        utils.filter(function(target)
+            return entity._name == target._name
+                and entity.index == target.index
+                and (oldBehavior or entity.customColor == target.customColor)
         end, room.entities)
 
     connectedEntities.appendIfMissing(relevantBlocks, entity)
