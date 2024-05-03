@@ -286,6 +286,12 @@ public class CustomCassetteBlock : CassetteBlock
 
     private static void CassetteBlock_FindInGroup(On.Celeste.CassetteBlock.orig_FindInGroup orig, CassetteBlock self, CassetteBlock block)
     {
+        if (self is not CustomCassetteBlock)
+        {
+            orig(self, block);
+            return;
+        }
+
         DynamicData selfData = DynamicData.For(self);
 
         CustomCassetteBlock selfBlock = self as CustomCassetteBlock;
@@ -321,6 +327,11 @@ public class CustomCassetteBlock : CassetteBlock
 
     private static bool CassetteBlock_CheckForSame(On.Celeste.CassetteBlock.orig_CheckForSame orig, CassetteBlock self, float x, float y)
     {
+        if (self is not CustomCassetteBlock)
+        {
+            return orig(self, x, y);
+        }
+
         DynamicData selfData = DynamicData.For(self);
 
         CustomCassetteBlock selfBlock = self as CustomCassetteBlock;
