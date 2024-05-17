@@ -779,6 +779,9 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     public override void Render()
     {
+        if (!IsGroupVisible())
+            return;
+        
         Vector2 position = Position;
         Position += Shake;
 

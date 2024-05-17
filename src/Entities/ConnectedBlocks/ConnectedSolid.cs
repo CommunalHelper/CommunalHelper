@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Imports;
+using Celeste.Mod.Helpers;
 using MonoMod.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,14 @@ public class ConnectedSolid : Solid
 
     public Vector2 GroupBoundsMin, GroupBoundsMax;
     public Vector2 GroupCenter => Position + GroupOffset + ((GroupBoundsMax - GroupBoundsMin) / 2f);
+
+    public Rectangle GetGroupBoundsAt(Vector2 position)
+    {
+        Vector2 pos = position + GroupOffset + Shake;
+        Vector2 size = GroupBoundsMax - GroupBoundsMin;
+            
+        return new Rectangle((int) pos.X, (int) pos.Y, (int)size.X, (int)size.Y);
+    }
 
     // AllColliders contains colliders that didn't have a hitbox.
     public Hitbox[] Colliders, AllColliders;
@@ -511,5 +520,13 @@ public class ConnectedSolid : Solid
         riders.Clear();
 
         GravityHelper.EndOverride?.Invoke();
+    }
+    
+    public bool IsGroupVisible() => IsGroupVisibleAt(Position);
+    
+    public bool IsGroupVisibleAt(Vector2 pos)
+    {
+        Rectangle bounds = GetGroupBoundsAt(pos);
+        return CullHelper.IsRectangleVisible(bounds.X, bounds.Y, bounds.Width, bounds.Height);
     }
 }

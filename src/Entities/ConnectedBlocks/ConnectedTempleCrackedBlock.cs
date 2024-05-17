@@ -200,6 +200,9 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
 
     public override void Render()
     {
+        if (!IsGroupVisible())
+            return;
+        
         if (!autoTiled)
         {
             AutoTile(texture);
