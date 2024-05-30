@@ -243,6 +243,8 @@ public class CommunalHelperModule : EverestModule
          * So, we need to call RegisterModSupportBlacklist, which will discard hooks implemented in Gravity Helper.
          */
         Imports.GravityHelper.RegisterModSupportBlacklist?.Invoke("CommunalHelper");
+
+        AeroBlockCharged.SpirialisHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata() { Name = "SpirialisHelper", Version = new Version(1, 0, 8) });
     }
 
     public override void LoadContent(bool firstLoad)

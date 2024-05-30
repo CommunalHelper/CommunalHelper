@@ -31,7 +31,8 @@ aeroBlockCharged.placements = {
             loop = false,
             activeColor = "4BC0C8",
             inactiveColor = "FF6347",
-            easing = "CubeIn"
+            easing = "CubeIn",
+            SpirialisBug = false
         }
     }
 }

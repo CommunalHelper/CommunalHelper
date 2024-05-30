@@ -8,6 +8,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [Tracked]
 public class AeroBlockCharged : AeroBlockFlying
 {
+    internal static bool SpirialisHelperLoaded = false;
     private static FieldInfo player_varJumpSpeed = typeof(Player).GetField("varJumpSpeed", BindingFlags.NonPublic | BindingFlags.Instance);
 
     [Flags]
@@ -345,25 +346,29 @@ public class AeroBlockCharged : AeroBlockFlying
     private static Vector2 ExcessBoost(Actor actor)
     {
         Vector2 liftSpeed = actor.LiftSpeed;
-        float num = Math.Abs(liftSpeed.X);
+        float num = MathF.Abs(liftSpeed.X);
         float y = liftSpeed.Y;
-        if(num > 250) // formerly num = (!(num > 250) && !(num > 0)) ? 0 : num - 250f
+        num = ((!(num > 250f)) ? 0f : (MathF.Min(250, num) - 250f));
+        Vector2 result = new Vector2(y: (!(y < -130f)) ? 0f : (MathF.Max(-130, y) - -130f), x: (float) MathF.Sign(liftSpeed.X) * num);
+        Console.WriteLine("original version: " + result);
+        num = MathF.Abs(liftSpeed.X);
+        y = liftSpeed.Y;
+        if (num > 250) // formerly num = (!(num > 250) && !(num > 0)) ? 0 : num - 250f
             num -= 250f;
         y = y < -130f ? y + 130f : 0; // formerly (!(y < -130f) && !(y < 0)) ? 0 : y - -130f; ... what the fuck ???? that's just not how this should work
-        return new Vector2((float) Math.Sign(liftSpeed.X) * num, y);
+        Vector2 res2 = new Vector2(MathF.Sign(liftSpeed.X) * num, y);
+        Console.WriteLine("new version: " + res2);
+        return res2;
     }
 
 
     internal static void Load()
     {
-        using (new DetourContext { After = { "*" } })
-        {
-            On.Celeste.Player.Jump += Player_Jump;
-            On.Celeste.Player.WallJump += Player_WallJump;
-            On.Celeste.Player.ClimbJump += Player_ClimbJump;
-            On.Celeste.Player.SuperWallJump += Player_SuperWallJump;
-            On.Celeste.Player.SuperJump += Player_SuperJump;
-        }
+        On.Celeste.Player.Jump += Player_Jump;
+        On.Celeste.Player.WallJump += Player_WallJump;
+        On.Celeste.Player.ClimbJump += Player_ClimbJump;
+        On.Celeste.Player.SuperWallJump += Player_SuperWallJump;
+        On.Celeste.Player.SuperJump += Player_SuperJump;
     }
 
     internal static void Unload()
@@ -378,7 +383,7 @@ public class AeroBlockCharged : AeroBlockFlying
     private static void Player_Jump(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
     {
         if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position + Vector2.UnitY) is AeroBlockCharged block)) { orig(self, particles, playSfx); return; }
-        if (block.SpirialisBug)
+        if (block.SpirialisBug && !SpirialisHelperLoaded)
         {
             Vector2 v = ExcessBoost(self);
             orig(self, particles, playSfx);
@@ -401,7 +406,7 @@ public class AeroBlockCharged : AeroBlockFlying
     private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
         if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position - Vector2.UnitX * dir * 3) is AeroBlockCharged block)) { orig(self, dir); return; }
-        if (block.SpirialisBug)
+        if (block.SpirialisBug && !SpirialisHelperLoaded)
         {
             Vector2 vector = ExcessBoost(self);
             orig.Invoke(self, dir);
@@ -437,7 +442,7 @@ public class AeroBlockCharged : AeroBlockFlying
     private static void Player_SuperWallJump(On.Celeste.Player.orig_SuperWallJump orig, Player self, int dir)
     {
         if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position - Vector2.UnitX * dir * 3) is AeroBlockCharged block)) { orig(self, dir); return; }
-        if (block.SpirialisBug)
+        if (block.SpirialisBug && !SpirialisHelperLoaded)
         {
             Vector2 vector = ExcessBoost(self);
             orig.Invoke(self, dir);
@@ -460,7 +465,7 @@ public class AeroBlockCharged : AeroBlockFlying
     private static void Player_SuperJump(On.Celeste.Player.orig_SuperJump orig, Player self)
     {
         if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position + Vector2.UnitY) is AeroBlockCharged block)) { orig(self); return; }
-        if (block.SpirialisBug)
+        if (block.SpirialisBug && !SpirialisHelperLoaded)
         {
             Vector2 vector = ExcessBoost(self);
             bool ducking = self.Ducking;
