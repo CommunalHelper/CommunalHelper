@@ -34,12 +34,15 @@ public class StationBlockTrack : Entity
     {
         None, On, Off
     }
+    private TrackMoveMode moveMode;
+    private TrackMoveMode initialMoveMode;
+
     private TrackSwitchState switchState;
     private readonly TrackSwitchState initialSwitchState;
 
     public bool CanBeUsed => switchState != TrackSwitchState.Off;
 
-    private enum MoveMode
+    public enum TrackMoveMode
     {
         None,
         ForwardOneWay, BackwardOneWay,
@@ -51,11 +54,14 @@ public class StationBlockTrack : Entity
     public StationBlockTrack master;
 
     private Rectangle nodeRect1, nodeRect2, trackRect;
+    
     private readonly Node initialNodeData1, initialNodeData2;
-
+    private Node node1, node2;
+    
     private List<Node> Track;
     private List<StationBlockTrack> Group;
     private readonly bool multiBlockTrack = false;
+    private readonly bool dynamicRouting = false;
 
     public Vector2? OneWayDir;
 
@@ -82,13 +88,19 @@ public class StationBlockTrack : Entity
         Depth = Depths.SolidsBelow;
 
         initialSwitchState = switchState = data.Enum("trackSwitchState", TrackSwitchState.None);
+        initialMoveMode = moveMode = data.Enum("moveMode", TrackMoveMode.None);
         if (CommunalHelperModule.Session.TrackInitialState == TrackSwitchState.Off && initialSwitchState != TrackSwitchState.None)
             Switch(TrackSwitchState.Off);
+        if (CommunalHelperModule.Session.TrackInitialMoveMode == TrackMoveMode.BackwardForce)
+        {
+            moveMode = Invert(moveMode);
+        }
 
         trackStatePercent = switchState is TrackSwitchState.On or TrackSwitchState.None ? 0f : 1f;
 
         Horizontal = data.Bool("horizontal");
         multiBlockTrack = data.Bool("multiBlockTrack", false);
+        dynamicRouting = data.Bool("dynamicRouting", false);
         Collider = new Hitbox(Horizontal ? data.Width : 8, Horizontal ? 8 : data.Height);
 
         nodeRect1 = new Rectangle((int) X, (int) Y, 8, 8);
@@ -102,9 +114,9 @@ public class StationBlockTrack : Entity
         bool hasIndicator = data.Bool("indicator", true);
 
         Vector2 dir = Horizontal ? Vector2.UnitX : Vector2.UnitY;
-        switch (data.Enum("moveMode", MoveMode.None))
+        switch (moveMode)
         {
-            case MoveMode.ForwardForce:
+            case TrackMoveMode.ForwardForce:
                 initialNodeData1.PushForce = Horizontal ? Vector2.UnitX : Vector2.UnitY;
                 initialNodeData1.HasIndicator = hasIndicator;
                 if (hasIndicator)
@@ -115,11 +127,11 @@ public class StationBlockTrack : Entity
                 OneWayDir = dir;
                 break;
 
-            case MoveMode.ForwardOneWay:
+            case TrackMoveMode.ForwardOneWay:
                 OneWayDir = dir;
                 break;
 
-            case MoveMode.BackwardForce:
+            case TrackMoveMode.BackwardForce:
                 initialNodeData2.PushForce = Horizontal ? -Vector2.UnitX : -Vector2.UnitY;
                 initialNodeData2.HasIndicator = hasIndicator;
                 if (hasIndicator)
@@ -130,7 +142,7 @@ public class StationBlockTrack : Entity
                 OneWayDir = -dir;
                 break;
 
-            case MoveMode.BackwardOneWay:
+            case TrackMoveMode.BackwardOneWay:
                 OneWayDir = -dir;
                 break;
 
@@ -188,8 +200,12 @@ public class StationBlockTrack : Entity
                 if (t.multiBlockTrack)
                 {
                     multiBlock = true;
-                    break;
                 }
+            }
+
+            if (dynamicRouting)
+            {
+                Reroute(this);
             }
 
             List<Tuple<StationBlock, Node>> toAttach = new();
@@ -346,13 +362,14 @@ public class StationBlockTrack : Entity
         return null;
     }
 
-    private void AddNodeToTrack(Node node, StationBlockTrack track)
+    private Node AddNodeToTrack(Node node, StationBlockTrack track)
     {
         Node foundNode = GetNodeAt(Track, node.Position);
 
         if (foundNode == null)
         {
             Track.Add(node);
+            return node;
         }
         else
         {
@@ -391,13 +408,14 @@ public class StationBlockTrack : Entity
                 foundNode.IndicatorColor = node.IndicatorColor;
                 foundNode.IndicatorIncomingColor = node.IndicatorIncomingColor;
             }
+            return foundNode;
         }
     }
 
     private void AddTrackSegmentToTrack(Node node1, Node node2, StationBlockTrack track)
     {
-        AddNodeToTrack(node1, track);
-        AddNodeToTrack(node2, track);
+        track.node1 = AddNodeToTrack(node1, track);
+        track.node2 = AddNodeToTrack(node2, track);
     }
 
     public override void Update()
@@ -479,6 +497,73 @@ public class StationBlockTrack : Entity
                 {
                     child.Switch(state);
                 }
+                if (track.dynamicRouting)
+                {
+                    Reroute(track);
+                }
+            }
+        }
+    }
+
+    public static void ReverseTracks(Scene scene)
+    {
+        foreach (StationBlockTrack track in scene.Tracker.GetEntities<StationBlockTrack>())
+        {
+            if (track.MasterOfGroup)
+            {
+                foreach (StationBlockTrack child in track.Group)
+                {
+                    TrackMoveMode newMoveMode = child.Reverse();
+                    if (newMoveMode == TrackMoveMode.BackwardForce)
+                    {
+                        if ((child.Horizontal && child.node1.PushForce == Vector2.UnitX)
+                            || (!child.Horizontal && child.node1.PushForce == Vector2.UnitY))
+                        {
+                            child.node1.PushForce = Vector2.Zero;
+                        }
+                        child.node2.PushForce = child.Horizontal ? -Vector2.UnitX : -Vector2.UnitY;
+                    }
+                    else if (newMoveMode == TrackMoveMode.ForwardForce)
+                    {
+                        if ((child.Horizontal && child.node2.PushForce == -Vector2.UnitX)
+                            || (!child.Horizontal && child.node2.PushForce == -Vector2.UnitY))
+                        {
+                            child.node2.PushForce = Vector2.Zero;
+                        }
+                        child.node1.PushForce = child.Horizontal ? Vector2.UnitX : Vector2.UnitY;
+                    }
+                }
+            }
+        }
+    }
+
+    public static void Reroute(StationBlockTrack track)
+    {
+        foreach (StationBlockTrack child in track.Group)
+        {
+            if (child.dynamicRouting && child.moveMode is TrackMoveMode.ForwardForce or TrackMoveMode.BackwardForce)
+            {
+                // we just need the outgoing node
+                Node node = child.moveMode == TrackMoveMode.ForwardForce ? child.node2 : child.node1 ;
+                if (node.PushForce != Vector2.Zero)
+                {
+                    if (node.NodeUp != null && node.TrackUp != child && node.TrackUp.CanBeUsed && node.TrackUp.moveMode == TrackMoveMode.BackwardForce)
+                    {
+                        node.PushForce = -Vector2.UnitY;
+                    }
+                    else if (node.NodeDown != null && node.TrackDown != child && node.TrackDown.CanBeUsed && node.TrackDown.moveMode == TrackMoveMode.ForwardForce)
+                    {
+                        node.PushForce = Vector2.UnitY;
+                    }
+                    else if (node.NodeLeft != null && node.TrackLeft != child && node.TrackLeft.CanBeUsed && node.TrackLeft.moveMode == TrackMoveMode.BackwardForce)
+                    {
+                        node.PushForce = -Vector2.UnitX;
+                    }
+                    else if (node.NodeRight != null && node.TrackRight != child && node.TrackRight.CanBeUsed && node.TrackRight.moveMode == TrackMoveMode.ForwardForce)
+                    {
+                        node.PushForce = Vector2.UnitX;
+                    }
+                }
             }
         }
     }
@@ -488,6 +573,27 @@ public class StationBlockTrack : Entity
         if (initialSwitchState == TrackSwitchState.None)
             return;
         switchState = initialSwitchState == state ? TrackSwitchState.On : TrackSwitchState.Off;
+    }
+
+    private TrackMoveMode Reverse()
+    {
+        if (initialMoveMode == TrackMoveMode.None)
+            return TrackMoveMode.None;
+        
+        moveMode = Invert(moveMode);
+        OneWayDir = -OneWayDir;
+        return moveMode;
+    }
+
+    public static TrackMoveMode Invert(TrackMoveMode moveMode)
+    {
+        return moveMode switch {
+            TrackMoveMode.ForwardOneWay => TrackMoveMode.BackwardOneWay,
+            TrackMoveMode.BackwardOneWay => TrackMoveMode.ForwardOneWay,
+            TrackMoveMode.ForwardForce => TrackMoveMode.BackwardForce,
+            TrackMoveMode.BackwardForce => TrackMoveMode.ForwardForce,
+            _ => TrackMoveMode.None
+        };
     }
 
     internal static void InitializeTextures()

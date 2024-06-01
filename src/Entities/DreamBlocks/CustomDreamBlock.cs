@@ -103,6 +103,12 @@ public abstract class CustomDreamBlock : DreamBlock
     public float ColorLerp = 0.0f;
     public bool QuickDestroy;
 
+    protected bool leftWobble = true;
+    protected bool rightWobble = true;
+    protected bool topWobble = true;
+    protected bool bottomWobble = true;
+    protected Color wobbleLineColor = Color.White;
+
     private bool shakeToggle = false;
     private readonly ParticleType shakeParticle;
     private readonly float[] particleRemainders = new float[4];
@@ -345,7 +351,8 @@ public abstract class CustomDreamBlock : DreamBlock
         Color lineColor = PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
 
         Draw.Rect(shake.X + X, shake.Y + Y, Width, Height, backColor);
-
+        var field = typeof(DreamBlock).GetField("activeLineColor", BindingFlags.NonPublic | BindingFlags.Static);
+        field.SetValue(null, wobbleLineColor);
         #region Particles
 
         Vector2 cameraPositon = camera.Position;
@@ -402,10 +409,22 @@ public abstract class CustomDreamBlock : DreamBlock
             Draw.Rect(X + shake.X, Y + shake.Y, Width, Height * whiteHeight, Color.White * whiteFill);
         }
 
-        WobbleLine(shake + new Vector2(X, Y), shake + new Vector2(X + Width, Y), 0f);
-        WobbleLine(shake + new Vector2(X + Width, Y), shake + new Vector2(X + Width, Y + Height), 0.7f);
-        WobbleLine(shake + new Vector2(X + Width, Y + Height), shake + new Vector2(X, Y + Height), 1.5f);
-        WobbleLine(shake + new Vector2(X, Y + Height), shake + new Vector2(X, Y), 2.5f);
+        if (topWobble)
+        {
+            WobbleLine(shake + new Vector2(X, Y), shake + new Vector2(X + Width, Y), 0f);
+        }
+        if (rightWobble)
+        {
+            WobbleLine(shake + new Vector2(X + Width, Y), shake + new Vector2(X + Width, Y + Height), 0.7f);
+        }
+        if (bottomWobble)
+        {
+            WobbleLine(shake + new Vector2(X + Width, Y + Height), shake + new Vector2(X, Y + Height), 1.5f);
+        }
+        if (leftWobble)
+        {
+            WobbleLine(shake + new Vector2(X, Y + Height), shake + new Vector2(X, Y), 2.5f);
+        }
 
         Draw.Rect(shake + new Vector2(X, Y), 2f, 2f, lineColor);
         Draw.Rect(shake + new Vector2(X + Width - 2f, Y), 2f, 2f, lineColor);

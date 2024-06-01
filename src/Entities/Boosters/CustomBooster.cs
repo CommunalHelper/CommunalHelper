@@ -4,7 +4,6 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System.Collections;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 

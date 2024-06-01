@@ -13,7 +13,7 @@ local moveSpeeds = {
 }
 
 cassetteMoveBlock.name = "CommunalHelper/CassetteMoveBlock"
-cassetteMoveBlock.minimumSize = {16, 16}
+cassetteMoveBlock.minimumSize = { 16, 16 }
 cassetteMoveBlock.fieldInformation = {
     index = {
         options = colorNames,
@@ -47,7 +47,8 @@ for i = 1, 4 do
             height = 16,
             customColor = colors[i],
             direction = "Right",
-            moveSpeed = 60.0
+            moveSpeed = 60.0,
+            oldConnectionBehavior = false,
         }
     }
 end
@@ -60,7 +61,7 @@ local arrowTextures = {
 }
 
 function cassetteMoveBlock.sprite(room, entity)
-    local sprites = communalHelper.getCustomCassetteBlockSprites(room, entity)
+    local sprites = communalHelper.getCustomCassetteBlockSprites(room, entity, true, entity.oldConnectionBehavior)
 
     local width, height = entity.width or 16, entity.height or 16
     local color = communalHelper.getCustomCassetteBlockColor(entity)

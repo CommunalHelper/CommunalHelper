@@ -13,7 +13,8 @@ trackSwitchBox.placements = {
         data = {
             globalSwitch = false,
             floaty = true,
-            bouncy = true
+            bouncy = true,
+            reverse = false
         }
     },
     {
@@ -21,7 +22,8 @@ trackSwitchBox.placements = {
         data = {
             globalSwitch = true,
             floaty = true,
-            bouncy = true
+            bouncy = true,
+            reverse = false
         }
     }
 }

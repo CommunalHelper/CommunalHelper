@@ -48,6 +48,7 @@ aeroBlock.placements = {
             travelMode = "Loop",
             startColor = "FEAC5E",
             endColor = "4BC0C8",
+            easing = "CubeIn"
         }
     },
     {
@@ -60,6 +61,7 @@ aeroBlock.placements = {
             travelMode = "Loop",
             startColor = "FEAC5E",
             endColor = "4BC0C8",
+            easing = "CubeIn"
         }
     }
 }

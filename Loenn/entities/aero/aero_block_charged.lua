@@ -30,7 +30,9 @@ aeroBlockCharged.placements = {
             hover = true,
             loop = false,
             activeColor = "4BC0C8",
-            inactiveColor = "FF6347"
+            inactiveColor = "FF6347",
+            easing = "CubeIn",
+            SpirialisBug = false
         }
     }
 }

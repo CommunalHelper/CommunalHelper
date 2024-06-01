@@ -42,16 +42,17 @@ public class AeroBlockFlying : AeroBlock
     private readonly SoundSource sfx;
 
     private readonly Color startColor, endColor;
+    protected readonly Ease.Easer easer;
 
     public bool Hover { get; set; } = true;
 
     private AeroScreen_Blinker blinker;
 
     public AeroBlockFlying(EntityData data, Vector2 offset)
-        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("inactive", false), data.HexColor("startColor", defaultStartColor), data.HexColor("endColor", defaultEndColor), data.Float("travelSpeed", 32.0f), data.Enum("travelMode", TravelMode.Loop))
+        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("inactive", false), data.HexColor("startColor", defaultStartColor), data.HexColor("endColor", defaultEndColor), data.Float("travelSpeed", 32.0f), data.Enum("travelMode", TravelMode.Loop), data.Easer("easing", Ease.CubeIn))
     { }
 
-    public AeroBlockFlying(Vector2[] points, int width, int height, bool inactive, Color startColor, Color endColor, float travelSpeed = 32.0f, TravelMode mode = TravelMode.Loop)
+    public AeroBlockFlying(Vector2[] points, int width, int height, bool inactive, Color startColor, Color endColor, float travelSpeed = 32.0f, TravelMode mode = TravelMode.Loop, Ease.Easer easer = null)
         : this(points[0], width, height)
     {
         this.inactive = inactive;
@@ -79,6 +80,7 @@ public class AeroBlockFlying : AeroBlock
 
         this.startColor = startColor;
         this.endColor = endColor;
+        this.easer = easer ?? Ease.CubeIn;
     }
 
     public AeroBlockFlying(Vector2 position, int width, int height)

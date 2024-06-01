@@ -117,6 +117,7 @@ public class CommunalHelperModule : EverestModule
 
         typeof(Imports.CavernHelper).ModInterop();
         typeof(Imports.GravityHelper).ModInterop();
+        typeof(Imports.ReverseHelper).ModInterop();
 
         #endregion
 
@@ -202,6 +203,8 @@ public class CommunalHelperModule : EverestModule
 
         BadelineBoostKeepHoldables.Unhook();
         PoisonGas.Unload();
+        
+        LaserEmitter.Unload();
     }
 
     public override void Initialize()
@@ -210,6 +213,15 @@ public class CommunalHelperModule : EverestModule
         // We create a static CrystalStaticSpinner which needs to access Tags.TransitionUpdate
         // Which wouldn't be loaded in time for EverestModule.Load
         TimedTriggerSpikes.LoadDelayed();
+        
+        // Because of StrawberryJam, trying to hook the LaserEmitter codebase breaks the Laser Emitters because both the CommunalHelper and StrawberryJam hooks cannot be cross-compatible
+        // (at least until we can update StrawberryJam to fix it)
+        // Therefore, we load this hook conditionally dependent on if StrawberryJam has loaded its hooks, and use the same flags it uses to achieve the same effect
+        // This also makes both StrawberryJam's and CommunalHelper's flags intercompatible
+        if(Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "StrawberryJam2021", Version = new Version("1.0.0") })) {
+            LaserEmitter.Load();
+        }
+
 
         // Register CustomCassetteBlock types
         CustomCassetteBlock.Initialize();
@@ -221,6 +233,9 @@ public class CommunalHelperModule : EverestModule
 
         BetaCube.Initialize();
 
+        Imports.ReverseHelper.RegisterDreamBlockLike?.Invoke(typeof(DreamTunnelEntry),
+            e => (e as DreamTunnelEntry).ActivateNoRoutine(),
+            e => (e as DreamTunnelEntry).DeactivateNoRoutine());
         /*
          * Some Communal Helper mechanics don't work well with Gravity Helper.
          * To fix this, Gravity Helper has implemented hooks that patch some of Communal Helper's methods.
@@ -228,6 +243,8 @@ public class CommunalHelperModule : EverestModule
          * So, we need to call RegisterModSupportBlacklist, which will discard hooks implemented in Gravity Helper.
          */
         Imports.GravityHelper.RegisterModSupportBlacklist?.Invoke("CommunalHelper");
+
+        AeroBlockCharged.SpirialisHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata() { Name = "SpirialisHelper", Version = new Version(1, 0, 8) });
     }
 
     public override void LoadContent(bool firstLoad)

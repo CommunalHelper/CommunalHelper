@@ -53,8 +53,10 @@ public class DreamTunnelEntry : AbstractPanel
     public bool PlayerHasDreamDash;
     private LightOcclude occlude;
 
+#pragma warning disable CS0649 // Actually used in Activation/Deactivation routines via reflection
     public Vector2 Shake => shake + platformShake;
-    private Vector2 shake; // For use in Activation/Deactivation routines
+    private Vector2 shake;
+#pragma warning restore CS0649
 
     public float Whitefill;
     public float WhiteHeight;

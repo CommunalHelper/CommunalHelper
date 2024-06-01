@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Celeste.Mod.Helpers;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -408,8 +409,7 @@ public class ConnectedDreamBlock : CustomDreamBlock
         float whiteHeight = baseData.Get<float>("whiteHeight");
         Vector2 shake = baseData.Get<Vector2>("shake");
 
-        if (GroupRect.Right < camera.Left || GroupRect.Left > camera.Right || GroupRect.Bottom < camera.Top || GroupRect.Top > camera.Bottom)
-        {
+        if (!CullHelper.IsRectangleVisible(GroupRect.X, GroupRect.Y, GroupRect.Width, GroupRect.Height, 0, camera)) {
             return;
         }
 
@@ -427,7 +427,6 @@ public class ConnectedDreamBlock : CustomDreamBlock
 
             #region Background rendering
 
-            Vector2 cameraPositon = SceneAs<Level>().Camera.Position;
             foreach (ConnectedDreamBlock block in Group)
             {
                 if (block.Right < camera.Left || block.Left > camera.Right || block.Bottom < camera.Top || block.Top > camera.Bottom)
@@ -445,38 +444,18 @@ public class ConnectedDreamBlock : CustomDreamBlock
             {
                 DreamParticle particle = particles[i];
                 int layer = particle.Layer;
-                Vector2 position = particle.Position + (cameraPositon * (0.3f + (0.25f * layer)));
-                float rotation = 1.5707963705062866f - 0.8f + (float) Math.Sin(particle.RotationCounter * particle.MaxRotate);
+                Vector2 position = particle.Position + (camera.Position * (0.3f + (0.25f * layer)));
+                float rotation = 0;
+                MTexture particleTexture = null;
                 if (FeatherMode)
                 {
+                    rotation = 1.5707963705062866f - 0.8f + (float) Math.Sin(particle.RotationCounter * particle.MaxRotate);
                     position += Calc.AngleToVector(rotation, 4f);
-                }
-                position = PutInside(position, GroupRect);
-
-                bool particleIsInside = false;
-                foreach (ConnectedDreamBlock block in Group)
-                {
-                    if (block.CheckParticleCollide(position))
-                    {
-                        particleIsInside = true;
-                        break;
-                    }
-                }
-                if (!particleIsInside)
-                    continue;
-
-                Color color = Color.Lerp(particle.Color, Color.Black, ColorLerp);
-                if (whiteFill > 0f && whiteHeight == 1f)
-                    color = Color.Lerp(color, Color.White, whiteFill);
-
-                if (FeatherMode)
-                {
-                    featherTextures[layer].DrawCentered(position + Shake + shake, color, 1, rotation);
-                }
+                    particleTexture = featherTextures[layer];
+                } 
                 else
                 {
                     MTexture[] particleTextures = RefillCount != -1 ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
-                    MTexture particleTexture;
                     switch (layer)
                     {
                         case 0:
@@ -495,8 +474,32 @@ public class ConnectedDreamBlock : CustomDreamBlock
                             particleTexture = particleTextures[2];
                             break;
                     }
-                    particleTexture.DrawCentered(position + Shake + shake, color);
                 }
+                if(particleTexture == null)
+                {
+                    particleTexture = Draw.Particle; // this ensures the nullcheck doesn't break the CullHelper, since that's a possible option
+                }
+                position = PutInside(position, GroupRect);
+                if (!CullHelper.IsRectangleVisible(position.X, position.Y, particleTexture.Width, particleTexture.Height, 8, camera))
+                    continue;
+
+                bool particleIsInside = false;
+                foreach (ConnectedDreamBlock block in Group)
+                {
+                    if (block.CheckParticleCollide(position))
+                    {
+                        particleIsInside = true;
+                        break;
+                    }
+                }
+                if (!particleIsInside)
+                    continue;
+
+                Color color = Color.Lerp(particle.Color, Color.Black, ColorLerp);
+                if (whiteFill > 0f && whiteHeight == 1f)
+                    color = Color.Lerp(color, Color.White, whiteFill);
+
+                particleTexture.DrawCentered(position + Shake + shake, color, 1, rotation);
             }
 
             #endregion

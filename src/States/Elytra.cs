@@ -1,4 +1,4 @@
-﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.Entities;
 using FMOD.Studio;
 using MonoMod.Utils;
@@ -450,7 +450,6 @@ public static class Elytra
         }
         orig(sprite);
     }
-
     private static void Mod_Player_UpdateSprite(On.Celeste.Player.orig_UpdateSprite orig, Player self)
     {
         orig(self);

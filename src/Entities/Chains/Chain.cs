@@ -1,6 +1,5 @@
 ﻿using FMOD.Studio;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -88,7 +87,6 @@ public class Chain : Entity
         }
 
         UpdateChain();
-
         sfx = Audio.Play(CustomSFX.game_chain_move);
     }
 
@@ -169,6 +167,10 @@ public class Chain : Entity
     {
         base.Awake(scene);
         AttachedEndsToSolids(scene);
+        for (int _ = 0; _ < 80; _++)
+        {
+            UpdateChain(true);
+        }
     }
 
     public override void Update()
@@ -204,7 +206,7 @@ public class Chain : Entity
             level.ParticlesFG.Emit(ZipMover.P_Sparks, middleNode, Calc.Random.NextAngle());
     }
 
-    private void UpdateChain()
+    private void UpdateChain(bool lockNodes = false)
     {
         bool startAttached = attachedStartGetter != null;
         bool endAttached = attachedEndGetter != null;
@@ -218,7 +220,6 @@ public class Chain : Entity
             nodes[nodes.Length - 1].Position = attachedEndGetter();
             nodes[nodes.Length - 1].Velocity = Vector2.Zero;
         }
-
         for (int i = 0; i < nodes.Length; i++)
         {
             nodes[i].Acceleration += Vector2.UnitY * 220f;
@@ -238,12 +239,12 @@ public class Chain : Entity
         {
             if (startAttached)
             {
-                for (int i = 1; i < nodes.Length - (endAttached ? 1 : 0); i++)
+                for (int i = 1; i < nodes.Length - (endAttached || lockNodes ? 1 : 0); i++)
                     nodes[i].ConstraintTo(nodes[i - 1].Position, distanceConstraint, Tight);
             }
             if (endAttached)
             {
-                for (int i = nodes.Length - 2; i >= (startAttached ? 1 : 0); i--)
+                for (int i = nodes.Length - 2; i >= (startAttached || lockNodes ? 1 : 0); i--)
                     nodes[i].ConstraintTo(nodes[i + 1].Position, distanceConstraint, Tight);
             }
         }

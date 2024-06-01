@@ -47,7 +47,7 @@ public class GlowController : Entity
     private readonly int lightStartFade;
     private readonly int lightEndFade;
     private readonly Vector2 lightOffset;
-    private readonly string targetEntityType;
+    // private readonly string targetEntityType;
 
     private readonly string[] bloomWhitelist;
     private readonly string[] bloomBlacklist;
@@ -79,7 +79,7 @@ public class GlowController : Entity
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
-        var allEntities = scene.Entities.Concat(scene.Entities.GetToAdd());
+        var allEntities = scene.Entities.Concat(scene.Entities.ToAdd);
         foreach (var entity in allEntities)
         {
             var type = entity.GetType();

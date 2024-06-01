@@ -6,7 +6,7 @@ local colorNames = communalHelper.cassetteBlockColorNames
 local colors = communalHelper.cassetteBlockHexColors
 
 customCassetteBlock.name = "CommunalHelper/CustomCassetteBlock"
-customCassetteBlock.minimumSize = {16, 16}
+customCassetteBlock.minimumSize = { 16, 16 }
 customCassetteBlock.fieldInformation = {
     index = {
         options = colorNames,
@@ -30,13 +30,14 @@ for i = 1, 4 do
             tempo = 1.0,
             width = 16,
             height = 16,
-            customColor = colors[i]
+            customColor = colors[i],
+            oldConnectionBehavior = false,
         }
     }
 end
 
 function customCassetteBlock.sprite(room, entity)
-    return communalHelper.getCustomCassetteBlockSprites(room, entity)
+    return communalHelper.getCustomCassetteBlockSprites(room, entity, false, entity.oldConnectionBehavior)
 end
 
 return customCassetteBlock

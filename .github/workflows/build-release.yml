@@ -49,10 +49,10 @@ jobs:
       uses: actions/upload-artifact@v1.0.0
       with:
         name: main
-        path: src/bin/Debug/net452
+        path: src/bin/Debug/net7.0
 
     - name: Create mod zip
-      run: zip -qq -r CommunalHelper.zip Ahorn/* Loenn Audio Dialog Graphics Effects/CommunalHelper/*.cso src/bin/Debug/net452 everest.yaml
+      run: zip -qq -r CommunalHelper.zip Ahorn/* Loenn Audio Dialog Graphics Effects/CommunalHelper/*.cso src/bin/Debug/net7.0 everest.yaml
 
     - name: Create Release
       id: release

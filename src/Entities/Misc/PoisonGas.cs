@@ -1,10 +1,4 @@
-﻿using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MonoMod.Cil;
 
 namespace Celeste.Mod.CommunalHelper.Entities.Misc;
 

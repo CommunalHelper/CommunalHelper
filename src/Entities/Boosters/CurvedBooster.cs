@@ -1,6 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.CommunalHelper.Utils;
-using MonoMod.Utils;
 using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
