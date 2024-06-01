@@ -93,45 +93,52 @@ public static class CommunalHelperGFX
     private static void Mod_PlayerSprite_CreateFramesMetadata(On.Celeste.PlayerSprite.orig_CreateFramesMetadata orig, string sprite)
     {
         orig(sprite);
+        SpriteData data = GFX.SpriteBank.SpriteData[sprite];
 
         Dictionary<string, PlayerAnimMetadata> frameMetadata = (Dictionary<string, PlayerAnimMetadata>) f_PlayerSprite_FrameMetadata.GetValue(null);
         foreach (XmlElement element in CustomPlayerFrameMetadata.GetElementsByTagName("Frames"))
         {
-            string path = element.Attr("path", "");
-            path = $"characters/{sprite}/{path}";
+            string path = !string.IsNullOrEmpty(data.Sources[0].OverridePath) ? data.Sources[0].OverridePath : data.Sources[0].Path;
+
+            if (!(GFX.Game.HasAtlasSubtextures($"{path}{element.Attr("path", "")}")))
+                path = "characters/player_no_backpack/";
+
+            path = $"{path}{element.Attr("path", "")}";
 
             string[] hairData = element.Attr("hair").Split('|');
             string[] carryData = element.Attr("carry", "").Split(',');
 
             for (int i = 0; i < Math.Max(hairData.Length, carryData.Length); i++)
             {
-                PlayerAnimMetadata playerAnimMetadata = new();
-
                 string str = path + ((i < 10) ? "0" : string.Empty) + i;
                 if (i == 0 && !GFX.Game.Has(str))
                     str = path;
 
-                frameMetadata[str] = playerAnimMetadata;
-
-                if (i < hairData.Length)
+                if (!frameMetadata.ContainsKey(str))
                 {
-                    if (hairData[i].Equals("x", StringComparison.OrdinalIgnoreCase) || hairData[i].Length <= 0)
-                        playerAnimMetadata.HasHair = false;
-                    else
+                    PlayerAnimMetadata playerAnimMetadata = new();
+                    frameMetadata[str] = playerAnimMetadata;
+
+                    if (i < hairData.Length)
                     {
-                        string[] frames = hairData[i].Split(':'); // (:frame)
-                        string[] values = frames[0].Split(','); // (x,y)
+                        if (hairData[i].Equals("x", StringComparison.OrdinalIgnoreCase) || hairData[i].Length <= 0)
+                            playerAnimMetadata.HasHair = false;
+                        else
+                        {
+                            string[] frames = hairData[i].Split(':'); // (:frame)
+                            string[] values = frames[0].Split(','); // (x,y)
 
-                        playerAnimMetadata.HasHair = true;
-                        playerAnimMetadata.HairOffset = new Vector2(Convert.ToInt32(values[0]), Convert.ToInt32(values[1]));
-                        playerAnimMetadata.Frame = (frames.Length >= 2)
-                            ? Convert.ToInt32(frames[1])
-                            : 0;
+                            playerAnimMetadata.HasHair = true;
+                            playerAnimMetadata.HairOffset = new Vector2(Convert.ToInt32(values[0]), Convert.ToInt32(values[1]));
+                            playerAnimMetadata.Frame = (frames.Length >= 2)
+                                ? Convert.ToInt32(frames[1])
+                                : 0;
+                        }
                     }
-                }
 
-                if (i < carryData.Length && carryData[i].Length > 0)
-                    playerAnimMetadata.CarryYOffset = int.Parse(carryData[i]);
+                    if (i < carryData.Length && carryData[i].Length > 0)
+                        playerAnimMetadata.CarryYOffset = int.Parse(carryData[i]);
+                }
             }
         }
     }
