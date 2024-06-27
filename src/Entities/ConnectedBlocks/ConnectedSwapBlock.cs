@@ -419,6 +419,9 @@ public class ConnectedSwapBlock : ConnectedSolid
 
     private void DrawBlock(Vector2 pos, List<Image> ninSlice, Sprite middle, Color color)
     {
+        if (!IsGroupVisibleAt(pos))
+            return;
+        
         foreach (Image tile in ninSlice)
         {
             tile.RenderPosition += pos;
