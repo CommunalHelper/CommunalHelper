@@ -80,6 +80,8 @@ public class DreamMoveBlock : CustomDreamBlock
     private Color breakingWobbleLinesColor = Calc.HexToColor("FFFFFF");
     private Color breakingCrossColor = Calc.HexToColor("FFFFFF");
 
+    private Color wobbleLineColor = Calc.HexToColor("FFFFFF");
+
     private float flash;
     private readonly SoundSource moveSfx;
 
@@ -649,6 +651,11 @@ public class DreamMoveBlock : CustomDreamBlock
     {
         Vector2 position = Position;
         Position += Shake;
+
+        var f_activeLineColor = typeof(DreamBlock).GetField("activeLineColor", BindingFlags.NonPublic | BindingFlags.Static);
+        var oldColor = f_activeLineColor.GetValue(null);
+        f_activeLineColor.SetValue(null, wobbleLineColor);
+
         base.Render();
 
         Color color = Color.Lerp(ActiveLineColor, Color.Black, ColorLerp);
@@ -693,6 +700,8 @@ public class DreamMoveBlock : CustomDreamBlock
         float num = flash * 4f;
         Draw.Rect(X - num, Y - num, Width + (num * 2f), Height + (num * 2f), Color.White * flash);
         Position = position;
+
+        f_activeLineColor.SetValue(null, oldColor);
     }
 
     /// <summary>
@@ -718,12 +727,12 @@ public class DreamMoveBlock : CustomDreamBlock
         if (state == MovementState.Idling)
         {
             this.fillColor = Color.Lerp(fillColor, this.idleButtonsColor, 10f * Engine.DeltaTime);
-            base.wobbleLineColor = this.idleWobbleLinesColor;
+            this.wobbleLineColor = this.idleWobbleLinesColor;
         }
         else if (state == MovementState.Moving)
         {
             this.fillColor = Color.Lerp(fillColor, this.movingButtonsColor, 10f * Engine.DeltaTime);
-            base.wobbleLineColor = this.movingWobbleLinesColor;
+            this.wobbleLineColor = this.movingWobbleLinesColor;
         }
         else if(state == MovementState.Breaking && canSteer)
         {
@@ -731,7 +740,7 @@ public class DreamMoveBlock : CustomDreamBlock
             base.bottomWobble = true;
             base.leftWobble = true;
             base.rightWobble = true;
-            base.wobbleLineColor = this.breakingWobbleLinesColor;
+            this.wobbleLineColor = this.breakingWobbleLinesColor;
         }
 
         if (canSteer)
