@@ -160,24 +160,25 @@ public class ConnectedZipMover : ConnectedSolid
         {
             Rectangle cameraBounds = level.Camera.GetBounds();
 
-            if (!cameraBounds.Intersects(bounds))
-                return;
-
-            foreach (Segment seg in segments)
-                if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
-                    seg.RenderShadow(zipMover.percent);
-
-            foreach (Segment seg in segments)
-                if (seg.Seen)
-                    seg.Render(zipMover.percent, color, lightColor);
-
-            float rotation = zipMover.percent * MathHelper.TwoPi;
-            foreach (Vector2 node in nodes)
+            if (cameraBounds.Intersects(bounds))
             {
-                zipMover.cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
-                zipMover.cog.DrawCentered(node, Color.White, 1f, rotation);
+                foreach (Segment seg in segments)
+                    if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
+                        seg.RenderShadow(zipMover.percent);
+
+                foreach (Segment seg in segments)
+                    if (seg.Seen)
+                        seg.Render(zipMover.percent, color, lightColor);
+
+                float rotation = zipMover.percent * MathHelper.TwoPi;
+                foreach (Vector2 node in nodes)
+                {
+                    zipMover.cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
+                    zipMover.cog.DrawCentered(node, Color.White, 1f, rotation);
+                }
             }
 
+            // 'bounds' doesn't include the zip mover itself, it will do its own camera cull checks
             zipMover.DrawBorder();
         }
     }
@@ -381,11 +382,19 @@ public class ConnectedZipMover : ConnectedSolid
 
     public override void Render()
     {
+        if (!IsGroupVisible())
+            return;
+        
+        Rectangle cameraBounds = (Scene as Level)?.Camera.GetBounds() ?? new();
+        
         Vector2 originalPosition = Position;
         Position += Shake;
 
         foreach (Hitbox extension in Colliders)
         {
+            if (!cameraBounds.Intersects(extension.Bounds))
+                continue;
+            
             if (theme == Themes.Moon)
             {
                 Draw.Rect(extension.Left + 2f + X, extension.Top + Y, extension.Width - 4f, extension.Height, backgroundColor);
@@ -463,9 +472,14 @@ public class ConnectedZipMover : ConnectedSolid
 
     public void DrawBorder()
     {
-        if (drawBlackBorder)
-            foreach (Hitbox extension in AllColliders)
-                Draw.HollowRect(new Rectangle(
+        if (!drawBlackBorder)
+            return;
+        
+        if (!IsGroupVisible())
+            return;
+        
+        foreach (Hitbox extension in AllColliders)
+            Draw.HollowRect(new Rectangle(
                     (int) (X + extension.Left - 1f + Shake.X),
                     (int) (Y + extension.Top - 1f + Shake.Y),
                     (int) extension.Width + 2,

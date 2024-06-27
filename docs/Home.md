@@ -2,7 +2,7 @@
 
 CommunalHelper is a general-purpose code mod with many new and remixed entities.
 
-A full list of entities and triggers can be found on the [Custom Entity List](https://max480-random-stuff.appspot.com/celeste/custom-entity-catalog#communal-helper).
+A full list of entities and triggers can be found on the [Custom Entity List](https://maddie480.ovh/celeste/custom-entity-catalog#communal-helper).
 
 Features that require additional information or usage guides will be explained here.
 

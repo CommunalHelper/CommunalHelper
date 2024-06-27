@@ -107,7 +107,6 @@ public abstract class CustomDreamBlock : DreamBlock
     protected bool rightWobble = true;
     protected bool topWobble = true;
     protected bool bottomWobble = true;
-    protected Color wobbleLineColor = Color.White;
 
     private bool shakeToggle = false;
     private readonly ParticleType shakeParticle;
@@ -351,8 +350,6 @@ public abstract class CustomDreamBlock : DreamBlock
         Color lineColor = PlayerHasDreamDash ? ActiveLineColor : DisabledLineColor;
 
         Draw.Rect(shake.X + X, shake.Y + Y, Width, Height, backColor);
-        var field = typeof(DreamBlock).GetField("activeLineColor", BindingFlags.NonPublic | BindingFlags.Static);
-        field.SetValue(null, wobbleLineColor);
         #region Particles
 
         Vector2 cameraPositon = camera.Position;

@@ -687,6 +687,7 @@ entities.CommunalHelper/AeroBlockCharged.attributes.description.hover=Whether th
 entities.CommunalHelper/AeroBlockCharged.attributes.description.loop=Whether this block's sequence has no ending. When the last node is reached, it loops back around to the initial position.
 entities.CommunalHelper/AeroBlockCharged.attributes.description.activeColor=This block's button and screen particles color when it is active (flying). 
 entities.CommunalHelper/AeroBlockCharged.attributes.description.inactiveColor=This block's button colors when it is inactive.
+entities.CommunalHelper/AeroBlockCharged.attributes.description.SpirialisBug=This toggles a legacy behavior where dependent on load order, Spirialis Helper will disable the Lift Boost Cap of an Aero Block.\nTurning this on effectively makes your momentum much stronger than normal from aeroblocks in most, but not all, cases.
 
 # Aero Block Slingshot
 entities.CommunalHelper/AeroBlockSlingshot.placements.name.normal=Slingshot Aero Block
