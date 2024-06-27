@@ -63,7 +63,8 @@ public class Chain : Entity
             () => data.Position + offset,
             () => data.Nodes[0] + offset,
             GFX.Game.GetOrDefault(data.Attr("texture", DEFAULT_CHAIN_PATH), DefaultChain)
-        ) { }
+        )
+    { }
 
     public Chain(bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter, MTexture texture)
         : base(attachedStartGetter())
@@ -93,7 +94,7 @@ public class Chain : Entity
     private void AttachedEndsToSolids(Scene scene)
     {
         Vector2 start = nodes[0].Position;
-        Vector2 end = nodes[nodes.Length - 1].Position;
+        Vector2 end = nodes[^1].Position;
 
         Solid startSolid = scene.CollideFirst<Solid>(new Rectangle((int) start.X - 2, (int) start.Y - 2, 4, 4));
         Solid endSolid = scene.CollideFirst<Solid>(new Rectangle((int) end.X - 2, (int) end.Y - 2, 4, 4));
@@ -167,9 +168,12 @@ public class Chain : Entity
     {
         base.Awake(scene);
         AttachedEndsToSolids(scene);
-        for (int _ = 0; _ < 80; _++)
+        if (attachedStartGetter is not null && attachedEndGetter is not null)
         {
-            UpdateChain(true);
+            for (int _ = 0; _ < 80; _++)
+            {
+                UpdateChain(true);
+            }
         }
     }
 
@@ -181,7 +185,7 @@ public class Chain : Entity
         UpdateChain();
         UpdateSfx(oldPositions);
 
-        if (Vector2.Distance(nodes[0].Position, nodes[nodes.Length - 1].Position) > (nodes.Length + 1) * distanceConstraint)
+        if (Vector2.Distance(nodes[0].Position, nodes[^1].Position) > (nodes.Length + 1) * distanceConstraint)
             BreakInHalf();
     }
 
@@ -217,8 +221,8 @@ public class Chain : Entity
         }
         if (endAttached)
         {
-            nodes[nodes.Length - 1].Position = attachedEndGetter();
-            nodes[nodes.Length - 1].Velocity = Vector2.Zero;
+            nodes[^1].Position = attachedEndGetter();
+            nodes[^1].Velocity = Vector2.Zero;
         }
         for (int i = 0; i < nodes.Length; i++)
         {
