@@ -174,7 +174,10 @@ public class CurvedBooster : CustomBooster
         // Then finish overriding.
         GravityHelper.EndOverride?.Invoke();
 
-        if (stopped)
+        if (player.CanDash)
+            return null; // don't interrupt the player dashing 
+
+        if (stopped) 
             return Player.StNormal;
 
         if (end)
