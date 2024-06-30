@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.CommunalHelper.Utils;
+using MonoMod.Utils;
 using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -148,7 +149,7 @@ public class CurvedBooster : CustomBooster
     protected override int? RedDashUpdateBefore(Player player)
     {
         base.RedDashUpdateBefore(player);
-
+        DynamicData dynamicData = DynamicData.For(player);
         Vector2 prev = player.Position;
 
         travel += 240f * Engine.DeltaTime; // booster speed constant
@@ -167,9 +168,9 @@ public class CurvedBooster : CustomBooster
         player.SetBoosterFacing(derivative.SafeNormalize());
 
         bool stopped = false;
-        player.MoveToX(next.X, _ => stopped = true);
-        player.MoveToY(next.Y + offY, _ => stopped = true);
-
+        player.MoveToX(next.X, dynamicData.Get<Collision>("onCollideH") + (_ => stopped = true));
+        player.MoveToY(next.Y + offY, dynamicData.Get<Collision>("onCollideV") + (_ => stopped = true));
+        
         // Then finish overriding.
         GravityHelper.EndOverride?.Invoke();
 
@@ -184,7 +185,6 @@ public class CurvedBooster : CustomBooster
             player.Speed = speed;
             return Player.StNormal;
         }
-
         return null;
     }
 
