@@ -45,7 +45,7 @@ public class MoveBlockDebris : Actor
         };
     }
 
-    protected override void OnSquish(CollisionData data)
+    public override void OnSquish(CollisionData data)
     {
     }
 
