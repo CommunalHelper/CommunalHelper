@@ -871,6 +871,11 @@ triggers.CommunalHelper/SJ/ShowHitboxTrigger.attributes.description.typeNames=A 
 triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.name.trigger=Oshiro Faster Attack [Strawberry Jam]
 triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.description.trigger=Toggles Oshiro attacking in his B-side pattern (every 1.916 seconds) in A-side maps.
 
+# Affect Sprite Trigger
+triggers.CommunalHelper/AffectSpriteTrigger.placements.name.trigger=Affect Sprite Variable Trigger
+triggers.CommunalHelper/AffectSpriteTrigger.placements.description.trigger=Allows you to change the properties of an entity's sprite on a trigger\n(Either, the player or the first entity that collides with the node).
+triggers.CommunalHelper/AffectSpriteTrigger.attributes.description.parameter=Choose what variable to edit of the appropriate sprite.\nRate: The rate at which the animation plays. Value must be a number.\nRotation: the rotation (around the Justify point) the sprite will render at, in degrees. Value must be a number between 0 and 360.\nUseRawDeltaTime: This will make the sprite update the same regardless of "slowdown effects." Value must be `true` or `false`.\nJustify: The relative position where the "Position" of the image is placed, as well as where rotation will start from. Value must be in the form `x,y` where x & y are numbers.\nPosition: the relative Position from the entity the "Justify" point is at. Value must be in the form `x,y` where x and y are numbers.\nScale: the size of the image. Does not effect hitboxes. Value must be in the form of `x,y` where both x & y are numbers.\nColor: the tint of the image. Value must be a hex color.
+
 # Player Visual Modifier Trigger
 triggers.CommunalHelper/PlayerVisualModTrigger.placements.name.trigger=Player Visual Modifier Trigger
 triggers.CommunalHelper/PlayerVisualModTrigger.placements.description.trigger=Creates a visual extension to the player regardless of skinmods.\nExpands on the Skateboard Trigger from Strawberry Jam.
