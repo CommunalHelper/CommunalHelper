@@ -144,9 +144,18 @@ public static class CustomSFX
     public const string game_shapeshifter_shake = "event:/CommunalHelperEvents/game/shapeshifter/shake";
     public const string game_shapeshifter_supermove = "event:/CommunalHelperEvents/game/shapeshifter/supermove";
     public const string game_shapeshifter_move = "event:/CommunalHelperEvents/game/shapeshifter/move";
+
+    public const string paint_cassette_crusher_snap = "event:/CH_Paint_SFX/cassette_crusher_snap";
+    public const string paint_emitter_blue = "event:/CH_Paint_SFX/emitter_blue";
+    public const string paint_emitter_impact = "event:/CH_Paint_SFX/emitter_impact";
+    public const string paint_emitter_pink = "event:/CH_Paint_SFX/emitter_pink";
+    public const string paint_paintbrush_laser_blue = "event:/CH_Paint_SFX/paintbrush_laser_blue";
+    public const string paint_paintbrush_laser_pink = "event:/CH_Paint_SFX/paintbrush_laser_pink";
+    public const string paint_paintbrush_laser_ramp_up = "event:/CH_Paint_SFX/paintbrush_laser_ramp_up";
 }
 
 public static class CustomBanks
 {
     public static Bank CommunalHelper { get; } = Audio.Banks.Banks["bank:/CommunalHelperBank"];
+    public static Bank Paint { get; } = Audio.Banks.Banks["bank:/CH_Paint_SFX"];
 }

@@ -1,0 +1,8 @@
+{bac9fdc1-d861-4ac3-93ef-c82e0fe74ee5} event:/CH_Paint_SFX/cassette_crusher_snap
+{4d123cd4-58e4-4b26-9331-27a2846f4103} event:/CH_Paint_SFX/emitter_blue
+{2bf26b52-f3be-4e2b-bcc2-671041e2b5d3} event:/CH_Paint_SFX/emitter_impact
+{4fd24406-8741-4859-a02b-07343d18174a} event:/CH_Paint_SFX/emitter_pink
+{a7f03210-8f7f-4872-8de9-3ec37c850504} event:/CH_Paint_SFX/paintbrush_laser_blue
+{5d27885e-9b86-49c9-93c8-0be6cb4245da} event:/CH_Paint_SFX/paintbrush_laser_pink
+{1f5eba02-c1fb-4cee-a7de-c6780bc47a59} event:/CH_Paint_SFX/paintbrush_laser_ramp_up
+{812da008-acb6-42fc-a876-9b34aab0ce7e} bank:/CH_Paint_SFX

@@ -591,4 +591,57 @@
         <Loop id="capture" path="capture" delay="0.05"/>
         <Anim id="disappear" path="disappear" delay="0.065"/>
     </ufoCage>
+
+    <!--Paintbrush Large Brush: The 2-tile wide brush sprite-->
+    <paintbrushLargeBrush path="objects/CommunalHelper/strawberryJam/paintbrush/mosscairn/" start="pink_idle">
+        <Justify x="0" y="0.5"/>
+        <Anim id="pink_idle" path="pink/brush" delay="0.1" frames="1"/>
+        <Anim id="pink_charging" path="pink/brush" delay="0.1" frames="2-9"/>
+        <Anim id="pink_burst" path="pink/brush" delay="0.1" frames="10-11" goto="pink_firing"/>
+        <Loop id="pink_firing" path="pink/brush" delay="0.1" frames="12-15"/>
+        <Anim id="pink_cooldown" path="pink/brush" delay="0.1" frames="16-19" goto="pink_idle"/>
+        <Anim id="blue_idle" path="blue/brush" delay="0.1" frames="1"/>
+        <Anim id="blue_charging" path="blue/brush" delay="0.1" frames="2-9"/>
+        <Anim id="blue_burst" path="blue/brush" delay="0.1" frames="10-11" goto="pink_firing"/>
+        <Loop id="blue_firing" path="blue/brush" delay="0.1" frames="12-15"/>
+        <Anim id="blue_cooldown" path="blue/brush" delay="0.1" frames="16-19" goto="pink_idle"/>
+    </paintbrushLargeBrush>
+
+    <!--Paintbrush Paint Back: Appears behind the brush while it is firing-->
+    <paintbrushPaintBack path="objects/CommunalHelper/strawberryJam/paintbrush/mosscairn/">
+        <Justify x="0" y="0.5"/>
+        <Loop id="pink_firing" path="pink/paintback" delay="0.1" frames="12-15"/>
+        <Anim id="pink_cooldown" path="pink/paintback" delay="0.1" frames="16-18"/>
+        <Loop id="blue_firing" path="blue/paintback" delay="0.1" frames="12-15"/>
+        <Anim id="blue_cooldown" path="blue/paintback" delay="0.1" frames="16-18"/>
+    </paintbrushPaintBack>
+
+    <!--Paintbrush Paint: Appears on the brush while it is firing-->
+    <paintbrushPaintParticles path="objects/CommunalHelper/strawberryJam/paintbrush/mosscairn/">
+        <Justify x="0" y="0.5"/>
+        <Anim id="pink_charging" path="pink/paintparticles" delay="0.1" frames="2-9"/>
+        <Anim id="pink_burst" path="pink/paintparticles" delay="0.1" frames="10-11" goto="pink_firing"/>
+        <Loop id="pink_firing" path="pink/paintparticles" delay="0.1" frames="12-15"/>
+        <Anim id="pink_cooldown" path="pink/paintparticles" delay="0.1" frames="16-19"/>
+        <Anim id="blue_charging" path="blue/paintparticles" delay="0.1" frames="2-9"/>
+        <Anim id="blue_burst" path="blue/paintparticles" delay="0.1" frames="10-11" goto="blue_firing"/>
+        <Loop id="blue_firing" path="blue/paintparticles" delay="0.1" frames="12-15"/>
+        <Anim id="blue_cooldown" path="blue/paintparticles" delay="0.1" frames="16-19"/>
+    </paintbrushPaintParticles>
+
+    <!--Paintbrush Small Brush: Appears between large brushes in wide emitters -->
+    <paintbrushSmallBrush path="objects/CommunalHelper/strawberryJam/paintbrush/mosscairn/">
+        <Justify x="0" y="0.5"/>
+        <Anim id="pink_idle" path="pink/backbrush" delay="0.1" frames="1-4"/>
+        <Anim id="blue_idle" path="blue/backbrush" delay="0.1" frames="1-4"/>
+    </paintbrushSmallBrush>
+
+    <!--Paintbrush Beam-->
+    <paintbrushBeam path="objects/CommunalHelper/strawberryJam/paintbrush/mosscairn/">
+        <Justify x="0" y="0.5"/>
+        <Anim id="pink_burst" path="pink/beam" delay="0.1" frames="10-11" goto="pink_firing"/>
+        <Loop id="pink_firing" path="pink/beam" delay="0.1" frames="12-15"/>
+        <Anim id="blue_burst" path="blue/beam" delay="0.1" frames="10-11" goto="blue_firing"/>
+        <Loop id="blue_firing" path="blue/beam" delay="0.1" frames="12-15"/>
+    </paintbrushBeam>
 </Sprites>
