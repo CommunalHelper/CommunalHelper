@@ -860,6 +860,22 @@ entities.CommunalHelper/SJ/WormholeBooster.placements.description.booster=Booste
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.deathColor=The color to use for the booster when it becomes deadly.
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.instantCamera=Whether the camera should transition instantly or not.
 
+# [Strawberry Jam] Laser Emitter
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.up=Laser Emitter (Up) [Strawberry Jam]
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.down=Laser Emitter (Down) [Strawberry Jam]
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.left=Laser Emitter (Left) [Strawberry Jam]
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.right=Laser Emitter (Right) [Strawberry Jam]
+
+# [Strawberry Jam] Paintbrush
+entities.CommunalHelper/SJ/Paintbrush.placements.name.up_0=Paintbrush (Up, Blue) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.up_1=Paintbrush (Up, Pink) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.down_0=Paintbrush (Down, Blue) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.down_1=Paintbrush (Down, Pink) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.left_0=Paintbrush (Left, Blue) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.left_1=Paintbrush (Left, Pink) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.right_0=Paintbrush (Right, Blue) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.right_1=Paintbrush (Right, Pink) [Strawberry Jam]
+
 # ---------------------- TRIGGERS --------------------------
 
 # [Strawberry Jam] Show Hitbox Trigger
