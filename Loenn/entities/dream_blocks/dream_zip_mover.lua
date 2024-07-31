@@ -30,6 +30,7 @@ dreamZipMover.placements = {
             width = 16,
             height = 16,
             featherMode = false,
+            dashSpeed = 240.0,
             oneUse = false,
             refillCount = -1,
             below = false,
