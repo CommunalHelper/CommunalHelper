@@ -275,4 +275,43 @@ public static class Util
         }
         action(1.0f);
     }
+
+    public static void DrawBlockStyle(Camera camera, Vector2 pos, float width, float height, MTexture[,] ninSlice, Sprite middle, Color color)
+    {
+        Rectangle cameraBounds = camera.GetBounds();
+        if (pos.X + width < cameraBounds.Left || pos.Y + height < cameraBounds.Top || pos.X > cameraBounds.Right || pos.Y > cameraBounds.Bottom)
+            return;
+
+        cameraBounds.Inflate(ninSlice[0, 0].Width, ninSlice[0, 0].Height);
+
+        int tilesX = (int) (width / 8f);
+        int tilesY = (int) (height / 8f);
+        ninSlice[0, 0].DrawIfInRect(cameraBounds, pos + new Vector2(0f, 0f), Vector2.Zero, color);
+        ninSlice[2, 0].DrawIfInRect(cameraBounds, pos + new Vector2(width - 8f, 0f), Vector2.Zero, color);
+        ninSlice[0, 2].DrawIfInRect(cameraBounds, pos + new Vector2(0f, height - 8f), Vector2.Zero, color);
+        ninSlice[2, 2].DrawIfInRect(cameraBounds, pos + new Vector2(width - 8f, height - 8f), Vector2.Zero, color);
+        for (int i = 1; i < tilesX - 1; i++)
+        {
+            ninSlice[1, 0].DrawIfInRect(cameraBounds, pos + new Vector2(i * 8, 0f), Vector2.Zero, color);
+            ninSlice[1, 2].DrawIfInRect(cameraBounds, pos + new Vector2(i * 8, height - 8f), Vector2.Zero, color);
+        }
+        for (int i = 1; i < tilesY - 1; i++)
+        {
+            ninSlice[0, 1].DrawIfInRect(cameraBounds, pos + new Vector2(0f, i * 8), Vector2.Zero, color);
+            ninSlice[2, 1].DrawIfInRect(cameraBounds, pos + new Vector2(width - 8f, i * 8), Vector2.Zero, color);
+        }
+        for (int i = 1; i < tilesX - 1; i++)
+        {
+            for (int j = 1; j < tilesY - 1; j++)
+            {
+                ninSlice[1, 1].DrawIfInRect(cameraBounds, pos + (new Vector2(i, j) * 8f), Vector2.Zero, color);
+            }
+        }
+        if (middle != null)
+        {
+            middle.Color = color;
+            middle.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
+            middle.Render();
+        }
+    }
 }

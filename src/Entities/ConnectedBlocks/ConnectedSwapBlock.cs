@@ -35,34 +35,7 @@ public class ConnectedSwapBlock : ConnectedSolid
         public override void Render()
         {
             float scale = 0.5f * (0.5f + (((float) Math.Sin(timer) + 1f) * 0.25f));
-            DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, Color.White * scale);
-        }
-
-        private void DrawBlockStyle(Vector2 pos, float width, float height, MTexture[,] ninSlice, Color color)
-        {
-            int num = (int) (width / 8f);
-            int num2 = (int) (height / 8f);
-            ninSlice[0, 0].Draw(pos + new Vector2(0f, 0f), Vector2.Zero, color);
-            ninSlice[2, 0].Draw(pos + new Vector2(width - 8f, 0f), Vector2.Zero, color);
-            ninSlice[0, 2].Draw(pos + new Vector2(0f, height - 8f), Vector2.Zero, color);
-            ninSlice[2, 2].Draw(pos + new Vector2(width - 8f, height - 8f), Vector2.Zero, color);
-            for (int i = 1; i < num - 1; i++)
-            {
-                ninSlice[1, 0].Draw(pos + new Vector2(i * 8, 0f), Vector2.Zero, color);
-                ninSlice[1, 2].Draw(pos + new Vector2(i * 8, height - 8f), Vector2.Zero, color);
-            }
-            for (int j = 1; j < num2 - 1; j++)
-            {
-                ninSlice[0, 1].Draw(pos + new Vector2(0f, j * 8), Vector2.Zero, color);
-                ninSlice[2, 1].Draw(pos + new Vector2(width - 8f, j * 8), Vector2.Zero, color);
-            }
-            for (int k = 1; k < num - 1; k++)
-            {
-                for (int l = 1; l < num2 - 1; l++)
-                {
-                    ninSlice[1, 1].Draw(pos + (new Vector2(k, l) * 8f), Vector2.Zero, color);
-                }
-            }
+            Util.DrawBlockStyle(SceneAs<Level>().Camera, new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, Color.White * scale);
         }
     }
 
@@ -421,7 +394,7 @@ public class ConnectedSwapBlock : ConnectedSolid
     {
         if (!IsGroupVisibleAt(pos))
             return;
-        
+
         foreach (Image tile in ninSlice)
         {
             tile.RenderPosition += pos;
