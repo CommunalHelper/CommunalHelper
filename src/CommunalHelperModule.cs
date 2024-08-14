@@ -8,6 +8,7 @@ using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.Entities.Misc;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
+using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.CommunalHelper.States;
 using Celeste.Mod.CommunalHelper.Triggers;
 using Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
@@ -118,6 +119,7 @@ public class CommunalHelperModule : EverestModule
         typeof(Imports.CavernHelper).ModInterop();
         typeof(Imports.GravityHelper).ModInterop();
         typeof(Imports.ReverseHelper).ModInterop();
+        typeof(Imports.LylyraHelper).ModInterop();
 
         #endregion
 
@@ -222,6 +224,10 @@ public class CommunalHelperModule : EverestModule
             LaserEmitter.Load();
         }
 
+        if (Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "LylyraHelper", Version = new Version("1.3.12") }))
+        {
+            LylyraHelper.Load();
+        }
 
         // Register CustomCassetteBlock types
         CustomCassetteBlock.Initialize();

@@ -16,7 +16,7 @@ public class LoopBlock : Solid
 
     private MTexture[,] tiles;
     private Vector2 scale = Vector2.One;
-    private Color color;
+    internal Color color;
 
     private ParticleType particleType;
 
@@ -30,7 +30,7 @@ public class LoopBlock : Solid
     private float respawnTimer;
     private float targetSpeedX;
     private float dashedDirX;
-
+    internal EntityData creatingData;
     private readonly int edgeThickness;
 
     private const float SIDEBOOST_SPEED = 310f; // decided by mapper
@@ -38,7 +38,9 @@ public class LoopBlock : Solid
 
     public LoopBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Int("edgeThickness", 1), data.HexColor("color"), data.Attr("texture", DEFAULT_TEXTURE))
-    { }
+    { 
+        creatingData = data; 
+    }
 
     public LoopBlock(Vector2 position, int width, int height, int edgeThickness, Color color, string texture = DEFAULT_TEXTURE)
         : base(position, width, height, false)
