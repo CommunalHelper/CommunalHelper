@@ -86,4 +86,22 @@ public static class Commands
         Audio.Stop(Audio.CurrentMusicEventInstance);
         Audio.Stop(Audio.CurrentAmbienceEventInstance);
     }
+
+    [Command("ch_toggle_elytra", help: "toggle on/off elytra usage.")]
+    public static void CH_ToggleElytra()
+    {
+        if (Engine.Scene is not Level level)
+        {
+            Engine.Commands.Log("Cannot execute this command outside of a level!", Color.Red);
+            return;
+        }
+
+        var prev = CommunalHelperModule.Session.CanDeployElytra;
+        CommunalHelperModule.Session.CanDeployElytra = !prev;
+        Engine.Commands.Log(!prev switch
+        {
+            true => "Elytra is now enabled!",
+            false => "Elytra is now disabled!",
+        }, Color.Teal);
+    }
 }
