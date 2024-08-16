@@ -8,8 +8,15 @@ entities.CommunalHelper/DreamRefill.attributes.description.respawnTime=The time 
 # Dream Jellyfish
 entities.CommunalHelper/DreamJellyfish.placements.name.normal=Dream Jellyfish
 entities.CommunalHelper/DreamJellyfish.placements.name.floating=Dream Jellyfish (Floating)
+entities.CommunalHelper/DreamJellyfish.attributes.name.refillOnFloorSprings=Refill When Player Hits Floor Spring
+entities.CommunalHelper/DreamJellyfish.attributes.name.refillOnWallSprings=Refill When Player Hits Wall Spring
 entities.CommunalHelper/DreamJellyfish.attributes.description.bubble=Whether the entity should hover in the air before being grabbed.
 entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether the entity should show the usage tutorial.
+entities.CommunalHelper/DreamJellyfish.attributes.description.fixedInvertedColliderOffset=Whether to apply the position fix for this Dream Jellyfish's DreamDashCollider when its gravity is inverted.
+entities.CommunalHelper/DreamJellyfish.attributes.description.oneUse=Whether the Dream Jellyfish should shatter upon exit.
+entities.CommunalHelper/DreamJellyfish.attributes.description.quickDestroy=Makes this Dream Jellyfish shatter a little faster.
+entities.CommunalHelper/DreamJellyfish.attributes.description.refillOnFloorSprings=Whether this Dream Jellyfish should refill its ability to be dashed through when the player hits a floor spring.
+entities.CommunalHelper/DreamJellyfish.attributes.description.refillOnWallSprings=Whether this Dream Jellyfish should refill its ability to be dashed through when the player hits a wall spring.
 
 # Dream Booster
 entities.CommunalHelper/DreamBoosterAny.placements.name.dream_booster=Dream Booster (Any Direction)

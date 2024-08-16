@@ -1,12 +1,15 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Imports;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.Utils;
+using System.Collections;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
+// todo: add actAsDreamTunnel support
 [CustomEntity("CommunalHelper/DreamJellyfish")]
 [Tracked(true)]
 internal class DreamJellyfish : Glider
@@ -17,19 +20,7 @@ internal class DreamJellyfish : Glider
     public static readonly ParticleType[] P_DreamGlideUp = new ParticleType[CustomDreamBlock.DreamColors.Length];
     public static readonly ParticleType[] P_DreamGlide = new ParticleType[CustomDreamBlock.DreamColors.Length];
 
-    // Could maybe use CustomDreamBlock.DreamParticle.
-    public struct DreamParticle
-    {
-        public Vector2 Position;
-        public int Layer;
-        public Color EnabledColor, DisabledColor;
-        public float TimeOffset;
-    }
-    public DreamParticle[] Particles;
-    public static MTexture[] ParticleTextures;
-    public float Flash;
-
-    public static readonly Rectangle ParticleBounds = new(-23, -35, 48, 60);
+    private static readonly Rectangle particleBounds = new(-23, -35, 48, 60);
 
     private readonly DreamDashCollider dreamDashCollider;
     public bool AllowDreamDash
@@ -40,12 +31,21 @@ internal class DreamJellyfish : Glider
 
     private readonly DynamicData gliderData;
 
-    public Sprite Sprite;
+    private readonly Sprite Sprite;
+    private readonly DreamSprite dreamSprite;
+
+    private readonly bool oneUse;
+    private readonly bool quickDestroy;
+
+    private bool shouldShatter;
+    private bool shattering;
+
+    private readonly bool refillOnFloorSprings, refillOnWallSprings;
 
     public DreamJellyfish(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Bool("bubble"), data.Bool("tutorial")) { }
+        : this(data.Position + offset, data.Bool("bubble"), data.Bool("tutorial"), data.Bool("oneUse", false), data.Bool("quickDestroy", false), data.Bool("fixedInvertedColliderOffset", false), data.Bool("refillOnFloorSprings", false), data.Bool("refillOnWallSprings", true)) { }
 
-    public DreamJellyfish(Vector2 position, bool bubble, bool tutorial)
+    public DreamJellyfish(Vector2 position, bool bubble, bool tutorial, bool oneUse, bool quickDestroy, bool fixedInvertedColliderOffset, bool refillOnFloorSprings, bool refillOnWallSprings)
         : base(position, bubble, tutorial)
     {
         gliderData = new DynamicData(typeof(Glider), this);
@@ -54,54 +54,28 @@ internal class DreamJellyfish : Glider
         Remove(oldSprite);
         gliderData.Set("sprite", Sprite = CommunalHelperGFX.SpriteBank.Create("dreamJellyfish"));
         Add(Sprite);
+        Sprite.Visible = false;
 
-        Visible = Sprite.Visible = false;
+        Add(dreamSprite = new(Sprite, particleBounds, outlineOffset: new(0, -4), maskOffset: new(-1, 1), invertedSpriteYOffset: 8));
 
         Add(dreamDashCollider = new DreamDashCollider(new Hitbox(28, 16, -13, -18), OnDreamDashEnter, OnDreamDashExit));
 
+        this.oneUse = oneUse;
+        this.quickDestroy = quickDestroy;
+
+        this.refillOnFloorSprings = refillOnFloorSprings;
+        this.refillOnWallSprings = refillOnWallSprings;
+
         // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper)
         // So let's add a listener that does this for us.
+        // Note: this used to be 1 pixel higher than would be "correct" (ie. preserving relative spacing between colliders) by default, this is why fixedInvertedColliderOffset exists
         Component listener = GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) =>
         {
             bool inverted = value == (int) GravityType.Inverted;
-            dreamDashCollider.Collider.Position.Y = inverted ? 1 : -18; // a bit hacky
+            dreamDashCollider.Collider.Position.Y = inverted ? (fixedInvertedColliderOffset ? 2 : 1) : -18; // a bit hacky
         });
         if (listener is not null)
             Add(listener);
-    }
-
-    public override void Awake(Scene scene)
-    {
-        base.Awake(scene);
-
-        int w = ParticleBounds.Width;
-        int h = ParticleBounds.Height;
-        Particles = new DreamParticle[(int) (w / 8f * (h / 8f) * 1.5f)];
-        for (int i = 0; i < Particles.Length; i++)
-        {
-            Particles[i].Position = new Vector2(Calc.Random.NextFloat(w), Calc.Random.NextFloat(h));
-            Particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
-            Particles[i].TimeOffset = Calc.Random.NextFloat();
-
-            Particles[i].DisabledColor = Color.LightGray * (0.5f + (Particles[i].Layer / 2f * 0.5f));
-            Particles[i].DisabledColor.A = 255;
-
-            Particles[i].EnabledColor = Particles[i].Layer switch
-            {
-                0 => Calc.Random.Choose(CustomDreamBlock.DreamColors[0], CustomDreamBlock.DreamColors[1], CustomDreamBlock.DreamColors[2]),
-                1 => Calc.Random.Choose(CustomDreamBlock.DreamColors[3], CustomDreamBlock.DreamColors[4], CustomDreamBlock.DreamColors[5]),
-                2 => Calc.Random.Choose(CustomDreamBlock.DreamColors[6], CustomDreamBlock.DreamColors[7], CustomDreamBlock.DreamColors[8]),
-                _ => throw new NotImplementedException()
-            };
-        }
-
-        scene.Tracker.GetEntity<DreamJellyfishRenderer>().Track(this);
-    }
-
-    public override void Removed(Scene scene)
-    {
-        base.Removed(scene);
-        scene.Tracker.GetEntity<DreamJellyfishRenderer>().Untrack(this);
     }
 
     private void OnDreamDashEnter(Player player)
@@ -118,8 +92,17 @@ internal class DreamJellyfish : Glider
 
     public void OnDreamDashExit(Player player)
     {
+        // if (player.CollideCheck<Solid>())
+        //     player.Die(Vector2.Zero);
+
         DisableDreamDash();
-        if (Input.GrabCheck && player.DashDir.Y <= 0 && player.Holding == null)
+
+        if (oneUse)
+        {
+            shouldShatter = true;
+        }
+
+        if (Input.GrabCheck && player.DashDir.Y <= 0 && player.Holding == null && player.StateMachine.State != DreamTunnelDash.StDreamTunnelDash)
         {
             // force-allow pickup
             player.GetData().Set("minHoldTimer", 0f);
@@ -136,8 +119,8 @@ internal class DreamJellyfish : Glider
     {
         if (AllowDreamDash)
             return;
-        AllowDreamDash = true;
-        Flash = 0.5f;
+        dreamSprite.DreamEnabled = AllowDreamDash = true;
+        dreamSprite.Flash = 0.5f;
         Sprite.Scale = new Vector2(1.3f, 1.2f);
         Audio.Play(CustomSFX.game_dreamJellyfish_jelly_refill);
     }
@@ -146,8 +129,8 @@ internal class DreamJellyfish : Glider
     {
         if (!AllowDreamDash)
             return;
-        AllowDreamDash = false;
-        Flash = 1f;
+        dreamSprite.DreamEnabled = AllowDreamDash = false;
+        dreamSprite.Flash = 1f;
         Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
     }
 
@@ -155,7 +138,13 @@ internal class DreamJellyfish : Glider
     {
         base.Update();
 
-        Flash = Calc.Approach(Flash, 0f, Engine.DeltaTime * 2.5f);
+        if (shouldShatter && !shattering)
+        {
+            Audio.Play(CustomSFX.game_connectedDreamBlock_dreamblock_shatter, Position);
+            Add(new Coroutine(ShatterSequence()));
+            shouldShatter = false;
+            shattering = true;
+        }
 
         if ((Hold.Holder == null && OnGround()) || (Hold.Holder != null && Hold.Holder.OnGround()))
         {
@@ -163,14 +152,64 @@ internal class DreamJellyfish : Glider
         }
     }
 
-    public static void InitializeTextures()
+    private IEnumerator ShatterSequence()
     {
-        ParticleTextures = new MTexture[4] {
-            GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7),
-            GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),
-            GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7),
-            GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),
-        };
+        if (quickDestroy)
+        {
+            Collidable = false;
+        }
+        else
+        {
+            yield return 0.28f;
+        }
+
+        dreamSprite.Active = false;
+        while (dreamSprite.Flash <= 1f)
+        {
+            dreamSprite.Flash += Engine.DeltaTime * 10.0f;
+            yield return null;
+        }
+        dreamSprite.Flash = 1.0f;
+
+        if (!quickDestroy)
+        {
+            yield return 0.05f;
+        }
+
+        Level level = SceneAs<Level>();
+        level.Shake(.65f);
+
+        for (int i = 0; i < dreamSprite.Particles.Length; i++)
+        {
+            Vector2 position = dreamSprite.Particles[i].Position + Position;
+            if (!dreamDashCollider.Collider.Bounds.Contains((int) position.X, (int) position.Y)) // eeh
+                continue;
+
+            Color flickerColor = Color.Lerp(dreamSprite.Particles[i].EnabledColor, Color.White, 0.6f);
+            ParticleType type = new(Lightning.P_Shatter)
+            {
+                ColorMode = ParticleType.ColorModes.Fade,
+                Color = dreamSprite.Particles[i].EnabledColor,
+                Color2 = flickerColor,
+                Source = DreamSprite.ParticleTextures[2],
+                SpinMax = 0,
+                RotationMode = ParticleType.RotationModes.None,
+                Direction = (position - Center).Angle()
+            };
+            level.ParticlesFG.Emit(type, 1, position, Vector2.One * 3f);
+        }
+
+        Collidable = Visible = false;
+
+        Glitch.Value = 0.22f;
+        while (Glitch.Value > 0.0f)
+        {
+            Glitch.Value -= 0.5f * Engine.DeltaTime;
+            yield return null;
+        }
+        Glitch.Value = 0.0f;
+
+        RemoveSelf();
     }
 
     public static void InitializeParticles()
@@ -208,7 +247,6 @@ internal class DreamJellyfish : Glider
 
     internal static void Load()
     {
-        On.Celeste.Holdable.Pickup += Holdable_Pickup;
         On.Celeste.Holdable.Check += Holdable_Check;
 
         On.Celeste.Player.NormalUpdate += Player_NormalUpdate;
@@ -216,6 +254,7 @@ internal class DreamJellyfish : Glider
 
         On.Celeste.Glider.HitSpring += Glider_HitSpring;
         On.Celeste.Player.SideBounce += Player_SideBounce;
+        On.Celeste.Player.SuperBounce += Player_SuperBounce;
 
         // Change particles
         IL.Celeste.Glider.Update += Glider_Update;
@@ -223,7 +262,6 @@ internal class DreamJellyfish : Glider
 
     internal static void Unload()
     {
-        On.Celeste.Holdable.Pickup -= Holdable_Pickup;
         On.Celeste.Holdable.Check -= Holdable_Check;
 
         On.Celeste.Player.NormalUpdate -= Player_NormalUpdate;
@@ -231,6 +269,7 @@ internal class DreamJellyfish : Glider
 
         On.Celeste.Glider.HitSpring -= Glider_HitSpring;
         On.Celeste.Player.SideBounce -= Player_SideBounce;
+        On.Celeste.Player.SuperBounce -= Player_SuperBounce;
 
         IL.Celeste.Glider.Update -= Glider_Update;
     }
@@ -262,22 +301,19 @@ internal class DreamJellyfish : Glider
         }
     }
 
-    private static bool Holdable_Pickup(On.Celeste.Holdable.orig_Pickup orig, Holdable self, Player player)
-    {
-        bool result = orig(self, player);
-
-        if (self.Entity is DreamJellyfish jelly)
-            jelly.Visible = false;
-
-        return result;
-    }
-
     private static bool Player_SideBounce(On.Celeste.Player.orig_SideBounce orig, Player self, int dir, float fromX, float fromY)
     {
         bool result = orig(self, dir, fromX, fromY);
-        if (result && self.Holding?.Entity is DreamJellyfish jelly)
+        if (result && self.Holding?.Entity is DreamJellyfish jelly && jelly.refillOnWallSprings)
             jelly.EnableDreamDash();
         return result;
+    }
+
+    private static void Player_SuperBounce(On.Celeste.Player.orig_SuperBounce orig, Player self, float fromY)
+    {
+        orig(self, fromY);
+        if (self.Holding?.Entity is DreamJellyfish jelly && jelly.refillOnFloorSprings)
+            jelly.EnableDreamDash();
     }
 
     private static bool Glider_HitSpring(On.Celeste.Glider.orig_HitSpring orig, Glider self, Spring spring)
