@@ -108,7 +108,7 @@ public class DreamBoosterHooks
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.EmitDelegate<Action<Player>>(player =>
         {
-            if (player.LastBooster is DreamBooster && DreamTunnelDash.HasDreamTunnelDash)
+            if (player.LastBooster is DreamBooster && DreamTunnelDash.DreamTunnelDashCount > 0)
                 player.LastBooster.Ch9HubTransition = false;
         });
     }
