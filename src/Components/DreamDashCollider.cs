@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
+﻿using Celeste.Mod.CommunalHelper.DashStates;
+using Celeste.Mod.CommunalHelper.Entities;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -29,13 +30,17 @@ internal class DreamDashCollider : Component
 
     public Action<Player> OnEnter, OnExit;
 
-    public DreamDashCollider(Collider collider, Action<Player> onEnter = null, Action<Player> onExit = null)
+    // unused due to mysterious bug: if you enter StDreamTunnelDash using this property, on exiting the solid you have a position-dependent? chance to be moved twice in the same frame, preventing dream grabbing
+    public readonly bool ActAsDreamTunnel;
+
+    public DreamDashCollider(Collider collider, Action<Player> onEnter = null, Action<Player> onExit = null, bool actAsDreamTunnel = false)
         : base(active: true, visible: false)
     {
         Collider = collider;
         Dummy = new(Entity, this);
         OnEnter = onEnter;
         OnExit = onExit;
+        ActAsDreamTunnel = actAsDreamTunnel;
     }
 
     public override void Added(Entity entity)
@@ -134,6 +139,28 @@ internal class DreamDashCollider : Component
                 return dreamBlock;
             });
         }
+
+        cursor.GotoNext(MoveType.After, instr => instr.MatchBrtrue(out _));
+
+        ILLabel afterEnterDreamTunnel = cursor.DefineLabel();
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.Emit(OpCodes.Ldloc_0);
+        cursor.EmitDelegate<Func<Player, Vector2, bool>>((self, position) =>
+        {
+            DynamicData data = DynamicData.For(self);
+
+            DreamBlock oldDreamBlock = data.Get<DreamBlock>("dreamBlock");
+            if (self.CollideCheck<Solid>() && oldDreamBlock is ColliderDummy dummy && dummy.DreamDashCollider.ActAsDreamTunnel)
+            {
+                self.Position = position;
+                return true;
+            }
+            return false;
+        });
+        cursor.Emit(OpCodes.Brfalse, afterEnterDreamTunnel);
+        cursor.Emit(OpCodes.Ldsfld, typeof(DreamTunnelDash).GetField("StDreamTunnelDash"));
+        cursor.Emit(OpCodes.Ret);
+        cursor.MarkLabel(afterEnterDreamTunnel);
 
         cursor.GotoNext(instr => instr.MatchStfld<Player>("dreamBlock"));
 

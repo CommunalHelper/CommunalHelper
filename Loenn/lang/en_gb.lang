@@ -8,8 +8,15 @@ entities.CommunalHelper/DreamRefill.attributes.description.respawnTime=The time 
 # Dream Jellyfish
 entities.CommunalHelper/DreamJellyfish.placements.name.normal=Dream Jellyfish
 entities.CommunalHelper/DreamJellyfish.placements.name.floating=Dream Jellyfish (Floating)
+entities.CommunalHelper/DreamJellyfish.attributes.name.refillOnFloorSprings=Refill When Player Hits Floor Spring
+entities.CommunalHelper/DreamJellyfish.attributes.name.refillOnWallSprings=Refill When Player Hits Wall Spring
 entities.CommunalHelper/DreamJellyfish.attributes.description.bubble=Whether the entity should hover in the air before being grabbed.
 entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether the entity should show the usage tutorial.
+entities.CommunalHelper/DreamJellyfish.attributes.description.fixedInvertedColliderOffset=Whether to apply the position fix for this Dream Jellyfish's DreamDashCollider when its gravity is inverted.
+entities.CommunalHelper/DreamJellyfish.attributes.description.oneUse=Whether the Dream Jellyfish should shatter upon exit.
+entities.CommunalHelper/DreamJellyfish.attributes.description.quickDestroy=Makes this Dream Jellyfish shatter a little faster.
+entities.CommunalHelper/DreamJellyfish.attributes.description.refillOnFloorSprings=Whether this Dream Jellyfish should refill its ability to be dashed through when the player hits a floor spring.
+entities.CommunalHelper/DreamJellyfish.attributes.description.refillOnWallSprings=Whether this Dream Jellyfish should refill its ability to be dashed through when the player hits a wall spring.
 
 # Dream Booster
 entities.CommunalHelper/DreamBoosterAny.placements.name.dream_booster=Dream Booster (Any Direction)
@@ -375,6 +382,29 @@ entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.featherM
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.oneUse=Whether this block should shatter upon exit.
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.persistent=Whether this block should remain broken permanently.
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.quickDestroy=Makes this Dream Crumble Wall On Rumble shatter a little faster.
+
+# Dream Sprite Color Controller
+entities.CommunalHelper/DreamSpriteColorController.placements.name.dreamSpriteColorController=Dream Sprite Color Controller
+entities.CommunalHelper/DreamSpriteColorController.attributes.name.dreamColor0=Layer 1 Particle Color 1
+entities.CommunalHelper/DreamSpriteColorController.attributes.name.dreamColor1=Layer 1 Particle Color 2
+entities.CommunalHelper/DreamSpriteColorController.attributes.name.dreamColor2=Layer 1 Particle Color 3
+entities.CommunalHelper/DreamSpriteColorController.attributes.name.dreamColor3=Layer 2 Particle Color 1
+entities.CommunalHelper/DreamSpriteColorController.attributes.name.dreamColor4=Layer 2 Particle Color 2
+entities.CommunalHelper/DreamSpriteColorController.attributes.name.dreamColor5=Layer 2 Particle Color 3
+entities.CommunalHelper/DreamSpriteColorController.attributes.name.dreamColor6=Layer 3 Particle Color 1
+entities.CommunalHelper/DreamSpriteColorController.attributes.name.dreamColor7=Layer 3 Particle Color 2
+entities.CommunalHelper/DreamSpriteColorController.attributes.name.dreamColor8=Layer 3 Particle Color 3
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.lineColor=Outline color used when rendering Dream Sprites such as the one used by Dream Jellyfish.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.backColor=Background color used when rendering Dream Sprites such as the one used by Dream Jellyfish.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.dreamColor0=Dream block particle color used when rendering Dream Sprites such as the one used by Dream Jellyfish.\nHigher layers move more with the camera and have larger particle sprites compared to lower layers.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.dreamColor1=Dream block particle color used when rendering Dream Sprites such as the one used by Dream Jellyfish.\nHigher layers move more with the camera and have larger particle sprites compared to lower layers.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.dreamColor2=Dream block particle color used when rendering Dream Sprites such as the one used by Dream Jellyfish.\nHigher layers move more with the camera and have larger particle sprites compared to lower layers.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.dreamColor3=Dream block particle color used when rendering Dream Sprites such as the one used by Dream Jellyfish.\nHigher layers move more with the camera and have larger particle sprites compared to lower layers.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.dreamColor4=Dream block particle color used when rendering Dream Sprites such as the one used by Dream Jellyfish.\nHigher layers move more with the camera and have larger particle sprites compared to lower layers.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.dreamColor5=Dream block particle color used when rendering Dream Sprites such as the one used by Dream Jellyfish.\nHigher layers move more with the camera and have larger particle sprites compared to lower layers.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.dreamColor6=Dream block particle color used when rendering Dream Sprites such as the one used by Dream Jellyfish.\nHigher layers move more with the camera and have larger particle sprites compared to lower layers.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.dreamColor7=Dream block particle color used when rendering Dream Sprites such as the one used by Dream Jellyfish.\nHigher layers move more with the camera and have larger particle sprites compared to lower layers.
+entities.CommunalHelper/DreamSpriteColorController.attributes.description.dreamColor8=Dream block particle color used when rendering Dream Sprites such as the one used by Dream Jellyfish.\nHigher layers move more with the camera and have larger particle sprites compared to lower layers.
 
 # Connected Zip Mover
 entities.CommunalHelper/ConnectedZipMover.placements.name.normal=Connected Zip Mover (Normal)

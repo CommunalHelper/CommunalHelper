@@ -414,7 +414,7 @@
         <Loop id="spin" path="roll" delay="0.06"/>
         <Anim id="pop" path="pop" delay="0.055"/>
     </curvedDreamBooster>
-    
+
     <!--ClockwiseSpiralDreamBoosters-->
     <clockwiseSpiralDreamBooster path="objects/CommunalHelper/boosters/dreamBooster/" start="loop">
         <Justify x="0.5" y="0.5"/>
@@ -468,7 +468,7 @@
         <Loop id="spin" path="booster" delay="0.06" frames="18-25"/>
         <Anim id="pop" path="booster" delay="0.08" frames="9-17"/>
     </counterclockwiseSpiralBooster>
-    
+
     <!--GreenHeldBooster-->
     <greenHeldBooster path="objects/CommunalHelper/boosters/heldBooster/green/" start="loop">
         <Justify x="0.5" y="0.5"/>
@@ -477,7 +477,7 @@
         <Loop id="spin" path="booster" delay="0.06" frames="18-25"/>
         <Anim id="pop" path="booster" delay="0.08" frames="9-17"/>
     </greenHeldBooster>
-    
+
     <!--PurpleHeldBooster-->
     <purpleHeldBooster path="objects/CommunalHelper/boosters/heldBooster/purple/" start="loop">
         <Justify x="0.5" y="0.5"/>
@@ -486,7 +486,7 @@
         <Loop id="spin" path="booster" delay="0.06" frames="18-25"/>
         <Anim id="pop" path="booster" delay="0.08" frames="9-17"/>
     </purpleHeldBooster>
-    
+
     <!--HeldBoosterArrow-->
     <heldBoosterArrow path="objects/CommunalHelper/boosters/heldBooster/arrow/" start="loop">
         <Justify x="0.5" y="0.5"/>
