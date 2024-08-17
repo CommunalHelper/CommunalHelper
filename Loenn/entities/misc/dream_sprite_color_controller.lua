@@ -1,7 +1,7 @@
 local dreamSpriteColorController = {}
 
 dreamSpriteColorController.name = "CommunalHelper/DreamSpriteColorController"
-dreamSpriteColorController.texture = "objects/CommunalHelper/dreamSpriteColorController/icon.png"
+dreamSpriteColorController.texture = "objects/CommunalHelper/dreamSpriteColorController/icon"
 
 dreamSpriteColorController.fieldInformation = {
     lineColor = {

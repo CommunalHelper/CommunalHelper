@@ -134,6 +134,17 @@ internal class DreamJellyfish : Glider
         Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
     }
 
+    public override void Awake(Scene scene)
+    {
+        base.Awake(scene);
+
+        if ((scene as Level).Tracker.GetEntity<DreamSpriteColorController>() is DreamSpriteColorController controller)
+        {
+            // reinitialize with controller colors
+            InitializeParticles(controller.DreamColors);
+        }
+    }
+
     public override void Update()
     {
         base.Update();
@@ -200,6 +211,8 @@ internal class DreamJellyfish : Glider
         }
 
         Collidable = Visible = false;
+        // force drop
+        Hold.Holder?.Drop();
 
         Glitch.Value = 0.22f;
         while (Glitch.Value > 0.0f)
@@ -212,14 +225,16 @@ internal class DreamJellyfish : Glider
         RemoveSelf();
     }
 
-    public static void InitializeParticles()
+    public static void InitializeParticles(Color[] colors = null)
     {
+        colors ??= CustomDreamBlock.DreamColors;
+
         Color flash = P_Glow.Color2;
-        for (int i = 0; i < CustomDreamBlock.DreamColors.Length; i++)
+        for (int i = 0; i < colors.Length; i++)
         {
-            Color color = CustomDreamBlock.DreamColors[i];
+            Color color = colors[i];
             Color highlight = i % 2 == 0 ? P_Glide.Color : P_Glide.Color2;
-            Color next = Color.Lerp(CustomDreamBlock.DreamColors[(i + 2) % CustomDreamBlock.DreamColors.Length], flash, 0.4f);
+            Color next = Color.Lerp(colors[(i + 2) % colors.Length], flash, 0.4f);
 
             P_DreamGlow[i] = new ParticleType(P_Glow)
             {
