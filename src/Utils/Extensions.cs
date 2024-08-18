@@ -52,6 +52,33 @@ public static class Extensions
         return null;
     }
 
+    public static Vector2 Vector2(this EntityData data, string key, Vector2 defaultValue)
+    {
+        var split = (data.Values[key] as string).Split(',');
+        if (split.Length == 2 && float.TryParse(split[0], out float x) && float.TryParse(split[1], out float y))
+        {
+            return new Vector2(x, y);
+        }
+        else if (split.Length == 1 && float.TryParse(split[0], out float z))
+        {
+            return new Vector2(z, z);
+        }
+        return defaultValue;
+    }
+    public static Vector2? Vector2Nullable(this EntityData data, string key, Vector2? defaultValue = null)
+    {
+        var split = (data.Values[key] as string).Split(',');
+        if (split.Length == 2 && float.TryParse(split[0], out float x) && float.TryParse(split[1], out float y))
+        {
+            return new Vector2(x, y);
+        }
+        else if (split.Length == 1 && float.TryParse(split[0], out float z))
+        {
+            return new Vector2(z, z);
+        }
+        return defaultValue;
+    }
+
     public static Ease.Easer Easer(this EntityData data, string key, Ease.Easer defaultEaser = null)
         => data.Attr(key) switch
         {
@@ -405,10 +432,10 @@ public static class Extensions
     {
         Vector2 result = dir switch
         {
-            MoveBlock.Directions.Up => -Vector2.UnitY,
-            MoveBlock.Directions.Down => Vector2.UnitY,
-            MoveBlock.Directions.Left => -Vector2.UnitX,
-            _ => Vector2.UnitX
+            MoveBlock.Directions.Up => -Microsoft.Xna.Framework.Vector2.UnitY,
+            MoveBlock.Directions.Down => Microsoft.Xna.Framework.Vector2.UnitY,
+            MoveBlock.Directions.Left => -Microsoft.Xna.Framework.Vector2.UnitX,
+            _ => Microsoft.Xna.Framework.Vector2.UnitX
         };
 
         return result * factor;
