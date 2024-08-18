@@ -33,7 +33,8 @@ curvedDreamBooster.placements = {
             curve = "Quadratic",
             hidePath = false,
             pathStyle = "Arrow",
-            proximityPath = true
+            proximityPath = true,
+            collideAsDash = true
         }
     },
     {
@@ -42,7 +43,8 @@ curvedDreamBooster.placements = {
             curve = "Quadratic",
             hidePath = true,
             pathStyle = "Arrow",
-            proximityPath = true
+            proximityPath = true,
+            collideAsDash = true
         }
     },
     {
@@ -51,7 +53,8 @@ curvedDreamBooster.placements = {
             curve = "Cubic",
             hidePath = false,
             pathStyle = "Arrow",
-            proximityPath = true
+            proximityPath = true,
+            collideAsDash = true
         }
     },
     {
@@ -60,7 +63,8 @@ curvedDreamBooster.placements = {
             curve = "Cubic",
             hidePath = true,
             pathStyle = "Arrow",
-            proximityPath = true
+            proximityPath = true,
+            collideAsDash = true
         }
     }
 }
