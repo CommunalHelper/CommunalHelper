@@ -45,6 +45,7 @@ entities.CommunalHelper/CurvedBooster.placements.name.cubic=Curved Booster (Cubi
 entities.CommunalHelper/CurvedBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
 entities.CommunalHelper/CurvedBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
 entities.CommunalHelper/CurvedBooster.attributes.description.proximityPath=Whether the path's opacity is influenced by its distance to the player. If disabled, the path is always clearly visible.
+entities.CommunalHelper/CurvedBooster.attributes.description.collideAsDash=Whether or not the Curved Booster should break Dash Blocks, hit Kevins, etc.
 
 # Held Booster
 entities.CommunalHelper/HeldBooster.placements.name.green=Held Booster (Green)
