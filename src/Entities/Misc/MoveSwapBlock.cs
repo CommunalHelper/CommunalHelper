@@ -958,7 +958,11 @@ public class MoveSwapBlock : SwapBlock
 
     private static void SwapBlock_DrawBlockStyle(On.Celeste.SwapBlock.orig_DrawBlockStyle orig, SwapBlock self, Vector2 pos, float width, float height, MTexture[,] ninSlice, Sprite middle, Color color)
     {
-        orig(self, pos, width, height, ninSlice, middle, color);
+        if (self is MoveSwapBlock)
+            // Use optimized DrawBlockStyle
+            Util.DrawBlockStyle(self.SceneAs<Level>().Camera, pos, width, height, ninSlice, middle, color);
+        else
+            orig(self, pos, width, height, ninSlice, middle, color);
 
         // DrawBlockStyle is also used by the SwapBlock PathRenderer, which just passes null to the middle argument
         if (self is MoveSwapBlock block && middle != null)
