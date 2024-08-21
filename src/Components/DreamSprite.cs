@@ -7,7 +7,7 @@ namespace Celeste.Mod.CommunalHelper.Components;
 /// <summary>
 /// Component to render a Sprite as a mask onto a dream particle background, as seen in DreamJellyfish. <br/>
 /// You probably want to set the Sprite you give to this component to be invisible, as it is only used for the mask images. <br/>
-/// For the effect to work properly, sprites must be 128x128 (<em>technically</em> they don't have to be but this is the size that works no matter your particleBounds), but the region containing all the mask pixels must be no larger than 64x64. <br/>
+/// For the effect to work properly, sprites must be at least 128x128 (<em>technically</em> they don't have to be but this is the size that works no matter your particleBounds if your sprite does not rotate/scale), but the region containing all the mask pixels must be no larger than 64x64. <br/>
 /// The mask image will be drawn centered on the center of the particleBounds by default and can be offset using maskOffset. <br/>
 /// As such, the particleBounds must be at least as large as the region containing all the mask pixels. <br/>
 /// The particleBounds are relative to the entity's Position and the current system supports particleBounds up to 64x64 in size. <br/>
