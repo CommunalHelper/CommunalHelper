@@ -114,7 +114,7 @@ public class AffectSpriteTrigger : Trigger
         }
         switch (parameter)
         {
-            case "rate": if (_player) DynamicData.For(sprite).Set(PlayerSpriteRateOverride,(float) value); else sprite.Rate = (float) value; break;
+            case "rate": if (_player) DynamicData.For(player).Set(PlayerSpriteRateOverride,(float) value); else sprite.Rate = (float) value; break;
             case "rotation": sprite.Rotation = (float) value; break;
             case "userawdeltatime": sprite.UseRawDeltaTime = (bool) value; break;
             case "justify": sprite.Justify = (Vector2?) value; break;
