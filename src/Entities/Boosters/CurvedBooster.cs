@@ -83,6 +83,7 @@ public class CurvedBooster : CustomBooster
     private PathRenderer pathRenderer;
     private readonly PathStyle style;
     private bool showPath = true;
+    private bool collideAsDash;
     private readonly bool proximityPath;
 
     private readonly BakedCurve curve;
@@ -93,12 +94,13 @@ public class CurvedBooster : CustomBooster
     public override bool IgnorePlayerSpeed => true;
 
     public CurvedBooster(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true)) { }
+        : this(data.Position + offset, data.NodesWithPosition(offset), data.Enum<CurveType>("curve"), !data.Bool("hidePath"), data.Enum("pathStyle", PathStyle.Arrow), data.Bool("proximityPath", true), data.Bool("collideAsDash", false)) { }
 
-    public CurvedBooster(Vector2 position, Vector2[] nodes, CurveType mode, bool showPath, PathStyle style, bool proximityPath = true)
+    public CurvedBooster(Vector2 position, Vector2[] nodes, CurveType mode, bool showPath, PathStyle style, bool proximityPath = true, bool collideAsDash = false)
         : base(position, redBoost: true)
     {
         this.showPath = showPath;
+        this.collideAsDash = collideAsDash;
         this.proximityPath = proximityPath;
         this.style = style;
 
@@ -148,7 +150,7 @@ public class CurvedBooster : CustomBooster
     protected override int? RedDashUpdateBefore(Player player)
     {
         base.RedDashUpdateBefore(player);
-
+        
         Vector2 prev = player.Position;
 
         travel += 240f * Engine.DeltaTime; // booster speed constant
@@ -165,15 +167,22 @@ public class CurvedBooster : CustomBooster
         // player's speed won't matter, we won't allow it to move while in a curved booster.
         // this is here so that the player doesn't die to spikes that it shouldn't die to.
         player.SetBoosterFacing(derivative.SafeNormalize());
-
+        
         bool stopped = false;
-        player.MoveToX(next.X, _ => stopped = true);
-        player.MoveToY(next.Y + offY, _ => stopped = true);
-
+        if (collideAsDash) { 
+            player.MoveToX(next.X, player.onCollideH + (_ => stopped = true));
+            player.MoveToY(next.Y + offY, player.onCollideV + (_ => stopped = true));
+        } else {
+            player.MoveToX(next.X, (_ => stopped = true));
+            player.MoveToY(next.Y + offY, (_ => stopped = true));
+        }
         // Then finish overriding.
         GravityHelper.EndOverride?.Invoke();
 
-        if (stopped)
+        if (player.CanDash)
+            return null; // don't interrupt the player dashing 
+
+        if (stopped) 
             return Player.StNormal;
 
         if (end)
@@ -184,7 +193,6 @@ public class CurvedBooster : CustomBooster
             player.Speed = speed;
             return Player.StNormal;
         }
-
         return null;
     }
 

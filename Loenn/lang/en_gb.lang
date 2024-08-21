@@ -45,6 +45,7 @@ entities.CommunalHelper/CurvedBooster.placements.name.cubic=Curved Booster (Cubi
 entities.CommunalHelper/CurvedBooster.attributes.description.hidePath=Hides the path until the player enters the Dream Booster. Plays an audio cue once when entering.
 entities.CommunalHelper/CurvedBooster.attributes.description.pathStyle=The style of this booster's path.\n* 'Arrows' draws two lines forming the tip of an arrow, and indicates the direction.\n* 'Perpendicular lines' draws a single line perpendicular to the path direction.\n* 'Dotted line' draws small lines along the path, regularly leaving gaps.\n* 'Points' draws single pixels.
 entities.CommunalHelper/CurvedBooster.attributes.description.proximityPath=Whether the path's opacity is influenced by its distance to the player. If disabled, the path is always clearly visible.
+entities.CommunalHelper/CurvedBooster.attributes.description.collideAsDash=Whether or not the Curved Booster should break Dash Blocks, hit Kevins, etc.
 
 # Held Booster
 entities.CommunalHelper/HeldBooster.placements.name.green=Held Booster (Green)
@@ -859,6 +860,22 @@ entities.CommunalHelper/SJ/WormholeBooster.placements.name.booster=Wormhole Boos
 entities.CommunalHelper/SJ/WormholeBooster.placements.description.booster=Booster that teleports you to the nearest of its kind, or kills you if none exist.
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.deathColor=The color to use for the booster when it becomes deadly.
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.instantCamera=Whether the camera should transition instantly or not.
+
+# [Strawberry Jam] Laser Emitter
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.up=Laser Emitter (Up) [Strawberry Jam]
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.down=Laser Emitter (Down) [Strawberry Jam]
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.left=Laser Emitter (Left) [Strawberry Jam]
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.right=Laser Emitter (Right) [Strawberry Jam]
+
+# [Strawberry Jam] Paintbrush
+entities.CommunalHelper/SJ/Paintbrush.placements.name.up_0=Paintbrush (Up, Blue) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.up_1=Paintbrush (Up, Pink) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.down_0=Paintbrush (Down, Blue) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.down_1=Paintbrush (Down, Pink) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.left_0=Paintbrush (Left, Blue) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.left_1=Paintbrush (Left, Pink) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.right_0=Paintbrush (Right, Blue) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.right_1=Paintbrush (Right, Pink) [Strawberry Jam]
 
 # ---------------------- TRIGGERS --------------------------
 

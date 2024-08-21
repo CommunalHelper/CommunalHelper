@@ -579,6 +579,12 @@ public static class Extensions
         return new(left, top, right - left, bottom - top);
     }
 
+    public static bool Collides(this Camera self, Entity entity, Collider collider, float extend = 32f) =>
+        entity.Position.X + collider.Right >= self.Left - extend &&
+        entity.Position.X + collider.Left <= self.Right + extend &&
+        entity.Position.Y + collider.Bottom >= self.Top - extend &&
+        entity.Position.Y + collider.Top <= self.Bottom + extend;
+
     public static TextMenuExt.OptionSubMenu Add(this TextMenuExt.OptionSubMenu menu, string label, params TextMenu.Item[] items)
     {
         return menu.Add(label, new List<TextMenu.Item>(items));
@@ -808,4 +814,10 @@ public static class Extensions
         => DynamicData.For(sfx)
                       .Get<EventInstance>("instance")
                       .setTimelinePosition(0);
+
+    public static void DrawIfInRect(this MTexture mTexture, Rectangle rect, Vector2 pos, Vector2 origin, Color color)
+    {
+        if (rect.Contains(new Rectangle((int) pos.X - (int) origin.X, (int) pos.Y - (int) origin.Y, mTexture.Width, mTexture.Height)))
+            mTexture.Draw(pos, origin, color);
+    }
 }

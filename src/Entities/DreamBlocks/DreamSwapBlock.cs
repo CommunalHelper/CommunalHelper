@@ -29,7 +29,7 @@ public class DreamSwapBlock : CustomDreamBlock
         {
             float scale = 0.5f * (0.5f + (((float) Math.Sin(timer) + 1f) * 0.25f));
             scale = Calc.LerpClamp(scale, 1, block.ColorLerp);
-            block.DrawBlockStyle(new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, ActiveLineColor * scale);
+            Util.DrawBlockStyle(SceneAs<Level>().Camera, new Vector2(block.moveRect.X, block.moveRect.Y), block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, ActiveLineColor * scale);
         }
     }
 
@@ -370,38 +370,5 @@ public class DreamSwapBlock : CustomDreamBlock
         SceneAs<Level>().Particles.Emit(dreamParticles[particleIndex], amount, position, positionRange, direction);
         ++particleIndex;
         particleIndex %= 4;
-    }
-
-    private void DrawBlockStyle(Vector2 pos, float width, float height, MTexture[,] ninSlice, Sprite middle, Color color)
-    {
-        int tilesX = (int) (width / 8f);
-        int tilesY = (int) (height / 8f);
-        ninSlice[0, 0].Draw(pos + new Vector2(0f, 0f), Vector2.Zero, color);
-        ninSlice[2, 0].Draw(pos + new Vector2(width - 8f, 0f), Vector2.Zero, color);
-        ninSlice[0, 2].Draw(pos + new Vector2(0f, height - 8f), Vector2.Zero, color);
-        ninSlice[2, 2].Draw(pos + new Vector2(width - 8f, height - 8f), Vector2.Zero, color);
-        for (int i = 1; i < tilesX - 1; i++)
-        {
-            ninSlice[1, 0].Draw(pos + new Vector2(i * 8, 0f), Vector2.Zero, color);
-            ninSlice[1, 2].Draw(pos + new Vector2(i * 8, height - 8f), Vector2.Zero, color);
-        }
-        for (int i = 1; i < tilesY - 1; i++)
-        {
-            ninSlice[0, 1].Draw(pos + new Vector2(0f, i * 8), Vector2.Zero, color);
-            ninSlice[2, 1].Draw(pos + new Vector2(width - 8f, i * 8), Vector2.Zero, color);
-        }
-        for (int i = 1; i < tilesX - 1; i++)
-        {
-            for (int j = 1; j < tilesY - 1; j++)
-            {
-                ninSlice[1, 1].Draw(pos + (new Vector2(i, j) * 8f), Vector2.Zero, color);
-            }
-        }
-        if (middle != null)
-        {
-            middle.Color = color;
-            middle.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
-            middle.Render();
-        }
     }
 }
