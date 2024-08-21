@@ -30,7 +30,7 @@ public class AffectSpriteTrigger : Trigger
     private static void Player_Added(On.Celeste.Player.orig_Added orig, Player self, Scene scene)
     {
         orig(self, scene);
-        DynamicData data = DynamicData.For(self.Sprite);
+        DynamicData data = DynamicData.For(self);
         data.Set(PlayerSpriteRateOverride, 1f);
     }
     private static void HookPlayerUpdateSprite(ILContext ctx)
@@ -39,7 +39,7 @@ public class AffectSpriteTrigger : Trigger
         while(cursor.TryGotoNext(i => i.MatchStfld<Sprite>("Rate")))
         {
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Func<float, Player, float>>((f,p) => f * ((float)DynamicData.For(p.Sprite).Get(PlayerSpriteRateOverride)));
+            cursor.EmitDelegate<Func<float, Player, float>>((f,p) => f * (p == null ? 1 : (float)DynamicData.For(p).Get(PlayerSpriteRateOverride)));
             cursor.Index++;
         }
 
