@@ -17,11 +17,14 @@ public class DreamFallingBlock : CustomDreamBlock
     protected bool removeWhenOutOfLevel = false;
     protected virtual bool Held => CollideCheck<Platform>(Position + new Vector2(0f, 1f));
 
+    private readonly bool legacyLandingBehavior;
+
     public DreamFallingBlock(EntityData data, Vector2 offset)
         : base(data, offset)
     {
         noCollide = data.Bool("noCollide", false);
         forceShake = data.Bool("forceShake", false);
+        legacyLandingBehavior = data.Bool("legacyLandingBehavior", true);
 
         Add(new Coroutine(Sequence()));
     }
@@ -197,7 +200,7 @@ public class DreamFallingBlock : CustomDreamBlock
 
     protected virtual bool ShouldStopFalling()
     {
-        return false;
+        return !legacyLandingBehavior && hasLanded;
     }
 
     private void ShakeSfx()

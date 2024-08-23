@@ -41,7 +41,8 @@ dreamFallingBlock.placements = {
             quickDestroy = false,
             noCollide = false,
             forceShake = false,
-            chained = false
+            chained = false,
+            legacyLandingBehavior = false
         }
     },
     {
@@ -63,7 +64,8 @@ dreamFallingBlock.placements = {
             indicator = false,
             indicatorAtStart = false,
             chained = true,
-            chainTexture = "objects/CommunalHelper/chains/chain"
+            chainTexture = "objects/CommunalHelper/chains/chain",
+            legacyLandingBehavior = false
         }
     }
 }
