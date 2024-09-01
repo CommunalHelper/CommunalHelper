@@ -219,7 +219,7 @@ public static class DreamTunnelDash
         if (dreamTunnelDashTimer <= 0f)
             dreamTunnelDashAttacking = false;
 
-        if (DreamTunnelDashCount > 1 && self.Scene.OnInterval(0.1f))
+        if (DreamTunnelDashCount > 0 && self.Scene.OnInterval(0.1f / DreamTunnelDashCount))
             self.CreateDreamTrail();
     }
 

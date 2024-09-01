@@ -244,6 +244,8 @@ public class CommunalHelperModule : EverestModule
          */
         Imports.GravityHelper.RegisterModSupportBlacklist?.Invoke("CommunalHelper");
 
+        Imports.SpeedrunTool.Initialize();
+
         AeroBlockCharged.SpirialisHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata() { Name = "SpirialisHelper", Version = new Version(1, 0, 8) });
     }
 
