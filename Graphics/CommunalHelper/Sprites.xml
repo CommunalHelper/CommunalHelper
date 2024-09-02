@@ -644,4 +644,11 @@
         <Anim id="blue_burst" path="blue/beam" delay="0.1" frames="10-11" goto="blue_firing"/>
         <Loop id="blue_firing" path="blue/beam" delay="0.1" frames="12-15"/>
     </paintbrushBeam>
+
+    <!--Laser Emitter-->
+    <laserEmitter path="objects/CommunalHelper/strawberryJam/laserEmitter/" start="base">
+        <Justify x="0.5" y="1"/>
+        <Anim id="base" path="base" delay="0.1" frames="0"/>
+        <Anim id="tint" path="tint" delay="0.1" frames="0"/>
+    </laserEmitter>
 </Sprites>
