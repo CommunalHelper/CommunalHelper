@@ -27,7 +27,7 @@ public class Melvin : Solid
     private static readonly MTexture[,] litVCornersCut = new MTexture[2, 2];
     #endregion
 
-    private struct MoveState
+    internal struct MoveState
     {
         public readonly Vector2 From;
         public readonly Vector2 Direction;
@@ -39,14 +39,14 @@ public class Melvin : Solid
         }
     }
 
-    private readonly List<MoveState> returnStack;
+    internal readonly List<MoveState> returnStack;
 
     private Level level;
 
     private SoundSource currentMoveLoopSfx;
     private readonly SoundSource returnLoopSfx;
 
-    private Vector2 crushDir;
+    internal Vector2 crushDir;
     private ArrowDir dir;
     private bool triggered = false;
     private Vector2 squishScale = Vector2.One;
@@ -60,6 +60,7 @@ public class Melvin : Solid
     private readonly List<Image> activeLeftTiles = new();
     private readonly List<Image> tiles = new();
     private float topTilesAlpha, bottomTilesAlpha, leftTilesAlpha, rightTilesAlpha;
+    internal EntityData creationData;
 
     private bool Submerged => Scene.CollideCheck<Water>(new Rectangle((int) (Center.X - 4f), (int) Center.Y, 8, 4));
 
@@ -68,7 +69,9 @@ public class Melvin : Solid
     public Melvin(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height,
               data.Bool("weakTop", false), data.Bool("weakBottom", false), data.Bool("weakLeft", false), data.Bool("weakRight", false))
-    { }
+    { 
+        creationData = data;
+    }
 
     public Melvin(Vector2 position, int width, int height, bool up, bool down, bool left, bool right)
         : base(position, width, height, safe: false)
@@ -356,7 +359,7 @@ public class Melvin : Solid
         return DashCollisionResults.NormalCollision;
     }
 
-    private void Attack(bool hurt)
+    internal void Attack(bool hurt)
     {
         triggered = true;
 

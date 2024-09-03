@@ -1,4 +1,6 @@
-﻿namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+
+namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 
 [CustomEntity("CommunalHelper/SJ/LoopBlock")]
 public class LoopBlock : Solid
@@ -13,10 +15,11 @@ public class LoopBlock : Solid
 
     private Vector2 start;
     private Vector2 speed;
+    private bool? invertedInteraction;
 
     private MTexture[,] tiles;
     private Vector2 scale = Vector2.One;
-    private Color color;
+    internal Color color;
 
     private ParticleType particleType;
 
@@ -30,7 +33,7 @@ public class LoopBlock : Solid
     private float respawnTimer;
     private float targetSpeedX;
     private float dashedDirX;
-
+    internal EntityData creatingData;
     private readonly int edgeThickness;
 
     private const float SIDEBOOST_SPEED = 310f; // decided by mapper
@@ -38,7 +41,9 @@ public class LoopBlock : Solid
 
     public LoopBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Int("edgeThickness", 1), data.HexColor("color"), data.Attr("texture", DEFAULT_TEXTURE))
-    { }
+    { 
+        creatingData = data; 
+    }
 
     public LoopBlock(Vector2 position, int width, int height, int edgeThickness, Color color, string texture = DEFAULT_TEXTURE)
         : base(position, width, height, false)
@@ -142,6 +147,9 @@ public class LoopBlock : Solid
 
     private DashCollisionResults OnDashed(Player player, Vector2 dir)
     {
+        invertedInteraction ??= GravityHelper.IsPlayerInverted?.Invoke() ?? false;
+        var checkDir = invertedInteraction.Value ? 1 : -1;
+        
         if (dir.Y == 0)
         {
             dashedDirX = dir.X;
@@ -173,7 +181,7 @@ public class LoopBlock : Solid
 
             dashed = true;
         }
-        else if (dir.Y == -1)
+        else if (dir.Y == checkDir)
         {
             // Only has a visual purpose, not an used mechanic.
             scale = new Vector2(1.4f, 0.8f);
@@ -230,6 +238,7 @@ public class LoopBlock : Solid
                 waiting = true;
                 Y = start.Y;
                 speed.Y = 0f;
+                invertedInteraction = null;
                 Collidable = true;
             }
             return;
@@ -263,6 +272,7 @@ public class LoopBlock : Solid
             if (playerRider != null && playerRider.StateMachine.State != Player.StCassetteFly)
             {
                 canRumble = true;
+                invertedInteraction ??= GravityHelper.IsPlayerInverted?.Invoke() ?? false;
                 speed.Y = 180f;
                 waiting = false;
                 Audio.Play(SFX.game_04_cloud_blue_boost, Center);
@@ -270,18 +280,22 @@ public class LoopBlock : Solid
             return;
         }
 
+        var inverted = invertedInteraction ?? false;
+        var inversionMultiplier = inverted ? -1 : 1;
+        
         if (returning)
         {
             speed.Y = Calc.Approach(speed.Y, 180f, 600f * Engine.DeltaTime);
 
             // Acts like Platform.MoveTowardsY, but with custom liftspeed.
             // Essentially makes it possible to get the Y boost in a larger window of time.
-            MoveToY(Calc.Approach(ExactPosition.Y, start.Y, speed.Y * Engine.DeltaTime), speed.Y < 0f ? -220f : speed.Y);
+            MoveToY(Calc.Approach(ExactPosition.Y, start.Y, speed.Y * Engine.DeltaTime), inversionMultiplier * (speed.Y < 0f ? -220f : speed.Y));
 
             if (ExactPosition.Y == start.Y)
             {
                 returning = false;
                 waiting = true;
+                invertedInteraction = null;
                 speed.Y = 0f;
             }
             return;
@@ -297,9 +311,9 @@ public class LoopBlock : Solid
         }
 
         if (speed.Y < 0f && Scene.OnInterval(0.02f))
-            level.ParticlesBG.Emit(particleType, 1, Position + new Vector2(Width / 2, Height), new Vector2(Width / 2f, 1f), (float) Math.PI / 2f);
+            level.ParticlesBG.Emit(particleType, 1, Position + new Vector2(Width / 2, inverted ? 0 : Height), new Vector2(Width / 2f, 1f), inversionMultiplier * MathF.PI / 2f);
 
-        if (Y >= start.Y)
+        if (!inverted && Y >= start.Y || inverted && Y <= start.Y)
             speed.Y -= 1200f * Engine.DeltaTime;
         else
         {
@@ -313,7 +327,7 @@ public class LoopBlock : Solid
             }
         }
 
-        MoveV(speed.Y * Engine.DeltaTime, speed.Y < 0f ? -220f : speed.Y);
+        MoveV(inversionMultiplier * speed.Y * Engine.DeltaTime, inversionMultiplier * (speed.Y < 0f ? -220f : speed.Y));
     }
 
     public override void Render()

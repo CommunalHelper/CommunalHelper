@@ -45,7 +45,7 @@ public class DreamMoveBlock : CustomDreamBlock
     public MoveBlock.Directions direction;
     private readonly float homeAngle;
     private int angleSteerSign;
-    private Vector2 startPosition;
+    internal Vector2 startPosition;
     public MovementState state = MovementState.Idling;
 
     private bool leftPressed;
@@ -85,7 +85,7 @@ public class DreamMoveBlock : CustomDreamBlock
     private float flash;
     private readonly SoundSource moveSfx;
 
-    private bool triggered;
+    internal bool triggered;
     private float particleRemainder;
 
     private readonly Coroutine controller;

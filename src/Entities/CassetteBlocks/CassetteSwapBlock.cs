@@ -37,7 +37,7 @@ public class CassetteSwapBlock : CustomCassetteBlock
 
         private void DrawTarget(Vector2 position, Color color)
         {
-            block.DrawBlockStyle(position, block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, color);
+            Util.DrawBlockStyle(SceneAs<Level>().Camera, position, block.moveRect.Width, block.moveRect.Height, block.nineSliceTarget, null, color);
         }
     }
 
@@ -330,39 +330,5 @@ public class CassetteSwapBlock : CustomCassetteBlock
         particlesRemainder -= num2;
         positionRange *= 0.5f;
         SceneAs<Level>().Particles.Emit(Collidable ? moveParticle : moveParticlePressed, num2, position, positionRange, direction);
-    }
-
-    private void DrawBlockStyle(Vector2 pos, float width, float height, MTexture[,] ninSlice, Sprite middle, Color color)
-    {
-        int tilesX = (int) (width / 8f);
-        int tilesY = (int) (height / 8f);
-        ninSlice[0, 0].Draw(pos + new Vector2(0f, 0f), Vector2.Zero, color);
-        ninSlice[2, 0].Draw(pos + new Vector2(width - 8f, 0f), Vector2.Zero, color);
-        ninSlice[0, 2].Draw(pos + new Vector2(0f, height - 8f), Vector2.Zero, color);
-        ninSlice[2, 2].Draw(pos + new Vector2(width - 8f, height - 8f), Vector2.Zero, color);
-        for (int i = 1; i < tilesX - 1; i++)
-        {
-            ninSlice[1, 0].Draw(pos + new Vector2(i * 8, 0f), Vector2.Zero, color);
-            ninSlice[1, 2].Draw(pos + new Vector2(i * 8, height - 8f), Vector2.Zero, color);
-        }
-        for (int j = 1; j < tilesY - 1; j++)
-        {
-            ninSlice[0, 1].Draw(pos + new Vector2(0f, j * 8), Vector2.Zero, color);
-            ninSlice[2, 1].Draw(pos + new Vector2(width - 8f, j * 8), Vector2.Zero, color);
-        }
-        for (int k = 1; k < tilesX - 1; k++)
-        {
-            for (int l = 1; l < tilesY - 1; l++)
-            {
-                ninSlice[1, 1].Draw(pos + (new Vector2(k, l) * 8f), Vector2.Zero, color);
-            }
-        }
-
-        if (middle != null)
-        {
-            middle.Color = color;
-            middle.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
-            middle.Render();
-        }
     }
 }

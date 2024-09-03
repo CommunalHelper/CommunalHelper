@@ -1,3 +1,14 @@
+--1.20.6 (21/08/2024)--
+* Fix Affect Sprite Trigger crashing if DynamicData is null - potential MonoMod bug
+
+--1.20.5 (20/08/2024)--
+* Add paintbrushes from SJ by @swoolcock in https://github.com/CommunalHelper/CommunalHelper/pull/194
+* Implement Affect Sprite Trigger by @Viv-0 in https://github.com/CommunalHelper/CommunalHelper/pull/192
+* Add GravityHelper support to loop blocks by @swoolcock in https://github.com/CommunalHelper/CommunalHelper/pull/195
+* Switch all swap block entities to use an improved DrawBlockStyle method by @aonkeeper4 in https://github.com/CommunalHelper/CommunalHelper/pull/196
+* Made CurvedBooster can hit/trigger DashSwitch, DashBlock, Kevin etc by @AAA1459 in https://github.com/CommunalHelper/CommunalHelper/pull/191
+* Add LylyraHelper Slicer Support by @tkavner in https://github.com/CommunalHelper/CommunalHelper/pull/197
+
 --1.20.4 (28/06/2024)--
 * Fixed Decorative Chain rendering when partially attached. @catapillie
 
