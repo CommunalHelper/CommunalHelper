@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper;
 using System.Collections;
 using System.Collections.Generic;
+using static MonoMod.Cil.RuntimeILReferenceBag;
 
 namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
 {
@@ -24,7 +25,11 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
 
             private float length;
 
-            public DashZipMoverPathRenderer(DashZipMover zipMover)
+            private Color ropeColor = Calc.HexToColor("046e19");
+            private Color ropeLightColor = Calc.HexToColor("329415");
+            private Color ropeShadow = Calc.HexToColor("003622");
+
+            public DashZipMoverPathRenderer(DashZipMover zipMover, string cogSprite, Color ropeColor, Color ropeLightColor, Color ropeShadowColor)
             {
                 Depth = Depths.SolidsBelow;
                 this.zipMover = zipMover;
@@ -41,7 +46,11 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 sparkDirToA = angle + (float) Math.PI - (float) Math.PI / 8f;
                 sparkDirToB = angle + (float) Math.PI + (float) Math.PI / 8f;
 
-                cog = GFX.Game["objects/CommunalHelper/strawberryJam/dashZipMover/cog"];
+                cog = GFX.Game[cogSprite];
+
+                this.ropeColor = ropeColor;
+                this.ropeLightColor = ropeLightColor;
+                ropeShadow = ropeShadowColor;
             }
 
             public void CreateSparks()
@@ -58,6 +67,16 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 {
                     DrawCogs(Vector2.UnitY, ropeShadow);
                     DrawCogs(Vector2.Zero);
+                }
+                if (zipMover.drawBlackBorder)
+                {
+                    Rectangle rect = new Rectangle(
+                        (int) (zipMover.X - (((zipMover.Width * zipMover.scale.X) - zipMover.Width) / 2f) - 1f + zipMover.Shake.X),
+                        (int) (zipMover.Y - (((zipMover.Height * zipMover.scale.Y) - zipMover.Height) / 2f) - 1f + zipMover.Shake.Y),
+                        (int) (zipMover.Width * zipMover.scale.X) + 2,
+                        (int) (zipMover.Height * zipMover.scale.Y) + 2
+                    );
+                    Draw.Rect(rect, Color.Black);
                 }
             }
 
@@ -123,13 +142,13 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
 
         private Vector2 scale = Vector2.One;
 
-        private static readonly Color ropeColor = Calc.HexToColor("046e19");
-        private static readonly Color ropeLightColor = Calc.HexToColor("329415");
-        private static readonly Color ropeShadow = Calc.HexToColor("003622");
-
         private SoundSource sfx = new SoundSource();
 
-        public DashZipMover(Vector2 position, int width, int height, Vector2 target)
+        private bool drawBlackBorder;
+
+        private string soundEvent;
+
+        public DashZipMover(Vector2 position, int width, int height, Vector2 target, string spritePath, bool drawBlackBorder, Color ropeColor, Color ropeLightColor, Color ropeShadowColor, string sound)
             : base(position, width, height, safe: false)
         {
             Depth = Depths.FGTerrain + 1;
@@ -139,9 +158,11 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
             Add(new Coroutine(Sequence()));
             Add(new LightOcclude());
 
-            string path = "objects/zipmover/moon/light";
-            string id = "objects/zipmover/moon/block";
-            string key = "objects/CommunalHelper/strawberryJam/dashZipMover/innercog";
+            string path = spritePath + "light";
+            string id = spritePath + "block";
+            string key = spritePath + "innercog";
+
+            this.drawBlackBorder = drawBlackBorder;
 
             innerCogs = GFX.Game.GetAtlasSubtextures(key);
 
@@ -165,10 +186,14 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
 
             sfx.Position = new Vector2(Width, Height) / 2f;
             Add(sfx);
+
+            pathRenderer = new DashZipMoverPathRenderer(this, spritePath + "cog", ropeColor, ropeLightColor, ropeShadowColor);
+
+            soundEvent = sound;
         }
 
         public DashZipMover(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset)
+            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Attr("spritePath", "objects/CommunalHelper/strawberryJam/dashZipMover/"), data.Bool("drawBlackBorder", false), Calc.HexToColor(data.Attr("ropeColor", "046e19")), Calc.HexToColor(data.Attr("ropeLightColor", "329415")), Calc.HexToColor(data.Attr("ropeShadowColor", "003622")), data.Attr("soundEvent", "event:/CommunalHelperEvents/game/strawberryJam/game/dash_zip_mover/zip_mover"))
         {
         }
 
@@ -189,7 +214,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
         public override void Added(Scene scene)
         {
             base.Added(scene);
-            scene.Add(pathRenderer = new DashZipMoverPathRenderer(this));
+            scene.Add(pathRenderer);
         }
 
         public override void Removed(Scene scene)
@@ -356,7 +381,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                     continue;
                 }
 
-                sfx.Play(CustomSFX.game_strawberryJam_dash_zip_mover_zip_mover);
+                sfx.Play(soundEvent);
 
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                 StartShaking(0.1f);
