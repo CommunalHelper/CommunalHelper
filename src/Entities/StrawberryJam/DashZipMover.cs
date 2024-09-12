@@ -70,13 +70,14 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 }
                 if (zipMover.drawBlackBorder)
                 {
-                    Rectangle rect = new Rectangle(
-                        (int) (zipMover.X - (((zipMover.Width * zipMover.scale.X) - zipMover.Width) / 2f) - 1f + zipMover.Shake.X),
-                        (int) (zipMover.Y - (((zipMover.Height * zipMover.scale.Y) - zipMover.Height) / 2f) - 1f + zipMover.Shake.Y),
-                        (int) (zipMover.Width * zipMover.scale.X) + 2,
-                        (int) (zipMover.Height * zipMover.scale.Y) + 2
+                    Rectangle outline = new Rectangle(
+                        (int) (Math.Round(zipMover.X - ((zipMover.scale.X - 1) * zipMover.Width) / 2f) + zipMover.Shake.X),
+                        (int) (Math.Round(zipMover.Y - ((zipMover.scale.Y - 1) * zipMover.Height) / 2f) + zipMover.Shake.Y),
+                        (int) Math.Ceiling(zipMover.Width * zipMover.scale.X), // TODO: this rectangle's width/height is *ever so slighly* off. help.
+                        (int) Math.Ceiling(zipMover.Height * zipMover.scale.Y)
                     );
-                    Draw.Rect(rect, Color.Black);
+                    outline.Inflate(1, 1);
+                    Draw.Rect(outline, Color.Black);
                 }
             }
 
