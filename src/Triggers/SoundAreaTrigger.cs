@@ -20,6 +20,12 @@ public class SoundAreaTrigger : Trigger
         Add(sound);
     }
 
+    public override void Added(Scene scene)
+    {
+	    base.Added(scene);
+        eventInstance.setVolume(vol);
+    }
+
     public override void Update()
     {
         base.Update();
