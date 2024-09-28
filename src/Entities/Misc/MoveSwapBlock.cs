@@ -155,6 +155,8 @@ public class MoveSwapBlock : SwapBlock
         homeAngle = targetAngle = angle = MoveDirection.Angle();
         angleSteerSign = angle > 0f ? -1 : 1;
 
+        Add(groupable = new GroupableMoveBlock());
+
         int tilesX = (int) Width / 8;
         int tilesY = (int) Height / 8;
         MTexture buttonTexture = GFX.Game["objects/moveBlock/button"];
@@ -189,7 +191,6 @@ public class MoveSwapBlock : SwapBlock
 
         Add(moveBlockSfx = new SoundSource());
         Add(new Coroutine(Controller()));
-        Add(groupable = new GroupableMoveBlock());
 
         DynamicData dynamicData = new(this);
         Add(new MoveBlockRedirectable(dynamicData, () => false, () => MoveDirection, dir => MoveDirection = dir)

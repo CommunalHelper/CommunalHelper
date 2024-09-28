@@ -45,7 +45,8 @@ public class MoveBlockGroup : Entity
             Rectangle hitbox = new((int) node.X - 4, (int) node.Y - 4, 8, 8);
             foreach (GroupableMoveBlock c in scene.Tracker.GetComponents<GroupableMoveBlock>())
             {
-                if (c.Entity.Collidable && c.Entity.CollideRect(hitbox) && !components.Contains(c))
+                // force CassetteMoveBlocks to be detected as they will be uncollidable until the cassette music starts
+                if ((c.Entity is CassetteMoveBlock || c.Entity.Collidable) && c.Entity.CollideRect(hitbox) && !components.Contains(c))
                 {
                     components.Add(c);
                     c.Group = this;
