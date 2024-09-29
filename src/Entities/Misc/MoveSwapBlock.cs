@@ -32,10 +32,15 @@ public class MoveSwapBlock : SwapBlock
     private readonly Sprite middleGreen;
     private readonly Sprite middleRed;
     private readonly Image middleOrange;
+    private readonly Image middleWhite;
 
     private readonly Image middleArrow;
     private readonly MTexture middleCardinal;
     private readonly MTexture middleDiagonal;
+
+    private readonly Image middleArrowHighlight;
+    private readonly MTexture middleCardinalHighlight;
+    private readonly MTexture middleDiagonalHighlight;
 
     private Entity path;
 
@@ -139,6 +144,10 @@ public class MoveSwapBlock : SwapBlock
         middleDiagonal = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockDiagonal"];
         Add(middleArrow = new Image(middleCardinal));
         middleArrow.CenterOrigin();
+        middleCardinalHighlight = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockCardinalHighlight"];
+        middleDiagonalHighlight = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockDiagonalHighlight"];
+        Add(middleArrowHighlight = new Image(middleCardinalHighlight));
+        middleArrowHighlight.CenterOrigin();
 
         Remove(swapBlockData.Get<Sprite>("middleGreen"), swapBlockData.Get<Sprite>("middleRed"));
         swapBlockData.Set("middleGreen", middleGreen = CommunalHelperGFX.SpriteBank.Create("swapBlockLight"));
@@ -147,6 +156,8 @@ public class MoveSwapBlock : SwapBlock
 
         Add(middleOrange = new Image(GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockOrange"]));
         middleOrange.CenterOrigin();
+        Add(middleWhite = new Image(GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockWhite"]));
+        middleWhite.CenterOrigin();
 
         canSteer = data.Bool("canSteer", false);
         maxMoveSpeed = data.Float("moveSpeed", 60f);
@@ -977,13 +988,23 @@ public class MoveSwapBlock : SwapBlock
 
 
                 block.middleArrow.Texture = value % 2 == 0 ? block.middleCardinal : block.middleDiagonal;
-                block.middleArrow.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
-                block.middleArrow.Rotation = value / 2 * Calc.QuarterCircle;
+                block.middleArrowHighlight.Texture = value % 2 == 0 ? block.middleCardinalHighlight : block.middleDiagonalHighlight;
+                block.middleArrow.RenderPosition = block.middleArrowHighlight.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
+                block.middleArrow.Rotation = block.middleArrowHighlight.Rotation = value / 2 * Calc.QuarterCircle;
                 block.middleArrow.Render();
 
                 middleImage.Color = color;
-                middleImage.RenderPosition = pos + new Vector2(width / 2f, height / 2f) + middleOffsets[value];
+                middleImage.RenderPosition = block.middleWhite.RenderPosition = pos + new Vector2(width / 2f, height / 2f) + middleOffsets[value];
                 middleImage.Render();
+
+                if (block.groupable.Group is MoveBlockGroup group)
+                {
+                    Color groupColor = Color.Lerp(Color.Transparent, group.Color, Calc.SineMap(block.Scene.TimeActive * 3, 0, 1));
+                    block.middleWhite.Color = groupColor;
+                    block.middleArrowHighlight.Color = groupColor * 0.75f;
+                    block.middleWhite.Render();
+                    block.middleArrowHighlight.Render();
+                }
             }
             else
             {

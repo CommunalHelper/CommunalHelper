@@ -38,8 +38,12 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
     private Image arrow;
     private Image arrowPressed;
+    private Image arrowHighlight;
+    private Image arrowHighlightPressed;
     private Image cross;
     private Image crossPressed;
+    private Image crossHighlight;
+    private Image crossHighlightPressed;
 
     private float flash;
     private readonly SoundSource moveSfx;
@@ -91,12 +95,18 @@ public class CassetteMoveBlock : CustomCassetteBlock
         int index = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
         arrow = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index]);
         arrowPressed = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index]);
+        arrowHighlight = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlight")[index]);
+        arrowHighlightPressed = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlightPressed")[index]);
         cross = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/x"]);
         crossPressed = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xPressed"]);
+        crossHighlight = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xHighlight"]);
+        crossHighlightPressed = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xHighlightPressed"]);
 
         base.Awake(scene);
         AddCenterSymbol(arrow, arrowPressed);
         AddCenterSymbol(cross, crossPressed);
+        AddCenterSymbol(arrowHighlight, arrowHighlightPressed);
+        AddCenterSymbol(crossHighlight, crossHighlightPressed);
     }
 
     private IEnumerator Controller()
@@ -395,6 +405,12 @@ public class CassetteMoveBlock : CustomCassetteBlock
     {
         Vector2 position = Position;
         Position += Shake;
+
+        Color highlightColor = groupable.Group is null
+            ? Color.Transparent
+            : Color.Lerp(Color.Transparent, groupable.Group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
+        arrowHighlight.Color = arrowHighlightPressed.Color = crossHighlight.Color = crossHighlightPressed.Color = highlightColor;
+
         base.Render();
         float num = flash * 4f;
         Draw.Rect(X - num, Y - num, Width + (num * 2f), Height + (num * 2f), Color.White * flash);
@@ -407,8 +423,12 @@ public class CassetteMoveBlock : CustomCassetteBlock
         bool crossVisible = groupable.State == GroupableMoveBlock.MovementState.Breaking;
         arrow.Visible &= !crossVisible;
         arrowPressed.Visible &= !crossVisible;
+        arrowHighlight.Visible &= !crossVisible;
+        arrowHighlightPressed.Visible &= !crossVisible;
         cross.Visible &= crossVisible;
         crossPressed.Visible &= crossVisible;
+        crossHighlight.Visible &= crossVisible;
+        crossHighlightPressed.Visible &= crossVisible;
     }
 
     private void ActivateParticles()
