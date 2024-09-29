@@ -96,6 +96,7 @@ public class ConnectedMoveBlock : ConnectedSolid
     protected const float CrashStartShakingTime = 0.15f;
     protected readonly float crashTime;
     protected readonly float regenTime;
+    protected readonly bool shakeOnCollision;
 
     protected float moveSpeed;
     protected bool triggered;
@@ -212,6 +213,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
         crashTime = data.Float("crashTime", 0.15f);
         regenTime = data.Float("regenTime", 3f);
+        shakeOnCollision = data.Bool("shakeOnCollision", true);
     }
 
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
@@ -343,7 +345,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 {
                     moveSfx.Param("arrow_stop", 1f);
                     crashResetTimer = CrashResetTime;
-                    if (crashStartShakingTimer < 0f)
+                    if (crashStartShakingTimer < 0f && shakeOnCollision)
                         StartShaking();
                     if (!(crashTimer > 0f))
                     {

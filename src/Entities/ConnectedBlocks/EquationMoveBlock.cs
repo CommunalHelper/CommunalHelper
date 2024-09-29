@@ -143,7 +143,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                 {
                     moveSfx.Param("arrow_stop", 1f);
                     crashResetTimer = CrashResetTime;
-                    if (crashStartShakingTimer < 0f)
+                    if (crashStartShakingTimer < 0f && shakeOnCollision)
                         StartShaking();
                     if (!(crashTimer > 0f))
                     {

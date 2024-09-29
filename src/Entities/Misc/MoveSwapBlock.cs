@@ -51,6 +51,7 @@ public class MoveSwapBlock : SwapBlock
     private const float CrashStartShakingTime = 0.15f;
     private readonly float crashTime;
     private readonly float regenTime;
+    private readonly bool shakeOnCollision;
 
     public enum MovementState
     {
@@ -167,6 +168,7 @@ public class MoveSwapBlock : SwapBlock
 
         crashTime = data.Float("crashTime", 0.15f);
         regenTime = data.Float("regenTime", 3f);
+        shakeOnCollision = data.Bool("shakeOnCollision", true);
 
         int tilesX = (int) Width / 8;
         int tilesY = (int) Height / 8;
@@ -439,7 +441,7 @@ public class MoveSwapBlock : SwapBlock
                     {
                         moveBlockSfx.Param("arrow_stop", 1f);
                         crashResetTimer = CrashResetTime;
-                        if (crashStartShakingTimer < 0f)
+                        if (crashStartShakingTimer < 0f && shakeOnCollision)
                             StartShaking();
                         if (!(crashTimer > 0f))
                         {

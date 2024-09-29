@@ -51,6 +51,7 @@ for i = 1, 4 do
             oldConnectionBehavior = false,
             crashTime = 0.15,
             regenTime = 3.0,
+            shakeOnCollision = true,
         }
     }
 end

@@ -71,6 +71,7 @@ dreamMoveBlock.placements = {
             canSteer = false,
             crashTime = 0.15,
             regenTime = 3.0,
+            shakeOnCollision = true,
             idleButtonsColor = "FFFFFF",
             movingButtonsColor = "FFFFFF",
             idleArrowColor = "FFFFFF",
@@ -88,7 +89,8 @@ dreamMoveBlock.fieldOrder = {
     "direction", "moveSpeed",
     "idleButtonsColor", "idleArrowColor", "idleWobbleLinesColor",
     "movingButtonsColor", "movingArrowColor", "movingWobbleLinesColor",
-    "breakingWobbleLinesColor", "breakingCrossColor"
+    "breakingWobbleLinesColor", "breakingCrossColor",
+    "crashTime", "regenTime", "shakeOnCollision"
 }
 
 local arrowTextures = {

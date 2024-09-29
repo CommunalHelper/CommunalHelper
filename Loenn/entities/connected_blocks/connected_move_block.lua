@@ -59,6 +59,7 @@ for i, direction in ipairs(enums.move_block_directions) do
             outline = true,
             crashTime = 0.15,
             regenTime = 3.0,
+            shakeOnCollision = true,
         }
     }
 end
@@ -78,6 +79,7 @@ connectedMoveBlock.placements[5] = {
         outline = true,
         crashTime = 0.15,
         regenTime = 3.0,
+        shakeOnCollision = true,
     }
 }
 connectedMoveBlock.placements[6] = {
@@ -96,6 +98,7 @@ connectedMoveBlock.placements[6] = {
         outline = true,
         crashTime = 0.15,
         regenTime = 3.0,
+        shakeOnCollision = true,
         activatorFlags = "_pressed",
         breakerFlags = "_obstructed",
         onActivateFlags = "",
