@@ -3,6 +3,9 @@ using System.Collections;
 
 namespace Celeste.Mod.CommunalHelper.Components;
 
+/// <summary>
+/// Component used to allow Move Block Groups to contain any move block entity.
+/// </summary>
 [Tracked]
 public class GroupableMoveBlock : Component
 {
@@ -20,6 +23,8 @@ public class GroupableMoveBlock : Component
     public bool WaitingForRespawn { get; internal set; }
 
     public GroupableMoveBlock() : base(true, false) { }
+
+    // Both of these need to be SwapImmediately'ed in order to not introduce an extra frame of delay which would desync with previous behaviour.
 
     public IEnumerator SyncGroupTriggers()
     {
