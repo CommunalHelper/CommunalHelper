@@ -999,9 +999,7 @@ public class MoveSwapBlock : SwapBlock
 
                 if (block.groupable.Group is MoveBlockGroup group)
                 {
-                    Color groupColor = Color.Lerp(Color.Transparent, group.Color, Calc.SineMap(block.Scene.TimeActive * 3, 0, 1));
-                    block.middleWhite.Color = groupColor;
-                    block.middleArrowHighlight.Color = groupColor * 0.75f;
+                    block.middleWhite.Color = block.middleArrowHighlight.Color = Color.Lerp(Color.Transparent, group.Color, Calc.SineMap(block.Scene.TimeActive * 3, 0, 1));
                     block.middleWhite.Render();
                     block.middleArrowHighlight.Render();
                 }

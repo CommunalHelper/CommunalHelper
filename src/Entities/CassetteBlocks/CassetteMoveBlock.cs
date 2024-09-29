@@ -405,12 +405,6 @@ public class CassetteMoveBlock : CustomCassetteBlock
     {
         Vector2 position = Position;
         Position += Shake;
-
-        Color highlightColor = groupable.Group is null
-            ? Color.Transparent
-            : Color.Lerp(Color.Transparent, groupable.Group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
-        arrowHighlight.Color = arrowHighlightPressed.Color = crossHighlight.Color = crossHighlightPressed.Color = highlightColor;
-
         base.Render();
         float num = flash * 4f;
         Draw.Rect(X - num, Y - num, Width + (num * 2f), Height + (num * 2f), Color.White * flash);
@@ -421,14 +415,21 @@ public class CassetteMoveBlock : CustomCassetteBlock
     {
         base.HandleUpdateVisualState();
         bool crossVisible = groupable.State == GroupableMoveBlock.MovementState.Breaking;
+        bool shouldShowHighlight = groupable.Group is not null;
         arrow.Visible &= !crossVisible;
         arrowPressed.Visible &= !crossVisible;
-        arrowHighlight.Visible &= !crossVisible;
-        arrowHighlightPressed.Visible &= !crossVisible;
+        arrowHighlight.Visible &= !crossVisible && shouldShowHighlight;
+        arrowHighlightPressed.Visible &= !crossVisible && shouldShowHighlight;
         cross.Visible &= crossVisible;
         crossPressed.Visible &= crossVisible;
-        crossHighlight.Visible &= crossVisible;
-        crossHighlightPressed.Visible &= crossVisible;
+        crossHighlight.Visible &= crossVisible && shouldShowHighlight;
+        crossHighlightPressed.Visible &= crossVisible && shouldShowHighlight;
+
+        if (shouldShowHighlight)
+        {
+            Color highlightColor = Color.Lerp(Color.Transparent, groupable.Group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
+            arrowHighlight.Color = arrowHighlightPressed.Color = crossHighlight.Color = crossHighlightPressed.Color = highlightColor;
+        }
     }
 
     private void ActivateParticles()
