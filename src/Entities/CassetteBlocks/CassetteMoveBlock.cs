@@ -203,6 +203,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                     }
                     else
                     {
+                        StopShaking();
                         crashTimer = crashTime;
                         crashStartShakingTimer = CrashStartShakingTime;
                     }

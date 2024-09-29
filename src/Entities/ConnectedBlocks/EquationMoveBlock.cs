@@ -161,6 +161,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                     }
                     else
                     {
+                        StopShaking();
                         crashTimer = crashTime;
                         crashStartShakingTimer = CrashStartShakingTime;
                     }

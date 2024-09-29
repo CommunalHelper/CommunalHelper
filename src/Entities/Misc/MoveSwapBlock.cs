@@ -457,6 +457,7 @@ public class MoveSwapBlock : SwapBlock
                         }
                         else
                         {
+                            StopShaking();
                             crashTimer = crashTime;
                             crashStartShakingTimer = CrashStartShakingTime;
                         }
