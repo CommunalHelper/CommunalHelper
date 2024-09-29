@@ -48,6 +48,9 @@ public class MoveSwapBlock : SwapBlock
     private const float MaxAngle = Calc.EighthCircle;
     private const float NoSteerTime = 0.2f;
     private const float CrashResetTime = 0.1f;
+    private const float CrashStartShakingTime = 0.15f;
+    private readonly float crashTime;
+    private readonly float regenTime;
 
     public enum MovementState
     {
@@ -55,9 +58,6 @@ public class MoveSwapBlock : SwapBlock
         Moving,
         Breaking
     }
-    private const float CrashStartShakingTime = 0.15f;
-    private readonly float crashTime;
-    private readonly float regenTime;
 
     public bool Triggered { get; set; }
 
