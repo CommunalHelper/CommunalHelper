@@ -32,7 +32,6 @@ public class MoveSwapBlock : SwapBlock
     private readonly Sprite middleGreen;
     private readonly Sprite middleRed;
     private readonly Image middleOrange;
-    private readonly Image middleWhite;
 
     private readonly Image middleArrow;
     private readonly MTexture middleCardinal;
@@ -54,6 +53,7 @@ public class MoveSwapBlock : SwapBlock
     private const float NoSteerTime = 0.2f;
     private const float CrashTime = 0.15f;
     private const float CrashResetTime = 0.1f;
+
     private readonly GroupableMoveBlock groupable;
 
     public bool Triggered { get; set; }
@@ -156,8 +156,6 @@ public class MoveSwapBlock : SwapBlock
 
         Add(middleOrange = new Image(GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockOrange"]));
         middleOrange.CenterOrigin();
-        Add(middleWhite = new Image(GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockWhite"]));
-        middleWhite.CenterOrigin();
 
         canSteer = data.Bool("canSteer", false);
         maxMoveSpeed = data.Float("moveSpeed", 60f);
@@ -994,13 +992,12 @@ public class MoveSwapBlock : SwapBlock
                 block.middleArrow.Render();
 
                 middleImage.Color = color;
-                middleImage.RenderPosition = block.middleWhite.RenderPosition = pos + new Vector2(width / 2f, height / 2f) + middleOffsets[value];
+                middleImage.RenderPosition = pos + new Vector2(width / 2f, height / 2f) + middleOffsets[value];
                 middleImage.Render();
 
                 if (block.groupable.Group is MoveBlockGroup group)
                 {
-                    block.middleWhite.Color = block.middleArrowHighlight.Color = Color.Lerp(Color.Transparent, group.Color, Calc.SineMap(block.Scene.TimeActive * 3, 0, 1));
-                    block.middleWhite.Render();
+                    block.middleArrowHighlight.Color = Color.Lerp(Color.Transparent, group.Color, Calc.SineMap(block.Scene.TimeActive * 3, 0, 1));
                     block.middleArrowHighlight.Render();
                 }
             }
