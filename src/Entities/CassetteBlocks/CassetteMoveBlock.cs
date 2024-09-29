@@ -26,9 +26,10 @@ public class CassetteMoveBlock : CustomCassetteBlock
     private const float FastMoveSpeed = 75f;
     private const float SteerSpeed = (float) Math.PI * 16f;
     private const float NoSteerTime = 0.2f;
-    private const float CrashTime = 0.15f;
     private const float CrashResetTime = 0.1f;
-    private const float RegenTime = 3f;
+    private const float CrashStartShakingTime = 0.15f;
+    private readonly float crashTime;
+    private readonly float regenTime;
 
     private readonly float moveSpeed;
     public Directions Direction;
@@ -59,7 +60,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
     private readonly ParticleType P_Break;
     private readonly ParticleType P_BreakPressed;
 
-    public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, bool oldConnectionBehavior, Color? overrideColor)
+    public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, bool oldConnectionBehavior, Color? overrideColor, float crashTime, float regenTime)
         : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, dynamicHitbox: true, overrideColor)
     {
         startPosition = position;
@@ -67,6 +68,9 @@ public class CassetteMoveBlock : CustomCassetteBlock
         this.moveSpeed = moveSpeed;
 
         homeAngle = targetAngle = angle = direction.Angle();
+
+        this.crashTime = crashTime;
+        this.regenTime = regenTime;
 
         Add(moveSfx = new SoundSource());
         Add(new Coroutine(Controller()));
@@ -88,7 +92,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
     }
 
     public CassetteMoveBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.HexColorNullable("customColor"))
+        : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.HexColorNullable("customColor"), data.Float("crashTime", 0.15f), data.Float("regenTime", 3f))
     {
     }
 
@@ -124,8 +128,9 @@ public class CassetteMoveBlock : CustomCassetteBlock
             moveSfx.Play(SFX.game_04_arrowblock_move_loop);
             moveSfx.Param("arrow_stop", 0f);
             StopPlayerRunIntoAnimation = false;
-            float crashTimer = CrashTime;
+            float crashTimer = crashTime;
             float crashResetTimer = CrashResetTime;
+            float crashStartShakingTimer = CrashStartShakingTime;
             while (true)
             {
                 if (Scene.OnInterval(0.02f))
@@ -180,11 +185,14 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 {
                     moveSfx.Param("arrow_stop", 1f);
                     crashResetTimer = CrashResetTime;
+                    if (crashStartShakingTimer < 0f)
+                        StartShaking();
                     if (!(crashTimer > 0f))
                     {
                         break;
                     }
                     crashTimer -= Engine.DeltaTime;
+                    crashStartShakingTimer -= Engine.DeltaTime;
                 }
                 else
                 {
@@ -195,7 +203,8 @@ public class CassetteMoveBlock : CustomCassetteBlock
                     }
                     else
                     {
-                        crashTimer = CrashTime;
+                        crashTimer = crashTime;
+                        crashStartShakingTimer = CrashStartShakingTime;
                     }
                 }
                 Level level = Scene as Level;
@@ -240,7 +249,12 @@ public class CassetteMoveBlock : CustomCassetteBlock
             Position = newPosition;
             Visible = false;
             Present = false;
-            yield return 2.2f;
+
+            float waitTime = Calc.Clamp(regenTime - 0.8f, 0, float.MaxValue);
+            float debrisShakeTime = Calc.Clamp(regenTime - 0.6f, 0, 0.2f);
+            float debrisMoveTime = Calc.Clamp(regenTime, 0, 0.6f);
+
+            yield return waitTime;
 
             foreach (MoveBlockDebris d in debris)
                 d.StopMoving();
@@ -254,11 +268,11 @@ public class CassetteMoveBlock : CustomCassetteBlock
             Add(component);
             foreach (MoveBlockDebris d in debris)
                 d.StartShaking();
-            yield return 0.2f;
+            yield return debrisShakeTime;
 
             foreach (MoveBlockDebris d in debris)
-                d.ReturnHome(0.65f);
-            yield return 0.6f;
+                d.ReturnHome(debrisMoveTime + 0.05f);
+            yield return debrisMoveTime;
 
             routine.RemoveSelf();
             foreach (MoveBlockDebris d in debris)

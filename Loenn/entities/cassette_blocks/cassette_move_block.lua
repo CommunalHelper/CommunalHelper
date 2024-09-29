@@ -49,6 +49,8 @@ for i = 1, 4 do
             direction = "Right",
             moveSpeed = 60.0,
             oldConnectionBehavior = false,
+            crashTime = 0.15,
+            regenTime = 3.0,
         }
     }
 end

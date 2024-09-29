@@ -7,8 +7,8 @@ local communalHelper = require("mods").requireFromPlugin("libraries.communal_hel
 local moveSwapBlock = {}
 
 moveSwapBlock.name = "CommunalHelper/MoveSwapBlock"
-moveSwapBlock.minimumSize = {16, 16}
-moveSwapBlock.nodeLimits = {1, 1}
+moveSwapBlock.minimumSize = { 16, 16 }
+moveSwapBlock.nodeLimits = { 1, 1 }
 moveSwapBlock.fieldInformation = {
     theme = {
         editable = false
@@ -42,7 +42,9 @@ moveSwapBlock.placements = {
             freezeOnSwap = true,
             moveSpeed = 60.0,
             moveAcceleration = 300.0,
-            swapSpeedMultiplier = 1.0
+            swapSpeedMultiplier = 1.0,
+            crashTime = 0.15,
+            regenTime = 3.0,
         }
     }
 }
@@ -65,13 +67,13 @@ local themeTextures = {
 }
 
 local middleSpriteData = {
-    ["Up"] = {rot = 0, ox = 0, oy = -1},
-    ["Right"] = {rot = math.pi / 2, ox = 1, oy = 0},
-    ["Down"] = {rot = math.pi, ox = 0, oy = 1},
-    ["Left"] = {rot = math.pi / 2 * 3, ox = -1, oy = 0}
+    ["Up"] = { rot = 0, ox = 0, oy = -1 },
+    ["Right"] = { rot = math.pi / 2, ox = 1, oy = 0 },
+    ["Down"] = { rot = math.pi, ox = 0, oy = 1 },
+    ["Left"] = { rot = math.pi / 2 * 3, ox = -1, oy = 0 }
 }
 
-local nodeFrameColor = {1.0, 1.0, 1.0, 0.7}
+local nodeFrameColor = { 1.0, 1.0, 1.0, 0.7 }
 
 local frameNinePatchOptions = {
     mode = "fill",
@@ -97,7 +99,7 @@ local function addBlockSprites(sprites, entity, position, frameTexture, middleTe
     local direction = entity.direction or "Right"
     local middleData = middleSpriteData[direction]
 
-    local arrowSprite = drawableSprite.fromTexture(middleTexture, {rotation = middleData.rot})
+    local arrowSprite = drawableSprite.fromTexture(middleTexture, { rotation = middleData.rot })
     arrowSprite:addPosition(x + math.floor(width / 2), y + math.floor(height / 2))
     arrowSprite.depth = blockDepth
 
@@ -153,7 +155,7 @@ function moveSwapBlock.selection(room, entity)
     local nodeX, nodeY = nodes[1].x or x, nodes[1].y or y
     local width, height = entity.width or 8, entity.height or 8
 
-    return utils.rectangle(x, y, width, height), {utils.rectangle(nodeX, nodeY, width, height)}
+    return utils.rectangle(x, y, width, height), { utils.rectangle(nodeX, nodeY, width, height) }
 end
 
 return moveSwapBlock

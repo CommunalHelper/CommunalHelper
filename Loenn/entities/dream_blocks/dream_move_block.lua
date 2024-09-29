@@ -11,7 +11,7 @@ local moveSpeeds = {
 }
 
 dreamMoveBlock.name = "CommunalHelper/DreamMoveBlock"
-dreamMoveBlock.minimumSize = {16, 16}
+dreamMoveBlock.minimumSize = { 16, 16 }
 dreamMoveBlock.fieldInformation = {
     direction = {
         options = enums.move_block_directions,
@@ -69,6 +69,8 @@ dreamMoveBlock.placements = {
             moveSpeed = 60.0,
             noCollide = false,
             canSteer = false,
+            crashTime = 0.15,
+            regenTime = 3.0,
             idleButtonsColor = "FFFFFF",
             movingButtonsColor = "FFFFFF",
             idleArrowColor = "FFFFFF",

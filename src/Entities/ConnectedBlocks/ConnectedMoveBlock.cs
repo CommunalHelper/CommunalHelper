@@ -92,6 +92,11 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected List<Hitbox> ArrowsList;
 
+    protected const float CrashResetTime = 0.1f;
+    protected const float CrashStartShakingTime = 0.15f;
+    protected readonly float crashTime;
+    protected readonly float regenTime;
+
     protected float moveSpeed;
     protected bool triggered;
 
@@ -204,6 +209,9 @@ public class ConnectedMoveBlock : ConnectedSolid
         WaitForFlags = data.Bool("waitForFlags", false);
 
         outline = data.Bool("outline", true);
+
+        crashTime = data.Float("crashTime", 0.15f);
+        regenTime = data.Float("regenTime", 3f);
     }
 
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
@@ -293,8 +301,9 @@ public class ConnectedMoveBlock : ConnectedSolid
             moveSfx.Play(SFX.game_04_arrowblock_move_loop);
             moveSfx.Param("arrow_stop", 0f);
             StopPlayerRunIntoAnimation = false;
-            float crashTimer = 0.15f;
-            float crashResetTimer = 0.1f;
+            float crashTimer = crashTime;
+            float crashResetTimer = CrashResetTime;
+            float crashStartShakingTimer = CrashStartShakingTime;
             while (true)
             {
                 if (Scene.OnInterval(0.02f))
@@ -333,12 +342,15 @@ public class ConnectedMoveBlock : ConnectedSolid
                 if (startingBroken || AnySetEnabled(BreakerFlags))
                 {
                     moveSfx.Param("arrow_stop", 1f);
-                    crashResetTimer = 0.1f;
+                    crashResetTimer = CrashResetTime;
+                    if (crashStartShakingTimer < 0f)
+                        StartShaking();
                     if (!(crashTimer > 0f))
                     {
                         break;
                     }
                     crashTimer -= Engine.DeltaTime;
+                    crashStartShakingTimer -= Engine.DeltaTime;
                 }
                 else
                 {
@@ -349,7 +361,8 @@ public class ConnectedMoveBlock : ConnectedSolid
                     }
                     else
                     {
-                        crashTimer = 0.15f;
+                        crashTimer = crashTime;
+                        crashStartShakingTimer = CrashStartShakingTime;
                     }
                 }
                 Level level = Scene as Level;
@@ -409,6 +422,10 @@ public class ConnectedMoveBlock : ConnectedSolid
             Position = startPosition;
             Visible = Collidable = false;
 
+            float waitTime = Calc.Clamp(regenTime - 0.8f, 0, float.MaxValue);
+            float debrisShakeTime = Calc.Clamp(regenTime - 0.6f, 0, 0.2f);
+            float debrisMoveTime = Calc.Clamp(regenTime, 0, 0.6f);
+
             if (shouldProcessBreakFlags)
                 foreach (string flag in OnBreakFlags)
                 {
@@ -427,7 +444,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                     }
                 }
             curMoveCheck = false;
-            yield return 2.2f;
+            yield return waitTime;
 
             if (Group is not null)
             {
@@ -454,13 +471,13 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 item2.StartShaking();
             }
-            yield return 0.2f;
+            yield return debrisShakeTime;
 
             foreach (MoveBlockDebris item3 in debris)
             {
-                item3.ReturnHome(0.65f);
+                item3.ReturnHome(debrisMoveTime + 0.05f);
             }
-            yield return 0.6f;
+            yield return debrisMoveTime;
 
             routine.RemoveSelf();
             foreach (MoveBlockDebris item4 in debris)
