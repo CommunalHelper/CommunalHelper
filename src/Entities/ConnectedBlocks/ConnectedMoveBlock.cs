@@ -343,7 +343,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
                 if (startingBroken || AnySetEnabled(BreakerFlags))
                 {
-                    moveSfx.Param("arrow_stop", 1f);
+                    moveSfx.Param("arrow_stop", crashTimer > 0.15f ? 0.5f : 1f);
                     crashResetTimer = CrashResetTime;
                     if (crashStartShakingTimer < 0f && shakeOnCollision)
                         StartShaking();

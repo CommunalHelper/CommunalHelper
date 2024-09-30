@@ -439,7 +439,7 @@ public class MoveSwapBlock : SwapBlock
 
                     if (shouldBreak)
                     {
-                        moveBlockSfx.Param("arrow_stop", 1f);
+                        moveBlockSfx.Param("arrow_stop", crashTimer > 0.15f ? 0.5f : 1f);
                         crashResetTimer = CrashResetTime;
                         if (crashStartShakingTimer < 0f && shakeOnCollision)
                             StartShaking();
