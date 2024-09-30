@@ -181,6 +181,8 @@ public class DreamMoveBlock : CustomDreamBlock
             this.breakingCrossColor = Calc.HexToColor(data.Attr("breakingCrossColor"));
         }
 
+        this.currentArrowColor = this.idleArrowColor;
+
         arrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/arrow");
         Add(moveSfx = new SoundSource());
         Add(controller = new Coroutine(Controller()));
