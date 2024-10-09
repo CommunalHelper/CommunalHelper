@@ -17,6 +17,8 @@ public abstract class PathRendererBase<T> : Entity where T : CustomBooster
     private readonly PathStyle style;
 
     private float lerp;
+
+    private Vector2? lastPlayerCenter;
     protected Color Color { get; private set; }
 
     private readonly Color[] colors;
@@ -50,8 +52,10 @@ public abstract class PathRendererBase<T> : Entity where T : CustomBooster
 
         float highlight = .25f;
         if (player != null)
+            lastPlayerCenter = player.Center;
+        if (lastPlayerCenter.HasValue)
         {
-            float dSquared = Vector2.DistanceSquared(player.Center, pos);
+            float dSquared = Vector2.DistanceSquared(lastPlayerCenter.Value, pos);
             highlight = dSquared <= 6400f ? Calc.ClampedMap((float) Math.Sqrt(dSquared), 0, 80) : 1;
         }
 
