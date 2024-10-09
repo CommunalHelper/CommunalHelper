@@ -3,6 +3,7 @@
 public enum DashStates
 {
     DreamTunnelDash,
+    DreamTunnelDoubleDash,
     SeekerDash,
 }
 
@@ -13,7 +14,10 @@ public static class DashStatesExt
         switch (state)
         {
             case DashStates.DreamTunnelDash:
-                DreamTunnelDash.HasDreamTunnelDash = enable;
+                DreamTunnelDash.DreamTunnelDashCount = 1;
+                break;
+            case DashStates.DreamTunnelDoubleDash:
+                DreamTunnelDash.DreamTunnelDashCount = 2;
                 break;
             case DashStates.SeekerDash:
                 SeekerDash.HasSeekerDash = enable;

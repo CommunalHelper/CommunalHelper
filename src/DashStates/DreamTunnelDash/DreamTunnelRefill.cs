@@ -61,17 +61,25 @@ public class DreamTunnelRefill : DashStateRefill
 
     protected override bool CanActivate(Player player)
     {
-        return player.Stamina < 20f || !HasDreamTunnelDash;
+        return player.Stamina < 20f || DreamTunnelDashCount < (twoDashes ? 2 : 1);
     }
 
     protected override void Activated(Player player)
     {
-        DashStates.DreamTunnelDash.SetEnabled(true);
+        if (twoDashes)
+        {
+            DashStates.DreamTunnelDoubleDash.SetEnabled(true);
+            player.Dashes = Math.Max(player.Dashes, 2);
+        }
+        else
+        {
+            DashStates.DreamTunnelDash.SetEnabled(true);
+        }
     }
 
     protected override bool TryCreateCustomSprite(out Sprite sprite)
     {
-        sprite = new Sprite(GFX.Game, "objects/CommunalHelper/dreamRefill/idle");
+        sprite = new Sprite(GFX.Game, twoDashes ? "objects/CommunalHelper/dreamRefillTwo/idle"  : "objects/CommunalHelper/dreamRefill/idle");
         sprite.AddLoop("idle", "", 0.1f);
         sprite.Play("idle");
         sprite.CenterOrigin();

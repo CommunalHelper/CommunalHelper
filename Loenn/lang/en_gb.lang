@@ -2,7 +2,9 @@ mods.CommunalHelper.name=Communal Helper
 
 # Dream Refill
 entities.CommunalHelper/DreamRefill.placements.name.dream_refill=Dream Refill
+entities.CommunalHelper/DreamRefill.placements.name.double_dream_refill=Dream Refill (Two Dashes)
 entities.CommunalHelper/DreamRefill.attributes.description.oneUse=Whether the Dream Refill should be only used once.
+entities.CommunalHelper/DreamRefill.attributes.description.twoDash=Whether the Dream Refill should give two Dream Dashes.
 entities.CommunalHelper/DreamRefill.attributes.description.respawnTime=The time taken by the Dream Refill to respawn.
 
 # Dream Jellyfish
