@@ -114,6 +114,7 @@ placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicator=Renders 
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.quickDestroy=Makes this Dream Falling Block shatter a little faster.
 placements.entities.CommunalHelper/DreamFallingBlock.tooltips.chainTexture=The texture for this Dream Falling Block's chain (if chained).
+placements.entities.CommunalHelper/DreamFallingBlock.tooltips.legacyLandingBehavior=Whether the Dream Falling Block should not emit particles or make sound when landing, and immediately resume falling if the platform it lands on is removed.
 
 # -- Dream Move Block --
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.below=Determines whether the Dream Move Block should render below foreground tiles.
