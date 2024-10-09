@@ -8,7 +8,7 @@ public static class SpeedrunTool
     {
         typeof(SaveLoadImports).ModInterop();
 
-        SaveLoadImports.RegisterStaticTypes?.Invoke(typeof(DreamTunnelDash), [
+        SaveLoadImports.RegisterStaticTypes?.Invoke(typeof(DreamTunnelDash), new string[9] {
             "StDreamTunnelDash",
             "hasDreamTunnelDash",
             "dreamTunnelDashCount",
@@ -18,7 +18,7 @@ public static class SpeedrunTool
             "FeatherMode",
             "overrideDreamDashCheck",
             "DreamTrailColorIndex"
-        ]);
+        });
     }
 
     [ModImportName("SpeedrunTool.SaveLoad")]
