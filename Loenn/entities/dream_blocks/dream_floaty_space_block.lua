@@ -21,6 +21,7 @@ dreamFloatySpaceBlock.placements = {
             width = 8,
             height = 8,
             featherMode = false,
+            dashSpeed = 240.0,
             oneUse = false,
             refillCount = -1,
             below = false,
