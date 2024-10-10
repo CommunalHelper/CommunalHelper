@@ -796,6 +796,12 @@ entities.CommunalHelper/SJ/BulletTimeController.attributes.description.minDashes
 # [Strawberry Jam] Dash Zip Mover
 entities.CommunalHelper/SJ/DashZipMover.placements.name.main=Dash Zip Mover [Strawberry Jam]
 entities.CommunalHelper/SJ/DashZipMover.placements.description.main=A zip mover that moves when the player dashes into it.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.spritePath=The path to the folder containing the Zip Mover sprites.\nThe folder must include: block.png, cog.png, innercog##.png, light00.png, light01.png, light02.png, light03.png
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.drawBlackBorder=Draws a black border around the Zip Mover.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.ropeColor=The rope's base color.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.ropeLightColor=The rope's highlight color.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.ropeShadowColor=The rope's shadow color.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.soundEvent=The sound event that plays when the Zip Mover is activated.
 
 # [Strawberry Jam] Flag Breaker Box 
 entities.CommunalHelper/SJ/FlagBreakerBox.placements.name.breaker_box=Flag Breaker Box [Strawberry Jam]
