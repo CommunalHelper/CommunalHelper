@@ -2,7 +2,9 @@ mods.CommunalHelper.name=Communal Helper
 
 # Dream Refill
 entities.CommunalHelper/DreamRefill.placements.name.dream_refill=Dream Refill
+entities.CommunalHelper/DreamRefill.placements.name.double_dream_refill=Dream Refill (Two Dashes)
 entities.CommunalHelper/DreamRefill.attributes.description.oneUse=Whether the Dream Refill should be only used once.
+entities.CommunalHelper/DreamRefill.attributes.description.twoDash=Whether the Dream Refill should give two Dream Dashes.
 entities.CommunalHelper/DreamRefill.attributes.description.respawnTime=The time taken by the Dream Refill to respawn.
 
 # Dream Jellyfish
@@ -182,6 +184,11 @@ entities.CommunalHelper/CassetteMoveBlock.attributes.description.index=The color
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.tempo=The tempo of the cassette music in the room.
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.oldConnectionBehavior=Force the old texture connection behavior (cassette entities connect to anything around them that is on the same index).
+entities.CommunalHelper/CassetteMoveBlock.attributes.name.crashTime=Break Time
+entities.CommunalHelper/CassetteMoveBlock.attributes.name.regenTime=Respawn Time
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.crashTime=The time it takes for this Cassette Move Block to break when hitting a solid in seconds.
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.regenTime=The time it takes for this Cassette Move Block to respawn after breaking in seconds.
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.shakeOnCollision=Whether this Cassette Move Block should start shaking if it collides with a solid for longer than the default break time.
 
 # Cassette Swap Block
 entities.CommunalHelper/CassetteSwapBlock.placements.name.cassette_block_0=Cassette Swap Block (0 - Blue)
@@ -305,6 +312,11 @@ entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollide=Whether 
 entities.CommunalHelper/DreamMoveBlock.attributes.description.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.oneUse=Whether the Dream Move Block should shatter upon exit.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.quickDestroy=Makes this Dream Move Block shatter a little faster.
+entities.CommunalHelper/DreamMoveBlock.attributes.name.crashTime=Break Time
+entities.CommunalHelper/DreamMoveBlock.attributes.name.regenTime=Respawn Time
+entities.CommunalHelper/DreamMoveBlock.attributes.description.crashTime=The time it takes for this Dream Move Block to break when hitting a solid in seconds.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.regenTime=The time it takes for this Dream Move Block to respawn after breaking in seconds.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.shakeOnCollision=Whether this Dream Move Block should start shaking if it collides with a solid for longer than the default break time.
 entities.CommunalHelper/DreamMoveBlock.Attributes.description.idleButtonsColor=Body and buttons's color when the block is idle.
 entities.CommunalHelper/DreamMoveBlock.Attributes.description.idleArrowColor=Arrow's color when the block is idle.
 entities.CommunalHelper/DreamMoveBlock.Attributes.description.idleWobbleLinesColor=Wobble lines's color when the block is idle.
@@ -330,6 +342,7 @@ entities.CommunalHelper/DreamFallingBlock.attributes.description.indicator=Rende
 entities.CommunalHelper/DreamFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.quickDestroy=Makes this Dream Falling Block shatter a little faster.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.chainTexture=The texture for this Dream Falling Block's chain (if chained).
+entities.CommunalHelper/DreamFallingBlock.attributes.description.legacyLandingBehavior=Whether the Dream Falling Block should not emit particles or make sound when landing, and immediately resume falling if the platform it lands on is removed.
 
 # Dream Switch Gate
 entities.CommunalHelper/DreamSwitchGate.placements.name.dream_switch_gate=Dream Switch Gate
@@ -411,6 +424,11 @@ entities.CommunalHelper/ConnectedMoveBlock.attributes.description.idleColor=The 
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.pressedColor=The color of the arrow when moving.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.breakColor=The color of the arrow when breaking.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.outline=Gives this Move Block an outline.
+entities.CommunalHelper/ConnectedMoveBlock.attributes.name.crashTime=Break Time
+entities.CommunalHelper/ConnectedMoveBlock.attributes.name.regenTime=Respawn Time
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.crashTime=The time it takes for this Connected Move Block to break when hitting a solid in seconds.
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.regenTime=The time it takes for this Connected Move Block to respawn after breaking in seconds.
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.shakeOnCollision=Whether this Connected Move Block should start shaking if it collides with a solid for longer than the default break time.
 
 # Connected Temple Cracked Block
 entities.CommunalHelper/ConnectedTempleCrackedBlock.placements.name.normal=Connected Temple Cracked Block
@@ -440,6 +458,11 @@ entities.CommunalHelper/EquationMoveBlock.attributes.description.constantB=The v
 entities.CommunalHelper/EquationMoveBlock.attributes.description.onActivateFlags=Flags set when this block is activated.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.onBreakFlags=Flags set when this block is broken.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.waitForFlags=Makes this block start off invisible and waiting for flags to become visible (and collidable).
+entities.CommunalHelper/EquationMoveBlock.attributes.name.crashTime=Break Time
+entities.CommunalHelper/EquationMoveBlock.attributes.name.regenTime=Respawn Time
+entities.CommunalHelper/EquationMoveBlock.attributes.description.crashTime=The time it takes for this Equation Move Block to break when hitting a solid in seconds.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.regenTime=The time it takes for this Equation Move Block to respawn after breaking in seconds.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.shakeOnCollision=Whether this Equation Move Block should start shaking if it collides with a solid for longer than the default break time.
 
 # Bouncy Panel
 entities.CommunalHelper/BouncyPanel.placements.name.up=Bouncy Panel (Up)
@@ -579,6 +602,11 @@ entities.CommunalHelper/MoveSwapBlock.attributes.description.moveSpeed=The maxim
 entities.CommunalHelper/MoveSwapBlock.attributes.description.returns=Whether the block will return after swapping.
 entities.CommunalHelper/MoveSwapBlock.attributes.description.swapSpeedMultiplier=The speed multiplier for swapping.
 entities.CommunalHelper/MoveSwapBlock.attributes.description.theme=Unsupported by this entity!
+entities.CommunalHelper/MoveSwapBlock.attributes.name.crashTime=Break Time
+entities.CommunalHelper/MoveSwapBlock.attributes.name.regenTime=Respawn Time
+entities.CommunalHelper/MoveSwapBlock.attributes.description.crashTime=The time it takes for this Move Swap Block to break when hitting a solid in seconds.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.regenTime=The time it takes for this Move Swap Block to respawn after breaking in seconds.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.shakeOnCollision=Whether this Move Swap Block should start shaking if it collides with a solid for longer than the default break time.
 
 # Player Bubble Region
 entities.CommunalHelper/PlayerBubbleRegion.placements.name.player_bubble_region=Player Bubble Region
@@ -793,6 +821,12 @@ entities.CommunalHelper/SJ/BulletTimeController.attributes.description.minDashes
 # [Strawberry Jam] Dash Zip Mover
 entities.CommunalHelper/SJ/DashZipMover.placements.name.main=Dash Zip Mover [Strawberry Jam]
 entities.CommunalHelper/SJ/DashZipMover.placements.description.main=A zip mover that moves when the player dashes into it.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.spritePath=The path to the folder containing the Zip Mover sprites.\nThe folder must include: block.png, cog.png, innercog##.png, light00.png, light01.png, light02.png, light03.png
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.drawBlackBorder=Draws a black border around the Zip Mover.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.ropeColor=The rope's base color.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.ropeLightColor=The rope's highlight color.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.ropeShadowColor=The rope's shadow color.
+entities.CommunalHelper/SJ/DashZipMover.attributes.description.soundEvent=The sound event that plays when the Zip Mover is activated.
 
 # [Strawberry Jam] Flag Breaker Box 
 entities.CommunalHelper/SJ/FlagBreakerBox.placements.name.breaker_box=Flag Breaker Box [Strawberry Jam]

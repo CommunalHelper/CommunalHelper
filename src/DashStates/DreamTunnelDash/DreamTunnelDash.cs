@@ -27,11 +27,11 @@ public static class DreamTunnelDash
     #endregion
 
     public static int StDreamTunnelDash = -1;
-    private static bool hasDreamTunnelDash = false;
-    public static bool HasDreamTunnelDash
+    private static int dreamTunnelDashCount = 0;
+    public static int DreamTunnelDashCount
     {
-        get => hasDreamTunnelDash || CommunalHelperModule.Settings.AlwaysActiveDreamRefillCharge;
-        set => hasDreamTunnelDash = value;
+        get => CommunalHelperModule.Settings.AlwaysActiveDreamRefillCharge ? 1 : dreamTunnelDashCount;
+        set => dreamTunnelDashCount = value;
     }
     private static bool dreamTunnelDashAttacking;
     private static float dreamTunnelDashTimer;
@@ -152,8 +152,9 @@ public static class DreamTunnelDash
     {
         orig(self);
 
-        if (HasDreamTunnelDash)
+        if (DreamTunnelDashCount > 0)
         {
+
             dreamTunnelDashAttacking = true;
             dreamTunnelDashTimer = self.GetData().Get<float>("dashAttackTimer");
 
@@ -174,8 +175,8 @@ public static class DreamTunnelDash
                 FeatherMode = true;
                 NextDashFeather = false;
             }
+            DreamTunnelDashCount--;
         }
-        HasDreamTunnelDash = false;
     }
 
     // DreamTunnelDash trail recoloring
@@ -194,7 +195,7 @@ public static class DreamTunnelDash
     private static void Player_DashCoroutine(ILContext il)
     {
         /*
-         * adds a check for !HasDreamTunnelDash to
+         * adds a check for !dreamTunnelDashAttacking to
          * if (player.onGround && player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f && 
          *  (!player.Inventory.DreamDash || !player.CollideCheck<DreamBlock>(player.Position + Vector2.UnitY)))
          */
@@ -218,7 +219,7 @@ public static class DreamTunnelDash
         if (dreamTunnelDashTimer <= 0f)
             dreamTunnelDashAttacking = false;
 
-        if (HasDreamTunnelDash && self.Scene.OnInterval(0.1f))
+        if (DreamTunnelDashCount > 0 && self.Scene.OnInterval(0.1f / DreamTunnelDashCount))
             self.CreateDreamTrail();
     }
 
@@ -390,13 +391,15 @@ public static class DreamTunnelDash
 
     private static void Level_Reload(On.Celeste.Level.orig_Reload orig, Level self)
     {
-        hasDreamTunnelDash = dreamTunnelDashAttacking = false;
+        DreamTunnelDashCount = 0;
+        dreamTunnelDashAttacking = false;
         orig(self);
     }
 
     private static void LevelLoader_StartLevel(On.Celeste.LevelLoader.orig_StartLevel orig, LevelLoader self)
     {
-        hasDreamTunnelDash = dreamTunnelDashAttacking = false;
+        DreamTunnelDashCount = 0;
+        dreamTunnelDashAttacking = false;
         orig(self);
     }
 

@@ -29,15 +29,17 @@ public class DreamMoveBlock : CustomDreamBlock
     private const float MaxAngle = (float) Math.PI / 4f;
     private const float NoSteerTime = 0.2f;
 
-    private const float CrashTime = 0.15f;
     private const float CrashResetTime = 0.1f;
-    private const float RegenTime = 3f;
+    private const float CrashStartShakingTime = 0.15f;
+    private readonly float crashTime;
+    private readonly float regenTime;
+    private readonly bool shakeOnCollision;
 
     private readonly float moveSpeed;
 
     public MoveBlock.Directions direction;
     private readonly float homeAngle;
-    private int angleSteerSign;
+    private readonly int angleSteerSign;
     internal Vector2 startPosition;
 
     private readonly GroupableMoveBlock groupable;
@@ -140,6 +142,10 @@ public class DreamMoveBlock : CustomDreamBlock
                 break;
         }
         homeAngle = targetAngle = angle = direction.Angle();
+
+        crashTime = data.Float("crashTime", 0.15f);
+        regenTime = data.Float("regenTime", 3f);
+        shakeOnCollision = data.Bool("shakeOnCollision", true);
 
         if (data.Attr("idleButtonsColor", "FFFFFF") != "FFFFFF")
         {
@@ -256,8 +262,9 @@ public class DreamMoveBlock : CustomDreamBlock
             moveSfx.Param("arrow_stop", 0f);
             StopPlayerRunIntoAnimation = false;
 
-            float crashTimer = CrashTime;
+            float crashTimer = crashTime;
             float crashResetTimer = CrashResetTime;
+            float crashStartShakingTimer = CrashStartShakingTime;
             float noSteerTimer = 0.2f;
             while (true)
             {
@@ -339,13 +346,16 @@ public class DreamMoveBlock : CustomDreamBlock
                 }
                 if (hit)
                 {
-                    moveSfx.Param("arrow_stop", 1f);
+                    moveSfx.Param("arrow_stop", crashTimer > 0.15f ? 0.5f : 1f);
                     crashResetTimer = CrashResetTime;
+                    if (crashStartShakingTimer < 0f && shakeOnCollision)
+                        StartShaking();
                     if (!(crashTimer > 0f) && !shattering)
                     {
                         break;
                     }
                     crashTimer -= Engine.DeltaTime;
+                    crashStartShakingTimer -= Engine.DeltaTime;
                 }
                 else
                 {
@@ -356,7 +366,9 @@ public class DreamMoveBlock : CustomDreamBlock
                     }
                     else
                     {
-                        crashTimer = CrashTime;
+                        StopShaking();
+                        crashTimer = crashTime;
+                        crashStartShakingTimer = CrashStartShakingTime;
                     }
                 }
                 Level level = Scene as Level;
@@ -401,9 +413,14 @@ public class DreamMoveBlock : CustomDreamBlock
             DisableStaticMovers();
             Position = startPosition;
             Visible = Collidable = false;
-            yield return 2.2f;
 
 
+            float waitTime = Calc.Clamp(regenTime - 0.8f, 0, float.MaxValue);
+            float debrisShakeTime = Calc.Clamp(regenTime - 0.6f, 0, 0.2f);
+            float debrisMoveTime = Calc.Clamp(regenTime, 0, 0.6f);
+
+            yield return waitTime;
+            
             yield return new SwapImmediately(groupable.WaitForRespawn());
 
             foreach (MoveBlockDebris d in debris)
@@ -430,14 +447,14 @@ public class DreamMoveBlock : CustomDreamBlock
             {
                 d.StartShaking();
             }
-            yield return 0.2f;
+            yield return debrisShakeTime;
 
 
             foreach (MoveBlockDebris d in debris)
             {
-                d.ReturnHome(0.65f);
+                d.ReturnHome(debrisMoveTime + 0.05f);
             }
-            yield return 0.6f;
+            yield return debrisMoveTime;
 
 
             soundFollower.RemoveSelf();

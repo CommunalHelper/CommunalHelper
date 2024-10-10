@@ -98,6 +98,7 @@ public abstract class CustomDreamBlock : DreamBlock
     };
 
     public bool FeatherMode;
+    public float DashSpeed;
     protected int RefillCount;
     protected bool shattering = false;
     public float ColorLerp = 0.0f;
@@ -120,11 +121,11 @@ public abstract class CustomDreamBlock : DreamBlock
     public EntityData creatingData;
 
     public CustomDreamBlock(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) {
+        : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Float("dashSpeed", 240.0f), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) {
         creatingData = data;
     }
 
-    public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, bool oneUse, int refillCount, bool below, bool quickDestroy)
+    public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, float dashSpeed, bool oneUse, int refillCount, bool below, bool quickDestroy)
         : base(position, width, height, null, false, oneUse, below)
     {
         baseData = new(typeof(DreamBlock), this);
@@ -132,6 +133,7 @@ public abstract class CustomDreamBlock : DreamBlock
         RefillCount = refillCount;
 
         FeatherMode = featherMode;
+        DashSpeed = dashSpeed;
         //if (altLineColor) { Dropped in favour of symbol
         //    activeLineColor = Calc.HexToColor("FF66D9"); 
         //}
@@ -622,15 +624,12 @@ public abstract class CustomDreamBlock : DreamBlock
     private static void Player_DreamDashBegin(On.Celeste.Player.orig_DreamDashBegin orig, Player player)
     {
         orig(player);
-        DynamicData playerData = player.GetData();
-        DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
-        if (dreamBlock is CustomDreamBlock customDreamBlock)
+        if (player.dreamBlock is CustomDreamBlock customDreamBlock)
         {
             if (customDreamBlock.FeatherMode)
             {
-                SoundSource dreamSfxLoop = playerData.Get<SoundSource>("dreamSfxLoop");
-                player.Stop(dreamSfxLoop);
-                player.Loop(dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
+                player.Stop(player.dreamSfxLoop);
+                player.Loop(player.dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
             }
 
             // Ensures the player always properly enters a dream block even when it's moving fast
@@ -639,15 +638,15 @@ public abstract class CustomDreamBlock : DreamBlock
                 player.Position.X += Math.Sign(player.DashDir.X);
                 player.Position.Y += Math.Sign(player.DashDir.Y);
             }
+
+            player.Speed = player.DashDir * customDreamBlock.DashSpeed;
         }
 
     }
 
     private static int Player_DreamDashUpdate(On.Celeste.Player.orig_DreamDashUpdate orig, Player player)
     {
-        DynamicData playerData = player.GetData();
-        DreamBlock dreamBlock = playerData.Get<DreamBlock>("dreamBlock");
-        if (dreamBlock is CustomDreamBlock customDreamBlock && customDreamBlock.FeatherMode)
+        if (player.dreamBlock is CustomDreamBlock customDreamBlock && customDreamBlock.FeatherMode)
         {
             Vector2 input = Input.Aim.Value.SafeNormalize();
             if (input != Vector2.Zero)
@@ -658,7 +657,7 @@ public abstract class CustomDreamBlock : DreamBlock
                     vector = Vector2.Dot(input, vector) != -0.8f ? vector.RotateTowards(input.Angle(), 5f * Engine.DeltaTime) : vector;
                     vector = vector.CorrectJoystickPrecision();
                     player.DashDir = vector;
-                    player.Speed = vector * 240f;
+                    player.Speed = vector * customDreamBlock.DashSpeed;
                 }
             }
         }

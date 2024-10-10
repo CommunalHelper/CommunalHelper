@@ -85,8 +85,9 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             moveSfx.Play(SFX.game_04_arrowblock_move_loop);
             moveSfx.Param("arrow_stop", 0f);
             StopPlayerRunIntoAnimation = false;
-            float crashTimer = 0.15f;
-            float crashResetTimer = 0.1f;
+            float crashTimer = crashTime;
+            float crashResetTimer = CrashResetTime;
+            float crashStartShakingTimer = CrashStartShakingTime;
             while (true)
             {
                 if (Scene.OnInterval(0.02f))
@@ -143,13 +144,16 @@ internal class EquationMoveBlock : ConnectedMoveBlock
 
                 if (startingBroken || AnySetEnabled(BreakerFlags) || targetAngle == double.NaN)
                 {
-                    moveSfx.Param("arrow_stop", 1f);
-                    crashResetTimer = 0.1f;
+                    moveSfx.Param("arrow_stop", crashTimer > 0.15f ? 0.5f : 1f);
+                    crashResetTimer = CrashResetTime;
+                    if (crashStartShakingTimer < 0f && shakeOnCollision)
+                        StartShaking();
                     if (!(crashTimer > 0f))
                     {
                         break;
                     }
                     crashTimer -= Engine.DeltaTime;
+                    crashStartShakingTimer -= Engine.DeltaTime;
                 }
                 else
                 {
@@ -160,7 +164,9 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                     }
                     else
                     {
-                        crashTimer = 0.15f;
+                        StopShaking();
+                        crashTimer = crashTime;
+                        crashStartShakingTimer = CrashStartShakingTime;
                     }
                 }
                 Level level = Scene as Level;
@@ -218,6 +224,10 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             Position = startPosition;
             Visible = Collidable = false;
 
+            float waitTime = Calc.Clamp(regenTime - 0.8f, 0, float.MaxValue);
+            float debrisShakeTime = Calc.Clamp(regenTime - 0.6f, 0, 0.2f);
+            float debrisMoveTime = Calc.Clamp(regenTime, 0, 0.6f);
+
             if (shouldProcessBreakFlags)
                 foreach (string flag in OnBreakFlags)
                 {
@@ -236,7 +246,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                     }
                 }
             curMoveCheck = false;
-            yield return 2.2f;
+            yield return waitTime;
 
             yield return new SwapImmediately(groupable.WaitForRespawn());
 
@@ -258,13 +268,13 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             {
                 item2.StartShaking();
             }
-            yield return 0.2f;
+            yield return debrisShakeTime;
 
             foreach (MoveBlockDebris item3 in debris)
             {
-                item3.ReturnHome(0.65f);
+                item3.ReturnHome(debrisMoveTime + 0.05f);
             }
-            yield return 0.6f;
+            yield return debrisMoveTime;
 
             routine.RemoveSelf();
             foreach (MoveBlockDebris item4 in debris)

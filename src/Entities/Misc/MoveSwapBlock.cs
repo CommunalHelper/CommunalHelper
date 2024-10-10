@@ -51,8 +51,11 @@ public class MoveSwapBlock : SwapBlock
     private const float SteerSpeed = Calc.Circle * 8f;
     private const float MaxAngle = Calc.EighthCircle;
     private const float NoSteerTime = 0.2f;
-    private const float CrashTime = 0.15f;
     private const float CrashResetTime = 0.1f;
+    private const float CrashStartShakingTime = 0.15f;
+    private readonly float crashTime;
+    private readonly float regenTime;
+    private readonly bool shakeOnCollision;
 
     private readonly GroupableMoveBlock groupable;
 
@@ -165,6 +168,10 @@ public class MoveSwapBlock : SwapBlock
         angleSteerSign = angle > 0f ? -1 : 1;
 
         Add(groupable = new GroupableMoveBlock());
+        
+        crashTime = data.Float("crashTime", 0.15f);
+        regenTime = data.Float("regenTime", 3f);
+        shakeOnCollision = data.Bool("shakeOnCollision", true);
 
         int tilesX = (int) Width / 8;
         int tilesY = (int) Height / 8;
@@ -338,8 +345,9 @@ public class MoveSwapBlock : SwapBlock
             moveBlockSfx.Play(CustomSFX.game_redirectMoveBlock_arrowblock_move);
             moveBlockSfx.Param("arrow_stop", 0f);
             StopPlayerRunIntoAnimation = false;
-            float crashTimer = CrashTime;
+            float crashTimer = crashTime;
             float crashResetTimer = CrashResetTime;
+            float crashStartShakingTimer = CrashStartShakingTime;
             float noSteerTimer = NoSteerTime;
             while (true)
             {
@@ -436,13 +444,16 @@ public class MoveSwapBlock : SwapBlock
 
                     if (shouldBreak)
                     {
-                        moveBlockSfx.Param("arrow_stop", 1f);
-                        crashResetTimer = 0.1f;
+                        moveBlockSfx.Param("arrow_stop", crashTimer > 0.15f ? 0.5f : 1f);
+                        crashResetTimer = CrashResetTime;
+                        if (crashStartShakingTimer < 0f && shakeOnCollision)
+                            StartShaking();
                         if (!(crashTimer > 0f))
                         {
                             break;
                         }
                         crashTimer -= Engine.DeltaTime;
+                        crashStartShakingTimer -= Engine.DeltaTime;
                     }
                     else
                     {
@@ -453,7 +464,9 @@ public class MoveSwapBlock : SwapBlock
                         }
                         else
                         {
-                            crashTimer = 0.15f;
+                            StopShaking();
+                            crashTimer = crashTime;
+                            crashStartShakingTimer = CrashStartShakingTime;
                         }
                     }
 
@@ -506,7 +519,12 @@ public class MoveSwapBlock : SwapBlock
             Audio.Stop(swapBlockData.Get<EventInstance>("moveSfx"));
 
             Visible = Collidable = path.Visible = false;
-            yield return 2.2f;
+
+            float waitTime = Calc.Clamp(regenTime - 0.8f, 0, float.MaxValue);
+            float debrisShakeTime = Calc.Clamp(regenTime - 0.6f, 0, 0.2f);
+            float debrisMoveTime = Calc.Clamp(regenTime, 0, 0.6f);
+
+            yield return waitTime;
 
             yield return new SwapImmediately(groupable.WaitForRespawn());
 
@@ -528,13 +546,13 @@ public class MoveSwapBlock : SwapBlock
             {
                 debris.StartShaking();
             }
-            yield return 0.2f;
+            yield return debrisShakeTime;
 
             foreach (MoveBlockDebris debris in debrisList)
             {
-                debris.ReturnHome(0.65f);
+                debris.ReturnHome(debrisMoveTime + 0.05f);
             }
-            yield return 0.6f;
+            yield return debrisMoveTime;
 
             routine.RemoveSelf();
             foreach (MoveBlockDebris debris in debrisList)

@@ -15,6 +15,7 @@ const entityData = appendkwargs(CustomDreamBlockData, :(
     indicatorAtStart::Bool=false,
     chained::Bool=false,
     chainTexture::String="objects/CommunalHelper/chains/chain",
+    legacyLandingBehavior::Bool=false,
 ))
 @mapdefdata Entity "CommunalHelper/DreamFallingBlock" DreamFallingBlock entityData
 
