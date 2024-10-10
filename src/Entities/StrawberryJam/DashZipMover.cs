@@ -73,8 +73,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                     Rectangle outline = new Rectangle(
                         (int) (Math.Round(zipMover.X - ((zipMover.scale.X - 1) * zipMover.Width) / 2f) + zipMover.Shake.X),
                         (int) (Math.Round(zipMover.Y - ((zipMover.scale.Y - 1) * zipMover.Height) / 2f) + zipMover.Shake.Y),
-                        (int) Math.Ceiling(zipMover.Width * zipMover.scale.X), // TODO: this rectangle's width/height is *ever so slighly* off. help.
-                        (int) Math.Ceiling(zipMover.Height * zipMover.scale.Y)
+                        (int) (zipMover.Width * 0.125f * MathF.Round(8 * zipMover.scale.X)),  // The width/height here needs to be handled relative to the Rounding value of the individually drawn patch segments
+                        (int) (zipMover.Height * 0.125f * MathF.Round(8 * zipMover.scale.Y))  // As opposed to the width. Round(8 * 2/3) * (x / 8) != Round(x * 2/3)
                     );
                     outline.Inflate(1, 1);
                     Draw.Rect(outline, Color.Black);
