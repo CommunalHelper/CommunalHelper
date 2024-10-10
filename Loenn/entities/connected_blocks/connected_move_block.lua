@@ -20,7 +20,7 @@ local arrowTextures = {
 
 connectedMoveBlock.name = "CommunalHelper/ConnectedMoveBlock"
 connectedMoveBlock.depth = -1
-connectedMoveBlock.minimumSize = {16, 16}
+connectedMoveBlock.minimumSize = { 16, 16 }
 connectedMoveBlock.fieldInformation = {
     direction = {
         options = enums.move_block_directions,
@@ -56,7 +56,10 @@ for i, direction in ipairs(enums.move_block_directions) do
             idleColor = "474070",
             pressedColor = "30b335",
             breakColor = "cc2541",
-            outline = true
+            outline = true,
+            crashTime = 0.15,
+            regenTime = 3.0,
+            shakeOnCollision = true,
         }
     }
 end
@@ -73,7 +76,10 @@ connectedMoveBlock.placements[5] = {
         idleColor = "474070",
         pressedColor = "30b335",
         breakColor = "cc2541",
-        outline = true
+        outline = true,
+        crashTime = 0.15,
+        regenTime = 3.0,
+        shakeOnCollision = true,
     }
 }
 connectedMoveBlock.placements[6] = {
@@ -90,6 +96,9 @@ connectedMoveBlock.placements[6] = {
         pressedColor = "30b335",
         breakColor = "cc2541",
         outline = true,
+        crashTime = 0.15,
+        regenTime = 3.0,
+        shakeOnCollision = true,
         activatorFlags = "_pressed",
         breakerFlags = "_obstructed",
         onActivateFlags = "",
@@ -99,7 +108,7 @@ connectedMoveBlock.placements[6] = {
     }
 }
 
-local highlightColor = {59 / 255, 50 / 255, 101 / 255}
+local highlightColor = { 59 / 255, 50 / 255, 101 / 255 }
 
 local function getSearchPredicate()
     return function(target)
@@ -190,7 +199,8 @@ function connectedMoveBlock.sprite(room, entity)
 
     local sprites = {}
 
-    local highlightRectangle = drawableRectangle.fromRectangle("fill", x + 2, y + 2, width - 4, height - 4, highlightColor)
+    local highlightRectangle = drawableRectangle.fromRectangle("fill", x + 2, y + 2, width - 4, height - 4,
+        highlightColor)
     table.insert(sprites, highlightRectangle:getDrawableSprite())
 
     local relevantBlocks = utils.filter(getSearchPredicate(), room.entities)
@@ -216,8 +226,10 @@ function connectedMoveBlock.sprite(room, entity)
     arrowSprite:addPosition(math.floor(width / 2), math.floor(height / 2))
 
     local arrowSpriteWidth, arrowSpriteHeight = arrowSprite.meta.width, arrowSprite.meta.height
-    local arrowX, arrowY = x + math.floor((width - arrowSpriteWidth) / 2), y + math.floor((height - arrowSpriteHeight) / 2)
-    local arrowRectangle = drawableRectangle.fromRectangle("fill", arrowX, arrowY, arrowSpriteWidth, arrowSpriteHeight, highlightColor)
+    local arrowX, arrowY = x + math.floor((width - arrowSpriteWidth) / 2),
+        y + math.floor((height - arrowSpriteHeight) / 2)
+    local arrowRectangle = drawableRectangle.fromRectangle("fill", arrowX, arrowY, arrowSpriteWidth, arrowSpriteHeight,
+        highlightColor)
 
     table.insert(sprites, arrowRectangle:getDrawableSprite())
     table.insert(sprites, arrowSprite)
