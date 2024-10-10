@@ -14,13 +14,6 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/CassetteMoveBlock")]
 public class CassetteMoveBlock : CustomCassetteBlock
 {
-    public enum MovementState
-    {
-        Idling,
-        Moving,
-        Breaking
-    }
-
     private const float Accel = 300f;
     private const float MoveSpeed = 60f;
     private const float FastMoveSpeed = 75f;
@@ -32,12 +25,12 @@ public class CassetteMoveBlock : CustomCassetteBlock
     private readonly float regenTime;
     private readonly bool shakeOnCollision;
 
+    private readonly GroupableMoveBlock groupable;
+
     private readonly float moveSpeed;
     public Directions Direction;
     private readonly float homeAngle;
     private Vector2 startPosition;
-    public MovementState State = MovementState.Idling;
-
     private float speed;
     private float targetSpeed;
     private float angle;
@@ -47,8 +40,12 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
     private Image arrow;
     private Image arrowPressed;
+    private Image arrowHighlight;
+    private Image arrowHighlightPressed;
     private Image cross;
     private Image crossPressed;
+    private Image crossHighlight;
+    private Image crossHighlightPressed;
 
     private float flash;
     private readonly SoundSource moveSfx;
@@ -76,6 +73,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
         Add(moveSfx = new SoundSource());
         Add(new Coroutine(Controller()));
+        Add(groupable = new GroupableMoveBlock());
 
         P_Activate = new ParticleType(MoveBlock.P_Activate) { Color = color };
         P_Move = new ParticleType(MoveBlock.P_Move) { Color = color };
@@ -88,6 +86,8 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 int index = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
                 arrow.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index];
                 arrowPressed.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index];
+                arrowHighlight.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlight")[index];
+                arrowHighlightPressed.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlightPressed")[index];
                 Direction = dir;
             }
         ));
@@ -103,12 +103,18 @@ public class CassetteMoveBlock : CustomCassetteBlock
         int index = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
         arrow = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index]);
         arrowPressed = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index]);
+        arrowHighlight = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlight")[index]);
+        arrowHighlightPressed = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlightPressed")[index]);
         cross = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/x"]);
         crossPressed = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xPressed"]);
+        crossHighlight = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xHighlight"]);
+        crossHighlightPressed = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xHighlightPressed"]);
 
         base.Awake(scene);
         AddCenterSymbol(arrow, arrowPressed);
         AddCenterSymbol(cross, crossPressed);
+        AddCenterSymbol(arrowHighlight, arrowHighlightPressed);
+        AddCenterSymbol(crossHighlight, crossHighlightPressed);
     }
 
     private IEnumerator Controller()
@@ -116,12 +122,14 @@ public class CassetteMoveBlock : CustomCassetteBlock
         while (true)
         {
             triggered = false;
-            State = MovementState.Idling;
-            while (!triggered && !HasPlayerRider())
+            groupable.State = GroupableMoveBlock.MovementState.Idling;
+            while (!triggered && !HasPlayerRider() && !groupable.GroupTriggerSignal)
                 yield return null;
 
+            yield return new SwapImmediately(groupable.SyncGroupTriggers());
+
             Audio.Play(SFX.game_04_arrowblock_activate, Position);
-            State = MovementState.Moving;
+            groupable.State = GroupableMoveBlock.MovementState.Moving;
             StartShaking(0.2f);
             ActivateParticles();
             yield return 0.2f;
@@ -220,7 +228,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
             Audio.Play(SFX.game_04_arrowblock_break, Position);
             moveSfx.Stop();
-            State = MovementState.Breaking;
+            groupable.State = GroupableMoveBlock.MovementState.Breaking;
             speed = targetSpeed = 0f;
             angle = targetAngle = homeAngle;
             StartShaking(0.2f);
@@ -259,6 +267,8 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
             yield return waitTime;
 
+            yield return new SwapImmediately(groupable.WaitForRespawn());
+
             foreach (MoveBlockDebris d in debris)
                 d.StopMoving();
             while (CollideCheck<Actor>() || CollideCheck<Solid>())
@@ -280,6 +290,8 @@ public class CassetteMoveBlock : CustomCassetteBlock
             routine.RemoveSelf();
             foreach (MoveBlockDebris d in debris)
                 d.RemoveSelf();
+
+            groupable.WaitingForRespawn = false;
             Audio.Play("event:/game/04_cliffside/arrowblock_reappear", Position);
             Visible = true;
             SetDisabledStaticMoversVisibility(true);
@@ -421,11 +433,22 @@ public class CassetteMoveBlock : CustomCassetteBlock
     public override void HandleUpdateVisualState()
     {
         base.HandleUpdateVisualState();
-        bool crossVisible = State == MovementState.Breaking;
+        bool crossVisible = groupable.State == GroupableMoveBlock.MovementState.Breaking;
+        bool shouldShowHighlight = groupable.Group is not null;
         arrow.Visible &= !crossVisible;
         arrowPressed.Visible &= !crossVisible;
+        arrowHighlight.Visible &= !crossVisible && shouldShowHighlight;
+        arrowHighlightPressed.Visible &= !crossVisible && shouldShowHighlight;
         cross.Visible &= crossVisible;
         crossPressed.Visible &= crossVisible;
+        crossHighlight.Visible &= crossVisible && shouldShowHighlight;
+        crossHighlightPressed.Visible &= crossVisible && shouldShowHighlight;
+
+        if (shouldShowHighlight)
+        {
+            Color highlightColor = Color.Lerp(Color.Transparent, groupable.Group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
+            arrowHighlight.Color = arrowHighlightPressed.Color = crossHighlight.Color = crossHighlightPressed.Color = highlightColor;
+        }
     }
 
     private void ActivateParticles()

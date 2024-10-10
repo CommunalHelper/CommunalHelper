@@ -1,4 +1,5 @@
-﻿using FMOD.Studio;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using FMOD.Studio;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -43,8 +44,8 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             bool startingBroken = false, startingByActivator = false;
             curMoveCheck = false;
             triggered = false;
-            State = MovementState.Idling;
-            while (!triggered && !startingByActivator && !startingBroken)
+            groupable.State = GroupableMoveBlock.MovementState.Idling;
+            while (!triggered && !startingByActivator && !startingBroken && !groupable.GroupTriggerSignal)
             {
                 if (startInvisible && !AnySetEnabled(BreakerFlags))
                 {
@@ -55,8 +56,10 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                 startingByActivator = AnySetEnabled(ActivatorFlags);
             }
 
+            yield return new SwapImmediately(groupable.SyncGroupTriggers());
+
             Audio.Play(SFX.game_04_arrowblock_activate, Position);
-            State = MovementState.Moving;
+            groupable.State = GroupableMoveBlock.MovementState.Moving;
             StartShaking(0.2f);
             ActivateParticles();
             if (!startingBroken)
@@ -175,7 +178,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             }
             Audio.Play(SFX.game_04_arrowblock_break, Position);
             moveSfx.Stop();
-            State = MovementState.Breaking;
+            groupable.State = GroupableMoveBlock.MovementState.Breaking;
             speed = targetSpeed = 0f;
             angle = targetAngle = homeAngle;
             StartShaking(0.2f);
@@ -245,6 +248,8 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             curMoveCheck = false;
             yield return waitTime;
 
+            yield return new SwapImmediately(groupable.WaitForRespawn());
+
             foreach (MoveBlockDebris item in debris)
             {
                 item.StopMoving();
@@ -276,6 +281,8 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             {
                 item4.RemoveSelf();
             }
+
+            groupable.WaitingForRespawn = false;
         Rebuild:
             Audio.Play(SFX.game_04_arrowblock_reappear, Position);
             Visible = true;

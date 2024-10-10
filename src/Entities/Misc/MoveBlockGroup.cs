@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using static Celeste.Mod.CommunalHelper.ConnectedMoveBlock;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -21,7 +21,7 @@ public class MoveBlockGroup : Entity
     public bool SyncActivation { get; }
     private readonly RespawnBehavior respawnBehavior;
 
-    private readonly List<ConnectedMoveBlock> blocks = new();
+    private readonly List<GroupableMoveBlock> components = new();
 
     public MoveBlockGroup(EntityData data, Vector2 offset)
         : this(data.NodesOffset(offset), data.HexColor("color", defaultColor), data.Bool("syncActivation", true), data.Enum("respawnBehavior", RespawnBehavior.Simultaneous))
@@ -42,13 +42,14 @@ public class MoveBlockGroup : Entity
 
         foreach (Vector2 node in nodes)
         {
-            Rectangle hitbox = new((int)node.X - 4, (int)node.Y - 4, 8, 8);
-            foreach (ConnectedMoveBlock m in scene.CollideAll<ConnectedMoveBlock>(hitbox))
+            Rectangle hitbox = new((int) node.X - 4, (int) node.Y - 4, 8, 8);
+            foreach (GroupableMoveBlock c in scene.Tracker.GetComponents<GroupableMoveBlock>())
             {
-                if (!blocks.Contains(m))
+                // force CassetteMoveBlocks to be detected as they will be uncollidable until the cassette music starts
+                if ((c.Entity is CassetteMoveBlock || c.Entity.Collidable) && c.Entity.CollideRect(hitbox) && !components.Contains(c))
                 {
-                    blocks.Add(m);
-                    m.Group = this;
+                    components.Add(c);
+                    c.Group = this;
                 }
             }
         }
@@ -56,12 +57,12 @@ public class MoveBlockGroup : Entity
 
     public void Trigger()
     {
-        foreach (ConnectedMoveBlock block in blocks)
-            if (block.State == MovementState.Idling)
-                block.GroupSignal = true;
+        foreach (GroupableMoveBlock component in components)
+            if (component.State == GroupableMoveBlock.MovementState.Idling)
+                component.GroupTriggerSignal = true;
     }
 
-    public bool CanRespawn(ConnectedMoveBlock block)
+    public bool CanRespawn(GroupableMoveBlock groupable)
     {
         switch (respawnBehavior)
         {
@@ -69,15 +70,15 @@ public class MoveBlockGroup : Entity
                 return true;
 
             case RespawnBehavior.Simultaneous:
-                foreach (ConnectedMoveBlock m in blocks)
-                    if (!m.CheckGroupRespawn)
+                foreach (GroupableMoveBlock c in components)
+                    if (!c.WaitingForRespawn)
                         return false;
                 return true;
 
             case RespawnBehavior.Sequential:
-                int blockIndex = blocks.IndexOf(block);
-                for (int i = 0; i < blockIndex; i++)
-                    if (blocks[i].State != MovementState.Idling)
+                int componentIndex = components.IndexOf(groupable);
+                for (int i = 0; i < componentIndex; i++)
+                    if (components[i].State != GroupableMoveBlock.MovementState.Idling)
                         return false;
                 return true;
         }
@@ -90,7 +91,7 @@ public class MoveBlockGroup : Entity
         if (respawnBehavior != RespawnBehavior.Simultaneous)
             return;
 
-        foreach (ConnectedMoveBlock block in blocks)
-            block.CheckGroupRespawn = false;
+        foreach (GroupableMoveBlock component in components)
+            component.WaitingForRespawn = false;
     }
 }
