@@ -52,6 +52,7 @@ public class DreamTunnelEntry : AbstractPanel
 
     public bool PlayerHasDreamDash;
     private LightOcclude occlude;
+    private DreamBlockDummy dummy;
 
 #pragma warning disable CS0649 // Actually used in Activation/Deactivation routines via reflection
     public Vector2 Shake => shake + platformShake;
@@ -240,7 +241,7 @@ public class DreamTunnelEntry : AbstractPanel
         base.Added(scene);
         PlayerHasDreamDash = level.Session.Inventory.DreamDash;
 
-        scene.Add(new DreamBlockDummy(this)
+        scene.Add(dummy = new DreamBlockDummy(this)
         {
             OnActivate = Activate,
             OnFastActivate = FastActivate,
@@ -293,6 +294,7 @@ public class DreamTunnelEntry : AbstractPanel
     {
         base.Removed(scene);
 
+        scene.Remove(dummy);
         scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth);
     }
 
