@@ -84,7 +84,7 @@ public class MoveBlockDebris : Actor
                 speed.X = Calc.Approach(speed.X, 0f, Engine.DeltaTime * 100f);
                 if (!OnGround(1))
                 {
-                    speed.Y += 400f * Engine.DeltaTime;
+                    speed.Y = Calc.Approach(speed.Y, 200f, 400f * Engine.DeltaTime);
                 }
                 MoveH(speed.X * Engine.DeltaTime, onCollideH);
                 MoveV(speed.Y * Engine.DeltaTime, onCollideV);
