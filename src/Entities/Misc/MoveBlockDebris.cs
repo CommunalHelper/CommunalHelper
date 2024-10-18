@@ -82,7 +82,7 @@ public class MoveBlockDebris : Actor
             if (Collidable)
             {
                 speed.X = Calc.Approach(speed.X, 0f, Engine.DeltaTime * 100f);
-                if (!OnGround(1))
+                if (!OnGround(1) && speed.Y < 200f)
                 {
                     speed.Y = Calc.Approach(speed.Y, 200f, 400f * Engine.DeltaTime);
                 }
