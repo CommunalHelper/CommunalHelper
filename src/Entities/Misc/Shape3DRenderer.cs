@@ -8,9 +8,6 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [Tracked]
 public sealed class Shape3DRenderer : Entity
 {
-    private enum Framework { FNA, XNA }
-    private static Framework type;
-
     private readonly int rendererDepth;
     private readonly HashSet<Shape3D> shapes = new();
 
@@ -39,11 +36,6 @@ public sealed class Shape3DRenderer : Entity
         var prevTexture1 = Engine.Graphics.GraphicsDevice.Textures[1];
         var prevTexture2 = Engine.Graphics.GraphicsDevice.Textures[2];
 
-        // WHAT THE FUCK ????????????????????
-        Vector2 renderOffset = type is Framework.FNA
-            ? Vector2.Zero
-            : -Vector2.One * 0.5f;
-
         Draw.SpriteBatch.GraphicsDevice.SetRenderTargets(new(albedo), new(depth), new(normal));
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
 
@@ -66,7 +58,7 @@ public sealed class Shape3DRenderer : Entity
             if (!shape.Visible || !shape.Entity.Visible)
                 continue;
 
-            Vector2 pos = shape.Entity.Position + shape.Position.XY() + renderOffset;
+            Vector2 pos = shape.Entity.Position + shape.Position.XY();
             if (shape.Entity is Platform platform)
                 pos += platform.Shake;
 
@@ -112,7 +104,7 @@ public sealed class Shape3DRenderer : Entity
         Engine.Graphics.GraphicsDevice.SamplerStates[2] = SamplerState.PointWrap;
         
         Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, CommunalHelperGFX.PCTN_COMPOSE);
-        Draw.SpriteBatch.Draw(albedo, renderOffset, Color.White);
+        Draw.SpriteBatch.Draw(albedo, Vector2.Zero, Color.White);
         Draw.SpriteBatch.End();
 
         Engine.Graphics.GraphicsDevice.Textures[1] = prevTexture1;
@@ -143,13 +135,4 @@ public sealed class Shape3DRenderer : Entity
 
         return renderer;
     }
-
-    internal static void Load()
-    {
-        type = typeof(Game).Assembly.FullName.Contains("FNA")
-            ? Framework.FNA
-            : Framework.XNA;
-    }
-
-    internal static void Unload() { }
 }

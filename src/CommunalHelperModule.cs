@@ -103,8 +103,6 @@ public class CommunalHelperModule : EverestModule
 
         AeroBlockCharged.Load();
 
-        Shape3DRenderer.Load();
-
         St.Load();
 
         CommunalHelperGFX.Load();
@@ -192,8 +190,6 @@ public class CommunalHelperModule : EverestModule
         PlayerVisualModifier.Unload();
 
         AeroBlockCharged.Unload();
-
-        Shape3DRenderer.Unload();
 
         St.Unload();
 
