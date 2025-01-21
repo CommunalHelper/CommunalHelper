@@ -192,11 +192,12 @@ public static class DreamTunnelDash
                 }
                 else if (player.DashDir.Y >= 0f || player.DashDir.X != 0f)
                 {
-                    if (player.DashDir.X > 0f && player.CollideCheck<DreamBlock>(player.Position - (Vector2.UnitX * 5f)))
+                    // the decomp says CollideCheck<Solid> not CollideCheck<Solid, DreamBlock> :p can't believe this bug was never noticed until now
+                    if (player.DashDir.X > 0f && player.CollideCheck<Solid>(player.Position - (Vector2.UnitX * 5f)))
                     {
                         player.MoveHExact(-5, null, null);
                     }
-                    else if (player.DashDir.X < 0f && player.CollideCheck<DreamBlock>(player.Position + (Vector2.UnitX * 5f)))
+                    else if (player.DashDir.X < 0f && player.CollideCheck<Solid>(player.Position + (Vector2.UnitX * 5f)))
                     {
                         player.MoveHExact(5, null, null);
                     }
