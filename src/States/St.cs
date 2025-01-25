@@ -24,7 +24,7 @@ public static class St
 
     private static void RegisterPlayerStates(Player player)
     {
-        DreamTunnelDash = player.AddState("DreamTunnelDash", States.DreamTunnelDash.DreamTunnelDashUpdate, null, States.DreamTunnelDash.DreamTunnelDashBegin, States.DreamTunnelDash.DreamTunnelDashEnd);
-        Elytra = player.AddState("Elytra", States.Elytra.GlideUpdate, States.Elytra.GlideRoutine, States.Elytra.GlideBegin, States.Elytra.GlideEnd);
+        DreamTunnelDash = player.AddState("StDreamTunnelDash", States.DreamTunnelDash.DreamTunnelDashUpdate, null, States.DreamTunnelDash.DreamTunnelDashBegin, States.DreamTunnelDash.DreamTunnelDashEnd);
+        Elytra = player.AddState("StElytra", States.Elytra.GlideUpdate, States.Elytra.GlideRoutine, States.Elytra.GlideBegin, States.Elytra.GlideEnd);
     }
 }
