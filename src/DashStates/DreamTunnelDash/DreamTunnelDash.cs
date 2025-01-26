@@ -72,6 +72,7 @@ public static class DreamTunnelDash
         public SpeedConfiguration SpeedConfiguration;
         public float CustomSpeed;
         public bool AllowDashCancels;
+        public bool RedirectConsumesNormalDash;
     }
 
     public static readonly DreamTunnelDashConfiguration DefaultDreamTunnelDashConfiguration = new()
@@ -83,6 +84,7 @@ public static class DreamTunnelDash
         SpeedConfiguration = SpeedConfiguration.Default,
         CustomSpeed = 0,
         AllowDashCancels = false,
+        RedirectConsumesNormalDash = false,
     };
 
 

@@ -1049,13 +1049,14 @@ triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.disableRev
 
 # Configure Dream Tunnel Dash Trigger
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.placements.name.trigger=Configure Dream Tunnel Dash
-triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.allowRedirect=Whether to allow redirecting dream tunnel dashes. Each redirect will consume a dream tunnel dash (not a normal dash!) or fail if the player has none left.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.allowRedirect=Whether to allow redirecting dream tunnel dashes. Each redirect will consume either a dream tunnel dash or normal dash (depending on if "Redirect Consumes Normal Dash" is checked) or fail if the player has none left.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.allowSameDirectionRedirect=Whether to allow redirecting dream tunnel dashes in the same direction as the player is currently travelling, optionally to gain speed.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.sameDirectionSpeedMultiplier=If "Allow Same Direction Redirect" is checked, specifies the speed multiplier given when redirecting in the same direction. Does nothing otherwise. Defaults to 1 (no speed gain).
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.useEntryDirection=Whether to use the player's entry angle into the solid as the dream tunnel dash direction instead of the direction in which they dashed.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.speedConfiguration=Specifies what speed to use for dream tunnel dashes.\nDefault: uses the default speed of 240 pixels per second.\nNever Slow Down: uses the player's speed if it is faster than the default and the default speed otherwise.\nUse Custom Speed: uses the speed defined in the "Custom Speed" field (measured in pixels per second).
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.customSpeed=If the "Speed Configuration" field is set to "Use Custom Speed", this specifies the speed of dream tunnel dashes (measured in pixels per second). Does nothing otherwise.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.allowDashCancels=Allows the dream tunnel dash to be cancelled before tunnelling through solids. Replicates vanilla behavior of being able to instant hyper, for example, on dream blocks.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.redirectConsumesNormalDash=Whether dream tunnel dash redirects should consume the player's normal dashes instead of their dream tunnel dashes.
 
 # Follow Shapeshifter Path Trigger
 triggers.CommunalHelper/FollowShapeshifterPathTrigger.placements.name.follow_path=Follow Shapeshifter Path
