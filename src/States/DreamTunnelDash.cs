@@ -101,12 +101,15 @@ public static class DreamTunnelDash
     {
         DreamTunnelDashConfiguration config = CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
 
-        if (DreamTunnelDashCount > 0)
+        if (config.RedirectConsumesNormalDash ? player.Dashes > 0 : DreamTunnelDashCount > 0)
         {
             bool flag = Input.GetAimVector() == player.DashDir;
             if ((config.AllowRedirect && !flag) || (config.AllowSameDirectionRedirect && flag))
             {
-                DreamTunnelDashCount = Math.Max(0, DreamTunnelDashCount - 1);
+                if (config.RedirectConsumesNormalDash)
+                    player.Dashes = Math.Max(0, player.Dashes - 1);
+                else
+                    DreamTunnelDashCount = Math.Max(0, DreamTunnelDashCount - 1);
                 Audio.Play("event:/char/madeline/dreamblock_enter");
                 if (Engine.TimeRate > 0.25f)
                 {
@@ -189,11 +192,11 @@ public static class DreamTunnelDash
                 }
                 else if (player.DashDir.Y >= 0f || player.DashDir.X != 0f)
                 {
-                    if (player.DashDir.X > 0f && player.CollideCheck<DreamBlock>(player.Position - (Vector2.UnitX * 5f)))
+                    if (player.DashDir.X > 0f && player.CollideCheck<Solid>(player.Position - (Vector2.UnitX * 5f)))
                     {
                         player.MoveHExact(-5, null, null);
                     }
-                    else if (player.DashDir.X < 0f && player.CollideCheck<DreamBlock>(player.Position + (Vector2.UnitX * 5f)))
+                    else if (player.DashDir.X < 0f && player.CollideCheck<Solid>(player.Position + (Vector2.UnitX * 5f)))
                     {
                         player.MoveHExact(5, null, null);
                     }

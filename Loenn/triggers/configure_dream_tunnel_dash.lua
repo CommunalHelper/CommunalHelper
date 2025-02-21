@@ -11,6 +11,7 @@ return {
                 speedConfiguration = 0,
                 customSpeed = 0,
                 allowDashCancels = false,
+                redirectConsumesNormalDash = false,
             }
         }
     },
