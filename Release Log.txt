@@ -1,4 +1,8 @@
---1.20.11 (12/01/2024)
+--1.20.12 (21/02/2025)
+* Fixed some bugs with the new Dream Tunnel features. @aonkeeper4
+* Added option for Dream Tunnel redirects to consume normal refills. @aonkeeper4
+
+--1.20.11 (12/01/2025)
 * Fixed Connected Dream Block culling issue. @earthwise01
 * Fixed custom move block debris lag. @aonkeeper4
 * Re-added Move Block Group support feature. @aonkeeper4
