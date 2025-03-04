@@ -188,20 +188,22 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             BreakParticles();
 
             List<MoveBlockDebris> debris = new();
-            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+            if (!noDebris) {
+                int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+                int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
-            for (int i = 0; i < tWidth; i++)
-            {
-                for (int j = 0; j < tHeight; j++)
+                for (int i = 0; i < tWidth; i++)
                 {
-                    if (AllGroupTiles[i, j])
+                    for (int j = 0; j < tHeight; j++)
                     {
-                        Vector2 value = new((i * 8) + 4, (j * 8) + 4);
-                        Vector2 pos = value + Position + GroupOffset;
-                        MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
-                        debris.Add(debris2);
-                        Scene.Add(debris2);
+                        if (AllGroupTiles[i, j])
+                        {
+                            Vector2 value = new((i * 8) + 4, (j * 8) + 4);
+                            Vector2 pos = value + Position + GroupOffset;
+                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
+                            debris.Add(debris2);
+                            Scene.Add(debris2);
+                        }
                     }
                 }
             }

@@ -73,6 +73,7 @@ dreamMoveBlock.placements = {
             crashTime = 0.15,
             regenTime = 3.0,
             shakeOnCollision = true,
+            noDebris = false,
             idleButtonsColor = "FFFFFF",
             movingButtonsColor = "FFFFFF",
             idleArrowColor = "FFFFFF",

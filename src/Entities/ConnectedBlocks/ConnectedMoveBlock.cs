@@ -126,6 +126,8 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     private readonly bool outline;
 
+    protected readonly bool noDebris;
+
     public ConnectedMoveBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f))
     {
@@ -203,6 +205,8 @@ public class ConnectedMoveBlock : ConnectedSolid
         crashTime = data.Float("crashTime", 0.15f);
         regenTime = data.Float("regenTime", 3f);
         shakeOnCollision = data.Bool("shakeOnCollision", true);
+
+        noDebris = data.Bool("noDebris");
     }
 
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
@@ -370,20 +374,22 @@ public class ConnectedMoveBlock : ConnectedSolid
             BreakParticles();
 
             List<MoveBlockDebris> debris = new();
-            int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-            int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+            if (!noDebris) {
+                int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+                int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
-            for (int i = 0; i < tWidth; i++)
-            {
-                for (int j = 0; j < tHeight; j++)
+                for (int i = 0; i < tWidth; i++)
                 {
-                    if (AllGroupTiles[i, j])
+                    for (int j = 0; j < tHeight; j++)
                     {
-                        Vector2 value = new((i * 8) + 4, (j * 8) + 4);
-                        Vector2 pos = value + Position + GroupOffset;
-                        MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
-                        debris.Add(debris2);
-                        Scene.Add(debris2);
+                        if (AllGroupTiles[i, j])
+                        {
+                            Vector2 value = new((i * 8) + 4, (j * 8) + 4);
+                            Vector2 pos = value + Position + GroupOffset;
+                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
+                            debris.Add(debris2);
+                            Scene.Add(debris2);
+                        }
                     }
                 }
             }
@@ -483,7 +489,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris)
     {
-        while (true)
+        while (true && debris.Count > 0)
         {
             instance.getPlaybackState(out PLAYBACK_STATE pLAYBACK_STATE);
             if (pLAYBACK_STATE == PLAYBACK_STATE.STOPPED)

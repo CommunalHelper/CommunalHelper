@@ -46,6 +46,7 @@ moveSwapBlock.placements = {
             crashTime = 0.15,
             regenTime = 3.0,
             shakeOnCollision = true,
+            noDebris = false,
         }
     }
 }

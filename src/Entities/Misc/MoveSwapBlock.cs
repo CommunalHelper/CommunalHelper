@@ -92,6 +92,8 @@ public class MoveSwapBlock : SwapBlock
 
     private float particleRemainder;
 
+    private readonly bool noDebris;
+
     #endregion
 
     private bool swapUpdate;
@@ -176,6 +178,8 @@ public class MoveSwapBlock : SwapBlock
         crashTime = data.Float("crashTime", 0.15f);
         regenTime = data.Float("regenTime", 3f);
         shakeOnCollision = data.Bool("shakeOnCollision", true);
+
+        noDebris = data.Bool("noDebris");
 
         int tilesX = (int) Width / 8;
         int tilesY = (int) Height / 8;
@@ -501,15 +505,17 @@ public class MoveSwapBlock : SwapBlock
             BreakParticles();
             ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debrisList = new();
-            for (int i = 0; i < Width; i += 8)
-            {
-                for (int j = 0; j < Height; j += 8)
+            if (!noDebris) {
+                for (int i = 0; i < Width; i += 8)
                 {
-                    Vector2 value = new(i + 4f, j + 4f);
-                    MoveBlockDebris debris = Engine.Pooler.Create<MoveBlockDebris>().Init(Position + value, Center, startPosition + value);
-                    debris.Sprite.Texture = debrisTextures.Choose();
-                    debrisList.Add(debris);
-                    Scene.Add(debris);
+                    for (int j = 0; j < Height; j += 8)
+                    {
+                        Vector2 value = new(i + 4f, j + 4f);
+                        MoveBlockDebris debris = Engine.Pooler.Create<MoveBlockDebris>().Init(Position + value, Center, startPosition + value);
+                        debris.Sprite.Texture = debrisTextures.Choose();
+                        debrisList.Add(debris);
+                        Scene.Add(debris);
+                    }
                 }
             }
 
@@ -586,7 +592,7 @@ public class MoveSwapBlock : SwapBlock
 
     private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debrisList)
     {
-        while (true)
+        while (true && debrisList.Count > 0)
         {
             instance.getPlaybackState(out PLAYBACK_STATE pLAYBACK_STATE);
             if (pLAYBACK_STATE != PLAYBACK_STATE.STOPPED)

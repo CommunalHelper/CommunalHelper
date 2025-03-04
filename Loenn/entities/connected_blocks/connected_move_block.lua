@@ -60,6 +60,7 @@ for i, direction in ipairs(enums.move_block_directions) do
             crashTime = 0.15,
             regenTime = 3.0,
             shakeOnCollision = true,
+            noDebris = false,
         }
     }
 end
@@ -80,6 +81,7 @@ connectedMoveBlock.placements[5] = {
         crashTime = 0.15,
         regenTime = 3.0,
         shakeOnCollision = true,
+        noDebris = false,
     }
 }
 connectedMoveBlock.placements[6] = {
@@ -99,6 +101,7 @@ connectedMoveBlock.placements[6] = {
         crashTime = 0.15,
         regenTime = 3.0,
         shakeOnCollision = true,
+        noDebris = false,
         activatorFlags = "_pressed",
         breakerFlags = "_obstructed",
         onActivateFlags = "",
