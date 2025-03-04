@@ -2,6 +2,7 @@
 using FMOD.Studio;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff;
 
@@ -262,7 +263,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             }
 
             Collidable = true;
-            EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
+            EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris.FirstOrDefault()?.Position ?? Center);
             Coroutine component;
             Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(instance, debris));
             Add(component);

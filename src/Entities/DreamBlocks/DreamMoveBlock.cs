@@ -460,7 +460,7 @@ public class DreamMoveBlock : CustomDreamBlock
 
 
             Collidable = true;
-            EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
+            EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris.FirstOrDefault()?.Position ?? Center);
             Coroutine soundFollower = new(SoundFollowsDebrisCenter(sound, debris));
             Add(soundFollower);
             foreach (MoveBlockDebris d in debris)

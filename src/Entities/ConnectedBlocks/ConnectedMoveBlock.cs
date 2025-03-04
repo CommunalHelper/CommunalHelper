@@ -449,7 +449,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             }
 
             Collidable = true;
-            EventInstance instance = Audio.Play(ReformBeginSoundEffect, debris[0].Position);
+            EventInstance instance = Audio.Play(ReformBeginSoundEffect, debris.FirstOrDefault()?.Position ?? Center);
             Coroutine component;
             Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(instance, debris));
             Add(component);

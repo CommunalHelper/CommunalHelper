@@ -3,6 +3,7 @@ using FMOD.Studio;
 using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Directions = Celeste.MoveBlock.Directions;
 
 // TODO
@@ -303,7 +304,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 yield return null;
 
             Present = true;
-            EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
+            EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris.FirstOrDefault()?.Position ?? Center);
             Coroutine component;
             Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(sound, debris));
             Add(component);

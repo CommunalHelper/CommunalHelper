@@ -5,6 +5,7 @@ using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Directions = Celeste.MoveBlock.Directions;
 
@@ -553,7 +554,7 @@ public class MoveSwapBlock : SwapBlock
             }
 
             Collidable = true;
-            EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debrisList[0].Position);
+            EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debrisList.FirstOrDefault()?.Position ?? Center);
             Coroutine routine = new(SoundFollowsDebrisCenter(instance, debrisList));
             Add(routine);
             foreach (MoveBlockDebris debris in debrisList)
