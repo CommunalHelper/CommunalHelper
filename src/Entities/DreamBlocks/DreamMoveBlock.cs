@@ -93,6 +93,8 @@ public class DreamMoveBlock : CustomDreamBlock
 
     private bool oneUseBroken;
 
+    private readonly bool noDebris;
+
     internal static void InitializeParticles()
     {
         P_Activate = new ParticleType(MoveBlock.P_Activate)
@@ -147,6 +149,8 @@ public class DreamMoveBlock : CustomDreamBlock
         crashTime = data.Float("crashTime", 0.15f);
         regenTime = data.Float("regenTime", 3f);
         shakeOnCollision = data.Bool("shakeOnCollision", true);
+
+        noDebris = data.Bool("noDebris");
 
         if (data.Attr("idleButtonsColor", "FFFFFF") != "FFFFFF")
         {
@@ -407,20 +411,22 @@ public class DreamMoveBlock : CustomDreamBlock
             BreakParticles();
             ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debris = new();
-            for (int x = 0; x < Width; x += 8)
-            {
-                for (int y = 0; y < Height; y += 8)
+            if (!noDebris) {
+                for (int x = 0; x < Width; x += 8)
                 {
-                    Vector2 offset = new(x + 4f, y + 4f);
-                    MTexture texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/debris"));
-                    MTexture altTexture = GFX.Game[texture.AtlasPath.Replace("debris", "disabledDebris")];
-                    MoveBlockDebris d = Engine.Pooler.Create<MoveBlockDebris>()
-                        .Init(Position + offset, Center, startPosition + offset, spr =>
-                        {
-                            spr.Texture = PlayerHasDreamDash ? texture : altTexture;
-                        });
-                    debris.Add(d);
-                    Scene.Add(d);
+                    for (int y = 0; y < Height; y += 8)
+                    {
+                        Vector2 offset = new(x + 4f, y + 4f);
+                        MTexture texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/debris"));
+                        MTexture altTexture = GFX.Game[texture.AtlasPath.Replace("debris", "disabledDebris")];
+                        MoveBlockDebris d = Engine.Pooler.Create<MoveBlockDebris>()
+                            .Init(Position + offset, Center, startPosition + offset, spr =>
+                            {
+                                spr.Texture = PlayerHasDreamDash ? texture : altTexture;
+                            });
+                        debris.Add(d);
+                        Scene.Add(d);
+                    }
                 }
             }
             MoveStaticMovers(startPosition - Position);
@@ -454,7 +460,7 @@ public class DreamMoveBlock : CustomDreamBlock
 
 
             Collidable = true;
-            EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
+            EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris.FirstOrDefault()?.Position ?? Center);
             Coroutine soundFollower = new(SoundFollowsDebrisCenter(sound, debris));
             Add(soundFollower);
             foreach (MoveBlockDebris d in debris)
@@ -533,7 +539,7 @@ public class DreamMoveBlock : CustomDreamBlock
 
     private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris)
     {
-        while (true)
+        while (true && debris.Count > 0)
         {
             instance.getPlaybackState(out PLAYBACK_STATE state);
             if (state == PLAYBACK_STATE.STOPPED)
