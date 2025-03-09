@@ -328,7 +328,7 @@ public class DreamMoveBlock : CustomDreamBlock
                     noSquish = Scene.Tracker.GetEntity<Player>();
 
                     if (canSteer || noCollideSteer)
-                        MoveV(move.Y);
+                        MoveCheck(move.YComp());
                     else
                         MoveVCollideSolids(move.Y, thruDashBlocks: false);
 
@@ -351,7 +351,7 @@ public class DreamMoveBlock : CustomDreamBlock
                     noSquish = Scene.Tracker.GetEntity<Player>();
 
                     if (canSteer || noCollideSteer)
-                        MoveH(move.X);
+                        MoveCheck(move.XComp());
                     else
                         MoveHCollideSolids(move.X, thruDashBlocks: false);
 
