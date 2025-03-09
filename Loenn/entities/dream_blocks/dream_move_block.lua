@@ -69,6 +69,7 @@ dreamMoveBlock.placements = {
             direction = "Right",
             moveSpeed = 60.0,
             noCollide = false,
+            noCollideSteer = false,
             canSteer = false,
             crashTime = 0.15,
             regenTime = 3.0,
