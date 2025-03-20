@@ -86,10 +86,19 @@ public class TrackSwitchBox : Solid
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
+        Level level = SceneAs<Level>();
         spikesUp = CollideCheck<Spikes>(Position - Vector2.UnitY);
         spikesDown = CollideCheck<Spikes>(Position + Vector2.UnitY);
         spikesLeft = CollideCheck<Spikes>(Position - Vector2.UnitX);
         spikesRight = CollideCheck<Spikes>(Position + Vector2.UnitX);
+        if (LocalTrackSwitchState == TrackSwitchState.On)
+        {
+            level.Session.SetFlag(switchFlag, true);
+        }
+        if (LocalTrackSwitchState == TrackSwitchState.Off)
+        {
+            level.Session.SetFlag(switchFlag, false);
+        }
     }
 
     public DashCollisionResults Dashed(Player player, Vector2 dir)
