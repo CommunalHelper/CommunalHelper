@@ -481,7 +481,7 @@ public class Cloudscape : Backdrop
         parameters["color_buffer_size"].SetValue(colorBuffer.Width);
         parameters["offset"].SetValue(ZoomBehavior switch
         {
-            ZoomBehaviors.Adjust => translate / zoom + cameraZoomOutOffset,
+            ZoomBehaviors.Adjust => translate + cameraZoomOutOffset,
             ZoomBehaviors.StaySame => translate,
         });
         parameters["inner_rotation"].SetValue(innerRotation);
