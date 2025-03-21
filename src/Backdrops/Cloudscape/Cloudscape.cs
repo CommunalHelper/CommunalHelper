@@ -1,4 +1,4 @@
-﻿using Celeste.Mod.Backdrops;
+using Celeste.Mod.Backdrops;
 using Celeste.Mod.CommunalHelper.Utils;
 using Celeste.Mod.Core;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,7 +18,7 @@ public class Cloudscape : Backdrop
     // cleared when rendering another cloudscape.
     // This buffer gets resized when GameplayBuffers.Gameplay gets resized. 
     private static VirtualRenderTarget bufferFullscreen;
-    // This buffer stays at 320x180 (sometimes 321x181 due to zoom out mod quirks) regardless of zoom, used by ZoomBehavior=StaySame
+    // This buffer stays at 320x180 regardless of zoom, used by ZoomBehavior=StaySame
     private static VirtualRenderTarget buffer320x180;
 
     public enum ZoomBehaviors
@@ -204,7 +204,6 @@ public class Cloudscape : Backdrop
     private Color sky;
 
     private readonly Vector2 offset, parallax;
-    private Vector2 translate;
 
     private bool lightning;
     private float lightningMinDelay, lightningMaxDelay;
@@ -366,12 +365,13 @@ public class Cloudscape : Backdrop
         int targetHeight = gpBuffer?.Height ?? 180;
         
         // By default, use `buffer320x180` for everything until we need to zoom out.
-        if (ZoomBehavior == ZoomBehaviors.StaySame || gpBuffer is null || gpBuffer.Width == 320 || gpBuffer.Width == 321)
+        if (ZoomBehavior == ZoomBehaviors.StaySame || gpBuffer is null || gpBuffer.Width == 320)
         {
-            if (buffer320x180 is {} && (buffer320x180.IsDisposed || buffer320x180.Width != targetWidth))
+            // recreate the buffer if it is disposed
+            if (buffer320x180 is { IsDisposed: true })
                 buffer320x180 = null;
 
-            buffer320x180 ??= VirtualContent.CreateRenderTarget("communal_helper/shared_cloudscape_buffer_320x180", targetWidth, targetHeight);
+            buffer320x180 ??= VirtualContent.CreateRenderTarget("communal_helper/shared_cloudscape_buffer_320x180", 320, 180);
             return buffer320x180;
         }
         
@@ -424,8 +424,6 @@ public class Cloudscape : Backdrop
         if (!Visible)
             return;
 
-        translate = offset - (scene as Level).Camera.Position * parallax;
-
         // calculate colors once for each cloud, and store them in the color buffer texture.
         // it will be sent to the gpu so it can be sampled, instead of changing the color of each vertex (old & slow method)
         for (int i = 0; i < clouds.Length; i++)
@@ -446,8 +444,17 @@ public class Cloudscape : Backdrop
 
     public override void Render(Scene scene)
     {
-        var zoom = scene is Level level ? level.Zoom : 1f;
-        
+        if (scene is not Level level)
+            return;
+        var camera = level.Camera;
+
+        // i think camera.Viewport.Width should be reliable for checking if zoom out is enabled?
+        var nonVanillaZoom = camera.Viewport.Width != 320;
+        var zoom = nonVanillaZoom ? level.Zoom : 1f;
+        var cameraZoomOutOffset = new Vector2(160f / zoom - 160f, 90f / zoom - 90f);
+
+        var translate = offset - (camera.Position + cameraZoomOutOffset) * parallax;
+
         // assuming that GameplayBuffers.Level is the buffer the styleground is being rendered to is wrong.
         // in some cases, (with styleground masks for instance), the backdrop is redirected to be rendered onto another buffer.
         // so we can use GraphicsDevice.GetRenderTargets and select the first one to render it here.
@@ -474,7 +481,7 @@ public class Cloudscape : Backdrop
         parameters["color_buffer_size"].SetValue(colorBuffer.Width);
         parameters["offset"].SetValue(ZoomBehavior switch
         {
-            ZoomBehaviors.Adjust => translate / zoom,
+            ZoomBehaviors.Adjust => translate / zoom + cameraZoomOutOffset,
             ZoomBehaviors.StaySame => translate,
         });
         parameters["inner_rotation"].SetValue(innerRotation);
@@ -497,7 +504,7 @@ public class Cloudscape : Backdrop
         // present onto RT
         Engine.Instance.GraphicsDevice.SetRenderTarget(rt);
 
-        BackdropRenderer renderer = (scene as Level).Background;
+        BackdropRenderer renderer = level.Background;
         renderer.StartSpritebatch(blend);
         switch (ZoomBehavior)
         {
