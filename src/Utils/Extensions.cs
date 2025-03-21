@@ -778,4 +778,10 @@ public static class Extensions
         if (rect.Contains(new Rectangle((int) pos.X - (int) origin.X, (int) pos.Y - (int) origin.Y, mTexture.Width, mTexture.Height)))
             mTexture.Draw(pos, origin, color);
     }
+
+    public static T AttrEnum<T>(this BinaryPacker.Element el, string name, T defaultValue) where T : struct, Enum
+    {
+        return el.Attributes.TryGetValue(name, out object value)
+               && Enum.TryParse(value.ToString(), true, out T result) ? result : defaultValue;
+    }
 }

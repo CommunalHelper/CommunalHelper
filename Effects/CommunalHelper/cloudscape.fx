@@ -29,8 +29,7 @@ float rotation_exponent = 1.0;
 
 float time = 0.0;
 
-const float w = 320.0;
-const float h = 180.0;
+float2 dimensions = float2(320.0, 180.0);
 
 struct cloudscape_vertex
 {
@@ -62,10 +61,10 @@ vertex_output vertex_shader(cloudscape_vertex input)
     angle -= speed * time;
 
     float2 cartesian = float2(cos(angle), sin(angle)) * distance;
-    float2 proj_offset = offset / float2(w / 2, h / 2);
+    float2 proj_offset = offset / (dimensions / 2.);
 
-    float x = cartesian.x / (w / 2.0) - 1 + proj_offset.x;
-    float y = cartesian.y / (h / 2.0) + 1 - proj_offset.y;
+    float x = cartesian.x / (dimensions.x / 2.0) - 1 + proj_offset.x;
+    float y = cartesian.y / (dimensions.y / 2.0) + 1 - proj_offset.y;
 
     output.position = float4(x, y, 0.0, 1.0);
     output.uv = input.uv;

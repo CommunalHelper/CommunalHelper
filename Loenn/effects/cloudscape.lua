@@ -52,6 +52,10 @@ cloudscape.fieldInformation = {
     alpha = {
         minimumValue = 0.0,
         maximumValue = 1.0
+    },
+    zoomBehavior = {
+        options = { "StaySame", "Adjust" },
+        editable = false,
     }
 }
 
@@ -82,6 +86,7 @@ cloudscape.defaultData = {
     hasBackgroundColor = true,
     additive = false,
     alpha = 1.0,
+    zoomBehavior = "StaySame"
 }
 
 return cloudscape

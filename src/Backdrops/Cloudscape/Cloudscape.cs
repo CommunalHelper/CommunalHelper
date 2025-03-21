@@ -16,7 +16,16 @@ public class Cloudscape : Backdrop
 
     // using one buffer even if there are multiple cloudscapes;
     // cleared when rendering another cloudscape.
-    private static VirtualRenderTarget buffer;
+    // This buffer gets resized when GameplayBuffers.Gameplay gets resized. 
+    private static VirtualRenderTarget bufferFullscreen;
+    // This buffer stays at 320x180 (sometimes 321x181 due to zoom out mod quirks) regardless of zoom, used by ZoomBehavior=StaySame
+    private static VirtualRenderTarget buffer320x180;
+
+    public enum ZoomBehaviors
+    {
+        StaySame,
+        Adjust,
+    }
 
     public class Options
     {
@@ -64,6 +73,8 @@ public class Cloudscape : Backdrop
         public bool Additive { get; } = false;
         public float BufferAlpha { get; } = 1.0f;
 
+        public ZoomBehaviors ZoomBehavior { get; } = ZoomBehaviors.StaySame;
+
         public Options() { }
 
         public Options(BinaryPacker.Element child)
@@ -105,6 +116,7 @@ public class Cloudscape : Backdrop
             HasBackgroundColor = child.AttrBool("hasBackgroundColor", true);
             Additive = child.AttrBool("additive", false);
             BufferAlpha = child.AttrFloat("alpha", 1f);
+            ZoomBehavior = child.AttrEnum("zoomBehavior", ZoomBehaviors.StaySame);
         }
     }
 
@@ -214,6 +226,8 @@ public class Cloudscape : Backdrop
     private readonly Color[] colors;
     private readonly float BufferAlpha;
 
+    private readonly ZoomBehaviors ZoomBehavior;
+
     public Cloudscape(BinaryPacker.Element child)
         : this(new Options(child)) { }
 
@@ -247,6 +261,7 @@ public class Cloudscape : Backdrop
         rotationExponent = options.RotationExponent;
 
         BufferAlpha = options.BufferAlpha;
+        ZoomBehavior = options.ZoomBehavior;
 
         Calc.PushRandom(options.Seed);
 
@@ -342,6 +357,34 @@ public class Cloudscape : Backdrop
         if (colorBuffer is null || colorBuffer.IsDisposed)
             colorBuffer = new(Engine.Graphics.GraphicsDevice, clouds.Length, 1);
     }
+    
+    private VirtualRenderTarget EnsureValidBuffer()
+    {
+        var gpBuffer = GameplayBuffers.Gameplay;
+        
+        int targetWidth = gpBuffer?.Width ?? 320;
+        int targetHeight = gpBuffer?.Height ?? 180;
+        
+        // By default, use `buffer320x180` for everything until we need to zoom out.
+        if (ZoomBehavior == ZoomBehaviors.StaySame || gpBuffer is null || gpBuffer.Width == 320 || gpBuffer.Width == 321)
+        {
+            if (buffer320x180 is {} && (buffer320x180.IsDisposed || buffer320x180.Width != targetWidth))
+                buffer320x180 = null;
+
+            buffer320x180 ??= VirtualContent.CreateRenderTarget("communal_helper/shared_cloudscape_buffer_320x180", targetWidth, targetHeight);
+            return buffer320x180;
+        }
+        
+        // We need a bigger buffer due to zoomout.
+        // We'll keep the 320x180 buffer around, in case some other cloudscape wants to render with ZoomBehavior=StaySame
+        if (bufferFullscreen is null || bufferFullscreen.IsDisposed || bufferFullscreen.Width != gpBuffer.Width)
+        {
+            bufferFullscreen?.Dispose();
+            bufferFullscreen = VirtualContent.CreateRenderTarget("communal_helper/shared_cloudscape_buffer", targetWidth, targetHeight);
+        }
+        
+        return bufferFullscreen;
+    }
 
     public void ConfigureColors(Color bg, Color[] gradientFrom, Color[] gradientTo, float lerp)
     {
@@ -403,6 +446,8 @@ public class Cloudscape : Backdrop
 
     public override void Render(Scene scene)
     {
+        var zoom = scene is Level level ? level.Zoom : 1f;
+        
         // assuming that GameplayBuffers.Level is the buffer the styleground is being rendered to is wrong.
         // in some cases, (with styleground masks for instance), the backdrop is redirected to be rendered onto another buffer.
         // so we can use GraphicsDevice.GetRenderTargets and select the first one to render it here.
@@ -411,6 +456,8 @@ public class Cloudscape : Backdrop
         RenderTargetBinding[] renderTargets = Engine.Graphics.GraphicsDevice.GetRenderTargets();
         if (renderTargets.Length > 0)
             rt = renderTargets[0].RenderTarget as RenderTarget2D ?? rt;
+        
+        var buffer = EnsureValidBuffer();
 
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);
         Engine.Graphics.GraphicsDevice.Clear(sky);
@@ -425,11 +472,16 @@ public class Cloudscape : Backdrop
         // rotation is calculated in the shader, since we're only doing one draw call now.
         parameters["ring_count"].SetValue(rings.Length);
         parameters["color_buffer_size"].SetValue(colorBuffer.Width);
-        parameters["offset"].SetValue(translate);
+        parameters["offset"].SetValue(ZoomBehavior switch
+        {
+            ZoomBehaviors.Adjust => translate / zoom,
+            ZoomBehaviors.StaySame => translate,
+        });
         parameters["inner_rotation"].SetValue(innerRotation);
         parameters["outer_rotation"].SetValue(outerRotation);
         parameters["rotation_exponent"].SetValue(rotationExponent);
         parameters["time"].SetValue(scene.TimeActive);
+        parameters["dimensions"].SetValue(new Vector2(buffer.Width, buffer.Height));
 
         var technique = CommunalHelperGFX.CloudscapeShader.Techniques[0];
         foreach (var pass in technique.Passes)
@@ -447,7 +499,15 @@ public class Cloudscape : Backdrop
 
         BackdropRenderer renderer = (scene as Level).Background;
         renderer.StartSpritebatch(blend);
-        Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White * BufferAlpha);
+        switch (ZoomBehavior)
+        {
+            case ZoomBehaviors.StaySame:
+                Draw.SpriteBatch.Draw(buffer, Vector2.Zero, null, Color.White * BufferAlpha, 0f, Vector2.Zero, 1f / zoom, SpriteEffects.None, 0f);
+                break;
+            case ZoomBehaviors.Adjust:
+                Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White * BufferAlpha);
+                break;
+        }
         renderer.EndSpritebatch();
     }
 
@@ -462,12 +522,13 @@ public class Cloudscape : Backdrop
     internal static void Initalize()
     {
         cloudTextures = CommunalHelperGFX.CloudscapeAtlas.GetAtlasSubtextures(string.Empty).ToArray();
-        buffer = VirtualContent.CreateRenderTarget("communal_helper/shared_cloudscape_buffer", 320, 180);
     }
 
     internal static void Unload()
     {
-        buffer.Dispose();
-        buffer = null;
+        bufferFullscreen?.Dispose();
+        bufferFullscreen = null;
+        buffer320x180?.Dispose();
+        buffer320x180 = null;
     }
 }
