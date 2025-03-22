@@ -23,6 +23,7 @@ public static class CommunalHelperGFX
     private const int SCREEN_WIDTH = 320;
     private const int SCREEN_HEIGHT = 180;
     private static readonly Dictionary<int, Tuple<RenderTarget2D, RenderTarget2D, RenderTarget2D, RenderTarget2D>> mrtBuffers = new();
+    private static readonly Dictionary<int, RenderTarget2D> dreamSpriteBuffers = new();
 
     internal static void LoadContent()
     {
@@ -62,6 +63,12 @@ public static class CommunalHelperGFX
             buffers.Item4.Dispose();
         }
         Util.Log(LogLevel.Info, "destroyed all PCTN-MRT buffer quadruplets.");
+
+        foreach (var buffer in dreamSpriteBuffers.Values)
+        {
+            buffer.Dispose();
+        }
+        Util.Log(LogLevel.Info, "destroyed all dream sprite buffers.");
     }
 
     public static void QueryMRTBuffers(int rendererDepth, out RenderTarget2D albedo, out RenderTarget2D depth, out RenderTarget2D normal, out RenderTarget2D final)
@@ -82,6 +89,16 @@ public static class CommunalHelperGFX
         depth = buffers.Item2;
         normal = buffers.Item3;
         final = buffers.Item4;
+    }
+
+    public static void QueryDreamSpriteBuffers(int rendererDepth, out RenderTarget2D dreamSpriteBuffer) {
+        if (!dreamSpriteBuffers.TryGetValue(rendererDepth, out var buffer)) {
+            buffer = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            dreamSpriteBuffers.Add(rendererDepth, buffer);
+            Logger.Log(LogLevel.Info, nameof(DreamSpriteRenderer), $"new dream sprite buffer created, at depth {rendererDepth}.");
+        }
+
+        dreamSpriteBuffer = buffer;
     }
 
     private static Effect LoadShader(string id)

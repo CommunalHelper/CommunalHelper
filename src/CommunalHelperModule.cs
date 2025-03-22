@@ -80,7 +80,6 @@ public class CommunalHelperModule : EverestModule
         CustomBooster.Load();
 
         DreamJellyfish.Load();
-        DreamJellyfishRenderer.Load();
 
         ChainedKevin.Load();
 
@@ -168,7 +167,6 @@ public class CommunalHelperModule : EverestModule
         CustomBooster.Unload();
 
         DreamJellyfish.Unload();
-        DreamJellyfishRenderer.Unload();
 
         ChainedKevin.Unload();
 
@@ -283,7 +281,8 @@ public class CommunalHelperModule : EverestModule
         DreamBooster.InitializeParticles();
         CurvedBooster.InitializeParticles();
 
-        DreamJellyfish.InitializeTextures();
+        DreamSpriteRenderer.InitializeTextures();
+
         DreamJellyfish.InitializeParticles();
 
         Chain.InitializeTextures();

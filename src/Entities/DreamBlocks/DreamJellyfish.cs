@@ -17,30 +17,18 @@ internal class DreamJellyfish : Glider
     public static readonly ParticleType[] P_DreamGlideUp = new ParticleType[CustomDreamBlock.DreamColors.Length];
     public static readonly ParticleType[] P_DreamGlide = new ParticleType[CustomDreamBlock.DreamColors.Length];
 
-    // Could maybe use CustomDreamBlock.DreamParticle.
-    public struct DreamParticle
-    {
-        public Vector2 Position;
-        public int Layer;
-        public Color EnabledColor, DisabledColor;
-        public float TimeOffset;
-    }
-    public DreamParticle[] Particles;
-    public static MTexture[] ParticleTextures;
-    public float Flash;
-
-    public static readonly Rectangle ParticleBounds = new(-23, -35, 48, 60);
+    private static readonly Rectangle particleBounds = new(-23, -35, 48, 60);
 
     private readonly DreamDashCollider dreamDashCollider;
     public bool AllowDreamDash
     {
         get => dreamDashCollider.Active;
-        set => dreamDashCollider.Active = value;
+        set => dreamDashCollider.Active = Sprite.Enabled = value;
     }
 
     private readonly DynamicData gliderData;
 
-    public Sprite Sprite;
+    public DreamSprite Sprite;
 
     public DreamJellyfish(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Bool("bubble"), data.Bool("tutorial")) { }
@@ -52,10 +40,8 @@ internal class DreamJellyfish : Glider
 
         Sprite oldSprite = gliderData.Get<Sprite>("sprite");
         Remove(oldSprite);
-        gliderData.Set("sprite", Sprite = CommunalHelperGFX.SpriteBank.Create("dreamJellyfish"));
+        gliderData.Set("sprite", Sprite = new DreamSprite(CommunalHelperGFX.SpriteBank.Create("dreamJellyfish"), particleBounds, InvertedGravHandler));
         Add(Sprite);
-
-        Visible = Sprite.Visible = false;
 
         Add(dreamDashCollider = new DreamDashCollider(new Hitbox(28, 16, -13, -18), OnDreamDashEnter, OnDreamDashExit));
 
@@ -70,38 +56,9 @@ internal class DreamJellyfish : Glider
             Add(listener);
     }
 
-    public override void Awake(Scene scene)
-    {
-        base.Awake(scene);
-
-        int w = ParticleBounds.Width;
-        int h = ParticleBounds.Height;
-        Particles = new DreamParticle[(int) (w / 8f * (h / 8f) * 1.5f)];
-        for (int i = 0; i < Particles.Length; i++)
-        {
-            Particles[i].Position = new Vector2(Calc.Random.NextFloat(w), Calc.Random.NextFloat(h));
-            Particles[i].Layer = Calc.Random.Choose(0, 1, 1, 2, 2, 2);
-            Particles[i].TimeOffset = Calc.Random.NextFloat();
-
-            Particles[i].DisabledColor = Color.LightGray * (0.5f + (Particles[i].Layer / 2f * 0.5f));
-            Particles[i].DisabledColor.A = 255;
-
-            Particles[i].EnabledColor = Particles[i].Layer switch
-            {
-                0 => Calc.Random.Choose(CustomDreamBlock.DreamColors[0], CustomDreamBlock.DreamColors[1], CustomDreamBlock.DreamColors[2]),
-                1 => Calc.Random.Choose(CustomDreamBlock.DreamColors[3], CustomDreamBlock.DreamColors[4], CustomDreamBlock.DreamColors[5]),
-                2 => Calc.Random.Choose(CustomDreamBlock.DreamColors[6], CustomDreamBlock.DreamColors[7], CustomDreamBlock.DreamColors[8]),
-                _ => throw new NotImplementedException()
-            };
-        }
-
-        scene.Tracker.GetEntity<DreamJellyfishRenderer>().Track(this);
-    }
-
-    public override void Removed(Scene scene)
-    {
-        base.Removed(scene);
-        scene.Tracker.GetEntity<DreamJellyfishRenderer>().Untrack(this);
+    private static void InvertedGravHandler(ref Vector2 position, ref Vector2 scale, ref float rotation) {
+        scale = new(scale.X, -scale.Y);
+        rotation = -rotation;
     }
 
     private void OnDreamDashEnter(Player player)
@@ -137,7 +94,7 @@ internal class DreamJellyfish : Glider
         if (AllowDreamDash)
             return;
         AllowDreamDash = true;
-        Flash = 0.5f;
+        Sprite.Flash = 0.5f;
         Sprite.Scale = new Vector2(1.3f, 1.2f);
         Audio.Play(CustomSFX.game_dreamJellyfish_jelly_refill);
     }
@@ -147,7 +104,7 @@ internal class DreamJellyfish : Glider
         if (!AllowDreamDash)
             return;
         AllowDreamDash = false;
-        Flash = 1f;
+        Sprite.Flash = 1f;
         Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
     }
 
@@ -155,22 +112,10 @@ internal class DreamJellyfish : Glider
     {
         base.Update();
 
-        Flash = Calc.Approach(Flash, 0f, Engine.DeltaTime * 2.5f);
-
         if ((Hold.Holder == null && OnGround()) || (Hold.Holder != null && Hold.Holder.OnGround()))
         {
             EnableDreamDash();
         }
-    }
-
-    public static void InitializeTextures()
-    {
-        ParticleTextures = new MTexture[4] {
-            GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7),
-            GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),
-            GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7),
-            GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),
-        };
     }
 
     public static void InitializeParticles()
