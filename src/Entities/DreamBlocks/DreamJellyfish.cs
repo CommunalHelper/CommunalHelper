@@ -47,12 +47,14 @@ internal class DreamJellyfish : Glider
             new Hitbox(28, 16, -13, -18),
             () =>
             {
+                Sprite.Enabled = true;
                 Sprite.Flash = 0.5f;
                 Sprite.Scale = new Vector2(1.3f, 1.2f);
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_refill);
             },
             () =>
             {
+                Sprite.Enabled = false;
                 Sprite.Flash = 1f;
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
             },
@@ -66,6 +68,10 @@ internal class DreamJellyfish : Glider
             OnRelease = OnRelease,
             SpeedGetter = () => Speed,
             OnHitSpring = HitSpring,
+            SpeedSetter = delegate(Vector2 speed)
+            {
+                Speed = speed;
+            },
         });
 
         // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper)

@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Components;
 
+[TrackedAs(typeof(Holdable))]
 internal class DreamHoldable : Holdable
 {
     private static readonly MethodInfo m_Player_Pickup = typeof(Player).GetMethod("Pickup", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -114,7 +115,7 @@ internal class DreamHoldable : Holdable
 
     private static bool Holdable_Check(On.Celeste.Holdable.orig_Check orig, Holdable self, Player player)
     {
-        return (self is not DreamHoldable holdable || !holdable.AllowDreamDash || !player.DashAttacking) && orig(self, player);
+        return (self is DreamHoldable holdable && holdable.AllowDreamDash && player.DashAttacking) ? false : orig(self, player);
     }
 
     private static bool Holdable_HitSpring(On.Celeste.Holdable.orig_HitSpring orig, Holdable self, Spring spring)
