@@ -91,8 +91,10 @@ public static class CommunalHelperGFX
         final = buffers.Item4;
     }
 
-    public static void QueryDreamSpriteBuffers(int rendererDepth, out RenderTarget2D dreamSpriteBuffer) {
-        if (!dreamSpriteBuffers.TryGetValue(rendererDepth, out var buffer)) {
+    public static void QueryDreamSpriteBuffers(int rendererDepth, out RenderTarget2D dreamSpriteBuffer)
+    {
+        if (!dreamSpriteBuffers.TryGetValue(rendererDepth, out var buffer))
+        {
             buffer = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             dreamSpriteBuffers.Add(rendererDepth, buffer);
             Logger.Log(LogLevel.Info, nameof(DreamSpriteRenderer), $"new dream sprite buffer created, at depth {rendererDepth}.");

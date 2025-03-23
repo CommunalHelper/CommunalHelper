@@ -23,14 +23,16 @@ internal class DreamSpriteRenderer : Entity
         Projection = Matrix.CreateOrthographicOffCenter(0, 320, 180, 0, 0, 1)
     };
     
-    private static readonly DepthStencilState drawToStencilState = new() {
+    private static readonly DepthStencilState drawToStencilState = new()
+    {
         StencilEnable = true,
         StencilFunction = CompareFunction.Always,
         StencilPass = StencilOperation.Replace,
         ReferenceStencil = 1,
         DepthBufferEnable = false,
     };
-    private static readonly DepthStencilState drawWithStencilState = new() {
+    private static readonly DepthStencilState drawWithStencilState = new()
+    {
         StencilEnable = true,
         StencilFunction = CompareFunction.LessEqual,
         StencilPass = StencilOperation.Keep,
@@ -58,7 +60,8 @@ internal class DreamSpriteRenderer : Entity
         animTimer += 6f * Engine.DeltaTime;
     }
 
-    public void BeforeRender() {
+    public void BeforeRender()
+    {
         // cannot store buffer as it may be deep-cloned by state-saving
         CommunalHelperGFX.QueryDreamSpriteBuffers(rendererDepth, out var buffer);
 
@@ -73,7 +76,8 @@ internal class DreamSpriteRenderer : Entity
             Vector2 spriteScale = sprite.Scale;
             float spriteRotation = sprite.Rotation;
             if (sprite.InvertedGravityHandler is DreamSprite.SpriteInvertedGravityHandler handler &&
-                ((sprite.Entity as Actor)?.GetGravity() ?? GravityType.Normal) == GravityType.Inverted) {
+                ((sprite.Entity as Actor)?.GetGravity() ?? GravityType.Normal) == GravityType.Inverted)
+            {
                 handler(ref spritePosition, ref spriteScale, ref spriteRotation);
             }
 
@@ -87,9 +91,8 @@ internal class DreamSpriteRenderer : Entity
                 sprite.ParticleBounds.Height
             );
 
-            if (!boundsOnScreen.Intersects(buffer.Bounds) || !sprite.Visible) {
+            if (!boundsOnScreen.Intersects(buffer.Bounds) || !sprite.Visible)
                 continue;
-            }
 
             // outline
             Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, null);
@@ -169,7 +172,8 @@ internal class DreamSpriteRenderer : Entity
         Draw.SpriteBatch.Draw(buffer, SceneAs<Level>().Camera.Position, Color.White);
     }
 
-    internal static void InitializeTextures() {
+    internal static void InitializeTextures()
+    {
         particleTextures = new MTexture[4] {
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7),
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),

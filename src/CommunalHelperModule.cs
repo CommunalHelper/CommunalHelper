@@ -79,6 +79,7 @@ public class CommunalHelperModule : EverestModule
 
         CustomBooster.Load();
 
+        DreamHoldable.Load();
         DreamJellyfish.Load();
 
         ChainedKevin.Load();
@@ -166,6 +167,7 @@ public class CommunalHelperModule : EverestModule
 
         CustomBooster.Unload();
 
+        DreamHoldable.Unload();
         DreamJellyfish.Unload();
 
         ChainedKevin.Unload();
