@@ -2,7 +2,6 @@ using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.Imports;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using System.Collections;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -15,28 +14,34 @@ internal class DreamTheoCrystal : TheoCrystal
     public static readonly ParticleType[] P_DreamImpact = new ParticleType[CustomDreamBlock.DreamColors.Length];
 
     private static readonly Rectangle particleBounds = new(-12, -20, 24, 40);
-    public DreamSprite DreamSprite;
+    private readonly DreamSprite dreamSprite;
+    private readonly Sprite overlaySprite;
 
     public DreamHoldable DreamHold;
 
     public DreamTheoCrystal(EntityData data, Vector2 offset) : base(data, offset)
     {
+        Add(overlaySprite = CommunalHelperGFX.SpriteBank.Create("dreamTheoCrystalOverlay"));
+
         Remove(sprite);
-        Add(sprite = DreamSprite = new DreamSprite(CommunalHelperGFX.SpriteBank.Create("dreamTheoCrystal"), particleBounds));
+        Add(sprite = dreamSprite = new DreamSprite(CommunalHelperGFX.SpriteBank.Create("dreamTheoCrystal"), particleBounds)
+        {
+            OnChange = (_, current) => overlaySprite.Play(current, true)
+        });
 
         Remove(Hold);
         Add(Hold = DreamHold = new DreamHoldable(
             new Hitbox(20, 20, -10, -20),
             () =>
             {
-                DreamSprite.Enabled = true;
-                DreamSprite.Flash = 0.5f;
+                dreamSprite.Enabled = true;
+                dreamSprite.Flash = 0.5f;
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_refill);
             },
             () =>
             {
-                DreamSprite.Enabled = false;
-                DreamSprite.Flash = 1f;
+                dreamSprite.Enabled = false;
+                dreamSprite.Flash = 1f;
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
             },
             0.1f
@@ -88,25 +93,13 @@ internal class DreamTheoCrystal : TheoCrystal
 
     internal static void Load()
     {
-        On.Celeste.TheoCrystal.Shatter += TheoCrystal_Shatter;
-
         // Change particles
         IL.Celeste.TheoCrystal.ImpactParticles += TheoCrystal_ImpactParticles;
     }
 
     internal static void Unload()
     {
-        On.Celeste.TheoCrystal.Shatter -= TheoCrystal_Shatter;
-
         IL.Celeste.TheoCrystal.ImpactParticles -= TheoCrystal_ImpactParticles;
-    }
-
-    private static IEnumerator TheoCrystal_Shatter(On.Celeste.TheoCrystal.orig_Shatter orig, TheoCrystal self)
-    {
-        if (self is DreamTheoCrystal)
-            yield break;
-
-        yield return new SwapImmediately(orig(self));
     }
 
     private static void TheoCrystal_ImpactParticles(ILContext il) {

@@ -16,7 +16,7 @@ internal class DreamJellyfish : Glider
     public static readonly ParticleType[] P_DreamGlide = new ParticleType[CustomDreamBlock.DreamColors.Length];
 
     private static readonly Rectangle particleBounds = new(-23, -35, 48, 60);
-    public DreamSprite DreamSprite;
+    private readonly DreamSprite dreamSprite;
 
     public DreamHoldable DreamHold;
 
@@ -27,7 +27,7 @@ internal class DreamJellyfish : Glider
         : base(position, bubble, tutorial)
     {
         Remove(sprite);
-        Add(sprite = DreamSprite = new DreamSprite(
+        Add(sprite = dreamSprite = new DreamSprite(
             CommunalHelperGFX.SpriteBank.Create("dreamJellyfish"),
             particleBounds,
             delegate (ref Vector2 position, ref Vector2 scale, ref float rotation)
@@ -42,15 +42,15 @@ internal class DreamJellyfish : Glider
             new Hitbox(28, 16, -13, -18),
             () =>
             {
-                DreamSprite.Enabled = true;
-                DreamSprite.Flash = 0.5f;
-                DreamSprite.Scale = new Vector2(1.3f, 1.2f);
+                dreamSprite.Enabled = true;
+                dreamSprite.Flash = 0.5f;
+                dreamSprite.Scale = new Vector2(1.3f, 1.2f);
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_refill);
             },
             () =>
             {
-                DreamSprite.Enabled = false;
-                DreamSprite.Flash = 1f;
+                dreamSprite.Enabled = false;
+                dreamSprite.Flash = 1f;
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
             },
             0.3f

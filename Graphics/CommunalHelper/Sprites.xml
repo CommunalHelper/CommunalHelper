@@ -506,10 +506,20 @@
         <Anim id="death" path="death" delay="0.06"/>
     </dreamJellyfish>
 
+    <!--DreamTheoCrystal-->
     <dreamTheoCrystal path="objects/CommunalHelper/dreamTheoCrystal/mask/" start="idle">
         <Origin x="32" y="42"/>
         <Loop id="idle" path="idle" delay="0.08"/>
+        <Anim id="shatter" path="shatter" delay="0.08" goto="shattered"/>
+        <Loop id="shattered" path="shatter" frames="16" delay="0.08"/>
     </dreamTheoCrystal>
+
+    <dreamTheoCrystalOverlay path="objects/CommunalHelper/dreamTheoCrystal/overlay/" start="idle">
+        <Origin x="32" y="42"/>
+        <Loop id="idle" path="idle" delay="0.08"/>
+        <Anim id="shatter" path="shatter" delay="0.08" goto="shattered"/>
+        <Loop id="shattered" path="shatter" frames="16" delay="0.08"/>
+    </dreamTheoCrystalOverlay>
 
     <!--DreamStrawberry-->
     <dreamStrawberry path="collectables/CommunalHelper/dreamberry/" start="idle">
