@@ -13,7 +13,7 @@ internal class DreamTheoCrystal : TheoCrystal
 {
     public static readonly ParticleType[] P_DreamImpact = new ParticleType[CustomDreamBlock.DreamColors.Length];
 
-    private static readonly Rectangle particleBounds = new(-12, -20, 24, 40);
+    private static readonly Rectangle particleBounds = new(-12, -24, 24, 48);
     private readonly DreamSprite dreamSprite;
     private readonly Sprite overlaySprite;
 
