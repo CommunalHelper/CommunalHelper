@@ -2,7 +2,6 @@
 using Celeste.Mod.CommunalHelper.Imports;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using MonoMod.Utils;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities;

@@ -1,13 +1,8 @@
-using MonoMod.Utils;
-using System.Reflection;
-
 namespace Celeste.Mod.CommunalHelper.Components;
 
 [TrackedAs(typeof(Holdable))]
 internal class DreamHoldable : Holdable
 {
-    private static readonly MethodInfo m_Player_Pickup = typeof(Player).GetMethod("Pickup", BindingFlags.NonPublic | BindingFlags.Instance);
-
     public readonly DreamDashCollider DreamDashCollider;
     public bool AllowDreamDash
     {
@@ -27,14 +22,8 @@ internal class DreamHoldable : Holdable
 
     private void OnDreamDashEnter(Player player)
     {
-        DynamicData data = DynamicData.For(player);
-
-        BloomPoint starFlyBloom = data.Get<BloomPoint>("starFlyBloom");
-
         // Prevents a crash caused by entering the feather fly state while dream dashing through a dream holdable.
-        starFlyBloom ??= new(new Vector2(0f, -6f), 0f, 16f) { Visible = false };
-
-        data.Set("starFlyBloom", starFlyBloom);
+        player.starFlyBloom ??= new(new Vector2(0f, -6f), 0f, 16f) { Visible = false };
     }
 
     public void OnDreamDashExit(Player player)
@@ -43,10 +32,10 @@ internal class DreamHoldable : Holdable
         if (Input.GrabCheck && player.DashDir.Y <= 0 && player.Holding == null)
         {
             // force-allow pickup
-            player.GetData().Set("minHoldTimer", 0f);
+            player.minHoldTimer = 0f;
             cannotHoldTimer = 0f;
 
-            if ((bool) m_Player_Pickup.Invoke(player, new object[] { this }))
+            if (player.Pickup(this))
             {
                 player.StateMachine.State = Player.StPickup;
             }
