@@ -40,6 +40,7 @@ internal class DreamJellyfish : Glider
         Remove(Hold);
         Add(Hold = DreamHold = new DreamHoldable(
             new Hitbox(28, 16, -13, -18),
+            0.3f,
             () =>
             {
                 dreamSprite.Enabled = true;
@@ -52,8 +53,7 @@ internal class DreamJellyfish : Glider
                 dreamSprite.Enabled = false;
                 dreamSprite.Flash = 1f;
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
-            },
-            0.3f
+            }
         )
         {
             PickupCollider = new Hitbox(20f, 22f, -10f, -16f),
@@ -69,7 +69,7 @@ internal class DreamJellyfish : Glider
             },
         });
 
-        // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper)
+        // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper).
         // So let's add a listener that does this for us.
         Component listener = GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) =>
         {

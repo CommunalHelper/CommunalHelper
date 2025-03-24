@@ -21,17 +21,18 @@ internal class DreamTheoCrystal : TheoCrystal
 
     public DreamTheoCrystal(EntityData data, Vector2 offset) : base(data, offset)
     {
-        Add(overlaySprite = CommunalHelperGFX.SpriteBank.Create("dreamTheoCrystalOverlay"));
-
         Remove(sprite);
         Add(sprite = dreamSprite = new DreamSprite(CommunalHelperGFX.SpriteBank.Create("dreamTheoCrystal"), particleBounds)
         {
             OnChange = (_, current) => overlaySprite.Play(current, true)
         });
 
+        Add(overlaySprite = CommunalHelperGFX.SpriteBank.Create("dreamTheoCrystalOverlay"));
+
         Remove(Hold);
         Add(Hold = DreamHold = new DreamHoldable(
             new Hitbox(20, 20, -10, -20),
+            0.1f,
             () =>
             {
                 dreamSprite.Enabled = true;
@@ -43,8 +44,7 @@ internal class DreamTheoCrystal : TheoCrystal
                 dreamSprite.Enabled = false;
                 dreamSprite.Flash = 1f;
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
-            },
-            0.1f
+            }
         )
         {
             PickupCollider = new Hitbox(16f, 22f, -8f, -16f),
@@ -64,12 +64,14 @@ internal class DreamTheoCrystal : TheoCrystal
             },
         });
 
-        // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper)
-        // So let's add a listener that does this for us.
+        // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper).
+        // Nor does the overlay sprite get flipped.
+        // So let's add a listener that does both of these for us.
         Component listener = GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) =>
         {
             bool inverted = value == (int) GravityType.Inverted;
-            DreamHold.DreamDashCollider.Collider.Position.Y = inverted ? 0 : -18; // a bit hacky
+            DreamHold.DreamDashCollider.Collider.Position.Y = inverted ? 0 : -20; // a bit hacky
+            overlaySprite.Scale.Y = inverted ? -1 : 1;
         });
         if (listener is not null)
             Add(listener);

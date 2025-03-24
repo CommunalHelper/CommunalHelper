@@ -17,7 +17,7 @@ internal class DreamHoldable : Holdable
 
     private readonly Action onActivate, onDeactivate;
 
-    public DreamHoldable(Collider dreamDashCollider, Action onActivate = null, Action onDeactivate = null, float cannotHoldDelay = 0.1f)
+    public DreamHoldable(Collider dreamDashCollider, float cannotHoldDelay = 0.1f, Action onActivate = null, Action onDeactivate = null)
         : base(cannotHoldDelay)
     {
         DreamDashCollider = new DreamDashCollider(dreamDashCollider, OnDreamDashEnter, OnDreamDashExit);
