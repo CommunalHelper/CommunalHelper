@@ -15,12 +15,10 @@ internal class DreamJellyfish : Glider
     public static readonly ParticleType[] P_DreamGlideUp = new ParticleType[CustomDreamBlock.DreamColors.Length];
     public static readonly ParticleType[] P_DreamGlide = new ParticleType[CustomDreamBlock.DreamColors.Length];
 
-    private readonly DynamicData gliderData;
-
     private static readonly Rectangle particleBounds = new(-23, -35, 48, 60);
-    public DreamSprite Sprite;
+    public DreamSprite DreamSprite;
 
-    public DreamHoldable Holdable;
+    public DreamHoldable DreamHold;
 
     public DreamJellyfish(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Bool("bubble"), data.Bool("tutorial")) { }
@@ -28,10 +26,8 @@ internal class DreamJellyfish : Glider
     public DreamJellyfish(Vector2 position, bool bubble, bool tutorial)
         : base(position, bubble, tutorial)
     {
-        gliderData = new DynamicData(typeof(Glider), this);
-
-        Remove(gliderData.Get<Sprite>("sprite"));
-        gliderData.Set("sprite", Sprite = new DreamSprite(
+        Remove(sprite);
+        Add(sprite = DreamSprite = new DreamSprite(
             CommunalHelperGFX.SpriteBank.Create("dreamJellyfish"),
             particleBounds,
             delegate (ref Vector2 position, ref Vector2 scale, ref float rotation)
@@ -40,22 +36,21 @@ internal class DreamJellyfish : Glider
                 rotation = -rotation;
             }
         ));
-        Add(Sprite);
 
         Remove(Hold);
-        Add(Hold = Holdable = new DreamHoldable(
+        Add(Hold = DreamHold = new DreamHoldable(
             new Hitbox(28, 16, -13, -18),
             () =>
             {
-                Sprite.Enabled = true;
-                Sprite.Flash = 0.5f;
-                Sprite.Scale = new Vector2(1.3f, 1.2f);
+                DreamSprite.Enabled = true;
+                DreamSprite.Flash = 0.5f;
+                DreamSprite.Scale = new Vector2(1.3f, 1.2f);
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_refill);
             },
             () =>
             {
-                Sprite.Enabled = false;
-                Sprite.Flash = 1f;
+                DreamSprite.Enabled = false;
+                DreamSprite.Flash = 1f;
                 Audio.Play(CustomSFX.game_dreamJellyfish_jelly_use);
             },
             0.3f
@@ -79,7 +74,7 @@ internal class DreamJellyfish : Glider
         Component listener = GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) =>
         {
             bool inverted = value == (int) GravityType.Inverted;
-            Holdable.DreamDashCollider.Collider.Position.Y = inverted ? 1 : -18; // a bit hacky
+            DreamHold.DreamDashCollider.Collider.Position.Y = inverted ? 1 : -18; // a bit hacky
         });
         if (listener is not null)
             Add(listener);
@@ -132,6 +127,7 @@ internal class DreamJellyfish : Glider
     private static void Glider_Update(ILContext il)
     {
         ILCursor cursor = new(il);
+        
         if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdsfld(f_Glider_P_Glow)))
         {
             cursor.Emit(OpCodes.Ldarg_0);

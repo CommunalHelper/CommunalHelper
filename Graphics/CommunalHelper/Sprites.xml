@@ -506,6 +506,11 @@
         <Anim id="death" path="death" delay="0.06"/>
     </dreamJellyfish>
 
+    <dreamTheoCrystal path="objects/CommunalHelper/dreamTheoCrystal/mask/" start="idle">
+        <Origin x="32" y="42"/>
+        <Loop id="idle" path="idle" delay="0.08"/>
+    </dreamTheoCrystal>
+
     <!--DreamStrawberry-->
     <dreamStrawberry path="collectables/CommunalHelper/dreamberry/" start="idle">
         <Center />
