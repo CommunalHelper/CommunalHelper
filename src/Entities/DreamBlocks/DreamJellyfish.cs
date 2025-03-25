@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
-using Celeste.Mod.CommunalHelper.Imports;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System.Reflection;
@@ -67,16 +66,6 @@ internal class DreamJellyfish : Glider
                 Speed = speed;
             },
         });
-
-        // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper).
-        // So let's add a listener that does this for us.
-        Component listener = GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) =>
-        {
-            bool inverted = value == (int) GravityType.Inverted;
-            DreamHold.DreamDashCollider.Collider.Position.Y = inverted ? 1 : -18; // a bit hacky
-        });
-        if (listener is not null)
-            Add(listener);
     }
 
     internal static void InitializeParticles()

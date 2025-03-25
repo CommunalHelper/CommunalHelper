@@ -1,23 +1,31 @@
+using Celeste.Mod.CommunalHelper.Imports;
+
 namespace Celeste.Mod.CommunalHelper.Components;
 
 [TrackedAs(typeof(Holdable))]
 internal class DreamHoldable : Holdable
 {
-    public readonly DreamDashCollider DreamDashCollider;
+    private readonly DreamDashCollider dreamDashCollider;
     public bool AllowDreamDash
     {
-        get => DreamDashCollider.Active;
-        set => DreamDashCollider.Active = value;
+        get => dreamDashCollider.Active;
+        set => dreamDashCollider.Active = value;
     }
 
     private readonly Action onActivate, onDeactivate;
 
+    private Component gravityListener;
+    private readonly float colliderTop, invertedColliderTop;
+
     public DreamHoldable(Collider dreamDashCollider, float cannotHoldDelay = 0.1f, Action onActivate = null, Action onDeactivate = null)
         : base(cannotHoldDelay)
     {
-        DreamDashCollider = new DreamDashCollider(dreamDashCollider, OnDreamDashEnter, OnDreamDashExit);
+        this.dreamDashCollider = new DreamDashCollider(dreamDashCollider, OnDreamDashEnter, OnDreamDashExit);
         this.onActivate = onActivate;
         this.onDeactivate = onDeactivate;
+
+        colliderTop = dreamDashCollider.Top;
+        invertedColliderTop = -dreamDashCollider.Bottom;
     }
 
     private void OnDreamDashEnter(Player player)
@@ -61,13 +69,29 @@ internal class DreamHoldable : Holdable
     public override void Added(Entity entity)
     {
         base.Added(entity);
-        entity.Add(DreamDashCollider);
+
+        entity.Add(dreamDashCollider);
+
+        if (entity is Actor actor)
+        {
+            gravityListener = GravityHelper.CreateGravityListener?.Invoke(actor, (_, value, _) =>
+            {
+                bool inverted = value == (int) GravityType.Inverted;
+                dreamDashCollider.Collider.Top = inverted ? invertedColliderTop : colliderTop;
+            });
+            if (gravityListener is not null)
+                entity.Add(gravityListener);
+        }
     }
 
     public override void Removed(Entity entity)
     {
         base.Removed(entity);
-        entity.Remove(DreamDashCollider);
+
+        entity.Remove(dreamDashCollider);
+
+        if (gravityListener is not null)
+            entity.Remove(gravityListener);
     }
 
     public override void Update()

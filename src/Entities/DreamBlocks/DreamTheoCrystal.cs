@@ -64,15 +64,9 @@ internal class DreamTheoCrystal : TheoCrystal
             },
         });
 
-        // The Dreamdash Collider does not shift down when this entity is inverted (via GravityHelper).
-        // Nor does the overlay sprite get flipped.
-        // So let's add a listener that does both of these for us.
         Component listener = GravityHelper.CreateGravityListener?.Invoke(this, (_, value, _) =>
-        {
-            bool inverted = value == (int) GravityType.Inverted;
-            DreamHold.DreamDashCollider.Collider.Position.Y = inverted ? 0 : -20; // a bit hacky
-            overlaySprite.Scale.Y = inverted ? -1 : 1;
-        });
+            overlaySprite.Scale.Y = value == (int) GravityType.Inverted ? -1 : 1
+        );
         if (listener is not null)
             Add(listener);
     }
