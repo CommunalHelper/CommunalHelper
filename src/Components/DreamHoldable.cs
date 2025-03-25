@@ -9,7 +9,20 @@ internal class DreamHoldable : Holdable
     public bool AllowDreamDash
     {
         get => dreamDashCollider.Active;
-        set => dreamDashCollider.Active = value;
+        set
+        {
+            bool changed = dreamDashCollider.Active != value;
+            dreamDashCollider.Active = value;
+
+            if (changed && value)
+            {
+                onActivate?.Invoke();
+            }
+            else if (changed && !value)
+            {
+                onDeactivate?.Invoke();
+            }
+        }
     }
 
     private readonly Action onActivate, onDeactivate;
@@ -34,9 +47,9 @@ internal class DreamHoldable : Holdable
         player.starFlyBloom ??= new(new Vector2(0f, -6f), 0f, 16f) { Visible = false };
     }
 
-    public void OnDreamDashExit(Player player)
+    private void OnDreamDashExit(Player player)
     {
-        DisableDreamDash();
+        AllowDreamDash = false;
         if (Input.GrabCheck && player.DashDir.Y <= 0 && player.Holding == null)
         {
             // force-allow pickup
@@ -48,22 +61,6 @@ internal class DreamHoldable : Holdable
                 player.StateMachine.State = Player.StPickup;
             }
         }
-    }
-
-    private void EnableDreamDash()
-    {
-        if (AllowDreamDash)
-            return;
-        AllowDreamDash = true;
-        onActivate?.Invoke();
-    }
-
-    private void DisableDreamDash()
-    {
-        if (!AllowDreamDash)
-            return;
-        AllowDreamDash = false;
-        onDeactivate?.Invoke();
     }
 
     public override void Added(Entity entity)
@@ -100,7 +97,7 @@ internal class DreamHoldable : Holdable
 
         if ((Holder is null && ((Entity as Actor)?.OnGround() ?? false)) || (Holder is Player player && player.OnGround()))
         {
-            EnableDreamDash();
+            AllowDreamDash = true;
         }
     }
 
@@ -134,7 +131,7 @@ internal class DreamHoldable : Holdable
     private static bool Holdable_HitSpring(On.Celeste.Holdable.orig_HitSpring orig, Holdable self, Spring spring)
     {
         if (self is DreamHoldable holdable)
-            holdable.EnableDreamDash();
+            holdable.AllowDreamDash = true;
         return orig(self, spring);
     }
 
@@ -162,7 +159,7 @@ internal class DreamHoldable : Holdable
     {
         bool result = orig(self, dir, fromX, fromY);
         if (result && self.Holding is DreamHoldable holdable)
-            holdable.EnableDreamDash();
+            holdable.AllowDreamDash = true;
         return result;
     }
 
