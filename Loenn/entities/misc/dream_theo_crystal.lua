@@ -22,7 +22,7 @@ function dreamTheoCrystal.sprite(room, entity)
 end
 
 function dreamTheoCrystal.rectangle(room, entity)
-    return utils.rectangle(entity.x - 11, entity.y - 21, 21, 21)
+    return utils.rectangle(entity.x - 11, entity.y - 21, 21, 22)
 end
 
 return dreamTheoCrystal
