@@ -1,8 +1,8 @@
 --1.21.0 (29/03/2025)
 * Added Dream Theo Crystals. @aonkeeper4
-* Added Cloudscape zoom support.
-* Added 'noCollideSteer' option to Dream Move Blocks.
-* Added 'noDebris' options to all move block types.
+* Added Cloudscape zoom support. @earthwise01
+* Added 'noCollideSteer' option to Dream Move Blocks. @catapillie
+* Added 'noDebris' options to all move block types. @aonkeeper4
 
 --1.20.12 (21/02/2025)
 * Fixed some bugs with the new Dream Tunnel features. @aonkeeper4
