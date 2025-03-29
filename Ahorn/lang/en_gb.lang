@@ -122,6 +122,7 @@ placements.entities.CommunalHelper/DreamMoveBlock.tooltips.direction=The directi
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.refillCount=Number of dashes the Dream Move Block should refill (-1 for default).
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.moveSpeed=The speed at which the Dream Move Block moves (accepts any number).
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.noCollide=Whether the Dream Move Block should go through solids.
+placements.entities.CommunalHelper/DreamMoveBlock.tooltips.noCollideSteer=Force-allow this block to go through solids when it is steerable.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.oneUse=Whether the Dream Move Block should shatter upon exit.
 placements.entities.CommunalHelper/DreamMoveBlock.tooltips.quickDestroy=Makes this Dream Move Block shatter a little faster.

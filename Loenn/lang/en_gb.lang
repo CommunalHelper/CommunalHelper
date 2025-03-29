@@ -270,7 +270,7 @@ entities.CommunalHelper/SolidExtension.attributes.description.collidable=Whether
 
 # Dream Zip Mover
 entities.CommunalHelper/DreamZipMover.placements.name.dream_zip_mover=Dream Zip Mover
-entities.CommunalHelper/DreamZipMover.attributes.description.below=Determines whether the Dream Move Block should render below foreground tiles.
+entities.CommunalHelper/DreamZipMover.attributes.description.below=Determines whether the Dream Zip Mover should render below foreground tiles.
 entities.CommunalHelper/DreamZipMover.attributes.description.noReturn=Whether the Dream Zip Mover should return to its starting point or not.
 entities.CommunalHelper/DreamZipMover.attributes.description.dreamAesthetic=Optional look for this entity, mostly unused, but left there.
 entities.CommunalHelper/DreamZipMover.attributes.description.featherMode=Whether the Dream Zip Mover has the Dream Block Feather controls enabled.
@@ -311,6 +311,7 @@ entities.CommunalHelper/DreamMoveBlock.attributes.description.direction=The dire
 entities.CommunalHelper/DreamMoveBlock.attributes.description.refillCount=Number of dashes the Dream Move Block should refill (-1 for default).
 entities.CommunalHelper/DreamMoveBlock.attributes.description.moveSpeed=The speed at which the Dream Move Block moves (accepts any number).
 entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollide=Whether the Dream Move Block should go through solids.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollideSteer=Force-allow this block to go through solids when it is steerable.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.oneUse=Whether the Dream Move Block should shatter upon exit.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.quickDestroy=Makes this Dream Move Block shatter a little faster.

@@ -89,7 +89,10 @@ public class DreamMoveBlock : CustomDreamBlock
 
     private readonly Coroutine controller;
     private readonly bool noCollide;
+    private readonly bool noCollideSteer;
     private readonly bool canSteer;
+
+    private bool IsNoCollide => noCollide || noCollideSteer;
 
     private bool oneUseBroken;
 
@@ -125,6 +128,7 @@ public class DreamMoveBlock : CustomDreamBlock
         // Backwards Compatibility
         moveSpeed = data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed);
         noCollide = data.Bool("noCollide");
+        noCollideSteer = data.Bool("noCollideSteer", false);
 
         canSteer = data.Bool("canSteer");
 
@@ -326,7 +330,12 @@ public class DreamMoveBlock : CustomDreamBlock
                 {
                     hit = MoveCheck(move.XComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveVCollideSolids(move.Y, thruDashBlocks: false);
+
+                    if (canSteer || noCollideSteer)
+                        MoveCheck(move.YComp());
+                    else
+                        MoveVCollideSolids(move.Y, thruDashBlocks: false);
+
                     noSquish = null;
                     if (Scene.OnInterval(0.03f))
                     {
@@ -344,7 +353,12 @@ public class DreamMoveBlock : CustomDreamBlock
                 {
                     hit = MoveCheck(move.YComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveHCollideSolids(move.X, thruDashBlocks: false);
+
+                    if (canSteer || noCollideSteer)
+                        MoveCheck(move.XComp());
+                    else
+                        MoveHCollideSolids(move.X, thruDashBlocks: false);
+
                     noSquish = null;
                     if (Scene.OnInterval(0.03f))
                     {
@@ -453,7 +467,7 @@ public class DreamMoveBlock : CustomDreamBlock
                 yield break;
             }
 
-            while (CollideCheck<Actor>() || (noCollide ? CollideCheck<DreamBlock>() : CollideCheck<Solid>()))
+            while (CollideCheck<Actor>() || (IsNoCollide ? CollideCheck<DreamBlock>() : CollideCheck<Solid>()))
             {
                 yield return null;
             }
@@ -632,7 +646,7 @@ public class DreamMoveBlock : CustomDreamBlock
     {
         if (speed.X != 0f)
         {
-            if (!noCollide || CollideCheck<DreamBlock>(Position + speed.XComp()))
+            if (!IsNoCollide || CollideCheck<DreamBlock>(Position + speed.XComp()))
             {
                 if (MoveHCollideSolids(speed.X, thruDashBlocks: false))
                 {
@@ -660,7 +674,7 @@ public class DreamMoveBlock : CustomDreamBlock
         }
         if (speed.Y != 0f)
         {
-            if (!noCollide || CollideCheck<DreamBlock>(Position + speed.YComp()))
+            if (!IsNoCollide || CollideCheck<DreamBlock>(Position + speed.YComp()))
             {
                 if (MoveVCollideSolids(speed.Y, thruDashBlocks: false))
                 {
@@ -927,7 +941,7 @@ public class DreamMoveBlock : CustomDreamBlock
 
     private void ScrapeParticles(Vector2 dir)
     {
-        if (noCollide)
+        if (IsNoCollide)
             return;
 
         Collidable = false;
