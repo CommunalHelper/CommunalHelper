@@ -13,6 +13,9 @@ entities.CommunalHelper/DreamJellyfish.placements.name.floating=Dream Jellyfish 
 entities.CommunalHelper/DreamJellyfish.attributes.description.bubble=Whether the entity should hover in the air before being grabbed.
 entities.CommunalHelper/DreamJellyfish.attributes.description.tutorial=Whether the entity should show the usage tutorial.
 
+# Dream Theo Crystal
+entities.CommunalHelper/DreamTheoCrystal.placements.name.dream_theo_crystal=Dream Theo Crystal
+
 # Dream Booster
 entities.CommunalHelper/DreamBoosterAny.placements.name.dream_booster=Dream Booster (Any Direction)
 
