@@ -1,6 +1,6 @@
 --1.21.1 (29/03/2025)--
-Add 'slow' option to Dash Zip Mover from Strawberry Jam. @sunsetquasar
-Fix incorrect ON hook unsubscribe introduced in 1.21.0. @sunsetquasar
+* Add 'slow' option to Dash Zip Mover from Strawberry Jam. @sunsetquasar
+* Fix incorrect ON hook unsubscribe introduced in 1.21.0. @sunsetquasar
 
 --1.21.0 (29/03/2025)--
 * Added Dream Theo Crystals. @aonkeeper4
