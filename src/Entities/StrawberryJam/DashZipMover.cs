@@ -1,7 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper;
 using System.Collections;
 using System.Collections.Generic;
-using static MonoMod.Cil.RuntimeILReferenceBag;
 
 namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
 {
@@ -150,6 +149,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
         private string soundEvent;
 
         private readonly bool slow;
+
+        private static Ease.Easer EaseSevenHalves = Util.MakeCustomEaser(3.5f);
 
         public DashZipMover(Vector2 position, int width, int height, Vector2 target, string spritePath, bool drawBlackBorder, Color ropeColor, Color ropeLightColor, Color ropeShadowColor, string sound, bool slow)
             : base(position, width, height, safe: false)
@@ -403,7 +404,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 {
                     yield return null;
                     at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime * (1/factor));
-                    percent = slow ? Ease.CubeIn(at2) : Ease.SineIn(at2);
+                    percent = slow ? EaseSevenHalves(at2) : Ease.SineIn(at2);
                     Vector2 vector = Vector2.Lerp(start, target, percent);
                     ScrapeParticlesCheck(vector);
                     if (Scene.OnInterval(0.1f))
