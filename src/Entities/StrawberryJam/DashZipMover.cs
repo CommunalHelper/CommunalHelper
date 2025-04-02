@@ -388,7 +388,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 }
 
                 sfx.Play(soundEvent);
-                //sfx.instance.setPitch(1 / factor); //let them handle the sound event manually
+                sfx.instance.setPitch(1 / factor);
 
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                 StartShaking(0.1f * factor);
