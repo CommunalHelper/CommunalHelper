@@ -116,7 +116,7 @@ internal class DreamHoldable : Holdable
     internal static void Unload()
     {
         On.Celeste.Holdable.Check -= Holdable_Check;
-        On.Celeste.Holdable.HitSpring += Holdable_HitSpring;
+        On.Celeste.Holdable.HitSpring -= Holdable_HitSpring;
 
         On.Celeste.Player.NormalUpdate -= Player_NormalUpdate;
         On.Celeste.Player.StartDash -= Player_StartDash;

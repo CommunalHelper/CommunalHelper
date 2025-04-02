@@ -149,12 +149,15 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
 
         private string soundEvent;
 
-        public DashZipMover(Vector2 position, int width, int height, Vector2 target, string spritePath, bool drawBlackBorder, Color ropeColor, Color ropeLightColor, Color ropeShadowColor, string sound)
+        private readonly bool slow;
+
+        public DashZipMover(Vector2 position, int width, int height, Vector2 target, string spritePath, bool drawBlackBorder, Color ropeColor, Color ropeLightColor, Color ropeShadowColor, string sound, bool slow)
             : base(position, width, height, safe: false)
         {
             Depth = Depths.FGTerrain + 1;
             start = Position;
             this.target = target;
+            this.slow = slow;
 
             Add(new Coroutine(Sequence()));
             Add(new LightOcclude());
@@ -194,7 +197,7 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
         }
 
         public DashZipMover(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Attr("spritePath", "objects/CommunalHelper/strawberryJam/dashZipMover/"), data.Bool("drawBlackBorder", false), Calc.HexToColor(data.Attr("ropeColor", "046e19")), Calc.HexToColor(data.Attr("ropeLightColor", "329415")), Calc.HexToColor(data.Attr("ropeShadowColor", "003622")), data.Attr("soundEvent", "event:/CommunalHelperEvents/game/strawberryJam/game/dash_zip_mover/zip_mover"))
+            : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Attr("spritePath", "objects/CommunalHelper/strawberryJam/dashZipMover/"), data.Bool("drawBlackBorder", false), Calc.HexToColor(data.Attr("ropeColor", "046e19")), Calc.HexToColor(data.Attr("ropeLightColor", "329415")), Calc.HexToColor(data.Attr("ropeShadowColor", "003622")), data.Attr("soundEvent", "event:/CommunalHelperEvents/game/strawberryJam/game/dash_zip_mover/zip_mover"), data.Bool("slow", false))
         {
         }
 
@@ -374,6 +377,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
         {
             Vector2 start = Position;
 
+            float factor = slow ? 1.75f : 1f;
+
             while (true)
             {
                 if (!triggered)
@@ -383,10 +388,11 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 }
 
                 sfx.Play(soundEvent);
+                //sfx.instance.setPitch(1 / factor); //let them handle the sound event manually
 
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-                StartShaking(0.1f);
-                yield return 0.1f;
+                StartShaking(0.1f * factor);
+                yield return 0.1f * factor;
 
                 streetlight.SetAnimationFrame(3);
                 StopPlayerRunIntoAnimation = false;
@@ -396,8 +402,8 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                 while (at2 < 1f)
                 {
                     yield return null;
-                    at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime);
-                    percent = Ease.SineIn(at2);
+                    at2 = Calc.Approach(at2, 1f, 2f * Engine.DeltaTime * (1/factor));
+                    percent = slow ? Ease.CubeIn(at2) : Ease.SineIn(at2);
                     Vector2 vector = Vector2.Lerp(start, target, percent);
                     ScrapeParticlesCheck(vector);
                     if (Scene.OnInterval(0.1f))
@@ -405,12 +411,12 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam
                     MoveTo(vector);
                 }
 
-                StartShaking(0.2f);
+                StartShaking(0.2f * factor);
                 Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                 streetlight.SetAnimationFrame(2);
                 SceneAs<Level>().Shake();
                 StopPlayerRunIntoAnimation = true;
-                yield return 0.5f;
+                yield return 0.5f * factor;
 
                 StopPlayerRunIntoAnimation = false;
                 streetlight.SetAnimationFrame(1);
