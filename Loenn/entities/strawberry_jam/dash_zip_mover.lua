@@ -39,6 +39,7 @@ dashZipMover.placements = {
         ropeLightColor = "329415",
         ropeShadowColor = "003622",
         soundEvent = "event:/CommunalHelperEvents/game/strawberryJam/game/dash_zip_mover/zip_mover",
+        slow = false,
     }
 }
 
