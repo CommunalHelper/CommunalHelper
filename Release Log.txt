@@ -1,14 +1,18 @@
---1.21.0 (29/03/2025)
+--1.21.1 (29/03/2025)--
+Add 'slow' option to Dash Zip Mover from Strawberry Jam. @sunsetquasar
+Fix incorrect ON hook unsubscribe introduced in 1.21.0. @sunsetquasar
+
+--1.21.0 (29/03/2025)--
 * Added Dream Theo Crystals. @aonkeeper4
 * Added Cloudscape zoom support. @earthwise01
 * Added 'noCollideSteer' option to Dream Move Blocks. @catapillie
 * Added 'noDebris' options to all move block types. @aonkeeper4
 
---1.20.12 (21/02/2025)
+--1.20.12 (21/02/2025)--
 * Fixed some bugs with the new Dream Tunnel features. @aonkeeper4
 * Added option for Dream Tunnel redirects to consume normal refills. @aonkeeper4
 
---1.20.11 (12/01/2025)
+--1.20.11 (12/01/2025)--
 * Fixed Connected Dream Block culling issue. @earthwise01
 * Fixed custom move block debris lag. @aonkeeper4
 * Re-added Move Block Group support feature. @aonkeeper4
@@ -18,17 +22,17 @@
 * Added an option to the Configure Elytra trigger to disable reverse vertical boosts. @aonkeeper4
 * Added a new Configure Dream Tunnel Dash trigger. @aonkeeper4
 
---1.20.10 (29/12/2024)
+--1.20.10 (29/12/2024)--
 * Hotfix: rolled back new Cloudscape zoom support feature due to bug
 
---1.20.9 (29/12/2024)
+--1.20.9 (29/12/2024)--
 * Hotfix: rolled back new Move Block Group support feature due to bug
 
---1.20.8 (27/12/2024)
+--1.20.8 (27/12/2024)--
 * Fixed rendering bug in connected dream blocks. @bigkahuna443
 * Implemented new Everest photosensitivity options. @bigkahuna443
 
---1.20.7 (24/12/2024)
+--1.20.7 (24/12/2024)--
 * Added missing Laser Emitter sprite entry. @Samah
 * Fixed Sound Area Trigger transition bug. @Viv
 * Fixed rendering bug with curved boosters. @AAA1459
