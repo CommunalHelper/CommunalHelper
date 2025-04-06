@@ -282,9 +282,6 @@ public class CommunalHelperModule : EverestModule
 
         HeartGemShard.InitializeParticles();
 
-        Melvin.InitializeTextures();
-        Melvin.InitializeParticles();
-
         RailedMoveBlock.InitializeTextures();
         DreamBooster.InitializeParticles();
         CurvedBooster.InitializeParticles();
