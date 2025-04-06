@@ -63,9 +63,9 @@ public static class ModExports
         
         #region Melvin
 
-        public static Component MelvinTarget()
+        public static Component MelvinTargetable()
         {
-            return new MelvinTarget();
+            return new MelvinTargetable();
         }
 
         #endregion

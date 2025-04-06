@@ -859,7 +859,7 @@ public class Melvin : Solid
 
     private IEnumerable<Entity> GetTargetsByDistance()
     {
-        List<Component> targets = SceneAs<Level>().Tracker.GetComponents<MelvinTarget>();
+        List<Component> targets = SceneAs<Level>().Tracker.GetComponents<MelvinTargetable>();
         targets.Sort((target1, target2) => Vector2.DistanceSquared(Center, target1.Entity.Position).CompareTo(Vector2.DistanceSquared(Center, target2.Entity.Position)));
         return targets.Select(t => t.Entity);
     }

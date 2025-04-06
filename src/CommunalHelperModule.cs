@@ -115,7 +115,7 @@ public class CommunalHelperModule : EverestModule
         PoisonGas.Load();
         AffectSpriteTrigger.Load();
         
-        MelvinTarget.Load();
+        MelvinTargetable.Load();
 
         #region Imports
 
@@ -209,7 +209,7 @@ public class CommunalHelperModule : EverestModule
         PoisonGas.Unload();
         AffectSpriteTrigger.Unload();
         
-        MelvinTarget.Unload();
+        MelvinTargetable.Unload();
 
         LaserEmitter.Unload();
     }
