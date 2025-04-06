@@ -49,7 +49,7 @@ public static class LylyraHelper
         RegisterSimpleSolidSlicerAction(typeof(DreamFloatySpaceBlock), GetDreamEntityData, "000000", 8, 8, null);
         RegisterSimpleSolidSlicerAction(typeof(DreamMoveBlock), GetDreamEntityData, "000000", 8, 8, null);
         RegisterSimpleSolidSlicerAction(typeof(LoopBlock), (Entity data, DynamicData slicer) => {return (data as LoopBlock).creatingData;}, null, 24, 24, null); //color is overridden via a custom function so it matches the loop block being cut
-        RegisterSimpleSolidSlicerAction(typeof(Melvin), (Entity data, DynamicData slicer) => { return (data as Melvin).creationData; }, "62222b", 24, 24, null); // color taken from fillColor in Melvin.cs
+        RegisterSimpleSolidSlicerAction(typeof(Melvin), (Entity data, DynamicData slicer) => { return (data as Melvin).creationData; }, null, 24, 24, null); //color is overridden via a custom function so it matches the melvin being cut
 
         //vanity function registration for LoopBlocks
         Dictionary<string, Delegate> loopBlockDict = new() {
@@ -60,7 +60,7 @@ public static class LylyraHelper
                 }
             }
         };
-        RegisterSlicerActionSet(typeof(DreamFallingBlock), loopBlockDict);
+        RegisterSlicerActionSet(typeof(LoopBlock), loopBlockDict);
         //these methods are needed to fix small things in the DreamMoveBlocks and DreamFallingBlocks
 
         //This method activates the DreamFallingBlock after being sliced
@@ -123,10 +123,16 @@ public static class LylyraHelper
             (created as Melvin).crushDir = -slicer.Get<Vector2>("Direction");
             (created as Melvin).Attack(true); //slicer hit it counts as a dash right?
         };
+        Func<Entity, DynamicData, Color> melvinParticleColor = (Entity created, DynamicData _) =>
+        {
+            return (created as Melvin).fill;
+        };
+        
         Dictionary<string, Delegate> melvinDict = new Dictionary<string, Delegate>()
         {
             { "activate", melvinActivate },
-            { "postslice", melvinReturn}
+            { "postslice", melvinReturn },
+            { "getparticlecolor", melvinParticleColor }
         };
 
         RegisterSlicerActionSet(typeof(Melvin), melvinDict);

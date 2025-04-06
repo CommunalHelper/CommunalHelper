@@ -12,7 +12,7 @@ public class Melvin : Solid
     private readonly ParticleType P_Activate;
     private readonly ParticleType P_Attack;
 
-    private readonly Color fill;
+    internal readonly Color fill;
 
     #region Tiles
     // yeah.
