@@ -114,6 +114,8 @@ public class CommunalHelperModule : EverestModule
         BadelineBoostKeepHoldables.Hook();
         PoisonGas.Load();
         AffectSpriteTrigger.Load();
+        
+        MelvinTarget.Load();
 
         #region Imports
 
@@ -206,6 +208,8 @@ public class CommunalHelperModule : EverestModule
         BadelineBoostKeepHoldables.Unhook();
         PoisonGas.Unload();
         AffectSpriteTrigger.Unload();
+        
+        MelvinTarget.Unload();
 
         LaserEmitter.Unload();
     }

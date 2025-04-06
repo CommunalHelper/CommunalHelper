@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ArrowDir = Celeste.Mod.CommunalHelper.Entities.StationBlock.ArrowDir;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -757,6 +759,13 @@ public class Melvin : Solid
         }
     }
 
+    private IEnumerable<Entity> GetTargetsByDistance()
+    {
+        List<Component> targets = SceneAs<Level>().Tracker.GetComponents<MelvinTarget>();
+        targets.Sort((target1, target2) => Vector2.DistanceSquared(Center, target1.Entity.Position).CompareTo(Vector2.DistanceSquared(Center, target2.Entity.Position)));
+        return targets.Select(t => t.Entity);
+    }
+
     public override void Update()
     {
         SetSeekerBarriersCollidable(true);
@@ -765,55 +774,60 @@ public class Melvin : Solid
         eye.Scale = squishScale;
         squishScale = Calc.Approach(squishScale, Vector2.One, Engine.DeltaTime * 4f);
 
-        if (!triggered && Util.TryGetPlayer(out Player player))
+        if (!triggered)
         {
-            bool detectedPlayer = false;
-            Rectangle toPlayerRect = new();
-            if (player.Center.Y > Y && player.Center.Y < Y + Height)
+            foreach (Entity target in GetTargetsByDistance())
             {
-                int y1 = (int) Math.Max(player.Top, Top);
-                int y2 = (int) Math.Min(player.Bottom, Bottom);
-                if (player.Center.X > X + Width)
+                bool detectedTarget = false;
+                Rectangle toTargetRect = new();
+                if (target.Center.Y > Y && target.Center.Y < Y + Height)
                 {
-                    // right
-                    detectedPlayer = true;
-                    crushDir = Vector2.UnitX;
-                    dir = ArrowDir.Right;
-                    toPlayerRect = new Rectangle((int) (X + Width), y1, (int) (player.Left - X - Width), y2 - y1);
+                    int y1 = (int) Math.Max(target.Top, Top);
+                    int y2 = (int) Math.Min(target.Bottom, Bottom);
+                    if (target.Center.X > X + Width)
+                    {
+                        // right
+                        detectedTarget = true;
+                        crushDir = Vector2.UnitX;
+                        dir = ArrowDir.Right;
+                        toTargetRect = new Rectangle((int) (X + Width), y1, (int) (target.Left - X - Width), y2 - y1);
+                    }
+                    if (target.Center.X < X)
+                    {
+                        // left
+                        detectedTarget = true;
+                        crushDir = -Vector2.UnitX;
+                        dir = ArrowDir.Left;
+                        toTargetRect = new Rectangle((int) target.Right, y1, (int) (X - target.Right), y2 - y1);
+                    }
                 }
-                if (player.Center.X < X)
+                if (target.Center.X > X && target.Center.X < X + Width)
                 {
-                    // left
-                    detectedPlayer = true;
-                    crushDir = -Vector2.UnitX;
-                    dir = ArrowDir.Left;
-                    toPlayerRect = new Rectangle((int) player.Right, y1, (int) (X - player.Right), y2 - y1);
+                    int x1 = (int) Math.Max(target.Left, Left);
+                    int x2 = (int) Math.Min(target.Right, Right);
+                    if (target.Center.Y < Y)
+                    {
+                        // top
+                        detectedTarget = true;
+                        crushDir = -Vector2.UnitY;
+                        dir = ArrowDir.Up;
+                        toTargetRect = new Rectangle(x1, (int) target.Bottom, x2 - x1, (int) (Y - target.Bottom));
+                    }
+                    if (target.Center.Y > Y + Height)
+                    {
+                        // bottom
+                        detectedTarget = true;
+                        crushDir = Vector2.UnitY;
+                        dir = ArrowDir.Down;
+                        toTargetRect = new Rectangle(x1, (int) (Y + Height), x2 - x1, (int) (target.Top - Y - Height));
+                    }
                 }
-            }
-            if (player.Center.X > X && player.Center.X < X + Width)
-            {
-                int x1 = (int) Math.Max(player.Left, Left);
-                int x2 = (int) Math.Min(player.Right, Right);
-                if (player.Center.Y < Y)
-                {
-                    // top
-                    detectedPlayer = true;
-                    crushDir = -Vector2.UnitY;
-                    dir = ArrowDir.Up;
-                    toPlayerRect = new Rectangle(x1, (int) player.Bottom, x2 - x1, (int) (Y - player.Bottom));
-                }
-                if (player.Center.Y > Y + Height)
-                {
-                    // bottom
-                    detectedPlayer = true;
-                    crushDir = Vector2.UnitY;
-                    dir = ArrowDir.Down;
-                    toPlayerRect = new Rectangle(x1, (int) (Y + Height), x2 - x1, (int) (player.Top - Y - Height));
-                }
-            }
-            if (detectedPlayer && IsPlayerSeen(toPlayerRect, dir))
-            {
+                
+                if (!detectedTarget || !IsPlayerSeen(toTargetRect, dir))
+                    continue;
+                
                 Attack(false);
+                break;
             }
         }
         SetSeekerBarriersCollidable(false);
