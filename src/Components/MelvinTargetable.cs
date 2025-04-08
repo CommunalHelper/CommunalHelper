@@ -7,9 +7,9 @@ namespace Celeste.Mod.CommunalHelper.Components;
 public class MelvinTargetable : Component
 {
     /// <summary>
-    /// The priority of this component.
-    /// Players have a priority of 0.
-    /// A lower priority value means this component will be checked for attack first, so a value of -1 would be checked before the player, and a value of 1 would be checked after the player.
+    /// The priority of this component.<br/>
+    /// Players have a priority of 0.<br/>
+    /// A lower priority value means this component will be checked for attack first, so a value of -1 would be checked before the player, and a value of 1 would be checked after the player.<br/>
     /// Ties in priority value are broken by distance.
     /// </summary>
     public readonly int Priority;
