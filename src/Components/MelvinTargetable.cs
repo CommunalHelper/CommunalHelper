@@ -6,8 +6,17 @@ namespace Celeste.Mod.CommunalHelper.Components;
 [Tracked]
 public class MelvinTargetable : Component
 {
-    public MelvinTargetable() : base(false, false)
+    /// <summary>
+    /// The priority of this component.
+    /// Players have a priority of 0.
+    /// A lower priority value means this component will be checked for attack first, so a value of -1 would be checked before the player, and a value of 1 would be checked after the player.
+    /// Ties in priority value are broken by distance.
+    /// </summary>
+    public readonly int Priority;
+    
+    public MelvinTargetable(int priority = 0) : base(false, false)
     {
+        Priority = priority;
     }
     
     #region Hooks
@@ -27,7 +36,7 @@ public class MelvinTargetable : Component
     private static void OnSpawn(Player player)
     {
         if (player.Get<MelvinTargetable>() is null)
-            player.Add(new MelvinTargetable());
+            player.Add(new MelvinTargetable(0));
     }
 
     private static void OnBeforeReload(bool silent)
