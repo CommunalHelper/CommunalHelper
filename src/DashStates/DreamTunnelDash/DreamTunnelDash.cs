@@ -73,6 +73,7 @@ public static class DreamTunnelDash
         public float CustomSpeed;
         public bool AllowDashCancels;
         public bool RedirectConsumesNormalDash;
+        public bool AllowTransitions;
     }
 
     public static readonly DreamTunnelDashConfiguration DefaultDreamTunnelDashConfiguration = new()
@@ -85,6 +86,7 @@ public static class DreamTunnelDash
         CustomSpeed = 0,
         AllowDashCancels = false,
         RedirectConsumesNormalDash = false,
+        AllowTransitions = false,
     };
 
 
@@ -106,6 +108,9 @@ public static class DreamTunnelDash
         IL.Celeste.Player.IsRiding_JumpThru += Player_IsRiding_JumpThru;
         IL.Celeste.Player.OnCollideH += State_DreamDashEqual;
         IL.Celeste.Player.OnCollideV += State_DreamDashEqual;
+        IL.Celeste.Player.BeforeUpTransition += Player_BeforeUpTransition;
+        IL.Celeste.Player.BeforeDownTransition += Player_BeforeDownTransition;
+        IL.Celeste.Player.TransitionTo += Player_TransitionTo;
         hook_Player_orig_Update = new ILHook(
             typeof(Player).GetMethod("orig_Update"),
             Player_orig_Update);
@@ -140,6 +145,9 @@ public static class DreamTunnelDash
         IL.Celeste.Player.IsRiding_JumpThru -= Player_IsRiding_JumpThru;
         IL.Celeste.Player.OnCollideH -= State_DreamDashEqual;
         IL.Celeste.Player.OnCollideV -= State_DreamDashEqual;
+        IL.Celeste.Player.BeforeUpTransition -= Player_BeforeUpTransition;
+        IL.Celeste.Player.BeforeDownTransition -= Player_BeforeDownTransition;
+        IL.Celeste.Player.TransitionTo -= Player_TransitionTo;
         hook_Player_orig_Update.Dispose();
         hook_Player_orig_UpdateSprite.Dispose();
 
@@ -360,33 +368,100 @@ public static class DreamTunnelDash
             State_DreamDashNotEqual_And(il);
     }
 
+    private static void Player_BeforeUpTransition(ILContext il)
+    {
+        ILCursor cursor = new(il); 
+        
+        CheckState(cursor, Player.StRedDash, false);
+        CheckState(cursor, Player.StRedDash, false, true);
+    }
+
+    private static void Player_BeforeDownTransition(ILContext il)
+    {
+        ILCursor cursor = new(il);
+        
+        CheckState(cursor, Player.StRedDash, false, true);
+    }
+
+    private static void Player_TransitionTo(ILContext il)
+    {
+        ILCursor cursor = new(il);
+
+        if (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCall<Actor>("MoveTowardsX")))
+        {
+            UseInsteadIfDreamTunnelDashing(cursor, NaiveMoveTowardsX);
+        }
+        if (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCall<Actor>("MoveTowardsY")))
+        {
+            UseInsteadIfDreamTunnelDashing(cursor, NaiveMoveTowardsY);
+        }
+        return;
+
+        // utility to replace one method call with another of the same signature if the player is dream dashing
+        static void UseInsteadIfDreamTunnelDashing<T>(ILCursor cursor, T cb) where T : Delegate
+        {
+            ILLabel normalCall = cursor.DefineLabel();
+            ILLabel afterNormalCall = cursor.DefineLabel();
+        
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<Player, bool>>(player => player.StateMachine.State == St.DreamTunnelDash);
+            cursor.Emit(OpCodes.Brfalse_S, normalCall);
+            cursor.EmitDelegate(cb);
+            cursor.Emit(OpCodes.Br_S, afterNormalCall);
+            cursor.MarkLabel(normalCall);
+            // normal method call would be here
+            cursor.Index++;
+            cursor.MarkLabel(afterNormalCall);
+        }
+    }
+    
+    // hopefully the tasers don't kill me for this
+    private static void NaiveMoveTowardsX(Player player, float targetX, float maxAmount, Collision _)
+    {
+        float toX = Calc.Approach(player.ExactPosition.X, targetX, maxAmount);
+        player.movementCounter.X += (float) ((double) toX - player.Position.X - player.movementCounter.X);
+        int x = (int) Math.Round(player.movementCounter.X);
+        player.Position.X += x;
+        player.movementCounter.X -= x;
+    }
+    
+    private static void NaiveMoveTowardsY(Player player, float targetY, float maxAmount, Collision _)
+    {
+        float toY = Calc.Approach(player.ExactPosition.Y, targetY, maxAmount);
+        player.movementCounter.Y += (float) ((double) toY - player.Position.Y - player.movementCounter.Y);
+        int y = (int) Math.Round(player.movementCounter.Y);
+        player.Position.Y += y;
+        player.movementCounter.Y -= y;
+    }
+
     // Patch any method that checks the player's State
     /// <summary>
     /// Use if decompilation says <c>State==9</c> and NOT followed by <c>&amp;&amp;</c>.
     /// </summary>
-    private static readonly ILContext.Manipulator State_DreamDashEqual = il => Check_State_DreamDash(new ILCursor(il), true);
+    private static readonly ILContext.Manipulator State_DreamDashEqual = il => CheckState(new ILCursor(il), Player.StDreamDash, true);
     /// <summary>
     /// Use if decompilation says <c>State!=9</c> and NOT followed by <c>&amp;&amp;</c>.
     /// </summary>
-    private static readonly ILContext.Manipulator State_DreamDashNotEqual = il => Check_State_DreamDash(new ILCursor(il), false);
+    private static readonly ILContext.Manipulator State_DreamDashNotEqual = il => CheckState(new ILCursor(il), Player.StDreamDash, false);
     /// <summary>
     /// Use if decompilation says <c>State==9</c> and IS followed by <c>&amp;&amp;</c>.
     /// </summary>
-    private static readonly ILContext.Manipulator State_DreamDashEqual_And = il => Check_State_DreamDash(new ILCursor(il), true, true);
+    private static readonly ILContext.Manipulator State_DreamDashEqual_And = il => CheckState(new ILCursor(il), Player.StDreamDash, true, true);
     /// <summary>
     /// Use if decompilation says <c>State!=9</c> and IS followed by <c>&amp;&amp;</c>.
     /// </summary>
-    private static readonly ILContext.Manipulator State_DreamDashNotEqual_And = il => Check_State_DreamDash(new ILCursor(il), false, true);
+    private static readonly ILContext.Manipulator State_DreamDashNotEqual_And = il => CheckState(new ILCursor(il), Player.StDreamDash, false, true);
     /// <summary>
     /// Patch any method that checks the player's state.
     /// </summary>
-    /// <remarks>Checks for <c>ldc.i4.s 9</c></remarks>
-    /// <param name="cursor"></param>
-    /// <param name="equal">Whether the decompilation says State == 9</param>
+    /// <remarks>Checks for <c>ldc.i4.s &lt;state&gt;</c></remarks>
+    /// <param name="cursor">The ILCursor to use</param>
+    /// <param name="state">The state to check for</param>
+    /// <param name="equal">Whether the decompilation says <c>State == &lt;state&gt;</c></param>
     /// <param name="and">Whether the check is followed by <c>&amp;&amp;</c></param>
-    private static void Check_State_DreamDash(ILCursor cursor, bool equal, bool and = false)
+    private static void CheckState(ILCursor cursor, int state, bool equal, bool and = false)
     {
-        if (cursor.TryGotoNext(instr => instr.MatchLdcI4(Player.StDreamDash) &&
+        if (cursor.TryGotoNext(instr => instr.MatchLdcI4(state) &&
             instr.Previous != null && instr.Previous.MatchCallvirt<StateMachine>("get_State")))
         {
             Instruction idx = cursor.Next;
@@ -424,20 +499,20 @@ public static class DreamTunnelDash
     private static void Player_orig_Update(ILContext il)
     {
         ILCursor cursor = new(il);
-        Check_State_DreamDash(cursor, true);
-        Check_State_DreamDash(cursor, false, true);
-        Check_State_DreamDash(cursor, false, true);
+        CheckState(cursor, Player.StDreamDash, true);
+        CheckState(cursor, Player.StDreamDash, false, true);
+        CheckState(cursor, Player.StDreamDash, false, true);
         // Not used because we DO want to enforce Level bounds.
         //Check_State_DreamDash(cursor, false, true);
     }
 
-    // Kill the player if they attempt to DreamTunnel out of the level
+    // Kill the player if they attempt to DreamTunnel out of the level and transitions are not enabled
     private static void Level_EnforceBounds(On.Celeste.Level.orig_EnforceBounds orig, Level self, Player player)
     {
         if (DynamicData.For(self).Get<Coroutine>("transition") is not null)
             return;
 
-        if (player.StateMachine.State == St.DreamTunnelDash)
+        if (player.StateMachine.State == St.DreamTunnelDash && !CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.AllowTransitions)
         {
             Rectangle bounds = self.Bounds;
             if (player.Right > bounds.Right || player.Left < bounds.Left || player.Top < bounds.Top || player.Bottom > bounds.Bottom)

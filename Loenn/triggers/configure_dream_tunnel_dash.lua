@@ -12,6 +12,7 @@ return {
                 customSpeed = 0,
                 allowDashCancels = false,
                 redirectConsumesNormalDash = false,
+                allowTransitions = false,
             }
         }
     },
