@@ -118,7 +118,7 @@ public static class DreamTunnelDash
             typeof(Player).GetMethod("orig_UpdateSprite", BindingFlags.NonPublic | BindingFlags.Instance),
             State_DreamDashEqual);
 
-        On.Celeste.Level.EnforceBounds += Level_EnforceBounds;
+        IL.Celeste.Level.EnforceBounds += Level_EnforceBounds;
         On.Celeste.Level.Reload += Level_Reload;
         On.Celeste.LevelLoader.StartLevel += LevelLoader_StartLevel;
         On.Celeste.Player.OnBoundsH += Player_OnBoundsH;
@@ -151,7 +151,7 @@ public static class DreamTunnelDash
         hook_Player_orig_Update.Dispose();
         hook_Player_orig_UpdateSprite.Dispose();
 
-        On.Celeste.Level.EnforceBounds -= Level_EnforceBounds;
+        IL.Celeste.Level.EnforceBounds -= Level_EnforceBounds;
         On.Celeste.Level.Reload -= Level_Reload;
         On.Celeste.LevelLoader.StartLevel -= LevelLoader_StartLevel;
         On.Celeste.Player.OnBoundsH -= Player_OnBoundsH;
@@ -397,7 +397,7 @@ public static class DreamTunnelDash
         }
         return;
 
-        // utility to replace one method call with another of the same signature if the player is dream dashing
+        // utility to replace one method call with another of the same signature if the player is dream tunnel dashing
         static void UseInsteadIfDreamTunnelDashing<T>(ILCursor cursor, T cb) where T : Delegate
         {
             ILLabel normalCall = cursor.DefineLabel();
@@ -505,25 +505,48 @@ public static class DreamTunnelDash
         // Not used because we DO want to enforce Level bounds.
         //Check_State_DreamDash(cursor, false, true);
     }
-
-    // Kill the player if they attempt to DreamTunnel out of the level and transitions are not enabled
-    private static void Level_EnforceBounds(On.Celeste.Level.orig_EnforceBounds orig, Level self, Player player)
+    
+    private static void Level_EnforceBounds(ILContext il)
     {
-        if (DynamicData.For(self).Get<Coroutine>("transition") is not null)
-            return;
-
-        if (player.StateMachine.State == St.DreamTunnelDash && !CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.AllowTransitions)
+        ILCursor cursor = new(il);
+        
+        // Kill the player if they attempt to DreamTunnel out of the level and transitions are not enabled
+        if (cursor.TryGotoNext(MoveType.After,
+            instr => instr.MatchLdarg(0),
+            instr => instr.MatchLdfld<Level>("transition"),
+            instr => instr.MatchBrfalse(out ILLabel _),
+            instr => instr.MatchRet()))
         {
-            Rectangle bounds = self.Bounds;
-            if (player.Right > bounds.Right || player.Left < bounds.Left || player.Top < bounds.Top || player.Bottom > bounds.Bottom)
+            ILLabel afterReturn = cursor.DefineLabel();
+            
+            cursor.MoveAfterLabels();
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldarg_1);
+            cursor.EmitDelegate<Func<Level, Player, bool>>((self, player) =>
             {
+                if (player.StateMachine.State != St.DreamTunnelDash || CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.AllowTransitions)
+                    return false;
+                
+                Rectangle bounds = self.Bounds;
+                if (player.Right <= bounds.Right && player.Left >= bounds.Left && player.Top >= bounds.Top && player.Bottom <= bounds.Bottom)
+                    return false;
+                
                 player.DreamDashDie(player.Position);
-                return;
-            }
-            // Continue here, since it may be caught be player.OnBoundsH/OnBoundsV
+                return true;
+            });
+            cursor.Emit(OpCodes.Brfalse_S, afterReturn);
+            cursor.Emit(OpCodes.Ret);
+            cursor.MarkLabel(afterReturn);
         }
-
-        orig(self, player);
+        
+        // Ignore check for solids on down transition if dream tunnel dashing
+        if (cursor.TryGotoNext(MoveType.After,
+            instr => instr.MatchCallvirt<Entity>("CollideCheck")))
+        {
+            cursor.Emit(OpCodes.Ldarg_1);
+            cursor.EmitDelegate<Func<Player, bool>>(player => player.StateMachine.State != St.DreamTunnelDash);
+            cursor.Emit(OpCodes.And);
+        }
     }
 
     private static void Level_Reload(On.Celeste.Level.orig_Reload orig, Level self)
