@@ -415,23 +415,18 @@ public static class DreamTunnelDash
         }
     }
     
-    // hopefully the tasers don't kill me for this
     private static void NaiveMoveTowardsX(Player player, float targetX, float maxAmount, Collision _)
     {
         float toX = Calc.Approach(player.ExactPosition.X, targetX, maxAmount);
-        player.movementCounter.X += (float) ((double) toX - player.Position.X - player.movementCounter.X);
-        int x = (int) Math.Round(player.movementCounter.X);
-        player.Position.X += x;
-        player.movementCounter.X -= x;
+        float moveX = (float) ((double) toX - player.Position.X - player.movementCounter.X);
+        player.NaiveMove(Vector2.UnitX * moveX);
     }
     
     private static void NaiveMoveTowardsY(Player player, float targetY, float maxAmount, Collision _)
     {
         float toY = Calc.Approach(player.ExactPosition.Y, targetY, maxAmount);
-        player.movementCounter.Y += (float) ((double) toY - player.Position.Y - player.movementCounter.Y);
-        int y = (int) Math.Round(player.movementCounter.Y);
-        player.Position.Y += y;
-        player.movementCounter.Y -= y;
+        float moveY = (float) ((double) toY - player.Position.Y - player.movementCounter.Y);
+        player.NaiveMove(Vector2.UnitY * moveY);
     }
 
     // Patch any method that checks the player's State
