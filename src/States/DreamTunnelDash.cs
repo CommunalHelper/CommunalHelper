@@ -18,6 +18,7 @@ public static class DreamTunnelDash
         if (player.dreamSfxLoop == null)
         {
             player.dreamSfxLoop = new SoundSource();
+            player.dreamSfxLoop.DisposeOnTransition = !CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.AllowTransitions;
             player.Add(player.dreamSfxLoop);
         }
 

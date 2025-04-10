@@ -20,6 +20,7 @@ public class ConfigureDreamTunnelDashTrigger : Trigger
             CustomSpeed = data.Float("customSpeed", 0f),
             AllowDashCancels = data.Bool("allowDashCancels", false),
             RedirectConsumesNormalDash = data.Bool("redirectConsumesNormalDash", false),
+            AllowTransitions = data.Bool("allowTransitions", false),
         };
     }
 
