@@ -32,6 +32,7 @@ loopBlock.placements = {
             edgeThickness = 1,
             color = "FFFFFF",
             texture = defaultTexture,
+            noHole = false
         }
     }
 }
