@@ -86,25 +86,25 @@ public class GlowController : Entity
             var typeName = type.FullName;
             var requiresRemovalRoutine = false;
 
+            if (lightBlacklist.Contains(typeName))
+            {
+                entity.Remove(entity.Components.GetAll<VertexLight>().ToArray<Component>());
+            }
             if (lightWhitelist.Contains(typeName))
             {
                 entity.Add(new VertexLight(lightOffset, lightColor, lightAlpha, lightStartFade, lightEndFade));
                 requiresRemovalRoutine = true;
             }
-            else if (lightBlacklist.Contains(typeName))
-            {
-                entity.Remove(entity.Components.GetAll<VertexLight>().ToArray<Component>());
-            }
 
+            if (bloomBlacklist.Contains(typeName))
+            {
+                entity.Remove(entity.Components.GetAll<BloomPoint>().ToArray<Component>());
+                entity.Remove(entity.Components.GetAll<CustomBloom>().ToArray<Component>());
+            }
             if (bloomWhitelist.Contains(typeName))
             {
                 entity.Add(new BloomPoint(bloomOffset, bloomAlpha, bloomRadius));
                 requiresRemovalRoutine = true;
-            }
-            else if (bloomBlacklist.Contains(typeName))
-            {
-                entity.Remove(entity.Components.GetAll<BloomPoint>().ToArray<Component>());
-                entity.Remove(entity.Components.GetAll<CustomBloom>().ToArray<Component>());
             }
 
             // some entities get a special coroutine that hides lights and blooms
