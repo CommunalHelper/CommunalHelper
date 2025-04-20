@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ArrowDir = Celeste.Mod.CommunalHelper.Entities.StationBlock.ArrowDir;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -7,24 +9,25 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/Melvin")]
 public class Melvin : Solid
 {
-    public static ParticleType P_Activate;
+    private readonly ParticleType P_Activate;
+    private readonly ParticleType P_Attack;
 
-    private static readonly Color fill = Calc.HexToColor("62222b");
+    internal readonly Color fill;
 
     #region Tiles
     // yeah.
-    private static readonly MTexture[,] strongBlock = new MTexture[4, 4];
-    private static readonly MTexture[,] weakBlock = new MTexture[4, 4];
-    private static readonly MTexture[,] litEdges = new MTexture[4, 4];
-    private static readonly MTexture[,] insideBlock = new MTexture[2, 2];
-    private static readonly MTexture[,] strongCorners = new MTexture[2, 2];
-    private static readonly MTexture[,] weakHCorners = new MTexture[2, 2];
-    private static readonly MTexture[,] weakVCorners = new MTexture[2, 2];
-    private static readonly MTexture[,] weakCorners = new MTexture[2, 2];
-    private static readonly MTexture[,] litHCornersFull = new MTexture[2, 2];
-    private static readonly MTexture[,] litHCornersCut = new MTexture[2, 2];
-    private static readonly MTexture[,] litVCornersFull = new MTexture[2, 2];
-    private static readonly MTexture[,] litVCornersCut = new MTexture[2, 2];
+    private readonly MTexture[,] strongBlock = new MTexture[4, 4];
+    private readonly MTexture[,] weakBlock = new MTexture[4, 4];
+    private readonly MTexture[,] litEdges = new MTexture[4, 4];
+    private readonly MTexture[,] insideBlock = new MTexture[2, 2];
+    private readonly MTexture[,] strongCorners = new MTexture[2, 2];
+    private readonly MTexture[,] weakHCorners = new MTexture[2, 2];
+    private readonly MTexture[,] weakVCorners = new MTexture[2, 2];
+    private readonly MTexture[,] weakCorners = new MTexture[2, 2];
+    private readonly MTexture[,] litHCornersFull = new MTexture[2, 2];
+    private readonly MTexture[,] litHCornersCut = new MTexture[2, 2];
+    private readonly MTexture[,] litVCornersFull = new MTexture[2, 2];
+    private readonly MTexture[,] litVCornersCut = new MTexture[2, 2];
     #endregion
 
     internal struct MoveState
@@ -68,12 +71,17 @@ public class Melvin : Solid
 
     public Melvin(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height,
-              data.Bool("weakTop", false), data.Bool("weakBottom", false), data.Bool("weakLeft", false), data.Bool("weakRight", false))
+              data.Bool("weakTop", false), data.Bool("weakBottom", false), data.Bool("weakLeft", false), data.Bool("weakRight", false),
+              data.Attr("spriteDir", ""), data.HexColor("fillColor", Calc.HexToColor("62222b")),
+              data.HexColor("activateParticleColor", Calc.HexToColor("e45f7c")), data.HexColor("attackParticleColor", Calc.HexToColor("ffeb6b")), data.HexColor("attackParticleFadeColor", Calc.HexToColor("d39332")))
     { 
         creationData = data;
     }
 
-    public Melvin(Vector2 position, int width, int height, bool up, bool down, bool left, bool right)
+    public Melvin(Vector2 position, int width, int height,
+        bool up, bool down, bool left, bool right,
+        string spriteDir, Color fillColor,
+        Color activateParticleColor, Color attackParticleColor, Color attackParticleColor2)
         : base(position, width, height, safe: false)
     {
         returnStack = new List<MoveState>();
@@ -83,10 +91,23 @@ public class Melvin : Solid
         weakLeft = left;
         weakRight = right;
 
+        bool useCustomSpriteDir = !string.IsNullOrWhiteSpace(spriteDir);
+        SetupTextures(useCustomSpriteDir ? spriteDir : "objects/CommunalHelper/melvin");
         SetupTiles();
-
-        Add(eye = CommunalHelperGFX.SpriteBank.Create("melvinEye"));
+        Add(eye = useCustomSpriteDir ? SetupEye(spriteDir) : CommunalHelperGFX.SpriteBank.Create("melvinEye"));
         eye.Position = new Vector2(width / 2, height / 2);
+
+        fill = fillColor;
+        
+        P_Activate = new ParticleType(CrushBlock.P_Activate)
+        {
+            Color = activateParticleColor
+        };
+        P_Attack = new ParticleType(SwitchGate.P_Behind)
+        {
+            Color = attackParticleColor,
+            Color2 = attackParticleColor2
+        };
 
         OnDashCollide = OnDashed;
 
@@ -101,6 +122,52 @@ public class Melvin : Solid
     {
         base.Awake(scene);
         level = SceneAs<Level>();
+    }
+    
+    public void SetupTextures(string path)
+    {
+        MTexture strongBlockTexture = GFX.Game[path + "/block_strong"];
+        MTexture weakBlockTexture = GFX.Game[path + "/block_weak"];
+        MTexture litEdgesTexture = GFX.Game[path + "/lit_edges"];
+        MTexture weakHCornersTexture = GFX.Game[path + "/corners_weak_h"];
+        MTexture weakVCornersTexture = GFX.Game[path + "/corners_weak_v"];
+        MTexture insideBlockTexture = GFX.Game[path + "/inside"];
+        MTexture litHCornersFullTexture = GFX.Game[path + "/lit_corners_h_full"];
+        MTexture litHCornersCutTexture = GFX.Game[path + "/lit_corners_h_cut"];
+        MTexture litVCornersFullTexture = GFX.Game[path + "/lit_corners_v_full"];
+        MTexture litVCornersCutTexture = GFX.Game[path + "/lit_corners_v_cut"];
+
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                int tx = i * 8;
+                int ty = j * 8;
+
+                strongBlock[i, j] = strongBlockTexture.GetSubtexture(tx, ty, 8, 8);
+                weakBlock[i, j] = weakBlockTexture.GetSubtexture(tx, ty, 8, 8);
+                litEdges[i, j] = litEdgesTexture.GetSubtexture(tx, ty, 8, 8);
+                if (i < 2 && j < 2)
+                {
+                    int tx3 = 3 * tx;
+                    int ty3 = 3 * ty;
+                    insideBlock[i, j] = insideBlockTexture.GetSubtexture(tx, ty, 8, 8);
+                    weakHCorners[i, j] = weakHCornersTexture.GetSubtexture(tx3, ty3, 8, 8);
+                    weakVCorners[i, j] = weakVCornersTexture.GetSubtexture(tx3, ty3, 8, 8);
+                    litHCornersFull[i, j] = litHCornersFullTexture.GetSubtexture(tx3, ty3, 8, 8);
+                    litHCornersCut[i, j] = litHCornersCutTexture.GetSubtexture(tx3, ty3, 8, 8);
+                    litVCornersFull[i, j] = litVCornersFullTexture.GetSubtexture(tx3, ty3, 8, 8);
+                    litVCornersCut[i, j] = litVCornersCutTexture.GetSubtexture(tx3, ty3, 8, 8);
+                }
+                if ((i == 0 || i == 3) && (j == 0 || j == 3))
+                {
+                    int i_ = i == 0 ? 0 : 1;
+                    int j_ = j == 0 ? 0 : 1;
+                    strongCorners[i_, j_] = strongBlock[i, j];
+                    weakCorners[i_, j_] = weakBlock[i, j];
+                }
+            }
+        }
     }
 
     private void SetupTiles()
@@ -304,6 +371,39 @@ public class Melvin : Solid
         }
     }
 
+    private static Sprite SetupEye(string path)
+    {
+        Sprite eye = new Sprite(GFX.Game, path + "/eye/");
+
+        // <Loop id="idle" path="idle_small" delay="0.08" frames="0"/>
+        eye.AddLoop("idle", "idle_small", 0.08f, 0);
+        // <Anim id="target" path="target_small" delay="0.1" frames="0-4"/>
+        eye.Add("target", "target_small", 0.01f, 0, 1, 2, 3, 4);
+
+        // <Anim id="targetUp" path="targetUp_small" delay="0.06" frames="0-2"/>
+        eye.Add("targetUp", "targetUp_small", 0.06f, 0, 1, 2);
+        // <Anim id="targetDown" path="targetDown_small" delay="0.06" frames="0-2"/>
+        eye.Add("targetDown", "targetDown_small", 0.06f, 0, 1, 2);
+        // <Anim id="targetLeft" path="targetLeft_small" delay="0.06" frames="0-2"/>
+        eye.Add("targetLeft", "targetLeft_small", 0.06f, 0, 1, 2);
+        // <Anim id="targetRight" path="targetRight_small" delay="0.06" frames="0-2"/>
+        eye.Add("targetRight", "targetRight_small", 0.06f, 0, 1, 2);
+
+        // <Anim id="targetReverseUp" path="targetUp_small" delay="0.25" frames="2,1,0" goto="idle"/>
+        eye.Add("targetReverseUp", "targetUp_small", 0.25f, "idle", 2, 1, 0);
+        // <Anim id="targetReverseDown" path="targetDown_small" delay="0.25" frames="2,1,0" goto="idle"/>
+        eye.Add("targetReverseDown", "targetDown_small", 0.25f, "idle", 2, 1, 0);
+        // <Anim id="targetReverseLeft" path="targetLeft_small" delay="0.25" frames="2,1,0" goto="idle"/>
+        eye.Add("targetReverseLeft", "targetLeft_small", 0.25f, "idle", 2, 1, 0);
+        // <Anim id="targetReverseRight" path="targetRight_small" delay="0.25" frames="2,1,0" goto="idle"/>
+        eye.Add("targetReverseRight", "targetRight_small", 0.25f, "idle", 2, 1, 0);
+
+        eye.Justify = Vector2.One * 0.5f;
+        eye.Play("idle");
+        
+        return eye;
+    }
+
     private void CreateMoveState()
     {
         bool flag = true;
@@ -433,7 +533,7 @@ public class Melvin : Solid
                     position = new Vector2(Calc.Random.Range(Left + 3f, Right - 3f), Bottom - 1f);
                     direction = (float) Math.PI / 2f;
                 }
-                level.Particles.Emit(SwitchGate.P_Behind, position, direction);
+                level.Particles.Emit(P_Attack, position, direction);
             }
             yield return null;
         }
@@ -757,6 +857,13 @@ public class Melvin : Solid
         }
     }
 
+    private IEnumerable<Entity> GetTargetsByPriority()
+        => SceneAs<Level>().Tracker.GetComponents<MelvinTargetable>()
+                               .Cast<MelvinTargetable>()
+                               .OrderBy(target => target.Priority)
+                               .ThenBy(target => Vector2.Distance(Center, target.Entity.Position))
+                               .Select(t => t.Entity);
+
     public override void Update()
     {
         SetSeekerBarriersCollidable(true);
@@ -765,55 +872,60 @@ public class Melvin : Solid
         eye.Scale = squishScale;
         squishScale = Calc.Approach(squishScale, Vector2.One, Engine.DeltaTime * 4f);
 
-        if (!triggered && Util.TryGetPlayer(out Player player))
+        if (!triggered)
         {
-            bool detectedPlayer = false;
-            Rectangle toPlayerRect = new();
-            if (player.Center.Y > Y && player.Center.Y < Y + Height)
+            foreach (Entity target in GetTargetsByPriority())
             {
-                int y1 = (int) Math.Max(player.Top, Top);
-                int y2 = (int) Math.Min(player.Bottom, Bottom);
-                if (player.Center.X > X + Width)
+                bool detectedTarget = false;
+                Rectangle toTargetRect = new();
+                if (target.Center.Y > Y && target.Center.Y < Y + Height)
                 {
-                    // right
-                    detectedPlayer = true;
-                    crushDir = Vector2.UnitX;
-                    dir = ArrowDir.Right;
-                    toPlayerRect = new Rectangle((int) (X + Width), y1, (int) (player.Left - X - Width), y2 - y1);
+                    int y1 = (int) Math.Max(target.Top, Top);
+                    int y2 = (int) Math.Min(target.Bottom, Bottom);
+                    if (target.Center.X > X + Width)
+                    {
+                        // right
+                        detectedTarget = true;
+                        crushDir = Vector2.UnitX;
+                        dir = ArrowDir.Right;
+                        toTargetRect = new Rectangle((int) (X + Width), y1, (int) (target.Left - X - Width), y2 - y1);
+                    }
+                    if (target.Center.X < X)
+                    {
+                        // left
+                        detectedTarget = true;
+                        crushDir = -Vector2.UnitX;
+                        dir = ArrowDir.Left;
+                        toTargetRect = new Rectangle((int) target.Right, y1, (int) (X - target.Right), y2 - y1);
+                    }
                 }
-                if (player.Center.X < X)
+                if (target.Center.X > X && target.Center.X < X + Width)
                 {
-                    // left
-                    detectedPlayer = true;
-                    crushDir = -Vector2.UnitX;
-                    dir = ArrowDir.Left;
-                    toPlayerRect = new Rectangle((int) player.Right, y1, (int) (X - player.Right), y2 - y1);
+                    int x1 = (int) Math.Max(target.Left, Left);
+                    int x2 = (int) Math.Min(target.Right, Right);
+                    if (target.Center.Y < Y)
+                    {
+                        // top
+                        detectedTarget = true;
+                        crushDir = -Vector2.UnitY;
+                        dir = ArrowDir.Up;
+                        toTargetRect = new Rectangle(x1, (int) target.Bottom, x2 - x1, (int) (Y - target.Bottom));
+                    }
+                    if (target.Center.Y > Y + Height)
+                    {
+                        // bottom
+                        detectedTarget = true;
+                        crushDir = Vector2.UnitY;
+                        dir = ArrowDir.Down;
+                        toTargetRect = new Rectangle(x1, (int) (Y + Height), x2 - x1, (int) (target.Top - Y - Height));
+                    }
                 }
-            }
-            if (player.Center.X > X && player.Center.X < X + Width)
-            {
-                int x1 = (int) Math.Max(player.Left, Left);
-                int x2 = (int) Math.Min(player.Right, Right);
-                if (player.Center.Y < Y)
-                {
-                    // top
-                    detectedPlayer = true;
-                    crushDir = -Vector2.UnitY;
-                    dir = ArrowDir.Up;
-                    toPlayerRect = new Rectangle(x1, (int) player.Bottom, x2 - x1, (int) (Y - player.Bottom));
-                }
-                if (player.Center.Y > Y + Height)
-                {
-                    // bottom
-                    detectedPlayer = true;
-                    crushDir = Vector2.UnitY;
-                    dir = ArrowDir.Down;
-                    toPlayerRect = new Rectangle(x1, (int) (Y + Height), x2 - x1, (int) (player.Top - Y - Height));
-                }
-            }
-            if (detectedPlayer && IsPlayerSeen(toPlayerRect, dir))
-            {
+                
+                if (!detectedTarget || !IsPlayerSeen(toTargetRect, dir))
+                    continue;
+                
                 Attack(false);
+                break;
             }
         }
         SetSeekerBarriersCollidable(false);
@@ -846,61 +958,5 @@ public class Melvin : Solid
 
         base.Render();
         Position = position;
-    }
-
-
-
-    public static void InitializeTextures()
-    {
-        MTexture strongBlockTexture = GFX.Game["objects/CommunalHelper/melvin/block_strong"];
-        MTexture weakBlockTexture = GFX.Game["objects/CommunalHelper/melvin/block_weak"];
-        MTexture litEdgesTexture = GFX.Game["objects/CommunalHelper/melvin/lit_edges"];
-        MTexture weakHCornersTexture = GFX.Game["objects/CommunalHelper/melvin/corners_weak_h"];
-        MTexture weakVCornersTexture = GFX.Game["objects/CommunalHelper/melvin/corners_weak_v"];
-        MTexture insideBlockTexture = GFX.Game["objects/CommunalHelper/melvin/inside"];
-        MTexture litHCornersFullTexture = GFX.Game["objects/CommunalHelper/melvin/lit_corners_h_full"];
-        MTexture litHCornersCutTexture = GFX.Game["objects/CommunalHelper/melvin/lit_corners_h_cut"];
-        MTexture litVCornersFullTexture = GFX.Game["objects/CommunalHelper/melvin/lit_corners_v_full"];
-        MTexture litVCornersCutTexture = GFX.Game["objects/CommunalHelper/melvin/lit_corners_v_cut"];
-
-        for (int i = 0; i < 4; i++)
-        {
-            for (int j = 0; j < 4; j++)
-            {
-                int tx = i * 8;
-                int ty = j * 8;
-
-                strongBlock[i, j] = strongBlockTexture.GetSubtexture(tx, ty, 8, 8);
-                weakBlock[i, j] = weakBlockTexture.GetSubtexture(tx, ty, 8, 8);
-                litEdges[i, j] = litEdgesTexture.GetSubtexture(tx, ty, 8, 8);
-                if (i < 2 && j < 2)
-                {
-                    int tx3 = 3 * tx;
-                    int ty3 = 3 * ty;
-                    insideBlock[i, j] = insideBlockTexture.GetSubtexture(tx, ty, 8, 8);
-                    weakHCorners[i, j] = weakHCornersTexture.GetSubtexture(tx3, ty3, 8, 8);
-                    weakVCorners[i, j] = weakVCornersTexture.GetSubtexture(tx3, ty3, 8, 8);
-                    litHCornersFull[i, j] = litHCornersFullTexture.GetSubtexture(tx3, ty3, 8, 8);
-                    litHCornersCut[i, j] = litHCornersCutTexture.GetSubtexture(tx3, ty3, 8, 8);
-                    litVCornersFull[i, j] = litVCornersFullTexture.GetSubtexture(tx3, ty3, 8, 8);
-                    litVCornersCut[i, j] = litVCornersCutTexture.GetSubtexture(tx3, ty3, 8, 8);
-                }
-                if ((i == 0 || i == 3) && (j == 0 || j == 3))
-                {
-                    int i_ = i == 0 ? 0 : 1;
-                    int j_ = j == 0 ? 0 : 1;
-                    strongCorners[i_, j_] = strongBlock[i, j];
-                    weakCorners[i_, j_] = weakBlock[i, j];
-                }
-            }
-        }
-    }
-
-    public static void InitializeParticles()
-    {
-        P_Activate = new ParticleType(CrushBlock.P_Activate)
-        {
-            Color = Calc.HexToColor("e45f7c")
-        };
     }
 }

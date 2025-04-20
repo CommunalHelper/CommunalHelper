@@ -585,6 +585,11 @@ entities.CommunalHelper/Melvin.attributes.description.weakTop=Whether this Melvi
 entities.CommunalHelper/Melvin.attributes.description.weakBottom=Whether this Melvin can be dashed into from below.
 entities.CommunalHelper/Melvin.attributes.description.weakLeft=Whether this Melvin can be dashed into from the left.
 entities.CommunalHelper/Melvin.attributes.description.weakRight=Whether this Melvin can be dashed into from the right.
+entities.CommunalHelper/Melvin.attributes.description.spriteDir=A path to custom sprites to use, relative to Graphics/Atlases/Gameplay.\nThe sprites should follow the same format as the default ones, which can be found in Graphics/Atlases/Gameplay/objects/CommunalHelper/melvin.\nIf left empty, the default sprites will be used.
+entities.CommunalHelper/Melvin.attributes.description.fillColor=The fill color of this Melvin.
+entities.CommunalHelper/Melvin.attributes.description.activateParticleColor=The color of the particles emitted when this Melvin activates.
+entities.CommunalHelper/Melvin.attributes.description.attackParticleColor=The color of the particles emitted when this Melvin attacks.
+entities.CommunalHelper/Melvin.attributes.description.attackParticleFadeColor=The fade color of the particles emitted when this Melvin attacks.
 
 # Move Block Redirect
 entities.CommunalHelper/MoveBlockRedirect.placements.name.normal=Move Block Redirect
