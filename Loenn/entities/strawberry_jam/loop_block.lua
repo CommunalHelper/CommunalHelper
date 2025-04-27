@@ -53,13 +53,14 @@ function loopBlock.sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 24, entity.height or 24
     local w, h = math.floor(width / 8), math.floor(height / 8)
+    local noHole = entity.noHole or false
 
     math.randomseed(x, y)
 
     local sprites = {}
 
     local tileset = entity.texture or defaultTexture
-    local tiles = generateTorusTiles(w, h, entity.edgeThickness or 1)
+    local tiles = noHole and matrix.filled(true, w, h) or generateTorusTiles(w, h, entity.edgeThickness or 1)
 
     for i = 0, w - 1 do
         for j = 0, h - 1 do
