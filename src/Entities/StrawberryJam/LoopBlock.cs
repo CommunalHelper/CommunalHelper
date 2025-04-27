@@ -29,6 +29,7 @@ public class LoopBlock : Solid
     private bool canRumble;
     private bool returning, returningDash;
     private bool dashed, scaledSpikes;
+    private bool noHole;
 
     private float respawnTimer;
     private float targetSpeedX;
@@ -40,12 +41,12 @@ public class LoopBlock : Solid
     private const string DEFAULT_TEXTURE = "objects/CommunalHelper/strawberryJam/loopBlock/tiles"; // original sj texture
 
     public LoopBlock(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Width, data.Height, data.Int("edgeThickness", 1), data.HexColor("color"), data.Attr("texture", DEFAULT_TEXTURE))
+        : this(data.Position + offset, data.Width, data.Height, data.Int("edgeThickness", 1), data.HexColor("color"), data.Bool("noHole"), data.Attr("texture", DEFAULT_TEXTURE))
     { 
         creatingData = data; 
     }
 
-    public LoopBlock(Vector2 position, int width, int height, int edgeThickness, Color color, string texture = DEFAULT_TEXTURE)
+    public LoopBlock(Vector2 position, int width, int height, int edgeThickness, Color color, bool noHole, string texture = DEFAULT_TEXTURE)
         : base(position, width, height, false)
     {
         Depth = Depths.FGTerrain + 1;
@@ -56,12 +57,13 @@ public class LoopBlock : Solid
         int minEdgeSize = Math.Min(width, height) / 8;
         this.edgeThickness = Calc.Clamp(edgeThickness, 1, (int) ((minEdgeSize - 1) / 2f));
         this.color = color;
-
+        this.noHole = noHole;
+        
         particleType = new(Cloud.P_Cloud)
         {
             Color = color
         };
-
+        
         OnDashCollide = OnDashed;
 
         InitializeTextures(texture);
@@ -78,7 +80,14 @@ public class LoopBlock : Solid
 
         for (int i = 0; i < w; i++)
             for (int j = 0; j < h; j++)
-                tileMap[i, j] = i < edgeThickness || i >= w - edgeThickness || j < edgeThickness || j >= h - edgeThickness;
+                if (!noHole)
+                {
+                    tileMap[i, j] = i < edgeThickness || i >= w - edgeThickness || j < edgeThickness || j >= h - edgeThickness;
+                }
+                else
+                {
+                    tileMap[i, j] = true;
+                }
 
         for (int i = 0; i < w; i++)
         {
