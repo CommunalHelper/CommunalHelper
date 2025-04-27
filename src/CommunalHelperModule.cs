@@ -79,8 +79,9 @@ public class CommunalHelperModule : EverestModule
 
         CustomBooster.Load();
 
+        DreamHoldable.Load();
         DreamJellyfish.Load();
-        DreamJellyfishRenderer.Load();
+        DreamTheoCrystal.Load();
 
         ChainedKevin.Load();
 
@@ -113,6 +114,8 @@ public class CommunalHelperModule : EverestModule
         BadelineBoostKeepHoldables.Hook();
         PoisonGas.Load();
         AffectSpriteTrigger.Load();
+        
+        MelvinTargetable.Load();
 
         #region Imports
 
@@ -167,8 +170,9 @@ public class CommunalHelperModule : EverestModule
 
         CustomBooster.Unload();
 
+        DreamHoldable.Unload();
         DreamJellyfish.Unload();
-        DreamJellyfishRenderer.Unload();
+        DreamTheoCrystal.Unload();
 
         ChainedKevin.Unload();
 
@@ -204,6 +208,8 @@ public class CommunalHelperModule : EverestModule
         BadelineBoostKeepHoldables.Unhook();
         PoisonGas.Unload();
         AffectSpriteTrigger.Unload();
+        
+        MelvinTargetable.Unload();
 
         LaserEmitter.Unload();
     }
@@ -276,15 +282,14 @@ public class CommunalHelperModule : EverestModule
 
         HeartGemShard.InitializeParticles();
 
-        Melvin.InitializeTextures();
-        Melvin.InitializeParticles();
-
         RailedMoveBlock.InitializeTextures();
         DreamBooster.InitializeParticles();
         CurvedBooster.InitializeParticles();
 
-        DreamJellyfish.InitializeTextures();
+        DreamSpriteRenderer.InitializeTextures();
+
         DreamJellyfish.InitializeParticles();
+        DreamTheoCrystal.InitializeParticles();
 
         Chain.InitializeTextures();
 

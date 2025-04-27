@@ -86,6 +86,10 @@ public static class Util
                 return Color.White;
         }
     }
+    public static Ease.Easer MakeCustomEaser(float factor)
+    {
+        return (t) => MathF.Pow(t, factor);
+    }
 
     public static int ToInt(bool b)
     {

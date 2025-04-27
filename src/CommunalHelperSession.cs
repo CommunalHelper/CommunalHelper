@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.States;
 using System.Collections.Generic;
 using static Celeste.Mod.CommunalHelper.Entities.StationBlockTrack;
 
@@ -23,6 +24,10 @@ public class CommunalHelperSession : EverestModuleSession
     public float ExpiringDashFlashThreshold { get; set; }
 
     public bool CanDeployElytra { get; set; }
+    public Elytra.ElytraConfiguration CurrentElytraConfiguration { get; set; } = Elytra.DefaultElytraConfiguration;
+
+    public DashStates.DreamTunnelDash.DreamTunnelDashConfiguration CurrentDreamTunnelDashConfiguration { get; set; } = DashStates.DreamTunnelDash.DefaultDreamTunnelDashConfiguration;
+
     internal float PrevGasTimer { get; set; }
     public float GasTimer { get; set; }
 

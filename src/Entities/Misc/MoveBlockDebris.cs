@@ -73,15 +73,19 @@ public class MoveBlockDebris : Actor
     {
         base.Update();
 
+        bool isInBounds = SceneAs<Level>().IsInBounds(this);
+
         Sprite.Color = Color.White;
         Sprite.Scale = Vector2.One;
+        Sprite.Visible = isInBounds;
         OnUpdateSprite?.Invoke(Sprite);
 
         if (!returning)
         {
-            if (Collidable)
+            if (Collidable && isInBounds)
             {
                 speed.X = Calc.Approach(speed.X, 0f, Engine.DeltaTime * 100f);
+
                 if (!OnGround(1))
                 {
                     speed.Y += 400f * Engine.DeltaTime;

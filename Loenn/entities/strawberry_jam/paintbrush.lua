@@ -2,8 +2,8 @@ local drawableSprite = require('structs.drawable_sprite')
 local utils = require('utils')
 
 local minimum_size = 16
-local selection_thickness = 8
-local sprite_path = "objects/StrawberryJam2021/paintbrush"
+local selection_thickness = 16
+local sprite_path = "objects/CommunalHelper/strawberryJam/paintbrush/mosscairn"
 
 local orientationNames = { "Up", "Right", "Down", "Left" }
 local orientationIndices = { Up = 0, Right = 1, Down = 2, Left = 3 }
@@ -34,7 +34,7 @@ end
 local function createPlacements()
     local placements = { }
     for orientation = 0,3 do
-        for cassetteIndex = 0,3 do
+        for cassetteIndex = 0,1 do
             table.insert(placements, createPlacement(orientation, cassetteIndex))
         end
     end
@@ -45,7 +45,6 @@ local paintbrush = {
     name = "CommunalHelper/SJ/Paintbrush",
     depth = -8500,
     placements = createPlacements(),
-    texture = "objects/CommunalHelper/strawberryJam/paintbrush/blue/brush1",
     fieldInformation = {
         orientation = {
             editable = false,
@@ -58,12 +57,42 @@ local paintbrush = {
             editable = false,
             options = {
                 -- we only support blue and pink for now since that's the only sprites we have
-                ["0 - Blue"] = 0,
-                ["1 - Rose"] = 1,
+                ["Blue"] = 0,
+                ["Rose"] = 1,
             },
         }
     },
 }
+
+function paintbrush.flip(room, entity, horizontal, vertical)
+    if horizontal and entity.orientation == "Left" then
+        entity.orientation = "Right"
+    elseif horizontal and entity.orientation == "Right" then
+        entity.orientation = "Left"
+    elseif vertical and entity.orientation == "Up" then
+        entity.orientation = "Down"
+    elseif vertical and entity.orientation == "Down" then
+        entity.orientation = "Up"
+    else
+        return false
+    end
+    return true
+end
+
+function paintbrush.rotate(room, entity, direction)
+    local orientationIndex = orientationIndices[entity.orientation]
+    local horizontal = orientationIndex % 2 == 1
+    local vertical = not horizontal
+    local halfSize = vertical and entity.width / 2 or entity.height / 2
+    halfSize = halfSize - (halfSize % 8)
+    
+    entity.x = entity.x + (vertical and halfSize or -halfSize)
+    entity.y = entity.y + (horizontal and halfSize or -halfSize)
+    entity.orientation = orientationNames[(orientationIndex + direction + 4) % 4 + 1]
+    entity.width, entity.height = entity.height, entity.width
+
+    return true
+end
 
 function paintbrush.selection(room, entity)
     local x, y = entity.x or 0, entity.y or 0

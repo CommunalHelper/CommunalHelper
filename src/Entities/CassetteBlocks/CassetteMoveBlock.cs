@@ -1,7 +1,9 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
 using FMOD.Studio;
+using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Directions = Celeste.MoveBlock.Directions;
 
 // TODO
@@ -58,7 +60,9 @@ public class CassetteMoveBlock : CustomCassetteBlock
     private readonly ParticleType P_Break;
     private readonly ParticleType P_BreakPressed;
 
-    public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, bool oldConnectionBehavior, Color? overrideColor, float crashTime, float regenTime, bool shakeOnCollision)
+    private readonly bool noDebris;
+
+    public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, bool oldConnectionBehavior, Color? overrideColor, float crashTime, float regenTime, bool shakeOnCollision, bool noDebris)
         : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, dynamicHitbox: true, overrideColor)
     {
         startPosition = position;
@@ -81,7 +85,14 @@ public class CassetteMoveBlock : CustomCassetteBlock
         P_Break = new ParticleType(MoveBlock.P_Break) { Color = color };
         P_BreakPressed = new ParticleType(MoveBlock.P_Break) { Color = pressedColor };
 
-        Add(new MoveBlockRedirectable(new MonoMod.Utils.DynamicData(this), () => false, () => Direction, dir =>
+        this.noDebris = noDebris;
+
+        DynamicData dynamicData = new(this);
+        Add(new MoveBlockRedirectable(
+            dynamicData,
+            () => false,
+            () => Direction,
+            dir =>
             {
                 int index = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
                 arrow.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index];
@@ -90,11 +101,27 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 arrowHighlightPressed.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlightPressed")[index];
                 Direction = dir;
             }
-        ));
+        )
+        {
+            Get_Speed = () => moveSpeed,
+            Set_Speed = (speed) => moveSpeed = speed,
+            Get_TargetSpeed = () => targetSpeed,
+            Set_TargetSpeed = (targetSpeed) => this.targetSpeed = targetSpeed,
+            Get_MoveSfx = () => moveSfx,
+            OnBreakAction = (coroutine) =>
+            {
+                groupable.State = GroupableMoveBlock.MovementState.Breaking;
+                MoveBlockRedirectable.GetControllerDelegate(dynamicData, 5)(coroutine);
+            },
+            OnResumeAction = (coroutine) =>
+            {
+                MoveBlockRedirectable.GetControllerDelegate(dynamicData, 4)(coroutine);
+            },
+        });
     }
 
     public CassetteMoveBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.HexColorNullable("customColor"), data.Float("crashTime", 0.15f), data.Float("regenTime", 3f), data.Bool("shakeOnCollision", true))
+        : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.HexColorNullable("customColor"), data.Float("crashTime", 0.15f), data.Float("regenTime", 3f), data.Bool("shakeOnCollision", true), data.Bool("noDebris"))
     {
     }
 
@@ -238,19 +265,21 @@ public class CassetteMoveBlock : CustomCassetteBlock
             BreakParticles();
             ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debris = new();
-            for (int x = 0; x < Width; x += 8)
-            {
-                for (int y = 0; y < Height; y += 8)
+            if (!noDebris) {
+                for (int x = 0; x < Width; x += 8)
                 {
-                    Vector2 offset = new(x + 4f, y + 4f);
-
-                    MoveBlockDebris d = Engine.Pooler.Create<MoveBlockDebris>().Init(Position + offset, Center, startPosition + offset, spr =>
+                    for (int y = 0; y < Height; y += 8)
                     {
-                        spr.Color = Activated ? color : pressedColor;
-                    });
-                    d.Sprite.Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/debris"));
-                    debris.Add(d);
-                    Scene.Add(d);
+                        Vector2 offset = new(x + 4f, y + 4f);
+
+                        MoveBlockDebris d = Engine.Pooler.Create<MoveBlockDebris>().Init(Position + offset, Center, startPosition + offset, spr =>
+                        {
+                            spr.Color = Activated ? color : pressedColor;
+                        });
+                        d.Sprite.Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/debris"));
+                        debris.Add(d);
+                        Scene.Add(d);
+                    }
                 }
             }
             Vector2 newPosition = startPosition + blockOffset;
@@ -275,7 +304,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 yield return null;
 
             Present = true;
-            EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris[0].Position);
+            EventInstance sound = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris.FirstOrDefault()?.Position ?? Center);
             Coroutine component;
             Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(sound, debris));
             Add(component);
@@ -314,7 +343,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
     private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris)
     {
-        while (true)
+        while (true && debris.Count > 0)
         {
             instance.getPlaybackState(out PLAYBACK_STATE state);
             if (state == PLAYBACK_STATE.STOPPED)
@@ -446,7 +475,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
         if (shouldShowHighlight)
         {
-            Color highlightColor = Color.Lerp(Color.Transparent, groupable.Group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
+            Color highlightColor = groupable.HighlightColor();
             arrowHighlight.Color = arrowHighlightPressed.Color = crossHighlight.Color = crossHighlightPressed.Color = highlightColor;
         }
     }

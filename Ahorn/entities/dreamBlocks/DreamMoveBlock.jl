@@ -8,6 +8,7 @@ const entityData = appendkwargs(CustomDreamBlockData, :(
     direction::String="Right",
     moveSpeed::Number=60.0,
     noCollide::Bool=false,
+    noCollideSteer::Bool=false,
 ))
 @mapdefdata Entity "CommunalHelper/DreamMoveBlock" DreamMoveBlock entityData
 

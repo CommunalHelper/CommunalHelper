@@ -3,4 +3,4 @@
   DLL: src/bin/Debug/net7.0/CommunalHelper.dll
   Dependencies:
     - Name: EverestCore
-      Version: 1.5052.0
+      Version: 1.5184.0

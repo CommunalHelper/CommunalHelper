@@ -5,6 +5,7 @@ using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Directions = Celeste.MoveBlock.Directions;
 
@@ -36,10 +37,12 @@ public class MoveSwapBlock : SwapBlock
     private readonly Image middleArrow;
     private readonly MTexture middleCardinal;
     private readonly MTexture middleDiagonal;
+    private readonly MTexture middleCross;
 
     private readonly Image middleArrowHighlight;
     private readonly MTexture middleCardinalHighlight;
     private readonly MTexture middleDiagonalHighlight;
+    private readonly MTexture middleCrossHighlight;
 
     private Entity path;
 
@@ -89,6 +92,8 @@ public class MoveSwapBlock : SwapBlock
     private readonly SoundSource moveBlockSfx;
 
     private float particleRemainder;
+
+    private readonly bool noDebris;
 
     #endregion
 
@@ -145,10 +150,12 @@ public class MoveSwapBlock : SwapBlock
         // Replace/Add SwapBlock textures
         middleCardinal = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockCardinal"];
         middleDiagonal = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockDiagonal"];
+        middleCross = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockCross"];
         Add(middleArrow = new Image(middleCardinal));
         middleArrow.CenterOrigin();
         middleCardinalHighlight = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockCardinalHighlight"];
         middleDiagonalHighlight = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockDiagonalHighlight"];
+        middleCrossHighlight = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockCrossHighlight"];
         Add(middleArrowHighlight = new Image(middleCardinalHighlight));
         middleArrowHighlight.CenterOrigin();
 
@@ -168,10 +175,12 @@ public class MoveSwapBlock : SwapBlock
         angleSteerSign = angle > 0f ? -1 : 1;
 
         Add(groupable = new GroupableMoveBlock());
-        
+
         crashTime = data.Float("crashTime", 0.15f);
         regenTime = data.Float("regenTime", 3f);
         shakeOnCollision = data.Bool("shakeOnCollision", true);
+
+        noDebris = data.Bool("noDebris");
 
         int tilesX = (int) Width / 8;
         int tilesY = (int) Height / 8;
@@ -219,6 +228,10 @@ public class MoveSwapBlock : SwapBlock
             OnBreakAction = (coroutine) =>
             {
                 groupable.State = GroupableMoveBlock.MovementState.Breaking;
+                MoveBlockRedirectable.GetControllerDelegate(dynamicData, 5)(coroutine);
+            },
+            OnResumeAction = (coroutine) =>
+            {
                 MoveBlockRedirectable.GetControllerDelegate(dynamicData, 4)(coroutine);
             },
         });
@@ -493,15 +506,17 @@ public class MoveSwapBlock : SwapBlock
             BreakParticles();
             ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debrisList = new();
-            for (int i = 0; i < Width; i += 8)
-            {
-                for (int j = 0; j < Height; j += 8)
+            if (!noDebris) {
+                for (int i = 0; i < Width; i += 8)
                 {
-                    Vector2 value = new(i + 4f, j + 4f);
-                    MoveBlockDebris debris = Engine.Pooler.Create<MoveBlockDebris>().Init(Position + value, Center, startPosition + value);
-                    debris.Sprite.Texture = debrisTextures.Choose();
-                    debrisList.Add(debris);
-                    Scene.Add(debris);
+                    for (int j = 0; j < Height; j += 8)
+                    {
+                        Vector2 value = new(i + 4f, j + 4f);
+                        MoveBlockDebris debris = Engine.Pooler.Create<MoveBlockDebris>().Init(Position + value, Center, startPosition + value);
+                        debris.Sprite.Texture = debrisTextures.Choose();
+                        debrisList.Add(debris);
+                        Scene.Add(debris);
+                    }
                 }
             }
 
@@ -539,7 +554,7 @@ public class MoveSwapBlock : SwapBlock
             }
 
             Collidable = true;
-            EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debrisList[0].Position);
+            EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debrisList.FirstOrDefault()?.Position ?? Center);
             Coroutine routine = new(SoundFollowsDebrisCenter(instance, debrisList));
             Add(routine);
             foreach (MoveBlockDebris debris in debrisList)
@@ -578,7 +593,7 @@ public class MoveSwapBlock : SwapBlock
 
     private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debrisList)
     {
-        while (true)
+        while (true && debrisList.Count > 0)
         {
             instance.getPlaybackState(out PLAYBACK_STATE pLAYBACK_STATE);
             if (pLAYBACK_STATE != PLAYBACK_STATE.STOPPED)
@@ -1002,7 +1017,6 @@ public class MoveSwapBlock : SwapBlock
                 if (block.groupable.State == GroupableMoveBlock.MovementState.Moving && !block.Swapping && (block.Position == block.start || block.Position == block.end))
                     middleImage = block.middleOrange;
 
-
                 block.middleArrow.Texture = value % 2 == 0 ? block.middleCardinal : block.middleDiagonal;
                 block.middleArrowHighlight.Texture = value % 2 == 0 ? block.middleCardinalHighlight : block.middleDiagonalHighlight;
                 block.middleArrow.RenderPosition = block.middleArrowHighlight.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
@@ -1012,22 +1026,23 @@ public class MoveSwapBlock : SwapBlock
                 middleImage.Color = color;
                 middleImage.RenderPosition = pos + new Vector2(width / 2f, height / 2f) + middleOffsets[value];
                 middleImage.Render();
-
-                if (block.groupable.Group is MoveBlockGroup group)
-                {
-                    block.middleArrowHighlight.Color = Color.Lerp(Color.Transparent, group.Color, Calc.SineMap(block.Scene.TimeActive * 3, 0, 1));
-                    block.middleArrowHighlight.Render();
-                }
             }
             else
             {
-                block.middleArrow.Texture = GFX.Game["objects/CommunalHelper/moveSwapBlock/midBlockCross"];
-                block.middleArrow.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
+                block.middleArrow.Texture = block.middleCross;
+                block.middleArrowHighlight.Texture = block.middleCrossHighlight;
+                block.middleArrow.RenderPosition = block.middleArrowHighlight.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
                 block.middleArrow.Render();
 
                 middle.Color = Color.Black;
                 middle.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
                 middle.Render();
+            }
+
+            if (block.groupable.Group is not null)
+            {
+                block.middleArrowHighlight.Color = block.groupable.HighlightColor();
+                block.middleArrowHighlight.Render();
             }
         }
     }

@@ -2,6 +2,7 @@ using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.DashStates;
 using MonoMod.Utils;
 using System.Linq;
+using static Celeste.Mod.CommunalHelper.DashStates.DreamTunnelDash;
 
 namespace Celeste.Mod.CommunalHelper.States;
 
@@ -10,12 +11,14 @@ public static class DreamTunnelDash
     public static void DreamTunnelDashBegin(this Player player)
     {
         DynamicData playerData = player.GetData();
+        DreamTunnelDashConfiguration config = CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
 
         player.StartedDashing = false;
 
         if (player.dreamSfxLoop == null)
         {
             player.dreamSfxLoop = new SoundSource();
+            player.dreamSfxLoop.DisposeOnTransition = !CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.AllowTransitions;
             player.Add(player.dreamSfxLoop);
         }
 
@@ -30,14 +33,24 @@ public static class DreamTunnelDash
         if (player.DashDir.Y > 0)
             player.Ducking = false;
 
-        player.Speed = player.DashDir * Player.DashSpeed;
+        float playerSpeed = player.Speed.Length();
+        Vector2 entryDir = (config.UseEntryDirection && playerSpeed > Player.DashSpeed) ? player.Speed.SafeNormalize() : player.DashDir;
+        float entrySpeed = config.SpeedConfiguration switch
+        {
+            SpeedConfiguration.Default => Player.DashSpeed,
+            SpeedConfiguration.NeverSlowDown => Math.Max(playerSpeed, Player.DashSpeed),
+            SpeedConfiguration.UseCustomSpeed => config.CustomSpeed,
+            _ => 0,
+        };
+
+        player.Speed = entryDir * entrySpeed;
         player.TreatNaive = true;
         player.Depth = Depths.PlayerDreamDashing;
-        playerData.Set(DashStates.DreamTunnelDash.Player_dreamTunnelDashCanEndTimer, 0.1f);
+        playerData.Set(Player_dreamTunnelDashCanEndTimer, 0.1f);
         player.Stamina = Player.ClimbMaxStamina;
         playerData.Set("dreamJump", false);
         player.Play(SFX.char_mad_dreamblock_enter, null, 0f);
-        if (DashStates.DreamTunnelDash.FeatherMode)
+        if (FeatherMode)
             player.Loop(player.dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
         else
             player.Loop(player.dreamSfxLoop, SFX.char_mad_dreamblock_travel);
@@ -65,7 +78,7 @@ public static class DreamTunnelDash
         }
         player.RefillStamina();
         player.TreatNaive = false;
-        Solid solid = playerData.Get<Solid>(DashStates.DreamTunnelDash.Player_solid);
+        Solid solid = playerData.Get<Solid>(Player_solid);
         if (solid != null)
         {
             if (player.DashDir.X != 0f)
@@ -85,11 +98,50 @@ public static class DreamTunnelDash
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
     }
 
+    private static void DreamTunnelDashRedirect(this Player player)
+    {
+        DreamTunnelDashConfiguration config = CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
+
+        if (config.RedirectConsumesNormalDash ? player.Dashes > 0 : DreamTunnelDashCount > 0)
+        {
+            bool flag = Input.GetAimVector() == player.DashDir;
+            if ((config.AllowRedirect && !flag) || (config.AllowSameDirectionRedirect && flag))
+            {
+                if (config.RedirectConsumesNormalDash)
+                    player.Dashes = Math.Max(0, player.Dashes - 1);
+                else
+                    DreamTunnelDashCount = Math.Max(0, DreamTunnelDashCount - 1);
+                Audio.Play("event:/char/madeline/dreamblock_enter");
+                if (Engine.TimeRate > 0.25f)
+                {
+                    Celeste.Freeze(0.05f);
+                }
+                if (flag)
+                {
+                    player.Speed *= config.SameDirectionSpeedMultiplier;
+                    player.DashDir *= Math.Sign(config.SameDirectionSpeedMultiplier);
+                }
+                else
+                {
+                    player.DashDir = Input.GetAimVector();
+                    player.Speed = player.DashDir * player.Speed.Length();
+                }
+                Input.Dash.ConsumeBuffer();
+            }
+        }
+    }
+
     public static int DreamTunnelDashUpdate(this Player player)
     {
         DynamicData playerData = player.GetData();
+        DreamTunnelDashConfiguration config = CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
 
-        if (DashStates.DreamTunnelDash.FeatherMode)
+        if (Input.Dash.Pressed && Input.Aim.Value != Vector2.Zero)
+        {
+            player.DreamTunnelDashRedirect();
+        }
+
+        if (FeatherMode)
         {
             Vector2 input = Input.Aim.Value.SafeNormalize();
             if (input != Vector2.Zero)
@@ -100,7 +152,13 @@ public static class DreamTunnelDash
                     vector = Vector2.Dot(input, vector) != -0.8f ? vector.RotateTowards(input.Angle(), 5f * Engine.DeltaTime) : vector;
                     vector = vector.CorrectJoystickPrecision();
                     player.DashDir = vector;
-                    player.Speed = vector * 240f;
+                    player.Speed = vector * config.SpeedConfiguration switch
+                    {
+                        SpeedConfiguration.Default => Player.DashSpeed,
+                        SpeedConfiguration.NeverSlowDown => Math.Max(player.Speed.Length(), Player.DashSpeed),
+                        SpeedConfiguration.UseCustomSpeed => config.CustomSpeed,
+                        _ => 0,
+                    };
                 }
             }
         }
@@ -113,10 +171,10 @@ public static class DreamTunnelDash
             factor.Y = -1;
         player.NaiveMove(player.Speed * factor * Engine.DeltaTime);
 
-        float dreamDashCanEndTimer = playerData.Get<float>(DashStates.DreamTunnelDash.Player_dreamTunnelDashCanEndTimer);
+        float dreamDashCanEndTimer = playerData.Get<float>(Player_dreamTunnelDashCanEndTimer);
         if (dreamDashCanEndTimer > 0f)
         {
-            playerData.Set(DashStates.DreamTunnelDash.Player_dreamTunnelDashCanEndTimer, dreamDashCanEndTimer - Engine.DeltaTime);
+            playerData.Set(Player_dreamTunnelDashCanEndTimer, dreamDashCanEndTimer - Engine.DeltaTime);
         }
         Solid solid = player.CollideFirst<Solid, DreamBlock>();
         if (solid == null)
@@ -125,7 +183,7 @@ public static class DreamTunnelDash
             {
                 player.DreamDashDie(position);
             }
-            else if (playerData.Get<float>(DashStates.DreamTunnelDash.Player_dreamTunnelDashCanEndTimer) <= 0f)
+            else if (playerData.Get<float>(Player_dreamTunnelDashCanEndTimer) <= 0f)
             {
                 Celeste.Freeze(0.05f);
                 if (Input.Jump.Pressed && player.DashDir.X != 0f)
@@ -135,11 +193,11 @@ public static class DreamTunnelDash
                 }
                 else if (player.DashDir.Y >= 0f || player.DashDir.X != 0f)
                 {
-                    if (player.DashDir.X > 0f && player.CollideCheck<DreamBlock>(player.Position - (Vector2.UnitX * 5f)))
+                    if (player.DashDir.X > 0f && player.CollideCheck<Solid>(player.Position - (Vector2.UnitX * 5f)))
                     {
                         player.MoveHExact(-5, null, null);
                     }
-                    else if (player.DashDir.X < 0f && player.CollideCheck<DreamBlock>(player.Position + (Vector2.UnitX * 5f)))
+                    else if (player.DashDir.X < 0f && player.CollideCheck<Solid>(player.Position + (Vector2.UnitX * 5f)))
                     {
                         player.MoveHExact(5, null, null);
                     }
@@ -162,7 +220,7 @@ public static class DreamTunnelDash
         }
         else
         {
-            playerData.Set(DashStates.DreamTunnelDash.Player_solid, solid);
+            playerData.Set(Player_solid, solid);
             if (player.Scene.OnInterval(0.1f))
             {
                 player.CreateDreamTrail();

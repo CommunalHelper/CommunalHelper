@@ -51,4 +51,12 @@ public class GroupableMoveBlock : Component
                 yield return null;
         }
     }
+
+    public Color HighlightColor(Color? color = null)
+    {
+        Color baseColor = color ?? Color.Transparent;
+        return Group is null ?
+            baseColor :
+            Color.Lerp(baseColor, Group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
+    }
 }

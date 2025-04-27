@@ -106,6 +106,7 @@ public class ConnectedDreamBlock : CustomDreamBlock
 
     public Vector2 GroupBoundsMin;
     public Vector2 GroupBoundsMax;
+    public Vector2 GroupOffset;
 
     public bool HasGroup { get; private set; }
 
@@ -145,6 +146,7 @@ public class ConnectedDreamBlock : CustomDreamBlock
                 (int) GroupBoundsMin.Y,
                 (int) (GroupBoundsMax.X - GroupBoundsMin.X),
                 (int) (GroupBoundsMax.Y - GroupBoundsMin.Y));
+            GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - Position;
 
             float groupW = GroupBoundsMax.X - GroupBoundsMin.X;
             float groupH = GroupBoundsMax.Y - GroupBoundsMin.Y;
@@ -409,7 +411,9 @@ public class ConnectedDreamBlock : CustomDreamBlock
         float whiteHeight = baseData.Get<float>("whiteHeight");
         Vector2 shake = baseData.Get<Vector2>("shake");
 
-        if (!CullHelper.IsRectangleVisible(GroupRect.X, GroupRect.Y, GroupRect.Width, GroupRect.Height, 0, camera)) {
+        Vector2 pos = Position + GroupOffset + shake;
+
+        if (!CullHelper.IsRectangleVisible(pos.X, pos.Y, GroupRect.Width, GroupRect.Height, 0, camera)) {
             return;
         }
 

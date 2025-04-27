@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Download Everest lib-stripped release asset from GitHub
       uses: duhow/download-github-release-assets@v1
@@ -23,9 +23,7 @@ jobs:
       run: unzip lib-stripped.zip
 
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 7.0.x
+      uses: actions/setup-dotnet@v4
 
     - name: Restore with .NET Core
       run: dotnet restore

@@ -1,4 +1,6 @@
-﻿namespace Celeste.Mod.CommunalHelper.DashStates;
+﻿using Celeste.Mod.CommunalHelper.Imports;
+
+namespace Celeste.Mod.CommunalHelper.DashStates;
 
 // Not meant to be added on something that isn't Player
 public class PlayerSeekerHair : Component
@@ -22,12 +24,14 @@ public class PlayerSeekerHair : Component
 
         private readonly float spasmInterval = random.NextFloat(6f) + 4f;
 
+        public Vector2 Scale;
+
         public Braid(Vector2 direction)
         {
             this.direction = direction;
         }
 
-        public void Simulate(Vector2 from, int facing, bool motion)
+        public void Simulate(Vector2 from, bool motion)
         {
             nodes[0] = from;
 
@@ -38,7 +42,7 @@ public class PlayerSeekerHair : Component
                 angleSpeed += random.Next(1, 4);
 
             float angle = (float) Math.Sin(Engine.Scene.TimeActive) * .2f;
-            Vector2 dir = new Vector2(direction.X * -facing, direction.Y).Rotate(angle);
+            Vector2 dir = new Vector2(direction.X * -Scale.X, direction.Y * Scale.Y).Rotate(angle);
             Vector2 waveDir = dir.Perpendicular() * 1.125f;
 
             Vector2 target = nodes[0] + dir + (waveDir * (float) Math.Sin(wave));
@@ -68,16 +72,17 @@ public class PlayerSeekerHair : Component
             threshold *= nodes.Length;
             for (int i = 0; i < nodes.Length; i++)
             {
-                float scale = Calc.ClampedMap(threshold - i, 0, 1);
-                if (scale == 0)
+                float segmentScale = Calc.ClampedMap(threshold - i, 0, 1);
+                if (segmentScale == 0)
                     continue;
-                scale *= GetHairScale(i);
+                segmentScale *= GetHairScale(i);
+                Vector2 texScale = new(segmentScale, segmentScale * Math.Sign(Scale.Y));
 
                 MTexture hair = seekerHairSegments[i % seekerHairSegments.Length];
-                hair.DrawCentered(nodes[i] + Vector2.UnitX, Color.Black, scale);
-                hair.DrawCentered(nodes[i] - Vector2.UnitX, Color.Black, scale);
-                hair.DrawCentered(nodes[i] + Vector2.UnitY, Color.Black, scale);
-                hair.DrawCentered(nodes[i] - Vector2.UnitY, Color.Black, scale);
+                hair.DrawCentered(nodes[i] + Vector2.UnitX, Color.Black, texScale);
+                hair.DrawCentered(nodes[i] - Vector2.UnitX, Color.Black, texScale);
+                hair.DrawCentered(nodes[i] + Vector2.UnitY, Color.Black, texScale);
+                hair.DrawCentered(nodes[i] - Vector2.UnitY, Color.Black, texScale);
             }
         }
 
@@ -86,14 +91,15 @@ public class PlayerSeekerHair : Component
             threshold *= nodes.Length;
             for (int i = 0; i < nodes.Length; i++)
             {
-                float scale = Calc.ClampedMap(threshold - i, 0, 1);
-                if (scale == 0)
+                float segmentScale = Calc.ClampedMap(threshold - i, 0, 1);
+                if (segmentScale == 0)
                     continue;
-                scale *= GetHairScale(i);
+                segmentScale *= GetHairScale(i);
+                Vector2 texScale = new(segmentScale, segmentScale * Math.Sign(Scale.Y));
 
                 float lerp = ((float) i / (nodes.Length - 1)) + (Engine.Scene.TimeActive * 0.75f);
                 Color color = Util.ColorArrayLerp(lerp, SeekerHairColors);
-                seekerHairSegments[i % seekerHairSegments.Length].DrawCentered(nodes[i], color, scale);
+                seekerHairSegments[i % seekerHairSegments.Length].DrawCentered(nodes[i], color, texScale);
             }
         }
 
@@ -126,13 +132,19 @@ public class PlayerSeekerHair : Component
     {
         Player player = Entity as Player;
         PlayerSprite sprite = player.Sprite;
-        int facing = (int) player.Facing;
 
-        Vector2 hairOffset = player.Sprite.HairOffset * new Vector2(facing, 1f);
-        Vector2 hairPosition = player.Sprite.RenderPosition + new Vector2(0f, -9f * sprite.Scale.Y) + hairOffset;
+        // GravityHelper only flips the PlayerSprite Y scale during PlayerSprite.Render, so we flip it manually here
+        bool inverted = GravityHelper.IsPlayerInverted?.Invoke() ?? false;
+        Vector2 scale = new((float) player.Facing, inverted ? -1 : 1);
+
+        Vector2 hairOffset = sprite.HairOffset * scale;
+        Vector2 hairPosition = sprite.RenderPosition + new Vector2(0f, -9f * scale.Y * sprite.Scale.Y) + hairOffset;
 
         foreach (Braid braid in braids)
-            braid.Simulate(hairPosition, (int) player.Facing, motion);
+        {
+            braid.Scale = scale;
+            braid.Simulate(hairPosition, motion);
+        }
     }
 
     public override void Render()

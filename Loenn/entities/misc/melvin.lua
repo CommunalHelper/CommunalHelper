@@ -1,5 +1,6 @@
 local drawableRectangle = require("structs.drawable_rectangle")
 local drawableSprite = require("structs.drawable_sprite")
+local utils = require("utils")
 
 local melvin = {}
 
@@ -16,7 +17,12 @@ melvin.placements = {
             weakTop = false,
             weakRight = false,
             weakBottom = false,
-            weakLeft = false
+            weakLeft = false,
+            spriteDir = "",
+            fillColor = "62222b",
+            activateParticleColor = "e45f7c",
+            attackParticleColor = "ffeb6b",
+            attackParticleFadeColor = "d39332"
         }
     },
     {
@@ -27,7 +33,12 @@ melvin.placements = {
             weakTop = true,
             weakRight = true,
             weakBottom = true,
-            weakLeft = true
+            weakLeft = true,
+            spriteDir = "",
+            fillColor = "62222b",
+            activateParticleColor = "e45f7c",
+            attackParticleColor = "ffeb6b",
+            attackParticleFadeColor = "d39332"
         }
     },
     {
@@ -38,7 +49,12 @@ melvin.placements = {
             weakTop = false,
             weakRight = true,
             weakBottom = false,
-            weakLeft = true
+            weakLeft = true,
+            spriteDir = "",
+            fillColor = "62222b",
+            activateParticleColor = "e45f7c",
+            attackParticleColor = "ffeb6b",
+            attackParticleFadeColor = "d39332"
         }
     },
     {
@@ -49,24 +65,44 @@ melvin.placements = {
             weakTop = true,
             weakRight = false,
             weakBottom = true,
-            weakLeft = false
+            weakLeft = false,
+            spriteDir = "",
+            fillColor = "62222b",
+            activateParticleColor = "e45f7c",
+            attackParticleColor = "ffeb6b",
+            attackParticleFadeColor = "d39332"
         }
     }
 }
+melvin.fieldOrder = {
+    "x", "y", "width", "height",
+    "weakTop", "weakBottom", "weakLeft", "weakRight",
+    "spriteDir", "fillColor",
+    "activateParticleColor", "attackParticleColor", "attackParticleFadeColor"
+}
+melvin.fieldInformation = {
+    fillColor = {
+        fieldType = "color"
+    },
+    activateParticleColor = {
+        fieldType = "color"
+    },
+    attackParticleColor = {
+        fieldType = "color"
+    },
+    attackParticleFadeColor = {
+        fieldType = "color"
+    },
+}
 
-local strongTiles = "objects/CommunalHelper/melvin/block_strong"
-local weakTiles = "objects/CommunalHelper/melvin/block_weak"
-local weakCornersHTiles = "objects/CommunalHelper/melvin/corners_weak_h"
-local weakCornersVTiles = "objects/CommunalHelper/melvin/corners_weak_v"
-
-local insideTiles = "objects/CommunalHelper/melvin/inside"
-local eye = "objects/CommunalHelper/melvin/eye/idle_small00"
-
-local kevinColor = {98 / 255, 34 / 255, 43 / 255}
-
-local function addBorderTiles(sprites, x, y, width, height, weakTop, weakBottom, weakLeft, weakRight)
+local function addBorderTiles(sprites, x, y, width, height, weakTop, weakBottom, weakLeft, weakRight, spriteDir)
     -- set the randomness seed based off this entity
     math.randomseed(x, y)
+    
+    local strongTiles = spriteDir .. "/block_strong"
+    local weakTiles = spriteDir .. "/block_weak"
+    local weakCornersHTiles = spriteDir .. "/corners_weak_h"
+    local weakCornersVTiles = spriteDir .. "/corners_weak_v"
 
     -- CORNERS
     local topleft = strongTiles
@@ -168,7 +204,9 @@ local function addBorderTiles(sprites, x, y, width, height, weakTop, weakBottom,
     end
 end
 
-local function addInsideTiles(sprites, x, y, width, height)
+local function addInsideTiles(sprites, x, y, width, height, spriteDir)
+    local insideTiles = spriteDir .. "/inside"
+
     -- if the block has minimum size, the eye will hide any inside tiles, so, in that case, let's not add any
     if width > 24 or height > 24 then
         for tx = 1, math.floor(width / 8) - 2 do
@@ -189,15 +227,19 @@ function melvin.sprite(room, entity)
     local weakBottom = entity.weakBottom
     local weakLeft = entity.weakLeft
     local weakRight = entity.weakRight
+    
+    local spriteDir = (entity.spriteDir or "") ~= "" and entity.spriteDir or "objects/CommunalHelper/melvin"
+    local fillColor = utils.getColor(entity.fillColor or { 98 / 255, 34 / 255, 43 / 255 })
 
     local sprites = {}
 
-    local bgRect = drawableRectangle.fromRectangle("fill", x + 1, y + 1, width - 2, height - 2, kevinColor)
+    local bgRect = drawableRectangle.fromRectangle("fill", x + 1, y + 1, width - 2, height - 2, fillColor)
     table.insert(sprites, bgRect)
 
-    addBorderTiles(sprites, x, y, width, height, weakTop, weakBottom, weakLeft, weakRight)
-    addInsideTiles(sprites, x, y, width, height)
+    addBorderTiles(sprites, x, y, width, height, weakTop, weakBottom, weakLeft, weakRight, spriteDir)
+    addInsideTiles(sprites, x, y, width, height, spriteDir)
 
+    local eye = spriteDir .. "/eye/idle_small00"
     local eyeSprite = drawableSprite.fromTexture(eye, entity)
     eyeSprite:addPosition(math.floor(width / 2), math.floor(height / 2))
     table.insert(sprites, eyeSprite)

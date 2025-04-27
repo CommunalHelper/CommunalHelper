@@ -11,15 +11,15 @@ public static class Elytra
 {
     public static ParticleType P_Deploy { get; private set; }
 
-    private const string f_Player_elytraGlideAngle  = nameof(f_Player_elytraGlideAngle);    // float
-    private const string f_Player_elytraGlideSpeed  = nameof(f_Player_elytraGlideSpeed);    // float
-    private const string f_Player_elytraGlideFacing = nameof(f_Player_elytraGlideFacing);   // Facings
-    private const string f_Player_elytraGlideSfx    = nameof(f_Player_elytraGlideSfx);      // EventInstance
-    private const string f_Player_elytraPrevPos     = nameof(f_Player_elytraPrevPos);       // Vector2
-    private const string f_Player_elytraStableTimer = nameof(f_Player_elytraStableTimer);   // float
-    private const string f_Player_elytraRefillSound = nameof(f_Player_elytraRefillSound);   // bool
-    private const string f_Player_elytraIsInfinite  = nameof(f_Player_elytraIsInfinite);    // bool
-    private const string f_Player_elytraCooldown    = nameof(f_Player_elytraCooldown);      // float
+    private const string f_Player_elytraGlideAngle = nameof(f_Player_elytraGlideAngle); // float
+    private const string f_Player_elytraGlideSpeed = nameof(f_Player_elytraGlideSpeed); // float
+    private const string f_Player_elytraGlideFacing = nameof(f_Player_elytraGlideFacing); // Facings
+    private const string f_Player_elytraGlideSfx = nameof(f_Player_elytraGlideSfx); // EventInstance
+    private const string f_Player_elytraPrevPos = nameof(f_Player_elytraPrevPos); // Vector2
+    private const string f_Player_elytraStableTimer = nameof(f_Player_elytraStableTimer); // float
+    private const string f_Player_elytraRefillSound = nameof(f_Player_elytraRefillSound); // bool
+    private const string f_Player_elytraIsInfinite = nameof(f_Player_elytraIsInfinite); // bool
+    private const string f_Player_elytraCooldown = nameof(f_Player_elytraCooldown); // float
 
     private const float STABLE_ANGLE = 0.2f;
     private const float ANGLE_RANGE = 2f;
@@ -50,7 +50,15 @@ public static class Elytra
         }
     };
 
+    public struct ElytraConfiguration
+    {
+        public bool disableReverseVerticalMomentum;
+    }
 
+    public static readonly ElytraConfiguration DefaultElytraConfiguration = new()
+    {
+        disableReverseVerticalMomentum = false,
+    };
 
     /// <summary>
     /// Refills the player's dashes and stamina.
@@ -88,10 +96,18 @@ public static class Elytra
         Facings facing = player.Facing;
         data.Set(f_Player_elytraGlideFacing, facing);
 
-        // get fliped speed if facing left
-        Vector2 speed = facing == Facings.Right
-            ? player.Speed
-            : new Vector2(-player.Speed.X, player.Speed.Y);
+        ElytraConfiguration config = CommunalHelperModule.Session.CurrentElytraConfiguration;
+        Vector2 speed;
+        if (config.disableReverseVerticalMomentum)
+        {
+            speed = new(MathF.Abs(player.Speed.X), player.Speed.Y);
+        }
+        else
+        {
+            speed = facing == Facings.Right
+                ? player.Speed
+                : new(-player.Speed.X, player.Speed.Y);
+        }
 
         float angle = speed.Angle();
         float length = speed.Length();
@@ -148,11 +164,11 @@ public static class Elytra
                 return Player.StNormal;
         }
 
-        if (player.ClimbCheck((int)player.Facing))
+        if (player.ClimbCheck((int) player.Facing))
         {
             bool maintain = false;
 
-            Vector2 at = player.Position + Vector2.UnitX * (int)player.Facing * 2;
+            Vector2 at = player.Position + Vector2.UnitX * (int) player.Facing * 2;
             foreach (ElytraCollision component in player.CollideAllByComponent<ElytraCollision>(at))
                 if (component.Callback is not null)
                     maintain |= component.Callback(player) == ElytraCollision.Result.Maintain;
@@ -460,21 +476,21 @@ public static class Elytra
         self.Sprite.Play(ELYTRA_ANIM);
 
         int FRAME_COUNT = self.Sprite.CurrentAnimationTotalFrames; // The default expected value is 9.
-        int STABLE_FRAME = (int)(FRAME_COUNT / 9f * 7f) - 1;
+        int STABLE_FRAME = (int) (FRAME_COUNT / 9f * 7f) - 1;
 
         if (FRAME_COUNT > 17) // Made excess frames always assigned to going-up pose that frames more low.
-            STABLE_FRAME -= (int)((FRAME_COUNT - 9) / 9f);
+            STABLE_FRAME -= (int) ((FRAME_COUNT - 9) / 9f);
 
         DynamicData data = DynamicData.For(self);
         int frame = STABLE_FRAME;
         if (data.Data.TryGetValue(f_Player_elytraGlideAngle, out var value))
         {
-            float angle = (float)value;
+            float angle = (float) value;
             float t = (angle - STABLE_ANGLE) / (ANGLE_RANGE / 2f);
             if (t < 0)
-                frame -= (int)(t * (FRAME_COUNT - STABLE_FRAME - 1));
+                frame -= (int) (t * (FRAME_COUNT - STABLE_FRAME - 1));
             else
-                frame -= (int)(t * STABLE_FRAME);
+                frame -= (int) (t * STABLE_FRAME);
         }
         self.Sprite.SetAnimationFrame(Calc.Clamp(frame, 0, FRAME_COUNT - 1));
     }

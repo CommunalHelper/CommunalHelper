@@ -528,11 +528,20 @@ public static class Extensions
         return new(left, top, right - left, bottom - top);
     }
 
-    public static bool Collides(this Camera self, Entity entity, Collider collider, float extend = 32f) =>
-        entity.Position.X + collider.Right >= self.Left - extend &&
-        entity.Position.X + collider.Left <= self.Right + extend &&
-        entity.Position.Y + collider.Bottom >= self.Top - extend &&
-        entity.Position.Y + collider.Top <= self.Bottom + extend;
+    public static bool Collides(this Camera self, Entity entity, Collider collider = null, float extend = 32f)
+    {
+        collider ??= entity.Collider;
+        return entity.Position.X + collider.Right >= self.Left - extend &&
+               entity.Position.X + collider.Left <= self.Right + extend &&
+               entity.Position.Y + collider.Bottom >= self.Top - extend &&
+               entity.Position.Y + collider.Top <= self.Bottom + extend;
+    }
+
+    public static bool Contains(this Camera self, Vector2 point, float extend = 32f) =>
+        point.X >= self.Left - extend &&
+        point.X <= self.Right + extend &&
+        point.Y >= self.Top - extend &&
+        point.Y <= self.Bottom + extend;
 
     public static TextMenuExt.OptionSubMenu Add(this TextMenuExt.OptionSubMenu menu, string label, params TextMenu.Item[] items)
     {

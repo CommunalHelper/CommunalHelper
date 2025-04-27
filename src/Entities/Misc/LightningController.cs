@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Celeste.Mod.Core;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -77,7 +78,7 @@ public class LightningController : Entity
         Level level = Scene as Level;
         Camera cam = level.Camera;
 
-        bool flashes = flashDuration > 0 && flash > 0 && !Settings.Instance.DisableFlashes;
+        bool flashes = flashDuration > 0 && flash > 0 && CoreModule.Settings.AllowLightning;
 
         while (true)
         {

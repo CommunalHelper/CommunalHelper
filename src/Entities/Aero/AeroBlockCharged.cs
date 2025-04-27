@@ -1,4 +1,4 @@
-﻿using MonoMod.RuntimeDetour;
+using MonoMod.RuntimeDetour;
 using System.Linq;
 using System.Reflection;
 
@@ -148,7 +148,8 @@ public class AeroBlockCharged : AeroBlockFlying
     public AeroBlockCharged(EntityData data, Vector2 offset)
         : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("loop"), data.HexColor("activeColor", defaultOnColor), data.HexColor("inactiveColor", defaultEndColor), data.Bool("hover", true), data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
     {
-        SpirialisBug = data.Bool("SpirialisBug", false);
+        // if the new attribute exists use that, but otherwise enable the bug if either the old attribute is set *or* spirialis helper is loaded
+        SpirialisBug = data.Bool("SpirialisBugV2", SpirialisHelperLoaded || data.Bool("SpirialisBug", false));
     }
 
     public AeroBlockCharged(Vector2[] positions, int width, int height, bool loop, Color activeColor, Color inactiveColor, bool hover = true, string buttonSequence = DEFAULT_BUTTON_SEQUENCE)
@@ -342,33 +343,16 @@ public class AeroBlockCharged : AeroBlockFlying
     }
 
     #region Hooks
-    // This method is added for specifically a fix in an unreleased project because SpirialisHelper load order conflict (always happened because spirialis depends on CH)
-    private static Vector2 ExcessBoost(Actor actor)
-    {
-        Vector2 liftSpeed = actor.LiftSpeed;
-        float num = MathF.Abs(liftSpeed.X);
-        float y = liftSpeed.Y;
-        num = ((!(num > 250f)) ? 0f : (MathF.Min(250, num) - 250f));
-        Vector2 result = new Vector2(y: (!(y < -130f)) ? 0f : (MathF.Max(-130, y) - -130f), x: (float) MathF.Sign(liftSpeed.X) * num);
-        Console.WriteLine("original version: " + result);
-        num = MathF.Abs(liftSpeed.X);
-        y = liftSpeed.Y;
-        if (num > 250) // formerly num = (!(num > 250) && !(num > 0)) ? 0 : num - 250f
-            num -= 250f;
-        y = y < -130f ? y + 130f : 0; // formerly (!(y < -130f) && !(y < 0)) ? 0 : y - -130f; ... what the fuck ???? that's just not how this should work
-        Vector2 res2 = new Vector2(MathF.Sign(liftSpeed.X) * num, y);
-        Console.WriteLine("new version: " + res2);
-        return res2;
-    }
-
 
     internal static void Load()
     {
-        On.Celeste.Player.Jump += Player_Jump;
-        On.Celeste.Player.WallJump += Player_WallJump;
-        On.Celeste.Player.ClimbJump += Player_ClimbJump;
-        On.Celeste.Player.SuperWallJump += Player_SuperWallJump;
-        On.Celeste.Player.SuperJump += Player_SuperJump;
+        using (new DetourContext { After = { "*" } } ) {
+            On.Celeste.Player.Jump += Player_Jump;
+            On.Celeste.Player.WallJump += Player_WallJump;
+            On.Celeste.Player.ClimbJump += Player_ClimbJump;
+            On.Celeste.Player.SuperWallJump += Player_SuperWallJump;
+            On.Celeste.Player.SuperJump += Player_SuperJump;
+        }
     }
 
     internal static void Unload()
@@ -383,13 +367,11 @@ public class AeroBlockCharged : AeroBlockFlying
     private static void Player_Jump(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
     {
         if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position + Vector2.UnitY) is AeroBlockCharged block)) { orig(self, particles, playSfx); return; }
-        if (block.SpirialisBug && !SpirialisHelperLoaded)
+        if (block.SpirialisBug)
         {
-            Vector2 v = ExcessBoost(self);
             orig(self, particles, playSfx);
-            if(self.OnGround() && block is not null && block.CheckTopButton())
+            if (self.OnGround() && block is not null && block.CheckTopButton())
                 block.Smash(self, Vector2.UnitY * -350);
-            self.Speed += v;
             player_varJumpSpeed.SetValue(self, self.Speed.Y);
         } else {
             orig(self, particles, playSfx);
@@ -406,14 +388,12 @@ public class AeroBlockCharged : AeroBlockFlying
     private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
         if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position - Vector2.UnitX * dir * 3) is AeroBlockCharged block)) { orig(self, dir); return; }
-        if (block.SpirialisBug && !SpirialisHelperLoaded)
+        if (block.SpirialisBug)
         {
-            Vector2 vector = ExcessBoost(self);
-            orig.Invoke(self, dir);
+            orig(self, dir);
             // wallbounce
             if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
                 block.Smash(self, new Vector2(300 * dir, -300));
-            self.Speed += vector;
             player_varJumpSpeed.SetValue(self, self.Speed.Y);
         }
         else
@@ -442,19 +422,17 @@ public class AeroBlockCharged : AeroBlockFlying
     private static void Player_SuperWallJump(On.Celeste.Player.orig_SuperWallJump orig, Player self, int dir)
     {
         if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position - Vector2.UnitX * dir * 3) is AeroBlockCharged block)) { orig(self, dir); return; }
-        if (block.SpirialisBug && !SpirialisHelperLoaded)
+        if (block.SpirialisBug)
         {
-            Vector2 vector = ExcessBoost(self);
-            orig.Invoke(self, dir);
+            orig(self, dir);
             // wallbounce
             if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
                 block.Smash(self, new Vector2(300 * dir, -400));
-            self.Speed += vector;
             player_varJumpSpeed.SetValue(self, self.Speed.Y);
         }
         else
         {
-            orig.Invoke(self, dir);
+            orig(self, dir);
 
             // wallbounce
             if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
@@ -465,21 +443,11 @@ public class AeroBlockCharged : AeroBlockFlying
     private static void Player_SuperJump(On.Celeste.Player.orig_SuperJump orig, Player self)
     {
         if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position + Vector2.UnitY) is AeroBlockCharged block)) { orig(self); return; }
-        if (block.SpirialisBug && !SpirialisHelperLoaded)
+        if (block.SpirialisBug)
         {
-            Vector2 vector = ExcessBoost(self);
-            bool ducking = self.Ducking;
-            orig.Invoke(self);
+            orig(self);
             if (self.OnGround() && block is not null && block.CheckTopButton())
                 block.Smash(self, new Vector2(self.Speed.X * 1.2f, -350));
-            if (ducking)
-            {
-                self.Speed += new Vector2(vector.X * 1.25f, vector.Y * 0.5f);
-            }
-            else
-            {
-                self.Speed += vector;
-            }
             player_varJumpSpeed.SetValue(self, self.Speed.Y);
         }
         else

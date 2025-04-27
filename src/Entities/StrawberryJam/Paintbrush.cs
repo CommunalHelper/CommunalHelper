@@ -66,6 +66,7 @@ public class Paintbrush : Entity {
     private float chargeDelayRemaining;
     private float burstTimeRemaining;
     private float fireSoundDelayRemaining;
+    private Vector2 shakeOffset;
 
     private static ParticleType blueCooldownParticle;
     private static ParticleType pinkCooldownParticle;
@@ -281,7 +282,8 @@ public class Paintbrush : Entity {
                 OnStart = activated => {
                     setState(activated && !HalfLength ? LaserState.Firing : LaserState.Idle, true);
                 },
-                OnTick = cbm => {
+                OnTick = (cbm, isSwap) => {
+                    if (isSwap) return;
                     var data = DynamicData.For(cbm);
                     float tempoMult = data.Get<float>("tempoMult");
                     int beatsPerTick = data.Get<int>("beatsPerTick");
@@ -328,8 +330,18 @@ public class Paintbrush : Entity {
             OnAttach = p => Depth = p.Depth + 1,
             SolidChecker = s => Collide.CheckPoint(s, Position - Orientation.Direction()),
             JumpThruChecker = jt => Collide.CheckPoint(jt, Position - Orientation.Direction()),
-            OnEnable = () => Collidable = true,
-            OnDisable = () => Collidable = false,
+            OnEnable = () =>
+            {
+                Collidable = Visible = Active = true;
+                State = LaserState.Idle;
+            },
+            OnDisable = () =>
+            {
+                Collidable = Visible = Active = false;
+                State = LaserState.Idle;
+                fireSource.Stop();
+            },
+            OnShake = v => shakeOffset += v,
             OnMove = v =>
             {
                 Position += v;
@@ -423,12 +435,17 @@ public class Paintbrush : Entity {
     }
 
     public override void Render() {
+        // telegraphs should always be accurate, so don't shake them
+        if (State is LaserState.Charging) {
+            foreach (var hitbox in beamHitboxes)
+                renderTelegraph(hitbox);
+        }
+        
+        Position += shakeOffset;
+        
         if (State is LaserState.Burst or LaserState.Firing) {
             for (int i = 0; i < beamHitboxes.Length; i++)
                 renderBeam(beamHitboxes[i], i);
-        } else if (State == LaserState.Charging) {
-            foreach (var hitbox in beamHitboxes)
-                renderTelegraph(hitbox);
         }
 
         var offset = Orientation.Vertical() ? new Vector2(tileSize, 0) : new Vector2(0, tileSize);
@@ -463,6 +480,8 @@ public class Paintbrush : Entity {
                 paintParticlesSprite.Render();
             }
         }
+
+        Position -= shakeOffset;
     }
 
     private void renderBeam(Hitbox beamHitbox, int index) {
@@ -621,30 +640,5 @@ public class Paintbrush : Entity {
         Firing,
 
         Cooldown,
-    }
-
-    [TrackedAs(typeof(CassetteListener), false)]
-    public class TickingCassetteListener : CassetteListener
-    {
-        // "new" keyword is in case this functionality gets added to the base class in Everest
-        public new Action<CassetteBlockManager> OnTick;
-
-        public TickingCassetteListener(int index, float tempo = 1) : base(index, tempo)
-        {
-            Active = true;
-        }
-
-        public override void Update()
-        {
-            if (SceneAs<Level>()?.Tracker.GetEntity<CassetteBlockManager>() is not { } cassetteBlockManager) return;
-            var data = DynamicData.For(cassetteBlockManager);
-            int beatIndex = data.Get<int>("beatIndex");
-            int beatsPerTick = data.Get<int>("beatsPerTick");
-            int ticksPerSwap = data.Get<int>("ticksPerSwap");
-            if (beatIndex % beatsPerTick == 0 &&
-                beatIndex % (beatsPerTick * ticksPerSwap) != 0) {
-                OnTick?.Invoke(cassetteBlockManager);
-            }
-        }
     }
 }

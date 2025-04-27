@@ -11,6 +11,7 @@ public static class ModExports
     internal static void Initialize()
     {
         typeof(DashStates).ModInterop();
+        typeof(Entities).ModInterop();
     }
 
     [ModExportName("CommunalHelper.DashStates")]
@@ -55,4 +56,20 @@ public static class ModExports
         #endregion
     }
 
+    [ModExportName("CommunalHelper.Entities")]
+    public static class Entities
+    {
+        #region Misc
+        
+        #region Melvin
+
+        public static Component MelvinTargetable(int priority)
+        {
+            return new MelvinTargetable(priority);
+        }
+
+        #endregion
+        
+        #endregion
+    }
 }
