@@ -23,8 +23,6 @@ public static class CommunalHelperGFX
     public static int GameplayBufferWidth => GameplayBuffers.Gameplay?.Width ?? 320;
     public static int GameplayBufferHeight => GameplayBuffers.Gameplay?.Height ?? 180;
 
-    private const int SCREEN_WIDTH = 320;
-    private const int SCREEN_HEIGHT = 180;
     private static readonly Dictionary<int, Tuple<RenderTarget2D, RenderTarget2D, RenderTarget2D, RenderTarget2D>> mrtBuffers = new();
     private static readonly Dictionary<int, RenderTarget2D> dreamSpriteBuffers = new();
 
@@ -83,10 +81,10 @@ public static class CommunalHelperGFX
             // make sure any previous buffers are disposed if they exist
             if (buffers is not null)
             {
-                buffers?.Item1.Dispose();
-                buffers?.Item2.Dispose();
-                buffers?.Item3.Dispose();
-                buffers?.Item4.Dispose();
+                buffers.Item1.Dispose();
+                buffers.Item2.Dispose();
+                buffers.Item3.Dispose();
+                buffers.Item4.Dispose();
             }
 
             buffers = Tuple.Create(
@@ -107,10 +105,12 @@ public static class CommunalHelperGFX
 
     public static void QueryDreamSpriteBuffers(int rendererDepth, out RenderTarget2D dreamSpriteBuffer)
     {
-        if (!dreamSpriteBuffers.TryGetValue(rendererDepth, out var buffer))
+        int gameplayWidth = GameplayBufferWidth, gameplayHeight = GameplayBufferHeight;
+        if (!dreamSpriteBuffers.TryGetValue(rendererDepth, out var buffer) || buffer.Width !=  gameplayWidth || buffer.Height != gameplayHeight)
         {
-            buffer = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-            dreamSpriteBuffers.Add(rendererDepth, buffer);
+            buffer?.Dispose();
+            buffer = new RenderTarget2D(Engine.Graphics.GraphicsDevice, gameplayWidth, gameplayHeight, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            dreamSpriteBuffers[rendererDepth] = buffer;
             Logger.Log(LogLevel.Info, nameof(DreamSpriteRenderer), $"new dream sprite buffer created, at depth {rendererDepth}.");
         }
 
