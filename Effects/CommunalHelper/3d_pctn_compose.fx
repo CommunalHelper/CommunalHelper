@@ -35,7 +35,7 @@ struct vertex_output
     float2 uv       : TEXCOORD0;
 };
 
-const float2 offset_unit = float2(1.0 / 320.0, 1.0 / 180.0);
+float2 offset_unit = float2(1.0 / 320.0, 1.0 / 180.0);
 const float3 normal_edge_bias = 1.0;
 
 float time = 0.0;

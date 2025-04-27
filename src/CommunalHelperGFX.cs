@@ -1,4 +1,4 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Entities;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Reflection;
@@ -20,8 +20,9 @@ public static class CommunalHelperGFX
     public static Effect PCTN_MRT { get; private set; }
     public static Effect PCTN_COMPOSE { get; private set; }
 
-    private const int SCREEN_WIDTH = 320;
-    private const int SCREEN_HEIGHT = 180;
+    public static int GameplayBufferWidth => GameplayBuffers.Gameplay?.Width ?? 320;
+    public static int GameplayBufferHeight => GameplayBuffers.Gameplay?.Height ?? 180;
+
     private static readonly Dictionary<int, Tuple<RenderTarget2D, RenderTarget2D, RenderTarget2D, RenderTarget2D>> mrtBuffers = new();
     private static readonly Dictionary<int, RenderTarget2D> dreamSpriteBuffers = new();
 
@@ -73,15 +74,26 @@ public static class CommunalHelperGFX
 
     public static void QueryMRTBuffers(int rendererDepth, out RenderTarget2D albedo, out RenderTarget2D depth, out RenderTarget2D normal, out RenderTarget2D final)
     {
-        if (!mrtBuffers.TryGetValue(rendererDepth, out var buffers))
+        int gameplayWidth = GameplayBufferWidth, gameplayHeight = GameplayBufferHeight;
+        // create the buffers if either none exist for the requested depth, or if the dimensions of the existing buffers no longer match the gameplay buffer
+        if (!mrtBuffers.TryGetValue(rendererDepth, out var buffers) || buffers.Item1.Width != gameplayWidth || buffers.Item1.Height != gameplayHeight)
         {
+            // make sure any previous buffers are disposed if they exist
+            if (buffers is not null)
+            {
+                buffers.Item1.Dispose();
+                buffers.Item2.Dispose();
+                buffers.Item3.Dispose();
+                buffers.Item4.Dispose();
+            }
+
             buffers = Tuple.Create(
-                new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8),
-                new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8),
-                new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8),
-                new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8)
+                new RenderTarget2D(Engine.Graphics.GraphicsDevice, gameplayWidth, gameplayHeight, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8),
+                new RenderTarget2D(Engine.Graphics.GraphicsDevice, gameplayWidth, gameplayHeight, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8),
+                new RenderTarget2D(Engine.Graphics.GraphicsDevice, gameplayWidth, gameplayHeight, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8),
+                new RenderTarget2D(Engine.Graphics.GraphicsDevice, gameplayWidth, gameplayHeight, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8)
             );
-            mrtBuffers.Add(rendererDepth, buffers);
+            mrtBuffers[rendererDepth] = buffers;
             Logger.Log(LogLevel.Info, nameof(Shape3DRenderer), $"new PCTN-MRT buffer quadruplet created, at depth {rendererDepth}.");
         }
 
@@ -93,10 +105,12 @@ public static class CommunalHelperGFX
 
     public static void QueryDreamSpriteBuffers(int rendererDepth, out RenderTarget2D dreamSpriteBuffer)
     {
-        if (!dreamSpriteBuffers.TryGetValue(rendererDepth, out var buffer))
+        int gameplayWidth = GameplayBufferWidth, gameplayHeight = GameplayBufferHeight;
+        if (!dreamSpriteBuffers.TryGetValue(rendererDepth, out var buffer) || buffer.Width !=  gameplayWidth || buffer.Height != gameplayHeight)
         {
-            buffer = new RenderTarget2D(Engine.Graphics.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-            dreamSpriteBuffers.Add(rendererDepth, buffer);
+            buffer?.Dispose();
+            buffer = new RenderTarget2D(Engine.Graphics.GraphicsDevice, gameplayWidth, gameplayHeight, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            dreamSpriteBuffers[rendererDepth] = buffer;
             Logger.Log(LogLevel.Info, nameof(DreamSpriteRenderer), $"new dream sprite buffer created, at depth {rendererDepth}.");
         }
 

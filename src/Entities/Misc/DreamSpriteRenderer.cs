@@ -1,4 +1,4 @@
-﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.Imports;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -19,8 +19,7 @@ internal class DreamSpriteRenderer : Entity
         AlphaFunction = CompareFunction.GreaterEqual,
         ReferenceAlpha = 1,
         World = Matrix.Identity,
-        View = Matrix.Identity,
-        Projection = Matrix.CreateOrthographicOffCenter(0, 320, 180, 0, 0, 1)
+        View = Matrix.Identity
     };
     
     private static readonly DepthStencilState drawToStencilState = new()
@@ -106,6 +105,7 @@ internal class DreamSpriteRenderer : Entity
             Draw.SpriteBatch.End();
 
             // back
+            alphaTestEffect.Projection = Matrix.CreateOrthographicOffCenter(0, CommunalHelperGFX.GameplayBufferWidth, CommunalHelperGFX.GameplayBufferHeight, 0, 0, 1);
             Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, drawToStencilState, RasterizerState.CullNone, alphaTestEffect);
 
             Color backColor = (sprite.Enabled ? DreamSprite.EnabledBackColor : DreamSprite.DisabledBackColor).Mult(sprite.Color);
