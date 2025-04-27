@@ -1,3 +1,13 @@
+--1.22.0 (27/04/2025)--
+* Implemented zoom-out support for PCTN-MRT rendering and Dream Sprite rendering. @bigkahuna443 & @earthwise01
+* Added 'noHole' option to Loop Blocks. @Spo0o0ky
+* Added 'allowTransitions' to Configure Dream Tunnel Dash Trigger, making dream tunneling screen transitions possible. @aonkeeper4
+* Added ModInterop 'MelvinTargetable' component + Melvin code refactor. @aonkeeper4
+* Made Melvin fully reskinnable (along with LylyraHelper support). @aonkeeper4
+* Allow Glow Controllers to add and remove lights simultaneously. @aonkeeper4
+* Fixed LylyraHelper bug mixing Loop Block colors and Dream Falling Block colors. @aonkeeper4
+* Fixed SpiralisHelper-related bug with Aero Blocks. @earthwise01
+
 --1.21.1 (29/03/2025)--
 * Add 'slow' option to Dash Zip Mover from Strawberry Jam. @sunsetquasar
 * Fix incorrect ON hook unsubscribe introduced in 1.21.0. @sunsetquasar
@@ -9,7 +19,7 @@
 * Added 'noDebris' options to all move block types. @aonkeeper4
 
 --1.20.12 (21/02/2025)--
-* Fixed some bugs with the new Dream Tunnel features. @aonkeeper4
+* Fixed some bugs with the new Dream Tunnel featuresearthwise. @aonkeeper4
 * Added option for Dream Tunnel redirects to consume normal refills. @aonkeeper4
 
 --1.20.11 (12/01/2025)--
@@ -37,7 +47,7 @@
 * Fixed Sound Area Trigger transition bug. @Viv
 * Fixed rendering bug with curved boosters. @AAA1459
 * Added two-dash option to dream refills. @vitellary
-* Fixed bug with Dream Falling Block behavior. @earthwise
+* Fixed bug with Dream Falling Block behavior. @earthwise01
 * Added dash speed option to custom dream blocks. @psyGamer
 * Added sound and visual customization to Dash Zip Movers. @sunsetquasar and @Viv
 * Added break and respawn time customization to custom move blocks. @aonkeeper4
