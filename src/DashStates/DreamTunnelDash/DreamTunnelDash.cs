@@ -100,10 +100,10 @@ public static class DreamTunnelDash
         On.Celeste.Player.DreamDashCheck += Player_DreamDashCheck;
         On.Celeste.Player.Update += Player_Update;
         On.Celeste.Player.Die += Player_Die;
+        
         hook_Player_DashCoroutine = new ILHook(
             typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(),
             Player_DashCoroutine);
-
         IL.Celeste.Player.IsRiding_Solid += State_DreamDashEqual;
         IL.Celeste.Player.IsRiding_JumpThru += Player_IsRiding_JumpThru;
         IL.Celeste.Player.OnCollideH += State_DreamDashEqual;
