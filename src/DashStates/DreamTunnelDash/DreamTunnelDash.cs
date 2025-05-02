@@ -459,7 +459,7 @@ public static class DreamTunnelDash
         ILLabel failedCheck = null;
         Instruction ceqInstr = null;
         
-        if (!cursor.TryGotoNext(MoveType.AfterLabel,
+        if (!cursor.TryGotoNextFirstFitReversed(MoveType.AfterLabel, 0x10,
             instr => instr.MatchLdfld<Player>("StateMachine"),
             instr => instr.MatchCallvirt<StateMachine>("get_State"),
             instr => instr.MatchLdcI4(state),
@@ -476,7 +476,7 @@ public static class DreamTunnelDash
             }))
             return;
         
-        // beq and bne.un work with labels, whereas ceq just leves a bool so we need to deal with them differently
+        // beq and bne.un work with labels, whereas ceq just leaves a bool so we need to deal with them differently
         if (matchedBeqOrBne)
         {
             // labels for cleaning up duplicate player on stack
