@@ -452,29 +452,31 @@ public static class DreamTunnelDash
         // `player.StateMachine.State == state` -> `player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash`
         // `player.StateMachine.State != state` -> `player.StateMachine.State != state && player.StateMachine.State != St.DreamTunnelDash`
         
-        // variables to grab stuff later
-        Instruction afterMatch = null;
+        // go to before the state check
+        if (!cursor.TryGotoNextFirstFitReversed(MoveType.AfterLabel, 0x10,
+            instr => instr.MatchLdfld<Player>("StateMachine"),
+            instr => instr.MatchCallvirt<StateMachine>("get_State"),
+            instr => instr.MatchLdcI4(state)))
+            return;
         
+        // variables to grab various things
         bool matchedBeqOrBne = false, matchedCeq = false;
         ILLabel failedCheck = null;
         Instruction ceqInstr = null;
         
-        if (!cursor.TryGotoNextFirstFitReversed(MoveType.AfterLabel, 0x10,
-            instr => instr.MatchLdfld<Player>("StateMachine"),
-            instr => instr.MatchCallvirt<StateMachine>("get_State"),
-            instr => instr.MatchLdcI4(state),
-            instr =>
+        // retrieve the instruction after the current check
+        ILCursor cloned = cursor.Clone();
+        if (!cloned.TryGotoNext(MoveType.After, instr =>
             {
-                // we grab a lot of stuff here: the instruction directly after this match, whether we matched a beq/bne.un or a ceq,
-                // the "fail state" label of the beq/bne.un (if we matched one of those) and the actual ceq instruction (if we matched that).
-                
-                afterMatch = instr.Next;
-                // equality checks usually use bne.un (for ==) or beq (for !=) to branch past the block of the if statement if the values don't match
+                // we grab a lot of stuff here: whether we matched a beq/bne.un or a ceq, the "fail state" label of the beq/bne.un
+                // (if we matched one of those) and the actual ceq instruction (if we matched that).
+
+                // equality checks usually use bne.un (for ==) or beq (for !=) in order to branch past the block of the if statement if the values don't match
                 matchedBeqOrBne = equal ? instr.MatchBneUn(out failedCheck) : instr.MatchBeq(out failedCheck);
                 matchedCeq = (ceqInstr = instr).MatchCeq();
                 return matchedBeqOrBne || matchedCeq;
-            }))
-            return;
+            })) return;
+        Instruction afterMatch = cloned.Next!;
         
         // beq and bne.un work with labels, whereas ceq just leaves a bool so we need to deal with them differently
         if (matchedBeqOrBne)
@@ -503,6 +505,7 @@ public static class DreamTunnelDash
             cursor.Emit(OpCodes.Pop);
             cursor.MarkLabel(pastCleanUpPlayer);
             cursor.Index--;
+            // mark label to short-circuit to
             cursor.MarkLabel(cleanUpPlayer);
         }
         else if (matchedCeq)
@@ -515,7 +518,7 @@ public static class DreamTunnelDash
             // to solve this, our desired conditions can be shown equivalent to `player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash` (for equality) and
             // `!(player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash)` (for inequality). notice how the desired condition for inequality is simply
             // the inverse of the one for equality. this is great, because the brtrue/brfalse after the ceq will do the required inversion (or lack thereof) for the check, and all
-            // we need to do is calculate the thing on the inside. conveniently, the ceq is already checking for the left term (so that is its return value), and we just need to or it with the right.
+            // we need to do is calculate the thing on the inside. conveniently, the ceq is already checking for the left term, and we just need to or it with the right.
             cursor.EmitDelegate<Func<Player, bool, bool>>((player, orig) => orig || player.StateMachine.State == St.DreamTunnelDash);
         }
 
