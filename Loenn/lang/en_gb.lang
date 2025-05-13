@@ -821,6 +821,8 @@ entities.CommunalHelper/GlowController.attributes.description.bloomAlpha=The opa
 entities.CommunalHelper/GlowController.attributes.description.bloomRadius=The radius of the bloom in pixels.  Defaults to 8.
 entities.CommunalHelper/GlowController.attributes.description.bloomOffsetX=The X offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
 entities.CommunalHelper/GlowController.attributes.description.bloomOffsetY=The Y offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
+entities.CommunalHelper/GlowController.attributes.description.deathAnimationIds=A list of animation IDs to treat as "death" animations, that is, when the targeted entities' Sprites start playing one of these animations, their light/bloom will fade out.
+entities.CommunalHelper/GlowController.attributes.description.respawnAnimationIds=A list of animation IDs to treat as "respawn" animations, that is, when the targeted entities' Sprites start playing one of these animations, their light/bloom will fade back in.
 
 # Poison Gas
 entities.CommunalHelper/PoisonGas.placements.name.main=Poison Gas
@@ -978,6 +980,10 @@ entities.CommunalHelper/SJ/PelletEmitter.attributes.description.collideWithSolid
 entities.CommunalHelper/SJ/PelletEmitter.attributes.description.wiggleFrequency=The number of times the pellet should wiggle back and forth per second. Defaults to 2.
 entities.CommunalHelper/SJ/PelletEmitter.attributes.description.wiggleAmount=The amplitude of the wiggle. Defaults to 2. Set to 0 to disable wiggling, causing pellets to travel in a straight line.
 entities.CommunalHelper/SJ/PelletEmitter.attributes.description.wiggleHitbox=Whether or not the pellet hitbox should move following the wiggle.
+
+entities.CommunalHelper/DreamTunnelBlocker.placements.name.normal=Dream Tunnel Blocker
+entities.CommunalHelper/DreamTunnelBlocker.attributes.description.blockDreamTunnelDashes=Whether to prevent dream tunneling when dashing into a solid covered by this entity.
+entities.CommunalHelper/DreamTunnelBlocker.attributes.description.blockDreamDashes=Whether to prevent dream dashing when dashing into a dream block covered by this entity.
 
 # ---------------------- TRIGGERS --------------------------
 

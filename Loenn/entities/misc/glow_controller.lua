@@ -55,6 +55,8 @@ glowController.placements = {
             bloomRadius = 8.0,
             bloomOffsetX = 0,
             bloomOffsetY = 0,
+            deathAnimationIds = "death",
+            respawnAnimationIds = "respawn",
         },
     },
 }

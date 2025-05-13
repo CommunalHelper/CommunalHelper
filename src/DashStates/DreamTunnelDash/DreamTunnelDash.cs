@@ -1,9 +1,11 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.States;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -50,6 +52,8 @@ public static class DreamTunnelDash
     public static Color[] DreamTrailColors;
     public static int DreamTrailColorIndex = 0;
 
+    // Keep a List<Entity> around to not allocate a new one every CollideAll<T>() call
+    private static List<Entity> dreamTunnelBlockers = new();
 
     private static IDetour hook_Player_DashCoroutine;
     private static IDetour hook_Player_orig_Update;
@@ -348,7 +352,14 @@ public static class DreamTunnelDash
 
     private static bool Player_DreamDashCheck(On.Celeste.Player.orig_DreamDashCheck orig, Player self, Vector2 dir)
     {
-        return overrideDreamDashCheck ? (overrideDreamDashCheck = false) : orig(self, dir);
+        if (overrideDreamDashCheck)
+            return overrideDreamDashCheck = false;
+
+        // Don't enter StDreamDash if there's a blocker
+        if (self.IsDreamDashBlocked(self.Position + dir))
+            return false;
+
+        return orig(self, dir);
     }
 
     // Fixes bug with dreamSfx soundsource not being stopped
@@ -698,6 +709,10 @@ public static class DreamTunnelDash
             if (player.Left + dir.X < bounds.Left || player.Right + dir.X > bounds.Right || player.Top + dir.Y < bounds.Top || player.Bottom + dir.Y > bounds.Bottom)
                 return false;
 
+            // Check if we're colliding with a DreamTunnelBlocker
+            if (player.IsDreamTunnelDashBlocked(player.Position + dir))
+                return false;
+
             Solid solid = null;
 
             // Check for dream blocks first, then for solids
@@ -777,6 +792,37 @@ public static class DreamTunnelDash
             }
         }
         return false;
+    }
+
+    private static (bool blockDreamTunnelDashes, bool blockDreamDashes) GetBlockerConfiguration(this Player player, Vector2 position)
+    {
+        bool blockDreamTunnelDashes = false;
+        bool blockDreamDashes = false;
+
+        foreach (Entity e in player.CollideAll<DreamTunnelBlocker>(position, dreamTunnelBlockers))
+        {
+            if (e is DreamTunnelBlocker { BlockDreamTunnelDashes: true })
+                blockDreamTunnelDashes = true;
+            if (e is DreamTunnelBlocker { BlockDreamDashes: true })
+                blockDreamDashes = true;
+
+            if (blockDreamTunnelDashes && blockDreamDashes)
+                break;
+        }
+
+        return (blockDreamTunnelDashes, blockDreamDashes);
+    }
+
+    private static bool IsDreamTunnelDashBlocked(this Player player, Vector2 position)
+    {
+        return player.CollideAll<DreamTunnelBlocker>(position, dreamTunnelBlockers)
+            .Any(e => e is DreamTunnelBlocker { BlockDreamTunnelDashes: true });
+    }
+
+    private static bool IsDreamDashBlocked(this Player player, Vector2 position)
+    {
+        return player.CollideAll<DreamTunnelBlocker>(position, dreamTunnelBlockers)
+            .Any(e => e is DreamTunnelBlocker { BlockDreamDashes: true });
     }
 
     #endregion
