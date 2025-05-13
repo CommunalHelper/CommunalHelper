@@ -981,6 +981,10 @@ entities.CommunalHelper/SJ/PelletEmitter.attributes.description.wiggleFrequency=
 entities.CommunalHelper/SJ/PelletEmitter.attributes.description.wiggleAmount=The amplitude of the wiggle. Defaults to 2. Set to 0 to disable wiggling, causing pellets to travel in a straight line.
 entities.CommunalHelper/SJ/PelletEmitter.attributes.description.wiggleHitbox=Whether or not the pellet hitbox should move following the wiggle.
 
+entities.CommunalHelper/DreamTunnelBlocker.placements.name.normal=Dream Tunnel Blocker
+entities.CommunalHelper/DreamTunnelBlocker.attributes.description.blockDreamTunnelDashes=Whether to prevent dream tunneling when dashing into a solid covered by this entity.
+entities.CommunalHelper/DreamTunnelBlocker.attributes.description.blockDreamDashes=Whether to prevent dream dashing when dashing into a dream block covered by this entity.
+
 # ---------------------- TRIGGERS --------------------------
 
 # [Strawberry Jam] Show Hitbox Trigger
