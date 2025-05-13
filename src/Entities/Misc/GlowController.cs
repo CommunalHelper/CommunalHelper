@@ -55,8 +55,8 @@ public class GlowController : Entity
     private readonly float bloomRadius;
     private readonly Vector2 bloomOffset;
 
-    private const string DeathAnimationId = "death";
-    private const string RespawnAnimationId = "respawn";
+    private readonly string[] deathAnimationIds;
+    private readonly string[] respawnAnimationIds;
 
     public GlowController(EntityData data, Vector2 offset)
         : base(data.Position + offset)
@@ -74,6 +74,9 @@ public class GlowController : Entity
         bloomAlpha = data.Float("bloomAlpha", 1f);
         bloomRadius = data.Float("bloomRadius", 8f);
         bloomOffset = new Vector2(data.Int("bloomOffsetX"), data.Int("bloomOffsetY", -10));
+        
+        deathAnimationIds = data.Attr("deathAnimationIds", "death").Split(',');
+        respawnAnimationIds = data.Attr("respawnAnimationIds", "respawn").Split(',');
     }
 
     public override void Awake(Scene scene)
@@ -108,9 +111,9 @@ public class GlowController : Entity
             }
 
             // some entities get a special coroutine that hides lights and blooms
-            // if it's a glider or otherwise has a sprite with a "death" animation
+            // if it's a glider or otherwise has a sprite with an animation id contained in `deathAnimationIds`
             if (requiresRemovalRoutine &&
-                entity.Components.GetAll<Sprite>().FirstOrDefault(s => s.Has(DeathAnimationId)) is { } sprite)
+                entity.Components.GetAll<Sprite>().FirstOrDefault(s => deathAnimationIds.Any(s.Has)) is { } sprite)
             {
                 entity.Add(new Coroutine(DeathRemovalRoutine(entity, sprite)));
             }
@@ -132,7 +135,7 @@ public class GlowController : Entity
             }
         }
 
-        if (!sprite.Animations.TryGetValue(DeathAnimationId, out var deathAnimation))
+        if (sprite.Animations.FirstOrDefault(kvp => deathAnimationIds.Contains(kvp.Key)).Value is not {} deathAnimation)
         {
             yield break;
         }
@@ -140,7 +143,7 @@ public class GlowController : Entity
         while (entity.Scene != null)
         {
             // wait until the sprite plays the death animation
-            while (entity.Scene != null && sprite.CurrentAnimationID != DeathAnimationId)
+            while (entity.Scene != null && !deathAnimationIds.Contains(sprite.CurrentAnimationID))
             {
                 yield return null;
             }
@@ -149,16 +152,17 @@ public class GlowController : Entity
             var fadeTime = deathAnimation.Frames.Length * deathAnimation.Delay;
             var fadeRemaining = fadeTime;
 
-            while (entity.Scene != null && sprite.CurrentAnimationID == DeathAnimationId && fadeRemaining > 0)
+            while (entity.Scene != null && deathAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
             {
                 fadeRemaining -= Engine.DeltaTime;
                 SetAlpha(Math.Max(fadeRemaining / fadeTime, 0f));
                 yield return null;
             }
+            SetAlpha(0f);
 
-            // if it's a respawning jelly, wait until the sprite is playing the respawn animation
-            if (!sprite.Animations.TryGetValue(RespawnAnimationId, out var respawnAnimation)) break;
-            while (entity.Scene != null && sprite.CurrentAnimationID != RespawnAnimationId)
+            // if the sprite has a respawn animation, wait until it's playing it
+            if (sprite.Animations.FirstOrDefault(kvp => respawnAnimationIds.Contains(kvp.Key)).Value is not {} respawnAnimation) break;
+            while (entity.Scene != null && !respawnAnimationIds.Contains(sprite.CurrentAnimationID))
             {
                 yield return null;
             }
@@ -167,12 +171,13 @@ public class GlowController : Entity
             fadeTime = respawnAnimation.Frames.Length * respawnAnimation.Delay;
             fadeRemaining = fadeTime;
 
-            while (entity.Scene != null && sprite.CurrentAnimationID == RespawnAnimationId && fadeRemaining > 0)
+            while (entity.Scene != null && respawnAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
             {
                 fadeRemaining -= Engine.DeltaTime;
                 SetAlpha(1f - Math.Max(fadeRemaining / fadeTime, 0f));
                 yield return null;
             }
+            SetAlpha(1f);
         }
     }
 }
