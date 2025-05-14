@@ -3,7 +3,8 @@ using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Triggers;
 
-// todo: tracking is borked
+// unfortunately, due to this class being generic, `[Tracked(true)]` doesn't really do anything here. we include it anyway as it signifies our intent
+// all children of this class need to be marked as `[TrackedAs(typeof(AbstractConfigureStateTrigger<TOptions, TChanges>))]` in order to be tracked properly
 [Tracked(true)]
 public abstract class AbstractConfigureStateTrigger<TOptions, TChanges> : Trigger
     where TOptions : struct where TChanges : struct
