@@ -13,6 +13,12 @@ return {
                 allowDashCancels = false,
                 redirectConsumesNormalDash = false,
                 allowTransitions = false,
+                bounceOnCollision = false,
+                revertOnLeave = false,
+                revertOnDeath = false,
+                onlyOnce = false,
+                flag = "",
+                flagInverted = false,
             }
         }
     },
@@ -25,5 +31,13 @@ return {
             },
             editable = false,
         }
-    }
+    },
+    fieldOrder = {
+        "x", "y", "width", "height",
+        "allowRedirect", "allowSameDirectionRedirect", "sameDirectionSpeedMultiplier", "redirectConsumesNormalDash",
+        "useEntryDirection", "speedConfiguration", "customSpeed",
+        "allowDashCancels", "allowTransitions", "bounceOnCollision",
+        "revertOnLeave", "revertOnDeath", "onlyOnce",
+        "flag", "flagInverted",
+    },
 }

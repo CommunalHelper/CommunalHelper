@@ -78,6 +78,7 @@ public static class DreamTunnelDash
         public bool AllowDashCancels;
         public bool RedirectConsumesNormalDash;
         public bool AllowTransitions;
+        public bool BounceOnCollision;
     }
 
     public static readonly DreamTunnelDashConfiguration DefaultDreamTunnelDashConfiguration = new()
@@ -91,6 +92,7 @@ public static class DreamTunnelDash
         AllowDashCancels = false,
         RedirectConsumesNormalDash = false,
         AllowTransitions = false,
+        BounceOnCollision = false
     };
 
 
