@@ -102,37 +102,40 @@ public static class DreamTunnelDash
     {
         DreamTunnelDashConfiguration config = CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
 
-        if (config.RedirectConsumesNormalDash ? player.Dashes > 0 : DreamTunnelDashCount > 0)
+        if (config.RedirectConsumesNormalDash ? player.Dashes <= 0 : DreamTunnelDashCount <= 0)
+            return;
+
+        bool flag = Input.GetAimVector().Sign() == player.Speed.Sign();
+        if ((!config.AllowRedirect || flag) && (!config.AllowSameDirectionRedirect || !flag))
+            return;
+        
+        if (config.RedirectConsumesNormalDash)
+            player.Dashes = Math.Max(0, player.Dashes - 1);
+        else
+            DreamTunnelDashCount = Math.Max(0, DreamTunnelDashCount - 1);
+                
+        Audio.Play("event:/char/madeline/dreamblock_enter");
+        if (Engine.TimeRate > 0.25f)
         {
-            bool flag = Input.GetAimVector() == player.DashDir;
-            if ((config.AllowRedirect && !flag) || (config.AllowSameDirectionRedirect && flag))
-            {
-                if (config.RedirectConsumesNormalDash)
-                    player.Dashes = Math.Max(0, player.Dashes - 1);
-                else
-                    DreamTunnelDashCount = Math.Max(0, DreamTunnelDashCount - 1);
-                Audio.Play("event:/char/madeline/dreamblock_enter");
-                if (Engine.TimeRate > 0.25f)
-                {
-                    Celeste.Freeze(0.05f);
-                }
-                if (flag)
-                {
-                    player.Speed *= config.SameDirectionSpeedMultiplier;
-                    player.DashDir *= Math.Sign(config.SameDirectionSpeedMultiplier);
-                }
-                else
-                {
-                    player.DashDir = Input.GetAimVector();
-                    player.Speed = player.DashDir * player.Speed.Length();
-                }
-                Input.Dash.ConsumeBuffer();
-            }
+            Celeste.Freeze(0.05f);
         }
+                
+        if (flag)
+        {
+            player.Speed *= config.SameDirectionSpeedMultiplier;
+            player.DashDir *= Math.Sign(config.SameDirectionSpeedMultiplier);
+        }
+        else
+        {
+            player.DashDir = Input.GetAimVector();
+            player.Speed = player.DashDir * player.Speed.Length();
+        }
+                
+        Input.Dash.ConsumeBuffer();
     }
     
     // Do a bounce check and bounce if possible
-    public static bool AttemptBounce(this Player player)
+    private static bool AttemptBounce(this Player player)
     { 
         if (!CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.BounceOnCollision)
             return false;
