@@ -1,115 +1,77 @@
-﻿using Celeste.Mod.CommunalHelper.Components;
-using Celeste.Mod.CommunalHelper.States;
-using System.Linq;
+﻿using Celeste.Mod.CommunalHelper.States;
 using static Celeste.Mod.CommunalHelper.States.Elytra;
 
 namespace Celeste.Mod.CommunalHelper.Triggers;
 
 [CustomEntity("CommunalHelper/ConfigureElytraTrigger")]
-[Tracked]
-public class ConfigureElytraTrigger : Trigger
+[TrackedAs(typeof(AbstractConfigureStateTrigger<ElytraOptions, ElytraOptionsChanges>))]
+public class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOptions, ElytraOptionsChanges>
 {
-    private readonly bool allow, infinite;
-    private readonly ElytraConfiguration options;
-    
-    private readonly bool revertOnLeave;
-    private readonly bool revertOnDeath;
-    private readonly bool onlyOnce;
-    
-    private struct ElytraConfigurationChanges
+    public ConfigureElytraTrigger(EntityData data, Vector2 offset)
+        : base(data, offset)
+    { }
+
+    protected override ElytraOptions GetConfiguredOptions(EntityData data)
+        => new()
+        {
+            Allow = data.Bool("allow", false),
+            Infinite = data.Bool("infinite", false),
+            Configuration = new ElytraConfiguration()
+            {
+                DisableReverseVerticalMomentum = data.Bool("disableReverseVerticalMomentum"),
+            },
+        };
+    protected override ElytraOptions GetCurrentOptions(Player player)
+        => new()
+        {
+            Allow = CommunalHelperModule.Session.CanDeployElytra,
+            Infinite = player.HasInfiniteElytra(),
+            Configuration = CommunalHelperModule.Session.CurrentElytraConfiguration,
+        };
+    protected override void SaveOptions(Player player, ElytraOptions options)
     {
-        public bool? Allow;
-        public bool? Infinite;
+        CommunalHelperModule.Session.CanDeployElytra = options.Allow;
+        player.SetInfiniteElytra(options.Infinite);
+        CommunalHelperModule.Session.CurrentElytraConfiguration = options.Configuration;
+    }
+    
+    protected override ElytraOptionsChanges CalculateChangesNeededToRevert(ElytraOptions from, ElytraOptions to)
+        => new()
+        {
+            Allow = to.Allow == from.Allow ? null : from.Allow,
+            Infinite = to.Infinite == from.Infinite ? null : from.Infinite,
+            Configuration = new ElytraOptionsChanges.ElytraConfigurationChanges()
+            {
+                DisableReverseVerticalMomentum = to.Configuration.DisableReverseVerticalMomentum == from.Configuration.DisableReverseVerticalMomentum ? null : from.Configuration.DisableReverseVerticalMomentum
+            }
+        };
+    protected override ElytraOptions RevertChanges(ElytraOptions current, ElytraOptionsChanges? changesNeededToRevert)
+        => new()
+        {
+            Allow = changesNeededToRevert?.Allow ?? current.Allow,
+            Infinite = changesNeededToRevert?.Infinite ?? current.Infinite,
+            Configuration = new ElytraConfiguration()
+            {
+                DisableReverseVerticalMomentum = changesNeededToRevert?.Configuration.DisableReverseVerticalMomentum ?? current.Configuration.DisableReverseVerticalMomentum
+            }
+        };
+}
+
+public struct ElytraOptions
+{
+    public bool Allow;
+    public bool Infinite;
+    public ElytraConfiguration Configuration;
+}
+
+public struct ElytraOptionsChanges
+{
+    public struct ElytraConfigurationChanges
+    {
         public bool? DisableReverseVerticalMomentum;
     }
     
-    private ElytraConfigurationChanges? changesNeededToRevert;
-
-    public ConfigureElytraTrigger(EntityData data, Vector2 offset)
-        : base(data, offset)
-    {
-        revertOnLeave = data.Bool("revertOnLeave", false);
-        revertOnDeath = data.Bool("revertOnDeath", true);
-        onlyOnce = data.Bool("onlyOnce", false);
-        
-        allow = data.Bool("allow", false);
-        infinite = data.Bool("infinite", false);
-
-        options = new ElytraConfiguration()
-        {
-            DisableReverseVerticalMomentum = data.Bool("disableReverseVerticalMomentum"),
-        };
-        
-        string flag = data.Attr("flag");
-        if (!string.IsNullOrEmpty(flag)) {
-            Add(new FlagToggleComponent(flag, data.Bool("flagInverted")));
-        }
-    }
-    
-    private static ElytraConfigurationChanges CalculateChangesNeededToRevert((bool allow, bool infinite, ElytraConfiguration options) from, (bool allow, bool infinite, ElytraConfiguration options) to)
-        => new()
-        {
-            Allow = to.allow == from.allow ? null : from.allow,
-            Infinite = to.infinite == from.infinite ? null : from.infinite,
-            DisableReverseVerticalMomentum = to.options.DisableReverseVerticalMomentum == from.options.DisableReverseVerticalMomentum ? null : from.options.DisableReverseVerticalMomentum
-        };
-
-    private static (bool, bool, ElytraConfiguration) RevertChanges((bool allow, bool infinite, ElytraConfiguration options) current, ElytraConfigurationChanges? changesNeededToRevert)
-        => (changesNeededToRevert?.Allow ?? current.allow, changesNeededToRevert?.Infinite ?? current.infinite, new ElytraConfiguration()
-        {
-            DisableReverseVerticalMomentum = changesNeededToRevert?.DisableReverseVerticalMomentum ?? current.options.DisableReverseVerticalMomentum
-        });
-
-    private static void SaveChanges(Player player, bool allow, bool infinite, ElytraConfiguration options)
-    {
-        CommunalHelperModule.Session.CanDeployElytra = allow;
-        CommunalHelperModule.Session.CurrentElytraConfiguration = options;
-        player.SetInfiniteElytra(infinite);
-    }
-
-    public override void OnEnter(Player player)
-    {
-        changesNeededToRevert = CalculateChangesNeededToRevert(
-            (CommunalHelperModule.Session.CanDeployElytra, player.HasInfiniteElytra(), CommunalHelperModule.Session.CurrentElytraConfiguration),
-            (allow, infinite, options));
-        SaveChanges(player, allow, infinite, options);
-        
-        if (onlyOnce) {
-            RemoveSelf();
-        }
-    }
-    
-    public override void OnLeave(Player player)
-    {
-        if (revertOnLeave && !player.Dead)
-        {
-            (bool newAllow, bool newInfinite, ElytraConfiguration newOptions) = RevertChanges((allow, infinite, options), changesNeededToRevert);
-            SaveChanges(player, newAllow, newInfinite, newOptions);
-        }
-    }
-    
-    #region Hooks
-
-    internal static void Load()
-    {
-        Everest.Events.Player.OnDie += OnDie;
-    }
-
-    internal static void Unload()
-    {
-        Everest.Events.Player.OnDie -= OnDie;
-    }
-
-    private static void OnDie(Player player)
-    {
-        foreach (ConfigureElytraTrigger trigger in player.SceneAs<Level>().Tracker.GetEntities<ConfigureElytraTrigger>()
-                                                                  .Cast<ConfigureElytraTrigger>()
-                                                                  .Where(trigger => trigger.revertOnDeath && trigger.changesNeededToRevert is not null))
-        {
-            (bool newAllow, bool newInfinite, ElytraConfiguration newOptions) = RevertChanges((trigger.allow, trigger.infinite, trigger.options), trigger.changesNeededToRevert);
-            SaveChanges(player, newAllow, newInfinite, newOptions);
-        }
-    }
-    
-    #endregion
+    public bool? Allow;
+    public bool? Infinite;
+    public ElytraConfigurationChanges Configuration;
 }

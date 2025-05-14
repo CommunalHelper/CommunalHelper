@@ -1,43 +1,17 @@
-using Celeste.Mod.CommunalHelper.Components;
-using System.Linq;
 using static Celeste.Mod.CommunalHelper.DashStates.DreamTunnelDash;
 
 namespace Celeste.Mod.CommunalHelper.Triggers;
 
 [CustomEntity("CommunalHelper/ConfigureDreamTunnelDashTrigger")]
-[Tracked]
-public class ConfigureDreamTunnelDashTrigger : Trigger
+[TrackedAs(typeof(AbstractConfigureStateTrigger<DreamTunnelDashConfiguration, DreamTunnelDashConfigurationChanges>))]
+public class ConfigureDreamTunnelDashTrigger : AbstractConfigureStateTrigger<DreamTunnelDashConfiguration, DreamTunnelDashConfigurationChanges>
 { 
-    private readonly DreamTunnelDashConfiguration options;
-    
-    private readonly bool revertOnLeave;
-    private readonly bool revertOnDeath;
-    private readonly bool onlyOnce;
-
-    private struct DreamTunnelDashConfigurationChanges
-    {
-        public bool? AllowRedirect;
-        public bool? AllowSameDirectionRedirect;
-        public float? SameDirectionSpeedMultiplier;
-        public bool? UseEntryDirection;
-        public SpeedConfiguration? SpeedConfiguration;
-        public float? CustomSpeed;
-        public bool? AllowDashCancels;
-        public bool? RedirectConsumesNormalDash;
-        public bool? AllowTransitions;
-        public bool? BounceOnCollision;
-    }
-    
-    private DreamTunnelDashConfigurationChanges? changesNeededToRevert;
-
     public ConfigureDreamTunnelDashTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
-    {
-        revertOnLeave = data.Bool("revertOnLeave", false);
-        revertOnDeath = data.Bool("revertOnDeath", true);
-        onlyOnce = data.Bool("onlyOnce", false);
-        
-        options = new DreamTunnelDashConfiguration()
+    { }
+
+    protected override DreamTunnelDashConfiguration GetConfiguredOptions(EntityData data)
+        => new()
         {
             AllowRedirect = data.Bool("allowRedirect", false),
             AllowSameDirectionRedirect = data.Bool("allowSameDirectionRedirect", false),
@@ -50,14 +24,12 @@ public class ConfigureDreamTunnelDashTrigger : Trigger
             AllowTransitions = data.Bool("allowTransitions", false),
             BounceOnCollision = data.Bool("bounceOnCollision", false)
         };
-
-        string flag = data.Attr("flag");
-        if (!string.IsNullOrEmpty(flag)) {
-            Add(new FlagToggleComponent(flag, data.Bool("flagInverted")));
-        }
-    }
+    protected override DreamTunnelDashConfiguration GetCurrentOptions(Player player)
+        => CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
+    protected override void SaveOptions(Player player, DreamTunnelDashConfiguration options)
+        => CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration = options;
     
-    private static DreamTunnelDashConfigurationChanges CalculateChangesNeededToRevert(DreamTunnelDashConfiguration from, DreamTunnelDashConfiguration to)
+    protected override DreamTunnelDashConfigurationChanges CalculateChangesNeededToRevert(DreamTunnelDashConfiguration from, DreamTunnelDashConfiguration to)
         => new()
         {
             AllowRedirect = to.AllowRedirect == from.AllowRedirect ? null : from.AllowRedirect,
@@ -71,8 +43,7 @@ public class ConfigureDreamTunnelDashTrigger : Trigger
             AllowTransitions = to.AllowTransitions == from.AllowTransitions ? null : from.AllowTransitions,
             BounceOnCollision = to.BounceOnCollision == from.BounceOnCollision ? null : from.BounceOnCollision
         };
-
-    private static DreamTunnelDashConfiguration RevertChanges(DreamTunnelDashConfiguration current, DreamTunnelDashConfigurationChanges? changesNeededToRevert)
+    protected override DreamTunnelDashConfiguration RevertChanges(DreamTunnelDashConfiguration current, DreamTunnelDashConfigurationChanges? changesNeededToRevert)
         => new()
         {
             AllowRedirect = changesNeededToRevert?.AllowRedirect ?? current.AllowRedirect,
@@ -86,46 +57,18 @@ public class ConfigureDreamTunnelDashTrigger : Trigger
             AllowTransitions = changesNeededToRevert?.AllowTransitions ?? current.AllowTransitions,
             BounceOnCollision = changesNeededToRevert?.BounceOnCollision ?? current.BounceOnCollision
         };
+}
 
-    public override void OnEnter(Player player)
-    {
-        changesNeededToRevert = CalculateChangesNeededToRevert(CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration, options);
-        CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration = options;
-        
-        if (onlyOnce) {
-            RemoveSelf();
-        }
-    }
-
-    public override void OnLeave(Player player)
-    {
-        if (revertOnLeave && !player.Dead)
-        {
-            CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration = RevertChanges(CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration, changesNeededToRevert);
-        }
-    }
-    
-    #region Hooks
-
-    internal static void Load()
-    {
-        Everest.Events.Player.OnDie += OnDie;
-    }
-
-    internal static void Unload()
-    {
-        Everest.Events.Player.OnDie -= OnDie;
-    }
-
-    private static void OnDie(Player player)
-    {
-        foreach (ConfigureDreamTunnelDashTrigger trigger in player.SceneAs<Level>().Tracker.GetEntities<ConfigureDreamTunnelDashTrigger>()
-                                                                  .Cast<ConfigureDreamTunnelDashTrigger>()
-                                                                  .Where(trigger => trigger.revertOnDeath && trigger.changesNeededToRevert is not null))
-        {
-            CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration = RevertChanges(CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration, trigger.changesNeededToRevert);
-        }
-    }
-    
-    #endregion
+public struct DreamTunnelDashConfigurationChanges
+{
+    public bool? AllowRedirect;
+    public bool? AllowSameDirectionRedirect;
+    public float? SameDirectionSpeedMultiplier;
+    public bool? UseEntryDirection;
+    public SpeedConfiguration? SpeedConfiguration;
+    public float? CustomSpeed;
+    public bool? AllowDashCancels;
+    public bool? RedirectConsumesNormalDash;
+    public bool? AllowTransitions;
+    public bool? BounceOnCollision;
 }
