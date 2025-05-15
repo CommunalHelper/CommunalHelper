@@ -45,6 +45,13 @@ public class AttachedWallBooster : WallBooster
         {
             Remove(Get<CoreModeListener>());
         }
+
+        string spriteField = data.String("sprite", "");
+        if (spriteField != "")
+            BuildCustomSprite(data.Bool("left"), spriteField);
+
+        int spriteOffset = data.Int("spriteOffset", 0);
+        tiles.ForEach(tile => tile.Position += Vector2.UnitX * spriteOffset);
     }
 
     public void SetColor(Color color)
@@ -111,6 +118,70 @@ public class AttachedWallBooster : WallBooster
             _ => throw new ArgumentOutOfRangeException()
         };
         baseData.Invoke("OnChangeMode", mode);
+    }
+
+    private void BuildCustomSprite(bool left, string SpriteField)
+    {
+        tiles.ForEach(tile => Remove(tile));
+        tiles.Clear();
+
+        string Top = SpriteField + "Top";
+        string Mid = SpriteField + "Mid";
+        string Bottom = SpriteField + "Bottom";
+
+        bool flag = GFX.SpriteBank.Has(Top) && GFX.SpriteBank.Has(Mid) && GFX.SpriteBank.Has(Bottom);
+
+        if (flag)
+        {
+            for (int i = 0; (float)i < base.Height; i += 8)
+            {
+                string id = ((i == 0) ? Top : ((!((float)(i + 16) > base.Height)) ? Mid : Bottom));
+                Sprite sprite = GFX.SpriteBank.Create(id);
+                if (!left)
+                {
+                    sprite.FlipX = true;
+                    sprite.Position = new Vector2(4f, i);
+                }
+                else
+                {
+                    sprite.Position = new Vector2(0f, i);
+                }
+
+                tiles.Add(sprite);
+                Add(sprite);
+            }
+        }
+        else
+        {
+            if (!SpriteField.EndsWith("/"))
+                SpriteField += "/";
+
+            for (int i = 0; (float)i < base.Height; i += 8)
+            {
+                string id = ((i == 0) ? "Top" : ((!((float)(i + 16) > base.Height)) ? "Mid" : "Bottom"));
+
+                Sprite sprite = new Sprite(GFX.Game, SpriteField);
+                int[] hot = { 0, 1, 2, 3, 4, 5, 6, 7 };
+                int[] ice = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                int[] iceShine = { 0, 1, 2, 3, 4 };
+                sprite.AddLoop("hot", "fire" + id, 0.035f, hot);
+                sprite.Add("ice", "ice" + id, delay: 0.08f, frames: ice, into: "ice,ice,ice,ice,ice,iceShine");
+                sprite.Add("iceShine", "ice" + id, delay: 0.08f, frames: iceShine, into: "ice");
+
+                if (!left)
+                {
+                    sprite.FlipX = true;
+                    sprite.Position = new Vector2(4f, i);
+                }
+                else
+                {
+                    sprite.Position = new Vector2(0f, i);
+                }
+
+                tiles.Add(sprite);
+                Add(sprite);
+            }
+        }
     }
 
     #region Hooks

@@ -94,11 +94,15 @@ entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines 
 # Attached Wall Booster
 entities.CommunalHelper/AttachedWallBooster.placements.name.right=Attached Wall Booster (Right)
 entities.CommunalHelper/AttachedWallBooster.placements.name.left=Attached Wall Booster (Left)
+entities.CommunalHelper/AttachedWallBooster.placements.name.rightIce=Attached Ice Wall (Right)
+entities.CommunalHelper/AttachedWallBooster.placements.name.leftIce=Attached Ice Wall (Left)
 entities.CommunalHelper/AttachedWallBooster.attributes.description.left=Whether the Attached Wall Booster should attach to the left sides of solids.
 entities.CommunalHelper/AttachedWallBooster.attributes.name.notCoreMode=Force Ice on Room Entry
 entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode when entering the room.\nThis is a legacy option that may not work as expected with different settings for Core Mode Behavior.
 entities.CommunalHelper/AttachedWallBooster.attributes.description.coreModeBehavior=How the Attached Wall Booster should interact with the Core Mode.\nIf set to Toggle, it will respect the current Core Mode and use the default value if the Core Mode is None.\nIf set to Always Hot/Cold, it will completely ignore the Core Mode and always stay in one mode.
 entities.CommunalHelper/AttachedWallBooster.attributes.description.legacyBoost=Makes this Attached Wall Booster apply the expected speed boost to the player.\nIf disabled, the vertical boost is applied twice if the player isn't moving horizontally, due to a bug that was accidentally introduced in 1.11.2.\nAlso, if disabled, this entity is reskinned with a variant of the wall booster textures.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.sprite=Either the sprite ID or directory path for a custom sprite.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.spriteOffset=How much to offset the sprite along the X axis.
 
 # Station Block
 entities.CommunalHelper/StationBlock.placements.name.normal_pushing=Station Block (Normal, Pushing)
