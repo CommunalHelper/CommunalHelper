@@ -12,6 +12,9 @@ dreamZipMover.fieldInformation = {
     refillCount = {
         fieldType = "integer"
     },
+    manualColor = {
+        fieldType = "color"
+    },
     ropeColor = {
         fieldType = "color",
         allowEmpty = true,
@@ -35,6 +38,8 @@ dreamZipMover.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
+            autoColor = true,
+            manualColor = "ffffff",
             dreamAesthetic = false,
             permanent = false,
             waiting = false,

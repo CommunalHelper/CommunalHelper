@@ -10,7 +10,10 @@ dreamSwapBlock.minimumSize = {16, 16}
 dreamSwapBlock.fieldInformation = {
     refillCount = {
         fieldType = "integer"
-    }
+    },
+    manualColor = {
+        fieldType = "color"
+    },
 }
 
 function dreamSwapBlock.depth(room, entity)
@@ -29,7 +32,9 @@ dreamSwapBlock.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            noReturn = false
+            autoColor = true,
+            manualColor = "ffffff",
+            noReturn = false,
         }
     }
 }

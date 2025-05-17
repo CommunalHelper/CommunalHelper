@@ -49,7 +49,10 @@ dreamFlagSwitchGate.fieldInformation = {
     },
     refillCount = {
         fieldType = "integer"
-    }
+    },
+    manualColor = {
+        fieldType = "color"
+    },
 }
 
 function dreamFlagSwitchGate.depth(room, entity)
@@ -68,6 +71,8 @@ dreamFlagSwitchGate.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
+            autoColor = true,
+            manualColor = "ffffff",
             persistent = false,
             flag = "flag_touch_switch",
             icon = "vanilla",
@@ -79,7 +84,7 @@ dreamFlagSwitchGate.placements = {
             moveEased = true,
             allowReturn = false,
             moveSound = "event:/game/general/touchswitch_gate_open",
-            finishedSound = "event:/game/general/touchswitch_gate_finish"
+            finishedSound = "event:/game/general/touchswitch_gate_finish",
         }
     }
 }

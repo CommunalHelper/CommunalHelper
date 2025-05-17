@@ -103,6 +103,7 @@ public abstract class CustomDreamBlock : DreamBlock
     protected bool shattering = false;
     public float ColorLerp = 0.0f;
     public bool QuickDestroy;
+    public Color? ParticleColor;
 
     protected bool leftWobble = true;
     protected bool rightWobble = true;
@@ -121,21 +122,43 @@ public abstract class CustomDreamBlock : DreamBlock
     public EntityData creatingData;
 
     public CustomDreamBlock(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Float("dashSpeed", 240.0f), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) {
+        : this(
+            data.Position + offset,
+            data.Width, data.Height,
+            data.Bool("featherMode"),
+            data.Float("dashSpeed", 240.0f),
+            data.Bool("oneUse"),
+            GetRefillCount(data),
+            data.Bool("below"),
+            data.Bool("quickDestroy"),
+            data.Bool("autoColor", true),
+            data.HexColor("manualColor")
+        ) {
         creatingData = data;
     }
 
-    public CustomDreamBlock(Vector2 position, int width, int height, bool featherMode, float dashSpeed, bool oneUse, int refillCount, bool below, bool quickDestroy)
-        : base(position, width, height, null, false, oneUse, below)
+    public CustomDreamBlock(
+            Vector2 position,
+            int width, int height,
+            bool featherMode,
+            float dashSpeed,
+            bool oneUse,
+            int refillCount,
+            bool below,
+            bool quickDestroy,
+            bool autoColor,
+            Color manualColor
+        ) : base(position, width, height, null, false, oneUse, below)
     {
         baseData = new(typeof(DreamBlock), this);
         QuickDestroy = quickDestroy;
         RefillCount = refillCount;
+        ParticleColor = autoColor ? null : manualColor;
 
         FeatherMode = featherMode;
         DashSpeed = dashSpeed;
         //if (altLineColor) { Dropped in favour of symbol
-        //    activeLineColor = Calc.HexToColor("FF66D9"); 
+        //    activeLineColor = Calc.HexToColor("FF66D9");
         //}
         shakeParticle = new ParticleType(SwitchGate.P_Behind)
         {
@@ -180,21 +203,25 @@ public abstract class CustomDreamBlock : DreamBlock
 
     public virtual void SetupCustomParticles(float canvasWidth, float canvasHeight)
     {
-        float countFactor = (FeatherMode ? 0.5f : 0.7f) * RefillCount != -1 ? 1.2f : 1;
+        float countFactor = (FeatherMode ? 0.5f : 0.7f) * (ShouldUseCustomParticles() ? 1.2f : 1);
         particles = new DreamParticle[(int) (canvasWidth / 8f * (canvasHeight / 8f) * 0.7f * countFactor)];
         baseData.Set("particles", Array.CreateInstance(DreamParticle.t_DreamParticle, particles.Length));
 
         // Necessary to get the player's spritemode
-        if (!awake && RefillCount != -1)
+        if (!awake && ShouldUseCustomParticles())
         {
             delayedSetupParticles = true;
             return;
         }
 
         Color[] dashColors = new Color[3];
-        if (RefillCount != -1)
+        if (ShouldUseCustomParticles())
         {
-            dashColors[0] = Scene.Tracker.GetEntity<Player>()?.GetHairColor(RefillCount) ?? Color.White;
+            dashColors[0] = ParticleColor is Color c ? c :
+                RefillCount >= 0
+                    ? Scene.Tracker.GetEntity<Player>()?.GetHairColor(RefillCount) ?? Color.White
+                    : Color.LightGray
+            ;
             dashColors[1] = Color.Lerp(dashColors[0], Color.White, 0.5f);
             dashColors[2] = Color.Lerp(dashColors[1], Color.White, 0.5f);
         }
@@ -225,10 +252,15 @@ public abstract class CustomDreamBlock : DreamBlock
         }
     }
 
+    private bool ShouldUseCustomParticles()
+    {
+        return ParticleColor is not null || RefillCount != -1;
+    }
+
     private Color GetParticleColor(int layer, Color[] dashColors)
     {
         return PlayerHasDreamDash
-            ? RefillCount != -1
+            ? ShouldUseCustomParticles()
                 ? dashColors[layer]
                 : layer switch
                 {
@@ -381,7 +413,7 @@ public abstract class CustomDreamBlock : DreamBlock
             }
             else
             {
-                MTexture[] particleTextures = RefillCount != -1 ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
+                MTexture[] particleTextures = ShouldUseCustomParticles() ? doubleRefillStarTextures : baseData.Get<MTexture[]>("particleTextures");
                 MTexture particleTexture;
                 switch (layer)
                 {
@@ -664,7 +696,7 @@ public abstract class CustomDreamBlock : DreamBlock
         return orig(player);
     }
 
-    // Currently secret/unimplemented, setting RefillCount to -2 will not refill dash
+    // Setting RefillCount to -2 will not refill dash
     private static void Player_DreamDashEnd(ILContext il)
     {
         ILCursor cursor = new(il);

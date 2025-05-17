@@ -10,6 +10,8 @@ const CustomDreamBlockData = :(dreamblock(
     refillCount::Integer=-1,
     below::Bool=false,
     quickDestroy::Bool=false,
+    autoColor::Bool=true,
+    manualColor="",
 ))
 
 const CustomCassetteBlockData = :(cassetteblock(

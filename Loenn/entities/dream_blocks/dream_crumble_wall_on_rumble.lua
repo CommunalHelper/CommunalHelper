@@ -6,7 +6,10 @@ dreamCrumbleWallOnRumble.name = "CommunalHelper/DreamCrumbleWallOnRumble"
 dreamCrumbleWallOnRumble.fieldInformation = {
     refillCount = {
         fieldType = "integer"
-    }
+    },
+    manualColor = {
+        fieldType = "color"
+    },
 }
 
 function dreamCrumbleWallOnRumble.depth(room, entity)
@@ -26,7 +29,9 @@ dreamCrumbleWallOnRumble.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            persistent = false
+            autoColor = true,
+            manualColor = "ffffff",
+            persistent = false,
         }
     }
 }

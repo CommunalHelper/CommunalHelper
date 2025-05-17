@@ -11,7 +11,10 @@ dreamSwitchGate.minimumSize = {16, 16}
 dreamSwitchGate.fieldInformation = {
     refillCount = {
         fieldType = "integer"
-    }
+    },
+    manualColor = {
+        fieldType = "color"
+    },
 }
 
 function dreamSwitchGate.depth(room, entity)
@@ -30,7 +33,9 @@ dreamSwitchGate.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            permanent = false
+            autoColor = true,
+            manualColor = "ffffff",
+            permanent = false,
         }
     }
 }

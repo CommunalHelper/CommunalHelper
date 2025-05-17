@@ -8,10 +8,13 @@ dreamFallingBlock.fieldInformation = {
     refillCount = {
         fieldType = "integer"
     },
+    manualColor = {
+        fieldType = "color"
+    },
     fallDistance = {
         minimumValue = 0,
         fieldType = "integer"
-    }
+    },
 }
 
 function dreamFallingBlock.depth(room, entity)
@@ -40,10 +43,12 @@ dreamFallingBlock.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
+            autoColor = true,
+            manualColor = "ffffff",
             noCollide = false,
             forceShake = false,
             chained = false,
-            legacyLandingBehavior = false
+            legacyLandingBehavior = false,
         }
     },
     {
@@ -58,6 +63,8 @@ dreamFallingBlock.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
+            autoColor = true,
+            manualColor = "ffffff",
             noCollide = false,
             forceShake = false,
             fallDistance = 64,
@@ -67,7 +74,7 @@ dreamFallingBlock.placements = {
             indicatorAtStart = false,
             chained = true,
             chainTexture = "objects/CommunalHelper/chains/chain",
-            legacyLandingBehavior = false
+            legacyLandingBehavior = false,
         }
     }
 }

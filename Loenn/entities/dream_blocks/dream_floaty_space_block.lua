@@ -6,7 +6,10 @@ dreamFloatySpaceBlock.name = "CommunalHelper/DreamFloatySpaceBlock"
 dreamFloatySpaceBlock.fieldInformation = {
     refillCount = {
         fieldType = "integer"
-    }
+    },
+    manualColor = {
+        fieldType = "color"
+    },
 }
 
 function dreamFloatySpaceBlock.depth(room, entity)
@@ -25,7 +28,9 @@ dreamFloatySpaceBlock.placements = {
             oneUse = false,
             refillCount = -1,
             below = false,
-            quickDestroy = false
+            quickDestroy = false,
+            autoColor = true,
+            manualColor = "ffffff",
         }
     }
 }

@@ -278,12 +278,14 @@ entities.CommunalHelper/DreamZipMover.attributes.description.noReturn=Whether th
 entities.CommunalHelper/DreamZipMover.attributes.description.dreamAesthetic=Optional look for this entity, mostly unused, but left there.
 entities.CommunalHelper/DreamZipMover.attributes.description.featherMode=Whether the Dream Zip Mover has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamZipMover.attributes.description.oneUse=Whether the Dream Zip Mover should shatter upon exit.
-entities.CommunalHelper/DreamZipMover.attributes.description.refillCount=Number of dashes the Dream Zip Block should refill (-1 for default).
+entities.CommunalHelper/DreamZipMover.attributes.description.refillCount=Number of dashes Madeline will be set to on exit. Or, -1 for vanilla behavior, or -2 to have no effect.
 entities.CommunalHelper/DreamZipMover.attributes.description.doubleRefill=Whether the Dream Zip Mover should refill two dashes, instead of one.
 entities.CommunalHelper/DreamZipMover.attributes.description.permanent=Whether this block should lock in place after being triggered.
 entities.CommunalHelper/DreamZipMover.attributes.description.waiting=Whether this block requires the player to trigger it each node in the path.
 entities.CommunalHelper/DreamZipMover.attributes.description.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
 entities.CommunalHelper/DreamZipMover.attributes.description.quickDestroy=Makes this Dream Zip Mover shatter a little faster.
+entities.CommunalHelper/DreamZipMover.attributes.description.autoColor=on: Determine appearance automatically from Refill Count. off: Use Manual Color, regardless of Refill Count.
+entities.CommunalHelper/DreamZipMover.attributes.description.manualColor=See Auto Color. Used to override the color of dream particles.
 entities.CommunalHelper/DreamZipMover.attributes.description.ropeColor=Overrides the default rope color. Also used for linking together zippers, if the `Linked` option is enabled.
 entities.CommunalHelper/DreamZipMover.attributes.description.linked=Whether the zipper is linked to other zippers with the same rope color.\nWhen a linked zipper gets activated, all other zippers linked to that rope color will be activated as well.
 
@@ -295,8 +297,10 @@ entities.CommunalHelper/ConnectedDreamBlock.placements.name.feather_oneuse=Conne
 entities.CommunalHelper/ConnectedDreamBlock.attributes.description.below=Determines whether the Connected Dream Block should render below foreground tiles.
 entities.CommunalHelper/ConnectedDreamBlock.attributes.description.featherMode=Whether the Connected Dream Block has the Dream Block Feather controls enabled. Connected Dream Blocks only connect with other dream blocks with the same controls.
 entities.CommunalHelper/ConnectedDreamBlock.attributes.description.oneUse=Whether THIS Connected Dream Block should make its entire group shatter upon leaving it.
-entities.CommunalHelper/ConnectedDreamBlock.attributes.description.refillCount=Number of dashes this group of Connected Dream Blocks should refill (-1 for default).
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.refillCount=Number of dashes Madeline will be set to on exit. Or, -1 for vanilla behavior, or -2 to have no effect.
 entities.CommunalHelper/ConnectedDreamBlock.attributes.description.quickDestroy=Makes this Connected Dream Block shatter a little faster.
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.autoColor=on: Determine appearance automatically from Refill Count. off: Use Manual Color, regardless of Refill Count.
+entities.CommunalHelper/ConnectedDreamBlock.attributes.description.manualColor=See Auto Color. Used to override the color of dream particles.
 
 # Dream Swap Block
 entities.CommunalHelper/DreamSwapBlock.placements.name.dream_swap_block=Dream Swap Block
@@ -304,20 +308,24 @@ entities.CommunalHelper/DreamSwapBlock.attributes.description.below=Determines w
 entities.CommunalHelper/DreamSwapBlock.attributes.description.noReturn=Whether the Dream Swap Block should return to its starting point or not.
 entities.CommunalHelper/DreamSwapBlock.attributes.description.featherMode=Whether the Dream Swap Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamSwapBlock.attributes.description.oneUse=Whether the Dream Swap Block should shatter upon exit.
-entities.CommunalHelper/DreamSwapBlock.attributes.description.refillCount=Number of dashes the Dream Swap Block should refill (-1 for default).
+entities.CommunalHelper/DreamSwapBlock.attributes.description.refillCount=Number of dashes Madeline will be set to on exit. Or, -1 for vanilla behavior, or -2 to have no effect.
 entities.CommunalHelper/DreamSwapBlock.attributes.description.quickDestroy=Makes this Dream Swap Block shatter a little faster.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.autoColor=on: Determine appearance automatically from Refill Count. off: Use Manual Color, regardless of Refill Count.
+entities.CommunalHelper/DreamSwapBlock.attributes.description.manualColor=See Auto Color. Used to override the color of dream particles.
 
 # Dream Move Block
 entities.CommunalHelper/DreamMoveBlock.placements.name.dream_move_block=Dream Move Block
 entities.CommunalHelper/DreamMoveBlock.attributes.description.below=Determines whether the Dream Move Block should render below foreground tiles.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.direction=The direction in which the Dream Move Block moves.
-entities.CommunalHelper/DreamMoveBlock.attributes.description.refillCount=Number of dashes the Dream Move Block should refill (-1 for default).
+entities.CommunalHelper/DreamMoveBlock.attributes.description.refillCount=Number of dashes Madeline will be set to on exit. Or, -1 for vanilla behavior, or -2 to have no effect.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.moveSpeed=The speed at which the Dream Move Block moves (accepts any number).
 entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollide=Whether the Dream Move Block should go through solids.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.noCollideSteer=Force-allow this block to go through solids when it is steerable.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.featherMode=Whether the Dream Move Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.oneUse=Whether the Dream Move Block should shatter upon exit.
 entities.CommunalHelper/DreamMoveBlock.attributes.description.quickDestroy=Makes this Dream Move Block shatter a little faster.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.autoColor=on: Determine appearance automatically from Refill Count. off: Use Manual Color, regardless of Refill Count.
+entities.CommunalHelper/DreamMoveBlock.attributes.description.manualColor=See Auto Color. Used to override the color of dream particles.
 entities.CommunalHelper/DreamMoveBlock.attributes.name.crashTime=Break Time
 entities.CommunalHelper/DreamMoveBlock.attributes.name.regenTime=Respawn Time
 entities.CommunalHelper/DreamMoveBlock.attributes.description.crashTime=The time it takes for this Dream Move Block to break when hitting a solid in seconds.
@@ -339,7 +347,7 @@ entities.CommunalHelper/DreamFallingBlock.placements.name.normal=Dream Falling B
 entities.CommunalHelper/DreamFallingBlock.placements.name.chained=Dream Falling Block (Chained)
 entities.CommunalHelper/DreamFallingBlock.attributes.description.featherMode=Whether the Dream Falling Block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.oneUse=Whether the Dream Falling Block should shatter upon exit.
-entities.CommunalHelper/DreamFallingBlock.attributes.description.refillCount=Number of dashes the Dream Falling Block should refill (-1 for default).
+entities.CommunalHelper/DreamFallingBlock.attributes.description.refillCount=Number of dashes Madeline will be set to on exit. Or, -1 for vanilla behavior, or -2 to have no effect.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.below=Determines whether the Dream Falling Block should render below foreground tiles.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.noCollide=Whether the Dream Falling Block should go through solids.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
@@ -348,6 +356,8 @@ entities.CommunalHelper/DreamFallingBlock.attributes.description.chainOutline=Wh
 entities.CommunalHelper/DreamFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.quickDestroy=Makes this Dream Falling Block shatter a little faster.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.autoColor=on: Determine appearance automatically from Refill Count. off: Use Manual Color, regardless of Refill Count.
+entities.CommunalHelper/DreamFallingBlock.attributes.description.manualColor=See Auto Color. Used to override the color of dream particles.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.chainTexture=The texture for this Dream Falling Block's chain (if chained).
 entities.CommunalHelper/DreamFallingBlock.attributes.description.legacyLandingBehavior=Whether the Dream Falling Block should not emit particles or make sound when landing, and immediately resume falling if the platform it lands on is removed.
 
@@ -357,8 +367,10 @@ entities.CommunalHelper/DreamSwitchGate.attributes.description.below=Determines 
 entities.CommunalHelper/DreamSwitchGate.attributes.description.featherMode=Whether the Dream Switch Gate has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.oneUse=Whether the Dream Switch Gate should shatter upon exit.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.permanent=Whether the Dream Switch Gate should stay at its node permanently after being activated for the entire level.
-entities.CommunalHelper/DreamSwitchGate.attributes.description.refillCount=Number of dashes the Dream Switch Gate should refill (-1 for default).
+entities.CommunalHelper/DreamSwitchGate.attributes.description.refillCount=Number of dashes Madeline will be set to on exit. Or, -1 for vanilla behavior, or -2 to have no effect.
 entities.CommunalHelper/DreamSwitchGate.attributes.description.quickDestroy=Makes this Dream Switch Gate shatter a little faster.
+entities.CommunalHelper/DreamSwitchGate.attributes.description.autoColor=on: Determine appearance automatically from Refill Count. off: Use Manual Color, regardless of Refill Count.
+entities.CommunalHelper/DreamSwitchGate.attributes.description.manualColor=See Auto Color. Used to override the color of dream particles.
 
 # Dream Flag Switch Gate
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.placements.name.dream_flag_switch_gate=Dream Flag Switch Gate
@@ -377,25 +389,31 @@ entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.descriptio
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.below=Determines whether the Dream Flag Switch Gate should render below foreground tiles.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.featherMode=Whether the Dream Flag Switch Gate has the Dream Block Feather controls enabled.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.oneUse=Whether the Dream Flag Switch Gate should shatter upon exit.
-entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.refillCount=Number of dashes the Dream Flag Switch Gate should refill (-1 for default).
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.refillCount=Number of dashes Madeline will be set to on exit. Or, -1 for vanilla behavior, or -2 to have no effect.
 entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.quickDestroy=Makes this Dream Flag Switch Gate shatter a little faster.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.autoColor=on: Determine appearance automatically from Refill Count. off: Use Manual Color, regardless of Refill Count.
+entities.CommunalHelper/MaxHelpingHand/DreamFlagSwitchGate.attributes.description.manualColor=See Auto Color. Used to override the color of dream particles.
 
 # Dream Floaty Space Block
 entities.CommunalHelper/DreamFloatySpaceBlock.placements.name.dream_floaty_space_block=Dream Floaty Space Block
 entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.below=Determines whether this block should render in the background or foreground.
-entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.refillCount=Number of dashes the Dream Floaty Space Block should refill (-1 for default).
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.refillCount=Number of dashes Madeline will be set to on exit. Or, -1 for vanilla behavior, or -2 to have no effect.
 entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.featherMode=Whether this block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.oneUse=Whether this block should shatter upon exit.
 entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.quickDestroy=Makes this Dream Floaty Space Block shatter a little faster.
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.autoColor=on: Determine appearance automatically from Refill Count. off: Use Manual Color, regardless of Refill Count.
+entities.CommunalHelper/DreamFloatySpaceBlock.attributes.description.manualColor=See Auto Color. Used to override the color of dream particles.
 
 # Dream Crumble Wall On Rumble
 entities.CommunalHelper/DreamCrumbleWallOnRumble.placements.name.dream_crumble_wall_on_rumble=Dream Crumble Wall On Rumble
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.below=Determines whether this block should render in the background or foreground.
-entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.refillCount=Number of dashes the Dream Crumble Wall On Rumble should refill (-1 for default).
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.refillCount=Number of dashes Madeline will be set to on exit. Or, -1 for vanilla behavior, or -2 to have no effect.
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.featherMode=Whether this block has the Dream Block Feather controls enabled.
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.oneUse=Whether this block should shatter upon exit.
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.persistent=Whether this block should remain broken permanently.
 entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.quickDestroy=Makes this Dream Crumble Wall On Rumble shatter a little faster.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.autoColor=on: Determine appearance automatically from Refill Count. off: Use Manual Color, regardless of Refill Count.
+entities.CommunalHelper/DreamCrumbleWallOnRumble.attributes.description.manualColor=See Auto Color. Used to override the color of dream particles.
 
 # Connected Zip Mover
 entities.CommunalHelper/ConnectedZipMover.placements.name.normal=Connected Zip Mover (Normal)

@@ -6,7 +6,10 @@ connectedDreamBlock.name = "CommunalHelper/ConnectedDreamBlock"
 connectedDreamBlock.fieldInformation = {
     refillCount = {
         fieldType = "integer"
-    }
+    },
+    manualColor = {
+        fieldType = "color"
+    },
 }
 
 function connectedDreamBlock.depth(room, entity)
@@ -25,7 +28,9 @@ connectedDreamBlock.placements = {
             oneUse = false,
             refillCount = -1,
             below = false,
-            quickDestroy = false
+            quickDestroy = false,
+            autoColor = true,
+            manualColor = "ffffff",
         }
     },
     {
@@ -39,7 +44,9 @@ connectedDreamBlock.placements = {
             oneUse = false,
             refillCount = -1,
             below = false,
-            quickDestroy = false
+            quickDestroy = false,
+            autoColor = true,
+            manualColor = "ffffff",
         }
     },
     {
@@ -53,7 +60,9 @@ connectedDreamBlock.placements = {
             oneUse = true,
             refillCount = -1,
             below = false,
-            quickDestroy = false
+            quickDestroy = false,
+            autoColor = true,
+            manualColor = "ffffff",
         }
     },
     {
@@ -67,7 +76,9 @@ connectedDreamBlock.placements = {
             oneUse = true,
             refillCount = -1,
             below = false,
-            quickDestroy = false
+            quickDestroy = false,
+            autoColor = true,
+            manualColor = "ffffff",
         }
     }
 }
