@@ -50,8 +50,9 @@ dreamFlagSwitchGate.fieldInformation = {
     refillCount = {
         fieldType = "integer"
     },
-    manualColor = {
-        fieldType = "color"
+    color = {
+        fieldType = "color",
+        allowEmpty = true,
     },
 }
 
@@ -71,8 +72,7 @@ dreamFlagSwitchGate.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            autoColor = true,
-            manualColor = "ffffff",
+            color = "",
             persistent = false,
             flag = "flag_touch_switch",
             icon = "vanilla",

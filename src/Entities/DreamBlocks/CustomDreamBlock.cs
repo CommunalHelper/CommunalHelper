@@ -131,8 +131,7 @@ public abstract class CustomDreamBlock : DreamBlock
             GetRefillCount(data),
             data.Bool("below"),
             data.Bool("quickDestroy"),
-            data.Bool("autoColor", true),
-            data.HexColor("manualColor")
+            data.HexColorNullable("color")
         ) {
         creatingData = data;
     }
@@ -146,14 +145,13 @@ public abstract class CustomDreamBlock : DreamBlock
             int refillCount,
             bool below,
             bool quickDestroy,
-            bool autoColor,
-            Color manualColor
+            Color? color
         ) : base(position, width, height, null, false, oneUse, below)
     {
         baseData = new(typeof(DreamBlock), this);
         QuickDestroy = quickDestroy;
         RefillCount = refillCount;
-        ParticleColor = autoColor ? null : manualColor;
+        ParticleColor = color;
 
         FeatherMode = featherMode;
         DashSpeed = dashSpeed;

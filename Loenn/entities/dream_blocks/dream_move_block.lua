@@ -24,8 +24,9 @@ dreamMoveBlock.fieldInformation = {
     refillCount = {
         fieldType = "integer"
     },
-    manualColor = {
-        fieldType = "color"
+    color = {
+        fieldType = "color",
+        allowEmpty = true,
     },
     idleButtonsColor = {
         fieldType = "color"
@@ -69,8 +70,7 @@ dreamMoveBlock.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            autoColor = true,
-            manualColor = "ffffff",
+            color = "",
             direction = "Right",
             moveSpeed = 60.0,
             noCollide = false,

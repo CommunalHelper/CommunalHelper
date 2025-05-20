@@ -12,8 +12,9 @@ dreamSwitchGate.fieldInformation = {
     refillCount = {
         fieldType = "integer"
     },
-    manualColor = {
-        fieldType = "color"
+    color = {
+        fieldType = "color",
+        allowEmpty = true,
     },
 }
 
@@ -33,8 +34,7 @@ dreamSwitchGate.placements = {
             refillCount = -1,
             below = false,
             quickDestroy = false,
-            autoColor = true,
-            manualColor = "ffffff",
+            color = "",
             permanent = false,
         }
     }
