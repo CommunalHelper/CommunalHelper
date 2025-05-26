@@ -80,6 +80,7 @@ public class CommunalHelperModule : EverestModule
         CustomBooster.Load();
 
         DreamHoldable.Load();
+        DreamSprite.Load();
         DreamJellyfish.Load();
         DreamTheoCrystal.Load();
 
@@ -171,6 +172,7 @@ public class CommunalHelperModule : EverestModule
         CustomBooster.Unload();
 
         DreamHoldable.Unload();
+        DreamSprite.Unload();
         DreamJellyfish.Unload();
         DreamTheoCrystal.Unload();
 
