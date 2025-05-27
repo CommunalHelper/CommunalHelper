@@ -474,20 +474,22 @@ public static class DreamTunnelDash
         
         bool matchedBeqOrBne = false, matchedCeq = false;
         ILLabel failedCheck = null;
-        Instruction ceqInstr = null;
+        Instruction checkInstr = null;
         
         // retrieve info about the current check
         ILCursor cloned = cursor.Clone();
         if (!cloned.TryGotoNext(MoveType.After, instr =>
             {
-                // we grab a lot of stuff here: whether we matched a beq/bne.un or a ceq, the "fail state" label of the beq/bne.un
-                // (if we matched one of those) and the actual ceq instruction (if we matched that).
-
-                // equality checks usually use bne.un (for ==) or beq (for !=) to branch past the block of the if statement when the values don't match
+                // we grab a lot of stuff here: whether we matched a beq/bne.un or a ceq, the "fail state" label of the beq/bne.un (if we matched one of those)
+                // and the check instruction itself.
+            
+                // equality checks usually use bne.un (for `==`) or beq (for `!=`) in order to branch past the block of the if statement when the values don't match
                 matchedBeqOrBne = equal ? instr.MatchBneUn(out failedCheck) : instr.MatchBeq(out failedCheck);
                 // alternatively they could use ceq and then a brtrue/brfalse to do the same, though i don't think there are any for this purpose in vanilla
-                matchedCeq = (ceqInstr = instr).MatchCeq();
-                
+                matchedCeq = instr.MatchCeq();
+                // the instruction we're testing is the one doing the check; grab it
+                checkInstr = instr;
+            
                 return matchedBeqOrBne || matchedCeq;
             })) return;
         // and the instruction after the current check
@@ -528,7 +530,7 @@ public static class DreamTunnelDash
             // duplicate player on stack
             cursor.Emit(OpCodes.Dup);
             // go to the ceq instruction and modify the value it returns
-            cursor.Goto(ceqInstr, MoveType.After);
+            cursor.Goto(checkInstr, MoveType.After);
             // our desired value for what the ceq instruction returns depends on whether we check equality or not. but we don't control that, the brtrue/brfalse after the ceq does.
             // to solve this, our desired conditions can be shown equivalent to `player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash` (for equality)
             // and `!(player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash)` (for inequality). notice how the desired condition for inequality is
