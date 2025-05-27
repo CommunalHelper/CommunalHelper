@@ -790,8 +790,7 @@ public static class Extensions
     #region ILCursor extensions
     
     /// <summary>
-    /// Go to the next match of a given IL sequence, allowing up to <paramref name="maxInstructionSpread"/> instructions of tolerance if the instructions are not sequential.<br/>
-    /// (i.e. if something else hooks the same sequence)
+    /// Go to the next match of a given IL sequence, allowing up to <paramref name="maxInstructionSpread"/> instructions of tolerance if the instructions are not sequential (i.e. if something else hooks the same sequence).
     /// </summary>
     /// <param name="cursor">The IL cursor to look for a match in.</param>
     /// <param name="moveType">The move type to use.</param>
@@ -861,8 +860,7 @@ public static class Extensions
     }
     
     /// <summary>
-    /// Go to the previous match of a given IL sequence, allowing up to <paramref name="maxInstructionSpread"/> instructions of tolerance if the instructions are not sequential.<br/>
-    /// (i.e. if something else hooks the same sequence)
+    /// Go to the previous match of a given IL sequence, allowing up to <paramref name="maxInstructionSpread"/> instructions of tolerance if the instructions are not sequential (i.e. if something else hooks the same sequence).
     /// </summary>
     /// <param name="cursor">The IL cursor to look for a match in.</param>
     /// <param name="moveType">The move type to use.</param>
@@ -932,8 +930,7 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Go to the next match of a given IL sequence, allowing up to <paramref name="maxInstructionSpread"/> instructions of tolerance if the instructions are not sequential, checking the match in reverse order.<br/>
-    /// (i.e. if something else hooks the same sequence)
+    /// Go to the next match of a given IL sequence, allowing up to <paramref name="maxInstructionSpread"/> instructions of tolerance if the instructions are not sequential (i.e. if something else hooks the same sequence), checking the match in reverse order.
     /// </summary>
     /// <param name="cursor">The IL cursor to look for a match in.</param>
     /// <param name="moveType">The move type to use.</param>
@@ -1005,8 +1002,7 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Go to the previous match of a given IL sequence, allowing up to <paramref name="maxInstructionSpread"/> instructions of tolerance if the instructions are not sequential, checking the match in reverse order.<br/>
-    /// (i.e. if something else hooks the same sequence)
+    /// Go to the previous match of a given IL sequence, allowing up to <paramref name="maxInstructionSpread"/> instructions of tolerance if the instructions are not sequential (i.e. if something else hooks the same sequence), checking the match in reverse order.
     /// </summary>
     /// <param name="cursor">The IL cursor to look for a match in.</param>
     /// <param name="moveType">The move type to use.</param>
