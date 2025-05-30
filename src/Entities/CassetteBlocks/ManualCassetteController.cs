@@ -1,6 +1,7 @@
-﻿using Mono.Cecil.Cil;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -13,13 +14,27 @@ public class ManualCassetteController : AbstractInputController
     private int roomBeats;
     private int currentIndex;
 
+    private string blueFlag;
+    private string pinkFlag;
+    private string yellowFlag;
+    private string greenFlag;
+
     public ManualCassetteController(EntityData data)
     {
         startIndex = data.Int("startIndex", 0);
+        blueFlag = data.Attr("blueFlag", "cas_blue");
+        pinkFlag = data.Attr("pinkFlag", "cas_rose");
+        yellowFlag = data.Attr("yellowFlag", "cas_brightsun");
+        greenFlag = data.Attr("greenFlag", "cas_malachite");
 
         Visible = Collidable = false;
     }
 
+    public override void Added(Scene scene)
+    {
+        base.Added(scene);
+        SetFlag(startIndex);
+    }
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
@@ -59,10 +74,44 @@ public class ManualCassetteController : AbstractInputController
     {
         currentIndex++;
         currentIndex %= roomBeats;
+        SetFlag(currentIndex);
         SetActiveIndex(currentIndex);
         Audio.Play("event:/game/general/cassette_block_switch_" + ((currentIndex % 2) + 1));
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
     }
+
+    public void SetFlag (int index)
+    {
+        Session session = SceneAs<Level>().Session;
+        switch (index)
+        {
+            case 0:
+                session.SetFlag(blueFlag, true);
+                session.SetFlag(pinkFlag, false);
+                session.SetFlag(yellowFlag, false);
+                session.SetFlag(greenFlag, false);
+                break;
+            case 1:
+                session.SetFlag(blueFlag, false);
+                session.SetFlag(pinkFlag, true);
+                session.SetFlag(yellowFlag, false);
+                session.SetFlag(greenFlag, false);
+                break;
+            case 2:
+                session.SetFlag(blueFlag, false);
+                session.SetFlag(pinkFlag, false);
+                session.SetFlag(yellowFlag, true);
+                session.SetFlag(greenFlag, false);
+                break;
+            case 3:
+                session.SetFlag(blueFlag, false);
+                session.SetFlag(pinkFlag, false);
+                session.SetFlag(yellowFlag, false);
+                session.SetFlag(greenFlag, true);
+                break;
+        }
+    }
+
 
     public void SetActiveIndex(int index, bool silent = false)
     {
