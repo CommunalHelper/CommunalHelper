@@ -14,6 +14,7 @@ internal class ChainedKevin : CrushBlock
     private readonly int chainLength;
     private bool centeredChain;
     private readonly bool chainOutline;
+    private readonly float retractSpeedModifier;
     private readonly MTexture chainTexture;
 
     private DynamicData crushBlockData;
@@ -25,6 +26,12 @@ internal class ChainedKevin : CrushBlock
         start = Position;
         chainLength = data.Int("chainLength", 64);
         chainOutline = data.Bool("chainOutline", true);
+        retractSpeedModifier = data.Float("retractSpeedModifier", 1.0f);
+        if (retractSpeedModifier <= 0)
+        {
+            Logger.Warn("CommunalHelper", "Invalid chained kevin retract speed modifier! Setting to 1.0 (default).");
+            retractSpeedModifier = 1.0f;
+        }
         if (((direction == Directions.Up || direction == Directions.Down) && Width <= 8) ||
             ((direction == Directions.Left || direction == Directions.Right) && Height <= 8))
             centeredChain = true;
@@ -80,6 +87,8 @@ internal class ChainedKevin : CrushBlock
 
         base.Render();
     }
+    
+    
 
     #region Hooks
 
@@ -91,6 +100,8 @@ internal class ChainedKevin : CrushBlock
         On.Celeste.CrushBlock.CanActivate += CrushBlock_CanActivate;
         On.Celeste.CrushBlock.MoveHCheck += CrushBlock_MoveHCheck;
         On.Celeste.CrushBlock.MoveVCheck += CrushBlock_MoveVCheck;
+        On.Celeste.Platform.MoveTowardsX += Platform_MoveTowardsX;
+        On.Celeste.Platform.MoveTowardsY += Platform_MoveTowardsY;
     }
 
     internal static void Unload()
@@ -101,6 +112,33 @@ internal class ChainedKevin : CrushBlock
         On.Celeste.CrushBlock.CanActivate -= CrushBlock_CanActivate;
         On.Celeste.CrushBlock.MoveHCheck -= CrushBlock_MoveHCheck;
         On.Celeste.CrushBlock.MoveVCheck -= CrushBlock_MoveVCheck;
+        On.Celeste.Platform.MoveTowardsX -= Platform_MoveTowardsX;
+        On.Celeste.Platform.MoveTowardsY -= Platform_MoveTowardsY;
+    }
+    
+    private static void Platform_MoveTowardsX(On.Celeste.Platform.orig_MoveTowardsX orig, Platform self, float x, float amount)
+    {
+        if (self is ChainedKevin chainedKevin)
+        {  
+            if (chainedKevin.crushDir == Vector2.Zero)
+            {
+                amount *= chainedKevin.retractSpeedModifier;
+            }
+        }
+        orig(self, x, amount);
+    }
+    
+    
+    private static void Platform_MoveTowardsY(On.Celeste.Platform.orig_MoveTowardsY orig, Platform self, float y, float amount)
+    {
+        if (self is ChainedKevin chainedKevin)
+        {
+            if (chainedKevin.crushDir == Vector2.Zero)
+            {
+                amount *= chainedKevin.retractSpeedModifier;
+            }
+        }
+        orig(self, y, amount);
     }
 
     private static bool CrushBlock_MoveVCheck(On.Celeste.CrushBlock.orig_MoveVCheck orig, CrushBlock self, float amount)
