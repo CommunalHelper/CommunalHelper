@@ -5,7 +5,7 @@ namespace Celeste.Mod.CommunalHelper.Triggers;
 
 [CustomEntity("CommunalHelper/ConfigureElytraTrigger")]
 [TrackedAs(typeof(AbstractConfigureStateTrigger<ElytraOptions, ElytraOptionsChanges>))]
-public class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOptions, ElytraOptionsChanges>
+internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOptions, ElytraOptionsChanges>
 {
     public ConfigureElytraTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
@@ -16,7 +16,7 @@ public class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOption
         {
             Allow = data.Bool("allow", false),
             Infinite = data.Bool("infinite", false),
-            Configuration = new ElytraConfiguration()
+            Configuration = new ElytraConfiguration
             {
                 DisableReverseVerticalMomentum = data.Bool("disableReverseVerticalMomentum"),
             },
@@ -38,21 +38,21 @@ public class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOption
     protected override ElytraOptionsChanges CalculateChangesNeededToRevert(ElytraOptions from, ElytraOptions to)
         => new()
         {
-            Allow = to.Allow == from.Allow ? null : from.Allow,
-            Infinite = to.Infinite == from.Infinite ? null : from.Infinite,
-            Configuration = new ElytraOptionsChanges.ElytraConfigurationChanges()
+            NewAllow = to.Allow == from.Allow ? null : from.Allow,
+            NewInfinite = to.Infinite == from.Infinite ? null : from.Infinite,
+            NewConfiguration = new ElytraOptionsChanges.ElytraConfigurationChanges
             {
-                DisableReverseVerticalMomentum = to.Configuration.DisableReverseVerticalMomentum == from.Configuration.DisableReverseVerticalMomentum ? null : from.Configuration.DisableReverseVerticalMomentum
+                NewDisableReverseVerticalMomentum = to.Configuration.DisableReverseVerticalMomentum == from.Configuration.DisableReverseVerticalMomentum ? null : from.Configuration.DisableReverseVerticalMomentum
             }
         };
     protected override ElytraOptions RevertChanges(ElytraOptions current, ElytraOptionsChanges? changesNeededToRevert)
         => new()
         {
-            Allow = changesNeededToRevert?.Allow ?? current.Allow,
-            Infinite = changesNeededToRevert?.Infinite ?? current.Infinite,
-            Configuration = new ElytraConfiguration()
+            Allow = changesNeededToRevert?.NewAllow ?? current.Allow,
+            Infinite = changesNeededToRevert?.NewInfinite ?? current.Infinite,
+            Configuration = new ElytraConfiguration
             {
-                DisableReverseVerticalMomentum = changesNeededToRevert?.Configuration.DisableReverseVerticalMomentum ?? current.Configuration.DisableReverseVerticalMomentum
+                DisableReverseVerticalMomentum = changesNeededToRevert?.NewConfiguration.NewDisableReverseVerticalMomentum ?? current.Configuration.DisableReverseVerticalMomentum
             }
         };
 }
@@ -68,10 +68,10 @@ public struct ElytraOptionsChanges
 {
     public struct ElytraConfigurationChanges
     {
-        public bool? DisableReverseVerticalMomentum;
+        public bool? NewDisableReverseVerticalMomentum;
     }
     
-    public bool? Allow;
-    public bool? Infinite;
-    public ElytraConfigurationChanges Configuration;
+    public bool? NewAllow;
+    public bool? NewInfinite;
+    public ElytraConfigurationChanges NewConfiguration;
 }

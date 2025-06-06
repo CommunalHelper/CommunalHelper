@@ -32,43 +32,43 @@ public class ConfigureDreamTunnelDashTrigger : AbstractConfigureStateTrigger<Dre
     protected override DreamTunnelDashConfigurationChanges CalculateChangesNeededToRevert(DreamTunnelDashConfiguration from, DreamTunnelDashConfiguration to)
         => new()
         {
-            AllowRedirect = to.AllowRedirect == from.AllowRedirect ? null : from.AllowRedirect,
-            AllowSameDirectionRedirect = to.AllowSameDirectionRedirect == from.AllowSameDirectionRedirect ? null : from.AllowSameDirectionRedirect,
-            SameDirectionSpeedMultiplier = to.SameDirectionSpeedMultiplier == from.SameDirectionSpeedMultiplier ? null : from.SameDirectionSpeedMultiplier,
-            UseEntryDirection = to.UseEntryDirection == from.UseEntryDirection ? null : from.UseEntryDirection,
-            SpeedConfiguration = to.SpeedConfiguration == from.SpeedConfiguration ? null : from.SpeedConfiguration,
-            CustomSpeed = to.CustomSpeed == from.CustomSpeed ? null : from.CustomSpeed,
-            AllowDashCancels = to.AllowDashCancels == from.AllowDashCancels ? null : from.AllowDashCancels,
-            RedirectConsumesNormalDash = to.RedirectConsumesNormalDash == from.RedirectConsumesNormalDash ? null : from.RedirectConsumesNormalDash,
-            AllowTransitions = to.AllowTransitions == from.AllowTransitions ? null : from.AllowTransitions,
-            BounceOnCollision = to.BounceOnCollision == from.BounceOnCollision ? null : from.BounceOnCollision
+            NewAllowRedirect = to.AllowRedirect == from.AllowRedirect ? null : from.AllowRedirect,
+            NewAllowSameDirectionRedirect = to.AllowSameDirectionRedirect == from.AllowSameDirectionRedirect ? null : from.AllowSameDirectionRedirect,
+            NewSameDirectionSpeedMultiplier = to.SameDirectionSpeedMultiplier == from.SameDirectionSpeedMultiplier ? null : from.SameDirectionSpeedMultiplier,
+            NewUseEntryDirection = to.UseEntryDirection == from.UseEntryDirection ? null : from.UseEntryDirection,
+            NewSpeedConfiguration = to.SpeedConfiguration == from.SpeedConfiguration ? null : from.SpeedConfiguration,
+            NewCustomSpeed = to.CustomSpeed == from.CustomSpeed ? null : from.CustomSpeed,
+            NewAllowDashCancels = to.AllowDashCancels == from.AllowDashCancels ? null : from.AllowDashCancels,
+            NewRedirectConsumesNormalDash = to.RedirectConsumesNormalDash == from.RedirectConsumesNormalDash ? null : from.RedirectConsumesNormalDash,
+            NewAllowTransitions = to.AllowTransitions == from.AllowTransitions ? null : from.AllowTransitions,
+            NewBounceOnCollision = to.BounceOnCollision == from.BounceOnCollision ? null : from.BounceOnCollision
         };
     protected override DreamTunnelDashConfiguration RevertChanges(DreamTunnelDashConfiguration current, DreamTunnelDashConfigurationChanges? changesNeededToRevert)
         => new()
         {
-            AllowRedirect = changesNeededToRevert?.AllowRedirect ?? current.AllowRedirect,
-            AllowSameDirectionRedirect = changesNeededToRevert?.AllowSameDirectionRedirect ?? current.AllowSameDirectionRedirect,
-            SameDirectionSpeedMultiplier = changesNeededToRevert?.SameDirectionSpeedMultiplier ?? current.SameDirectionSpeedMultiplier,
-            UseEntryDirection = changesNeededToRevert?.UseEntryDirection ?? current.UseEntryDirection,
-            SpeedConfiguration = changesNeededToRevert?.SpeedConfiguration ?? current.SpeedConfiguration,
-            CustomSpeed = changesNeededToRevert?.CustomSpeed ?? current.CustomSpeed,
-            AllowDashCancels = changesNeededToRevert?.AllowDashCancels ?? current.AllowDashCancels,
-            RedirectConsumesNormalDash = changesNeededToRevert?.RedirectConsumesNormalDash ?? current.RedirectConsumesNormalDash,
-            AllowTransitions = changesNeededToRevert?.AllowTransitions ?? current.AllowTransitions,
-            BounceOnCollision = changesNeededToRevert?.BounceOnCollision ?? current.BounceOnCollision
+            AllowRedirect = changesNeededToRevert?.NewAllowRedirect ?? current.AllowRedirect,
+            AllowSameDirectionRedirect = changesNeededToRevert?.NewAllowSameDirectionRedirect ?? current.AllowSameDirectionRedirect,
+            SameDirectionSpeedMultiplier = changesNeededToRevert?.NewSameDirectionSpeedMultiplier ?? current.SameDirectionSpeedMultiplier,
+            UseEntryDirection = changesNeededToRevert?.NewUseEntryDirection ?? current.UseEntryDirection,
+            SpeedConfiguration = changesNeededToRevert?.NewSpeedConfiguration ?? current.SpeedConfiguration,
+            CustomSpeed = changesNeededToRevert?.NewCustomSpeed ?? current.CustomSpeed,
+            AllowDashCancels = changesNeededToRevert?.NewAllowDashCancels ?? current.AllowDashCancels,
+            RedirectConsumesNormalDash = changesNeededToRevert?.NewRedirectConsumesNormalDash ?? current.RedirectConsumesNormalDash,
+            AllowTransitions = changesNeededToRevert?.NewAllowTransitions ?? current.AllowTransitions,
+            BounceOnCollision = changesNeededToRevert?.NewBounceOnCollision ?? current.BounceOnCollision
         };
 }
 
 public struct DreamTunnelDashConfigurationChanges
 {
-    public bool? AllowRedirect;
-    public bool? AllowSameDirectionRedirect;
-    public float? SameDirectionSpeedMultiplier;
-    public bool? UseEntryDirection;
-    public SpeedConfiguration? SpeedConfiguration;
-    public float? CustomSpeed;
-    public bool? AllowDashCancels;
-    public bool? RedirectConsumesNormalDash;
-    public bool? AllowTransitions;
-    public bool? BounceOnCollision;
+    public bool? NewAllowRedirect;
+    public bool? NewAllowSameDirectionRedirect;
+    public float? NewSameDirectionSpeedMultiplier;
+    public bool? NewUseEntryDirection;
+    public SpeedConfiguration? NewSpeedConfiguration;
+    public float? NewCustomSpeed;
+    public bool? NewAllowDashCancels;
+    public bool? NewRedirectConsumesNormalDash;
+    public bool? NewAllowTransitions;
+    public bool? NewBounceOnCollision;
 }
