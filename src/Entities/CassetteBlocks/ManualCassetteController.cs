@@ -22,10 +22,10 @@ public class ManualCassetteController : AbstractInputController
     public ManualCassetteController(EntityData data)
     {
         startIndex = data.Int("startIndex", 0);
-        blueFlag = data.Attr("blueFlag", "cas_blue");
-        pinkFlag = data.Attr("pinkFlag", "cas_rose");
-        yellowFlag = data.Attr("yellowFlag", "cas_brightsun");
-        greenFlag = data.Attr("greenFlag", "cas_malachite");
+        blueFlag = "CH_cas_blue";
+        pinkFlag = "CH_cas_rose";
+        yellowFlag = "CH_cas_brightsun";
+        greenFlag = "CH_cas_malachite";
 
         Visible = Collidable = false;
     }
