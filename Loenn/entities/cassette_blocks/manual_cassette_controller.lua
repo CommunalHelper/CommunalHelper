@@ -8,10 +8,6 @@ manualCassetteController.placements = {
         name = "controller",
         data = {
             startIndex = 0,
-            blueFlag = "cas_blue",
-            pinkFlag = "cas_rose",
-            yellowFlag = "cas_brightsun",
-            greenFlag = "cas_malachite",
         }
     }
 }
