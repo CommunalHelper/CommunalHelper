@@ -22,6 +22,8 @@ public class ManualCassetteController : AbstractInputController
     public ManualCassetteController(EntityData data)
     {
         startIndex = data.Int("startIndex", 0);
+              
+        // do not change those flags!
         blueFlag = "CH_cas_blue";
         pinkFlag = "CH_cas_rose";
         yellowFlag = "CH_cas_brightsun";
