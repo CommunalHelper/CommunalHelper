@@ -1,3 +1,16 @@
+--1.24.0 (29/06/2025)--
+* Added 'Bounce On Collision', 'Revert On Death' and 'Revert On Leave' options to Configure Dream Tunnel Dash Triggers. @aonkeeper4
+* Added flag option to Hint Controller. @koseidiamond
+* Added flag functionality for Manual Cassette Controllers. @Etpio
+* Added 'Retract Speed Modifier' option to Chained Kevins. @karl2883 @catapillie
+* Implemented Wall Boosters reskinning. @LBRASS7777
+* Fixed Dream Sprites tracking issue with depth-changing parent entities. @aonkeeper4
+* Fixed Dream Tunnel State IL hooking logic. @aonkeeper4
+* Fixed Track Switch Box 'bouncy' option not working. @koseidiamond
+* Fixed missing tooltip entry for Surface Sound Panels. @catapillie
+* Refactored abstract state triggers. @aonkeeper4
+* Manual code cleanup and formatting, move to .NET 8. @catapillie
+
 --1.23.0 (13/05/2025)--
 * Added Dream Tunnel Blockers. @SnipUndercover
 * Added death/respawn animation IDs options to Glow Controllers. @aonkeeper4
