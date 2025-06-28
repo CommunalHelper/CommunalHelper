@@ -15,7 +15,7 @@ public class ShowHitboxTrigger : Trigger
 
     public ShowHitboxTrigger(EntityData data, Vector2 offset) : base(data, offset)
     {
-        TypeNames = [.. data.Attr("typeNames").Split([','], StringSplitOptions.RemoveEmptyEntries)
+        TypeNames = [.. data.Attr("typeNames").Split(",", StringSplitOptions.RemoveEmptyEntries)
             .Select(str => str.Trim())];
     }
 
