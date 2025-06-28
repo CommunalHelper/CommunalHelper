@@ -14,6 +14,7 @@ hintController.placements = {
             selectorCounter = "",
             selectNextHint = false,
 			flagWhileReading = ""
+            flagWhileReading = "",
         }
     }
 }
