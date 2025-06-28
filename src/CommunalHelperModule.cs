@@ -102,6 +102,9 @@ public class CommunalHelperModule : EverestModule
         WormholeBooster.Load();
         OshiroAttackTimeTrigger.Load();
         PlayerVisualModifier.Load();
+        
+        ConfigureDreamTunnelDashTrigger.Load();
+        ConfigureElytraTrigger.Load();
 
         AeroBlockCharged.Load();
 
@@ -194,6 +197,9 @@ public class CommunalHelperModule : EverestModule
         WormholeBooster.Unload();
         OshiroAttackTimeTrigger.Unload();
         PlayerVisualModifier.Unload();
+        
+        ConfigureDreamTunnelDashTrigger.Unload();
+        ConfigureElytraTrigger.Unload();
 
         AeroBlockCharged.Unload();
 

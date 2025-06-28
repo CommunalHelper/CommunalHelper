@@ -1,7 +1,7 @@
 return {
     name = "CommunalHelper/ConfigureElytraTrigger",
     ignoredFields = {
-        "_name", "_id", "_type", "infinite"
+        "_name", "_id", "_type", "infinite",
     },
     placements = {
         {
@@ -10,6 +10,11 @@ return {
                 allow = true,
                 infinite = false,
                 disableReverseVerticalMomentum = false,
+                revertOnLeave = false,
+                revertOnDeath = false,
+                onlyOnce = false,
+                flag = "",
+                flagInverted = false,
             }
         },
         {
@@ -18,6 +23,11 @@ return {
                 allow = true,
                 infinite = true,
                 disableReverseVerticalMomentum = false,
+                revertOnLeave = false,
+                revertOnDeath = false,
+                onlyOnce = false,
+                flag = "",
+                flagInverted = false,
             }
         },
         {
@@ -26,7 +36,18 @@ return {
                 allow = false,
                 infinite = false,
                 disableReverseVerticalMomentum = false,
+                revertOnLeave = false,
+                revertOnDeath = false,
+                onlyOnce = false,
+                flag = "",
+                flagInverted = false,
             }
         }
-    }
+    },
+    fieldOrder = {
+        "x", "y", "width", "height",
+        "allow", "infinite", "disableReverseVerticalMomentum",
+        "revertOnLeave", "revertOnDeath", "onlyOnce",
+        "flag", "flagInverted",
+    },
 }

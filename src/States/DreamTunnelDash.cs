@@ -18,7 +18,7 @@ public static class DreamTunnelDash
         if (player.dreamSfxLoop == null)
         {
             player.dreamSfxLoop = new SoundSource();
-            player.dreamSfxLoop.DisposeOnTransition = !CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.AllowTransitions;
+            player.dreamSfxLoop.DisposeOnTransition = !config.AllowTransitions;
             player.Add(player.dreamSfxLoop);
         }
 
@@ -102,43 +102,101 @@ public static class DreamTunnelDash
     {
         DreamTunnelDashConfiguration config = CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
 
-        if (config.RedirectConsumesNormalDash ? player.Dashes > 0 : DreamTunnelDashCount > 0)
+        if (config.RedirectConsumesNormalDash ? player.Dashes <= 0 : DreamTunnelDashCount <= 0)
+            return;
+
+        bool flag = Input.GetAimVector().Sign() == player.Speed.Sign();
+        if ((!config.AllowRedirect || flag) && (!config.AllowSameDirectionRedirect || !flag))
+            return;
+        
+        if (config.RedirectConsumesNormalDash)
+            player.Dashes = Math.Max(0, player.Dashes - 1);
+        else
+            DreamTunnelDashCount = Math.Max(0, DreamTunnelDashCount - 1);
+                
+        Audio.Play("event:/char/madeline/dreamblock_enter");
+        if (Engine.TimeRate > 0.25f)
         {
-            bool flag = Input.GetAimVector() == player.DashDir;
-            if ((config.AllowRedirect && !flag) || (config.AllowSameDirectionRedirect && flag))
-            {
-                if (config.RedirectConsumesNormalDash)
-                    player.Dashes = Math.Max(0, player.Dashes - 1);
-                else
-                    DreamTunnelDashCount = Math.Max(0, DreamTunnelDashCount - 1);
-                Audio.Play("event:/char/madeline/dreamblock_enter");
-                if (Engine.TimeRate > 0.25f)
-                {
-                    Celeste.Freeze(0.05f);
-                }
-                if (flag)
-                {
-                    player.Speed *= config.SameDirectionSpeedMultiplier;
-                    player.DashDir *= Math.Sign(config.SameDirectionSpeedMultiplier);
-                }
-                else
-                {
-                    player.DashDir = Input.GetAimVector();
-                    player.Speed = player.DashDir * player.Speed.Length();
-                }
-                Input.Dash.ConsumeBuffer();
-            }
+            Celeste.Freeze(0.05f);
         }
+                
+        if (flag)
+        {
+            player.Speed *= config.SameDirectionSpeedMultiplier;
+            player.DashDir *= Math.Sign(config.SameDirectionSpeedMultiplier);
+        }
+        else
+        {
+            player.DashDir = Input.GetAimVector();
+            player.Speed = player.DashDir * player.Speed.Length();
+        }
+                
+        Input.Dash.ConsumeBuffer();
+    }
+    
+    // Do a bounce check and bounce if possible
+    private static bool AttemptBounce(this Player player)
+    { 
+        if (!CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.BounceOnCollision)
+            return false;
+        
+        Vector2 moveCheckVector = player.Speed * Engine.DeltaTime;
+        player.NaiveMove(moveCheckVector);
+
+        Solid solid = player.CollideFirst<Solid, DreamBlock>();
+        if (solid == null && player.DreamTunneledIntoDeath())
+        {
+            // Move the player out of the wall properly, then bounce
+            player.NaiveMove(-moveCheckVector);
+            player.DreamDashBounce();
+            return true;
+        }
+
+        // Make sure we undo the check movement
+        player.NaiveMove(-moveCheckVector);
+        return false;
+    }
+
+    private static void DreamDashBounce(this Player player)
+    {
+        Vector2 horizontalMoveCheckVector = new(player.Speed.X * Engine.DeltaTime, 0f);
+        Vector2 verticalMoveCheckVector = new(0f, player.Speed.Y * Engine.DeltaTime);
+
+        bool horizontal = player.OutsideAfterMove(horizontalMoveCheckVector);
+        bool vertical = player.OutsideAfterMove(verticalMoveCheckVector);
+
+        if (horizontal)
+        {
+            player.Speed.X *= -1;
+        }
+        if (vertical)
+        {
+            player.Speed.Y *= -1;
+        }
+    }
+
+    private static bool OutsideAfterMove(this Player player, Vector2 offset)
+    {
+        player.NaiveMove(offset);
+        bool outside = player.CollideFirst<Solid, DreamBlock>() == null;
+        player.NaiveMove(-offset);
+
+        return outside;
     }
 
     public static int DreamTunnelDashUpdate(this Player player)
     {
         DynamicData playerData = player.GetData();
         DreamTunnelDashConfiguration config = CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
-
+        
         if (Input.Dash.Pressed && Input.Aim.Value != Vector2.Zero)
         {
             player.DreamTunnelDashRedirect();
+        }
+        
+        if (player.AttemptBounce())
+        {
+            return St.DreamTunnelDash;
         }
 
         if (FeatherMode)
