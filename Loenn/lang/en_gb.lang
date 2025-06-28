@@ -509,6 +509,7 @@ entities.CommunalHelper/FrictionlessPanel.attributes.description.orientation=The
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.up=Surface Sound Panel (Up)
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.left=Surface Sound Panel (Left)
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.right=Surface Sound Panel (Right)
+entities.CommunalHelper/SurfaceSoundPanel.attributes.description.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
 entities.CommunalHelper/SurfaceSoundPanel.attributes.description.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
 entities.CommunalHelper/SurfaceSoundPanel.attributes.description.soundIndex=The index associated with the surface sounds played on this panel.
 
@@ -520,6 +521,7 @@ entities.CommunalHelper/ChainedKevin.placements.name.right=Kevin (Chained, Right
 entities.CommunalHelper/ChainedKevin.attributes.description.chillout=Whether the block should have the large face and get tired after being hit.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
 entities.CommunalHelper/ChainedKevin.attributes.description.direction=The only direction in which this block will travel.
+entities.CommunalHelper/ChainedKevin.attributes.description.retractSpeedModifier=Multiplier for the retract speed of the Kevin (1.0 = normal Kevin retract speed).
 entities.CommunalHelper/ChainedKevin.attributes.description.centeredChain=Renders only one chain at the horizontal or vertical center of this block, depending on the direction.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainTexture=The texture for this Chained Kevin's chain.
