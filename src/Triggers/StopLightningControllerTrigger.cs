@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Triggers;
 
@@ -12,7 +13,7 @@ public class StopLightningControllerTrigger : Trigger
     {
         base.OnEnter(player);
 
-        foreach (LightningController controller in Scene.Tracker.GetEntities<LightningController>())
+        foreach (LightningController controller in Scene.Tracker.GetEntities<LightningController>().Cast<LightningController>())
             controller.RemoveSelf();
 
         Collidable = Active = false;

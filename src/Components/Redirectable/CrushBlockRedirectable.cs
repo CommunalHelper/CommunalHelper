@@ -1,4 +1,3 @@
-using Celeste.Mod.CommunalHelper.Components;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -8,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Celeste.Mod.CommunalHelper.Entities;
+namespace Celeste.Mod.CommunalHelper.Components;
 
 internal class CrushBlockRedirectable : Redirectable
 {
