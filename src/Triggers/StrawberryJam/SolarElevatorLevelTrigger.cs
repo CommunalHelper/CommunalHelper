@@ -1,7 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using System.Linq;
 
-namespace Celeste.Mod.CommunalHelper.Triggers;
+namespace Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
 
 [CustomEntity("CommunalHelper/SolarElevatorLevelTrigger")]
 public class SolarElevatorLevelTrigger : Trigger
