@@ -11,7 +11,7 @@ public abstract class AbstractConfigureStateTrigger<TOptions, TChanges> : Trigge
 {
     private readonly TOptions options;
     private TChanges? changesNeededToRevert;
-    
+
     private readonly bool revertOnLeave;
     private readonly bool revertOnDeath;
     private readonly bool onlyOnce;
@@ -24,9 +24,10 @@ public abstract class AbstractConfigureStateTrigger<TOptions, TChanges> : Trigge
         onlyOnce = data.Bool("onlyOnce", false);
 
         options = GetConfiguredOptions(data);
-        
+
         string flag = data.Attr("flag");
-        if (!string.IsNullOrEmpty(flag)) {
+        if (!string.IsNullOrEmpty(flag))
+        {
             Add(new FlagToggleComponent(flag, data.Bool("flagInverted")));
         }
     }
@@ -56,7 +57,7 @@ public abstract class AbstractConfigureStateTrigger<TOptions, TChanges> : Trigge
             SaveOptions(player, RevertChanges(options, changesNeededToRevert));
         }
     }
-    
+
     #region Hooks
 
     internal static void Load()
@@ -78,6 +79,6 @@ public abstract class AbstractConfigureStateTrigger<TOptions, TChanges> : Trigge
             trigger.SaveOptions(player, trigger.RevertChanges(trigger.options, trigger.changesNeededToRevert));
         }
     }
-    
+
     #endregion
 }

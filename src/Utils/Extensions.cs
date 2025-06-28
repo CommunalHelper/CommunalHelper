@@ -194,7 +194,7 @@ public static class Extensions
         foreach (Type subType in method.DeclaringType.GetSubClasses())
         {
             MethodInfo overrideMethod = subType.GetMethod(method.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
-            if (overrideMethod != null && overrideMethod.Attributes.HasFlag(MethodAttributes.Virtual) && overrideMethod.GetBaseDefinition() == method)
+            if (overrideMethod is not null && overrideMethod.Attributes.HasFlag(MethodAttributes.Virtual) && overrideMethod.GetBaseDefinition() == method)
                 list.Add(overrideMethod);
 
         }
@@ -338,7 +338,7 @@ public static class Extensions
         {
             player.StateMachine.State = 0;
         }
-        if (player.StateMachine.State == 4 && player.CurrentBooster != null)
+        if (player.StateMachine.State == 4 && player.CurrentBooster is not null)
         {
             player.CurrentBooster.PlayerReleased();
         }
@@ -463,7 +463,7 @@ public static class Extensions
             {
                 current.Add(entity);
                 listEntities.Add(entity);
-                if (scene != null)
+                if (scene is not null)
                 {
                     m_TagLists_EntityAdded.Invoke(scene.TagLists, new object[] { entity });
                     m_Tracker_EntityAdded.Invoke(scene.Tracker, new object[] { entity });

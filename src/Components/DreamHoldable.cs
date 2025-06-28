@@ -50,7 +50,7 @@ internal class DreamHoldable : Holdable
     private void OnDreamDashExit(Player player)
     {
         AllowDreamDash = false;
-        if (Input.GrabCheck && player.DashDir.Y <= 0 && player.Holding == null)
+        if (Input.GrabCheck && player.DashDir.Y <= 0 && player.Holding is null)
         {
             // force-allow pickup
             player.minHoldTimer = 0f;

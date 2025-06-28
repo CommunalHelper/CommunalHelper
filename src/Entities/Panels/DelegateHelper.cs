@@ -17,8 +17,8 @@ public static class DelegateHelper
     private static DashCollision CreateDashCollisionHook(DashCollision orig, DashCollisionHook init = null)
     {
         orig ??= DashCollisionDefault;
-        List<DashCollisionHook> hooks = new();
-        DashCollision handler = (Player player, Vector2 direction) =>
+        List<DashCollisionHook> hooks = [];
+        DashCollision handler = (player, direction) =>
         {
             int i = 0;
             DashCollisionResults Trampoline(DashCollision orig, Player player, Vector2 direction)
@@ -28,7 +28,7 @@ public static class DelegateHelper
                     return orig(player, direction);
                 }
                 DashCollisionHook current = hooks[i++];
-                return Trampoline((Player player, Vector2 direction) => current.Invoke(orig, player, direction), player, direction);
+                return Trampoline((player, direction) => current.Invoke(orig, player, direction), player, direction);
             }
             return Trampoline(orig, player, direction);
         };
@@ -41,8 +41,7 @@ public static class DelegateHelper
     /// <returns>Handler to be assigned to Platform.OnDashCollide</returns>
     public static DashCollision ApplyDashCollisionHook(DashCollision orig, DashCollisionHook hook)
     {
-        if (hook is null)
-            throw new ArgumentNullException("hook");
+        ArgumentNullException.ThrowIfNull(hook);
 
         if (orig is not null && DynamicData.For(orig).TryGet(DASHCOLLISIONHOOK_TAG, out List<DashCollisionHook> hooks))
         {
@@ -58,8 +57,7 @@ public static class DelegateHelper
 
     public static void RemoveDashCollisionHook(DashCollision orig, DashCollisionHook hook)
     {
-        if (hook is null)
-            throw new ArgumentNullException("hook");
+        ArgumentNullException.ThrowIfNull(hook);
 
         if (orig is not null && DynamicData.For(orig).TryGet(DASHCOLLISIONHOOK_TAG, out List<DashCollisionHook> hooks))
         {

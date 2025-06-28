@@ -21,7 +21,7 @@ internal class DreamSpriteRenderer : Entity
         World = Matrix.Identity,
         View = Matrix.Identity
     };
-    
+
     private static readonly DepthStencilState drawToStencilState = new()
     {
         StencilEnable = true,
@@ -84,8 +84,8 @@ internal class DreamSpriteRenderer : Entity
 
             Vector2 posOnScreen = spritePosition + sprite.Entity.Position - camera.Position;
             Rectangle boundsOnScreen = new(
-                (int)posOnScreen.X + sprite.ParticleBounds.X,
-                (int)posOnScreen.Y + sprite.ParticleBounds.Y,
+                (int) posOnScreen.X + sprite.ParticleBounds.X,
+                (int) posOnScreen.Y + sprite.ParticleBounds.Y,
                 sprite.ParticleBounds.Width,
                 sprite.ParticleBounds.Height
             );
@@ -122,22 +122,10 @@ internal class DreamSpriteRenderer : Entity
 
                 Vector2 particlePos = sprite.Particles[i].Position;
                 particlePos -= camera.Position * (0.7f - (0.25f * layer)); // should be consistent with dream blocks
-                while (particlePos.X < boundsOnScreen.Left)
-                {
-                    particlePos.X += boundsOnScreen.Width;
-                }
-                while (particlePos.X > boundsOnScreen.Right)
-                {
-                    particlePos.X -= boundsOnScreen.Width;
-                }
-                while (particlePos.Y < boundsOnScreen.Top)
-                {
-                    particlePos.Y += boundsOnScreen.Height;
-                }
-                while (particlePos.Y > boundsOnScreen.Bottom)
-                {
-                    particlePos.Y -= boundsOnScreen.Height;
-                }
+                while (particlePos.X < boundsOnScreen.Left) particlePos.X += boundsOnScreen.Width;
+                while (particlePos.X > boundsOnScreen.Right) particlePos.X -= boundsOnScreen.Width;
+                while (particlePos.Y < boundsOnScreen.Top) particlePos.Y += boundsOnScreen.Height;
+                while (particlePos.Y > boundsOnScreen.Bottom) particlePos.Y -= boundsOnScreen.Height;
 
                 MTexture mTexture;
                 switch (layer)
@@ -174,12 +162,12 @@ internal class DreamSpriteRenderer : Entity
 
     internal static void InitializeTextures()
     {
-        particleTextures = new MTexture[4] {
+        particleTextures = [
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7),
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7),
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7),
-        };
+        ];
     }
 
     public static DreamSpriteRenderer GetDreamSpriteRenderer(Scene scene, int depth)

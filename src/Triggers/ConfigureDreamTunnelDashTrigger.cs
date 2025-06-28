@@ -5,7 +5,7 @@ namespace Celeste.Mod.CommunalHelper.Triggers;
 [CustomEntity("CommunalHelper/ConfigureDreamTunnelDashTrigger")]
 [TrackedAs(typeof(AbstractConfigureStateTrigger<DreamTunnelDashConfiguration, DreamTunnelDashConfigurationChanges>))]
 public class ConfigureDreamTunnelDashTrigger : AbstractConfigureStateTrigger<DreamTunnelDashConfiguration, DreamTunnelDashConfigurationChanges>
-{ 
+{
     public ConfigureDreamTunnelDashTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
     { }
@@ -28,7 +28,7 @@ public class ConfigureDreamTunnelDashTrigger : AbstractConfigureStateTrigger<Dre
         => CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
     protected override void SaveOptions(Player player, DreamTunnelDashConfiguration options)
         => CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration = options;
-    
+
     protected override DreamTunnelDashConfigurationChanges CalculateChangesNeededToRevert(DreamTunnelDashConfiguration from, DreamTunnelDashConfiguration to)
         => new()
         {

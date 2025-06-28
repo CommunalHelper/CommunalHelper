@@ -73,7 +73,7 @@ public static class Elytra
 
     public static void SetInfiniteElytra(this Player player, bool enabled)
         => DynamicData.For(player).Set(f_Player_elytraIsInfinite, enabled);
-    
+
     public static bool HasInfiniteElytra(this Player player)
         => DynamicData.For(player).Get<bool>(f_Player_elytraIsInfinite);
 

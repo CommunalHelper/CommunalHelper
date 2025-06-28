@@ -102,7 +102,7 @@ public class AeroScreen_Percentage : AeroScreen
         if (!ShowNumbers)
             return;
 
-        int n = (int)(p * 100);
+        int n = (int) (p * 100);
         Vector2 anchor = Block.Center;
 
         if (n < 10)
@@ -116,9 +116,9 @@ public class AeroScreen_Percentage : AeroScreen
         }
         else
         {
-            numbers[1].Draw(anchor + new Vector2(-6,-2), Vector2.Zero, fg);
-            numbers[0].Draw(anchor + new Vector2(-2,-2), Vector2.Zero, fg);
-            numbers[0].Draw(anchor + new Vector2(2,-2), Vector2.Zero, fg);
+            numbers[1].Draw(anchor + new Vector2(-6, -2), Vector2.Zero, fg);
+            numbers[0].Draw(anchor + new Vector2(-2, -2), Vector2.Zero, fg);
+            numbers[0].Draw(anchor + new Vector2(2, -2), Vector2.Zero, fg);
         }
     }
 

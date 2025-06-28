@@ -14,9 +14,7 @@ public class BadelineBoostKeepHoldables : BadelineBoost
 
     private static ILHook IL_BoostRoutine;
 
-    public BadelineBoostKeepHoldables(EntityData data, Vector2 offset) : base(data, offset)
-    {
-    }
+    public BadelineBoostKeepHoldables(EntityData data, Vector2 offset) : base(data, offset) { }
 
     public static void Hook()
     {
@@ -30,16 +28,16 @@ public class BadelineBoostKeepHoldables : BadelineBoost
 
     private static void Hook_BoostRoutine(ILContext il)
     {
-        // - if (player.Holding != null)
-        // + if (this is not BadelineBoostKeepHoldables && player.Holding != null)
+        // - if (player.Holding is not null)
+        // + if (this is not BadelineBoostKeepHoldables && player.Holding is not null)
 
         ILCursor cursor = new(il);
-
         ILLabel noDrop = default;
 
         cursor.GotoNext(MoveType.After,
             instr => instr.MatchCallvirt<Player>("get_Holding"),
-            instr => instr.MatchBrfalse(out noDrop));
+            instr => instr.MatchBrfalse(out noDrop)
+        );
         cursor.MoveAfterLabels();
 
         cursor.Emit(OpCodes.Ldarg_0);

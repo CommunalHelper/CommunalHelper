@@ -55,7 +55,10 @@ public class LaserEmitter : Entity
     {
         P_Sparks ??= new ParticleType(ZipMover.P_Sparks)
         {
-            SpeedMultiplier = 3f, LifeMin = 0.3f, LifeMax = 0.5f, FadeMode = ParticleType.FadeModes.Late,
+            SpeedMultiplier = 3f,
+            LifeMin = 0.3f,
+            LifeMax = 0.5f,
+            FadeMode = ParticleType.FadeModes.Late,
         };
     }
 
@@ -74,7 +77,7 @@ public class LaserEmitter : Entity
         colorChannelString ??= colorString;
 
         LoadParticles();
-        
+
         Alpha = Calc.Clamp(data.Float("alpha", 0.4f), 0f, 1f);
         CollideWithSolids = data.Bool("collideWithSolids", true);
         Color = Calc.HexToColor(colorString.ToLower());
@@ -214,7 +217,7 @@ public class LaserEmitter : Entity
         }
 
         // update tint layer based on multiplier and collision
-        if (tintSprite != null)
+        if (tintSprite is not null)
         {
             Color color;
             if (!Collidable)
@@ -334,7 +337,7 @@ public class LaserEmitter : Entity
         linkedZipMoverNoReturnType = Everest.Modules
             .FirstOrDefault(m => m.Metadata.Name == "AdventureHelper")?
             .GetType().Assembly.GetType(linkedZipMoverNoReturnTypeName);
-        
+
         // reflect methods and properties
         linkedZipMoverSequence = linkedZipMoverType?.GetMethod("Sequence", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget();
         linkedZipMoverColorCode = linkedZipMoverType?.GetProperty("ColorCode", BindingFlags.Public | BindingFlags.Instance);
@@ -342,8 +345,8 @@ public class LaserEmitter : Entity
         linkedZipMoverNoReturnColorCode = linkedZipMoverNoReturnType?.GetProperty("ColorCode", BindingFlags.Public | BindingFlags.Instance);
 
         // create hooks
-        if (linkedZipMoverSequence != null) linkedZipMoverHook = new ILHook(linkedZipMoverSequence, LinkedZipMover_Sequence);
-        if (linkedZipMoverNoReturnSequence != null) linkedZipMoverNoReturnHook = new ILHook(linkedZipMoverNoReturnSequence, LinkedZipMoverNoReturn_Sequence);
+        if (linkedZipMoverSequence is not null) linkedZipMoverHook = new ILHook(linkedZipMoverSequence, LinkedZipMover_Sequence);
+        if (linkedZipMoverNoReturnSequence is not null) linkedZipMoverNoReturnHook = new ILHook(linkedZipMoverNoReturnSequence, LinkedZipMoverNoReturn_Sequence);
     }
 
     public static void Unload()

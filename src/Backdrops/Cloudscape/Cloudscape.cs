@@ -49,7 +49,7 @@ public class Cloudscape : Backdrop
         {
             Calc.HexToColor("384bc8"),
             Calc.HexToColor("7a50d0"),
-            Calc.HexToColor("c84ddd"), 
+            Calc.HexToColor("c84ddd"),
             Calc.HexToColor("3397e2"),
         };
         public Color LightningFlashColor { get; } = Color.White;
@@ -356,14 +356,14 @@ public class Cloudscape : Backdrop
         if (colorBuffer is null || colorBuffer.IsDisposed)
             colorBuffer = new(Engine.Graphics.GraphicsDevice, clouds.Length, 1);
     }
-    
+
     private VirtualRenderTarget EnsureValidBuffer()
     {
         var gpBuffer = GameplayBuffers.Gameplay;
-        
+
         int targetWidth = gpBuffer?.Width ?? 320;
         int targetHeight = gpBuffer?.Height ?? 180;
-        
+
         // By default, use `buffer320x180` for everything until we need to zoom out.
         if (ZoomBehavior == ZoomBehaviors.StaySame || gpBuffer is null || gpBuffer.Width == 320)
         {
@@ -374,7 +374,7 @@ public class Cloudscape : Backdrop
             buffer320x180 ??= VirtualContent.CreateRenderTarget("communal_helper/shared_cloudscape_buffer_320x180", 320, 180);
             return buffer320x180;
         }
-        
+
         // We need a bigger buffer due to zoomout.
         // We'll keep the 320x180 buffer around, in case some other cloudscape wants to render with ZoomBehavior=StaySame
         if (bufferFullscreen is null || bufferFullscreen.IsDisposed || bufferFullscreen.Width != gpBuffer.Width)
@@ -382,7 +382,7 @@ public class Cloudscape : Backdrop
             bufferFullscreen?.Dispose();
             bufferFullscreen = VirtualContent.CreateRenderTarget("communal_helper/shared_cloudscape_buffer", targetWidth, targetHeight);
         }
-        
+
         return bufferFullscreen;
     }
 
@@ -437,7 +437,7 @@ public class Cloudscape : Backdrop
     public override void BeforeRender(Scene scene)
     {
         base.BeforeRender(scene);
-        
+
         EnsureValidColorBuffer();
         colorBuffer.SetData(colors);
     }
@@ -463,7 +463,7 @@ public class Cloudscape : Backdrop
         RenderTargetBinding[] renderTargets = Engine.Graphics.GraphicsDevice.GetRenderTargets();
         if (renderTargets.Length > 0)
             rt = renderTargets[0].RenderTarget as RenderTarget2D ?? rt;
-        
+
         var buffer = EnsureValidBuffer();
 
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);
@@ -483,6 +483,7 @@ public class Cloudscape : Backdrop
         {
             ZoomBehaviors.Adjust => translate + cameraZoomOutOffset,
             ZoomBehaviors.StaySame => translate,
+            _ => translate,
         });
         parameters["inner_rotation"].SetValue(innerRotation);
         parameters["outer_rotation"].SetValue(outerRotation);

@@ -120,7 +120,7 @@ public class HintController : Entity
 
         var hintControllers = level.Entities.FindAll<HintController>();
         int index = retryIndex;
-        if (hintControllers != null && hintControllers.Count > 0)
+        if (hintControllers is not null && hintControllers.Count > 0)
         {
             foreach (HintController hintController in hintControllers)
             {
@@ -163,8 +163,6 @@ public class HintController : Entity
         }
 
         if (Scene is Level level)
-        {
             level.Paused = false;
-        }
     }
 }

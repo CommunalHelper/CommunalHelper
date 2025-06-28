@@ -82,7 +82,7 @@ public class DreamBlockDummy : DreamBlock
 
     private static IEnumerator DreamBlock_Activate(On.Celeste.DreamBlock.orig_Activate orig, DreamBlock self)
     {
-        if (self is DreamBlockDummy dummy && dummy.OnActivate != null)
+        if (self is DreamBlockDummy dummy && dummy.OnActivate is not null)
         {
             dummy.Data.Set("playerHasDreamDash", true);
             dummy.Entity.Add(new Coroutine(dummy.OnActivate()));
@@ -93,7 +93,7 @@ public class DreamBlockDummy : DreamBlock
 
     private static IEnumerator DreamBlock_FastActivate(On.Celeste.DreamBlock.orig_FastActivate orig, DreamBlock self)
     {
-        if (self is DreamBlockDummy dummy && dummy.OnFastActivate != null)
+        if (self is DreamBlockDummy dummy && dummy.OnFastActivate is not null)
         {
             dummy.Data.Set("playerHasDreamDash", true);
             dummy.Entity.Add(new Coroutine(dummy.OnFastActivate()));
@@ -104,7 +104,7 @@ public class DreamBlockDummy : DreamBlock
 
     private static void DreamBlock_ActivateNoRoutine(On.Celeste.DreamBlock.orig_ActivateNoRoutine orig, DreamBlock self)
     {
-        if (self is DreamBlockDummy dummy && dummy.OnActivateNoRoutine != null)
+        if (self is DreamBlockDummy dummy && dummy.OnActivateNoRoutine is not null)
         {
             dummy.Data.Set("playerHasDreamDash", true);
             dummy.OnActivateNoRoutine();
@@ -115,7 +115,7 @@ public class DreamBlockDummy : DreamBlock
 
     private static IEnumerator DreamBlock_Deactivate(On.Celeste.DreamBlock.orig_Deactivate orig, DreamBlock self)
     {
-        if (self is DreamBlockDummy dummy && dummy.OnDeactivate != null)
+        if (self is DreamBlockDummy dummy && dummy.OnDeactivate is not null)
         {
             dummy.Data.Set("playerHasDreamDash", false);
             dummy.Entity.Add(new Coroutine(dummy.OnDeactivate()));
@@ -126,7 +126,7 @@ public class DreamBlockDummy : DreamBlock
 
     private static IEnumerator DreamBlock_FastDeactivate(On.Celeste.DreamBlock.orig_FastDeactivate orig, DreamBlock self)
     {
-        if (self is DreamBlockDummy dummy && dummy.OnFastDeactivate != null)
+        if (self is DreamBlockDummy dummy && dummy.OnFastDeactivate is not null)
         {
             dummy.Data.Set("playerHasDreamDash", false);
             dummy.Entity.Add(new Coroutine(dummy.OnFastDeactivate()));
@@ -137,7 +137,7 @@ public class DreamBlockDummy : DreamBlock
 
     private static void DreamBlock_DeactivateNoRoutine(On.Celeste.DreamBlock.orig_DeactivateNoRoutine orig, DreamBlock self)
     {
-        if (self is DreamBlockDummy dummy && dummy.OnDeactivateNoRoutine != null)
+        if (self is DreamBlockDummy dummy && dummy.OnDeactivateNoRoutine is not null)
         {
             dummy.Data.Set("playerHasDreamDash", false);
             dummy.OnDeactivateNoRoutine();
@@ -148,7 +148,7 @@ public class DreamBlockDummy : DreamBlock
 
     private static void DreamBlock_Setup(On.Celeste.DreamBlock.orig_Setup orig, DreamBlock self)
     {
-        if (self is DreamBlockDummy dummy && dummy.OnSetup != null)
+        if (self is DreamBlockDummy dummy && dummy.OnSetup is not null)
         {
             dummy.OnSetup();
             return;

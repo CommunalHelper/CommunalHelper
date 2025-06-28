@@ -503,7 +503,7 @@ public class DreamSwitchGate : CustomDreamBlock
         if (allowReturn && SceneAs<Level>().Session.GetFlag(Flag) == goingBack)
         {
             // whoops, the flag changed too fast! we need to backtrack.
-            if (tween != null)
+            if (tween is not null)
             {
                 Remove(tween);
             }

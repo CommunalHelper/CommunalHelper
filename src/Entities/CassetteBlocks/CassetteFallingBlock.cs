@@ -18,8 +18,7 @@ public class CassetteFallingBlock : CustomCassetteBlock
 
     public CassetteFallingBlock(EntityData data, Vector2 offset, EntityID id)
         : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.HexColorNullable("customColor"))
-    {
-    }
+    { }
 
     public override void OnStaticMoverTrigger(StaticMover sm)
     {
@@ -27,18 +26,15 @@ public class CassetteFallingBlock : CustomCassetteBlock
     }
 
     private bool PlayerWaitCheck()
-    {
-        return Triggered
-            ? true
-            : HasPlayerRider() ? true : CollideCheck<Player>(Position - Vector2.UnitX) || CollideCheck<Player>(Position + Vector2.UnitX);
-    }
+        => Triggered
+        || HasPlayerRider()
+        || CollideCheck<Player>(Position - Vector2.UnitX)
+        || CollideCheck<Player>(Position + Vector2.UnitX);
 
     private IEnumerator Sequence()
     {
         while (!Triggered && !HasPlayerRider())
-        {
             yield return null;
-        }
 
         while (FallDelay > 0f)
         {
@@ -77,9 +73,7 @@ public class CassetteFallingBlock : CustomCassetteBlock
                 Level level = SceneAs<Level>();
                 speed = Calc.Approach(speed, maxSpeed, 500f * Engine.DeltaTime);
                 if (MoveVCollideSolids(speed * Engine.DeltaTime, thruDashBlocks: true))
-                {
                     break;
-                }
 
                 if (Top > level.Bounds.Bottom + 16 || (Top > level.Bounds.Bottom - 1 && CollideCheck<Solid>(Position + new Vector2(0f, 1f))))
                 {
@@ -110,14 +104,10 @@ public class CassetteFallingBlock : CustomCassetteBlock
 
             StopShaking();
             if (CollideCheck<SolidTiles>(Position + new Vector2(0f, 1f)))
-            {
                 break;
-            }
 
             while (CollideCheck<Platform>(Position + new Vector2(0f, 1f)))
-            {
                 yield return 0.1f;
-            }
         }
         Safe = true;
     }

@@ -43,24 +43,24 @@ public class DreamBoosterSpiral : DreamBooster
     {
         Depth = Depths.DreamBlocks;
 
-        this.dir = (node - Center).SafeNormalize();
+        dir = (node - Center).SafeNormalize();
 
         this.clockwise = clockwise;
         this.angle = MathHelper.ToRadians(angle);
-        this.startAngle = (node - Center).Angle();
-        this.radius = Math.Max(Vector2.Distance(Center, node), 1);
+        startAngle = (node - Center).Angle();
+        radius = Math.Max(Vector2.Distance(Center, node), 1);
 
-        this.speed = spiralSpeed;
-        this.prepare = beginTime;
+        speed = spiralSpeed;
+        prepare = beginTime;
         this.delay = delay;
 
         this.direct = direct;
 
         Vector2 endDir = Calc.AngleToVector(startAngle + this.angle * (clockwise ? 1 : -1), 1f);
-        this.center = position;
-        this.start = Calc.AngleToVector(startAngle, radius) + Center;
-        this.end = endDir * radius + Center;
-        this.finishBoost = endDir.Perpendicular() * (clockwise ? 1 : -1) * speed;
+        center = position;
+        start = Calc.AngleToVector(startAngle, radius) + Center;
+        end = endDir * radius + Center;
+        finishBoost = endDir.Perpendicular() * (clockwise ? 1 : -1) * speed;
 
         this.pathColor = pathColor;
 

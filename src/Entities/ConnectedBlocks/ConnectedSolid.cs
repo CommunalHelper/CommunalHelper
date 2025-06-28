@@ -43,8 +43,8 @@ public class ConnectedSolid : Solid
     {
         Vector2 pos = position + GroupOffset + Shake;
         Vector2 size = GroupBoundsMax - GroupBoundsMin;
-            
-        return new Rectangle((int) pos.X, (int) pos.Y, (int)size.X, (int)size.Y);
+
+        return new Rectangle((int) pos.X, (int) pos.Y, (int) size.X, (int) size.Y);
     }
 
     // AllColliders contains colliders that didn't have a hitbox.
@@ -61,17 +61,10 @@ public class ConnectedSolid : Solid
         Edge, Corner, InnerCorner, Filler
     }
 
-    private struct AutoTileData
+    private readonly struct AutoTileData(int x, int y, TileType type)
     {
-        public readonly int X, Y;
-        public readonly TileType Type;
-
-        public AutoTileData(int x, int y, TileType type)
-        {
-            X = x;
-            Y = y;
-            Type = type;
-        }
+        public readonly int X = x, Y = y;
+        public readonly TileType Type = type;
     }
 
     public Vector2 GroupOffset;
@@ -79,11 +72,11 @@ public class ConnectedSolid : Solid
     public int MasterWidth, MasterHeight;
     public Vector2 MasterCenter => MasterCollider.Center + Position;
 
-    public List<Image> Tiles = new();
-    public List<Image> EdgeTiles = new();
-    public List<Image> CornerTiles = new();
-    public List<Image> InnerCornerTiles = new();
-    public List<Image> FillerTiles = new();
+    public readonly List<Image> Tiles = [];
+    public readonly List<Image> EdgeTiles = [];
+    public readonly List<Image> CornerTiles = [];
+    public readonly List<Image> InnerCornerTiles = [];
+    public readonly List<Image> FillerTiles = [];
 
     private readonly DynamicData data;
 
@@ -101,7 +94,7 @@ public class ConnectedSolid : Solid
 
     public override void Awake(Scene scene)
     {
-        List<SolidExtension> extensions = new();
+        List<SolidExtension> extensions = [];
         FindExtensions(extensions);
 
         GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - Position;
@@ -129,8 +122,8 @@ public class ConnectedSolid : Solid
         GroupTiles = new bool[tWidth + 2, tHeight + 2];
         AllGroupTiles = new bool[tWidth + 2, tHeight + 2];
 
-        Colliders[Colliders.Length - 1] = (Hitbox) Collider;
-        AllColliders[AllColliders.Length - 1] = (Hitbox) Collider;
+        Colliders[^1] = (Hitbox) Collider;
+        AllColliders[^1] = (Hitbox) Collider;
 
         Collider = new ColliderList(AllColliders);
         for (int x = 0; x < tWidth + 2; x++)
@@ -174,7 +167,7 @@ public class ConnectedSolid : Solid
 
     private void FindExtensions(List<SolidExtension> list)
     {
-        foreach (SolidExtension extension in Scene.Tracker.GetEntities<SolidExtension>())
+        foreach (SolidExtension extension in Scene.Tracker.GetEntities<SolidExtension>().Cast<SolidExtension>())
         {
             if (!extension.HasGroup &&
                 (Scene.CollideCheck(new Rectangle((int) X - 1, (int) Y, (int) Width + 2, (int) Height), extension) ||
@@ -242,8 +235,8 @@ public class ConnectedSolid : Solid
         int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
         int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
-        List<Image> res = new();
-        bgTiles = new List<Image>();
+        List<Image> res = [];
+        bgTiles = [];
 
         if (!wasAutoTiled)
         {
@@ -362,7 +355,7 @@ public class ConnectedSolid : Solid
         All = UpLeft | UpRight | DownLeft | DownRight
     }
 
-    private Image AutoTileTexture(Sides sides, Corners corners, MTexture[,] edges, MTexture[,] innerCorners, out AutoTileData data)
+    private static Image AutoTileTexture(Sides sides, Corners corners, MTexture[,] edges, MTexture[,] innerCorners, out AutoTileData data)
     {
         data = sides == Sides.All
             ? corners switch
@@ -409,7 +402,7 @@ public class ConnectedSolid : Solid
 
         HashSet<Actor> riders = data.Get<HashSet<Actor>>("riders");
 
-        if (player != null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + (Vector2.UnitX * move) - Vector2.UnitY))
+        if (player is not null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + (Vector2.UnitX * move) - Vector2.UnitY))
         {
             player.MoveV(1f);
         }
@@ -417,7 +410,7 @@ public class ConnectedSolid : Solid
         MoveStaticMovers(Vector2.UnitX * move);
         if (Collidable)
         {
-            foreach (Actor entity in Scene.Tracker.GetEntities<Actor>())
+            foreach (Actor entity in Scene.Tracker.GetEntities<Actor>().Cast<Actor>())
             {
                 if (entity.AllowPushing)
                 {
@@ -467,16 +460,14 @@ public class ConnectedSolid : Solid
     {
         GravityHelper.BeginOverride?.Invoke();
 
-        //base.MoveVExact(move);
         GetRiders();
-
         HashSet<Actor> riders = data.Get<HashSet<Actor>>("riders");
 
         Y += move;
         MoveStaticMovers(Vector2.UnitY * move);
         if (Collidable)
         {
-            foreach (Actor entity in Scene.Tracker.GetEntities<Actor>())
+            foreach (Actor entity in Scene.Tracker.GetEntities<Actor>().Cast<Actor>())
             {
                 if (entity.AllowPushing)
                 {
@@ -521,9 +512,9 @@ public class ConnectedSolid : Solid
 
         GravityHelper.EndOverride?.Invoke();
     }
-    
+
     public bool IsGroupVisible() => IsGroupVisibleAt(Position);
-    
+
     public bool IsGroupVisibleAt(Vector2 pos)
     {
         Rectangle bounds = GetGroupBoundsAt(pos);

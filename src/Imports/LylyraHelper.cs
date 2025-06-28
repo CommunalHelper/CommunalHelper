@@ -84,7 +84,7 @@ public static class LylyraHelper
         };
         //this method is called on each DreamMoveBlock that is generated the frame after (at Awake()), as activating the frame of adding crashes the game
         Action<Entity, DynamicData> activate = (Entity entity, DynamicData slicer) => {
-            if (entity != null)
+            if (entity is not null)
             {
 
                 DreamMoveBlock block = entity as DreamMoveBlock;

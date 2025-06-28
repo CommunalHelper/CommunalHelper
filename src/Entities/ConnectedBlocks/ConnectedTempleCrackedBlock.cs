@@ -5,6 +5,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -13,11 +14,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/ConnectedTempleCrackedBlock")]
 public class ConnectedTempleCrackedBlock : ConnectedSolid
 {
-    protected static MTexture[,] masterInnerCorners = new MTexture[2, 2];
-    protected static List<MTexture> atlasSubtextures;
-
     // Hooks & stuff
-
     private static FieldInfo Fieldinfo_SeekerRegen_this;
     private static ILHook Seeker_Regen_Hook;
 
@@ -58,7 +55,7 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
 
     public static void OnSeekerRegen(Seeker self)
     {
-        foreach (ConnectedTempleCrackedBlock entity in self.Scene.Tracker.GetEntities<ConnectedTempleCrackedBlock>())
+        foreach (ConnectedTempleCrackedBlock entity in self.Scene.Tracker.GetEntities<ConnectedTempleCrackedBlock>().Cast<ConnectedTempleCrackedBlock>())
         {
             if (self.CollideCheck(entity))
             {
@@ -69,7 +66,7 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
 
     private static void OnSeekerBonk(On.Celeste.Seeker.orig_SlammedIntoWall orig, Seeker self, CollisionData data)
     {
-        foreach (ConnectedTempleCrackedBlock entity in self.Scene.Tracker.GetEntities<ConnectedTempleCrackedBlock>())
+        foreach (ConnectedTempleCrackedBlock entity in self.Scene.Tracker.GetEntities<ConnectedTempleCrackedBlock>().Cast<ConnectedTempleCrackedBlock>())
         {
             if (self.CollideCheck(entity, self.Position + (Vector2.UnitX * Math.Sign(self.Speed.X))))
             {
@@ -84,7 +81,7 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
         DynamicData dd = new(self);
         Collider collider = self.Collider;
         self.Collider = dd.Get<Collider>("pushRadius");
-        foreach (ConnectedTempleCrackedBlock entity in self.Scene.Tracker.GetEntities<ConnectedTempleCrackedBlock>())
+        foreach (ConnectedTempleCrackedBlock entity in self.Scene.Tracker.GetEntities<ConnectedTempleCrackedBlock>().Cast<ConnectedTempleCrackedBlock>())
         {
             if (self.CollideCheck(entity))
             {
@@ -138,24 +135,18 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
         List<MTexture> atlasSubtextures = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/connectedTempleCrackedBlock/breakBlock");
         tiles = new Tuple<int, int>[tilesW, tilesH];
         frames = atlasSubtextures.Count;
+
         texture = new MTexture[tilesetW, tilesetH, frames];
         for (int tx = 0; tx < tilesetW; tx++)
-        {
             for (int ty = 0; ty < tilesetH; ty++)
-            {
                 for (int k = 0; k < frames; k++)
-                {
                     texture[tx, ty, k] = atlasSubtextures[k].GetSubtexture(tx * 8, ty * 8, 8, 8);
-                }
-            }
-        }
+
         Add(new LightOcclude(0.5f));
 
         Component explosionCollider = CavernHelper.GetCrystalBombExplosionCollider?.Invoke(Break, null);
-        if (explosionCollider != null)
-        {
+        if (explosionCollider is not null)
             Add(explosionCollider);
-        }
 
         OnDashCollide = (player, dir) =>
         {
@@ -202,22 +193,20 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
     {
         if (!IsGroupVisible())
             return;
-        
+
         if (!autoTiled)
-        {
             AutoTile(texture);
-        }
+
         int num = (int) frame;
         if (num >= frames)
-        {
             return;
-        }
+
         for (int i = 0; i < tiles.GetLength(0); i++)
         {
             for (int j = 0; j < tiles.GetLength(1); j++)
             {
                 Tuple<int, int> tile = tiles[i, j];
-                if (tile != null)
+                if (tile is not null)
                 {
                     texture[tile.Item1, tile.Item2, num].Draw(GroupBoundsMin + (new Vector2(i, j) * 8f));
                 }
@@ -235,16 +224,11 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
         }
         broken = true;
         Collidable = false;
+
         for (int i = 0; i < tiles.GetLength(0); i++)
-        {
             for (int j = 0; j < tiles.GetLength(1); j++)
-            {
-                if (tiles[i, j] != null)
-                {
+                if (tiles[i, j] is not null)
                     Scene.Add(Engine.Pooler.Create<Debris>().Init(GroupBoundsMin + new Vector2((i * 8) + 4, (j * 8) + 4), '1', playSound: true).BlastFrom(from));
-                }
-            }
-        }
     }
 
     // Tiling
@@ -256,15 +240,9 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
 
         Tuple<int, int>[,] res = new Tuple<int, int>[tWidth, tHeight];
         for (int x = 0; x < tWidth; x++)
-        {
             for (int y = 0; y < tHeight; y++)
-            {
                 if (GetGridSafe(GroupTiles, x + 1, y + 1))
-                {
                     res[x, y] = GetTile(GroupTiles, x + 1, y + 1, tex);
-                }
-            }
-        }
 
         tiles = res;
         autoTiled = true;
@@ -319,8 +297,8 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
         return new Tuple<int, int>(tx, ty);
     }
 
-    private bool GetGridSafe(bool[,] grid, int x, int y)
-    {
-        return grid == null ? false : x < 0 || y < 0 || x >= grid.GetLength(0) || y >= grid.GetLength(1) ? false : grid[x, y];
-    }
+    private static bool GetGridSafe(bool[,] grid, int x, int y)
+        => grid is not null
+            ? false
+            : x >= 0 && y >= 0 && x < grid.GetLength(0) && y < grid.GetLength(1) && grid[x, y];
 }

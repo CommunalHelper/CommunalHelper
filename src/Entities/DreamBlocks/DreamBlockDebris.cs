@@ -97,7 +97,7 @@ public class DreamBlockDebris : Debris
     {
         base.Render();
         Color? pointColor = Block.PlayerHasDreamDash ? activePointColor : disabledPointColor;
-        if (activePointColor != null)
+        if (activePointColor is not null)
             Draw.Point(Center + pointOffset, pointColor.Value);
     }
 

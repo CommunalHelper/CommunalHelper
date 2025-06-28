@@ -2,6 +2,7 @@
 using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 
@@ -354,7 +355,7 @@ public class SolarElevator : Solid
 
         if (Collidable)
         {
-            foreach (Actor entity in Scene.Tracker.GetEntities<Actor>())
+            foreach (Actor entity in Scene.Tracker.GetEntities<Actor>().Cast<Actor>())
             {
                 if (!entity.AllowPushing)
                     continue;
@@ -471,7 +472,7 @@ public class HintTalkComponentUI : TalkComponent.TalkComponentUI
             return;
 
         Vector2 pos = Handler.Entity.Position + Handler.DrawAt - level.Camera.Position.Floor();
-        if (SaveData.Instance != null && SaveData.Instance.Assists.MirrorMode)
+        if (SaveData.Instance is not null && SaveData.Instance.Assists.MirrorMode)
             pos.X = 320f - pos.X;
         pos *= 6f;
         pos.Y += (float) Math.Sin(timer * 4f) * 12f + 64f * (1f - Ease.CubeOut(slide)) + 12f;

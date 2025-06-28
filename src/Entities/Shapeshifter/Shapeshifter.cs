@@ -22,7 +22,7 @@ public sealed class ShapeshifterPath : Entity
     public int ID { get; }
 
     public float QuakeTime { get; set; }
-    public float FakeoutTime { get; set; } 
+    public float FakeoutTime { get; set; }
     public float FakeoutDistance { get; set; }
 
     public ShapeshifterPath(EntityData data, Vector2 offset, EntityID id)
@@ -87,7 +87,7 @@ public class Shapeshifter : Solid
     private readonly string startSound, finishSound;
     private readonly float startShake, finishShake;
     private readonly float rainbowMix;
-    
+
     private readonly SoundSource sfx;
 
     public Shapeshifter(EntityData data, Vector2 offset, EntityID id)
@@ -258,7 +258,7 @@ public class Shapeshifter : Solid
         }
         if (startShake > 0.0f)
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
-        
+
         if (path.Yaw != 0f || path.Pitch != 0f || path.Roll != 0f)
         {
             Collidable = false;

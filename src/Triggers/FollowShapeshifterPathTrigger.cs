@@ -17,7 +17,7 @@ public class FollowShapeshifterPathTrigger : Trigger
         once = data.Bool("once", true);
         pathID = data.Int("pathID", -1);
 
-        HashSet<int> ids = new();
+        HashSet<int> ids = [];
         foreach (string sub in data.Attr("shapeshifterID", string.Empty).Split(','))
         {
             string trimmed = sub.Trim();
@@ -26,7 +26,7 @@ public class FollowShapeshifterPathTrigger : Trigger
             else
                 Util.Log(LogLevel.Warn, $"invalid integer in comma-separated list of IDs: {trimmed}");
         }
-        shapeshifterIDs = ids.ToArray();
+        shapeshifterIDs = [.. ids];
     }
 
     public override void OnEnter(Player player)

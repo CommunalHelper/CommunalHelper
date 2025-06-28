@@ -15,11 +15,12 @@ public static class DreamTunnelDash
 
         player.StartedDashing = false;
 
-        if (player.dreamSfxLoop == null)
+        if (player.dreamSfxLoop is null)
         {
-            player.dreamSfxLoop = new SoundSource();
-            player.dreamSfxLoop.DisposeOnTransition = !config.AllowTransitions;
-            player.Add(player.dreamSfxLoop);
+            player.Add(player.dreamSfxLoop = new SoundSource
+            {
+                DisposeOnTransition = !config.AllowTransitions
+            });
         }
 
         // Extra correction for fast moving solids, this does not cause issues with dashdir leniency
@@ -79,7 +80,7 @@ public static class DreamTunnelDash
         player.RefillStamina();
         player.TreatNaive = false;
         Solid solid = playerData.Get<Solid>(Player_solid);
-        if (solid != null)
+        if (solid is not null)
         {
             if (player.DashDir.X != 0f)
             {
@@ -108,18 +109,18 @@ public static class DreamTunnelDash
         bool flag = Input.GetAimVector().Sign() == player.Speed.Sign();
         if ((!config.AllowRedirect || flag) && (!config.AllowSameDirectionRedirect || !flag))
             return;
-        
+
         if (config.RedirectConsumesNormalDash)
             player.Dashes = Math.Max(0, player.Dashes - 1);
         else
             DreamTunnelDashCount = Math.Max(0, DreamTunnelDashCount - 1);
-                
+
         Audio.Play("event:/char/madeline/dreamblock_enter");
         if (Engine.TimeRate > 0.25f)
         {
             Celeste.Freeze(0.05f);
         }
-                
+
         if (flag)
         {
             player.Speed *= config.SameDirectionSpeedMultiplier;
@@ -130,21 +131,21 @@ public static class DreamTunnelDash
             player.DashDir = Input.GetAimVector();
             player.Speed = player.DashDir * player.Speed.Length();
         }
-                
+
         Input.Dash.ConsumeBuffer();
     }
-    
+
     // Do a bounce check and bounce if possible
     private static bool AttemptBounce(this Player player)
-    { 
+    {
         if (!CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.BounceOnCollision)
             return false;
-        
+
         Vector2 moveCheckVector = player.Speed * Engine.DeltaTime;
         player.NaiveMove(moveCheckVector);
 
         Solid solid = player.CollideFirst<Solid, DreamBlock>();
-        if (solid == null && player.DreamTunneledIntoDeath())
+        if (solid is null && player.DreamTunneledIntoDeath())
         {
             // Move the player out of the wall properly, then bounce
             player.NaiveMove(-moveCheckVector);
@@ -178,7 +179,7 @@ public static class DreamTunnelDash
     private static bool OutsideAfterMove(this Player player, Vector2 offset)
     {
         player.NaiveMove(offset);
-        bool outside = player.CollideFirst<Solid, DreamBlock>() == null;
+        bool outside = player.CollideFirst<Solid, DreamBlock>() is null;
         player.NaiveMove(-offset);
 
         return outside;
@@ -188,12 +189,12 @@ public static class DreamTunnelDash
     {
         DynamicData playerData = player.GetData();
         DreamTunnelDashConfiguration config = CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
-        
+
         if (Input.Dash.Pressed && Input.Aim.Value != Vector2.Zero)
         {
             player.DreamTunnelDashRedirect();
         }
-        
+
         if (player.AttemptBounce())
         {
             return St.DreamTunnelDash;
@@ -235,7 +236,7 @@ public static class DreamTunnelDash
             playerData.Set(Player_dreamTunnelDashCanEndTimer, dreamDashCanEndTimer - Engine.DeltaTime);
         }
         Solid solid = player.CollideFirst<Solid, DreamBlock>();
-        if (solid == null)
+        if (solid is null)
         {
             if (player.DreamTunneledIntoDeath())
             {

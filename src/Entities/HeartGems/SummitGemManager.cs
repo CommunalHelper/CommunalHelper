@@ -8,23 +8,20 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [Tracked]
 public class CustomSummitGemManager : Entity
 {
-    public static readonly string[] UnlockEventLookup;
+    public static readonly string[] UnlockEventLookup = [
+            SFX.game_07_gem_unlock_1,
+            SFX.game_07_gem_unlock_2,
+            SFX.game_07_gem_unlock_3,
+            SFX.game_07_gem_unlock_4,
+            SFX.game_07_gem_unlock_5,
+            CustomSFX.game_usableSummitGems_gem_unlock_la,
+            CustomSFX.game_usableSummitGems_gem_unlock_ti,
+            SFX.game_07_gem_unlock_6,
+        ];
 
     private readonly List<Gem> gems;
     private Vector2? heartOffset;
     private readonly int[] melody;
-
-    static CustomSummitGemManager()
-    {
-        UnlockEventLookup = new string[] {
-            "1", "2", "3", "4", "5",
-            CustomSFX.game_usableSummitGems_gem_unlock_la,
-            CustomSFX.game_usableSummitGems_gem_unlock_ti,
-            SFX.game_07_gem_unlock_6
-        };
-        for (int i = 0; i < 5; i++)
-            UnlockEventLookup[i] = "event:/game/07_summit/gem_unlock_" + UnlockEventLookup[i];
-    }
 
     public CustomSummitGemManager(EntityData data, Vector2 offset)
         : base(data.Position + offset)
@@ -42,7 +39,7 @@ public class CustomSummitGemManager : Entity
         */
         melody = Array.ConvertAll(data.Attr("melody").ToCharArray(), chr => chr - '0');
 
-        gems = new List<Gem>();
+        gems = [];
         string[] ids = data.Attr("gemIds").Split(',').Select(Util.StrTrim).ToArray();
         if (ids.Length < data.Nodes.Length)
             throw new IndexOutOfRangeException("The number of supplied SummitGemManager IDs needs to match the number of nodes!");
@@ -61,9 +58,7 @@ public class CustomSummitGemManager : Entity
     public override void Awake(Scene scene)
     {
         foreach (Gem entity in gems)
-        {
             scene.Add(entity);
-        }
         base.Awake(scene);
     }
 
@@ -81,10 +76,9 @@ public class CustomSummitGemManager : Entity
         }
 
         Player entity = Scene.Tracker.GetEntity<Player>();
-        while (entity == null || !((entity.Position - Position).Length() < 64f))
-        {
+        while (entity is null || !((entity.Position - Position).Length() < 64f))
             yield return null;
-        }
+            
         yield return 0.5f;
 
         bool alreadyHasHeart = level.Session.OldStats.Modes[0].HeartGem;
@@ -95,11 +89,11 @@ public class CustomSummitGemManager : Entity
             bool flag = CommunalHelperModule.Session.SummitGems.Contains(gem.ID);
             if (!alreadyHasHeart || IsExternal(gem))
             {
-                flag |= CommunalHelperModule.SaveData.SummitGems != null && CommunalHelperModule.SaveData.SummitGems.Contains(gem.ID);
+                flag |= CommunalHelperModule.SaveData.SummitGems is not null && CommunalHelperModule.SaveData.SummitGems.Contains(gem.ID);
             }
             if (flag)
             {
-                Audio.Play(UnlockEventLookup[(melody != null && melody.Length > index) ? melody[index] : gem.Index], gem.Position);
+                Audio.Play(UnlockEventLookup[(melody is not null && melody.Length > index) ? melody[index] : gem.Index], gem.Position);
                 /*
                  * TODO: implement this I guess
                 float note = melody[index];
@@ -168,7 +162,7 @@ public class CustomSummitGemManager : Entity
             yield break;
 
         Entity heart = Scene.Entities.FindFirst<HeartGem>() ?? Scene.Entities.FindFirst_MiniHeart();
-        if (heart != null)
+        if (heart is not null)
         {
             Audio.Play(SFX.game_07_gem_unlock_complete, heart.Position);
             yield return 0.1f;
@@ -179,7 +173,7 @@ public class CustomSummitGemManager : Entity
         Vector2 from = heart.Position;
         Vector2 offset = heartOffset ?? Vector2.Zero;
         float p = 0f;
-        while (p < 1f && heart.Scene != null)
+        while (p < 1f && heart.Scene is not null)
         {
             heart.Position = Vector2.Lerp(from, Position + offset, Ease.CubeOut(p));
             yield return null;

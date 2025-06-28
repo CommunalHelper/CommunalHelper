@@ -15,9 +15,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/DreamMoveBlock")]
 public class DreamMoveBlock : CustomDreamBlock
 {
-    public static ParticleType P_Activate;
-    public static ParticleType P_Break;
-    public static ParticleType[] dreamParticles;
+    private static ParticleType[] dreamParticles;
     private int moveParticleIndex = 0;
     private int breakParticleIndex = 0;
     private int activateParticleIndex = 0;
@@ -100,24 +98,14 @@ public class DreamMoveBlock : CustomDreamBlock
 
     internal static void InitializeParticles()
     {
-        P_Activate = new ParticleType(MoveBlock.P_Activate)
-        {
-            Color = Color.White
-        };
-        P_Break = new ParticleType(MoveBlock.P_Break)
-        {
-            Color = Color.White
-        };
-
         ParticleType particle = new(MoveBlock.P_Move)
         {
             ColorMode = ParticleType.ColorModes.Choose
         };
+
         dreamParticles = new ParticleType[4];
         for (int i = 0; i < 4; i++)
-        {
             dreamParticles[i] = new ParticleType(particle);
-        }
     }
 
     public DreamMoveBlock(EntityData data, Vector2 offset)
@@ -156,47 +144,31 @@ public class DreamMoveBlock : CustomDreamBlock
 
         noDebris = data.Bool("noDebris");
 
-        if (data.Attr("idleButtonsColor", "FFFFFF") != "FFFFFF")
-        {
-            this.idleButtonsColor = Calc.HexToColor(data.Attr("idleButtonsColor"));
-        }
+        if (data.Attr("idleButtonsColor", "FFFFFF") is not "FFFFFF")
+            idleButtonsColor = Calc.HexToColor(data.Attr("idleButtonsColor"));
 
-        if (data.Attr("idleArrowColor", "FFFFFF") != "FFFFFF")
-        {
-            this.idleArrowColor = Calc.HexToColor(data.Attr("idleArrowColor"));
-        }
+        if (data.Attr("idleArrowColor", "FFFFFF") is not "FFFFFF")
+            idleArrowColor = Calc.HexToColor(data.Attr("idleArrowColor"));
 
-        if (data.Attr("idleWobbleLinesColor", "FFFFFF") != "FFFFFF")
-        {
-            this.idleWobbleLinesColor = Calc.HexToColor(data.Attr("idleWobbleLinesColor"));
-        }
+        if (data.Attr("idleWobbleLinesColor", "FFFFFF") is not "FFFFFF")
+            idleWobbleLinesColor = Calc.HexToColor(data.Attr("idleWobbleLinesColor"));
 
-        if (data.Attr("movingButtonsColor", "FFFFFF") != "FFFFFF")
-        {
-            this.movingButtonsColor = Calc.HexToColor(data.Attr("movingButtonsColor"));
-        }
+        if (data.Attr("movingButtonsColor", "FFFFFF") is not "FFFFFF")
+            movingButtonsColor = Calc.HexToColor(data.Attr("movingButtonsColor"));
 
-        if (data.Attr("movingArrowColor", "FFFFFF") != "FFFFFF")
-        {
-            this.movingArrowColor = Calc.HexToColor(data.Attr("movingArrowColor"));
-        }
+        if (data.Attr("movingArrowColor", "FFFFFF") is not "FFFFFF")
+            movingArrowColor = Calc.HexToColor(data.Attr("movingArrowColor"));
 
-        if (data.Attr("movingWobbleLinesColor", "FFFFFF") != "FFFFFF")
-        {
-            this.movingWobbleLinesColor = Calc.HexToColor(data.Attr("movingWobbleLinesColor"));
-        }
+        if (data.Attr("movingWobbleLinesColor", "FFFFFF") is not "FFFFFF")
+            movingWobbleLinesColor = Calc.HexToColor(data.Attr("movingWobbleLinesColor"));
 
-        if (data.Attr("breakingWobbleLinesColor", "FFFFFF") != "FFFFFF")
-        {
-            this.breakingWobbleLinesColor = Calc.HexToColor(data.Attr("breakingWobbleLinesColor"));
-        }
+        if (data.Attr("breakingWobbleLinesColor", "FFFFFF") is not "FFFFFF")
+            breakingWobbleLinesColor = Calc.HexToColor(data.Attr("breakingWobbleLinesColor"));
 
-        if (data.Attr("breakingCrossColor", "FFFFFF") != "FFFFFF")
-        {
-            this.breakingCrossColor = Calc.HexToColor(data.Attr("breakingCrossColor"));
-        }
+        if (data.Attr("breakingCrossColor", "FFFFFF") is not "FFFFFF")
+            breakingCrossColor = Calc.HexToColor(data.Attr("breakingCrossColor"));
 
-        this.currentArrowColor = this.idleArrowColor;
+        currentArrowColor = idleArrowColor;
 
         arrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/dreamMoveBlock/arrow");
         Add(moveSfx = new SoundSource());
@@ -232,7 +204,7 @@ public class DreamMoveBlock : CustomDreamBlock
         {
             for (int i = 0; i < num; i++)
             {
-                int num3 = ((i != 0) ? ((i < num - 1) ? 1 : 2) : 0);
+                int num3 = (i != 0) ? ((i < num - 1) ? 1 : 2) : 0;
                 AddImage(mTexture2.GetSubtexture(num3 * 8, 0, 8, 8), new Vector2(i * 8, -4f), 0f, new Vector2(1f, 1f), topButton);
             }
             mTexture = GFX.Game["objects/CommunalHelper/dreamMoveBlock/base_h"];
@@ -241,7 +213,7 @@ public class DreamMoveBlock : CustomDreamBlock
         {
             for (int j = 0; j < num2; j++)
             {
-                int num4 = ((j != 0) ? ((j < num2 - 1) ? 1 : 2) : 0);
+                int num4 = (j != 0) ? ((j < num2 - 1) ? 1 : 2) : 0;
                 AddImage(mTexture2.GetSubtexture(num4 * 8, 0, 8, 8), new Vector2(-4f, j * 8), (float) Math.PI / 2f, new Vector2(1f, -1f), leftButton);
                 AddImage(mTexture2.GetSubtexture(num4 * 8, 0, 8, 8), new Vector2((num - 1) * 8 + 4, j * 8), (float) Math.PI / 2f, new Vector2(1f, 1f), rightButton);
             }
@@ -251,11 +223,12 @@ public class DreamMoveBlock : CustomDreamBlock
         {
             for (int l = 0; l < num2; l++)
             {
-                int num5 = ((k != 0) ? ((k < num - 1) ? 1 : 2) : 0);
-                int num6 = ((l != 0) ? ((l < num2 - 1) ? 1 : 2) : 0);
+                int num5 = (k != 0) ? ((k < num - 1) ? 1 : 2) : 0;
+                int num6 = (l != 0) ? ((l < num2 - 1) ? 1 : 2) : 0;
                 AddImage(mTexture.GetSubtexture(num5 * 8, num6 * 8, 8, 8), new Vector2(k, l) * 8f, 0f, new Vector2(1f, 1f), body);
             }
         }
+
         UpdateColors();
     }
 
@@ -266,9 +239,7 @@ public class DreamMoveBlock : CustomDreamBlock
             triggered = false;
             groupable.State = GroupableMoveBlock.MovementState.Idling;
             while (!triggered && !groupable.GroupTriggerSignal && !HasPlayerRider())
-            {
                 yield return null;
-            }
 
             yield return new SwapImmediately(groupable.SyncGroupTriggers());
 
@@ -293,7 +264,7 @@ public class DreamMoveBlock : CustomDreamBlock
                 if (canSteer)
                 {
                     targetAngle = homeAngle;
-                    bool flag = ((direction != MoveBlock.Directions.Right && direction != 0) ? HasPlayerClimbing() : HasPlayerOnTop());
+                    bool flag = (direction != MoveBlock.Directions.Right && direction != 0) ? HasPlayerClimbing() : HasPlayerOnTop();
                     if (flag && noSteerTimer > 0f)
                     {
                         noSteerTimer -= Engine.DeltaTime;
@@ -303,13 +274,9 @@ public class DreamMoveBlock : CustomDreamBlock
                         if (noSteerTimer <= 0f)
                         {
                             if (direction == MoveBlock.Directions.Right || direction == MoveBlock.Directions.Left)
-                            {
-                                targetAngle = homeAngle + (float) Math.PI / 4f * (float) angleSteerSign * (float) Input.MoveY.Value;
-                            }
+                                targetAngle = homeAngle + (float) Math.PI / 4f * angleSteerSign * Input.MoveY.Value;
                             else
-                            {
-                                targetAngle = homeAngle + (float) Math.PI / 4f * (float) angleSteerSign * (float) Input.MoveX.Value;
-                            }
+                                targetAngle = homeAngle + (float) Math.PI / 4f * angleSteerSign * Input.MoveX.Value;
                         }
                     }
                     else
@@ -340,13 +307,9 @@ public class DreamMoveBlock : CustomDreamBlock
                     if (Scene.OnInterval(0.03f))
                     {
                         if (move.Y > 0f)
-                        {
                             ScrapeParticles(Vector2.UnitY);
-                        }
                         else if (move.Y < 0f)
-                        {
                             ScrapeParticles(-Vector2.UnitY);
-                        }
                     }
                 }
                 else
@@ -363,13 +326,9 @@ public class DreamMoveBlock : CustomDreamBlock
                     if (Scene.OnInterval(0.03f))
                     {
                         if (move.X > 0f)
-                        {
                             ScrapeParticles(Vector2.UnitX);
-                        }
                         else if (move.X < 0f)
-                        {
                             ScrapeParticles(-Vector2.UnitX);
-                        }
                     }
                     if (direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32)
                     {
@@ -405,9 +364,8 @@ public class DreamMoveBlock : CustomDreamBlock
                 }
                 Level level = Scene as Level;
                 if (Left < level.Bounds.Left || Top < level.Bounds.Top || Right > level.Bounds.Right)
-                {
                     break;
-                }
+
                 yield return null;
             }
 
@@ -425,7 +383,8 @@ public class DreamMoveBlock : CustomDreamBlock
             BreakParticles();
             ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debris = new();
-            if (!noDebris) {
+            if (!noDebris)
+            {
                 for (int x = 0; x < Width; x += 8)
                 {
                     for (int y = 0; y < Height; y += 8)
@@ -504,7 +463,7 @@ public class DreamMoveBlock : CustomDreamBlock
             speed = targetSpeed = 0f;
             angle = targetAngle = homeAngle;
             noSquish = null;
-            this.fillColor = this.idleButtonsColor;
+            fillColor = idleButtonsColor;
             UpdateColors();
             flash = 1f;
         }
@@ -551,7 +510,7 @@ public class DreamMoveBlock : CustomDreamBlock
         }
     }
 
-    private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris)
+    private static IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris)
     {
         while (true && debris.Count > 0)
         {
@@ -581,15 +540,15 @@ public class DreamMoveBlock : CustomDreamBlock
             bool flag3 = (direction == MoveBlock.Directions.Left || direction == MoveBlock.Directions.Right) && CollideCheck<Player>(Position + new Vector2(0f, -1f));
             foreach (Image item in topButton)
             {
-                item.Y = (flag3 ? 2 : 0);
+                item.Y = flag3 ? 2 : 0;
             }
             foreach (Image item2 in leftButton)
             {
-                item2.X = (flag ? 2 : 0);
+                item2.X = flag ? 2 : 0;
             }
             foreach (Image item3 in rightButton)
             {
-                item3.X = base.Width + (float) (flag2 ? (-2) : 0);
+                item3.X = Width + (flag2 ? (-2) : 0);
             }
             if ((flag && !leftPressed) || (flag3 && !topPressed) || (flag2 && !rightPressed))
             {
@@ -603,7 +562,7 @@ public class DreamMoveBlock : CustomDreamBlock
             rightPressed = flag2;
             topPressed = flag3;
         }
-        if (moveSfx != null && moveSfx.Playing)
+        if (moveSfx is not null && moveSfx.Playing)
         {
             float num = (Calc.AngleToVector(angle, 1f) * new Vector2(-1f, 1f)).Angle();
             int num2 = (int) Math.Floor(((0f - num + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
@@ -620,7 +579,7 @@ public class DreamMoveBlock : CustomDreamBlock
 
     public override void MoveHExact(int move)
     {
-        if (noSquish != null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X)))
+        if (noSquish is not null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X)))
         {
             while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + (Vector2.UnitX * move)))
             {
@@ -632,7 +591,7 @@ public class DreamMoveBlock : CustomDreamBlock
 
     public override void MoveVExact(int move)
     {
-        if (noSquish != null && move < 0 && noSquish.Y <= Y)
+        if (noSquish is not null && move < 0 && noSquish.Y <= Y)
         {
             while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + (Vector2.UnitY * move)))
             {
@@ -714,26 +673,12 @@ public class DreamMoveBlock : CustomDreamBlock
 
         base.Render();
 
-        Color color = Color.Lerp(ActiveLineColor, Color.Black, ColorLerp);
         if (groupable.State != GroupableMoveBlock.MovementState.Breaking && canSteer)
         {
-            foreach (Image item in leftButton)
-            {
-                item.Render();
-            }
-            foreach (Image item2 in rightButton)
-            {
-                item2.Render();
-            }
-            foreach (Image item3 in topButton)
-            {
-                item3.Render();
-            }
-
-            foreach (Image item4 in body)
-            {
-                item4.Render();
-            }
+            foreach (Image img in leftButton) img.Render();
+            foreach (Image img in rightButton) img.Render();
+            foreach (Image img in topButton) img.Render();
+            foreach (Image img in body) img.Render();
         }
 
         int value = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
@@ -758,54 +703,42 @@ public class DreamMoveBlock : CustomDreamBlock
         {
             if (canSteer)
             {
-                base.topWobble = false;
+                topWobble = false;
             }
         }
         else if (direction == MoveBlock.Directions.Up || direction == MoveBlock.Directions.Down)
         {
             if (canSteer)
             {
-                base.leftWobble = false;
-                base.rightWobble = false;
+                leftWobble = false;
+                rightWobble = false;
             }
         }
         if (groupable.State == GroupableMoveBlock.MovementState.Idling)
         {
-            this.fillColor = Color.Lerp(fillColor, this.idleButtonsColor, 10f * Engine.DeltaTime);
-            this.wobbleLineColor = this.idleWobbleLinesColor;
+            fillColor = Color.Lerp(fillColor, idleButtonsColor, 10f * Engine.DeltaTime);
+            wobbleLineColor = idleWobbleLinesColor;
         }
         else if (groupable.State == GroupableMoveBlock.MovementState.Moving)
         {
-            this.fillColor = Color.Lerp(fillColor, this.movingButtonsColor, 10f * Engine.DeltaTime);
-            this.wobbleLineColor = this.movingWobbleLinesColor;
+            fillColor = Color.Lerp(fillColor, movingButtonsColor, 10f * Engine.DeltaTime);
+            wobbleLineColor = movingWobbleLinesColor;
         }
         else if (groupable.State == GroupableMoveBlock.MovementState.Breaking && canSteer)
         {
-            base.topWobble = true;
-            base.bottomWobble = true;
-            base.leftWobble = true;
-            base.rightWobble = true;
-            this.wobbleLineColor = this.breakingWobbleLinesColor;
+            topWobble = true;
+            bottomWobble = true;
+            leftWobble = true;
+            rightWobble = true;
+            wobbleLineColor = breakingWobbleLinesColor;
         }
 
         if (canSteer)
         {
-            foreach (Image item in topButton)
-            {
-                item.Color = this.fillColor;
-            }
-            foreach (Image item2 in leftButton)
-            {
-                item2.Color = this.fillColor;
-            }
-            foreach (Image item3 in rightButton)
-            {
-                item3.Color = this.fillColor;
-            }
-            foreach (Image item4 in body)
-            {
-                item4.Color = this.fillColor;
-            }
+            foreach (Image img in topButton) img.Color = fillColor;
+            foreach (Image img in leftButton) img.Color = fillColor;
+            foreach (Image img in rightButton) img.Color = fillColor;
+            foreach (Image img in body) img.Color = fillColor;
         }
 
         Color value = groupable.State switch
@@ -819,11 +752,13 @@ public class DreamMoveBlock : CustomDreamBlock
 
     private void AddImage(MTexture tex, Vector2 position, float rotation, Vector2 scale, List<Image> addTo)
     {
-        Image image = new Image(tex);
-        image.Position = position + new Vector2(4f, 4f);
+        Image image = new(tex)
+        {
+            Position = position + new Vector2(4f, 4f),
+            Rotation = rotation,
+            Scale = scale
+        };
         image.CenterOrigin();
-        image.Rotation = rotation;
-        image.Scale = scale;
         Add(image);
         addTo?.Add(image);
     }
@@ -898,33 +833,35 @@ public class DreamMoveBlock : CustomDreamBlock
         Vector2 positionRange;
         float dir;
         float num2;
-        if (direction == MoveBlock.Directions.Right)
+        switch (direction)
         {
-            position = CenterLeft + Vector2.UnitX;
-            positionRange = Vector2.UnitY * (Height - 4f);
-            dir = (float) Math.PI;
-            num2 = Height / 32f;
-        }
-        else if (direction == MoveBlock.Directions.Left)
-        {
-            position = CenterRight;
-            positionRange = Vector2.UnitY * (Height - 4f);
-            dir = 0f;
-            num2 = Height / 32f;
-        }
-        else if (direction == MoveBlock.Directions.Down)
-        {
-            position = TopCenter + Vector2.UnitY;
-            positionRange = Vector2.UnitX * (Width - 4f);
-            dir = -(float) Math.PI / 2f;
-            num2 = Width / 32f;
-        }
-        else
-        {
-            position = BottomCenter;
-            positionRange = Vector2.UnitX * (Width - 4f);
-            dir = (float) Math.PI / 2f;
-            num2 = Width / 32f;
+            default:
+            case MoveBlock.Directions.Right:
+                position = CenterLeft + Vector2.UnitX;
+                positionRange = Vector2.UnitY * (Height - 4f);
+                dir = (float) Math.PI;
+                num2 = Height / 32f;
+                break;
+            case MoveBlock.Directions.Left:
+                position = CenterRight;
+                positionRange = Vector2.UnitY * (Height - 4f);
+                dir = 0f;
+                num2 = Height / 32f;
+                break;
+            case MoveBlock.Directions.Down:
+
+                position = TopCenter + Vector2.UnitY;
+                positionRange = Vector2.UnitX * (Width - 4f);
+                dir = -(float) Math.PI / 2f;
+                num2 = Width / 32f;
+                break;
+
+            case MoveBlock.Directions.Up:
+                position = BottomCenter;
+                positionRange = Vector2.UnitX * (Width - 4f);
+                dir = (float) Math.PI / 2f;
+                num2 = Width / 32f;
+                break;
         }
 
         particleRemainder += num2;

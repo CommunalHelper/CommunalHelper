@@ -58,8 +58,8 @@ public class NoOverlayLookout : Entity
         };
 
         Vector2[] array = data.NodesOffset(offset);
-        if (array != null && array.Length != 0)
-            nodes = new List<Vector2>(array);
+        if (array is not null && array.Length != 0)
+            nodes = [.. array];
     }
 
     public override void Removed(Scene scene)
@@ -69,16 +69,18 @@ public class NoOverlayLookout : Entity
         if (interacting)
         {
             Player player = scene.Tracker.GetEntity<Player>();
-            if (player != null)
+            if (player is not null)
                 player.StateMachine.State = Player.StNormal;
         }
     }
 
     private void Interact(Player player)
     {
-        animPrefix = player.DefaultSpriteMode == PlayerSpriteMode.MadelineAsBadeline || SaveData.Instance.Assists.PlayAsBadeline
+        animPrefix = player.DefaultSpriteMode is PlayerSpriteMode.MadelineAsBadeline || SaveData.Instance.Assists.PlayAsBadeline
             ? "badeline_"
-            : player.DefaultSpriteMode == PlayerSpriteMode.MadelineNoBackpack ? "nobackpack_" : "";
+            : player.DefaultSpriteMode is PlayerSpriteMode.MadelineNoBackpack
+                ? "nobackpack_"
+                : "";
 
         Add(new Coroutine(LookRoutine(player))
         {
@@ -96,13 +98,13 @@ public class NoOverlayLookout : Entity
 
     public override void Update()
     {
-        if (talk.UI != null)
+        if (talk.UI is not null)
             talk.UI.Visible = !CollideCheck<Solid>();
 
         base.Update();
 
         Player player = Scene.Tracker.GetEntity<Player>();
-        if (player != null)
+        if (player is not null)
         {
             sprite.Active = interacting || player.StateMachine.State != Player.StDummy;
             if (!sprite.Active)
@@ -115,10 +117,10 @@ public class NoOverlayLookout : Entity
         Level level = SceneAs<Level>();
         SandwichLava sandwichLava = Scene.Entities.FindFirst<SandwichLava>();
 
-        if (sandwichLava != null)
+        if (sandwichLava is not null)
             sandwichLava.Waiting = true;
 
-        if (player.Holding != null)
+        if (player.Holding is not null)
             player.Drop();
 
         player.StateMachine.State = Player.StDummy;
@@ -197,7 +199,7 @@ public class NoOverlayLookout : Entity
                 }
             }
 
-            if (nodes == null)
+            if (nodes is null)
             {
                 speed += accel * value * Engine.DeltaTime;
                 if (value.X == 0f)
@@ -294,9 +296,7 @@ public class NoOverlayLookout : Entity
                     {
                         nodePercent = 1f;
                         if (summit)
-                        {
                             break;
-                        }
                     }
                 }
 
@@ -372,7 +372,7 @@ public class NoOverlayLookout : Entity
         if (interacting)
         {
             Player entity = scene.Tracker.GetEntity<Player>();
-            if (entity != null)
+            if (entity is not null)
             {
                 entity.StateMachine.State = Player.StNormal;
                 entity.Sprite.Visible = entity.Hair.Visible = true;

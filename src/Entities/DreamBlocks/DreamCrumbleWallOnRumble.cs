@@ -27,31 +27,23 @@ public class DreamCrumbleWallOnRumble : CustomDreamBlock
     {
         base.Awake(scene);
         if (CollideCheck<Player>())
-        {
             RemoveSelf();
-        }
     }
 
     public void Break()
     {
-        if (Collidable && Scene != null)
+        if (Collidable && Scene is not null)
         {
             Audio.Play(SFX.game_10_quake_rockbreak, Position);
             Collidable = false;
+
             for (int x = 0; x < Width / 8f; x++)
-            {
                 for (int y = 0; y < Height / 8f; y++)
-                {
                     if (!Scene.CollideCheck<Solid>(new Rectangle((int) X + (x * 8), (int) Y + (y * 8), 8, 8)))
-                    {
                         Scene.Add(Engine.Pooler.Create<DreamBlockDebris>().Init(Position + new Vector2(4 + (x * 8), 4 + (y * 8))).BlastFrom(TopCenter));
-                    }
-                }
-            }
+
             if (persistent)
-            {
                 SceneAs<Level>().Session.DoNotLoad.Add(id);
-            }
             RemoveSelf();
         }
     }
@@ -97,6 +89,7 @@ public class DreamCrumbleWallOnRumble : CustomDreamBlock
                     crumbles.Add(crumble);
             }
         }
+        
         // Slightly unsafe, but only if someone else does some weird stuff with RumbleTriggers
         if (!triggered)
             triggerData.Set(RUMBLETRIGGER_DREAMCRUMBLES, crumbles);

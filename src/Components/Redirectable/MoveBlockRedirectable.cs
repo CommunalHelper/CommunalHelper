@@ -46,7 +46,7 @@ public class MoveBlockRedirectable : Redirectable
         get => Get_Speed?.Invoke() ?? Data.Get<float>("speed");
         set
         {
-            if (Set_Speed != null)
+            if (Set_Speed is not null)
                 Set_Speed.Invoke(value);
             else
                 Data.Set("speed", value);
@@ -61,7 +61,7 @@ public class MoveBlockRedirectable : Redirectable
         get => Get_TargetSpeed?.Invoke() ?? Data.Get<float>("targetSpeed");
         set
         {
-            if (Set_TargetSpeed != null)
+            if (Set_TargetSpeed is not null)
                 Set_TargetSpeed.Invoke(value);
             else
                 Data.Set("targetSpeed", value);
@@ -76,7 +76,7 @@ public class MoveBlockRedirectable : Redirectable
         get => Get_Direction?.Invoke() ?? Data.Get<Directions>("direction");
         set
         {
-            if (Set_Direction != null)
+            if (Set_Direction is not null)
                 Set_Direction.Invoke(value);
             else
                 Data.Set("direction", value);

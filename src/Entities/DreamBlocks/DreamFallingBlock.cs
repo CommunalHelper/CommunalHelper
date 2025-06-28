@@ -35,18 +35,16 @@ public class DreamFallingBlock : CustomDreamBlock
     }
 
     private bool PlayerWaitCheck()
-    {
-        return Triggered || forceShake || HasPlayerRider()
-            ? true
-            : CollideCheck<Player>(Position - Vector2.UnitX) || CollideCheck<Player>(Position + Vector2.UnitX);
-    }
+        => Triggered
+        || forceShake
+        || HasPlayerRider()
+        || CollideCheck<Player>(Position - Vector2.UnitX)
+        || CollideCheck<Player>(Position + Vector2.UnitX);
 
     private IEnumerator Sequence()
     {
         while (!Triggered && !HasPlayerRider())
-        {
             yield return null;
-        }
 
         while (FallDelay > 0f)
         {
@@ -156,25 +154,23 @@ public class DreamFallingBlock : CustomDreamBlock
                 }
             }
             platform = noCollide ? CollideFirst<DreamBlock>(Position + (Vector2.UnitY * dir)) : CollideFirst<Solid>(Position + (Vector2.UnitY * dir));
-            if (platform != null)
-            {
+            if (platform is not null)
                 break;
-            }
+
             if (!noCollide && move > 0)
             {
                 platform = CollideFirstOutside<JumpThru>(Position + (Vector2.UnitY * dir));
-                if (platform != null)
-                {
+                if (platform is not null)
                     break;
-                }
             }
+            
             actualMove += dir;
             move -= dir;
             Y += dir;
         }
         Y = y;
         base.MoveVExact(actualMove);
-        hasLanded = platform != null;
+        hasLanded = platform is not null;
     }
 
     public override void Render()

@@ -48,10 +48,10 @@ public class PlayerVisualModifier
             orig(self, id, restart, randomizeFrame);
             return;
         }
-        if (va.modifiersByAnim.TryGetValue(id, out var pam) && pam.@override != null)
+        if (va.modifiersByAnim.TryGetValue(id, out var pam) && pam.@override is not null)
             id = pam.@override;
         orig(self, id, restart, randomizeFrame);
-        if (va.image != null && va.image is Sprite sprite && sprite.Has(pam.imagePlay))
+        if (va.image is not null && va.image is Sprite sprite && sprite.Has(pam.imagePlay))
         {
             ModifySpritePlay = false;
             sprite.Play(pam.imagePlay == "mirror" ? id : pam.imagePlay, restart, randomizeFrame);
@@ -61,7 +61,7 @@ public class PlayerVisualModifier
 
     private static void Content_OnUpdate(ModAsset arg1, ModAsset arg2)
     {
-        if (arg2 != null && arg2.PathVirtual.StartsWith(STARTPATH))
+        if (arg2 is not null && arg2.PathVirtual.StartsWith(STARTPATH))
         {
             if (knownModifiers.ContainsKey(arg2.PathVirtual.Substring(STARTPATH.Length)))
             {
@@ -82,7 +82,7 @@ public class PlayerVisualModifier
 
     private static void Player_Render(On.Celeste.Player.orig_Render orig, Player self)
     {
-        if (!(CommunalHelperModule.Session.VisualAddition is string _va && knownModifiers.TryGetValue(_va, out var va)) || (self?.Sprite == null))
+        if (!(CommunalHelperModule.Session.VisualAddition is string _va && knownModifiers.TryGetValue(_va, out var va)) || (self?.Sprite is null))
         {
             orig(self);
             return;
@@ -92,7 +92,7 @@ public class PlayerVisualModifier
         self.Sprite.RenderPosition += v;
         orig(self);
         self.Sprite.RenderPosition -= v;
-        if (va.image == null) return;
+        if (va.image is null) return;
         v = va.modifiersByAnim.TryGetValue(self.Sprite.CurrentAnimationID, out pam) && pam.imageOffset.HasValue ? pam.imageOffset.Value : va.defaultImageOffset;
         v.X *= (int) self.Facing;
         va.image.Texture.Draw(self.Sprite.RenderPosition + v,  va.image.Origin, va.image.Color, new Vector2((int)self.Facing, 1));
@@ -100,7 +100,7 @@ public class PlayerVisualModifier
 
     static void PlayerHair_Render(On.Celeste.PlayerHair.orig_Render orig, PlayerHair self)
     {
-        if (!(CommunalHelperModule.Session.VisualAddition is string _va && knownModifiers.TryGetValue(_va, out var va)) || (self?.Sprite == null))
+        if (!(CommunalHelperModule.Session.VisualAddition is string _va && knownModifiers.TryGetValue(_va, out var va)) || (self?.Sprite is null))
         {
             orig(self);
             return;
@@ -143,20 +143,20 @@ public class PlayerVisualModifier
     {
         Logger.Log(LogLevel.Debug, "CommunalHelper", "PlayerVisualModifier @ " + filePath);
         Logger.Log(LogLevel.Debug, "CommunalHelper", "playerOffset: " + modifier.defaultPlayerOffset);
-        if (modifier.image == null) Logger.Log(LogLevel.Debug, "CommunalHelper", "image: null");
+        if (modifier.image is null) Logger.Log(LogLevel.Debug, "CommunalHelper", "image: null");
         else if (modifier.image is Sprite sprite) Logger.Log(LogLevel.Debug, "CommunalHelper", "image: Sprite with path " + sprite.Path ?? "null");
         else Logger.Log(LogLevel.Debug, "CommunalHelper", "image: Image with texture asset path " + modifier.image.Texture.Metadata.PathVirtual);
-        if (modifier.modifiersByAnim == null) Logger.Log(LogLevel.Debug, "CommunalHelper", "Overrides: none");
+        if (modifier.modifiersByAnim is null) Logger.Log(LogLevel.Debug, "CommunalHelper", "Overrides: none");
         else
         {
             Logger.Log(LogLevel.Debug, "CommunalHelper", "Overrides:");
             foreach (var kvp in modifier.modifiersByAnim)
             {
                 Logger.Log(LogLevel.Debug, "CommunalHelper", "Anim: " + kvp.Key);
-                if (kvp.Value.@override != null) Logger.Log(LogLevel.Debug, "CommunalHelper", "  ReplaceWith: " + kvp.Value.@override);
-                if (kvp.Value.imagePlay != null) Logger.Log(LogLevel.Debug, "CommunalHelper", "  ImagePlays: " + kvp.Value.imagePlay);
+                if (kvp.Value.@override is not null) Logger.Log(LogLevel.Debug, "CommunalHelper", "  ReplaceWith: " + kvp.Value.@override);
+                if (kvp.Value.imagePlay is not null) Logger.Log(LogLevel.Debug, "CommunalHelper", "  ImagePlays: " + kvp.Value.imagePlay);
                 Logger.Log(LogLevel.Debug, "CommunalHelper", "  PlayerOffset: " + kvp.Value.playerOffset?.ToString() ?? "none");
-                if (modifier.image != null) Logger.Log(LogLevel.Debug, "CommunalHelper", "  ImageOffset: " + kvp.Value.playerOffset?.ToString() ?? "none");
+                if (modifier.image is not null) Logger.Log(LogLevel.Debug, "CommunalHelper", "  ImageOffset: " + kvp.Value.playerOffset?.ToString() ?? "none");
             }
         }
     }
@@ -187,7 +187,7 @@ public class PlayerVisualModifier
                     break;
                 }
             }
-            if (c == null) return false;
+            if (c is null) return false;
             foreach(XmlNode a in c.ChildNodes) { 
                 XmlElement el = a as XmlElement; // This is pretty naive, but it's fiiine
                 switch (a.Name)
@@ -226,7 +226,7 @@ public class PlayerVisualModifier
                             modifier.imageJustify = getVectorFromXML(w.Value, true);
                         break;
                     case "Override":
-                        if (modifier.modifiersByAnim == null) modifier.modifiersByAnim = new Dictionary<string, PlayerAnimMod>();
+                        if (modifier.modifiersByAnim is null) modifier.modifiersByAnim = new Dictionary<string, PlayerAnimMod>();
                         PlayerAnimMod m = new PlayerAnimMod();
                         foreach (XmlNode n in a.ChildNodes)
                         {

@@ -31,7 +31,7 @@ public class GlowController : Entity
             // LightingRenderer.MaxLights == 64
             for (int i = 0; i < 64 && i < lights.Length; i++)
             {
-                if (lights[i] != null && lights[i].Entity == null)
+                if (lights[i] is not null && lights[i].Entity is null)
                 {
                     lights[i].Index = -1;
                     lights[i] = null;
@@ -74,7 +74,7 @@ public class GlowController : Entity
         bloomAlpha = data.Float("bloomAlpha", 1f);
         bloomRadius = data.Float("bloomRadius", 8f);
         bloomOffset = new Vector2(data.Int("bloomOffsetX"), data.Int("bloomOffsetY", -10));
-        
+
         deathAnimationIds = data.Attr("deathAnimationIds", "death").Split(',');
         respawnAnimationIds = data.Attr("respawnAnimationIds", "respawn").Split(',');
     }
@@ -125,25 +125,19 @@ public class GlowController : Entity
         void SetAlpha(float alpha)
         {
             foreach (VertexLight vertexLight in entity.Components.GetAll<VertexLight>())
-            {
                 vertexLight.Alpha = alpha;
-            }
 
             foreach (BloomPoint bloomPoint in entity.Components.GetAll<BloomPoint>())
-            {
                 bloomPoint.Alpha = alpha;
-            }
         }
 
-        if (sprite.Animations.FirstOrDefault(kvp => deathAnimationIds.Contains(kvp.Key)).Value is not {} deathAnimation)
-        {
+        if (sprite.Animations.FirstOrDefault(kvp => deathAnimationIds.Contains(kvp.Key)).Value is not { } deathAnimation)
             yield break;
-        }
 
-        while (entity.Scene != null)
+        while (entity.Scene is not null)
         {
             // wait until the sprite plays the death animation
-            while (entity.Scene != null && !deathAnimationIds.Contains(sprite.CurrentAnimationID))
+            while (entity.Scene is not null && !deathAnimationIds.Contains(sprite.CurrentAnimationID))
             {
                 yield return null;
             }
@@ -152,7 +146,7 @@ public class GlowController : Entity
             var fadeTime = deathAnimation.Frames.Length * deathAnimation.Delay;
             var fadeRemaining = fadeTime;
 
-            while (entity.Scene != null && deathAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
+            while (entity.Scene is not null && deathAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
             {
                 fadeRemaining -= Engine.DeltaTime;
                 SetAlpha(Math.Max(fadeRemaining / fadeTime, 0f));
@@ -161,8 +155,8 @@ public class GlowController : Entity
             SetAlpha(0f);
 
             // if the sprite has a respawn animation, wait until it's playing it
-            if (sprite.Animations.FirstOrDefault(kvp => respawnAnimationIds.Contains(kvp.Key)).Value is not {} respawnAnimation) break;
-            while (entity.Scene != null && !respawnAnimationIds.Contains(sprite.CurrentAnimationID))
+            if (sprite.Animations.FirstOrDefault(kvp => respawnAnimationIds.Contains(kvp.Key)).Value is not { } respawnAnimation) break;
+            while (entity.Scene is not null && !respawnAnimationIds.Contains(sprite.CurrentAnimationID))
             {
                 yield return null;
             }
@@ -171,7 +165,7 @@ public class GlowController : Entity
             fadeTime = respawnAnimation.Frames.Length * respawnAnimation.Delay;
             fadeRemaining = fadeTime;
 
-            while (entity.Scene != null && respawnAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
+            while (entity.Scene is not null && respawnAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
             {
                 fadeRemaining -= Engine.DeltaTime;
                 SetAlpha(1f - Math.Max(fadeRemaining / fadeTime, 0f));

@@ -14,7 +14,7 @@ public class DreamBooster : CustomBooster
     public static readonly Color AppearColor = Calc.HexToColor("4d5f6e");
 
     // red, orange, yellow, green, cyan, blue, purple, pink.
-    public static readonly Color[] DreamColors = new Color[8] {
+    public static readonly Color[] DreamColors = [
         Calc.HexToColor("ee3566"),
         Calc.HexToColor("ff7b3d"),
         Calc.HexToColor("efdc65"),
@@ -23,7 +23,7 @@ public class DreamBooster : CustomBooster
         Calc.HexToColor("30a0e6"),
         Calc.HexToColor("af7fc9"),
         Calc.HexToColor("df6da2")
-    };
+    ];
     public static readonly ParticleType[] DreamParticles = new ParticleType[8];
 
     public DreamBooster(EntityData data, Vector2 offset)
@@ -188,6 +188,7 @@ public class DreamBoosterHooks
             else
                 dreamBoostStop = true;
         }
+
         orig(self, data);
     }
 

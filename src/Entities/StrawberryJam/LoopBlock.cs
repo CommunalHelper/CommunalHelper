@@ -29,7 +29,7 @@ public class LoopBlock : Solid
     private bool canRumble;
     private bool returning, returningDash;
     private bool dashed, scaledSpikes;
-    private bool noHole;
+    private readonly bool noHole;
 
     private float respawnTimer;
     private float targetSpeedX;
@@ -42,8 +42,8 @@ public class LoopBlock : Solid
 
     public LoopBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Int("edgeThickness", 1), data.HexColor("color"), data.Bool("noHole"), data.Attr("texture", DEFAULT_TEXTURE))
-    { 
-        creatingData = data; 
+    {
+        creatingData = data;
     }
 
     public LoopBlock(Vector2 position, int width, int height, int edgeThickness, Color color, bool noHole, string texture = DEFAULT_TEXTURE)
@@ -58,12 +58,12 @@ public class LoopBlock : Solid
         this.edgeThickness = Calc.Clamp(edgeThickness, 1, (int) ((minEdgeSize - 1) / 2f));
         this.color = color;
         this.noHole = noHole;
-        
+
         particleType = new(Cloud.P_Cloud)
         {
             Color = color
         };
-        
+
         OnDashCollide = OnDashed;
 
         InitializeTextures(texture);
@@ -79,15 +79,15 @@ public class LoopBlock : Solid
         VirtualMap<bool> tileMap = new(w, h);
 
         for (int i = 0; i < w; i++)
+        {
             for (int j = 0; j < h; j++)
+            {
                 if (!noHole)
-                {
                     tileMap[i, j] = i < edgeThickness || i >= w - edgeThickness || j < edgeThickness || j >= h - edgeThickness;
-                }
                 else
-                {
                     tileMap[i, j] = true;
-                }
+            }
+        }
 
         for (int i = 0; i < w; i++)
         {
@@ -135,13 +135,13 @@ public class LoopBlock : Solid
                     else if (up && down && left && !right)
                         texture = outerEdges[2, 1, index];
                     else if (right && down)
-                        texture = (downright ? outerEdges[0, 0, index] : wallEdges[0, 0, index]);
+                        texture = downright ? outerEdges[0, 0, index] : wallEdges[0, 0, index];
                     else if (left && down)
-                        texture = (downleft ? outerEdges[2, 0, index] : wallEdges[1, 0, index]);
+                        texture = downleft ? outerEdges[2, 0, index] : wallEdges[1, 0, index];
                     else if (right && up)
-                        texture = (upright ? outerEdges[0, 2, index] : wallEdges[0, 1, index]);
+                        texture = upright ? outerEdges[0, 2, index] : wallEdges[0, 1, index];
                     else if (left && up)
-                        texture = (upleft ? outerEdges[2, 2, index] : wallEdges[1, 1, index]);
+                        texture = upleft ? outerEdges[2, 2, index] : wallEdges[1, 1, index];
                     else if (left && right && !up && !down)
                         texture = wallEdges[2, 0, index];
                     else if (!left && !right && up && down)
@@ -158,7 +158,7 @@ public class LoopBlock : Solid
     {
         invertedInteraction ??= GravityHelper.IsPlayerInverted?.Invoke() ?? false;
         var checkDir = invertedInteraction.Value ? 1 : -1;
-        
+
         if (dir.Y == 0)
         {
             dashedDirX = dir.X;
@@ -278,7 +278,7 @@ public class LoopBlock : Solid
         if (waiting)
         {
             Player playerRider = GetPlayerRider();
-            if (playerRider != null && playerRider.StateMachine.State != Player.StCassetteFly)
+            if (playerRider is not null && playerRider.StateMachine.State != Player.StCassetteFly)
             {
                 canRumble = true;
                 invertedInteraction ??= GravityHelper.IsPlayerInverted?.Invoke() ?? false;
@@ -291,7 +291,7 @@ public class LoopBlock : Solid
 
         var inverted = invertedInteraction ?? false;
         var inversionMultiplier = inverted ? -1 : 1;
-        
+
         if (returning)
         {
             speed.Y = Calc.Approach(speed.Y, 180f, 600f * Engine.DeltaTime);
@@ -330,7 +330,7 @@ public class LoopBlock : Solid
             if (speed.Y >= -100f)
             {
                 Player playerRider = GetPlayerRider();
-                if (playerRider != null && playerRider.Speed.Y >= 0f && !HasPlayerClimbing())
+                if (playerRider is not null && playerRider.Speed.Y >= 0f && !HasPlayerClimbing())
                     playerRider.Speed.Y = -200f;
                 returning = true;
             }
@@ -351,7 +351,7 @@ public class LoopBlock : Solid
             for (int j = 0; j < h; j++)
             {
                 MTexture tile = tiles[i, j];
-                if (tile != null)
+                if (tile is not null)
                 {
                     Vector2 pos = Center + (new Vector2(X + i * 8 + 4, Y + j * 8 + 4) - Center) * scale;
                     tile.DrawCentered(pos, color, scale);

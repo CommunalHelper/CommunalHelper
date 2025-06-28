@@ -19,14 +19,16 @@ public class PelletEmitter : Entity
     public bool WiggleHitbox { get; }
     public bool KillPlayer { get; }
     public LaserOrientations Orientation { get; }
-        
+
     #endregion
 
-    public static ParticleType P_BlueTrail;
-    public static ParticleType P_PinkTrail;
-    
-    public static void LoadParticles() {
-        P_BlueTrail ??= new ParticleType {
+    private static ParticleType P_BlueTrail;
+    private static ParticleType P_PinkTrail;
+
+    public static void LoadParticles()
+    {
+        P_BlueTrail ??= new ParticleType
+        {
             Source = GFX.Game["particles/blob"],
             Color = Paintbrush.ColorFromCassetteIndex(0),
             Color2 = Calc.HexToColor("7550e8"),
@@ -42,17 +44,18 @@ public class PelletEmitter : Entity
             DirectionRange = 0.5f,
         };
 
-        P_PinkTrail ??= new ParticleType(P_BlueTrail) {
+        P_PinkTrail ??= new ParticleType(P_BlueTrail)
+        {
             Color = Paintbrush.ColorFromCassetteIndex(1),
         };
     }
-    
+
     public Vector2 Direction { get; }
     public Vector2 Origin { get; }
 
     public readonly Sprite EmitterSprite;
 
-    public string AnimationKeyPrefix => $"{CassetteIndex switch {0 => "blue", 1 => "pink", _ => "both"}}";
+    public string AnimationKeyPrefix => $"{CassetteIndex switch { 0 => "blue", 1 => "pink", _ => "both" }}";
 
     private string idleAnimationKey => $"{AnimationKeyPrefix}_idle";
     private string chargingAnimationKey => $"{AnimationKeyPrefix}_charging";
@@ -63,9 +66,10 @@ public class PelletEmitter : Entity
     private SingletonAudioController sfx;
     private Vector2 shakeOffset;
 
-    public PelletEmitter(EntityData data, Vector2 offset) : base(data.Position + offset) {
+    public PelletEmitter(EntityData data, Vector2 offset) : base(data.Position + offset)
+    {
         LoadParticles();
-        
+
         const float shotOriginOffset = 12f;
         CassetteIndex = data.Int("cassetteIndex");
         CollideWithSolids = data.Bool("collideWithSolids", true);
@@ -77,13 +81,13 @@ public class PelletEmitter : Entity
         WiggleHitbox = data.Bool("wiggleHitbox", false);
         Orientation = data.Enum("orientation", LaserOrientations.Up);
         KillPlayer = data.Bool("killPlayer", true);
-        
+
         Direction = Orientation.Direction();
         Origin = Orientation.Direction() * shotOriginOffset;
         Collider = new Circle(6, Direction.X * 2, Direction.Y * 2);
 
         EmitterSprite = CommunalHelperGFX.SpriteBank.Create("pelletEmitter");
-        EmitterSprite.Rotation = Orientation.Angle() - (float)Math.PI / 2f;
+        EmitterSprite.Rotation = Orientation.Angle() - (float) Math.PI / 2f;
         EmitterSprite.Effects = Orientation is LaserOrientations.Left or LaserOrientations.Down
             ? SpriteEffects.FlipVertically
             : SpriteEffects.None;
@@ -103,52 +107,61 @@ public class PelletEmitter : Entity
             OnDisable = () => Collidable = Visible = Active = false,
             OnShake = v => shakeOffset += v,
         });
-        
+
         Add(EmitterSprite,
             new LedgeBlocker(),
             new PlayerCollider(OnPlayerCollide),
-            new TickingCassetteListener(CassetteIndex) {
+            new TickingCassetteListener(CassetteIndex)
+            {
                 OnTick = (cbm, isSwap) =>
                 {
-                    if (!isSwap && (CassetteIndex < 0 || CassetteIndex != cbm.currentIndex)) {
+                    if (!isSwap && (CassetteIndex < 0 || CassetteIndex != cbm.currentIndex))
+                    {
                         string key = chargingAnimationKey;
                         var animation = EmitterSprite.Animations[key];
                         animation.Delay = getTickLength() / animation.Frames.Length;
                         EmitterSprite.Play(key);
                     }
-                    else if (isSwap && (CassetteIndex < 0 || CassetteIndex == cbm.currentIndex)) {
+                    else if (isSwap && (CassetteIndex < 0 || CassetteIndex == cbm.currentIndex))
+                    {
                         EmitterSprite.Play(firingAnimationKey);
                         Fire(cbm.currentIndex);
                     }
                 }
-           });
+            });
     }
 
-    public override void Added(Scene scene) {
+    public override void Added(Scene scene)
+    {
         base.Added(scene);
-            
+
         sfx = SingletonAudioController.Ensure(scene);
     }
 
-    private float getTickLength() {
+    private float getTickLength()
+    {
         var cbm = Scene.Tracker.GetEntity<CassetteBlockManager>();
-        var beatLength = (10 / 60f) / cbm.tempoMult;
+        var beatLength = 10 / 60f / cbm.tempoMult;
         return beatLength * DynamicData.For(cbm).Get<int>("beatsPerTick");
     }
 
-    public void Fire(int? cassetteIndex = null, Action<PelletShot> action = null) {
-        for (int i = 0; i < Count; i++) {
+    public void Fire(int? cassetteIndex = null, Action<PelletShot> action = null)
+    {
+        for (int i = 0; i < Count; i++)
+        {
             cassetteIndex ??= CassetteIndex;
             var shot = Engine.Pooler.Create<PelletShot>().Init(this, i * Delay, cassetteIndex.Value);
             action?.Invoke(shot);
             Scene.Add(shot);
-            if (i == 0) {
+            if (i == 0)
+            {
                 PlayFireSound(cassetteIndex.Value);
             }
         }
     }
 
-    public void PlayFireSound(int index) {
+    public void PlayFireSound(int index)
+    {
         sfx?.Play(fireSound(index), this, 0.01f);
     }
 
@@ -167,7 +180,8 @@ public class PelletEmitter : Entity
 
     [Pooled]
     [Tracked]
-    public class PelletShot : Entity {
+    public class PelletShot : Entity
+    {
         public bool Dead { get; set; }
         public Vector2 Speed { get; set; }
         public bool CollideWithSolids { get; set; }
@@ -192,7 +206,8 @@ public class PelletEmitter : Entity
 
         private PelletEmitter parentEmitter;
 
-        public PelletShot() : base(Vector2.Zero) {
+        public PelletShot() : base(Vector2.Zero)
+        {
             Depth = Depths.Above;
             Add(projectileSprite = CommunalHelperGFX.SpriteBank.Create("pelletProjectile"),
                 impactSprite = CommunalHelperGFX.SpriteBank.Create("pelletImpact"),
@@ -203,7 +218,8 @@ public class PelletEmitter : Entity
             hitWiggler.StartZero = true;
         }
 
-        public PelletShot Init(PelletEmitter emitter, float delay, int cassetteIndex) {
+        public PelletShot Init(PelletEmitter emitter, float delay, int cassetteIndex)
+        {
             parentEmitter = emitter;
             delayTimeRemaining = delay;
             Dead = false;
@@ -238,14 +254,17 @@ public class PelletEmitter : Entity
             return this;
         }
 
-        public override void Added(Scene scene) {
+        public override void Added(Scene scene)
+        {
             base.Added(scene);
-            if (delayTimeRemaining <= 0) {
+            if (delayTimeRemaining <= 0)
+            {
                 projectileSprite.Play(projectileAnimationKey, randomizeFrame: true);
             }
         }
 
-        public void Destroy(float delay = 0) {
+        public void Destroy(float delay = 0)
+        {
             parentEmitter = null;
             projectileSprite.Stop();
             impactSprite.Stop();
@@ -253,7 +272,8 @@ public class PelletEmitter : Entity
             RemoveSelf();
         }
 
-        public override void Update() {
+        public override void Update()
+        {
             base.Update();
 
             // fast fail if the pooled shot is no longer alive
@@ -263,8 +283,10 @@ public class PelletEmitter : Entity
             impactSprite.Visible = impactSprite.Animating;
 
             // if we're not collidable and no longer animating the impact, destroy
-            if (!Collidable) {
-                if (!impactSprite.Animating) {
+            if (!Collidable)
+            {
+                if (!impactSprite.Animating)
+                {
                     Destroy();
                 }
                 return;
@@ -278,11 +300,13 @@ public class PelletEmitter : Entity
             projectileSprite.Position = newCentre;
 
             if (Scene is not Level level) return;
-            
+
             // delayed init
-            if (delayTimeRemaining > 0) {
+            if (delayTimeRemaining > 0)
+            {
                 delayTimeRemaining -= Engine.DeltaTime;
-                if (delayTimeRemaining > 0) {
+                if (delayTimeRemaining > 0)
+                {
                     return;
                 }
 
@@ -293,49 +317,64 @@ public class PelletEmitter : Entity
 
             Move();
 
-            if (level.OnInterval(0.05f)) {
+            if (level.OnInterval(0.05f))
+            {
                 level.ParticlesBG.Emit(particleType, 1, Center, Vector2.One * 2f, (-Speed).Angle());
             }
 
             // destroy the shot if it leaves the room bounds
-            if (!level.IsInBounds(this)) {
+            if (!level.IsInBounds(this))
+            {
                 Destroy();
             }
         }
 
-        private void Move() {
+        private void Move()
+        {
             var delta = Speed * Engine.DeltaTime;
             var target = Position + delta;
 
             // check whether the target position would trigger a new solid collision
-            if (CollideWithSolids && CollideCheckOutside<Solid>(target)) {
+            if (CollideWithSolids && CollideCheckOutside<Solid>(target))
+            {
                 var normal = delta.SafeNormalize();
 
                 // snap the current position away from the solid
-                if (normal.X != 0) {
+                if (normal.X != 0)
+                {
                     Position.X = normal.X < 0 ? (float) Math.Ceiling(Position.X) : (float) Math.Floor(Position.X);
                 }
-                if (normal.Y != 0) {
+                if (normal.Y != 0)
+                {
                     Position.Y = normal.Y < 0 ? (float) Math.Ceiling(Position.Y) : (float) Math.Floor(Position.Y);
                 }
 
                 // move one pixel at a time to find the exact collision point (with safety counter)
                 int safety = 50;
-                while (safety-- > 0) {
+                while (safety-- > 0)
+                {
                     // if it collided...
                     var solid = CollideFirst<Solid>(Position + normal);
-                    if (solid != null) {
+                    if (solid is not null)
+                    {
                         // snap the shot to the collision point
-                        if (normal.X < 0) {
+                        if (normal.X < 0)
+                        {
                             Position.X = (float) Math.Floor(Collider.AbsoluteLeft);
                             Position.Y = (float) Math.Round(Collider.CenterY + Position.Y);
-                        } else if (normal.X > 0) {
+                        }
+                        else if (normal.X > 0)
+                        {
                             Position.X = (float) Math.Ceiling(Collider.AbsoluteRight);
                             Position.Y = (float) Math.Round(Collider.CenterY + Position.Y);
-                        } else if (normal.Y < 0) {
+                        }
+                        else if (normal.Y < 0)
+                        {
                             Position.Y = (float) Math.Floor(Collider.AbsoluteTop);
                             Position.X = (float) Math.Round(Collider.CenterX + Position.X);
-                        } else if (normal.Y > 0) {
+                        }
+                        else if (normal.Y > 0)
+                        {
                             Position.Y = (float) Math.Ceiling(Collider.AbsoluteBottom);
                             Position.X = (float) Math.Round(Collider.CenterX + Position.X);
                         }
@@ -355,22 +394,25 @@ public class PelletEmitter : Entity
             Position = target;
         }
 
-        private void Impact(bool air) {
+        private void Impact(bool air)
+        {
             projectileSprite.Stop();
             projectileSprite.Visible = false;
             impactSprite.Play(air ? $"{impactAnimationKey}_air" : impactAnimationKey);
             impactSprite.Visible = true;
             Collidable = false;
             killHitbox.Center = projectileSprite.Position = Vector2.Zero;
-            
-            if (Scene is Level level && level.Camera.Collides(this)) {
+
+            if (Scene is Level level && level.Camera.Collides(this))
+            {
                 Audio.Play(CustomSFX.paint_emitter_impact, Center);
             }
         }
 
-        private void OnPlayerCollide(Player player) {
+        private void OnPlayerCollide(Player player)
+        {
             var direction = (player.Center - Position).SafeNormalize();
-            if (player.Die(direction) == null) return;
+            if (player.Die(direction) is null) return;
             Speed = Vector2.Zero;
             travelSineWave.Active = false;
             hitDir = direction;

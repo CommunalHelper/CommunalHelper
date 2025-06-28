@@ -50,8 +50,8 @@ public class ElytraDashBlock : Solid
     {
         base.Awake(scene);
 
-        int w = (int)Width / 8;
-        int h = (int)Height / 8;
+        int w = (int) Width / 8;
+        int h = (int) Height / 8;
 
         TileGrid tileGrid;
         if (blendin)
@@ -62,8 +62,8 @@ public class ElytraDashBlock : Solid
             Rectangle tileBounds = level.Session.MapData.TileBounds;
             VirtualMap<char> solidsData = level.SolidsData;
 
-            int x = (int)(X / 8) - tileBounds.Left;
-            int y = (int)(Y / 8) - tileBounds.Top;
+            int x = (int) (X / 8) - tileBounds.Left;
+            int y = (int) (Y / 8) - tileBounds.Top;
 
             tileGrid = GFX.FGAutotiler.GenerateOverlay(tiletype, x, y, w, h, solidsData).TileGrid;
             Add(new EffectCutout());
@@ -96,8 +96,8 @@ public class ElytraDashBlock : Solid
         };
         Audio.Play(sfx, Center);
 
-        int w = (int)Width / 8;
-        int h = (int)Height / 8;
+        int w = (int) Width / 8;
+        int h = (int) Height / 8;
         for (int i = 0; i < w; i++)
         {
             for (int j = 0; j < h; j++)

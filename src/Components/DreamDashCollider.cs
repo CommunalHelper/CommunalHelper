@@ -50,7 +50,7 @@ internal class DreamDashCollider : Component
     /// <param name="player">The player instance.</param>
     private bool Check(Player player)
     {
-        if (Active && Collider is not null && Entity != null &&
+        if (Active && Collider is not null && Entity is not null &&
             player.GetData().Data.TryGetValue(Player_canEnterDreamDashCollider, out object canEnter) && canEnter.Equals(true))
         {
 
@@ -74,7 +74,7 @@ internal class DreamDashCollider : Component
 
     public override void DebugRender(Camera camera)
     {
-        if (Collider != null)
+        if (Collider is not null)
         {
             Collider collider = Entity.Collider;
 

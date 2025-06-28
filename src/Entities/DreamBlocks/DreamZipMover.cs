@@ -126,13 +126,13 @@ public class DreamZipMover : CustomDreamBlock
         {
             activeDreamColors[0] = Calc.HexToColor("FFEF11");
             activeDreamColors[1] = Calc.HexToColor("FF00D0");
-            activeDreamColors[2] = Calc.HexToColor("08a310");
-            activeDreamColors[3] = Calc.HexToColor("5fcde4");
-            activeDreamColors[4] = Calc.HexToColor("7fb25e");
+            activeDreamColors[2] = Calc.HexToColor("08A310");
+            activeDreamColors[3] = Calc.HexToColor("5FCDE4");
+            activeDreamColors[4] = Calc.HexToColor("7FB25E");
             activeDreamColors[5] = Calc.HexToColor("E0564C");
-            activeDreamColors[6] = Calc.HexToColor("5b6ee1");
+            activeDreamColors[6] = Calc.HexToColor("5B6EE1");
             activeDreamColors[7] = Calc.HexToColor("CC3B3B");
-            activeDreamColors[8] = Calc.HexToColor("7daa64");
+            activeDreamColors[8] = Calc.HexToColor("7DAA64");
 
             disabledDreamColors[0] = Color.LightGray * 0.5f;
             disabledDreamColors[1] = Color.LightGray * 0.75f;

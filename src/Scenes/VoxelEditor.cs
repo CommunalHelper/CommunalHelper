@@ -47,7 +47,7 @@ public sealed class VoxelEditor : Scene
 
         if (!availableTilesets.Any())
             throw new InvalidOperationException("Cannot open voxel editor as there are no registered tilesets to use");
-        
+
         brush = availableTilesets.First();
 
         this.sx = sx;
@@ -61,7 +61,7 @@ public sealed class VoxelEditor : Scene
                 {
                     int index = x + sx * y + sx * sy * z;
                     char tile = (model is not null && index < model.Length) ? model[index] : '0';
-                    
+
                     if (tile is not '0' && !availableTilesets.Contains(tile))
                         throw new InvalidOperationException($"{tile} is an invalid tile ID. Make sure you load the correct level first.");
 
@@ -75,15 +75,15 @@ public sealed class VoxelEditor : Scene
             box.Vertices[i].Normal *= -1;
 
         Vector3 origin = new Vector3(-sx, sy, sz) * 4;
-        axes = new VertexPositionColor[]
-        {
+        axes =
+        [
             new(origin + Vector3.Zero, Color.Red),
             new(origin + Vector3.UnitX * sx * 8, Color.Red),
             new(origin + Vector3.Zero, Color.Lime),
             new(origin + Vector3.UnitY * sy * -8, Color.Lime),
             new(origin + Vector3.Zero, Color.Blue),
             new(origin + Vector3.UnitZ * sz * -8, Color.Blue),
-        };
+        ];
     }
 
     private bool InVoxelBounds(int x, int y, int z)
@@ -274,7 +274,7 @@ public sealed class VoxelEditor : Scene
         base.Update();
 
         int x, y, z;
-        
+
         // save voxel
         if (MInput.Keyboard.Pressed(Keys.Enter))
         {
@@ -285,7 +285,7 @@ public sealed class VoxelEditor : Scene
                         sb.Append(voxel[z, y, x]);
 
             string final = sb.ToString().TrimEnd('0');
-            string log = null;
+            string log;
             if (string.IsNullOrWhiteSpace(final))
             {
                 log = "\n------ GENERATED MESH WAS EMPTY, DID NOTHING ------";
@@ -355,7 +355,7 @@ public sealed class VoxelEditor : Scene
                 RemakeMesh();
                 if (SurfaceIndex.TileToIndex.TryGetValue(delete ? replaced : c, out int index))
                     Audio.Play(SFX.char_mad_grab, "surface_index", index);
-                    Audio.Play(SFX.char_mad_grab, "surface_index", index);
+                Audio.Play(SFX.char_mad_grab, "surface_index", index);
             }
         }
 

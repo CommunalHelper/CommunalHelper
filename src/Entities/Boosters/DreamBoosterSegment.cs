@@ -7,17 +7,11 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/DreamBooster")]
 public class DreamBoosterSegment : DreamBooster
 {
-    public class PathRenderer : PathRendererBase<DreamBoosterSegment>
+    public class PathRenderer(float alpha, DreamBoosterSegment booster)
+        : PathRendererBase<DreamBoosterSegment>(alpha, booster.style, DreamColors, booster)
     {
-        private readonly Vector2 perp;
-        public float Percent { get; set; }
-
-        public PathRenderer(float alpha, DreamBoosterSegment booster)
-            : base(alpha, booster.style, DreamColors, booster)
-        {
-            perp = booster.Dir.Perpendicular();
-            Percent = alpha;
-        }
+        private readonly Vector2 perp = booster.Dir.Perpendicular();
+        public float Percent { get; set; } = alpha;
 
         public override void Render()
         {

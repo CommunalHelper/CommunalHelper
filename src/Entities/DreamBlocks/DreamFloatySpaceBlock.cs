@@ -14,8 +14,6 @@ public class DreamFloatySpaceBlock : ConnectedDreamBlock
     private float sinkTimer;
     private float yLerp;
 
-    private Vector2 shake;
-
     public DreamFloatySpaceBlock(EntityData data, Vector2 offset)
         : base(data, offset)
     {
@@ -57,7 +55,7 @@ public class DreamFloatySpaceBlock : ConnectedDreamBlock
                 bool hasRider = false;
                 JumpThru jumpThru = key as JumpThru;
                 Solid solid = key as Solid;
-                if ((jumpThru != null && jumpThru.HasRider()) || (solid != null && solid.HasRider()))
+                if ((jumpThru is not null && jumpThru.HasRider()) || (solid is not null && solid.HasRider()))
                 {
                     hasRider = true;
                 }
@@ -82,8 +80,10 @@ public class DreamFloatySpaceBlock : ConnectedDreamBlock
                 dashEase = 1f;
                 dashDirection = dir;
             }
+            
             return DashCollisionResults.NormalOverride;
         }
+
         return DashCollisionResults.NormalCollision;
     }
 

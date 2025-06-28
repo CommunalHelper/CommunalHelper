@@ -35,7 +35,7 @@ public class CSGEN_HeartGemShards : CutsceneEntity
         snapshot = Audio.CreateSnapshot(Snapshots.MAIN_DOWN, true);
 
         Player entity = Scene.Tracker.GetEntity<Player>();
-        if (entity != null)
+        if (entity is not null)
         {
             cameraStart = entity.CameraTarget;
         }
@@ -167,5 +167,4 @@ public class CSGEN_HeartGemShards : CutsceneEntity
         EndSfx();
         base.SceneEnd(scene);
     }
-
 }

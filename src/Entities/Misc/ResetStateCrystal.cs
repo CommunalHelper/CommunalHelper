@@ -35,7 +35,7 @@ public class ResetStateCrystal : Refill
         baseData.Set("respawnTimer", 2.5f);
     }
 
-    public IEnumerator RefillRoutine(Player player)
+    public new IEnumerator RefillRoutine(Player player)
     {
         Celeste.Freeze(0.025f);
 
@@ -53,9 +53,8 @@ public class ResetStateCrystal : Refill
         level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle - ((float) Math.PI / 2f));
         level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, angle + ((float) Math.PI / 2f));
         SlashFx.Burst(Position, angle);
+        
         if (oneUse)
-        {
             RemoveSelf();
-        }
     }
 }

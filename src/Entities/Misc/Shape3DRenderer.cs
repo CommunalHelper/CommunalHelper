@@ -87,7 +87,7 @@ public sealed class Shape3DRenderer : Entity
 
         Draw.SpriteBatch.GraphicsDevice.SetRenderTarget(final);
         Engine.Graphics.GraphicsDevice.Clear(Color.Transparent);
-        
+
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["albedo_texture"].SetValue(albedo);
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["depth_texture"].SetValue(depth);
         CommunalHelperGFX.PCTN_COMPOSE.Parameters["normal_texture"].SetValue(normal);
@@ -102,14 +102,14 @@ public sealed class Shape3DRenderer : Entity
         Engine.Graphics.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
         Engine.Graphics.GraphicsDevice.SamplerStates[1] = SamplerState.PointWrap;
         Engine.Graphics.GraphicsDevice.SamplerStates[2] = SamplerState.PointWrap;
-        
+
         Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, CommunalHelperGFX.PCTN_COMPOSE);
         Draw.SpriteBatch.Draw(albedo, Vector2.Zero, Color.White);
         Draw.SpriteBatch.End();
 
         Engine.Graphics.GraphicsDevice.Textures[1] = prevTexture1;
         Engine.Graphics.GraphicsDevice.Textures[2] = prevTexture2;
-        
+
         Engine.Graphics.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
         Engine.Graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearClamp;
         Engine.Graphics.GraphicsDevice.SamplerStates[2] = SamplerState.LinearClamp;

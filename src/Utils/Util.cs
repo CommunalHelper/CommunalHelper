@@ -20,7 +20,7 @@ public static class Util
     public static bool TryGetPlayer(out Player player)
     {
         player = Engine.Scene?.Tracker?.GetEntity<Player>();
-        return player != null;
+        return player is not null;
     }
 
     private static readonly PropertyInfo[] namedColors = typeof(Color).GetProperties();
@@ -215,13 +215,13 @@ public static class Util
                 {
                     copy[x, y] = false;
 
-                    if (currentPrevCollider == null)
+                    if (currentPrevCollider is null)
                         currentPrevCollider = new Hitbox(8, 8, x * 8, y * 8);
                     else
                         currentPrevCollider.Height += 8;
 
                 }
-                else if (currentPrevCollider != null)
+                else if (currentPrevCollider is not null)
                 {
                     prevColliders.Add((Hitbox) currentPrevCollider.Clone());
                     currentPrevCollider = null;
@@ -311,7 +311,7 @@ public static class Util
                 ninSlice[1, 1].DrawIfInRect(cameraBounds, pos + (new Vector2(i, j) * 8f), Vector2.Zero, color);
             }
         }
-        if (middle != null)
+        if (middle is not null)
         {
             middle.Color = color;
             middle.RenderPosition = pos + new Vector2(width / 2f, height / 2f);

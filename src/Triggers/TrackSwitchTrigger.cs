@@ -32,23 +32,23 @@ public class TrackSwitchTrigger : Trigger
         if (oneUse)
             Collidable = false;
 
-            bool switched;
+        bool switched;
 
-            if (Mode == Modes.Reverse)
+        if (Mode == Modes.Reverse)
+        {
+            TrackSwitchBox.Reverse(Scene, global);
+            switched = true;
+        }
+        else
+        {
+            TrackSwitchState state = Mode switch
             {
-                TrackSwitchBox.Reverse(Scene, global);
-                switched = true;
-            }
-            else
-            {
-                TrackSwitchState state = Mode switch
-                {
-                        Modes.On => TrackSwitchState.On,
-                        Modes.Off => TrackSwitchState.Off,
-                        _ => TrackSwitchBox.LocalTrackSwitchState.Invert()
-                };
-                switched = TrackSwitchBox.Switch(Scene, state, global);
-            }
+                Modes.On => TrackSwitchState.On,
+                Modes.Off => TrackSwitchState.Off,
+                _ => TrackSwitchBox.LocalTrackSwitchState.Invert()
+            };
+            switched = TrackSwitchBox.Switch(Scene, state, global);
+        }
         if (flash && switched)
             Pulse();
     }

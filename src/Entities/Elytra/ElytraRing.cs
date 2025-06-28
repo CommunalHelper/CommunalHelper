@@ -152,7 +152,7 @@ public abstract class ElytraRing : Entity
     {
         timer = Calc.Approach(timer, 0.0f, Engine.DeltaTime);
 
-        Matrix m = Matrix.CreateRotationY(rotation + 0.25f + (float)Math.Sin(Scene.TimeActive * 3f) * 0.1f) * orientation;
+        Matrix m = Matrix.CreateRotationY(rotation + 0.25f + (float) Math.Sin(Scene.TimeActive * 3f) * 0.1f) * orientation;
         front.Matrix = m;
         back.Matrix = Matrix.CreateRotationX(MathHelper.Pi) * m;
 

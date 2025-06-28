@@ -40,7 +40,7 @@ public class ElytraBoostRing : ElytraRing
         this.bidirectional = bidirectional;
         this.refill = refill;
 
-        int count = (int)Vector2.Distance(a, b) / 5;
+        int count = (int) Vector2.Distance(a, b) / 5;
         lines = new Line[count];
         for (int i = 0; i < count; i++)
         {

@@ -16,25 +16,7 @@ public class RedlessBerry : Entity, IStrawberry
     private static readonly Color BrokenColorB = Calc.HexToColor("252B42");
     private static readonly Color WarnColor = Color.Red;
 
-    public struct Info
-    {
-        public EntityID ID { get; set; }
-        public Vector2 Start { get; set; }
-
-        public Info(EntityID id, Vector2 startPosition)
-        {
-            ID = id;
-            Start = startPosition;
-        }
-
-        public override int GetHashCode()
-        {
-            int hashCode = 1396480991;
-            hashCode = (hashCode * -1521134295) + ID.GetHashCode();
-            hashCode = (hashCode * -1521134295) + Start.GetHashCode();
-            return hashCode;
-        }
-    }
+    public record struct Info(EntityID ID, Vector2 Start);
     private readonly Info info;
 
     public EntityID ID => info.ID;
@@ -462,9 +444,7 @@ public class RedlessBerry : Entity, IStrawberry
         {
             Player player = self.Tracker.GetEntity<Player>();
             foreach (Info info in CommunalHelperModule.Session.RedlessBerries)
-            {
                 self.Add(new RedlessBerry(player, info));
-            }
         }
     }
 

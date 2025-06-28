@@ -6,12 +6,12 @@ namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 public class TickingCassetteListener : CassetteListener
 {
     public delegate void OnTickDelegate(CassetteBlockManager cbm, bool isSwap);
-    
+
     // "new" keyword is in case this functionality gets added to the base class in Everest
-    public new OnTickDelegate OnTick;
+    public OnTickDelegate OnTick;
 
     private int lastTickIndex;
-    
+
     public TickingCassetteListener(int index, float tempo = 1) : base(index, tempo)
     {
         Active = true;
@@ -28,7 +28,8 @@ public class TickingCassetteListener : CassetteListener
         if (thisTick == lastTickIndex) return;
 
         lastTickIndex = thisTick;
-        if (beatIndex % beatsPerTick == 0) {
+        if (beatIndex % beatsPerTick == 0)
+        {
             OnTick?.Invoke(cassetteBlockManager, thisTick == 0);
         }
     }

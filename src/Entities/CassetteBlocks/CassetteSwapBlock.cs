@@ -28,11 +28,10 @@ public class CassetteSwapBlock : CustomCassetteBlock
 
         public override void Render()
         {
-            Vector2 position = new Vector2(block.moveRect.X, block.moveRect.Y) + block.blockOffset;
-            for (int i = 1; i <= block.blockHeight; ++i)
+            Vector2 position = new Vector2(block.moveRect.X, block.moveRect.Y) + block.BlockOffset;
+            for (int i = 1; i <= block.BlockHeight; ++i)
                 DrawTarget(position + (Vector2.UnitY * i), pathColorPressed);
             DrawTarget(position, block.Collidable ? pathColor : pathColorPressed);
-
         }
 
         private void DrawTarget(Vector2 position, Color color)
@@ -201,14 +200,14 @@ public class CassetteSwapBlock : CustomCassetteBlock
                     MoveParticles((end - start) * (target - 0.5f) * 2);
                 }
                 Vector2 to = Vector2.Lerp(start, end, lerp);
-                Vector2 diff = to - (ExactPosition - blockOffset);
+                Vector2 diff = to - (ExactPosition - BlockOffset);
                 MoveH(diff.X, liftSpeed.X);
                 MoveV(diff.Y, liftSpeed.Y);
 
                 if (position != Position)
                 {
                     Audio.Position(moveSfx, Center);
-                    if (Position - blockOffset == start || Position == end)
+                    if (Position - BlockOffset == start || Position == end)
                     {
                         Audio.Stop(moveSfx);
                         Audio.Play(SFX.game_05_swapblock_move_end, Center);
@@ -216,9 +215,8 @@ public class CassetteSwapBlock : CustomCassetteBlock
                 }
             }
             if (Swapping && lerp >= 1f)
-            {
                 Swapping = false;
-            }
+
             StopPlayerRunIntoAnimation = lerp is <= 0f or >= 1f;
 
             #endregion
@@ -261,7 +259,7 @@ public class CassetteSwapBlock : CustomCassetteBlock
                     MoveParticles(end - start);
                 }
                 Vector2 to = Vector2.Lerp(start, end, lerp);
-                Vector2 diff = to - (ExactPosition - blockOffset);
+                Vector2 diff = to - (ExactPosition - BlockOffset);
                 MoveH(diff.X, liftSpeed.X);
                 MoveV(diff.Y, liftSpeed.Y);
 
@@ -269,12 +267,12 @@ public class CassetteSwapBlock : CustomCassetteBlock
                 {
                     Audio.Position(moveSfx, Center);
                     Audio.Position(returnSfx, Center);
-                    if (Position - blockOffset == start && target == 0)
+                    if (Position - BlockOffset == start && target == 0)
                     {
                         Audio.SetParameter(returnSfx, "end", 1f);
                         Audio.Play(SFX.game_05_swapblock_return_end, Center);
                     }
-                    else if (Position - blockOffset == end && target == 1)
+                    else if (Position - BlockOffset == end && target == 1)
                     {
                         Audio.Play(SFX.game_05_swapblock_move_end, Center);
                         Audio.Stop(moveSfx);
@@ -282,9 +280,8 @@ public class CassetteSwapBlock : CustomCassetteBlock
                 }
             }
             if (Swapping && lerp >= 1f)
-            {
                 Swapping = false;
-            }
+
             StopPlayerRunIntoAnimation = lerp is <= 0f or >= 1f;
 
             #endregion

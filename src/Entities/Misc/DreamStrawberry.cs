@@ -14,17 +14,17 @@ public class DreamStrawberry : Strawberry
     // Original OnDash method from Celeste.Strawberry
     private static readonly MethodInfo m_Strawberry_OnDash = typeof(Strawberry).GetMethod("OnDash", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
 
-    public static Color[] DreamTrailColors = new Color[] {
+    private static readonly Color[] DreamTrailColors = [
         Calc.HexToColor("FFEF11"),
         Calc.HexToColor("08A310"),
         Calc.HexToColor("FF00D0"),
         Calc.HexToColor("5FCDE4"),
         Calc.HexToColor("E0564C")
-    };
+    ];
 
     public DynamicData dreamStrawberryData;
 
-    public static int DreamTrailColorIndex = 0;
+    private static int DreamTrailColorIndex = 0;
 
     public DreamStrawberry(EntityData data, Vector2 offset, EntityID id) : base(FixData(data), offset, id)
     {

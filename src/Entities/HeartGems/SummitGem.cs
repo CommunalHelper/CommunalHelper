@@ -62,7 +62,7 @@ public class CustomSummitGem : SummitGem
         Wiggler scaleWiggler = Wiggler.Create(0.5f, 4f, f => sprite.Scale = Vector2.One * (1f + (f * 0.3f)));
         Add(scaleWiggler);
 
-        if (CommunalHelperModule.SaveData.SummitGems != null && CommunalHelperModule.SaveData.SummitGems.Contains(CustomGemSID))
+        if (CommunalHelperModule.SaveData.SummitGems is not null && CommunalHelperModule.SaveData.SummitGems.Contains(CustomGemSID))
         {
             sprite.Color = Color.White * 0.5f;
         }

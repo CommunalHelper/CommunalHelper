@@ -34,7 +34,7 @@ internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOpti
         player.SetInfiniteElytra(options.Infinite);
         CommunalHelperModule.Session.CurrentElytraConfiguration = options.Configuration;
     }
-    
+
     protected override ElytraOptionsChanges CalculateChangesNeededToRevert(ElytraOptions from, ElytraOptions to)
         => new()
         {
@@ -70,7 +70,7 @@ public struct ElytraOptionsChanges
     {
         public bool? NewDisableReverseVerticalMomentum;
     }
-    
+
     public bool? NewAllow;
     public bool? NewInfinite;
     public ElytraConfigurationChanges NewConfiguration;

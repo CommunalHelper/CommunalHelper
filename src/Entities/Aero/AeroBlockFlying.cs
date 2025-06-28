@@ -60,7 +60,7 @@ public class AeroBlockFlying : AeroBlock
         {
             sfx.Pause();
             hoverLerp = 0.0f;
-            deployLerp = 0.0f;  
+            deployLerp = 0.0f;
             showPropeller = false;
             propeller.Visible = false;
 
@@ -291,7 +291,7 @@ public class AeroBlockFlying : AeroBlock
                 prev = points[i];
             }
             if (lerp < points.Length - 1)
-                length += Vector2.Distance(prev, Vector2.Lerp(points[(int) Math.Floor(lerp)], points[(int) Math.Floor(lerp) + 1], lerp - (float)Math.Floor(lerp)));
+                length += Vector2.Distance(prev, Vector2.Lerp(points[(int) Math.Floor(lerp)], points[(int) Math.Floor(lerp) + 1], lerp - (float) Math.Floor(lerp)));
             return length;
         }
 

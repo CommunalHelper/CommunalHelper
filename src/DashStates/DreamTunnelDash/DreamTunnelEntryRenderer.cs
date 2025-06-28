@@ -11,7 +11,7 @@ public class DreamTunnelEntryRenderer : Entity
 {
     private class CustomDepthRenderer : Entity
     {
-        public List<DreamTunnelEntry> list = new();
+        public readonly List<DreamTunnelEntry> list = [];
 
         public CustomDepthRenderer(int depth)
         {
@@ -32,25 +32,21 @@ public class DreamTunnelEntryRenderer : Entity
 
                     Draw.Rect(shake.X + e.X, shake.Y + e.Y, e.Width, e.Height, e.PlayerHasDreamDash ? CustomDreamBlock.ActiveBackColor : CustomDreamBlock.DisabledBackColor * e.Alpha);
                     if (e.Whitefill > 0f)
-                    {
                         Draw.Rect(e.X + shake.X, e.Y + shake.Y, e.Width, e.Height * e.WhiteHeight, Color.White * e.Whitefill * e.Alpha);
-                    }
                     e.WobbleLine(start, end, 0f, false, true);
                 }
-                
+
             }
 
             foreach (DreamTunnelEntry e in list)
             {
                 if (e.Visible)
-                {
                     e.WobbleLine(e.Shake + e.Start, e.Shake + e.End, 0f, true, false);
-                }
             }
         }
     }
 
-    private readonly Dictionary<int, CustomDepthRenderer> renderers = new();
+    private readonly Dictionary<int, CustomDepthRenderer> renderers = [];
 
     public DreamTunnelEntryRenderer()
     {

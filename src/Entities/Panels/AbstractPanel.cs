@@ -136,7 +136,7 @@ public abstract class AbstractPanel : Entity
 
     public override void Update()
     {
-        if (staticMover.Platform == null)
+        if (staticMover.Platform is null)
         {
             RemoveSelf();
             return;
@@ -226,7 +226,7 @@ public abstract class AbstractPanel : Entity
     {
         foreach (StaticMover sm in DynamicData.For(self).Get<List<StaticMover>>("staticMovers"))
         {
-            if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null && panel.Orientation == Directions.Up && entity.CollideCheck(panel, entity.Position + Vector2.UnitY))
+            if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex is not null && panel.Orientation == Directions.Up && entity.CollideCheck(panel, entity.Position + Vector2.UnitY))
             {
                 return (int) panel.surfaceSoundIndex;
             }
@@ -238,14 +238,20 @@ public abstract class AbstractPanel : Entity
     {
         foreach (StaticMover sm in DynamicData.For(self).Get<List<StaticMover>>("staticMovers"))
         {
-            if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex != null)
+            if (sm.Entity is AbstractPanel panel && panel.surfaceSoundIndex is not null)
             {
-                if (side == (int) Facings.Left && panel.Orientation == Directions.Right && player.CollideCheck(panel, player.Position - Vector2.UnitX))
-                {
+                if (
+                    side == (int) Facings.Left
+                    && panel.Orientation is Directions.Right
+                    && player.CollideCheck(panel, player.Position - Vector2.UnitX)
+                ) {
                     return (int) panel.surfaceSoundIndex;
                 }
-                if (side == (int) Facings.Right && panel.Orientation == Directions.Left && player.CollideCheck(panel, player.Position + Vector2.UnitX))
-                {
+                if (
+                    side == (int) Facings.Right
+                    && panel.Orientation is Directions.Left
+                    && player.CollideCheck(panel, player.Position + Vector2.UnitX)
+                ) {
                     return (int) panel.surfaceSoundIndex;
                 }
             }
@@ -269,7 +275,7 @@ public abstract class AbstractPanel : Entity
         foreach (AbstractPanel panel in scene.Tracker.GetEntities<AbstractPanel>())
         {
             StaticMover staticMover = panel.staticMover;
-            if (panel.overrideAllowStaticMovers && staticMover.Platform == null && staticMover.IsRiding(solid))
+            if (panel.overrideAllowStaticMovers && staticMover.Platform is null && staticMover.IsRiding(solid))
             {
                 solidData ??= DynamicData.For(solid);
                 solidData.Get<List<StaticMover>>("staticMovers").Add(staticMover);

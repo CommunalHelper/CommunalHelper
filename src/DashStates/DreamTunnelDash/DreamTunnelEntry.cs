@@ -84,12 +84,12 @@ public class DreamTunnelEntry : AbstractPanel
 
         surfaceSoundIndex = SurfaceIndex.DreamBlockInactive;
 
-        particleTextures = new MTexture[] {
+        particleTextures = [
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(14, 0, 7, 7, null),
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7, null),
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7, null),
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7, null)
-        };
+        ];
     }
 
     protected override DashCollisionResults OnDashCollide(DashCollision orig, Player player, Vector2 dir)
@@ -102,27 +102,19 @@ public class DreamTunnelEntry : AbstractPanel
             {
                 case Spikes.Directions.Up:
                     if (dir.Y > 0 && TryCollidePlayer(player, Vector2.UnitY, player.DashDir))
-                    {
                         return DashCollisionResults.Ignore;
-                    }
                     break;
                 case Spikes.Directions.Down:
                     if (dir.Y < 0 && TryCollidePlayer(player, -Vector2.UnitY, player.DashDir))
-                    {
                         return DashCollisionResults.Ignore;
-                    }
                     break;
                 case Spikes.Directions.Left:
                     if (dir.X > 0 && TryCollidePlayer(player, Vector2.UnitX, player.DashDir))
-                    {
                         return DashCollisionResults.Ignore;
-                    }
                     break;
                 case Spikes.Directions.Right:
                     if (dir.X < 0 && TryCollidePlayer(player, -Vector2.UnitX, player.DashDir))
-                    {
                         return DashCollisionResults.Ignore;
-                    }
                     break;
             }
         }
@@ -221,9 +213,7 @@ public class DreamTunnelEntry : AbstractPanel
         }
 
         if (changeState)
-        {
             player.StateMachine.State = St.DreamTunnelDash;
-        }
 
         return true;
     }
@@ -235,6 +225,7 @@ public class DreamTunnelEntry : AbstractPanel
             player.Position = at;
             return true;
         }
+
         return false;
     }
 
@@ -297,7 +288,6 @@ public class DreamTunnelEntry : AbstractPanel
         base.Removed(scene);
 
         scene.Tracker.GetEntity<DreamTunnelEntryRenderer>().Untrack(this, originalDepth);
-
         dummy.RemoveSelf();
     }
 

@@ -327,7 +327,7 @@ public class ConnectedZipMover : ConnectedSolid
             Position = new Vector2(Width / 2f, 4f)
         });
 
-        if (legacyCustomTexture != "")
+        if (!string.IsNullOrEmpty(legacyCustomTexture))
         {
             Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(legacyCustomTexture);
             edges = customTiles.Item1;
@@ -384,9 +384,9 @@ public class ConnectedZipMover : ConnectedSolid
     {
         if (!IsGroupVisible())
             return;
-        
+
         Rectangle cameraBounds = (Scene as Level)?.Camera.GetBounds() ?? new();
-        
+
         Vector2 originalPosition = Position;
         Position += Shake;
 
@@ -394,7 +394,7 @@ public class ConnectedZipMover : ConnectedSolid
         {
             if (!cameraBounds.Intersects(extension.Bounds))
                 continue;
-            
+
             if (theme == Themes.Moon)
             {
                 Draw.Rect(extension.Left + 2f + X, extension.Top + Y, extension.Width - 4f, extension.Height, backgroundColor);
@@ -474,17 +474,22 @@ public class ConnectedZipMover : ConnectedSolid
     {
         if (!drawBlackBorder)
             return;
-        
+
         if (!IsGroupVisible())
             return;
-        
+
         foreach (Hitbox extension in AllColliders)
-            Draw.HollowRect(new Rectangle(
+        {
+            Draw.HollowRect(
+                new Rectangle(
                     (int) (X + extension.Left - 1f + Shake.X),
                     (int) (Y + extension.Top - 1f + Shake.Y),
                     (int) extension.Width + 2,
-                    (int) extension.Height + 2),
-                    Color.Black);
+                    (int) extension.Height + 2
+                ),
+                Color.Black
+            );
+        }
     }
 
     private IEnumerator Sequence()

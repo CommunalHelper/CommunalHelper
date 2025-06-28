@@ -1,7 +1,6 @@
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using System;
 using System.Linq;
 using System.Reflection;
 
@@ -35,7 +34,7 @@ public class ManualCassetteController : AbstractInputController
     {
         base.Awake(scene);
 
-        if (Scene.Tracker.GetEntity<CassetteBlockManager>() != null)
+        if (Scene.Tracker.GetEntity<CassetteBlockManager>() is not null)
             throw new Exception("CassetteBlockManager detected in same room as ManualCassetteController");
 
         roomBeats = SceneAs<Level>().CassetteBlockBeats;
@@ -81,7 +80,7 @@ public class ManualCassetteController : AbstractInputController
 
     public void SetActiveIndex(int index, bool silent = false)
     {
-        foreach (CassetteBlock entity in Scene.Tracker.GetEntities<CassetteBlock>())
+        foreach (CassetteBlock entity in Scene.Tracker.GetEntities<CassetteBlock>().Cast<CassetteBlock>())
         {
             entity.Activated = entity.Index == index;
             bool activated = entity.Index == index;
@@ -92,8 +91,8 @@ public class ManualCassetteController : AbstractInputController
         }
     }
 
-    private static IDetour hook_Level_orig_LoadLevel;
-    private static IDetour hook_TransitionListener_OnOutBegin_Closure;
+    private static ILHook hook_Level_orig_LoadLevel;
+    private static ILHook hook_TransitionListener_OnOutBegin_Closure;
 
     internal static new void Load()
     {
@@ -126,7 +125,7 @@ public class ManualCassetteController : AbstractInputController
         {
             // This could be checked for as part of `Everest.Events.Level.OnLoadEntity` but meh
             EntityData data = level.Session.LevelData.Entities.FirstOrDefault(entityData => entityData.Name == "CommunalHelper/ManualCassetteController");
-            if (data != null)
+            if (data is not null)
             {
                 level.Tracker.GetEntity<CassetteBlockManager>()?.RemoveSelf();
                 level.Add(new ManualCassetteController(data));

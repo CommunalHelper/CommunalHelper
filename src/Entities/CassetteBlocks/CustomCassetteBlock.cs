@@ -36,24 +36,24 @@ public class CustomCassetteBlock : CassetteBlock
         }
     }
 
-    protected Color[] colorOptions = new Color[] {
+    protected Color[] colorOptions = [
         Calc.HexToColor("49aaf0"),
         Calc.HexToColor("f049be"),
         Calc.HexToColor("fcdc3a"),
         Calc.HexToColor("38e04e")
-    };
-    protected Color color;
+    ];
+    protected new Color color;
     protected Color pressedColor;
 
-    protected int blockHeight
+    protected int BlockHeight
     {
         get => blockData.Get<int>("blockHeight");
         set => blockData.Set("blockHeight", value);
     }
     /// <summary>
-    /// Block offset based on <c>(2 - <see cref="blockHeight"/>)</c>
+    /// Block offset based on <c>(2 - <see cref="BlockHeight"/>)</c>
     /// </summary>
-    protected Vector2 blockOffset => Vector2.UnitY * (2 - blockHeight);
+    protected Vector2 BlockOffset => Vector2.UnitY * (2 - BlockHeight);
     private readonly bool dynamicHitbox;
     private readonly Hitbox[] hitboxes;
 
@@ -79,7 +79,7 @@ public class CustomCassetteBlock : CassetteBlock
     // If true, this cassette block will not connect to any others
     private bool lonely = false;
 
-    private bool oldConnectionBehavior = false;
+    private readonly bool oldConnectionBehavior = false;
 
     protected bool Lonely
     {
@@ -165,9 +165,7 @@ public class CustomCassetteBlock : CassetteBlock
     public void HandleShiftSize(int amount)
     {
         if (dynamicHitbox)
-        {
-            Collider = hitboxes[blockHeight - amount];
-        }
+            Collider = hitboxes[BlockHeight - amount];
     }
 
     public virtual void HandleUpdateVisualState()
@@ -198,9 +196,7 @@ public class CustomCassetteBlock : CassetteBlock
     protected void SetStaticMoversVisible(bool visible)
     {
         foreach (StaticMover staticMover in staticMovers)
-        {
             staticMover.Entity.Visible = visible;
-        }
     }
 
     #region Hooks
@@ -247,18 +243,13 @@ public class CustomCassetteBlock : CassetteBlock
         if (block is CustomCassetteBlock cassetteBlock)
         {
             if (block.Activated && block.CollideCheck<Player>())
-            {
                 amount *= -1;
-            }
-            int newBlockHeight = cassetteBlock.blockHeight - amount;
+
+            int newBlockHeight = cassetteBlock.BlockHeight - amount;
             if (newBlockHeight is > 2 or < 0)
-            {
                 shift = false;
-            }
             else
-            {
                 cassetteBlock.HandleShiftSize(amount);
-            }
         }
 
         if (shift)
@@ -294,17 +285,17 @@ public class CustomCassetteBlock : CassetteBlock
         DynamicData selfData = DynamicData.For(self);
 
         CustomCassetteBlock selfBlock = self as CustomCassetteBlock;
-        bool selfLonely = selfBlock != null && selfBlock.Lonely;
-        bool selfOldConnectionBehavior = selfBlock != null && selfBlock.oldConnectionBehavior;
+        bool selfLonely = selfBlock is not null && selfBlock.Lonely;
+        bool selfOldConnectionBehavior = selfBlock is not null && selfBlock.oldConnectionBehavior;
         if (selfLonely)
             return;
 
-        foreach (CassetteBlock entity in self.Scene.Tracker.GetEntities<CassetteBlock>())
+        foreach (CassetteBlock entity in self.Scene.Tracker.GetEntities<CassetteBlock>().Cast<CassetteBlock>())
         {
             DynamicData entityData = DynamicData.For(entity);
 
             CustomCassetteBlock entityBlock = entity as CustomCassetteBlock;
-            bool entityLonely = entityBlock != null && entityBlock.Lonely;
+            bool entityLonely = entityBlock is not null && entityBlock.Lonely;
 
             bool oldBehaviorPredicate = entity != self
                 && entity != block
@@ -334,15 +325,15 @@ public class CustomCassetteBlock : CassetteBlock
         DynamicData selfData = DynamicData.For(self);
 
         CustomCassetteBlock selfBlock = self as CustomCassetteBlock;
-        bool selfLonely = selfBlock != null && selfBlock.Lonely;
-        bool selfOldConnectionBehavior = selfBlock != null && selfBlock.oldConnectionBehavior;
+        bool selfLonely = selfBlock is not null && selfBlock.Lonely;
+        bool selfOldConnectionBehavior = selfBlock is not null && selfBlock.oldConnectionBehavior;
 
-        foreach (CassetteBlock entity in self.Scene.Tracker.GetEntities<CassetteBlock>())
+        foreach (CassetteBlock entity in self.Scene.Tracker.GetEntities<CassetteBlock>().Cast<CassetteBlock>())
         {
             DynamicData entityData = DynamicData.For(entity);
 
             CustomCassetteBlock entityBlock = entity as CustomCassetteBlock;
-            bool entityLonely = entityBlock != null && entityBlock.Lonely;
+            bool entityLonely = entityBlock is not null && entityBlock.Lonely;
 
             bool oldBehaviorPredicate = entity.Index == self.Index
                 && entity.Collider.Collide(new Rectangle((int) x, (int) y, 8, 8));
@@ -376,20 +367,17 @@ public class CustomCassetteBlock : CassetteBlock
         {
             level.HasCassetteBlocks = true;
             if (level.CassetteBlockTempo == 1f)
-            {
                 level.CassetteBlockTempo = entityData.Float("tempo", 1f);
-            }
+
             level.CassetteBlockBeats = Math.Max(entityData.Int("index", 0) + 1, level.CassetteBlockBeats);
 
             if (!createdCassetteManager)
             {
                 createdCassetteManager = true;
-                if (level.Tracker.GetEntity<CassetteBlockManager>() == null && (bool) m_Level_get_ShouldCreateCassetteManager.Invoke(level, null))
+                if (level.Tracker.GetEntity<CassetteBlockManager>() is null && (bool) m_Level_get_ShouldCreateCassetteManager.Invoke(level, null))
                 {
                     if (!level.Entities.ToAdd.Any(e => e is CassetteBlockManager))
-                    {
                         level.Entities.ForceAdd(new CassetteBlockManager());
-                    }
                 }
             }
         }

@@ -9,15 +9,16 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 public class AeroBlockCharged : AeroBlockFlying
 {
     internal static bool SpirialisHelperLoaded = false;
-    private static FieldInfo player_varJumpSpeed = typeof(Player).GetField("varJumpSpeed", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly FieldInfo player_varJumpSpeed
+        = typeof(Player).GetField("varJumpSpeed", BindingFlags.NonPublic | BindingFlags.Instance);
 
     [Flags]
     private enum ButtonCombination : byte
     {
-        NONE    = 0,
-        TOP     = 1 << 0,
-        LEFT    = 1 << 1,
-        RIGHT   = 1 << 2,
+        NONE = 0,
+        TOP = 1 << 0,
+        LEFT = 1 << 1,
+        RIGHT = 1 << 2,
 
         HORIZONTAL = LEFT | RIGHT,
         VERTICAL = TOP,
@@ -25,7 +26,7 @@ public class AeroBlockCharged : AeroBlockFlying
         ALL = TOP | LEFT | RIGHT,
     }
 
-    public static MTexture ButtonFillTexture, ButtonOutlineTexture;
+    internal static MTexture ButtonFillTexture, ButtonOutlineTexture;
     private static readonly Color defaultOnColor = Calc.HexToColor("4BC0C8");
     private static readonly Color defaultEndColor = Color.Tomato;
 
@@ -160,7 +161,7 @@ public class AeroBlockCharged : AeroBlockFlying
         if (positions.Length is 0)
             throw new ArgumentException("The array of positions must have at least one element (the first one being the starting position of the entity).", nameof(positions));
         this.positions = positions;
-        
+
         sequence = ParseButtonSequence(buttonSequence, positions.Length);
         ChangeCombination(sequence[0], makeTiles: false);
 
@@ -197,7 +198,7 @@ public class AeroBlockCharged : AeroBlockFlying
             return result;
         }
 
-        return sequence.Split(new string[] { "->" }, StringSplitOptions.None)
+        return sequence.Split(["->"], StringSplitOptions.None)
                                    .Select(Parse)
                                    .Take(max)
                                    .ToArray();
@@ -223,7 +224,7 @@ public class AeroBlockCharged : AeroBlockFlying
     private void ChangeCombination(ButtonCombination combination, bool makeTiles = true)
     {
         if (makeTiles)
-           RemakeBlockTiles(GetBlockPath(combination));
+            RemakeBlockTiles(GetBlockPath(combination));
 
         leftButton ??= Button.LeftButton(this, true);
         if (leftButton is not null)
@@ -260,7 +261,7 @@ public class AeroBlockCharged : AeroBlockFlying
         {
             blinker.Complete = true;
             RemoveScreenLayer(windLayer);
-        }); 
+        });
     }
 
     private void Smash(Player player, Vector2 speed)
@@ -346,7 +347,8 @@ public class AeroBlockCharged : AeroBlockFlying
 
     internal static void Load()
     {
-        using (new DetourContext { After = { "*" } } ) {
+        using (new DetourContext { After = { "*" } })
+        {
             On.Celeste.Player.Jump += Player_Jump;
             On.Celeste.Player.WallJump += Player_WallJump;
             On.Celeste.Player.ClimbJump += Player_ClimbJump;
@@ -373,7 +375,9 @@ public class AeroBlockCharged : AeroBlockFlying
             if (self.OnGround() && block is not null && block.CheckTopButton())
                 block.Smash(self, Vector2.UnitY * -350);
             player_varJumpSpeed.SetValue(self, self.Speed.Y);
-        } else {
+        }
+        else
+        {
             orig(self, particles, playSfx);
 
             if (!self.OnGround())
@@ -411,11 +415,11 @@ public class AeroBlockCharged : AeroBlockFlying
         orig(self);
 
         // climbjump
-        if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position + Vector2.UnitX * (int)self.Facing * 3) is AeroBlockCharged block)) { return; } 
+        if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position + Vector2.UnitX * (int) self.Facing * 3) is AeroBlockCharged block)) { return; }
         if (block is not null && (self.Facing == Facings.Right ? block.CheckLeftButton() : block.CheckRightButton()))
         {
-            float speed = ((int)self.Facing == Math.Sign(Input.MoveX.Value)) ? 300 : -300;
-            block.Smash(self, new Vector2((int)self.Facing * speed, -300));
+            float speed = ((int) self.Facing == Math.Sign(Input.MoveX.Value)) ? 300 : -300;
+            block.Smash(self, new Vector2((int) self.Facing * speed, -300));
         }
     }
 

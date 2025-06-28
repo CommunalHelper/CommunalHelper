@@ -19,18 +19,12 @@ public class CurvedBooster : CustomBooster
 
     public class PathRenderer : PathRendererBase<CurvedBooster>
     {
-        private struct Node
+        private readonly struct Node(float d, Vector2 position, Vector2 dir)
         {
-            public readonly float Distance;
-            public readonly Vector2 Position, Dir, Perp;
-
-            public Node(float d, Vector2 position, Vector2 dir)
-            {
-                Distance = d;
-                Position = position;
-                Dir = dir;
-                Perp = dir.Perpendicular();
-            }
+            public readonly float Distance = d;
+            public readonly Vector2 Position = position;
+            public readonly Vector2 Dir = dir;
+            public readonly Vector2 Perp = dir.Perpendicular();
         }
 
         private readonly Node[] nodes;
@@ -83,7 +77,7 @@ public class CurvedBooster : CustomBooster
     private PathRenderer pathRenderer;
     private readonly PathStyle style;
     private bool showPath = true;
-    private bool collideAsDash;
+    private readonly bool collideAsDash;
     private readonly bool proximityPath;
 
     private readonly BakedCurve curve;
@@ -150,7 +144,7 @@ public class CurvedBooster : CustomBooster
     protected override int? RedDashUpdateBefore(Player player)
     {
         base.RedDashUpdateBefore(player);
-        
+
         Vector2 prev = player.Position;
 
         travel += 240f * Engine.DeltaTime; // booster speed constant
@@ -167,12 +161,15 @@ public class CurvedBooster : CustomBooster
         // player's speed won't matter, we won't allow it to move while in a curved booster.
         // this is here so that the player doesn't die to spikes that it shouldn't die to.
         player.SetBoosterFacing(derivative.SafeNormalize());
-        
+
         bool stopped = false;
-        if (collideAsDash) { 
+        if (collideAsDash)
+        {
             player.MoveToX(next.X, player.onCollideH + (_ => stopped = true));
             player.MoveToY(next.Y + offY, player.onCollideV + (_ => stopped = true));
-        } else {
+        }
+        else
+        {
             player.MoveToX(next.X, (_ => stopped = true));
             player.MoveToY(next.Y + offY, (_ => stopped = true));
         }
@@ -182,7 +179,7 @@ public class CurvedBooster : CustomBooster
         if (player.CanDash)
             return null; // don't interrupt the player dashing 
 
-        if (stopped) 
+        if (stopped)
             return Player.StNormal;
 
         if (end)

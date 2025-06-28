@@ -37,10 +37,10 @@ public abstract class AeroBlock : Solid
     private static MTexture[] innerCogs;
 
     private uint noise;
-    private readonly HashSet<AeroScreen> screens = new(), removed = new();
+    private readonly HashSet<AeroScreen> screens = [], removed = [];
 
-    protected readonly HashSet<JumpThru> jumpthrus = new();
-    protected readonly HashSet<Solid> sidewaysJumpthruSolids = new();
+    protected readonly HashSet<JumpThru> jumpthrus = [];
+    protected readonly HashSet<Solid> sidewaysJumpthruSolids = [];
     private const string AttachedSidewaysJumpThru = "Celeste.Mod.MaxHelpingHand.Entities.AttachedSidewaysJumpThru";
 
     protected float Rotation { get; set; }
@@ -276,12 +276,6 @@ public abstract class AeroBlock : Solid
             SpeedMax = 30f,
             DirectionRange = MathHelper.PiOver4,
         };
-
-        //AeroBlockFailure.P_PurpleSmash = new(CrushBlock.P_Activate)
-        //{
-        //    Color = Color.MediumPurple,
-        //    Color2 = Color.Lerp(Color.MediumPurple, Color.White, 0.45f),
-        //};
     }
 
     internal static void LoadContent()

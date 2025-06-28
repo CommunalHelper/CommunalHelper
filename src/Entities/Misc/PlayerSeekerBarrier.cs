@@ -2,6 +2,7 @@
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System.Collections.Generic;
+using System.Linq;
 using static Celeste.Mod.CommunalHelper.Entities.PlayerSeekerBarrierRenderer;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -71,7 +72,7 @@ public class PlayerSeekerBarrier : SeekerBarrier
 
         if (!hasGroup)
         {
-            group = new();
+            group = [];
             AddToGroupAndFindChildren(this);
         }
 
@@ -98,7 +99,7 @@ public class PlayerSeekerBarrier : SeekerBarrier
         from.master = this;
         group.Add(from);
 
-        foreach (PlayerSeekerBarrier barrier in Scene.Tracker.GetEntities<PlayerSeekerBarrier>())
+        foreach (PlayerSeekerBarrier barrier in Scene.Tracker.GetEntities<PlayerSeekerBarrier>().Cast<PlayerSeekerBarrier>())
         {
             if (barrier != from && !barrier.hasGroup)
             {

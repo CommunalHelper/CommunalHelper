@@ -11,7 +11,9 @@ public class ExplodingStrawberry : Strawberry
 {
     private Sprite explosionSprite;
     private Vector2 lastPlayerPos;
-    public ExplodingStrawberry(EntityData data, Vector2 offset, EntityID gid) : base(data, offset, gid) {}
+    public ExplodingStrawberry(EntityData data, Vector2 offset, EntityID gid)
+        : base(data, offset, gid)
+    { }
 
     protected Sprite Sprite => DynamicData.For(this).Get<Sprite>("sprite");
 
@@ -27,7 +29,7 @@ public class ExplodingStrawberry : Strawberry
     {
         base.Update();
         Player entity = Scene.Tracker.GetEntity<Player>();
-        if (entity != null)
+        if (entity is not null)
         {
             lastPlayerPos = entity.Center;
         }
@@ -123,7 +125,7 @@ public class ExplodingStrawberry : Strawberry
             : "explode");
         while (strawberry.explosionSprite.Animating)
         {
-            if (strawberry.Follower.Leader != null)
+            if (strawberry.Follower.Leader is not null)
             {
                 strawberry.Sprite.Visible = true;
                 strawberry.explosionSprite.Visible = false;

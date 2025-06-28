@@ -54,7 +54,7 @@ public class BetaCube : Backdrop
     {
         base.BeforeRender(scene);
 
-        if (buffer == null || buffer.IsDisposed)
+        if (buffer is null || buffer.IsDisposed)
             buffer = VirtualContent.CreateRenderTarget("elytrahelper-betacube", 320, 180, false);
 
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);

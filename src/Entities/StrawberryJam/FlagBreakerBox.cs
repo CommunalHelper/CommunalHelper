@@ -8,15 +8,15 @@ class FlagBreakerBox : Solid
     private Vector2 start;
     private float sink;
     private int health;
-    private string flag; //the flag to control with the breaker box
-    private bool aliveState; //the state that the flag should be set to when the box is made
+    private readonly string flag; //the flag to control with the breaker box
+    private readonly bool aliveState; //the state that the flag should be set to when the box is made
     private float shakeCounter;
-    private string music;
-    private int musicProgress;
-    private bool musicStoreInSession;
+    private readonly string music;
+    private readonly int musicProgress;
+    private readonly bool musicStoreInSession;
+    private readonly Wiggler bounce;
     private Vector2 bounceDir;
-    private Wiggler bounce;
-    private Shaker shaker;
+    private readonly Shaker shaker;
     private bool makeSparks;
     private bool smashParticles;
     private SoundSource firstHitSfx;
@@ -35,7 +35,8 @@ class FlagBreakerBox : Solid
         else
             this.sprite = GFX.SpriteBank.Create("breakerBox");
         Sprite sprite = this.sprite;
-        sprite.OnLastFrame = (Action<string>) Delegate.Combine(sprite.OnLastFrame, new Action<string>(delegate (string anim) {
+        sprite.OnLastFrame = (Action<string>) Delegate.Combine(sprite.OnLastFrame, new Action<string>(delegate (string anim)
+        {
             if (anim == "break")
             {
                 Visible = false;
@@ -96,7 +97,7 @@ class FlagBreakerBox : Solid
         health--;
         if (health > 0)
         {
-            Add(firstHitSfx = new SoundSource("event:/new_content/game/10_farewell/fusebox_hit_1"));
+            Add(firstHitSfx = new(SFX.game_10_fusebox_hit_1));
             Celeste.Freeze(0.1f);
             shakeCounter = 0.2f;
             shaker.On = true;
@@ -107,9 +108,8 @@ class FlagBreakerBox : Solid
         }
         else
         {
-            if (firstHitSfx != null)
-                firstHitSfx.Stop(true);
-            Audio.Play("event:/new_content/game/10_farewell/fusebox_hit_2", Position);
+            firstHitSfx?.Stop(true);
+            Audio.Play(SFX.game_10_fusebox_hit_2, Position);
             Celeste.Freeze(0.2f);
             player.RefillDash();
             Break();
@@ -233,11 +233,13 @@ class FlagBreakerBox : Solid
             {
                 Audio.SetMusic(SFX.EventnameByHandle(music), false, true);
             }
+
             if (musicProgress >= 0)
             {
-                Audio.SetMusicParam("progress", (float) musicProgress);
+                Audio.SetMusicParam("progress", musicProgress);
             }
-            if (!string.IsNullOrEmpty(music) && Audio.CurrentMusicEventInstance != null)
+
+            if (!string.IsNullOrEmpty(music) && Audio.CurrentMusicEventInstance is not null)
             {
                 Audio.CurrentMusicEventInstance.start();
             }

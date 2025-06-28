@@ -2,7 +2,6 @@
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
-using System.Collections.Generic;
 using System.Reflection;
 using Directions = Celeste.MoveBlock.Directions;
 
@@ -20,9 +19,6 @@ internal class ChainedKevin : CrushBlock
     private readonly bool chainOutline;
     private readonly float retractSpeedModifier;
     private readonly MTexture chainTexture;
-
-    private DynamicData crushBlockData;
-    private List<Image> idleImages, activeTopImages, activeRightImages, activeLeftImages, activeBottomImages;
 
     public ChainedKevin(EntityData data, Vector2 offset)
         : base(data, offset)
@@ -206,7 +202,6 @@ internal class ChainedKevin : CrushBlock
     {
         if (self is ChainedKevin chainedKevin)
         {
-            chainedKevin.crushBlockData = new(typeof(CrushBlock), chainedKevin);
             chainedKevin.vectorDirection = (chainedKevin.direction = data.Enum("direction", Directions.Right)).Vector();
             chainedKevin.centeredChain = data.Bool("centeredChain");
         }
@@ -222,6 +217,7 @@ internal class ChainedKevin : CrushBlock
             else if (chainedKevin.direction is Directions.Left or Directions.Right)
                 axes = Axes.Horizontal;
         }
+
         orig(self, position, width, height, axes, chillOut);
     }
 
@@ -229,15 +225,6 @@ internal class ChainedKevin : CrushBlock
     {
         if (self is ChainedKevin chainedKevin)
         {
-            if (chainedKevin.idleImages == null)
-            {
-                chainedKevin.idleImages = chainedKevin.crushBlockData.Get<List<Image>>("idleImages");
-                chainedKevin.activeTopImages = chainedKevin.crushBlockData.Get<List<Image>>("activeTopImages");
-                chainedKevin.activeRightImages = chainedKevin.crushBlockData.Get<List<Image>>("activeRightImages");
-                chainedKevin.activeLeftImages = chainedKevin.crushBlockData.Get<List<Image>>("activeLeftImages");
-                chainedKevin.activeBottomImages = chainedKevin.crushBlockData.Get<List<Image>>("activeBottomImages");
-            }
-
             MTexture subtexture = GFX.Game["objects/CommunalHelper/chainedKevin/block" + chainedKevin.direction].GetSubtexture(tx * 8, ty * 8, 8, 8);
             Vector2 vector = new(x * 8, y * 8);
 

@@ -23,7 +23,7 @@ internal class RailedMoveBlock : Solid
 
         public RailedMoveBlockPathRenderer(RailedMoveBlock zipMover)
         {
-            base.Depth = 5000;
+            Depth = Depths.SolidsBelow;
             block = zipMover;
 
             from = block.start + new Vector2(block.Width / 2f, block.Height / 2f);
@@ -88,12 +88,12 @@ internal class RailedMoveBlock : Solid
         public Border(RailedMoveBlock parent)
         {
             Parent = parent;
-            base.Depth = 1;
+            Depth = 1;
         }
 
         public override void Update()
         {
-            if (Parent.Scene != base.Scene)
+            if (Parent.Scene != Scene)
             {
                 RemoveSelf();
             }
@@ -263,9 +263,7 @@ internal class RailedMoveBlock : Solid
         if (attachedAbove)
         {
             foreach (StaticMover staticMover in staticMovers)
-            {
                 staticMover.Entity.Depth = Depth - 1;
-            }
         }
     }
 
@@ -415,19 +413,9 @@ internal class RailedMoveBlock : Solid
     private void UpdateColors(Color color)
     {
         fillColor = Color.Lerp(fillColor, color, 10f * Engine.DeltaTime);
-
-        foreach (Image image in topButton)
-        {
-            image.Color = fillColor;
-        }
-        foreach (Image image in leftButton)
-        {
-            image.Color = fillColor;
-        }
-        foreach (Image image in rightButton)
-        {
-            image.Color = fillColor;
-        }
+        foreach (Image image in topButton) image.Color = fillColor;
+        foreach (Image image in leftButton) image.Color = fillColor;
+        foreach (Image image in rightButton) image.Color = fillColor;
     }
 
     public override void Render()
@@ -435,24 +423,14 @@ internal class RailedMoveBlock : Solid
         Vector2 position = Position;
         Position += Shake;
 
-        foreach (Image image in leftButton)
-        {
-            image.Render();
-        }
-        foreach (Image image in rightButton)
-        {
-            image.Render();
-        }
-        foreach (Image image in topButton)
-        {
-            image.Render();
-        }
+        foreach (Image image in leftButton) image.Render();
+        foreach (Image image in rightButton) image.Render();
+        foreach (Image image in topButton) image.Render();
 
         Draw.Rect(X + 3f, Y + 3f, Width - 6f, Height - 6f, fillColor);
         foreach (Image tile in body)
-        {
             tile.Render();
-        }
+
         Draw.Rect(Center.X - 4f, Center.Y - 4f, 8f, 8f, fillColor);
         (showX ? XIcon : icon).DrawCentered(Center);
 

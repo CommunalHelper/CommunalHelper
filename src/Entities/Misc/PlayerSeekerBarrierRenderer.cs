@@ -19,9 +19,9 @@ public class PlayerSeekerBarrierRenderer : Entity
         SpikeAll = SpikeUp | SpikeDown | SpikeLeft | SpikeRight,
     }
 
-    private static readonly Point[] edgeBuildOffsets = new Point[] {
+    private static readonly Point[] edgeBuildOffsets = [
         new(0, -1), new(0, 1), new(-1, 0), new(1, 0),
-    };
+    ];
 
     private static readonly Tiling[] edgeSpikeDirections = {
         Tiling.SpikeUp, Tiling.SpikeDown, Tiling.SpikeLeft, Tiling.SpikeRight,
@@ -61,7 +61,7 @@ public class PlayerSeekerBarrierRenderer : Entity
 
         public void UpdateWave(float time)
         {
-            if (Wave == null || Wave.Length <= Length)
+            if (Wave is null || Wave.Length <= Length)
                 Wave = new float[(int) Length + 2];
 
             for (int i = 0; i <= Length; i++)
@@ -125,7 +125,7 @@ public class PlayerSeekerBarrierRenderer : Entity
     {
         list.Add(block);
 
-        if (tiles == null)
+        if (tiles is null)
         {
             levelTileBounds = (Scene as Level).TileBounds;
             tiles = new VirtualMap<Tiling>(levelTileBounds.Width, levelTileBounds.Height, emptyValue: Tiling.Empty);
@@ -178,7 +178,7 @@ public class PlayerSeekerBarrierRenderer : Entity
             else if (Scene.OnInterval(0.05f, i * 0.01f) && edges[i].InView(ref view))
                 edges[i].Visible = true;
 
-            if (edges[i].Visible && (Scene.OnInterval(0.05f, i * 0.01f) || edges[i].Wave == null))
+            if (edges[i].Visible && (Scene.OnInterval(0.05f, i * 0.01f) || edges[i].Wave is null))
                 edges[i].UpdateWave(Scene.TimeActive * 3f);
         }
     }

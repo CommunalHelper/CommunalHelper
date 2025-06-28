@@ -109,9 +109,7 @@ public class ShieldedRefill : Entity
         {
             respawnTimer -= Engine.DeltaTime;
             if (respawnTimer <= 0f)
-            {
                 Respawn();
-            }
         }
         else if (Scene.OnInterval(0.1f))
         {
@@ -203,22 +201,19 @@ public class ShieldedRefill : Entity
         level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - ((float) Math.PI / 2f));
         level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + ((float) Math.PI / 2f));
         SlashFx.Burst(Position, num);
+
         if (oneUse)
-        {
             RemoveSelf();
-        }
     }
 
     public static void PlayerPointBounce(Player player, Vector2 from, bool refillPlayer = false)
     {
-        if (player.StateMachine.State == 2)
-        {
-            player.StateMachine.State = 0;
-        }
-        if (player.StateMachine.State == 4 && player.CurrentBooster != null)
-        {
+        if (player.StateMachine.State == Player.StDash)
+            player.StateMachine.State = Player.StNormal;
+
+        if (player.StateMachine.State == Player.StBoost && player.CurrentBooster is not null)
             player.CurrentBooster.PlayerReleased();
-        }
+
         if (refillPlayer)
         {
             player.RefillDash();
@@ -232,7 +227,9 @@ public class ShieldedRefill : Entity
         player.Speed = value * 200;
         if (Math.Abs(player.Speed.X) < 80f)
         {
-            player.Speed.X = player.Speed.X == 0f ? (float) (0 - player.Facing) * 80 : (float) Math.Sign(player.Speed.X) * 80;
+            player.Speed.X = player.Speed.X is 0f
+                ? (float) (0 - player.Facing) * 80
+                : (float) Math.Sign(player.Speed.X) * 80;
         }
     }
 }

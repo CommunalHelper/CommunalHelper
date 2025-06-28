@@ -9,13 +9,13 @@ using Directions = Celeste.Spikes.Directions;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
-[CustomEntity(new string[]
-{
+[CustomEntity(
+[
     "CommunalHelper/TimedTriggerSpikesUp = LoadUp",
     "CommunalHelper/TimedTriggerSpikesDown = LoadDown",
     "CommunalHelper/TimedTriggerSpikesLeft = LoadLeft",
     "CommunalHelper/TimedTriggerSpikesRight = LoadRight"
-})]
+])]
 public class TimedTriggerSpikes : Entity
 {
     protected struct SpikeInfo
@@ -449,7 +449,7 @@ public class TimedTriggerSpikes : Entity
     private bool PlayerCheck(int spikeIndex)
     {
         Player player = CollideFirst<Player>();
-        if (player == null || !waitForPlayer)
+        if (player is null || !waitForPlayer)
         {
             return false;
         }

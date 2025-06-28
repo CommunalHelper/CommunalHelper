@@ -76,7 +76,7 @@ public abstract class CustomDreamBlock : DreamBlock
     private static readonly MethodInfo m_DreamBlock_WobbleLine = typeof(DreamBlock).GetMethod("WobbleLine", BindingFlags.NonPublic | BindingFlags.Instance);
 
     protected MTexture[] featherTextures;
-    protected DreamParticle[] particles;
+    new protected DreamParticle[] particles;
     protected MTexture[] doubleRefillStarTextures;
 
     public bool PlayerHasDreamDash => baseData.Get<bool>("playerHasDreamDash");
@@ -121,7 +121,8 @@ public abstract class CustomDreamBlock : DreamBlock
     public EntityData creatingData;
 
     public CustomDreamBlock(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Float("dashSpeed", 240.0f), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy")) {
+        : this(data.Position + offset, data.Width, data.Height, data.Bool("featherMode"), data.Float("dashSpeed", 240.0f), data.Bool("oneUse"), GetRefillCount(data), data.Bool("below"), data.Bool("quickDestroy"))
+    {
         creatingData = data;
     }
 
@@ -329,14 +330,14 @@ public abstract class CustomDreamBlock : DreamBlock
         }
     }
 
-    private float GetLayerScaleFactor(int layer)
+    private static float GetLayerScaleFactor(int layer)
     {
         return 1 / (0.3f + (0.25f * layer));
     }
 
-    protected void WobbleLine(Vector2 from, Vector2 to, float offset)
+    protected new void WobbleLine(Vector2 from, Vector2 to, float offset)
     {
-        m_DreamBlock_WobbleLine.Invoke(this, new object[] { from, to, offset });
+        m_DreamBlock_WobbleLine.Invoke(this, [from, to, offset]);
     }
 
     public override void Render()
@@ -518,7 +519,7 @@ public abstract class CustomDreamBlock : DreamBlock
         RemoveSelf();
     }
 
-    protected virtual void OneUseDestroy()
+    protected virtual new void OneUseDestroy()
     {
         Collidable = Visible = false;
         DisableStaticMovers();
@@ -545,7 +546,7 @@ public abstract class CustomDreamBlock : DreamBlock
         foreach (PropertyInfo prop in typeof(DreamParticle).GetProperties())
         {
             FieldInfo targetField = DreamParticle.t_DreamParticle.GetField(prop.Name);
-            if (targetField != null)
+            if (targetField is not null)
             {
                 // Special case for position Get method
                 if (prop.Name == "Position")

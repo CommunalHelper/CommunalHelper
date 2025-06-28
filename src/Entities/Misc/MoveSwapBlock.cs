@@ -249,7 +249,7 @@ public class MoveSwapBlock : SwapBlock
     public new void Update()
     {
         DisplacementRenderer.Burst burst = swapBlockData.Get<DisplacementRenderer.Burst>("burst");
-        if (burst != null)
+        if (burst is not null)
         {
             burst.Position = Center;
         }
@@ -770,7 +770,7 @@ public class MoveSwapBlock : SwapBlock
 
     public override void MoveHExact(int move)
     {
-        if (noSquish != null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X)))
+        if (noSquish is not null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X)))
         {
             while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + (Vector2.UnitX * move)))
             {
@@ -792,7 +792,7 @@ public class MoveSwapBlock : SwapBlock
 
     public override void MoveVExact(int move)
     {
-        if (noSquish != null && move < 0 && noSquish.Y <= Y)
+        if (noSquish is not null && move < 0 && noSquish.Y <= Y)
         {
             while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + (Vector2.UnitY * move)))
             {
@@ -1008,7 +1008,7 @@ public class MoveSwapBlock : SwapBlock
             orig(self, pos, width, height, ninSlice, middle, color);
 
         // DrawBlockStyle is also used by the SwapBlock PathRenderer, which just passes null to the middle argument
-        if (self is MoveSwapBlock block && middle != null)
+        if (self is MoveSwapBlock block && middle is not null)
         {
             if (block.groupable.State != GroupableMoveBlock.MovementState.Breaking)
             {

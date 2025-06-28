@@ -30,18 +30,7 @@ public class Melvin : Solid
     private readonly MTexture[,] litVCornersCut = new MTexture[2, 2];
     #endregion
 
-    internal struct MoveState
-    {
-        public readonly Vector2 From;
-        public readonly Vector2 Direction;
-
-        public MoveState(Vector2 from, Vector2 direction)
-        {
-            From = from;
-            Direction = direction;
-        }
-    }
-
+    internal record struct MoveState(Vector2 From, Vector2 Direction);
     internal readonly List<MoveState> returnStack;
 
     private Level level;
@@ -57,11 +46,11 @@ public class Melvin : Solid
 
     private readonly Sprite eye;
 
-    private readonly List<Image> activeTopTiles = new();
-    private readonly List<Image> activeBottomTiles = new();
-    private readonly List<Image> activeRightTiles = new();
-    private readonly List<Image> activeLeftTiles = new();
-    private readonly List<Image> tiles = new();
+    private readonly List<Image> activeTopTiles = [];
+    private readonly List<Image> activeBottomTiles = [];
+    private readonly List<Image> activeRightTiles = [];
+    private readonly List<Image> activeLeftTiles = [];
+    private readonly List<Image> tiles = [];
     private float topTilesAlpha, bottomTilesAlpha, leftTilesAlpha, rightTilesAlpha;
     internal EntityData creationData;
 
@@ -74,7 +63,7 @@ public class Melvin : Solid
               data.Bool("weakTop", false), data.Bool("weakBottom", false), data.Bool("weakLeft", false), data.Bool("weakRight", false),
               data.Attr("spriteDir", ""), data.HexColor("fillColor", Calc.HexToColor("62222b")),
               data.HexColor("activateParticleColor", Calc.HexToColor("e45f7c")), data.HexColor("attackParticleColor", Calc.HexToColor("ffeb6b")), data.HexColor("attackParticleFadeColor", Calc.HexToColor("d39332")))
-    { 
+    {
         creationData = data;
     }
 
@@ -84,7 +73,7 @@ public class Melvin : Solid
         Color activateParticleColor, Color attackParticleColor, Color attackParticleColor2)
         : base(position, width, height, safe: false)
     {
-        returnStack = new List<MoveState>();
+        returnStack = [];
 
         weakTop = up;
         weakBottom = down;
@@ -98,7 +87,7 @@ public class Melvin : Solid
         eye.Position = new Vector2(width / 2, height / 2);
 
         fill = fillColor;
-        
+
         P_Activate = new ParticleType(CrushBlock.P_Activate)
         {
             Color = activateParticleColor
@@ -123,7 +112,7 @@ public class Melvin : Solid
         base.Awake(scene);
         level = SceneAs<Level>();
     }
-    
+
     public void SetupTextures(string path)
     {
         MTexture strongBlockTexture = GFX.Game[path + "/block_strong"];
@@ -226,13 +215,13 @@ public class Melvin : Solid
                         litEdgeTile = weakBottom ? new Image(litEdges[1 + rx, 3]) : null;
                     }
 
-                    if (edgeTile != null)
+                    if (edgeTile is not null)
                     {
                         edgeTile.Position = pos;
                         //Add(edgeTile);
                         tiles.Add(edgeTile);
                     }
-                    if (litEdgeTile != null)
+                    if (litEdgeTile is not null)
                     {
                         litEdgeTile.Position = pos;
                         litEdgeTile.Color = Color.Transparent;
@@ -346,20 +335,20 @@ public class Melvin : Solid
                         }
                     }
 
-                    if (cornerTile != null)
+                    if (cornerTile is not null)
                     {
                         cornerTile.Position = pos;
                         tiles.Add(cornerTile);
                         //Add(cornerTile);
                     }
-                    if (litCornerTile1 != null)
+                    if (litCornerTile1 is not null)
                     {
                         litCornerTile1.Position = pos;
                         litCornerTile1.Color = Color.Transparent;
                         tiles.Add(litCornerTile1);
                         //Add(litCornerTile1);
                     }
-                    if (litCornerTile2 != null)
+                    if (litCornerTile2 is not null)
                     {
                         litCornerTile2.Position = pos;
                         litCornerTile2.Color = Color.Transparent;
@@ -373,7 +362,7 @@ public class Melvin : Solid
 
     private static Sprite SetupEye(string path)
     {
-        Sprite eye = new Sprite(GFX.Game, path + "/eye/");
+        Sprite eye = new(GFX.Game, path + "/eye/");
 
         // <Loop id="idle" path="idle_small" delay="0.08" frames="0"/>
         eye.AddLoop("idle", "idle_small", 0.08f, 0);
@@ -400,7 +389,7 @@ public class Melvin : Solid
 
         eye.Justify = Vector2.One * 0.5f;
         eye.Play("idle");
-        
+
         return eye;
     }
 
@@ -463,7 +452,7 @@ public class Melvin : Solid
     {
         triggered = true;
 
-        if (currentMoveLoopSfx != null)
+        if (currentMoveLoopSfx is not null)
         {
             currentMoveLoopSfx.Param("end", 1f);
             SoundSource sfx = currentMoveLoopSfx;
@@ -539,7 +528,7 @@ public class Melvin : Solid
         }
 
         FallingBlock fallingBlock = CollideFirst<FallingBlock>(Position + crushDir);
-        if (fallingBlock != null)
+        if (fallingBlock is not null)
         {
             fallingBlock.Triggered = true;
         }
@@ -815,22 +804,10 @@ public class Melvin : Solid
         leftTilesAlpha = Calc.Approach(leftTilesAlpha, triggered && dir == ArrowDir.Left && crushDir != Vector2.Zero ? 1f : 0f, Engine.DeltaTime * 2f);
         rightTilesAlpha = Calc.Approach(rightTilesAlpha, triggered && dir == ArrowDir.Right && crushDir != Vector2.Zero ? 1f : 0f, Engine.DeltaTime * 2f);
 
-        foreach (Image tile in activeTopTiles)
-        {
-            tile.Color = Color.White * topTilesAlpha;
-        }
-        foreach (Image tile in activeBottomTiles)
-        {
-            tile.Color = Color.White * bottomTilesAlpha;
-        }
-        foreach (Image tile in activeLeftTiles)
-        {
-            tile.Color = Color.White * leftTilesAlpha;
-        }
-        foreach (Image tile in activeRightTiles)
-        {
-            tile.Color = Color.White * rightTilesAlpha;
-        }
+        foreach (Image tile in activeTopTiles) tile.Color = Color.White * topTilesAlpha;
+        foreach (Image tile in activeBottomTiles) tile.Color = Color.White * bottomTilesAlpha;
+        foreach (Image tile in activeLeftTiles) tile.Color = Color.White * leftTilesAlpha;
+        foreach (Image tile in activeRightTiles) tile.Color = Color.White * rightTilesAlpha;
     }
 
     private bool IsPlayerSeen(Rectangle rect, ArrowDir dir)
@@ -843,6 +820,7 @@ public class Melvin : Solid
                 if (!Scene.CollideCheck<Solid>(lineRect))
                     return true;
             }
+
             return false;
         }
         else
@@ -853,6 +831,7 @@ public class Melvin : Solid
                 if (!Scene.CollideCheck<Solid>(lineRect))
                     return true;
             }
+
             return false;
         }
     }
@@ -920,10 +899,10 @@ public class Melvin : Solid
                         toTargetRect = new Rectangle(x1, (int) (Y + Height), x2 - x1, (int) (target.Top - Y - Height));
                     }
                 }
-                
+
                 if (!detectedTarget || !IsPlayerSeen(toTargetRect, dir))
                     continue;
-                
+
                 Attack(false);
                 break;
             }

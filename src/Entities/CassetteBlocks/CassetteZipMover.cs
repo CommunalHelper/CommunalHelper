@@ -172,9 +172,9 @@ public class CassetteZipMover : CustomCassetteBlock
             foreach (Segment seg in segments)
                 seg.Seen = cameraBounds.Intersects(seg.Bounds);
 
-            for (int i = 1; i <= zipMover.blockHeight; ++i)
+            for (int i = 1; i <= zipMover.BlockHeight; ++i)
             {
-                Vector2 o = new(0, i + zipMover.blockOffset.Y);
+                Vector2 o = new(0, i + zipMover.BlockOffset.Y);
                 foreach (Segment seg in segments)
                     if (seg.Seen)
                         seg.Render(zipMover.percent, o, undersideColor, undersideColor);
@@ -182,18 +182,18 @@ public class CassetteZipMover : CustomCassetteBlock
 
             foreach (Segment seg in segments)
                 if (seg.Seen)
-                    seg.Render(zipMover.percent, zipMover.blockOffset, color, lightColor);
+                    seg.Render(zipMover.percent, zipMover.BlockOffset, color, lightColor);
 
             float rotation = zipMover.percent * MathHelper.TwoPi;
             MTexture cogTex = on ? cog : cogPressed;
             foreach (Vector2 node in nodes)
             {
-                for (int i = 1; i <= zipMover.blockHeight; ++i)
+                for (int i = 1; i <= zipMover.BlockHeight; ++i)
                 {
-                    Vector2 o = new(0, i + zipMover.blockOffset.Y);
+                    Vector2 o = new(0, i + zipMover.BlockOffset.Y);
                     cogWhite.DrawCentered(node + o, undersideColor, 1f, rotation);
                 }
-                cogTex.DrawCentered(node + zipMover.blockOffset, zipMover.color, 1f, rotation);
+                cogTex.DrawCentered(node + zipMover.BlockOffset, zipMover.color, 1f, rotation);
             }
         }
     }
@@ -238,8 +238,7 @@ public class CassetteZipMover : CustomCassetteBlock
               data.Bool("waiting"),
               data.Bool("ticking"),
               data.HexColorNullable("customColor"))
-    {
-    }
+    { }
 
     public override void Awake(Scene scene)
     {
@@ -462,7 +461,7 @@ public class CassetteZipMover : CustomCassetteBlock
 
     private Vector2 FixCassetteY(Vector2 vec)
     {
-        return vec + blockOffset;
+        return vec + BlockOffset;
     }
 
     internal static void InitializeTextures()

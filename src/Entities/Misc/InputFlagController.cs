@@ -42,9 +42,7 @@ public class InputFlagController : AbstractInputController
     public override void FrozenUpdate()
     {
         if (cooldown <= 0 && Activated)
-        {
             Activate();
-        }
     }
 
     public void Activate()

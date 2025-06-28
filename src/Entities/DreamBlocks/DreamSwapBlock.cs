@@ -38,8 +38,7 @@ public class DreamSwapBlock : CustomDreamBlock
     public Vector2 Direction;
     public bool Swapping;
 
-    private Vector2 start;
-    private Vector2 end;
+    private Vector2 start, end;
     private float lerp;
     private int target;
     private Rectangle moveRect;
@@ -53,8 +52,7 @@ public class DreamSwapBlock : CustomDreamBlock
 
     private PathRenderer path;
 
-    private EventInstance moveSfx;
-    private EventInstance returnSfx;
+    private EventInstance moveSfx, returnSfx;
 
     private DisplacementRenderer.Burst burst;
     private float particlesRemainder;
@@ -78,9 +76,7 @@ public class DreamSwapBlock : CustomDreamBlock
 
         dreamParticles = new ParticleType[4];
         for (int i = 0; i < 4; i++)
-        {
             dreamParticles[i] = new ParticleType(particle);
-        }
     }
 
     public DreamSwapBlock(EntityData data, Vector2 offset)
@@ -181,14 +177,10 @@ public class DreamSwapBlock : CustomDreamBlock
     {
         base.Update();
         if (shattered)
-        {
             return;
-        }
 
-        if (burst != null)
-        {
+        if (burst is not null)
             burst.Position = Center;
-        }
 
         if (noReturn)
         {
@@ -201,14 +193,13 @@ public class DreamSwapBlock : CustomDreamBlock
             {
                 Vector2 liftSpeed = (end - start) * speed;
                 Vector2 position = Position;
+
                 if (target == 1)
-                {
                     liftSpeed = (end - start) * maxForwardSpeed;
-                }
+
                 if (lerp < num)
-                {
                     liftSpeed *= -1f;
-                }
+
                 if (Scene.OnInterval(0.02f))
                 {
                     // Allows move particles in both directions
@@ -227,9 +218,8 @@ public class DreamSwapBlock : CustomDreamBlock
                 }
             }
             if (Swapping && lerp >= 1f)
-            {
                 Swapping = false;
-            }
+
             StopPlayerRunIntoAnimation = lerp is <= 0f or >= 1f;
         }
         else
@@ -256,17 +246,13 @@ public class DreamSwapBlock : CustomDreamBlock
                 Vector2 liftSpeed = (end - start) * speed;
                 Vector2 position = Position;
                 if (target == 1)
-                {
                     liftSpeed = (end - start) * maxForwardSpeed;
-                }
+
                 if (lerp < num)
-                {
                     liftSpeed *= -1f;
-                }
                 if (target == 1 && Scene.OnInterval(0.02f))
-                {
                     MoveParticles(end - start);
-                }
+
                 MoveTo(Vector2.Lerp(start, end, lerp), liftSpeed);
                 if (position != Position)
                 {
@@ -285,9 +271,8 @@ public class DreamSwapBlock : CustomDreamBlock
                 }
             }
             if (Swapping && lerp >= 1f)
-            {
                 Swapping = false;
-            }
+
             StopPlayerRunIntoAnimation = lerp is <= 0f or >= 1f;
         }
     }
@@ -296,9 +281,7 @@ public class DreamSwapBlock : CustomDreamBlock
     {
         base.Render();
         if (noReturn)
-        {
             cross.DrawCentered(Center + baseData.Get<Vector2>("shake"));
-        }
     }
 
     public override void SetupCustomParticles(float canvasWidth, float canvasHeight)
@@ -355,13 +338,14 @@ public class DreamSwapBlock : CustomDreamBlock
             direction = -(float) Math.PI / 2f;
             num = Math.Max(2f, Width / 14f);
         }
-        else
+        else if (normal.Y > 0f)
         {
             position = BottomCenter;
             positionRange = Vector2.UnitX * (Width - 6f);
             direction = (float) Math.PI / 2f;
             num = Math.Max(2f, Width / 14f);
         }
+        else return;
 
         particlesRemainder += num;
         int amount = (int) particlesRemainder;

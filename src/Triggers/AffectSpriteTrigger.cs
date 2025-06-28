@@ -2,13 +2,10 @@
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.CommunalHelper.Triggers;
+
 [CustomEntity("CommunalHelper/AffectSpriteTrigger")]
 public class AffectSpriteTrigger : Trigger
 {
@@ -36,10 +33,10 @@ public class AffectSpriteTrigger : Trigger
     private static void HookPlayerUpdateSprite(ILContext ctx)
     {
         ILCursor cursor = new(ctx);
-        while(cursor.TryGotoNext(i => i.MatchStfld<Sprite>("Rate")))
+        while (cursor.TryGotoNext(i => i.MatchStfld<Sprite>("Rate")))
         {
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Func<float, Player, float>>((f,p) => f * (p == null ? 1 : (float)DynamicData.For(p).Get(PlayerSpriteRateOverride)));
+            cursor.EmitDelegate<Func<float, Player, float>>((f, p) => f * (p is null ? 1 : (float) DynamicData.For(p).Get(PlayerSpriteRateOverride)));
             cursor.Index++;
         }
 
@@ -48,17 +45,17 @@ public class AffectSpriteTrigger : Trigger
 
     private const string PlayerSpriteRateOverride = "CH_PlayerSpriteRateOverride";
 
-    Vector2? refPosition;
-    Sprite sprite;
-    bool _player;
-    string parameter;
-    object value;
+    private Vector2? refPosition;
+    private Sprite sprite;
+    private readonly bool player;
+    private readonly string parameter;
+    private readonly object value;
 
     public AffectSpriteTrigger(EntityData data, Vector2 offset) : base(data, offset)
     {
         var temp = data.NodesOffset(offset);
         if (temp.Length > 0) refPosition = temp[0];
-        _player = data.Bool("player");
+        player = data.Bool("player");
         parameter = data.Attr("parameter").ToLower();
         value = parameter switch
         {
@@ -69,18 +66,19 @@ public class AffectSpriteTrigger : Trigger
             "position" => data.Vector2("value", Vector2.Zero),
             "scale" => data.Vector2("value", Vector2.One),
             "color" => data.HexColor("value", Color.White),
-            "active" => data.Bool("value", true)
+            "active" => data.Bool("value", true),
+            _ => null,
         };
     }
 
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
-        if (_player)
+        if (player)
         {
             return;
         }
-        if (refPosition != null &&
+        if (refPosition is not null &&
             !scene.Entities.Any(f =>
             {
                 if (Collide.CheckPoint(f, refPosition.Value) && f.Get<Sprite>() is Sprite sprite2)
@@ -90,7 +88,7 @@ public class AffectSpriteTrigger : Trigger
                 }
                 return false;
             })) { Console.WriteLine("no matches found"); }
-        if (sprite == null)
+        if (sprite is null)
         {
             throw new Exception("AffectSpriteTrigger failed! Either select `player` or add a node to point to the affected entity.");
         }
@@ -98,13 +96,13 @@ public class AffectSpriteTrigger : Trigger
 
     public override void OnEnter(Player player)
     {
-        if(_player)
+        if (this.player)
         {
             sprite = player?.Sprite;
-            Player p2 = null;
-            if (sprite == null)
+            if (sprite is null)
             {
-                if (Util.TryGetPlayer(out p2)) sprite = p2.Sprite;
+                if (Util.TryGetPlayer(out Player p2))
+                    sprite = p2.Sprite;
                 else
                 {
                     Logger.Log(LogLevel.Error, "CommunalHelper", "No player found to use in AffectSpriteTrigger! This may occur from CrystallineHelper trigger triggers, when a player has died.");
@@ -112,16 +110,17 @@ public class AffectSpriteTrigger : Trigger
                 }
             }
         }
+        
         switch (parameter)
         {
-            case "rate": if (_player) DynamicData.For(player).Set(PlayerSpriteRateOverride,(float) value); else sprite.Rate = (float) value; break;
+            case "rate": if (this.player) DynamicData.For(player).Set(PlayerSpriteRateOverride, (float) value); else sprite.Rate = (float) value; break;
             case "rotation": sprite.Rotation = (float) value; break;
             case "userawdeltatime": sprite.UseRawDeltaTime = (bool) value; break;
             case "justify": sprite.Justify = (Vector2?) value; break;
             case "position": sprite.Position = (Vector2) value; break;
             case "scale": sprite.Scale = (Vector2) value; break;
             case "color": sprite.Color = (Color) value; break;
-            case "active": sprite.Active = (bool)value; break;
+            case "active": sprite.Active = (bool) value; break;
         }
     }
 }

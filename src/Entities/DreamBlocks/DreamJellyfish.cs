@@ -61,7 +61,7 @@ internal class DreamJellyfish : Glider
             OnRelease = OnRelease,
             SpeedGetter = () => Speed,
             OnHitSpring = HitSpring,
-            SpeedSetter = delegate(Vector2 speed)
+            SpeedSetter = delegate (Vector2 speed)
             {
                 Speed = speed;
             },
@@ -115,7 +115,7 @@ internal class DreamJellyfish : Glider
     private static void Glider_Update(ILContext il)
     {
         ILCursor cursor = new(il);
-        
+
         if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdsfld(f_Glider_P_Glow)))
         {
             cursor.Emit(OpCodes.Ldarg_0);

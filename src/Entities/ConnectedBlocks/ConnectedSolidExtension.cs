@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -25,23 +26,19 @@ public class SolidExtension : Solid
         extensions.Add(from);
 
         if (from.X < master.GroupBoundsMin.X)
-        {
             master.GroupBoundsMin.X = (int) from.X;
-        }
-        if (from.Y < master.GroupBoundsMin.Y)
-        {
-            master.GroupBoundsMin.Y = (int) from.Y;
-        }
-        if (from.Right > master.GroupBoundsMax.X)
-        {
-            master.GroupBoundsMax.X = (int) from.Right;
-        }
-        if (from.Bottom > master.GroupBoundsMax.Y)
-        {
-            master.GroupBoundsMax.Y = (int) from.Bottom;
-        }
 
-        foreach (SolidExtension extention in Scene.Tracker.GetEntities<SolidExtension>())
+        if (from.Y < master.GroupBoundsMin.Y)
+            master.GroupBoundsMin.Y = (int) from.Y;
+
+        if (from.Right > master.GroupBoundsMax.X)
+            master.GroupBoundsMax.X = (int) from.Right;
+
+        if (from.Bottom > master.GroupBoundsMax.Y)
+            master.GroupBoundsMax.Y = (int) from.Bottom;
+
+
+        foreach (SolidExtension extention in Scene.Tracker.GetEntities<SolidExtension>().Cast<SolidExtension>())
         {
             if (!extention.HasGroup &&
                 (Scene.CollideCheck(new Rectangle((int) from.X - 1, (int) from.Y, (int) from.Width + 2, (int) from.Height), extention) ||
@@ -58,8 +55,6 @@ public class SolidExtension : Solid
     {
         base.Update();
         if (!HasGroup)
-        {
             RemoveSelf();
-        }
     }
 }

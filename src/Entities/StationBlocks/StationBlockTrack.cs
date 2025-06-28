@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -54,10 +55,10 @@ public class StationBlockTrack : Entity
     public StationBlockTrack master;
 
     private Rectangle nodeRect1, nodeRect2, trackRect;
-    
+
     private readonly Node initialNodeData1, initialNodeData2;
     private Node node1, node2;
-    
+
     private List<Node> Track;
     private List<StationBlockTrack> Group;
     private readonly bool multiBlockTrack = false;
@@ -190,8 +191,8 @@ public class StationBlockTrack : Entity
         if (!HasGroup)
         {
             MasterOfGroup = true;
-            Track = new List<Node>();
-            Group = new List<StationBlockTrack>();
+            Track = [];
+            Group = [];
             AddToGroupAndFindChildren(this);
 
             bool multiBlock = false;
@@ -258,7 +259,7 @@ public class StationBlockTrack : Entity
 
     private void SetTrackTheme(StationBlock.Themes theme, bool reversedControls, MTexture customNode = null, MTexture customTrackH = null, MTexture customTrackV = null)
     {
-        if (customNode == null && customTrackH == null && customTrackV == null)
+        if (customNode is null && customTrackH is null && customTrackV is null)
         {
             string node, trackV, trackH;
             bool constantLooping;
@@ -366,35 +367,35 @@ public class StationBlockTrack : Entity
     {
         Node foundNode = GetNodeAt(Track, node.Position);
 
-        if (foundNode == null)
+        if (foundNode is null)
         {
             Track.Add(node);
             return node;
         }
         else
         {
-            if (foundNode.NodeUp == null && node.NodeUp != null)
+            if (foundNode.NodeUp is null && node.NodeUp is not null)
             {
                 foundNode.NodeUp = node.NodeUp;
                 node.NodeUp.NodeDown = foundNode;
                 foundNode.TrackUp = track;
                 node.NodeUp.TrackDown = track;
             }
-            if (foundNode.NodeDown == null && node.NodeDown != null)
+            if (foundNode.NodeDown is null && node.NodeDown is not null)
             {
                 foundNode.NodeDown = node.NodeDown;
                 node.NodeDown.NodeUp = foundNode;
                 foundNode.TrackDown = track;
                 node.NodeDown.TrackUp = track;
             }
-            if (foundNode.NodeLeft == null && node.NodeLeft != null)
+            if (foundNode.NodeLeft is null && node.NodeLeft is not null)
             {
                 foundNode.NodeLeft = node.NodeLeft;
                 node.NodeLeft.NodeRight = foundNode;
                 foundNode.TrackLeft = track;
                 node.NodeLeft.TrackRight = track;
             }
-            if (foundNode.NodeRight == null && node.NodeRight != null)
+            if (foundNode.NodeRight is null && node.NodeRight is not null)
             {
                 foundNode.NodeRight = node.NodeRight;
                 node.NodeRight.NodeLeft = foundNode;
@@ -507,7 +508,7 @@ public class StationBlockTrack : Entity
 
     public static void ReverseTracks(Scene scene)
     {
-        foreach (StationBlockTrack track in scene.Tracker.GetEntities<StationBlockTrack>())
+        foreach (StationBlockTrack track in scene.Tracker.GetEntities<StationBlockTrack>().Cast<StationBlockTrack>())
         {
             if (track.MasterOfGroup)
             {
@@ -544,22 +545,22 @@ public class StationBlockTrack : Entity
             if (child.dynamicRouting && child.moveMode is TrackMoveMode.ForwardForce or TrackMoveMode.BackwardForce)
             {
                 // we just need the outgoing node
-                Node node = child.moveMode == TrackMoveMode.ForwardForce ? child.node2 : child.node1 ;
+                Node node = child.moveMode == TrackMoveMode.ForwardForce ? child.node2 : child.node1;
                 if (node.PushForce != Vector2.Zero)
                 {
-                    if (node.NodeUp != null && node.TrackUp != child && node.TrackUp.CanBeUsed && node.TrackUp.moveMode == TrackMoveMode.BackwardForce)
+                    if (node.NodeUp is not null && node.TrackUp != child && node.TrackUp.CanBeUsed && node.TrackUp.moveMode == TrackMoveMode.BackwardForce)
                     {
                         node.PushForce = -Vector2.UnitY;
                     }
-                    else if (node.NodeDown != null && node.TrackDown != child && node.TrackDown.CanBeUsed && node.TrackDown.moveMode == TrackMoveMode.ForwardForce)
+                    else if (node.NodeDown is not null && node.TrackDown != child && node.TrackDown.CanBeUsed && node.TrackDown.moveMode == TrackMoveMode.ForwardForce)
                     {
                         node.PushForce = Vector2.UnitY;
                     }
-                    else if (node.NodeLeft != null && node.TrackLeft != child && node.TrackLeft.CanBeUsed && node.TrackLeft.moveMode == TrackMoveMode.BackwardForce)
+                    else if (node.NodeLeft is not null && node.TrackLeft != child && node.TrackLeft.CanBeUsed && node.TrackLeft.moveMode == TrackMoveMode.BackwardForce)
                     {
                         node.PushForce = -Vector2.UnitX;
                     }
-                    else if (node.NodeRight != null && node.TrackRight != child && node.TrackRight.CanBeUsed && node.TrackRight.moveMode == TrackMoveMode.ForwardForce)
+                    else if (node.NodeRight is not null && node.TrackRight != child && node.TrackRight.CanBeUsed && node.TrackRight.moveMode == TrackMoveMode.ForwardForce)
                     {
                         node.PushForce = Vector2.UnitX;
                     }
@@ -579,7 +580,7 @@ public class StationBlockTrack : Entity
     {
         if (initialMoveMode == TrackMoveMode.None)
             return TrackMoveMode.None;
-        
+
         moveMode = Invert(moveMode);
         OneWayDir = -OneWayDir;
         return moveMode;
@@ -587,7 +588,8 @@ public class StationBlockTrack : Entity
 
     public static TrackMoveMode Invert(TrackMoveMode moveMode)
     {
-        return moveMode switch {
+        return moveMode switch
+        {
             TrackMoveMode.ForwardOneWay => TrackMoveMode.BackwardOneWay,
             TrackMoveMode.BackwardOneWay => TrackMoveMode.ForwardOneWay,
             TrackMoveMode.ForwardForce => TrackMoveMode.BackwardForce,

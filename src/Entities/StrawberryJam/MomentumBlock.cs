@@ -8,22 +8,21 @@ public class MomentumBlock : Solid
     const float MAX_SPEED_Y = -130;
     private Vector2 targetSpeed, targetSpeedFlagged;
     private Color speedColor, speedColorFlagged;
-    private float angle, angleFlagged;
+    private readonly float angle, angleFlagged;
     private Color startColor, endColor;
-    private MTexture arrowTexture, arrowTextureFlagged;
-    private string flag;
+    private readonly MTexture arrowTexture, arrowTextureFlagged;
+    private readonly string flag;
     private bool isFlagged;
     private Player ridingPlayer;
 
-    private MTexture flashTexture, flashTextureFlagged;
+    private readonly MTexture flashTexture, flashTextureFlagged;
     private float flashTimer;
     private Color flashColor;
     private bool doFlash;
 
     public MomentumBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Float("speed"), data.Float("direction"), data.Float("speedFlagged"), data.Float("directionFlagged"), data.Attr("startColor"), data.Attr("endColor"), data.Attr("flag"))
-    {
-    }
+    { }
 
     public MomentumBlock(Vector2 position, int width, int height, float spd, float dir, float spdFlagged, float dirFlagged, string startC, string endC, string flg) : base(position, width, height, safe: false)
     {
@@ -66,7 +65,7 @@ public class MomentumBlock : Solid
     public MTexture GetArrowTexture(float angle)
     {
         int value = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
-        if (((8 > Width - 1) || (8 > Height - 1))) //use a different texture if the size is small for readability
+        if ((8 > Width - 1) || (8 > Height - 1)) // use a different texture if the size is small for readability
             return GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/strawberryJam/momentumBlock/trianglearrow")[Calc.Clamp(value, 0, 7)];
         return GFX.Game.GetAtlasSubtextures("objects/moveBlock/arrow")[Calc.Clamp(value, 0, 7)];
     }
@@ -74,7 +73,7 @@ public class MomentumBlock : Solid
     public MTexture GetArrowTextureFlash(float angle)
     {
         int value = (int) Math.Floor((0f - angle + (float) Math.PI * 2f) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f + 0.5f);
-        if (((8 > Width - 1) || (8 > Height - 1))) //use a different texture if the size is small for readability
+        if ((8 > Width - 1) || (8 > Height - 1)) // use a different texture if the size is small for readability
             return GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/strawberryJam/momentumBlock/trianglearrowflash")[Calc.Clamp(value, 0, 7)];
         return GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/strawberryJam/momentumBlock/arrowflash")[Calc.Clamp(value, 0, 7)];
     }
@@ -89,7 +88,7 @@ public class MomentumBlock : Solid
 
     public Color CalculateGradient(float spd)
     {
-        float g = (float) (1 - Math.Abs((1.0 - spd / MAX_SPEED) % 2f - 1)); //smooth the linear gradient
+        float g = (float) (1 - Math.Abs((1.0 - spd / MAX_SPEED) % 2f - 1)); // smooth the linear gradient
         g = -g + 1;
         return Color.Lerp(startColor, endColor, g);
     }
@@ -98,12 +97,12 @@ public class MomentumBlock : Solid
     {
         base.Update();
         UpdateFlag();
-        MoveHExact(0);  //force a lift update
+        MoveHExact(0); // force a lift update
 
         Vector2 speed = isFlagged ? targetSpeedFlagged : targetSpeed;
 
         Player player = GetPlayerRider();
-        if (ridingPlayer != null && player == null && ridingPlayer.Speed.Y < 0 && speed.Length() > 1f)
+        if (ridingPlayer is not null && player is null && ridingPlayer.Speed.Y < 0 && speed.Length() > 1f)
         {
             Audio.Play(CustomSFX.game_strawberryJam_boost_block_boost).setVolume(0.5f); // -6dB
             Flash();
@@ -152,7 +151,7 @@ public class MomentumBlock : Solid
         MTexture currentTexture = isFlagged ? arrowTextureFlagged : arrowTexture;
         MTexture currentTextureFlash = isFlagged ? flashTextureFlagged : flashTexture;
 
-        //draw the colored rectangle below the arrow texture
+        // draw the colored rectangle below the arrow texture
         Draw.Rect(Center.X - currentTexture.Width / 2, Center.Y - currentTexture.Height / 2, currentTexture.Width, currentTexture.Height, isFlagged ? speedColorFlagged : speedColor);
         currentTexture.DrawCentered(Center);
 

@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -31,8 +32,8 @@ public class MoveBlockGroup : Entity
     {
         this.nodes = nodes;
 
-        this.Color = color;
-        this.SyncActivation = syncActivation;
+        Color = color;
+        SyncActivation = syncActivation;
         this.respawnBehavior = respawnBehavior;
     }
 
@@ -43,7 +44,7 @@ public class MoveBlockGroup : Entity
         foreach (Vector2 node in nodes)
         {
             Rectangle hitbox = new((int) node.X - 4, (int) node.Y - 4, 8, 8);
-            foreach (GroupableMoveBlock c in scene.Tracker.GetComponents<GroupableMoveBlock>())
+            foreach (GroupableMoveBlock c in scene.Tracker.GetComponents<GroupableMoveBlock>().Cast<GroupableMoveBlock>())
             {
                 // force CassetteMoveBlocks to be detected as they will be uncollidable until the cassette music starts
                 if ((c.Entity is CassetteMoveBlock || c.Entity.Collidable) && c.Entity.CollideRect(hitbox) && !components.Contains(c))

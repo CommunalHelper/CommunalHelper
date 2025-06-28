@@ -8,7 +8,7 @@ public class TrackSwitchBox : Solid
 {
     private uint Seed;
 
-    public static ParticleType P_Smash;
+    private static ParticleType P_Smash;
 
     private float circleRadius = 0f, circleOpacity = 0f;
 
@@ -105,22 +105,10 @@ public class TrackSwitchBox : Solid
     {
         if (!SaveData.Instance.Assists.Invincible)
         {
-            if (dir == Vector2.UnitX && spikesLeft)
-            {
-                return DashCollisionResults.NormalCollision;
-            }
-            if (dir == -Vector2.UnitX && spikesRight)
-            {
-                return DashCollisionResults.NormalCollision;
-            }
-            if (dir == Vector2.UnitY && spikesUp)
-            {
-                return DashCollisionResults.NormalCollision;
-            }
-            if (dir == -Vector2.UnitY && spikesDown)
-            {
-                return DashCollisionResults.NormalCollision;
-            }
+            if (dir == Vector2.UnitX && spikesLeft) return DashCollisionResults.NormalCollision;
+            if (dir == -Vector2.UnitX && spikesRight) return DashCollisionResults.NormalCollision;
+            if (dir == Vector2.UnitY && spikesUp) return DashCollisionResults.NormalCollision;
+            if (dir == -Vector2.UnitY && spikesDown) return DashCollisionResults.NormalCollision;
         }
 
         if (canSwitch)
@@ -228,14 +216,12 @@ public class TrackSwitchBox : Solid
                 shaker.On = false;
                 sprite.Scale = Vector2.One * 1.2f;
                 sprite.Play("switch");
+
                 if (LocalTrackSwitchState == TrackSwitchState.On)
-                {
                     level.Session.SetFlag(switchFlag, true);
-                }
+
                 if (LocalTrackSwitchState == TrackSwitchState.Off)
-                {
                     level.Session.SetFlag(switchFlag, false);
-                }
             }
         }
         if (Collidable)

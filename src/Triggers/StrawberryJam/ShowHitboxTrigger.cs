@@ -15,8 +15,8 @@ public class ShowHitboxTrigger : Trigger
 
     public ShowHitboxTrigger(EntityData data, Vector2 offset) : base(data, offset)
     {
-        TypeNames = new HashSet<string>(data.Attr("typeNames").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(str => str.Trim()));
+        TypeNames = [.. data.Attr("typeNames").Split([','], StringSplitOptions.RemoveEmptyEntries)
+            .Select(str => str.Trim())];
     }
 
     public override void Removed(Scene scene)
@@ -181,22 +181,14 @@ public class ShowHitboxTrigger : Trigger
 
         float x, y;
         if (flipX > 0)
-        {
             x = (float) Math.Ceiling(cx + radius - 1);
-        }
         else
-        {
             x = (float) Math.Floor(cx - radius + 1);
-        }
 
         if (flipY > 0)
-        {
             y = (float) Math.Floor(cy);
-        }
         else
-        {
             y = (float) Math.Ceiling(cy);
-        }
 
         float startY = y;
         float e = (x - cx) * (x - cx) + (y - cy) * (y - cy) - radius * radius;

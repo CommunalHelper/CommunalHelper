@@ -155,9 +155,7 @@ public class AeroBlockSlingshot : AeroBlock
         return (int) SlingshotStates.Idle;
     }
 
-    private void IdleEnd()
-    {
-    }
+    private void IdleEnd() { }
 
     private void WindupBegin()
     {
@@ -223,9 +221,7 @@ public class AeroBlockSlingshot : AeroBlock
         return updateTimer <= 0 ? (int) SlingshotStates.Launch : (int) SlingshotStates.Locked;
     }
 
-    private void LockedEnd()
-    {
-    }
+    private void LockedEnd() { }
 
     private void LaunchBegin()
     {
@@ -346,6 +342,7 @@ public class AeroBlockSlingshot : AeroBlock
             return true;
         if (moveX < 0 && Position.X > leftPosition.X)
             return true;
+
         return false;
     }
 

@@ -79,8 +79,8 @@ public class Chain : Entity
 
         this.outline = outline;
 
-        Vector2 from = attachedStartGetter != null ? attachedStartGetter() : Position;
-        Vector2 to = attachedEndGetter != null ? attachedEndGetter() : Position;
+        Vector2 from = attachedStartGetter is not null ? attachedStartGetter() : Position;
+        Vector2 to = attachedEndGetter is not null ? attachedEndGetter() : Position;
         for (int i = 0; i < nodes.Length; i++)
         {
             Vector2 newPos = from + ((to - from) * i / (nodes.Length - 1));
@@ -99,7 +99,7 @@ public class Chain : Entity
         Solid startSolid = scene.CollideFirst<Solid>(new Rectangle((int) start.X - 2, (int) start.Y - 2, 4, 4));
         Solid endSolid = scene.CollideFirst<Solid>(new Rectangle((int) end.X - 2, (int) end.Y - 2, 4, 4));
 
-        if (startSolid != null)
+        if (startSolid is not null)
         {
             Vector2 offset = start - startSolid.Position;
             attachedStartGetter = () => startSolid.Position + offset;
@@ -107,7 +107,7 @@ public class Chain : Entity
         else
             attachedStartGetter = null;
 
-        if (endSolid != null)
+        if (endSolid is not null)
         {
             Vector2 offset = end - endSolid.Position;
             attachedEndGetter = () => endSolid.Position + offset;
@@ -115,13 +115,13 @@ public class Chain : Entity
         else
             attachedEndGetter = null;
 
-        if (attachedStartGetter == null && attachedEndGetter == null)
+        if (attachedStartGetter is null && attachedEndGetter is null)
             RemoveSelf();
     }
 
     private void UpdateSfx(Vector2[] oldPositions)
     {
-        if (sfx == null)
+        if (sfx is null)
             return;
 
         float intensity = 0f;
@@ -212,8 +212,8 @@ public class Chain : Entity
 
     private void UpdateChain(bool lockNodes = false)
     {
-        bool startAttached = attachedStartGetter != null;
-        bool endAttached = attachedEndGetter != null;
+        bool startAttached = attachedStartGetter is not null;
+        bool endAttached = attachedEndGetter is not null;
         if (startAttached)
         {
             nodes[0].Position = attachedStartGetter();
@@ -256,7 +256,7 @@ public class Chain : Entity
 
     private void ShakeImpulse()
     {
-        for (int i = attachedStartGetter != null ? 1 : 0; i < nodes.Length - (attachedEndGetter != null ? 1 : 0); i++)
+        for (int i = attachedStartGetter is not null ? 1 : 0; i < nodes.Length - (attachedEndGetter is not null ? 1 : 0); i++)
         {
             nodes[i].Acceleration += Util.RandomDir(10000f);
         }

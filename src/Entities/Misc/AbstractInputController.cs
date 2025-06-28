@@ -1,4 +1,5 @@
 ﻿using MonoMod.Cil;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -38,15 +39,13 @@ public abstract class AbstractInputController : Entity
         if (cursor.TryGotoNext(instr => instr.MatchLdsfld<Engine>("FreezeTimer"),
             instr => instr.MatchCall<Engine>("get_RawDeltaTime")))
         {
-            cursor.EmitDelegate<Action>(UpdateControllers);
+            cursor.EmitDelegate(UpdateControllers);
         }
     }
 
     private static void UpdateControllers()
     {
-        foreach (AbstractInputController controller in Engine.Scene.Tracker.GetEntities<AbstractInputController>())
-        {
+        foreach (AbstractInputController controller in Engine.Scene.Tracker.GetEntities<AbstractInputController>().Cast<AbstractInputController>())
             controller.FrozenUpdate();
-        }
     }
 }

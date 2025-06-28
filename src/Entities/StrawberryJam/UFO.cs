@@ -17,15 +17,15 @@ public class UFO : Actor
 
     public static readonly Vector2 FlingSpeed = new(380f, -100f);
 
-    private Sprite sprite;
+    private readonly Sprite sprite;
     private States state;
     private Vector2 flingSpeed;
     private Vector2 flingTargetSpeed;
     private float flingAccel;
-    private EntityData entityData;
-    private SoundSource moveSfx;
+    private readonly EntityData entityData;
+    private readonly SoundSource moveSfx;
     private int segmentIndex;
-    private Wiggler bounceWiggler;
+    private readonly Wiggler bounceWiggler;
     private Vector2 hitSpeed;
 
     public List<Vector2[]> NodeSegments;
@@ -42,7 +42,7 @@ public class UFO : Actor
         Collider = new Hitbox(24f, 24f, -12f, -12f);
         Add(new PlayerCollider(OnPlayer));
         Add(moveSfx = new SoundSource());
-        NodeSegments = new List<Vector2[]> { nodes };
+        NodeSegments = [nodes];
         bounceWiggler = Wiggler.Create(0.6f, 2.5f, v => sprite.Rotation = v * 20f * ((float) Math.PI / 180f));
         Add(bounceWiggler);
     }
@@ -77,7 +77,7 @@ public class UFO : Actor
         }
 
         player = scene.Tracker.GetEntity<Player>();
-        if (player != null && player.X > X)
+        if (player is not null && player.X > X)
         {
             RemoveSelf();
         }
@@ -131,13 +131,13 @@ public class UFO : Actor
         {
             case States.Wait:
                 Player entity = Scene.Tracker.GetEntity<Player>();
-                if (entity != null && entity.X - X >= 140f)
+                if (entity is not null && entity.X - X >= 140f)
                 {
                     Skip();
                 }
-                else if (entity != null && Math.Abs(entity.X - X) < 90)
+                else if (entity is not null && Math.Abs(entity.X - X) < 90)
                 {
-                    if(sprite.LastAnimationID != "warned")
+                    if (sprite.LastAnimationID != "warned")
                         sprite.Play("alert");
                 }
                 else
@@ -153,10 +153,10 @@ public class UFO : Actor
                 }
 
                 Position += flingSpeed * Engine.DeltaTime;
-                
-                if(sprite.LastAnimationID != "off")
+
+                if (sprite.LastAnimationID != "off")
                     sprite.Play("flight");
-                
+
                 break;
             case States.Move:
                 break;
@@ -198,7 +198,7 @@ public class UFO : Actor
 
         Spring collidingSpring = (Spring) Collide.First(this, Scene.Entities.FindAll<Spring>());
 
-        if (collidingSpring != null && state == States.Wait)
+        if (collidingSpring is not null && state == States.Wait)
         {
             switch (collidingSpring.Orientation)
             {
@@ -241,11 +241,13 @@ public class UFO : Actor
         if (entityPosition.X >= Position.X - RaySizeX && entityPosition.X <= Position.X + RaySizeX && entityTop < Position.Y + RaySizeY + 12 && entityBottom > Top + 5f && state == States.Wait)
         {
             if (!isJelly)
-            {
                 return true;
-            }
 
-            if (player.Holding != null && player.Holding.Entity == collidingJelly && CheckIfInRay(player.Position, player.Bottom, player.Top, false, null))
+            if (
+                player.Holding is not null
+                && player.Holding.Entity == collidingJelly
+                && CheckIfInRay(player.Position, player.Bottom, player.Top, false, null)
+            )
             {
                 return true;
             }
@@ -397,7 +399,7 @@ public class UFO : Actor
         {
             Draw.Rect(Position.X - RaySizeX, Position.Y + 12, RaySizeX * 2, RaySizeY, Color.Orange * 0.3f);
             const int spacing = 20;
-            int limit = (int)(Math.Ceiling(RaySizeY) / spacing) + 1;
+            int limit = (int) (Math.Ceiling(RaySizeY) / spacing) + 1;
             for (int i = 0; i < limit; i++)
             {
                 float offset = (life % (spacing * 2)) / 2f;
@@ -411,7 +413,7 @@ public class UFO : Actor
         }
         base.Render();
     }
-    
+
     // like circle, but better!
     public static void Oval(Vector2 position, float radiusX, float radiusY, Color color, int resolution)
     {

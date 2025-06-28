@@ -30,7 +30,7 @@ public class CoreModeMusicController : Entity
         base.Awake(scene);
         if (disable)
         {
-            foreach (CoreModeMusicController controller in Scene.Tracker.GetEntities<CoreModeMusicController>())
+            foreach (CoreModeMusicController controller in Scene.Tracker.GetEntities<CoreModeMusicController>().Cast<CoreModeMusicController>())
                 if (!controller.disable && controller.parameters.SequenceEqual(parameters))
                     controller.RemoveSelf();
             RemoveSelf();

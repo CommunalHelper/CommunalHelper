@@ -80,15 +80,14 @@ public class ChainedFallingBlock : Solid
         if (PlayerFallCheck())
             return true;
 
-        return climbFall ? !CollideCheck<Player>(Position - Vector2.UnitX) ? CollideCheck<Player>(Position + Vector2.UnitX) : true : false;
+        return climbFall && (CollideCheck<Player>(Position - Vector2.UnitX) || CollideCheck<Player>(Position + Vector2.UnitX));
     }
 
     private IEnumerator Sequence()
     {
         while (!hasStartedFalling && !PlayerFallCheck())
-        {
             yield return null;
-        }
+
         hasStartedFalling = true;
 
         Vector2 rattleSoundPos = new(Center.X, startY);
@@ -147,19 +146,13 @@ public class ChainedFallingBlock : Solid
 
             StopShaking();
             if (CollideCheck<SolidTiles>(Position + new Vector2(0f, 1f)))
-            {
                 break;
-            }
 
             while (held)
-            {
                 yield return null;
-            }
 
             while (CollideCheck<Platform>(Position + new Vector2(0f, 1f)))
-            {
                 yield return 0.1f;
-            }
         }
         Safe = true;
     }

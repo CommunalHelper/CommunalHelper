@@ -2,6 +2,7 @@
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Collections;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 
@@ -13,15 +14,15 @@ class WormholeBooster : Booster
     public static ParticleType P_Teleporting { get; private set; }
     public static ParticleType P_WBurst { get; private set; }
     public static ParticleType P_WAppear { get; private set; }
-    
+
     public static bool TeleDeath;
     public static bool CanTeleport;
 
     public string DeathColor;
     public bool InstantCamera;
-    
-    private Sprite displacementMask;
-    private MTexture displace;
+
+    private readonly Sprite displacementMask;
+    private readonly MTexture displace;
     private Color color;
     private float displaceEase = 1;
 
@@ -30,7 +31,7 @@ class WormholeBooster : Booster
         get => DynamicData.For(this).Get<Sprite>("sprite");
         set => DynamicData.For(this).Set("sprite", value);
     }
-    
+
     private float _respawnTimer
     {
         get => DynamicData.For(this).Get<float>("respawnTimer");
@@ -162,9 +163,7 @@ class WormholeBooster : Booster
         {
             IEnumerator original = orig(self);
             while (original.MoveNext())
-            {
                 yield return original.Current;
-            }
         }
     }
 
@@ -181,9 +180,7 @@ class WormholeBooster : Booster
         _sprite.Color = color;
 
         if (_respawnTimer > 0.1f)
-        {
             _respawnTimer = 0.1f;
-        }
 
         TeleDeath = Scene.Tracker.CountEntities<WormholeBooster>() == 1;
         if (TeleDeath)
@@ -195,7 +192,7 @@ class WormholeBooster : Booster
     public IEnumerator TeleportCoroutine(Player player)
     {
         WormholeBooster nearest = FindNearestBooster();
-        if (nearest == null)
+        if (nearest is null)
         {
             yield break;
         }
@@ -204,7 +201,7 @@ class WormholeBooster : Booster
 
         Level level = SceneAs<Level>();
         level.Add(new WBTrailManager(Position, nearest.Position));
-        Audio.Play("event:/char/badeline/disappear", nearest.Position);
+        Audio.Play(SFX.char_bad_disappear, nearest.Position);
         _sprite.Visible = false;
         Collidable = false;
 
@@ -267,7 +264,7 @@ class WormholeBooster : Booster
             yield return null;
         }
 
-        Audio.Play("event:/char/badeline/disappear", player.Position);
+        Audio.Play(SFX.char_bad_disappear, player.Position);
         player.Die(Vector2.Zero);
         player.StateMachine.State = Player.StNormal;
         player.Visible = true;
@@ -291,12 +288,10 @@ class WormholeBooster : Booster
     {
         WormholeBooster closest = null;
         float shortestDistance = float.MaxValue;
-        foreach (WormholeBooster booster in Scene.Tracker.GetEntities<WormholeBooster>())
+        foreach (WormholeBooster booster in Scene.Tracker.GetEntities<WormholeBooster>().Cast<WormholeBooster>())
         {
             if (this == booster)
-            {
                 continue;
-            }
 
             float currDistance = (booster.Position - Position).LengthSquared();
             if (currDistance < shortestDistance)
@@ -311,7 +306,7 @@ class WormholeBooster : Booster
 
     private class WBTrailManager : Entity
     {
-        private Tween tween;
+        private readonly Tween tween;
 
         public WBTrailManager(Vector2 from, Vector2 to) : base(from)
         {

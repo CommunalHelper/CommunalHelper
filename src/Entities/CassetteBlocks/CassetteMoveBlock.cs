@@ -284,7 +284,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                     }
                 }
             }
-            Vector2 newPosition = startPosition + blockOffset;
+            Vector2 newPosition = startPosition + BlockOffset;
             SetDisabledStaticMoversVisibility(false);
             SetStaticMoversVisible(false);
             MoveStaticMovers(newPosition - Position);
@@ -366,7 +366,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
     public override void Update()
     {
         base.Update();
-        if (moveSfx != null && moveSfx.Playing)
+        if (moveSfx is not null && moveSfx.Playing)
         {
             float num = (Calc.AngleToVector(angle, 1f) * new Vector2(-1f, 1f)).Angle();
             int num2 = (int) Math.Floor(((0f - num + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
@@ -382,7 +382,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
     public override void MoveHExact(int move)
     {
-        if (noSquish != null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X)))
+        if (noSquish is not null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X)))
         {
             while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + (Vector2.UnitX * move)))
             {
@@ -394,7 +394,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
     public override void MoveVExact(int move)
     {
-        if (noSquish != null && move < 0 && noSquish.Y <= Y)
+        if (noSquish is not null && move < 0 && noSquish.Y <= Y)
         {
             while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + (Vector2.UnitY * move)))
             {

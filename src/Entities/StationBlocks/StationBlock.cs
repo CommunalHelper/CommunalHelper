@@ -139,16 +139,16 @@ public class StationBlock : Solid
 
         p_sparks = Theme == Themes.Normal ? ZipMover.P_Sparks : (ReverseControls ? P_PurpleSparks : P_BlueSparks);
 
-        if (customBlockPath != "")
+        if (!string.IsNullOrEmpty(customBlockPath))
         {
             customBlock = GFX.Game["objects/" + customBlockPath];
             p_sparks = ZipMover.P_Sparks;
         }
-        if (customArrowPath != "")
+        if (!string.IsNullOrEmpty(customArrowPath))
         {
             customArrow = LookForCustomSprite("objects/" + customArrowPath, size);
         }
-        if (customTrackPath != "")
+        if (!string.IsNullOrEmpty(customTrackPath))
         {
             CustomNode = GFX.Game["objects/" + customTrackPath + "/node"];
             CustomTrackV = GFX.Game["objects/" + customTrackPath + "/trackv"];
@@ -286,13 +286,13 @@ public class StationBlock : Solid
         IsAttachedToTrack = true;
         CurrentNode = node;
 
-        if (node.NodeUp != null)
+        if (node.NodeUp is not null)
             arrowDir = ArrowDir.Up;
-        else if (node.NodeRight != null)
+        else if (node.NodeRight is not null)
             arrowDir = ArrowDir.Right;
-        else if (node.NodeLeft != null)
+        else if (node.NodeLeft is not null)
             arrowDir = ArrowDir.Left;
-        else if (node.NodeDown != null)
+        else if (node.NodeDown is not null)
             arrowDir = ArrowDir.Down;
 
         arrowSprite.Play("Idle" + Enum.GetName(typeof(ArrowDir), arrowDir), true);
@@ -483,7 +483,7 @@ public class StationBlock : Solid
             Vector2 dirSign = Calc.Sign(MoveDir);
             float f = dirSign.X == -1 || dirSign.Y == -1 ? -1 : 1f;
 
-            bool travel = nextNode != null && CurrentNode != nextNode && currentTrack.CanBeUsed &&
+            bool travel = nextNode is not null && CurrentNode != nextNode && currentTrack.CanBeUsed &&
                 !(currentTrack.OneWayDir.HasValue && currentTrack.OneWayDir.Value == -MoveDir);
 
             Sfx.Play("event:/CommunalHelperEvents/game/stationBlock/" + (Theme == Themes.Normal ? "station" : "moon") + "_block_seq", "travel", travel ? 1f : 0f);
@@ -618,7 +618,7 @@ public class StationBlock : Solid
         arrowSprite.Scale = scale;
         arrowSprite.Position = hitOffset + offset;
 
-        if (CurrentNode != null && CurrentNode.PushForce != Vector2.Zero && !IsMoving)
+        if (CurrentNode is not null && CurrentNode.PushForce != Vector2.Zero && !IsMoving)
         {
             Smash(CurrentNode.PushForce, force: true);
         }

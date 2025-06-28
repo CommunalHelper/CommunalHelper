@@ -1,4 +1,5 @@
 ﻿using MonoMod.Cil;
+using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 
@@ -53,7 +54,7 @@ public class GrabTempleGate : Solid
     public bool CloseBehindPlayerCheck()
     {
         Player entity = Scene.Tracker.GetEntity<Player>();
-        if (entity != null)
+        if (entity is not null)
         {
             return entity.X < X;
         }
@@ -63,7 +64,8 @@ public class GrabTempleGate : Solid
     public void SwitchOpen()
     {
         sprite.Play("open");
-        Alarm.Set(this, 0.2f, () => {
+        Alarm.Set(this, 0.2f, () =>
+        {
             shaker.ShakeFor(0.2f, removeOnFinish: false);
             Alarm.Set(this, 0.2f, Open);
         });
@@ -116,7 +118,7 @@ public class GrabTempleGate : Solid
         // check if the player is above the gate's top y level, and if so,
         // perform a naive move down so as to not snap the player down, possibly killing it.
         Player player = Scene.Tracker.GetEntity<Player>();
-        if (player != null && player.Bottom <= Bottom) // note: Bottom was Top before the collider was changed in the code above.
+        if (player is not null && player.Bottom <= Bottom) // note: Bottom was Top before the collider was changed in the code above.
             MoveVNaive(height - num);
         else
             MoveV(height - num);
@@ -162,7 +164,7 @@ public class GrabTempleGate : Solid
         if (Engine.Scene is not Level level)
             return;
 
-        foreach (GrabTempleGate gate in level.Tracker.GetEntities<GrabTempleGate>())
+        foreach (GrabTempleGate gate in level.Tracker.GetEntities<GrabTempleGate>().Cast<GrabTempleGate>())
             gate.CheckToggle();
     }
 

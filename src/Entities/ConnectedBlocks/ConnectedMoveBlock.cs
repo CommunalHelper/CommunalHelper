@@ -26,9 +26,8 @@ public class ConnectedMoveBlock : ConnectedSolid
         public override void Update()
         {
             if (Parent.Scene != Scene)
-            {
                 RemoveSelf();
-            }
+
             base.Update();
         }
 
@@ -41,18 +40,16 @@ public class ConnectedMoveBlock : ConnectedSolid
 
                 float num = Parent.flash * 4f;
                 if (Parent.flash > 0f)
-                {
                     Draw.Rect(hitbox.Position + Parent.Position - new Vector2(num, num), hitbox.Width + (2f * num), hitbox.Height + (2f * num), Color.White * Parent.flash);
-                }
             }
         }
     }
 
     protected GroupableMoveBlock groupable;
 
-    protected static MTexture[,] masterEdges = new MTexture[3, 3];
-    protected static MTexture[,] masterInnerCorners = new MTexture[2, 2];
-    protected static List<MTexture> masterArrows = new();
+    private static readonly MTexture[,] masterEdges = new MTexture[3, 3];
+    private static readonly MTexture[,] masterInnerCorners = new MTexture[2, 2];
+    private static List<MTexture> masterArrows = [];
     protected MTexture xTexture;
 
     //Custom Texture support
@@ -142,7 +139,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             string temp;
             if (!GFX.Game.Has("objects/" + customTexturePath))
             {
-                if (GFX.Game["objects/" + customTexturePath + "/tileset"] == null)
+                if (GFX.Game["objects/" + customTexturePath + "/tileset"] is null)
                 {
                     throw new Exception($"No valid tileset found, searched @ objects/{customTexturePath}.png & objects/{customTexturePath}/tileset.png\nFor custom arrow textures, use 'objects/{customTexturePath}/arrow', 'objects/{customTexturePath}/tileset' for tiles, and 'objects/{customTexturePath}/x.png' for the breaking X sprite.");
                 }
@@ -155,7 +152,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 }
                 temp = customTexturePath + "/tileset";
                 xTexture = GFX.Game[$"objects/{customTexturePath}/x"];
-                if (xTexture == null)
+                if (xTexture is null)
                 {
                     Util.Log("No breaking texture found, defaulting to normal");
                     xTexture = GFX.Game["objects/moveBlock/x"];
@@ -175,7 +172,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 }
                 temp = customTexturePath;
                 xTexture = GFX.Game[$"objects/{temp2}/x"];
-                if (xTexture == null)
+                if (xTexture is null)
                 {
                     Util.Log("No breaking texture found, defaulting to normal");
                     xTexture = GFX.Game["objects/moveBlock/x"];
@@ -373,7 +370,8 @@ public class ConnectedMoveBlock : ConnectedSolid
             BreakParticles();
 
             List<MoveBlockDebris> debris = new();
-            if (!noDebris) {
+            if (!noDebris)
+            {
                 int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
                 int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
@@ -510,7 +508,7 @@ public class ConnectedMoveBlock : ConnectedSolid
     {
         static void LoadSfxIfPresent(string sfxPath, ref string target)
         {
-            if (Audio.GetEventDescription(sfxPath) != null)
+            if (Audio.GetEventDescription(sfxPath) is not null)
             {
                 target = sfxPath;
             }
@@ -546,7 +544,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     public override void MoveHExact(int move)
     {
-        if (noSquish != null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X)))
+        if (noSquish is not null && ((move < 0 && noSquish.X < X) || (move > 0 && noSquish.X > X)))
         {
             while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + (Vector2.UnitX * move)))
             {
@@ -558,7 +556,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     public override void MoveVExact(int move)
     {
-        if (noSquish != null && move < 0 && noSquish.Y <= Y)
+        if (noSquish is not null && move < 0 && noSquish.Y <= Y)
         {
             while (move != 0 && noSquish.CollideCheck<Solid>(noSquish.Position + (Vector2.UnitY * move)))
             {
@@ -769,7 +767,7 @@ public class ConnectedMoveBlock : ConnectedSolid
     public override void Update()
     {
         base.Update();
-        if (moveSfx != null && moveSfx.Playing)
+        if (moveSfx is not null && moveSfx.Playing)
         {
             int num = (int) Math.Floor(((0f - (Calc.AngleToVector(angle, 1f) * new Vector2(-1f, 1f)).Angle() + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
             moveSfx.Param("arrow_influence", num + 1);
@@ -803,7 +801,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
             if (groupable.State != GroupableMoveBlock.MovementState.Breaking)
             {
-                if (arrows == null)
+                if (arrows is null)
                     masterArrows[arrowIndex].DrawCentered(vec);
                 else
                     arrows[arrowIndex].DrawCentered(vec);

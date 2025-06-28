@@ -122,7 +122,7 @@ public class AttachedWallBooster : WallBooster
 
     private void BuildCustomSprite(bool left, string SpriteField)
     {
-        tiles.ForEach(tile => Remove(tile));
+        tiles.ForEach(Remove);
         tiles.Clear();
 
         string Top = SpriteField + "Top";
@@ -152,7 +152,7 @@ public class AttachedWallBooster : WallBooster
         }
         else
         {
-            if (!SpriteField.EndsWith("/"))
+            if (!SpriteField.EndsWith('/'))
                 SpriteField += "/";
 
             for (int i = 0; i < Height; i += 8)

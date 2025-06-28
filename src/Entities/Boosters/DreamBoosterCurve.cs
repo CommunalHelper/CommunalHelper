@@ -10,18 +10,12 @@ public class DreamBoosterCurve : DreamBooster
 {
     public class PathRenderer : PathRendererBase<DreamBoosterCurve>
     {
-        private struct Node
+        private readonly struct Node(float d, Vector2 position, Vector2 dir)
         {
-            public readonly float Distance;
-            public readonly Vector2 Position, Dir, Perp;
-
-            public Node(float d, Vector2 position, Vector2 dir)
-            {
-                Distance = d;
-                Position = position;
-                Dir = dir;
-                Perp = dir.Perpendicular();
-            }
+            public readonly float Distance = d;
+            public readonly Vector2 Position = position;
+            public readonly Vector2 Dir = dir;
+            public readonly Vector2 Perp = dir.Perpendicular();
         }
 
         private readonly Node[] nodes;

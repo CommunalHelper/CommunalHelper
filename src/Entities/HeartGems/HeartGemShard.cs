@@ -110,14 +110,14 @@ public class HeartGemShard : Entity
         sprite.Color = color;
 
         shineParticle = heartData.Get<ParticleType>("shineParticle");
-        if (Color != null)
+        if (Color is not null)
             shineParticle.Color = Color.Value;
 
         Add(light = new VertexLight(color, 1f, 32, 64));
         Add(lightTween = light.CreatePulseTween());
     }
 
-    public void Collect(Player player, Level level)
+    public void Collect(Player _, Level level)
     {
         Collected = true;
         Collidable = false;
@@ -159,15 +159,11 @@ public class HeartGemShard : Entity
 
             if (bounceSfxDelay <= 0f)
             {
-                if (Heart.IsFake)
-                {
-                    Audio.Play(SFX.game_10_fakeheart_bounce, Position);
-                }
-                else
-                {
-                    Audio.Play(SFX.game_gen_crystalheart_bounce, Position);
-                }
                 bounceSfxDelay = 0.1f;
+                if (Heart.IsFake)
+                    Audio.Play(SFX.game_10_fakeheart_bounce, Position);
+                else
+                    Audio.Play(SFX.game_gen_crystalheart_bounce, Position);
             }
 
             player.PointBounce(Center, 110f);
@@ -181,7 +177,7 @@ public class HeartGemShard : Entity
     public void OnHoldable(Holdable holdable)
     {
         Player player = Scene.Tracker.GetEntity<Player>();
-        if (!Collected && player != null && holdable.Dangerous(holdableCollider))
+        if (!Collected && player is not null && holdable.Dangerous(holdableCollider))
         {
             Collect(player, Scene as Level);
         }
@@ -317,7 +313,7 @@ public class HeartGemShard : Entity
         {
 
             DynamicData heartData = DynamicData.For(self);
-            if (data.Nodes != null && data.Nodes.Length != 0)
+            if (data.Nodes is not null && data.Nodes.Length != 0)
             {
                 List<HeartGemShard> pieces = new();
                 for (int i = 0; i < data.Nodes.Length; i++)
@@ -333,9 +329,8 @@ public class HeartGemShard : Entity
             }
             else
                 heartData.Set(HeartGem_HeartGemPieces, null);
+
             heartData.Set(HeartGem_HeartGemID, data.Values[HeartGem_HeartGemID]);
-
-
         }
     }
 
@@ -349,9 +344,8 @@ public class HeartGemShard : Entity
             if (result is List<HeartGemShard> pieces && pieces.Count > 0 && !(scene as Level).Session.GetFlag(GotShardFlag(heartData)))
             {
                 foreach (HeartGemShard piece in pieces)
-                {
                     scene.Add(piece);
-                }
+
                 self.Visible = false;
                 self.Active = false;
                 self.Collidable = false;

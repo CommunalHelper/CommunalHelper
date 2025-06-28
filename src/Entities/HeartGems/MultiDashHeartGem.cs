@@ -8,11 +8,9 @@ internal class MultiDashHeartGem : HeartGem
     [CustomEvent("CommunalHelper/DemoCutscene/1",
         "CommunalHelper/DemoCutscene/2",
         "CommunalHelper/DemoCutscene/3")]
-    private class DemoCutscene : DialogCutscene
-    {
-        public DemoCutscene(EventTrigger trigger, Player player, string eventID)
-            : base(eventID, player, false) { }
-    }
+    private class DemoCutscene(Player player, string eventID)
+        : DialogCutscene(eventID, player, false)
+    { }
 
     private static readonly MethodInfo m_HeartGem_Collect = typeof(HeartGem).GetMethod("Collect", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -46,7 +44,7 @@ internal class MultiDashHeartGem : HeartGem
         SlashFx.Burst(Center, 3f);
         health--;
         if (health < 1)
-            m_HeartGem_Collect.Invoke(this, new object[] { player });
+            m_HeartGem_Collect.Invoke(this, [player]);
         // Add crack to heart
         // create light rays
     }
@@ -109,7 +107,7 @@ internal class MultiDashHeartGem : HeartGem
             if (h.Dangerous(gem.baseData.Get<HoldableCollider>("holdableCollider")))
             {
                 Player player = gem.Scene.Tracker.GetEntity<Player>();
-                if (!gem.baseData.Get<bool>("collected") && player != null && gem.health > 1)
+                if (!gem.baseData.Get<bool>("collected") && player is not null && gem.health > 1)
                 {
                     // Basically just HeartGem.OnPlayer
                     if (gem.baseData.Get<float>("bounceSfxDelay") <= 0f)

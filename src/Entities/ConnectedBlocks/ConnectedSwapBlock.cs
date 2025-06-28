@@ -5,6 +5,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -67,14 +68,11 @@ public class ConnectedSwapBlock : ConnectedSolid
                     block.DrawBlock(vector + (value * i), block.greenBgTiles, block.middleGreen, Color.Gray * (1f - (i / num2)));
                 }
             }
+
             if (block.redAlpha < 1f)
-            {
                 block.DrawBlock(vector, block.greenBgTiles, block.middleGreen, Color.Gray);
-            }
             if (block.redAlpha > 0f)
-            {
                 block.DrawBlock(vector, block.redBgTiles, block.middleRed, Color.Gray * block.redAlpha);
-            }
         }
     }
 
@@ -139,14 +137,14 @@ public class ConnectedSwapBlock : ConnectedSolid
         });
 
         MTexture mTexture = Theme == SwapBlock.Themes.Moon ? GFX.Game["objects/swapblock/moon/target"] : GFX.Game["objects/swapblock/target"];
-        if (redCustomBlockPath != "")
+        if (!string.IsNullOrEmpty(redCustomBlockPath))
         {
             Tuple<MTexture[,], MTexture[,]> customRedTiles = SetupCustomTileset(redCustomBlockPath);
             customRedEdgeTiles = customRedTiles.Item1;
             customRedInnerCornerTiles = customRedTiles.Item2;
             customRedTextures = true;
         }
-        if (greenCustomBlockPath != "")
+        if (!string.IsNullOrEmpty(greenCustomBlockPath))
         {
             Tuple<MTexture[,], MTexture[,]> customGreenTiles = SetupCustomTileset(greenCustomBlockPath);
             customGreenEdgeTiles = customGreenTiles.Item1;
@@ -176,8 +174,7 @@ public class ConnectedSwapBlock : ConnectedSolid
     public ConnectedSwapBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Enum("theme", SwapBlock.Themes.Normal),
               data.Attr("customGreenBlockTexture").Trim(), data.Attr("customRedBlockTexture").Trim())
-    {
-    }
+    { }
 
     public override void Awake(Scene scene)
     {
@@ -242,14 +239,11 @@ public class ConnectedSwapBlock : ConnectedSolid
         speed = lerp >= 0.2f ? maxForwardSpeed : MathHelper.Lerp(maxForwardSpeed * 0.333f, maxForwardSpeed, lerp / 0.2f);
         Audio.Stop(returnSfx);
         Audio.Stop(moveSfx);
+
         if (!Swapping)
-        {
             Audio.Play(SFX.game_05_swapblock_move_end, MasterCenter);
-        }
         else
-        {
             moveSfx = Audio.Play(SFX.game_05_swapblock_move, MasterCenter);
-        }
     }
 
     public override void Update()
@@ -265,7 +259,7 @@ public class ConnectedSwapBlock : ConnectedSolid
                 returnSfx = Audio.Play(SFX.game_05_swapblock_return, MasterCenter);
             }
         }
-        if (burst != null)
+        if (burst is not null)
         {
             burst.Position = MasterCenter;
         }
@@ -336,14 +330,11 @@ public class ConnectedSwapBlock : ConnectedSolid
                 DrawBlock(vector + (value * i), greenTiles, middleGreen, Color.White * (1f - (i / num2)));
             }
         }
+
         if (redAlpha < 1f)
-        {
             DrawBlock(vector, greenTiles, middleGreen, Color.White);
-        }
         if (redAlpha > 0f)
-        {
             DrawBlock(vector, redTiles, middleRed, Color.White * redAlpha);
-        }
     }
 
     private void MoveParticles(Vector2 normal)
@@ -402,7 +393,7 @@ public class ConnectedSwapBlock : ConnectedSolid
             tile.Render();
             tile.RenderPosition -= pos;
         }
-        if (middle != null)
+        if (middle is not null)
         {
             middle.Color = color;
             middle.Render();
@@ -466,7 +457,7 @@ public class ConnectedSwapBlock : ConnectedSolid
     }
 }
 
-public class ConnectedSwapBlockHooks
+internal static class ConnectedSwapBlockHooks
 {
 
     private static readonly MethodInfo Player_DashCoroutine = typeof(Player).GetMethod("DashCoroutine", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -507,7 +498,7 @@ public class ConnectedSwapBlockHooks
         cursor.Emit(OpCodes.Ldfld, DashCoroutine_Hook_F_This);
 
         // Emit a call to a function that takes in the player object, and returns a boolean
-        cursor.EmitDelegate<Func<Player, bool>>(Player_ClimbConnectedSwapBlockCheck);
+        cursor.EmitDelegate(Player_ClimbConnectedSwapBlockCheck);
 
         // If the returned value is false, skip the return we're about to emit, and continue on with the rest of the method
         cursor.Emit(OpCodes.Brfalse_S, cursor.Next);
@@ -539,7 +530,7 @@ public class ConnectedSwapBlockHooks
     private static bool Player_ClimbConnectedSwapBlockCheck(Player player)
     {
         ConnectedSwapBlock swapBlock = player.CollideFirst<ConnectedSwapBlock>(player.Position + (Vector2.UnitX * Math.Sign(player.DashDir.X)));
-        if (swapBlock != null && swapBlock.Direction.X == Math.Sign(player.DashDir.X))
+        if (swapBlock is not null && swapBlock.Direction.X == Math.Sign(player.DashDir.X))
         {
             player.StateMachine.State = 1;
             player.Speed = Vector2.Zero;
@@ -556,19 +547,14 @@ public class ConnectedSwapBlockHooks
      */
     private static Vector2 Player_CancelDashAgainstConnectedSwapBlock(Vector2 swapCancel, Player player)
     {
-        foreach (ConnectedSwapBlock swapBlock2 in player.Scene.Tracker.GetEntities<ConnectedSwapBlock>())
+        foreach (ConnectedSwapBlock swapBlock2 in player.Scene.Tracker.GetEntities<ConnectedSwapBlock>().Cast<ConnectedSwapBlock>())
         {
-
-            if (player.CollideCheck(swapBlock2, player.Position + Vector2.UnitY) && swapBlock2 != null && swapBlock2.Swapping)
+            if (player.CollideCheck(swapBlock2, player.Position + Vector2.UnitY) && swapBlock2 is not null && swapBlock2.Swapping)
             {
                 if (player.DashDir.X != 0f && swapBlock2.Direction.X == Math.Sign(player.DashDir.X))
-                {
                     player.Speed.X = swapCancel.X = 0f;
-                }
                 if (player.DashDir.Y != 0f && swapBlock2.Direction.Y == Math.Sign(player.DashDir.Y))
-                {
                     player.Speed.Y = swapCancel.Y = 0f;
-                }
             }
         }
         return swapCancel;

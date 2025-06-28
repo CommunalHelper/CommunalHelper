@@ -51,7 +51,7 @@ public abstract class PathRendererBase<T> : Entity where T : CustomBooster
         float sin = ((float) Math.Sin(offset + (Scene.TimeActive * 6f)) * 0.3f) + 1f;
 
         float highlight = .25f;
-        if (player != null)
+        if (player is not null)
             lastPlayerCenter = player.Center;
         if (lastPlayerCenter.HasValue)
         {
