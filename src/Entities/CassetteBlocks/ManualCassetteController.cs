@@ -14,20 +14,14 @@ public class ManualCassetteController : AbstractInputController
     private int roomBeats;
     private int currentIndex;
 
-    private string blueFlag;
-    private string pinkFlag;
-    private string yellowFlag;
-    private string greenFlag;
+    private const string blueFlag = "CH_cas_blue";
+    private const string pinkFlag = "CH_cas_rose";
+    private const string yellowFlag = "CH_cas_brightsun";
+    private const string greenFlag = "CH_cas_malachite";
 
     public ManualCassetteController(EntityData data)
     {
         startIndex = data.Int("startIndex", 0);
-              
-        // do not change those flags!
-        blueFlag = "CH_cas_blue";
-        pinkFlag = "CH_cas_rose";
-        yellowFlag = "CH_cas_brightsun";
-        greenFlag = "CH_cas_malachite";
 
         Visible = Collidable = false;
     }
@@ -55,21 +49,15 @@ public class ManualCassetteController : AbstractInputController
 
     public override void Update()
     {
-
         base.Update();
         if (CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed)
-        {
             Tick();
-        }
-
     }
 
     public override void FrozenUpdate()
     {
         if (CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed)
-        {
             Tick();
-        }
     }
 
     public void Tick()
@@ -82,38 +70,14 @@ public class ManualCassetteController : AbstractInputController
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
     }
 
-    public void SetFlag (int index)
+    public void SetFlag(int index)
     {
         Session session = SceneAs<Level>().Session;
-        switch (index)
-        {
-            case 0:
-                session.SetFlag(blueFlag, true);
-                session.SetFlag(pinkFlag, false);
-                session.SetFlag(yellowFlag, false);
-                session.SetFlag(greenFlag, false);
-                break;
-            case 1:
-                session.SetFlag(blueFlag, false);
-                session.SetFlag(pinkFlag, true);
-                session.SetFlag(yellowFlag, false);
-                session.SetFlag(greenFlag, false);
-                break;
-            case 2:
-                session.SetFlag(blueFlag, false);
-                session.SetFlag(pinkFlag, false);
-                session.SetFlag(yellowFlag, true);
-                session.SetFlag(greenFlag, false);
-                break;
-            case 3:
-                session.SetFlag(blueFlag, false);
-                session.SetFlag(pinkFlag, false);
-                session.SetFlag(yellowFlag, false);
-                session.SetFlag(greenFlag, true);
-                break;
-        }
+        session.SetFlag(blueFlag, index == 0);
+        session.SetFlag(pinkFlag, index == 1);
+        session.SetFlag(yellowFlag, index == 2);
+        session.SetFlag(greenFlag, index == 3);
     }
-
 
     public void SetActiveIndex(int index, bool silent = false)
     {
