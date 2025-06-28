@@ -521,6 +521,7 @@ entities.CommunalHelper/ChainedKevin.placements.name.right=Kevin (Chained, Right
 entities.CommunalHelper/ChainedKevin.attributes.description.chillout=Whether the block should have the large face and get tired after being hit.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
 entities.CommunalHelper/ChainedKevin.attributes.description.direction=The only direction in which this block will travel.
+entities.CommunalHelper/ChainedKevin.attributes.description.retractSpeedModifier=Multiplier for the retract speed of the Kevin (1.0 = normal Kevin retract speed).
 entities.CommunalHelper/ChainedKevin.attributes.description.centeredChain=Renders only one chain at the horizontal or vertical center of this block, depending on the direction.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainTexture=The texture for this Chained Kevin's chain.
