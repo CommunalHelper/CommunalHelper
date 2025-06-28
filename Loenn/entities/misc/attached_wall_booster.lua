@@ -15,7 +15,9 @@ attachedWallBooster.placements = {
             height = 8,
             left = true,
             legacyBoost = true,
-            coreModeBehavior = "ToggleDefaultHot"
+            coreModeBehavior = "ToggleDefaultHot",
+            sprite = "",
+            spriteOffset = 0,
         }
     },
     {
@@ -25,9 +27,35 @@ attachedWallBooster.placements = {
             height = 8,
             left = false,
             legacyBoost = true,
-            coreModeBehavior = "ToggleDefaultHot"
+            coreModeBehavior = "ToggleDefaultHot",
+            sprite = "",
+            spriteOffset = 0,
         }
-    }
+    },
+    {
+        name = "rightIce",
+        placementType = "rectangle",
+        data = {
+            height = 8,
+            left = true,
+            legacyBoost = true,
+            coreModeBehavior = "ToggleDefaultCold",
+            sprite = "",
+            spriteOffset = 0,
+        }
+    },
+    {
+        name = "leftIce",
+        placementType = "rectangle",
+        data = {
+            height = 8,
+            left = false,
+            legacyBoost = true,
+            coreModeBehavior = "ToggleDefaultCold",
+            sprite = "",
+            spriteOffset = 0,
+        }
+    },
 }
 
 attachedWallBooster.fieldInformation = {
@@ -39,7 +67,10 @@ attachedWallBooster.fieldInformation = {
             {"Always Cold", "AlwaysCold"}
         },
         editable = false
-    }
+    },
+    spriteOffset = {
+        fieldType = "integer",
+    },
 }
 
 local fireTopTexture = "objects/wallBooster/fireTop00"
