@@ -21,6 +21,7 @@ public class TrackSwitchBox : Solid
     private readonly bool canFloat = true;
     private readonly bool canBounce = true;
     private readonly bool reverse = false;
+    private readonly string switchFlag = "";
 
     private float shakeCounter;
     private bool smashParticles = false;
@@ -43,7 +44,7 @@ public class TrackSwitchBox : Solid
 
     private bool spikesLeft, spikesRight, spikesUp, spikesDown;
 
-    public TrackSwitchBox(Vector2 position, bool global, bool canFloat, bool canBounce, bool reverse)
+    public TrackSwitchBox(Vector2 position, bool global, bool canFloat, bool canBounce, bool reverse, string flag)
         : base(position, 32f, 32f, safe: true)
     {
 
@@ -53,6 +54,7 @@ public class TrackSwitchBox : Solid
         this.canFloat = canFloat;
         this.canBounce = canBounce;
         this.reverse = reverse;
+        this.switchFlag = flag;
 
         SurfaceSoundIndex = SurfaceIndex.ZipMover;
         start = Position;
@@ -79,15 +81,24 @@ public class TrackSwitchBox : Solid
     }
 
     public TrackSwitchBox(EntityData e, Vector2 levelOffset)
-        : this(e.Position + levelOffset, e.Bool("globalSwitch"), e.Bool("floaty"), e.Bool("bounce"), e.Bool("reverse")) { }
+        : this(e.Position + levelOffset, e.Bool("globalSwitch"), e.Bool("floaty"), e.Bool("bouncy"), e.Bool("reverse"), e.Attr("switchFlag")) { }
 
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
+        Level level = SceneAs<Level>();
         spikesUp = CollideCheck<Spikes>(Position - Vector2.UnitY);
         spikesDown = CollideCheck<Spikes>(Position + Vector2.UnitY);
         spikesLeft = CollideCheck<Spikes>(Position - Vector2.UnitX);
         spikesRight = CollideCheck<Spikes>(Position + Vector2.UnitX);
+        if (LocalTrackSwitchState == TrackSwitchState.On)
+        {
+            level.Session.SetFlag(switchFlag, true);
+        }
+        if (LocalTrackSwitchState == TrackSwitchState.Off)
+        {
+            level.Session.SetFlag(switchFlag, false);
+        }
     }
 
     public DashCollisionResults Dashed(Player player, Vector2 dir)
@@ -199,6 +210,7 @@ public class TrackSwitchBox : Solid
     public override void Update()
     {
         base.Update();
+        Level level = SceneAs<Level>();
         if (Scene.OnInterval(0.1f))
         {
             Seed++;
@@ -216,6 +228,14 @@ public class TrackSwitchBox : Solid
                 shaker.On = false;
                 sprite.Scale = Vector2.One * 1.2f;
                 sprite.Play("switch");
+                if (LocalTrackSwitchState == TrackSwitchState.On)
+                {
+                    level.Session.SetFlag(switchFlag, true);
+                }
+                if (LocalTrackSwitchState == TrackSwitchState.Off)
+                {
+                    level.Session.SetFlag(switchFlag, false);
+                }
             }
         }
         if (Collidable)

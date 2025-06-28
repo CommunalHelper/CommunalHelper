@@ -141,6 +141,7 @@ entities.CommunalHelper/TrackSwitchBox.attributes.description.globalSwitch=Wheth
 entities.CommunalHelper/TrackSwitchBox.attributes.description.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
 entities.CommunalHelper/TrackSwitchBox.attributes.description.bouncy=Whether the box should bounce away from the player when dashed into.
 entities.CommunalHelper/TrackSwitchBox.attributes.description.reverse=Whether the box should reverse one-way/force directions instead of toggling on/off
+entities.CommunalHelper/TrackSwitchBox.attributes.description.switchFlag=This flag will be set to true while the tracks are ON and false while the tracks are OFF.
 
 # Custom Cassette Block
 entities.CommunalHelper/CustomCassetteBlock.placements.name.cassette_block_0=Custom Cassette Block (0 - Blue)
@@ -569,6 +570,7 @@ entities.CommunalHelper/HintController.attributes.description.dialogIds=A comma 
 entities.CommunalHelper/HintController.attributes.description.singleUses=A comma separated list of numbers, where 0 means the corresponding hint entry can be used multiple times, and anything else means it can only be used once.\nDefaults to empty string, which means all entries can be used multiple times.
 entities.CommunalHelper/HintController.attributes.description.selectorCounter=The name of the session counter that selects the current dialog.\nDefaults to empty string, which means that there is no counter and only the first hint will be available.
 entities.CommunalHelper/HintController.attributes.description.selectNextHint=If true, the selector defined in selectorCounter will be automatically incremented when a hint is shown. Defaults to false.
+entities.CommunalHelper/HintController.attributes.description.flagWhileReading=This flag will be true while a hint is being read.
 
 # Input Flag Controller
 entities.CommunalHelper/InputFlagController.placements.name.controller=Input Flag Controller
