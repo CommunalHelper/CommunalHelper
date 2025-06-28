@@ -1,6 +1,7 @@
-﻿using Mono.Cecil.Cil;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -13,6 +14,11 @@ public class ManualCassetteController : AbstractInputController
     private int roomBeats;
     private int currentIndex;
 
+    private const string blueFlag = "CH_cas_blue";
+    private const string pinkFlag = "CH_cas_rose";
+    private const string yellowFlag = "CH_cas_brightsun";
+    private const string greenFlag = "CH_cas_malachite";
+
     public ManualCassetteController(EntityData data)
     {
         startIndex = data.Int("startIndex", 0);
@@ -20,6 +26,11 @@ public class ManualCassetteController : AbstractInputController
         Visible = Collidable = false;
     }
 
+    public override void Added(Scene scene)
+    {
+        base.Added(scene);
+        SetFlag(startIndex);
+    }
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
@@ -38,30 +49,34 @@ public class ManualCassetteController : AbstractInputController
 
     public override void Update()
     {
-
         base.Update();
         if (CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed)
-        {
             Tick();
-        }
-
     }
 
     public override void FrozenUpdate()
     {
         if (CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed)
-        {
             Tick();
-        }
     }
 
     public void Tick()
     {
         currentIndex++;
         currentIndex %= roomBeats;
+        SetFlag(currentIndex);
         SetActiveIndex(currentIndex);
         Audio.Play("event:/game/general/cassette_block_switch_" + ((currentIndex % 2) + 1));
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+    }
+
+    public void SetFlag(int index)
+    {
+        Session session = SceneAs<Level>().Session;
+        session.SetFlag(blueFlag, index == 0);
+        session.SetFlag(pinkFlag, index == 1);
+        session.SetFlag(yellowFlag, index == 2);
+        session.SetFlag(greenFlag, index == 3);
     }
 
     public void SetActiveIndex(int index, bool silent = false)
