@@ -4,28 +4,74 @@ using static Celeste.Mod.CommunalHelper.States.Elytra;
 namespace Celeste.Mod.CommunalHelper.Triggers;
 
 [CustomEntity("CommunalHelper/ConfigureElytraTrigger")]
-public class ConfigureElytraTrigger : Trigger
+[TrackedAs(typeof(AbstractConfigureStateTrigger<ElytraOptions, ElytraOptionsChanges>))]
+internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOptions, ElytraOptionsChanges>
 {
-    private readonly bool allow, infinite;
-
-    private readonly ElytraConfiguration options;
-
     public ConfigureElytraTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
-    {
-        allow = data.Bool("allow", false);
-        infinite = data.Bool("infinite", false);
+    { }
 
-        options = new ElytraConfiguration()
+    protected override ElytraOptions GetConfiguredOptions(EntityData data)
+        => new()
         {
-            disableReverseVerticalMomentum = data.Bool("disableReverseVerticalMomentum"),
+            Allow = data.Bool("allow", false),
+            Infinite = data.Bool("infinite", false),
+            Configuration = new ElytraConfiguration
+            {
+                DisableReverseVerticalMomentum = data.Bool("disableReverseVerticalMomentum"),
+            },
         };
-    }
-
-    public override void OnEnter(Player player)
+    protected override ElytraOptions GetCurrentOptions(Player player)
+        => new()
+        {
+            Allow = CommunalHelperModule.Session.CanDeployElytra,
+            Infinite = player.HasInfiniteElytra(),
+            Configuration = CommunalHelperModule.Session.CurrentElytraConfiguration,
+        };
+    protected override void SaveOptions(Player player, ElytraOptions options)
     {
-        CommunalHelperModule.Session.CanDeployElytra = allow;
-        CommunalHelperModule.Session.CurrentElytraConfiguration = options;
-        player.SetInfiniteElytra(infinite);
+        CommunalHelperModule.Session.CanDeployElytra = options.Allow;
+        player.SetInfiniteElytra(options.Infinite);
+        CommunalHelperModule.Session.CurrentElytraConfiguration = options.Configuration;
     }
+    
+    protected override ElytraOptionsChanges CalculateChangesNeededToRevert(ElytraOptions from, ElytraOptions to)
+        => new()
+        {
+            NewAllow = to.Allow == from.Allow ? null : from.Allow,
+            NewInfinite = to.Infinite == from.Infinite ? null : from.Infinite,
+            NewConfiguration = new ElytraOptionsChanges.ElytraConfigurationChanges
+            {
+                NewDisableReverseVerticalMomentum = to.Configuration.DisableReverseVerticalMomentum == from.Configuration.DisableReverseVerticalMomentum ? null : from.Configuration.DisableReverseVerticalMomentum
+            }
+        };
+    protected override ElytraOptions RevertChanges(ElytraOptions current, ElytraOptionsChanges? changesNeededToRevert)
+        => new()
+        {
+            Allow = changesNeededToRevert?.NewAllow ?? current.Allow,
+            Infinite = changesNeededToRevert?.NewInfinite ?? current.Infinite,
+            Configuration = new ElytraConfiguration
+            {
+                DisableReverseVerticalMomentum = changesNeededToRevert?.NewConfiguration.NewDisableReverseVerticalMomentum ?? current.Configuration.DisableReverseVerticalMomentum
+            }
+        };
+}
+
+public struct ElytraOptions
+{
+    public bool Allow;
+    public bool Infinite;
+    public ElytraConfiguration Configuration;
+}
+
+public struct ElytraOptionsChanges
+{
+    public struct ElytraConfigurationChanges
+    {
+        public bool? NewDisableReverseVerticalMomentum;
+    }
+    
+    public bool? NewAllow;
+    public bool? NewInfinite;
+    public ElytraConfigurationChanges NewConfiguration;
 }

@@ -94,11 +94,15 @@ entities.CommunalHelper/CustomSummitGem.attributes.description.index=Determines 
 # Attached Wall Booster
 entities.CommunalHelper/AttachedWallBooster.placements.name.right=Attached Wall Booster (Right)
 entities.CommunalHelper/AttachedWallBooster.placements.name.left=Attached Wall Booster (Left)
+entities.CommunalHelper/AttachedWallBooster.placements.name.rightIce=Attached Ice Wall (Right)
+entities.CommunalHelper/AttachedWallBooster.placements.name.leftIce=Attached Ice Wall (Left)
 entities.CommunalHelper/AttachedWallBooster.attributes.description.left=Whether the Attached Wall Booster should attach to the left sides of solids.
 entities.CommunalHelper/AttachedWallBooster.attributes.name.notCoreMode=Force Ice on Room Entry
 entities.CommunalHelper/AttachedWallBooster.attributes.description.notCoreMode=Whether the Attached Wall Booster should ignore the current Core Mode and be in Ice Mode when entering the room.\nThis is a legacy option that may not work as expected with different settings for Core Mode Behavior.
 entities.CommunalHelper/AttachedWallBooster.attributes.description.coreModeBehavior=How the Attached Wall Booster should interact with the Core Mode.\nIf set to Toggle, it will respect the current Core Mode and use the default value if the Core Mode is None.\nIf set to Always Hot/Cold, it will completely ignore the Core Mode and always stay in one mode.
 entities.CommunalHelper/AttachedWallBooster.attributes.description.legacyBoost=Makes this Attached Wall Booster apply the expected speed boost to the player.\nIf disabled, the vertical boost is applied twice if the player isn't moving horizontally, due to a bug that was accidentally introduced in 1.11.2.\nAlso, if disabled, this entity is reskinned with a variant of the wall booster textures.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.sprite=Either the sprite ID or directory path for a custom sprite.
+entities.CommunalHelper/AttachedWallBooster.attributes.description.spriteOffset=How much to offset the sprite along the X axis.
 
 # Station Block
 entities.CommunalHelper/StationBlock.placements.name.normal_pushing=Station Block (Normal, Pushing)
@@ -141,6 +145,7 @@ entities.CommunalHelper/TrackSwitchBox.attributes.description.globalSwitch=Wheth
 entities.CommunalHelper/TrackSwitchBox.attributes.description.floaty=Whether the box should float up and down; this also causes the box to sink down if the player stands on it. If unticked, the box will stay in its place.
 entities.CommunalHelper/TrackSwitchBox.attributes.description.bouncy=Whether the box should bounce away from the player when dashed into.
 entities.CommunalHelper/TrackSwitchBox.attributes.description.reverse=Whether the box should reverse one-way/force directions instead of toggling on/off
+entities.CommunalHelper/TrackSwitchBox.attributes.description.switchFlag=This flag will be set to true while the tracks are ON and false while the tracks are OFF.
 
 # Custom Cassette Block
 entities.CommunalHelper/CustomCassetteBlock.placements.name.cassette_block_0=Custom Cassette Block (0 - Blue)
@@ -509,6 +514,7 @@ entities.CommunalHelper/FrictionlessPanel.attributes.description.orientation=The
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.up=Surface Sound Panel (Up)
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.left=Surface Sound Panel (Left)
 entities.CommunalHelper/SurfaceSoundPanel.placements.name.right=Surface Sound Panel (Right)
+entities.CommunalHelper/SurfaceSoundPanel.attributes.description.overrideAllowStaticMovers=Enable a hack that allows this entity to attach to SolidTiles, among other things.
 entities.CommunalHelper/SurfaceSoundPanel.attributes.description.orientation=The way this panel is facing. Up for changing the top sound index, Left & Right for the climbing sounds.
 entities.CommunalHelper/SurfaceSoundPanel.attributes.description.soundIndex=The index associated with the surface sounds played on this panel.
 
@@ -520,6 +526,7 @@ entities.CommunalHelper/ChainedKevin.placements.name.right=Kevin (Chained, Right
 entities.CommunalHelper/ChainedKevin.attributes.description.chillout=Whether the block should have the large face and get tired after being hit.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainLength=The length of the chain holding the block, which will be unable to go past this distance.
 entities.CommunalHelper/ChainedKevin.attributes.description.direction=The only direction in which this block will travel.
+entities.CommunalHelper/ChainedKevin.attributes.description.retractSpeedModifier=Multiplier for the retract speed of the Kevin (1.0 = normal Kevin retract speed).
 entities.CommunalHelper/ChainedKevin.attributes.description.centeredChain=Renders only one chain at the horizontal or vertical center of this block, depending on the direction.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
 entities.CommunalHelper/ChainedKevin.attributes.description.chainTexture=The texture for this Chained Kevin's chain.
@@ -567,6 +574,7 @@ entities.CommunalHelper/HintController.attributes.description.dialogIds=A comma 
 entities.CommunalHelper/HintController.attributes.description.singleUses=A comma separated list of numbers, where 0 means the corresponding hint entry can be used multiple times, and anything else means it can only be used once.\nDefaults to empty string, which means all entries can be used multiple times.
 entities.CommunalHelper/HintController.attributes.description.selectorCounter=The name of the session counter that selects the current dialog.\nDefaults to empty string, which means that there is no counter and only the first hint will be available.
 entities.CommunalHelper/HintController.attributes.description.selectNextHint=If true, the selector defined in selectorCounter will be automatically incremented when a hint is shown. Defaults to false.
+entities.CommunalHelper/HintController.attributes.description.flagWhileReading=This flag will be true while a hint is being read.
 
 # Input Flag Controller
 entities.CommunalHelper/InputFlagController.placements.name.controller=Input Flag Controller
@@ -1070,6 +1078,11 @@ triggers.CommunalHelper/ConfigureElytraTrigger.placements.name.no=Disable Elytra
 triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.allow=Whether the player can deploy its elytra after going through the trigger.\nThe elytra is deployed with a keybind configured in mod settings.\nDefault is W on keyboard, and Left Shoulder on controller.
 triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.infinite=If this trigger enables the elytra, this option will make it so that deploying the elytra does not consume a dash. Note that this can potentially be used to build infinite height (over long distances).
 triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.disableReverseVerticalMomentum=Disables the vertical boost the player gets when deploying the elytra facing the opposite direction they are moving.
+triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.revertOnLeave=Whether to revert this trigger's effects when the player leaves it.
+triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.revertOnDeath=Whether to revert this trigger's effects when the player dies.
+triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.onlyOnce=Whether this trigger should only activate once per room load.
+triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.flag=The flag this trigger should react to. Leave empty for this trigger to not be affected by flags.
+triggers.CommunalHelper/ConfigureElytraTrigger.attributes.description.flagInverted=If checked, the trigger will be disabled when the flag is active.\nIf unchecked, the trigger will be enabled when the flag is active.
 
 # Configure Dream Tunnel Dash Trigger
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.placements.name.trigger=Configure Dream Tunnel Dash
@@ -1082,6 +1095,12 @@ triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.c
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.allowDashCancels=Allows the dream tunnel dash to be cancelled before tunnelling through solids. Replicates vanilla behavior of being able to instant hyper, for example, on dream blocks.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.redirectConsumesNormalDash=Whether dream tunnel dash redirects should consume the player's normal dashes instead of their dream tunnel dashes.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.allowTransitions=Whether to allow screen transitions while dream tunnel dashing.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.bounceOnCollision=Whether the player should bounce on collision with a dream block while dream tunnel dashing.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.revertOnLeave=Whether to revert this trigger's effects when the player leaves it.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.revertOnDeath=Whether to revert this trigger's effects when the player dies.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.onlyOnce=Whether this trigger should only activate once per room load.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.flag=The flag this trigger should react to. Leave empty for this trigger to not be affected by flags.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.flagInverted=If checked, the trigger will be disabled when the flag is active.\nIf unchecked, the trigger will be enabled when the flag is active.
 
 # Follow Shapeshifter Path Trigger
 triggers.CommunalHelper/FollowShapeshifterPathTrigger.placements.name.follow_path=Follow Shapeshifter Path

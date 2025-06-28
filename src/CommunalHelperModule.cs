@@ -80,6 +80,7 @@ public class CommunalHelperModule : EverestModule
         CustomBooster.Load();
 
         DreamHoldable.Load();
+        DreamSprite.Load();
         DreamJellyfish.Load();
         DreamTheoCrystal.Load();
 
@@ -101,6 +102,9 @@ public class CommunalHelperModule : EverestModule
         WormholeBooster.Load();
         OshiroAttackTimeTrigger.Load();
         PlayerVisualModifier.Load();
+        
+        ConfigureDreamTunnelDashTrigger.Load();
+        ConfigureElytraTrigger.Load();
 
         AeroBlockCharged.Load();
 
@@ -114,7 +118,7 @@ public class CommunalHelperModule : EverestModule
         BadelineBoostKeepHoldables.Hook();
         PoisonGas.Load();
         AffectSpriteTrigger.Load();
-        
+
         MelvinTargetable.Load();
 
         #region Imports
@@ -171,6 +175,7 @@ public class CommunalHelperModule : EverestModule
         CustomBooster.Unload();
 
         DreamHoldable.Unload();
+        DreamSprite.Unload();
         DreamJellyfish.Unload();
         DreamTheoCrystal.Unload();
 
@@ -192,6 +197,9 @@ public class CommunalHelperModule : EverestModule
         WormholeBooster.Unload();
         OshiroAttackTimeTrigger.Unload();
         PlayerVisualModifier.Unload();
+        
+        ConfigureDreamTunnelDashTrigger.Unload();
+        ConfigureElytraTrigger.Unload();
 
         AeroBlockCharged.Unload();
 
@@ -208,7 +216,7 @@ public class CommunalHelperModule : EverestModule
         BadelineBoostKeepHoldables.Unhook();
         PoisonGas.Unload();
         AffectSpriteTrigger.Unload();
-        
+
         MelvinTargetable.Unload();
 
         LaserEmitter.Unload();
@@ -225,7 +233,8 @@ public class CommunalHelperModule : EverestModule
         // (at least until we can update StrawberryJam to fix it)
         // Therefore, we load this hook conditionally dependent on if StrawberryJam has loaded its hooks, and use the same flags it uses to achieve the same effect
         // This also makes both StrawberryJam's and CommunalHelper's flags intercompatible
-        if(Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "StrawberryJam2021", Version = new Version("1.0.0") })) {
+        if (Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "StrawberryJam2021", Version = new Version("1.0.0") }))
+        {
             LaserEmitter.Load();
         }
 
@@ -364,18 +373,16 @@ public class CommunalHelperModule : EverestModule
     }
 
     private object CustomBirdTutorial_OnParseCommand(string command)
-    {
-        // Thank you maddie.
-        if (command == "CommunalHelperSyncedZipMoverBinding")
+        => command switch
         {
-            return Settings.AllowActivateRebinding ?
-                Settings.ActivateSyncedZipMovers.Button : Input.Grab;
-        }
+            "CommunalHelperSyncedZipMoverBinding" when Settings.AllowActivateRebinding => Settings.ActivateSyncedZipMovers.Button,
+            "CommunalHelperSyncedZipMoverBinding" => Input.Grab,
+            "CommunalHelperCycleCassetteBlocksBinding" => Settings.CycleCassetteBlocks.Button,
+            "CommunalHelperActivateFlagControllerBinding" => Settings.ActivateFlagController.Button,
+            "CommunalHelperDeployElytraBinding" => Settings.DeployElytra.Button,
 
-        return command == "CommunalHelperCycleCassetteBlocksBinding"
-            ? Settings.CycleCassetteBlocks.Button
-            : command == "CommunalHelperActivateFlagControllerBinding" ? Settings.ActivateFlagController.Button : (object) null;
-    }
+            _ => null,
+        };
 }
 
 // Don't worry about it

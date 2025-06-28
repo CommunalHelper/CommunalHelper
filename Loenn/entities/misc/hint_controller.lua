@@ -13,8 +13,10 @@ hintController.placements = {
             singleUses = "",
             selectorCounter = "",
             selectNextHint = false,
-        },
-    },
+			flagWhileReading = ""
+            flagWhileReading = "",
+        }
+    }
 }
 
 return hintController

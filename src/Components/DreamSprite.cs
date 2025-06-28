@@ -1,4 +1,7 @@
 using Celeste.Mod.CommunalHelper.Entities;
+using MonoMod.RuntimeDetour;
+using System.Linq;
+using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper.Components;
 
@@ -20,7 +23,7 @@ public class DreamSprite : Sprite {
     public static Color[] ParticleColors => CustomDreamBlock.DreamColors;
 
     public float Flash = 0f;
-    private const float flashTime = 0.4f;
+    private const float FlashTime = 0.4f;
     
     public bool Enabled = true;
 
@@ -34,15 +37,7 @@ public class DreamSprite : Sprite {
         InvertedGravityHandler = invertedGravityHandler;
         Flash = 0f;
         Enabled = true;
-    }
-
-    private void TrackSelf() => DreamSpriteRenderer.GetDreamSpriteRenderer(Entity.Scene, Entity.Depth + 1).Track(this);
-    private void UntrackSelf() => DreamSpriteRenderer.GetDreamSpriteRenderer(Entity.Scene, Entity.Depth + 1).Untrack(this);
-
-    public override void EntityAdded(Scene scene)
-    {
-        base.EntityAdded(scene);
-
+        
         Particles = new DreamParticle[(int)((ParticleBounds.Width / 8f) * (ParticleBounds.Height / 8f) * 0.7f)];
         for (int i = 0; i < Particles.Length; i++) {
             Particles[i].Position = new Vector2(Calc.Random.NextFloat(ParticleBounds.Width), Calc.Random.NextFloat(ParticleBounds.Height));
@@ -60,7 +55,14 @@ public class DreamSprite : Sprite {
                 _ => throw new NotImplementedException()
             };
         }
+    }
 
+    private void TrackSelf() => DreamSpriteRenderer.GetDreamSpriteRenderer(Scene, Entity.Depth + 1).Track(this);
+    private void UntrackSelf() => DreamSpriteRenderer.GetDreamSpriteRenderer(Scene, Entity.Depth + 1).Untrack(this);
+
+    public override void EntityAdded(Scene scene)
+    {
+        base.EntityAdded(scene);
         TrackSelf();
     }
 
@@ -80,8 +82,47 @@ public class DreamSprite : Sprite {
     {
         base.Update();
 
-        Flash = Calc.Approach(Calc.Clamp(Flash, 0f, 1f), 0f, Engine.DeltaTime / flashTime);
+        Flash = Calc.Approach(Calc.Clamp(Flash, 0f, 1f), 0f, Engine.DeltaTime / FlashTime);
     }
 
     public override void Render() { }
+    
+    #region Hooks
+
+    private static Hook hook_Entity_set_Depth;
+    
+    internal static void Load()
+    {
+        hook_Entity_set_Depth = new Hook(typeof(Entity).GetMethod("set_Depth", BindingFlags.Instance | BindingFlags.Public)!, Entity_set_Depth);
+    }
+
+    internal static void Unload()
+    {
+        hook_Entity_set_Depth.Dispose();
+        hook_Entity_set_Depth = null;
+    }
+
+    private static void Entity_set_Depth(Action<Entity, int> orig, Entity self, int value)
+    {
+        if (self.Scene is null)
+        {
+            orig(self, value);
+            return;
+        }
+        
+        DreamSprite[] sprites = self.Components.GetAll<DreamSprite>().ToArray();
+        foreach (DreamSprite sprite in sprites)
+        {
+            sprite.UntrackSelf();
+        }
+        
+        orig(self, value);
+        
+        foreach (DreamSprite sprite in sprites)
+        {
+            sprite.TrackSelf();
+        }
+    }
+    
+    #endregion
 }

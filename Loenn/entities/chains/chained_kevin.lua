@@ -33,6 +33,7 @@ for _, direction in pairs(directions) do
                 chillout = false,
                 chainLength = 64,
                 direction = direction,
+                retractSpeedModifier = 1.0,
                 chainOutline = true,
                 centeredChain = false,
                 chainTexture = "objects/CommunalHelper/chains/chain"

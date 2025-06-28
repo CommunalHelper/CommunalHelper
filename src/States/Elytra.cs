@@ -52,12 +52,12 @@ public static class Elytra
 
     public struct ElytraConfiguration
     {
-        public bool disableReverseVerticalMomentum;
+        public bool DisableReverseVerticalMomentum;
     }
 
     public static readonly ElytraConfiguration DefaultElytraConfiguration = new()
     {
-        disableReverseVerticalMomentum = false,
+        DisableReverseVerticalMomentum = false,
     };
 
     /// <summary>
@@ -73,6 +73,9 @@ public static class Elytra
 
     public static void SetInfiniteElytra(this Player player, bool enabled)
         => DynamicData.For(player).Set(f_Player_elytraIsInfinite, enabled);
+    
+    public static bool HasInfiniteElytra(this Player player)
+        => DynamicData.For(player).Get<bool>(f_Player_elytraIsInfinite);
 
     private static void PlayElytraRefillSound(this Player player)
     {
@@ -98,7 +101,7 @@ public static class Elytra
 
         ElytraConfiguration config = CommunalHelperModule.Session.CurrentElytraConfiguration;
         Vector2 speed;
-        if (config.disableReverseVerticalMomentum)
+        if (config.DisableReverseVerticalMomentum)
         {
             speed = new(MathF.Abs(player.Speed.X), player.Speed.Y);
         }
