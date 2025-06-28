@@ -1,12 +1,11 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
-using Celeste.Mod.CommunalHelper.Entities;
 using FMOD.Studio;
 using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Celeste.Mod.CommunalHelper;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/ConnectedMoveBlock")]
 [Tracked]

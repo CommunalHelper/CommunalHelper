@@ -1,7 +1,7 @@
 ﻿using MonoMod.Utils;
 using System.Collections;
 
-namespace Celeste.Mod.CommunalHelper.Entities.Boosters;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/SpiralBooster")]
 public class SpiralBooster : CustomBooster

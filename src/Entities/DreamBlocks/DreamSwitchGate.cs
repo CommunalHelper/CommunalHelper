@@ -1,7 +1,6 @@
-﻿using Celeste.Mod.CommunalHelper.Entities;
-using System.Collections;
+﻿using System.Collections;
 
-namespace Celeste.Mod.CommunalHelper;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 /*
  * Lots of stuff taken from Maddie's Helping Hand Flag Switch Gate entity
@@ -23,7 +22,7 @@ public class DreamSwitchGate : CustomDreamBlock
     private Vector2 iconOffset;
     private readonly Wiggler wiggler;
 
-    private Vector2 node;
+    new private Vector2 node;
 
     private readonly SoundSource openSfx;
 

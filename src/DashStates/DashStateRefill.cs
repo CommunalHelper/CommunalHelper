@@ -49,7 +49,7 @@ public abstract class DashStateRefill : Refill
         }
     }
 
-    private void OnPlayer(Player player)
+    new private void OnPlayer(Player player)
     {
         if (CanActivate(player))
         {

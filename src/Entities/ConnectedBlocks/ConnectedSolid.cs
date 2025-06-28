@@ -4,7 +4,7 @@ using MonoMod.Utils;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Celeste.Mod.CommunalHelper;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 public class ConnectedSolid : Solid
 {

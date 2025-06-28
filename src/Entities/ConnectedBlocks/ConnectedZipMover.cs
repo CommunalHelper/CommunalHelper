@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Celeste.Mod.CommunalHelper;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/ConnectedZipMover")]
 public class ConnectedZipMover : ConnectedSolid

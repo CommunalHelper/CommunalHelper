@@ -16,7 +16,7 @@ public abstract class CustomDreamBlock : DreamBlock
      * We want to tie the Custom DreamParticles to the vanilla DreamParticles, but since DreamBlock.DreamParticle is private it would require a lot of reflection.
      * Instead we just IL hook stuff and ignore accessibility modifiers entirely. It's fine.
      */
-    protected struct DreamParticle
+    new protected struct DreamParticle
     {
         internal static Type t_DreamParticle = typeof(DreamBlock).GetNestedType("DreamParticle", BindingFlags.NonPublic);
 

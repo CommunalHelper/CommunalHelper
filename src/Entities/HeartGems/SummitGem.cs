@@ -19,6 +19,8 @@ public class CustomSummitGem : SummitGem
 {
     private static readonly Type t_BgFlash = typeof(SummitGem).GetNestedType("BgFlash", BindingFlags.NonPublic);
 
+    // USED BY EXTERNAL MOD
+    // https://github.com/CommunalHelper/CommunalHelper/issues/56#issuecomment-980799864
     public static new readonly Color[] GemColors;
 
     public string CustomGemSID;
@@ -74,7 +76,7 @@ public class CustomSummitGem : SummitGem
         baseData.Set("sprite", sprite);
     }
 
-    private IEnumerator SmashRoutine(Player player, Level level)
+    new private IEnumerator SmashRoutine(Player player, Level level)
     {
         Visible = false;
         Collidable = false;

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using static Celeste.Session;
 
-namespace Celeste.Mod.CommunalHelper.Entities.Misc;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/CoreModeMusicController")]
 [Tracked]

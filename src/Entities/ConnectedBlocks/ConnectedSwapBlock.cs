@@ -7,7 +7,7 @@ using MonoMod.Utils;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Celeste.Mod.CommunalHelper;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/ConnectedSwapBlock")]
 [Tracked(false)]

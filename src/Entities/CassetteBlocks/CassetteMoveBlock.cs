@@ -11,6 +11,7 @@ using Directions = Celeste.MoveBlock.Directions;
 // Dealing with the period of non collidability when respawning
 // fix static movers during respawn
 // fix block staying collidable after breaking
+
 namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/CassetteMoveBlock")]
@@ -265,7 +266,8 @@ public class CassetteMoveBlock : CustomCassetteBlock
             BreakParticles();
             ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
             List<MoveBlockDebris> debris = new();
-            if (!noDebris) {
+            if (!noDebris)
+            {
                 for (int x = 0; x < Width; x += 8)
                 {
                     for (int y = 0; y < Height; y += 8)

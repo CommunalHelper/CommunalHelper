@@ -1,6 +1,6 @@
 ﻿using MonoMod.Cil;
 
-namespace Celeste.Mod.CommunalHelper.Entities.Misc;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 // Ported from xolimono's Midway Contest and the road lightly toasted
 

@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Celeste.Mod.CommunalHelper.Entities.ConnectedStuff;
+namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/EquationMoveBlock")]
 internal class EquationMoveBlock : ConnectedMoveBlock
@@ -189,7 +189,8 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             BreakParticles();
 
             List<MoveBlockDebris> debris = new();
-            if (!noDebris) {
+            if (!noDebris)
+            {
                 int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
                 int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
 
