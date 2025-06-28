@@ -1,5 +1,9 @@
-﻿using MonoMod.Utils;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
+using MonoMod.Utils;
 using System.Collections.Generic;
+using System.Reflection;
 using Directions = Celeste.MoveBlock.Directions;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -87,10 +91,12 @@ internal class ChainedKevin : CrushBlock
 
         base.Render();
     }
-    
-    
+
+
 
     #region Hooks
+
+    private static ILHook il_CrushBlock_AttackSequence_MoveNext;
 
     internal static void Load()
     {
@@ -100,8 +106,11 @@ internal class ChainedKevin : CrushBlock
         On.Celeste.CrushBlock.CanActivate += CrushBlock_CanActivate;
         On.Celeste.CrushBlock.MoveHCheck += CrushBlock_MoveHCheck;
         On.Celeste.CrushBlock.MoveVCheck += CrushBlock_MoveVCheck;
-        On.Celeste.Platform.MoveTowardsX += Platform_MoveTowardsX;
-        On.Celeste.Platform.MoveTowardsY += Platform_MoveTowardsY;
+
+        il_CrushBlock_AttackSequence_MoveNext = new ILHook(
+            typeof(CrushBlock).GetMethod("AttackSequence", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(),
+            IL_CrushBlock_AttackSequence
+        );
     }
 
     internal static void Unload()
@@ -112,33 +121,21 @@ internal class ChainedKevin : CrushBlock
         On.Celeste.CrushBlock.CanActivate -= CrushBlock_CanActivate;
         On.Celeste.CrushBlock.MoveHCheck -= CrushBlock_MoveHCheck;
         On.Celeste.CrushBlock.MoveVCheck -= CrushBlock_MoveVCheck;
-        On.Celeste.Platform.MoveTowardsX -= Platform_MoveTowardsX;
-        On.Celeste.Platform.MoveTowardsY -= Platform_MoveTowardsY;
+
+        il_CrushBlock_AttackSequence_MoveNext.Dispose(); il_CrushBlock_AttackSequence_MoveNext = null;
     }
-    
-    private static void Platform_MoveTowardsX(On.Celeste.Platform.orig_MoveTowardsX orig, Platform self, float x, float amount)
+
+    private static void IL_CrushBlock_AttackSequence(ILContext il)
     {
-        if (self is ChainedKevin chainedKevin)
-        {  
-            if (chainedKevin.crushDir == Vector2.Zero)
-            {
-                amount *= chainedKevin.retractSpeedModifier;
-            }
-        }
-        orig(self, x, amount);
-    }
-    
-    
-    private static void Platform_MoveTowardsY(On.Celeste.Platform.orig_MoveTowardsY orig, Platform self, float y, float amount)
-    {
-        if (self is ChainedKevin chainedKevin)
-        {
-            if (chainedKevin.crushDir == Vector2.Zero)
-            {
-                amount *= chainedKevin.retractSpeedModifier;
-            }
-        }
-        orig(self, y, amount);
+        ILCursor cursor = new(il);
+
+        cursor.GotoNext(instr => instr.MatchLdstr(SFX.game_06_crushblock_return_loop));
+        cursor.GotoNext(MoveType.After, instr => instr.MatchLdcR4(60.0f));
+
+        cursor.Emit(OpCodes.Ldloc_1);
+        cursor.EmitDelegate((float speed, CrushBlock e) => e is ChainedKevin block ? block.retractSpeedModifier * speed : speed);
+
+        System.Console.WriteLine(cursor);
     }
 
     private static bool CrushBlock_MoveVCheck(On.Celeste.CrushBlock.orig_MoveVCheck orig, CrushBlock self, float amount)
