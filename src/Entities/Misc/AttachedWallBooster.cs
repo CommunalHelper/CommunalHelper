@@ -47,7 +47,7 @@ public class AttachedWallBooster : WallBooster
         }
 
         string spriteField = data.String("sprite", "");
-        if (spriteField != "")
+        if (!string.IsNullOrEmpty(spriteField))
             BuildCustomSprite(data.Bool("left"), spriteField);
 
         int spriteOffset = data.Int("spriteOffset", 0);
