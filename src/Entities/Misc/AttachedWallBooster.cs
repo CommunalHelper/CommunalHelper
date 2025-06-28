@@ -129,13 +129,12 @@ public class AttachedWallBooster : WallBooster
         string Mid = SpriteField + "Mid";
         string Bottom = SpriteField + "Bottom";
 
-        bool flag = GFX.SpriteBank.Has(Top) && GFX.SpriteBank.Has(Mid) && GFX.SpriteBank.Has(Bottom);
-
-        if (flag)
+        bool spritePathExists = GFX.SpriteBank.Has(Top) && GFX.SpriteBank.Has(Mid) && GFX.SpriteBank.Has(Bottom);
+        if (spritePathExists)
         {
-            for (int i = 0; (float)i < base.Height; i += 8)
+            for (int i = 0; i < Height; i += 8)
             {
-                string id = ((i == 0) ? Top : ((!((float)(i + 16) > base.Height)) ? Mid : Bottom));
+                string id = (i == 0) ? Top : ((!(i + 16 > Height)) ? Mid : Bottom);
                 Sprite sprite = GFX.SpriteBank.Create(id);
                 if (!left)
                 {
@@ -156,14 +155,14 @@ public class AttachedWallBooster : WallBooster
             if (!SpriteField.EndsWith("/"))
                 SpriteField += "/";
 
-            for (int i = 0; (float)i < base.Height; i += 8)
+            for (int i = 0; i < Height; i += 8)
             {
-                string id = ((i == 0) ? "Top" : ((!((float)(i + 16) > base.Height)) ? "Mid" : "Bottom"));
+                string id = (i == 0) ? "Top" : ((!(i + 16 > Height)) ? "Mid" : "Bottom");
 
-                Sprite sprite = new Sprite(GFX.Game, SpriteField);
-                int[] hot = { 0, 1, 2, 3, 4, 5, 6, 7 };
-                int[] ice = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-                int[] iceShine = { 0, 1, 2, 3, 4 };
+                Sprite sprite = new(GFX.Game, SpriteField);
+                int[] hot = [0, 1, 2, 3, 4, 5, 6, 7];
+                int[] ice = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                int[] iceShine = [0, 1, 2, 3, 4];
                 sprite.AddLoop("hot", "fire" + id, 0.035f, hot);
                 sprite.Add("ice", "ice" + id, delay: 0.08f, frames: ice, into: "ice,ice,ice,ice,ice,iceShine");
                 sprite.Add("iceShine", "ice" + id, delay: 0.08f, frames: iceShine, into: "ice");
