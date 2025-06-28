@@ -536,7 +536,7 @@ public static class DreamTunnelDash
             // our desired value for what the ceq instruction returns depends on whether we check equality or not. but we don't control that, the brtrue/brfalse after the ceq does.
             // to solve this, our desired conditions can be shown equivalent to `player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash` (for equality)
             // and `!(player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash)` (for inequality). notice how the desired condition for inequality is
-            // simplythe inverse of the one for equality. this is great, because the brtrue/brfalse after the ceq will do the required inversion (or lack thereof) for the check, and
+            // simply the inverse of the one for equality. this is great, because the brtrue/brfalse after the ceq will do the required inversion (or lack thereof) for the check, and
             // all we need to do is calculate the thing on the inside. conveniently, the ceq is already checking for the left term, and we just need to or it with the right.
             cursor.EmitDelegate<Func<Player, bool, bool>>((player, orig) => orig || player.StateMachine.State == St.DreamTunnelDash);
         }
