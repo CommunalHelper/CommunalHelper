@@ -15,7 +15,7 @@ trackSwitchBox.placements = {
             floaty = true,
             bouncy = true,
             reverse = false,
-			switchFlag = ""
+            switchFlag = "",
         }
     },
     {
