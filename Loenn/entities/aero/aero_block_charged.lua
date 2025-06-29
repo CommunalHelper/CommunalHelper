@@ -34,6 +34,7 @@ aeroBlockCharged.placements = {
             easing = "CubeIn",
             -- SpirialisBug = false,
             SpirialisBugV2 = false,
+            wallbounceLeniency = true
         }
     }
 }

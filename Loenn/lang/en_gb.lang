@@ -742,6 +742,7 @@ entities.CommunalHelper/AeroBlockCharged.attributes.description.inactiveColor=Th
 entities.CommunalHelper/AeroBlockCharged.attributes.description.SpirialisBug=This enables a bug where Spirialis Helper will override the player's jump speed with the boost from an Aero Block, even when Spirialis Helper is not enabled.\nThis effectively makes your vertical momentum much stronger than normal from aeroblocks in most, but not all, cases.\n(Legacy, replace this block for an improved version of this toggle.)
 entities.CommunalHelper/AeroBlockCharged.attributes.name.SpirialisBugV2=Stronger Vertical Boost
 entities.CommunalHelper/AeroBlockCharged.attributes.description.SpirialisBugV2=This enables a legacy behavior (originally caused by Spirialis Helper) where the player's jump speed will be overridden with the boost from an Aero Block.\nTurning this on effectively makes your vertical momentum from Aero Blocks much stronger than normal in most cases.
+entities.CommunalHelper/AeroBlockCharged.attributes.description.wallbounceLeniency=Allows wallbounces up to all 5 pixels of horizontal leniency to receive the boost from this block instead of only ones within the first 3 pixels.\nThis prevents there from being a 2 pixel window where you can wallbounce without receiving the boost.
 
 # Aero Block Slingshot
 entities.CommunalHelper/AeroBlockSlingshot.placements.name.normal=Slingshot Aero Block

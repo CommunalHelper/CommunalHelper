@@ -66,6 +66,9 @@ public class AeroBlockCharged : AeroBlockFlying
             }
         }
 
+        private bool quickForcePress;
+        public void QuickForcePress() => Pressed = quickForcePress = true;
+
         private readonly Vector2 perp;
 
         private float lerp;
@@ -103,7 +106,8 @@ public class AeroBlockCharged : AeroBlockFlying
 
         public void Update(AeroBlockCharged self)
         {
-            Pressed = self.CollideCheck<Player>(self.Position - perp * 3);
+            Pressed = quickForcePress || self.CollideCheck<Player>(self.Position - perp * 3);
+            quickForcePress = false;
 
             lerp = pressed
                 ? 1.0f
@@ -132,6 +136,7 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private bool alive = true;
     private readonly bool SpirialisBug = false;
+    private readonly bool wallbounceLeniency;
 
     private Button leftButton, rightButton, topButton;
 
@@ -147,13 +152,13 @@ public class AeroBlockCharged : AeroBlockFlying
     private readonly Color activeColor, inactiveColor;
 
     public AeroBlockCharged(EntityData data, Vector2 offset)
-        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("loop"), data.HexColor("activeColor", defaultOnColor), data.HexColor("inactiveColor", defaultEndColor), data.Bool("hover", true), data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE))
+        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("loop"), data.HexColor("activeColor", defaultOnColor), data.HexColor("inactiveColor", defaultEndColor), data.Bool("hover", true), data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE), data.Bool("wallbounceLeniency", false))
     {
         // if the new attribute exists use that, but otherwise enable the bug if either the old attribute is set *or* spirialis helper is loaded
         SpirialisBug = data.Bool("SpirialisBugV2", SpirialisHelperLoaded || data.Bool("SpirialisBug", false));
     }
 
-    public AeroBlockCharged(Vector2[] positions, int width, int height, bool loop, Color activeColor, Color inactiveColor, bool hover = true, string buttonSequence = DEFAULT_BUTTON_SEQUENCE)
+    public AeroBlockCharged(Vector2[] positions, int width, int height, bool loop, Color activeColor, Color inactiveColor, bool hover = true, string buttonSequence = DEFAULT_BUTTON_SEQUENCE, bool wallbounceLeniency = false)
         : base(positions[0], width, height)
     {
         Hover = hover;
@@ -178,6 +183,8 @@ public class AeroBlockCharged : AeroBlockFlying
 
         this.activeColor = activeColor;
         this.inactiveColor = inactiveColor;
+
+        this.wallbounceLeniency = wallbounceLeniency;
     }
 
     private static ButtonCombination[] ParseButtonSequence(string sequence, int max)
@@ -425,22 +432,26 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private static void Player_SuperWallJump(On.Celeste.Player.orig_SuperWallJump orig, Player self, int dir)
     {
-        if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position - Vector2.UnitX * dir * 3) is AeroBlockCharged block)) { orig(self, dir); return; }
-        if (block.SpirialisBug)
-        {
-            orig(self, dir);
-            // wallbounce
-            if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
-                block.Smash(self, new Vector2(300 * dir, -400));
-            player_varJumpSpeed.SetValue(self, self.Speed.Y);
-        }
-        else
-        {
-            orig(self, dir);
+        // check for blocks up to 5px away instead of 3px, since wallbounces have 2 more pixels of leniency than regular wall jumps
+        if (!(self.Scene.Tracker.Entities.TryGetValue(typeof(AeroBlockCharged), out var q) && Collide.First(self, q, self.Position - Vector2.UnitX * dir * 5) is AeroBlockCharged block)) { orig(self, dir); return; }
 
-            // wallbounce
-            if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
-                block.Smash(self, new Vector2(300 * dir, -400));
+        orig(self, dir);
+
+        // wallbounce
+        var button = dir < 0 ? block.leftButton : block.rightButton;
+        // button.Pressed is only true if madeline is within 3 pixels of the aero block, but wallbounces have 5 pixels of leniency
+        // this means that, if wallbounceLeniency is enabled, we want to check button.Visible as well to prevent there being a 2px window where it is possible to wallbounce but not recieve the boost
+        // (the 5px window is already enforced by the line which gets the reference to the aero block, so this doesn't mean you can receive a boost from an aero block you didn't wallbounce on)
+        if (button is not null && (button.Pressed || (block.wallbounceLeniency && button.Visible)))
+        {
+            block.Smash(self, new Vector2(300 * dir, -400));
+
+            // give the button a quick (visual) press if it isn't already pressed, due to wallbounce leniency
+            if (!button.Pressed && block.wallbounceLeniency)
+                button.QuickForcePress();
+
+            if (block.SpirialisBug)
+                player_varJumpSpeed.SetValue(self, self.Speed.Y);
         }
     }
 
