@@ -9,8 +9,6 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 public class AeroBlockCharged : AeroBlockFlying
 {
     internal static bool SpirialisHelperLoaded = false;
-    private static readonly FieldInfo player_varJumpSpeed
-        = typeof(Player).GetField("varJumpSpeed", BindingFlags.NonPublic | BindingFlags.Instance);
 
     [Flags]
     private enum ButtonCombination : byte
@@ -381,7 +379,7 @@ public class AeroBlockCharged : AeroBlockFlying
             orig(self, particles, playSfx);
             if (self.OnGround() && block is not null && block.CheckTopButton())
                 block.Smash(self, Vector2.UnitY * -350);
-            player_varJumpSpeed.SetValue(self, self.Speed.Y);
+            self.varJumpSpeed = self.Speed.Y;
         }
         else
         {
@@ -405,7 +403,7 @@ public class AeroBlockCharged : AeroBlockFlying
             // wallbounce
             if (block is not null && (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton()))
                 block.Smash(self, new Vector2(300 * dir, -300));
-            player_varJumpSpeed.SetValue(self, self.Speed.Y);
+            self.varJumpSpeed = self.Speed.Y;
         }
         else
         {
@@ -451,7 +449,7 @@ public class AeroBlockCharged : AeroBlockFlying
                 button.QuickForcePress();
 
             if (block.SpirialisBug)
-                player_varJumpSpeed.SetValue(self, self.Speed.Y);
+                self.varJumpSpeed = self.Speed.Y;
         }
     }
 
@@ -463,7 +461,7 @@ public class AeroBlockCharged : AeroBlockFlying
             orig(self);
             if (self.OnGround() && block is not null && block.CheckTopButton())
                 block.Smash(self, new Vector2(self.Speed.X * 1.2f, -350));
-            player_varJumpSpeed.SetValue(self, self.Speed.Y);
+            self.varJumpSpeed = self.Speed.Y;
         }
         else
         {
