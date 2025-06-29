@@ -131,7 +131,7 @@ public static class DreamTunnelDash
         On.Celeste.Player.OnBoundsV += Player_OnBoundsV;
 
         IL.Celeste.FakeWall.Update += State_DreamDashNotEqual;
-        IL.Celeste.Spring.OnCollide += State_DreamDashEqual;
+        IL.Celeste.Spring.OnCollide += State_DreamDashEqual_ShortCircuit;
         IL.Celeste.Solid.Update += State_DreamDashNotEqual;
     }
 
@@ -164,7 +164,7 @@ public static class DreamTunnelDash
         On.Celeste.Player.OnBoundsV -= Player_OnBoundsV;
 
         IL.Celeste.FakeWall.Update -= State_DreamDashNotEqual;
-        IL.Celeste.Spring.OnCollide -= State_DreamDashEqual;
+        IL.Celeste.Spring.OnCollide -= State_DreamDashEqual_ShortCircuit;
         IL.Celeste.Solid.Update -= State_DreamDashNotEqual;
     }
 
@@ -385,15 +385,15 @@ public static class DreamTunnelDash
     {
         ILCursor cursor = new(il);
 
-        CheckState(cursor, Player.StRedDash, false);
-        CheckState(cursor, Player.StRedDash, false);
+        CheckState(cursor, Player.StRedDash, false, false);
+        CheckState(cursor, Player.StRedDash, false, false);
     }
 
     private static void Player_BeforeDownTransition(ILContext il)
     {
         ILCursor cursor = new(il);
 
-        CheckState(cursor, Player.StRedDash, false);
+        CheckState(cursor, Player.StRedDash, false, false);
     }
 
     private static void Player_TransitionTo(ILContext il)
@@ -444,13 +444,21 @@ public static class DreamTunnelDash
 
     // Utilities to patch any method that checks the player's State.
     /// <summary>
-    /// Use if decompilation says <c>State==9</c>.
+    /// Use if decompilation says <c>State == 9</c>.
     /// </summary>
-    private static readonly ILContext.Manipulator State_DreamDashEqual = il => CheckState(new ILCursor(il), Player.StDreamDash, true);
+    private static readonly ILContext.Manipulator State_DreamDashEqual = il => CheckState(new ILCursor(il), Player.StDreamDash, true, false);
     /// <summary>
-    /// Use if decompilation says <c>State!=9</c>.
+    /// Use if decompilation says <c>State != 9</c>.
     /// </summary>
-    private static readonly ILContext.Manipulator State_DreamDashNotEqual = il => CheckState(new ILCursor(il), Player.StDreamDash, false);
+    private static readonly ILContext.Manipulator State_DreamDashNotEqual = il => CheckState(new ILCursor(il), Player.StDreamDash, false, false);
+    /// <summary>
+    /// Use if decompilation says <c>State == 9</c> and the check is able to short-circuit (e.g. is followed by <c>||</c> but not preceded by <c>&amp;&amp;</c>).
+    /// </summary>
+    private static readonly ILContext.Manipulator State_DreamDashEqual_ShortCircuit = il => CheckState(new ILCursor(il), Player.StDreamDash, true, true);
+    /// <summary>
+    /// Use if decompilation says <c>State != 9</c> and the check is able to short-circuit (e.g. is followed by <c>||</c> but not preceded by <c>&amp;&amp;</c>).
+    /// </summary>
+    private static readonly ILContext.Manipulator State_DreamDashNotEqual_ShortCircuit = il => CheckState(new ILCursor(il), Player.StDreamDash, false, true);
 
     /// <summary>
     /// Patch any method that checks the player's State.
@@ -459,7 +467,8 @@ public static class DreamTunnelDash
     /// <param name="cursor">The ILCursor to use</param>
     /// <param name="state">The state to check for</param>
     /// <param name="equal">Whether to check for <c>== &lt;state&gt;</c> or <c>!= &lt;state&gt;</c></param>
-    private static void CheckState(ILCursor cursor, int state, bool equal)
+    /// <param name="canShortCircuit">Whether the state check to match can short-circuit.</param>
+    private static void CheckState(ILCursor cursor, int state, bool equal, bool canShortCircuit)
     {
         // essentially, we want to perform these conversions:
         //  - `player.StateMachine.State == <state>` -> `player.StateMachine.State == St.DreamTunnelDash || player.StateMachine.State == <state>`
@@ -474,73 +483,51 @@ public static class DreamTunnelDash
             instr => instr.MatchLdcI4(state)))
             return;
 
-        bool matchedBeqOrBne = false, matchedCeq = false;
         ILLabel failedCheck = null;
-        Instruction checkInstr = null;
 
-        // retrieve info about the current check
+        // retrieve "fail state" label of the current check
+        // equality checks usually use `bne.un` (for `==`) or `beq` (for `!=`) in order to branch past the block of the if statement when the values don't match
+        // except when they are capable of short-circuiting, in which case the opposite branch instruction is used
+        // we don't check for `ceq`s because they are used for state checks a grand total of 3 times in vanilla
+        // (in `FlyFeather::OnPlayer`, `Lookout::Update` and `Player::<.ctor>b__280_0` for those curious)
         ILCursor cloned = cursor.Clone();
-        if (!cloned.TryGotoNext(MoveType.After, instr =>
-            {
-                // we grab a lot of stuff here: whether we matched a beq/bne.un or a ceq, the "fail state" label of the beq/bne.un (if we matched one of those)
-                // and the check instruction itself.
-
-                // equality checks usually use bne.un (for `==`) or beq (for `!=`) in order to branch past the block of the if statement when the values don't match
-                matchedBeqOrBne = equal ? instr.MatchBneUn(out failedCheck) : instr.MatchBeq(out failedCheck);
-                // alternatively they could use ceq and then a brtrue/brfalse to do the same, though i don't think there are any for this purpose in vanilla
-                matchedCeq = instr.MatchCeq();
-                // the instruction we're testing is the one doing the check; grab it
-                checkInstr = instr;
-
-                return matchedBeqOrBne || matchedCeq;
-            })) return;
-        // and the instruction after the current check
+        if (!cloned.TryGotoNext(MoveType.After, instr => equal ^ canShortCircuit ? instr.MatchBneUn(out failedCheck) : instr.MatchBeq(out failedCheck)))
+            return;
+        // also get the instruction after the current check
         Instruction afterMatch = cloned.Next!;
 
-        // beq and bne.un work with labels, whereas ceq just leaves a bool so we need to deal with them differently
-        if (matchedBeqOrBne)
-        {
-            // labels for cleaning up duplicate player left on stack
-            ILLabel cleanUpPlayer = cursor.DefineLabel(), pastCleanUpPlayer = cursor.DefineLabel();
+        // labels for cleaning up duplicate player left on stack
+        ILLabel cleanUpPlayer = cursor.DefineLabel(), pastCleanUpPlayer = cursor.DefineLabel();
 
-            // duplicate player on stack
-            cursor.Emit(OpCodes.Dup);
-            // check if player is dream tunnel dashing and if so, short-circuit (while also popping the other, now unnecessary duplicate player off the stack)
-            cursor.EmitDelegate<Func<Player, bool>>(player => player.StateMachine.State == St.DreamTunnelDash);
-            cursor.Emit(OpCodes.Brtrue, cleanUpPlayer);
-            // else, continue with check as normal
+        // duplicate player on stack
+        cursor.Emit(OpCodes.Dup);
+        // check if player is dream tunnel dashing and if so, short-circuit (while also popping the other, now unnecessary duplicate player off the stack)
+        cursor.EmitDelegate<Func<Player, bool>>(player => player.StateMachine.State == St.DreamTunnelDash);
+        cursor.Emit(OpCodes.Brtrue, cleanUpPlayer);
+        // else, continue with check as normal
 
-            // where we short-circuit to depends on whether we check for equality or not.
-            // for equality, we should short-circuit to the "block" of the if statement (past our current condition, whether it be the actual block or another condition),
-            // since our desired behaviour is `player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash` and the first term of that or has been satisfied,
-            // just like how `if (true || condition()) { ... }` should immediately skip checking `condition()` (since `true` or anything is `true`) and run the block inside the if.
-            // for inequality, it's the other way around: we should short-circuit past the rest of the if statement (skipping the block), since our desired behaviour will be
-            // `player.StateMachine.State != state && player.StateMachine.State != St.DreamTunnelDash` and we know the first condition of that and is false, just like how
-            // `if (false && condition()) { ... }` should immediately skip checking `condition()` (since `false` and anything is `false`) and never run the block inside the if.
-            // our `afterMatch` label points to after our current condition, and our `failedCheck` label points to after the rest of the statement.
-            cursor.Goto(equal ? afterMatch : failedCheck.Target);
-            // extra player cleanup, we skip over it in normal behaviour but jump into it if needed (see above)
-            cursor.Emit(OpCodes.Br, pastCleanUpPlayer);
-            cursor.Emit(OpCodes.Pop);
-            cursor.MarkLabel(pastCleanUpPlayer);
-            cursor.Index--;
-            // mark label to short-circuit to
-            cursor.MarkLabel(cleanUpPlayer);
-        }
-        else if (matchedCeq)
-        {
-            // duplicate player on stack
-            cursor.Emit(OpCodes.Dup);
-            // go to the ceq instruction and modify the value it returns
-            cursor.Goto(checkInstr, MoveType.After);
-            // our desired value for what the ceq instruction returns depends on whether we check equality or not. but we don't control that, the brtrue/brfalse after the ceq does.
-            // to solve this, our desired conditions can be shown equivalent to `player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash` (for equality)
-            // and `!(player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash)` (for inequality). notice how the desired condition for inequality is
-            // simply the inverse of the one for equality. this is great, because the brtrue/brfalse after the ceq will do the required inversion (or lack thereof) for the check, and
-            // all we need to do is calculate the thing on the inside. conveniently, the ceq is already checking for the left term, and we just need to or it with the right.
-            cursor.EmitDelegate<Func<Player, bool, bool>>((player, orig) => orig || player.StateMachine.State == St.DreamTunnelDash);
-        }
-
+        // where we short-circuit to depends on whether we check for equality and whether the check we're modding needs to short-circuit.
+        // in the non-short-circuiting case:
+        // for equality, we should short-circuit to the "block" of the if statement (past our current condition, whether it be the actual block or another condition),
+        // since our desired behaviour is `player.StateMachine.State == state || player.StateMachine.State == St.DreamTunnelDash` and the first term of that or has been satisfied,
+        // just like how `if (true || condition()) { ... }` should immediately skip checking `condition()` (since `true` or anything is `true`) and run the block inside the if.
+        // for inequality, it's the other way around: we should short-circuit past the rest of the if statement (skipping the block), since our desired behaviour will be
+        // `player.StateMachine.State != state && player.StateMachine.State != St.DreamTunnelDash` and we know the first condition of that and is false, just like how
+        // `if (false && condition()) { ... }` should immediately skip checking `condition()` (since `false` and anything is `false`) and never run the block inside the if.
+        // in the short-circuiting case:
+        // for equality, we should also short-circuit to the "block" of the if statement, although this is now given by the `failedCheck` label instead of `afterMatch`.
+        // for inequality, if the state check returns true (i.e. `player.StateMachine.State != state` is false), then the entire check should be false, and we can jump ahead
+        // to the next condition in the sequence (our `afterMatch` label).
+        // our `afterMatch` label points to after our current condition, and our `failedCheck` label points to after the rest of the statement.
+        cursor.Goto(equal ^ canShortCircuit ? afterMatch : failedCheck.Target);
+        // extra player cleanup, we skip over it in normal behaviour but jump into it if needed (see above)
+        cursor.Emit(OpCodes.Br, pastCleanUpPlayer);
+        cursor.Emit(OpCodes.Pop);
+        cursor.MarkLabel(pastCleanUpPlayer);
+        cursor.Index--;
+        // mark label to short-circuit to
+        cursor.MarkLabel(cleanUpPlayer);
+        
         // go to after the current match to continue with the il hook (no infinite loops!)
         cursor.Goto(afterMatch, MoveType.After);
     }
@@ -548,11 +535,11 @@ public static class DreamTunnelDash
     private static void Player_orig_Update(ILContext il)
     {
         ILCursor cursor = new(il);
-        CheckState(cursor, Player.StDreamDash, true);
-        CheckState(cursor, Player.StDreamDash, false);
-        CheckState(cursor, Player.StDreamDash, false);
+        CheckState(cursor, Player.StDreamDash, true, false);
+        CheckState(cursor, Player.StDreamDash, false, false);
+        CheckState(cursor, Player.StDreamDash, false, false);
         // Not used because we DO want to enforce Level bounds.
-        //Check_State_DreamDash(cursor, false, true);
+        // CheckState(cursor, Player.StDreamDash, false, false);
     }
 
     private static void Level_EnforceBounds(ILContext il)
