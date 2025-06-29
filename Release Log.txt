@@ -1,3 +1,8 @@
+--1.24.1 (29/06/2025)--
+* Fixed incorrect Dream Tunnel Dash hook logic for short-circuiting checks. @aonkeeper4
+* Fixed Charged Aero Block wallbounce leniency. @earthwise01
+* Fixed Everest dependecy version being incorrect for .NET 8. @catapillie
+
 --1.24.0 (29/06/2025)--
 * Added 'Bounce On Collision', 'Revert On Death' and 'Revert On Leave' options to Configure Dream Tunnel Dash Triggers. @aonkeeper4
 * Added flag option to Hint Controller. @koseidiamond
