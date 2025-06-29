@@ -2,13 +2,7 @@
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using MonoMod.ModInterop;
 using MonoMod.Utils;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Celeste.Mod.CommunalHelper.Entities.StrawberryJam.SolarElevator;
-using static On.Celeste.Pico8.Emulator;
 
 namespace Celeste.Mod.CommunalHelper.Imports;
 
