@@ -9,8 +9,6 @@ using System.Linq;
 using System.Reflection;
 using Directions = Celeste.MoveBlock.Directions;
 
-// NAMESPACE + ENTITY NAME EXPECTED BY EXTERNAL MOD
-// https://github.com/CommunalHelper/CommunalHelper/issues/56#issuecomment-2620242405
 namespace Celeste.Mod.CommunalHelper.Entities;
 
 [TrackedAs(typeof(SwapBlock))]
