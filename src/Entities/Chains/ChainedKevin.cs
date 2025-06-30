@@ -130,8 +130,6 @@ internal class ChainedKevin : CrushBlock
 
         cursor.Emit(OpCodes.Ldloc_1);
         cursor.EmitDelegate((float speed, CrushBlock e) => e is ChainedKevin block ? block.retractSpeedModifier * speed : speed);
-
-        System.Console.WriteLine(cursor);
     }
 
     private static bool CrushBlock_MoveVCheck(On.Celeste.CrushBlock.orig_MoveVCheck orig, CrushBlock self, float amount)
