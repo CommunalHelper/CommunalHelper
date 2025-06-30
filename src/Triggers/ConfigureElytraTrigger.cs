@@ -19,6 +19,7 @@ internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOpti
             Configuration = new ElytraConfiguration
             {
                 DisableReverseVerticalMomentum = data.Bool("disableReverseVerticalMomentum"),
+                UpdateCooldownInEveryState = data.Bool("updateCooldownInEveryState", false),
             },
         };
     protected override ElytraOptions GetCurrentOptions(Player player)
@@ -42,7 +43,8 @@ internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOpti
             NewInfinite = to.Infinite == from.Infinite ? null : from.Infinite,
             NewConfiguration = new ElytraOptionsChanges.ElytraConfigurationChanges
             {
-                NewDisableReverseVerticalMomentum = to.Configuration.DisableReverseVerticalMomentum == from.Configuration.DisableReverseVerticalMomentum ? null : from.Configuration.DisableReverseVerticalMomentum
+                NewDisableReverseVerticalMomentum = to.Configuration.DisableReverseVerticalMomentum == from.Configuration.DisableReverseVerticalMomentum ? null : from.Configuration.DisableReverseVerticalMomentum,
+                NewUpdateCooldownInEveryState = to.Configuration.UpdateCooldownInEveryState == from.Configuration.UpdateCooldownInEveryState ? null : from.Configuration.UpdateCooldownInEveryState,
             }
         };
     protected override ElytraOptions RevertChanges(ElytraOptions current, ElytraOptionsChanges? changesNeededToRevert)
@@ -52,7 +54,8 @@ internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOpti
             Infinite = changesNeededToRevert?.NewInfinite ?? current.Infinite,
             Configuration = new ElytraConfiguration
             {
-                DisableReverseVerticalMomentum = changesNeededToRevert?.NewConfiguration.NewDisableReverseVerticalMomentum ?? current.Configuration.DisableReverseVerticalMomentum
+                DisableReverseVerticalMomentum = changesNeededToRevert?.NewConfiguration.NewDisableReverseVerticalMomentum ?? current.Configuration.DisableReverseVerticalMomentum,
+                UpdateCooldownInEveryState = changesNeededToRevert?.NewConfiguration.NewUpdateCooldownInEveryState ?? current.Configuration.UpdateCooldownInEveryState,
             }
         };
 }
@@ -69,6 +72,7 @@ public struct ElytraOptionsChanges
     public struct ElytraConfigurationChanges
     {
         public bool? NewDisableReverseVerticalMomentum;
+        public bool? NewUpdateCooldownInEveryState;
     }
 
     public bool? NewAllow;

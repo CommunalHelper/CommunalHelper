@@ -53,6 +53,7 @@ public static class Elytra
     public struct ElytraConfiguration
     {
         public bool DisableReverseVerticalMomentum;
+        public bool UpdateCooldownInEveryState;
     }
 
     public static readonly ElytraConfiguration DefaultElytraConfiguration = new()
@@ -337,6 +338,20 @@ public static class Elytra
     private static float ClampGlideAngle(float angle)
         => Calc.Clamp(angle, STABLE_ANGLE - ANGLE_RANGE / 2f, STABLE_ANGLE);
 
+    private static void DecreaseElytraCooldown(this Player player)
+    {
+        var data = DynamicData.For(player);
+        float cooldown = data.Get<float>(f_Player_elytraCooldown);
+        cooldown = Calc.Approach(cooldown, 0.0f, Engine.DeltaTime);
+        data.Set(f_Player_elytraCooldown, cooldown);
+    }
+
+    private static float GetElytraCooldown(this Player player)
+    {
+        var data = DynamicData.For(player);
+        return data.Get<float>(f_Player_elytraCooldown);
+    }
+
     internal static void Initialize()
     {
         P_Deploy = new(ParticleTypes.Chimney)
@@ -357,6 +372,7 @@ public static class Elytra
         On.Celeste.PlayerSprite.CreateFramesMetadata += Mod_PlayerSprite_CreateFramesMetadata;
         On.Celeste.Player.UpdateSprite += Mod_Player_UpdateSprite;
         On.Celeste.Player.NormalUpdate += Mod_Player_NormalUpdate;
+        On.Celeste.Player.Update += Mod_Player_Update;
         On.Celeste.Player.OnCollideH += Mod_Player_OnCollideH;
         On.Celeste.Player.OnCollideV += Mod_Player_OnCollideV;
         On.Celeste.Player.RefillDash += Player_RefillDash;
@@ -372,6 +388,7 @@ public static class Elytra
         On.Celeste.PlayerSprite.CreateFramesMetadata -= Mod_PlayerSprite_CreateFramesMetadata;
         On.Celeste.Player.UpdateSprite -= Mod_Player_UpdateSprite;
         On.Celeste.Player.NormalUpdate -= Mod_Player_NormalUpdate;
+        On.Celeste.Player.Update -= Mod_Player_Update;
         On.Celeste.Player.OnCollideH -= Mod_Player_OnCollideH;
         On.Celeste.Player.OnCollideV -= Mod_Player_OnCollideV;
         On.Celeste.Player.RefillDash -= Player_RefillDash;
@@ -419,12 +436,11 @@ public static class Elytra
     {
         int next = orig(self);
 
+        if (!CommunalHelperModule.Session.CurrentElytraConfiguration.UpdateCooldownInEveryState)
+            self.DecreaseElytraCooldown();
+
+        float cooldown = self.GetElytraCooldown();
         var data = DynamicData.For(self);
-
-        float cooldown = data.Get<float>(f_Player_elytraCooldown);
-        cooldown = Calc.Approach(cooldown, 0.0f, Engine.DeltaTime);
-        data.Set(f_Player_elytraCooldown, cooldown);
-
         if (cooldown == 0.0f && !self.OnGround())
         {
             if (CommunalHelperModule.Session.CanDeployElytra && ElytraCheck)
@@ -441,6 +457,14 @@ public static class Elytra
         }
 
         return next;
+    }
+
+    private static void Mod_Player_Update(On.Celeste.Player.orig_Update orig, Player self)
+    {
+        if (CommunalHelperModule.Session.CurrentElytraConfiguration.UpdateCooldownInEveryState)
+            self.DecreaseElytraCooldown();
+
+        orig(self);
     }
 
     private static PlayerDeadBody Mod_Player_Die(On.Celeste.Player.orig_Die orig, Player self, Vector2 direction, bool evenIfInvincible, bool registerDeathInStats)
