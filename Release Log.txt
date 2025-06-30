@@ -1,3 +1,6 @@
+--1.24.2 (30/06/2025)--
+* Removed WriteLine call in Chained Kevin IL Hook. @catapillie
+
 --1.24.1 (29/06/2025)--
 * Fixed incorrect Dream Tunnel Dash hook logic for short-circuiting checks. @aonkeeper4
 * Fixed Charged Aero Block wallbounce leniency. @earthwise01
