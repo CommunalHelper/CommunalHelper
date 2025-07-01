@@ -13,14 +13,14 @@ poisonGas.placements = {
     }
 }
 poisonGas.fieldInformation = {
-    spritePath = {fieldType=path, allowFolders = false, allowFiles = true},
+    spritePath = { fieldType = "path", allowFolders = false, allowFiles = true },
 }
 
 function poisonGas.selection(room, entity)
-    return utils.rectangle(entity.x - entity.radius, entity.y - entity.radius, entity.radius*2, entity.radius*2)
+    return utils.rectangle(entity.x - entity.radius, entity.y - entity.radius, entity.radius * 2, entity.radius * 2)
 end
 
-function poisonGas.sprite(room, entity) 
+function poisonGas.sprite(room, entity)
     local sprite = drawableSprite.fromTexture(entity.spritePath, entity)
     sprite:setScale(entity.radius / 24, entity.radius / 24)
     return sprite
