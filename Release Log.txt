@@ -1,3 +1,6 @@
+--1.24.3 (01/07/2025)--
+* Fixed Lönn plugin syntax error and warnings. @catapillie
+
 --1.24.2 (30/06/2025)--
 * Removed WriteLine call in Chained Kevin IL Hook. @catapillie
 
