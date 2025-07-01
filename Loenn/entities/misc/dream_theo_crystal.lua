@@ -15,8 +15,7 @@ local texture = "objects/CommunalHelper/dreamTheoCrystal/theo"
 
 function dreamTheoCrystal.sprite(room, entity)
     local sprite = drawableSprite.fromTexture(texture, entity)
-
-    sprite.y += offsetY
+    sprite.y = sprite.y + offsetY
 
     return sprite
 end
