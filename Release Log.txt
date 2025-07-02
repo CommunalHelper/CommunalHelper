@@ -1,4 +1,4 @@
---1.24.4 (01/07/2025)--
+--1.24.4 (02/07/2025)--
 * Fixed Connected Temple Cracked Blocks not rendering due to logic error. @catapillie
 
 --1.24.3 (01/07/2025)--
