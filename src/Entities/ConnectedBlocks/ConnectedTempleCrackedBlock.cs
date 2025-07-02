@@ -195,7 +195,7 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
             return;
 
         if (!autoTiled)
-            AutoTile(texture);
+            AutoTile();
 
         int num = (int) frame;
         if (num >= frames)
@@ -233,7 +233,7 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
 
     // Tiling
 
-    private void AutoTile(MTexture[,,] tex)
+    private void AutoTile()
     {
         int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
         int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
@@ -242,13 +242,13 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
         for (int x = 0; x < tWidth; x++)
             for (int y = 0; y < tHeight; y++)
                 if (GetGridSafe(GroupTiles, x + 1, y + 1))
-                    res[x, y] = GetTile(GroupTiles, x + 1, y + 1, tex);
+                    res[x, y] = GetTile(GroupTiles, x + 1, y + 1);
 
         tiles = res;
         autoTiled = true;
     }
 
-    private Tuple<int, int> GetTile(bool[,] grid, int x, int y, MTexture[,,] tex)
+    private Tuple<int, int> GetTile(bool[,] grid, int x, int y)
     {
         bool up = GetGridSafe(grid, x, y - 1), down = GetGridSafe(grid, x, y + 1),
             left = GetGridSafe(grid, x - 1, y), right = GetGridSafe(grid, x + 1, y),
@@ -298,7 +298,7 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
     }
 
     private static bool GetGridSafe(bool[,] grid, int x, int y)
-        => grid is not null
+        => grid is null
             ? false
             : x >= 0 && y >= 0 && x < grid.GetLength(0) && y < grid.GetLength(1) && grid[x, y];
 }
