@@ -1,3 +1,6 @@
+--1.24.4 (01/07/2025)--
+* Fixed Connected Temple Cracked Blocks not rendering due to logic error. @catapillie
+
 --1.24.3 (01/07/2025)--
 * Added option to always decreased elytra cooldown, now ON by default. @catapillie
 * Fixed Lönn plugin syntax error and warnings. @catapillie
