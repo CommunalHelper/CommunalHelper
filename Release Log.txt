@@ -1,4 +1,5 @@
 --1.24.3 (01/07/2025)--
+* Added option to always decreased elytra cooldown, now ON by default. @catapillie
 * Fixed Lönn plugin syntax error and warnings. @catapillie
 
 --1.24.2 (30/06/2025)--
