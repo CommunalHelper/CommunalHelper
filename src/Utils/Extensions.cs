@@ -880,7 +880,7 @@ public static class Extensions
 
         if (predicates.Length == 1)
         {
-            return cursor.TryGotoNext(moveType, predicates[0]);
+            return cursor.TryGotoPrev(moveType, predicates[0]);
         }
 
         int matchFrom = -1, matchTo = -1;
@@ -1024,7 +1024,7 @@ public static class Extensions
 
         if (predicates.Length == 1)
         {
-            return cursor.TryGotoNext(moveType, predicates[0]);
+            return cursor.TryGotoPrev(moveType, predicates[0]);
         }
 
         int matchFrom = -1, matchTo = -1;
