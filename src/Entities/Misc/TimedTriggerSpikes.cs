@@ -350,8 +350,8 @@ public class TimedTriggerSpikes : Entity
 
     private bool SideSafeBlockCheck(Player player)
     {
-        int top = (int) ((player.Top - Top) / 4f);
-        int bottom = (int) ((player.Bottom - Top) / 4f);
+        int top = (int) ((player.Top - Top) / 8f);
+        int bottom = (int) ((player.Bottom - Top) / 8f);
 
         if (bottom < 0 || top >= spikes.Length)
             return false;
