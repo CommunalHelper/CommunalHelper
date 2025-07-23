@@ -56,8 +56,9 @@ public class AeroBlockCharged : AeroBlockFlying
         }
         private PressState defaultPressState = PressState.Unpressed; // press state to return to when button is not pressed
         private bool alreadyUpdatedPressState = false; // used to make sure that when UpdatePressState is called externally, we don't overwrite it in the same frame
-        
-        public bool Pressed { get; private set; }
+
+        private bool pressed;
+        public bool Pressed => pressed && visible;
         
         private Color unpressedColor, pressedColor;
         private float colorLerp;
@@ -103,7 +104,7 @@ public class AeroBlockCharged : AeroBlockFlying
             if (!alreadyUpdatedPressState)
                 UpdatePressState();
             
-            colorLerp = Pressed ? 1f : Calc.Approach(colorLerp, 0f, Engine.DeltaTime * 4f);
+            colorLerp = pressed ? 1f : Calc.Approach(colorLerp, 0f, Engine.DeltaTime * 4f);
 
             Color color = Color.Lerp(unpressedColor, pressedColor, colorLerp);
             for (int i = 0; i < buttonImages.Length; i++)
@@ -115,8 +116,8 @@ public class AeroBlockCharged : AeroBlockFlying
         // updates button's Pressed field + position accordingly
         public void UpdatePressState(float checkDistance = 3f)
         {
-            Pressed = block.CollideCheck<Player>(block.Position - perp * checkDistance);
-            PressState pressState = Pressed ? PressState.Pressed : defaultPressState;
+            pressed = block.CollideCheck<Player>(block.Position - perp * checkDistance);
+            PressState pressState = pressed ? PressState.Pressed : defaultPressState;
 
             for (int i = 0; i < buttonPositions.Length; i++)
                 buttonImages[i].Position = buttonOutlineImages[i].Position = buttonPositions[i] + perp * pressState switch
@@ -480,45 +481,98 @@ public class AeroBlockCharged : AeroBlockFlying
     }
 
     private static void Player_Jump(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
-        => SmashFirstTouchingAeroBlock(() => orig(self, particles, playSfx), self, Vector2.UnitY, block => self.OnGround() && block.CheckTopButton(), Vector2.UnitY * -350f, true);
-
-    private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
-        => SmashFirstTouchingAeroBlock(() => orig(self, dir), self, -Vector2.UnitX * dir * 3f, block => dir < 0 ? block.CheckLeftButton() : block.CheckRightButton(), new Vector2(dir * 300f, -300f), true);
-
-    private static void Player_ClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
-        => SmashFirstTouchingAeroBlock(() => orig(self), self, Vector2.UnitX * (int) self.Facing * 3, block => self.Facing == Facings.Right ? block.CheckLeftButton() : block.CheckRightButton(), new Vector2((int) self.Facing * ((int) self.Facing == Math.Sign(Input.MoveX.Value) ? 300f : -300f), -300f), false);
-
-    private static void Player_SuperJump(On.Celeste.Player.orig_SuperJump orig, Player self)
-        => SmashFirstTouchingAeroBlock(() => orig(self), self, Vector2.UnitY, block => self.OnGround() && block is not null && block.CheckTopButton(), new Vector2(self.Speed.X * 1.2f, -350f), true);
-
-    private static void Player_SuperWallJump(On.Celeste.Player.orig_SuperWallJump orig, Player self, int dir)
-        => SmashFirstTouchingAeroBlock(() => orig(self, dir), self, -Vector2.UnitX * dir * 5f, block =>
-        {
-            Button button = dir < 0 ? block.leftButton : block.rightButton;
-            // force a larger check distance if necessary
-            if (block.wallbounceLeniency)
-                button?.UpdatePressState(5f);
-            
-            return (button?.Pressed ?? false) && (block.listener?.Activated ?? true);
-        }, new Vector2(dir * 300f, -400f), true);
-
-    private static void SmashFirstTouchingAeroBlock(Action callOrig, Player player, Vector2 checkOffset, Func<AeroBlockCharged, bool> smashCheck, Vector2 smashSpeed, bool spirialisAffected)
     {
-        if (player.Scene.Tracker.GetEntities<AeroBlockCharged>().FirstOrDefault(b => player.CollideCheck(b, player.Position + checkOffset)) is not AeroBlockCharged block)
+        if (self.Scene.Tracker.GetEntities<AeroBlockCharged>().FirstOrDefault(b => self.CollideCheck(b, self.Position + Vector2.UnitY)) is not AeroBlockCharged block)
         {
-            callOrig();
+            orig(self, particles, playSfx);
             return;
         }
 
-        callOrig();
+        orig(self, particles, playSfx);
 
-        if (smashCheck(block))
+        // jump
+        if (self.OnGround() && block.CheckTopButton())
+            block.Smash(self, Vector2.UnitY * -350f);
+        
+        if (block.SpirialisBug)
+            self.varJumpSpeed = self.Speed.Y;
+    }
+
+    private static void Player_WallJump(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
+    {
+        if (self.Scene.Tracker.GetEntities<AeroBlockCharged>().FirstOrDefault(b => self.CollideCheck(b, self.Position - Vector2.UnitX * dir * 3f)) is not AeroBlockCharged block)
         {
-            block.Smash(player, smashSpeed);
-
-            if (block.SpirialisBug && spirialisAffected)
-                player.varJumpSpeed = player.Speed.Y;
+            orig(self, dir);
+            return;
         }
+
+        orig(self, dir);
+
+        // walljump
+        if (dir < 0 ? block.CheckLeftButton() : block.CheckRightButton())
+            block.Smash(self, new Vector2(dir * 300f, -300f));
+        
+        if (block.SpirialisBug)
+            self.varJumpSpeed = self.Speed.Y;
+    }
+    
+    private static void Player_ClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
+    {
+        if (self.Scene.Tracker.GetEntities<AeroBlockCharged>().FirstOrDefault(b => self.CollideCheck(b, self.Position + Vector2.UnitX * (int) self.Facing * 3f)) is not AeroBlockCharged block)
+        {
+            orig(self);
+            return;
+        }
+
+        orig(self);
+
+        // climbjump
+        if (self.Facing == Facings.Right ? block.CheckLeftButton() : block.CheckRightButton())
+        {
+            float speed = (int) self.Facing == Math.Sign(Input.MoveX.Value) ? 300f : -300f;
+            block.Smash(self, new Vector2((int) self.Facing * speed, -300f));
+        }
+    }
+
+    private static void Player_SuperJump(On.Celeste.Player.orig_SuperJump orig, Player self)
+    {
+        if (self.Scene.Tracker.GetEntities<AeroBlockCharged>().FirstOrDefault(b => self.CollideCheck(b, self.Position + Vector2.UnitY)) is not AeroBlockCharged block)
+        {
+            orig(self);
+            return;
+        }
+
+        orig(self);
+
+        // super/hyper
+        if (self.OnGround() && block.CheckTopButton())
+            block.Smash(self, new Vector2(self.Speed.X * 1.2f, -350f));
+        
+        if (block.SpirialisBug)
+            self.varJumpSpeed = self.Speed.Y;
+    }
+
+    private static void Player_SuperWallJump(On.Celeste.Player.orig_SuperWallJump orig, Player self, int dir)
+    {
+        if (self.Scene.Tracker.GetEntities<AeroBlockCharged>().FirstOrDefault(b => self.CollideCheck(b, self.Position - Vector2.UnitX * dir * 5f)) is not AeroBlockCharged block)
+        {
+            orig(self, dir);
+            return;
+        }
+
+        orig(self, dir);
+
+        Button button = dir < 0 ? block.leftButton : block.rightButton;
+        // force a larger check distance if necessary
+        if (block.wallbounceLeniency)
+            button?.UpdatePressState(5f);
+        
+        // wallbounce
+        if ((button?.Pressed ?? false) && (block.listener?.Activated ?? true))
+            block.Smash(self, new Vector2(dir * 300f, -400f));
+        
+        if (block.SpirialisBug)
+            self.varJumpSpeed = self.Speed.Y;
     }
 
     #endregion
