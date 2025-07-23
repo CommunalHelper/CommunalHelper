@@ -34,7 +34,7 @@ public class AeroBlockCharged : AeroBlockFlying
         private readonly Image[] buttonImages, buttonOutlineImages;
         private readonly Vector2[] buttonPositions;
 
-        private bool visible;
+        private bool visible = true;
         public bool Visible
         {
             get => visible;
@@ -50,9 +50,9 @@ public class AeroBlockCharged : AeroBlockFlying
 
         public enum PressState
         {
-            Unpressed = 0,
-            HalfPressed = 1,
-            Pressed = 2,
+            Unpressed,
+            HalfPressed,
+            Pressed
         }
         private PressState defaultPressState = PressState.Unpressed; // press state to return to when button is not pressed
         private bool alreadyUpdatedPressState = false; // used to make sure that when UpdatePressState is called externally, we don't overwrite it in the same frame
@@ -64,7 +64,7 @@ public class AeroBlockCharged : AeroBlockFlying
 
         private readonly Vector2 perp;
         
-        private Button(AeroBlockCharged block, int length, bool visible, Vector2 offset, Vector2 dir, float angle)
+        private Button(AeroBlockCharged block, int length, Vector2 offset, Vector2 dir, float angle)
         {
             this.block = block;
             
@@ -72,7 +72,6 @@ public class AeroBlockCharged : AeroBlockFlying
             buttonOutlineImages = new Image[length];
             buttonPositions = new Vector2[length];
 
-            this.visible = visible;
             perp = dir.Perpendicular();
 
             for (int i = 0; i < length; ++i)
@@ -104,9 +103,7 @@ public class AeroBlockCharged : AeroBlockFlying
             if (!alreadyUpdatedPressState)
                 UpdatePressState();
             
-            colorLerp = Pressed
-                ? 1f
-                : Calc.Approach(colorLerp, 0f, Engine.DeltaTime * 4f);
+            colorLerp = Pressed ? 1f : Calc.Approach(colorLerp, 0f, Engine.DeltaTime * 4f);
 
             Color color = Color.Lerp(unpressedColor, pressedColor, colorLerp);
             for (int i = 0; i < buttonImages.Length; i++)
@@ -122,7 +119,13 @@ public class AeroBlockCharged : AeroBlockFlying
             PressState pressState = Pressed ? PressState.Pressed : defaultPressState;
 
             for (int i = 0; i < buttonPositions.Length; i++)
-                buttonImages[i].Position = buttonOutlineImages[i].Position = buttonPositions[i] + perp * (int) pressState;
+                buttonImages[i].Position = buttonOutlineImages[i].Position = buttonPositions[i] + perp * pressState switch
+                {
+                    PressState.Unpressed => 0f,
+                    PressState.HalfPressed => 1f,
+                    PressState.Pressed => 2f,
+                    _ => throw new ArgumentOutOfRangeException(nameof(pressState), null, null)
+                };
 
             alreadyUpdatedPressState = true;
         }
@@ -134,14 +137,14 @@ public class AeroBlockCharged : AeroBlockFlying
             this.pressedColor = pressedColor;
         }
 
-        public static Button LeftButton(AeroBlockCharged entity, bool visible)
-            => new(entity, (int) entity.Height / 8, visible, new(0f, entity.Height - 4f), -Vector2.UnitY, -MathHelper.PiOver2);
+        public static Button LeftButton(AeroBlockCharged block)
+            => new(block, (int) block.Height / 8, new(0f, block.Height - 4f), -Vector2.UnitY, -MathHelper.PiOver2);
 
-        public static Button RightButton(AeroBlockCharged entity, bool visible)
-            => new(entity, (int) entity.Height / 8, visible, new(entity.Width, 4f), Vector2.UnitY, +MathHelper.PiOver2);
+        public static Button RightButton(AeroBlockCharged block)
+            => new(block, (int) block.Height / 8, new(block.Width, 4f), Vector2.UnitY, +MathHelper.PiOver2);
 
-        public static Button TopButton(AeroBlockCharged entity, bool visible)
-            => new(entity, (int) entity.Width / 8, visible, new(4f, 0f), Vector2.UnitX, 0f);
+        public static Button TopButton(AeroBlockCharged block)
+            => new(block, (int) block.Width / 8, new(4f, 0f), Vector2.UnitX, 0f);
     }
 
     private const string DEFAULT_BUTTON_SEQUENCE = "horizontal";
@@ -186,7 +189,7 @@ public class AeroBlockCharged : AeroBlockFlying
     {
         Hover = hover;
 
-        if (positions.Length is 0)
+        if (positions.Length == 0)
             throw new ArgumentException("The array of positions must have at least one element (the first one being the starting position of the entity).", nameof(positions));
         this.positions = positions;
         this.loop = loop;
@@ -233,7 +236,7 @@ public class AeroBlockCharged : AeroBlockFlying
         topButton?.SetProperties(defaultPressState, unpressedColor, pressedColor);
     }
 
-    #region Cassette Listener Callbacks
+    #region CassetteListener callbacks
     
     private void OnStart(bool activated)
     {
@@ -319,15 +322,15 @@ public class AeroBlockCharged : AeroBlockFlying
         if (makeTiles)
             RemakeBlockTiles(GetBlockPath(combination));
 
-        leftButton ??= Button.LeftButton(this, true);
+        leftButton ??= Button.LeftButton(this);
         if (leftButton is not null)
             leftButton.Visible = combination.HasFlag(ButtonCombination.LEFT);
 
-        rightButton ??= Button.RightButton(this, true);
+        rightButton ??= Button.RightButton(this);
         if (rightButton is not null)
             rightButton.Visible = combination.HasFlag(ButtonCombination.RIGHT);
 
-        topButton ??= Button.TopButton(this, true);
+        topButton ??= Button.TopButton(this);
         if (topButton is not null)
             topButton.Visible = combination.HasFlag(ButtonCombination.TOP);
     }
@@ -376,7 +379,7 @@ public class AeroBlockCharged : AeroBlockFlying
         {
             blinker.Complete = true;
             RemoveScreenLayer(windLayer);
-
+            
             if (cassetteIndex != -1)
                 RemoveScreenLayer(cassetteLayer);
         });
@@ -497,7 +500,7 @@ public class AeroBlockCharged : AeroBlockFlying
                 button?.UpdatePressState(5f);
             
             return (button?.Pressed ?? false) && (block.listener?.Activated ?? true);
-        }, new Vector2(300f * dir, -400f), true);
+        }, new Vector2(dir * 300f, -400f), true);
 
     private static void SmashFirstTouchingAeroBlock(Action callOrig, Player player, Vector2 checkOffset, Func<AeroBlockCharged, bool> smashCheck, Vector2 smashSpeed, bool spirialisAffected)
     {
