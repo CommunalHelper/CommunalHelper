@@ -29,8 +29,10 @@ public class AeroScreen_Cassette : AeroScreen
         this.height = height;
 
         this.listener = listener;
+        this.listener.OnStart += OnStart;
         this.listener.OnWillActivate += OnWillActivate;
         this.listener.OnWillDeactivate += OnWillDeactivate;
+        this.listener.OnFinish += OnFinish;
 
         this.screenColor = screenColor ?? ColorOptions[listener.Index];
         maxTargetScreenW = targetScreenW = width - 8;
@@ -38,8 +40,10 @@ public class AeroScreen_Cassette : AeroScreen
         screenW = screenH = 0;
     }
 
+    private void OnStart(bool activated) => backlit = activated;
     private void OnWillActivate() => backlit = true;
     private void OnWillDeactivate() => backlit = false;
+    private void OnFinish() => backlit = false;
 
     public override void Update()
     {

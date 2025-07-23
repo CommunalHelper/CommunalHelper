@@ -265,7 +265,7 @@ public class AeroBlockCharged : AeroBlockFlying
         if (alive && moveOnCassetteTick && activatedPreviously && !activatedThisTick)
             IncrementPosition();
     }
-    
+
     private void OnFinish()
         => SetButtonProperties(Button.PressState.Pressed, inactiveColor, inactiveColor);
     
@@ -354,10 +354,10 @@ public class AeroBlockCharged : AeroBlockFlying
         alive = false;
 
         Deactivate();
+        SetButtonProperties(Button.PressState.Unpressed, Color.White, inactiveColor);
         
         if (cassetteIndex != -1)
             Remove(listener);
-        SetButtonProperties(Button.PressState.Unpressed, Color.White, inactiveColor);
 
         MTexture icon = GFX.Game["objects/CommunalHelper/aero_block/icons/x5"];
         AeroScreen_Blinker blinker;
@@ -412,7 +412,7 @@ public class AeroBlockCharged : AeroBlockFlying
         
         // visually deactivate if there is no CassetteBlockManager, since listener.Activated will always be false
         if (cassetteIndex != -1 && scene.Tracker.GetEntity<CassetteBlockManager>() is null)
-            SetButtonProperties(Button.PressState.Pressed, inactiveColor, inactiveColor);
+            OnFinish();
     }
 
     public override void Update()
@@ -492,8 +492,10 @@ public class AeroBlockCharged : AeroBlockFlying
         => SmashFirstTouchingAeroBlock(() => orig(self, dir), self, -Vector2.UnitX * dir * 5f, block =>
         {
             Button button = dir < 0 ? block.leftButton : block.rightButton;
-            // here we manually update the button's press state to force a larger check distance if necessary
-            button?.UpdatePressState(block.wallbounceLeniency ? 5f : 3f);
+            // force a larger check distance if necessary
+            if (block.wallbounceLeniency)
+                button?.UpdatePressState(5f);
+            
             return (button?.Pressed ?? false) && (block.listener?.Activated ?? true);
         }, new Vector2(300f * dir, -400f), true);
 
