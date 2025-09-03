@@ -15,6 +15,7 @@ public abstract class DashStateRefill : Refill
     protected string ReturnSFX = CustomSFX.game_dreamRefill_dream_refill_return;
 
     private readonly float respawnTime;
+    private readonly bool forceRefillDash;
 
     protected DynamicData baseData;
 
@@ -24,6 +25,7 @@ public abstract class DashStateRefill : Refill
         baseData = new(typeof(Refill), this);
 
         respawnTime = data.Float("respawnTime", 2.5f); // default is 2.5 sec.
+        forceRefillDash = data.Bool("forceRefillDash", false); // whether to refill a dash even if MaxDashes is 0 via extvars
 
         Get<PlayerCollider>().OnCollide = OnPlayer;
 
@@ -53,7 +55,14 @@ public abstract class DashStateRefill : Refill
     {
         if (CanActivate(player))
         {
-            player.RefillDash();
+            if (forceRefillDash)
+            {
+                player.Dashes = Math.Max(player.Dashes, Math.Max(player.MaxDashes, 1));
+            }
+            else
+            {
+                player.RefillDash();
+            }
             player.RefillStamina();
             Activated(player);
             Audio.Play(TouchSFX, Position);

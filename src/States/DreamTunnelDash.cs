@@ -106,7 +106,7 @@ public static class DreamTunnelDash
         if (config.RedirectConsumesNormalDash ? player.Dashes <= 0 : DreamTunnelDashCount <= 0)
             return;
 
-        bool flag = Input.GetAimVector().Sign() == player.Speed.Sign();
+        bool flag = Input.GetAimVector().Sign() == player.DashDir.Sign();
         if ((!config.AllowRedirect || flag) && (!config.AllowSameDirectionRedirect || !flag))
             return;
 
@@ -169,10 +169,12 @@ public static class DreamTunnelDash
         if (horizontal)
         {
             player.Speed.X *= -1;
+            player.DashDir.X *= -1;
         }
         if (vertical)
         {
             player.Speed.Y *= -1;
+            player.DashDir.Y *= -1;
         }
     }
 

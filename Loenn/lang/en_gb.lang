@@ -6,6 +6,7 @@ entities.CommunalHelper/DreamRefill.placements.name.double_dream_refill=Dream Re
 entities.CommunalHelper/DreamRefill.attributes.description.oneUse=Whether the Dream Refill should be only used once.
 entities.CommunalHelper/DreamRefill.attributes.description.twoDash=Whether the Dream Refill should give two Dream Dashes.
 entities.CommunalHelper/DreamRefill.attributes.description.respawnTime=The time taken by the Dream Refill to respawn.
+entities.CommunalHelper/DreamRefill.attributes.description.forceRefillDash=Whether the Dream Refill should refill a dash even if the player's maximum dash count is 0 (via Extended Variants).
 
 # Dream Jellyfish
 entities.CommunalHelper/DreamJellyfish.placements.name.normal=Dream Jellyfish
@@ -676,6 +677,7 @@ entities.CommunalHelper/DreamStrawberry.attributes.description.order=Manually de
 # Seeker Dash Refill
 entities.CommunalHelper/SeekerDashRefill.placements.name.seeker_dash_refill=Seeker Dash Refill
 entities.CommunalHelper/SeekerDashRefill.attributes.description.oneUse=Whether the crystal should permanently disappear after being collected.
+entities.CommunalHelper/SeekerDashRefill.attributes.description.forceRefillDash=Whether the crystal should refill a dash even if the player's maximum dash count is 0 (via Extended Variants).
 
 # Player Seeker Barrier
 entities.CommunalHelper/PlayerSeekerBarrier.placements.name.normal=Player Seeker Barrier (No spikes)

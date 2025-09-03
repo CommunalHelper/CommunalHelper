@@ -9,7 +9,8 @@ seekerDashRefill.placements = {
     {
         name = "seeker_dash_refill",
         data = {
-            oneUse = false
+            oneUse = false,
+            forceRefillDash = false
         }
     }
 }
