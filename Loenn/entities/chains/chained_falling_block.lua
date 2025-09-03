@@ -44,17 +44,12 @@ function chainedFallingBlock.sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 8, entity.height or 8
 
-    local sprites = {}
+    local sprites = fakeTilesSpriteFunction(room, entity)
 
     local fallDistance = entity.fallDistance or 16
     local rect = drawableRectangle.fromRectangle("line", x, y, width, height + fallDistance, {1, 1, 1, 0.5})
     rect.depth = 0
     table.insert(sprites, rect)
-    
-    local blockSprites = fakeTilesSpriteFunction(room, entity);
-    for _, sprite in ipairs(blockSprites) do
-        table.insert(sprites, sprite)
-    end
 
     return sprites
 end
