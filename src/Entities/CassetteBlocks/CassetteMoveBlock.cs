@@ -62,8 +62,8 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
     private readonly bool noDebris;
 
-    public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, bool oldConnectionBehavior, Color? overrideColor, float crashTime, float regenTime, bool shakeOnCollision, bool noDebris)
-        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, dynamicHitbox: true, overrideColor)
+    public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, bool oldConnectionBehavior, bool held, Color? overrideColor, float crashTime, float regenTime, bool shakeOnCollision, bool noDebris)
+        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, held, dynamicHitbox: true, overrideColor)
     {
         startPosition = position;
         Direction = direction;
@@ -121,7 +121,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
     }
 
     public CassetteMoveBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.HexColorNullable("customColor"), data.Float("crashTime", 0.15f), data.Float("regenTime", 3f), data.Bool("shakeOnCollision", true), data.Bool("noDebris"))
+        : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.Bool("held"),data.HexColorNullable("customColor"), data.Float("crashTime", 0.15f), data.Float("regenTime", 3f), data.Bool("shakeOnCollision", true), data.Bool("noDebris"))
     {
     }
 

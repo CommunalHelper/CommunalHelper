@@ -3,6 +3,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -12,11 +13,14 @@ public class ManualCassetteController : AbstractInputController
 
     private int roomBeats;
     private int currentIndex;
+    private int heldIndex;
 
     private const string blueFlag = "CH_cas_blue";
     private const string pinkFlag = "CH_cas_rose";
     private const string yellowFlag = "CH_cas_brightsun";
     private const string greenFlag = "CH_cas_malachite";
+    private const string heldFlag = "CH_cas_held";
+
 
     public ManualCassetteController(EntityData data)
     {
@@ -51,12 +55,16 @@ public class ManualCassetteController : AbstractInputController
         base.Update();
         if (CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed)
             Tick();
+        if (CommunalHelperModule.Settings.CycleCassetteBlocks.Check != Convert.ToBoolean(heldIndex))
+            HeldTick();
     }
 
     public override void FrozenUpdate()
     {
         if (CommunalHelperModule.Settings.CycleCassetteBlocks.Pressed)
             Tick();
+        if (CommunalHelperModule.Settings.CycleCassetteBlocks.Check != Convert.ToBoolean(heldIndex))
+            HeldTick();
     }
 
     public void Tick()
@@ -69,6 +77,15 @@ public class ManualCassetteController : AbstractInputController
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
     }
 
+    public void HeldTick()
+    {
+        heldIndex = 1- heldIndex;
+        SetHeldFlag(heldIndex);
+        SetHeldIndex(heldIndex);
+/*      Audio.Play("event:/game/general/cassette_block_switch_" + ((heldIndex % 2) + 1));
+        Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);*/ // I don't want the audio to play twice
+    }
+
     public void SetFlag(int index)
     {
         Session session = SceneAs<Level>().Session;
@@ -78,16 +95,41 @@ public class ManualCassetteController : AbstractInputController
         session.SetFlag(greenFlag, index == 3);
     }
 
+    public void SetHeldFlag(int index)
+    {
+        Session session = SceneAs<Level>().Session;
+        session.SetFlag(heldFlag, index == 1);
+    }
+
     public void SetActiveIndex(int index, bool silent = false)
     {
         foreach (CassetteBlock entity in Scene.Tracker.GetEntities<CassetteBlock>().Cast<CassetteBlock>())
         {
-            entity.Activated = entity.Index == index;
-            bool activated = entity.Index == index;
-            if (silent)
-                entity.SetActivatedSilently(activated);
-            else
-                entity.Activated = activated;
+            if (!(entity is CustomCassetteBlock cassette && cassette.Held))
+            {
+                entity.Activated = entity.Index == index;
+                bool activated = entity.Index == index;
+                if (silent)
+                    entity.SetActivatedSilently(activated);
+                else
+                    entity.Activated = activated;
+            }
+        }
+    }
+
+    public void SetHeldIndex(int index, bool silent = false)
+    {
+        foreach (CassetteBlock entity in Scene.Tracker.GetEntities<CassetteBlock>().Cast<CassetteBlock>())
+        {
+            if (entity is CustomCassetteBlock cassette && cassette.Held)
+            {
+                entity.Activated = entity.Index == index;
+                bool activated = entity.Index == index;
+                if (silent)
+                    entity.SetActivatedSilently(activated);
+                else
+                    entity.Activated = activated;
+            }            
         }
     }
 

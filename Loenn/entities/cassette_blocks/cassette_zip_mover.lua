@@ -47,6 +47,7 @@ for i = 1, 4 do
             noReturn = false,
             customColor = colors[i],
             oldConnectionBehavior = false,
+            held = false,
         }
     }
 end

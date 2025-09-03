@@ -65,8 +65,8 @@ public class CassetteSwapBlock : CustomCassetteBlock
 
     private readonly bool noReturn;
 
-    public CassetteSwapBlock(Vector2 position, EntityID id, int width, int height, Vector2 node, int index, float tempo, bool oldConnectionBehavior, bool noReturn, Color? overrideColor)
-        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor)
+    public CassetteSwapBlock(Vector2 position, EntityID id, int width, int height, Vector2 node, int index, float tempo, bool oldConnectionBehavior, bool held ,bool noReturn, Color? overrideColor)
+        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, held ,false, overrideColor)
     {
         start = Position;
         end = node;
@@ -107,7 +107,7 @@ public class CassetteSwapBlock : CustomCassetteBlock
     }
 
     public CassetteSwapBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.Bool("noReturn", false), data.HexColorNullable("customColor"))
+        : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.Bool("held"), data.Bool("noReturn", false), data.HexColorNullable("customColor"))
     {
     }
 

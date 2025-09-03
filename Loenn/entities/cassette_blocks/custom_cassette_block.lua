@@ -32,6 +32,7 @@ for i = 1, 4 do
             height = 16,
             customColor = colors[i],
             oldConnectionBehavior = false,
+            held = false,
         }
     }
 end
