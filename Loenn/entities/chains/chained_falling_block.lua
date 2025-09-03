@@ -4,16 +4,18 @@ local fakeTilesHelper = require("helpers.fake_tiles")
 local chainedFallingBlock = {}
 
 chainedFallingBlock.name = "CommunalHelper/ChainedFallingBlock"
-chainedFallingBlock.fieldInformation = {
-    tiletype = {
-        options = fakeTilesHelper.getTilesOptions(),
-        editable = false
-    },
-    fallDistance = {
-        minimumValue = 0,
-        fieldType = "integer"
+function chainedFallingBlock.fieldInformation()
+    return {
+        tiletype = {
+            options = fakeTilesHelper.getTilesOptions(),
+            editable = false
+        },
+        fallDistance = {
+            minimumValue = 0,
+            fieldType = "integer"
+        }
     }
-}
+end
 
 function chainedFallingBlock.depth(room, entity)
     return entity.behind and 5000 or 0
@@ -42,12 +44,17 @@ function chainedFallingBlock.sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 8, entity.height or 8
 
-    local sprites = fakeTilesSpriteFunction(room, entity)
+    local sprites = {}
 
     local fallDistance = entity.fallDistance or 16
     local rect = drawableRectangle.fromRectangle("line", x, y, width, height + fallDistance, {1, 1, 1, 0.5})
     rect.depth = 0
     table.insert(sprites, rect)
+    
+    local blockSprites = fakeTilesSpriteFunction(room, entity);
+    for _, sprite in ipairs(blockSprites) do
+        table.insert(sprites, sprite)
+    end
 
     return sprites
 end
