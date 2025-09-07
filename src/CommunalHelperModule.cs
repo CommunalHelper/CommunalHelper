@@ -276,8 +276,6 @@ public class CommunalHelperModule : EverestModule
         StationBlockTrack.InitializeTextures();
         TrackSwitchBox.InitializeParticles();
 
-        CassetteZipMover.InitializeTextures();
-
         DreamTunnelRefill.InitializeParticles();
         DreamTunnelDash.InitializeParticles();
 

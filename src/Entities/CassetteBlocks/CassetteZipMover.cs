@@ -177,7 +177,7 @@ public class CassetteZipMover : CustomCassetteBlock
                 Vector2 o = new(0, i + zipMover.BlockOffset.Y);
                 foreach (Segment seg in segments)
                     if (seg.Seen)
-                        seg.Render(zipMover.percent, o, undersideColor, undersideColor);
+                        seg.Render(zipMover.percent, o, undersideColor * zipMover.sideAlpha, undersideColor * zipMover.sideAlpha);
             }
 
             foreach (Segment seg in segments)
@@ -185,13 +185,13 @@ public class CassetteZipMover : CustomCassetteBlock
                     seg.Render(zipMover.percent, zipMover.BlockOffset, color, lightColor);
 
             float rotation = zipMover.percent * MathHelper.TwoPi;
-            MTexture cogTex = on ? cog : cogPressed;
+            MTexture cogTex = on ? zipMover.cog : zipMover.cogPressed;
             foreach (Vector2 node in nodes)
             {
                 for (int i = 1; i <= zipMover.BlockHeight; ++i)
                 {
                     Vector2 o = new(0, i + zipMover.BlockOffset.Y);
-                    cogWhite.DrawCentered(node + o, undersideColor, 1f, rotation);
+                    zipMover.cogWhite.DrawCentered(node + o, undersideColor * zipMover.sideAlpha, 1f, rotation);
                 }
                 cogTex.DrawCentered(node + zipMover.BlockOffset, zipMover.color, 1f, rotation);
             }
@@ -213,10 +213,10 @@ public class CassetteZipMover : CustomCassetteBlock
     private readonly bool ticking;
     private readonly bool noReturn;
 
-    private static MTexture cog, cogPressed, cogWhite;
+    private readonly MTexture cog, cogPressed, cogWhite;
 
-    public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] nodes, int index, float tempo, bool oldConnectionBehavior, bool noReturn, bool perm, bool waits, bool ticking, Color? overrideColor)
-        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor)
+    public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] nodes, int index, float tempo, bool oldConnectionBehavior, bool noReturn, bool perm, bool waits, bool ticking, Color? overrideColor, string spritePath, float sideAlpha)
+        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor, spritePath, sideAlpha)
     {
         this.noReturn = noReturn;
         permanent = perm;
@@ -229,6 +229,10 @@ public class CassetteZipMover : CustomCassetteBlock
 
         sfx.Position = new Vector2(Width, Height) / 2f;
         Add(sfx);
+        
+        cog = GFX.Game[SuffixFromSpritePathOrDefault("/cog", "objects/CommunalHelper/cassetteZipMover/cog")];
+        cogPressed = GFX.Game[SuffixFromSpritePathOrDefault("/cogPressed", "objects/CommunalHelper/cassetteZipMover/cogPressed")];
+        cogWhite = GFX.Game[SuffixFromSpritePathOrDefault("/cogWhite", "objects/CommunalHelper/cassetteZipMover/cogWhite")];
     }
 
     public CassetteZipMover(EntityData data, Vector2 offset, EntityID id)
@@ -237,13 +241,13 @@ public class CassetteZipMover : CustomCassetteBlock
               data.Bool("permanent"),
               data.Bool("waiting"),
               data.Bool("ticking"),
-              data.HexColorNullable("customColor"))
+              data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f))
     { }
 
     public override void Awake(Scene scene)
     {
-        Image cross = new(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/x"]);
-        Image crossPressed = new(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xPressed"]);
+        Image cross = new(GFX.Game[SuffixFromSpritePathOrDefault("/x", "objects/CommunalHelper/cassetteMoveBlock/x")]);
+        Image crossPressed = new(GFX.Game[SuffixFromSpritePathOrDefault("/xPressed", "objects/CommunalHelper/cassetteMoveBlock/xPressed")]);
 
         base.Awake(scene);
         if (noReturn)
@@ -462,12 +466,5 @@ public class CassetteZipMover : CustomCassetteBlock
     private Vector2 FixCassetteY(Vector2 vec)
     {
         return vec + BlockOffset;
-    }
-
-    internal static void InitializeTextures()
-    {
-        cog = GFX.Game["objects/CommunalHelper/cassetteZipMover/cog"];
-        cogPressed = GFX.Game["objects/CommunalHelper/cassetteZipMover/cogPressed"];
-        cogWhite = GFX.Game["objects/CommunalHelper/cassetteZipMover/cogWhite"];
     }
 }

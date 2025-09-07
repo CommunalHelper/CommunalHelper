@@ -30,7 +30,7 @@ public class CassetteSwapBlock : CustomCassetteBlock
         {
             Vector2 position = new Vector2(block.moveRect.X, block.moveRect.Y) + block.BlockOffset;
             for (int i = 1; i <= block.BlockHeight; ++i)
-                DrawTarget(position + (Vector2.UnitY * i), pathColorPressed);
+                DrawTarget(position + (Vector2.UnitY * i), pathColorPressed * block.sideAlpha);
             DrawTarget(position, block.Collidable ? pathColor : pathColorPressed);
         }
 
@@ -65,8 +65,8 @@ public class CassetteSwapBlock : CustomCassetteBlock
 
     private readonly bool noReturn;
 
-    public CassetteSwapBlock(Vector2 position, EntityID id, int width, int height, Vector2 node, int index, float tempo, bool oldConnectionBehavior, bool noReturn, Color? overrideColor)
-        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor)
+    public CassetteSwapBlock(Vector2 position, EntityID id, int width, int height, Vector2 node, int index, float tempo, bool oldConnectionBehavior, bool noReturn, Color? overrideColor, string spritePath, float sideAlpha)
+        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor, spritePath, sideAlpha)
     {
         start = Position;
         end = node;
@@ -84,7 +84,7 @@ public class CassetteSwapBlock : CustomCassetteBlock
         int maxY = (int) MathHelper.Max(Y + Height, node.Y + Height);
         moveRect = new Rectangle(minX, minY, maxX - minX, maxY - minY);
 
-        MTexture mTexture3 = GFX.Game["objects/swapblock/target"];
+        MTexture mTexture3 = GFX.Game[SuffixFromSpritePathOrDefault("/target", "objects/swapblock/target")];
         nineSliceTarget = new MTexture[3, 3];
         for (int i = 0; i < 3; i++)
         {
@@ -107,14 +107,14 @@ public class CassetteSwapBlock : CustomCassetteBlock
     }
 
     public CassetteSwapBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.Bool("noReturn", false), data.HexColorNullable("customColor"))
+        : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.Bool("noReturn", false), data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f))
     {
     }
 
     public override void Awake(Scene scene)
     {
-        Image cross = new(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/x"]);
-        Image crossPressed = new(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xPressed"]);
+        Image cross = new(GFX.Game[SuffixFromSpritePathOrDefault("/x", "objects/CommunalHelper/cassetteMoveBlock/x")]);
+        Image crossPressed = new(GFX.Game[SuffixFromSpritePathOrDefault("/xPressed", "objects/CommunalHelper/cassetteMoveBlock/xPressed")]);
 
         base.Awake(scene);
         if (noReturn)

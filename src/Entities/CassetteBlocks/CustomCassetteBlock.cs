@@ -94,10 +94,16 @@ public class CustomCassetteBlock : CassetteBlock
         }
     }
 
-    public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.Bool("oldConnectionBehavior", true), false, data.HexColorNullable("customColor")) { }
+    protected readonly string spritePath;
+    protected readonly float sideAlpha;
+    
+    protected string SuffixFromSpritePathOrDefault(string suffix, string defaultValue)
+        => string.IsNullOrEmpty(spritePath) ? defaultValue : spritePath + suffix;
 
-    public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool lonely, bool oldConnectionBehavior, bool dynamicHitbox = false, Color? overrideColor = null)
+    public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
+        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.Bool("oldConnectionBehavior", true), false, data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f)) { }
+
+    public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool lonely, bool oldConnectionBehavior, bool dynamicHitbox = false, Color? overrideColor = null, string spritePath = "", float sideAlpha = 1f)
         : base(position, id, width, height, index, tempo)
     {
         blockData = new(typeof(CassetteBlock), this);
@@ -119,6 +125,9 @@ public class CustomCassetteBlock : CassetteBlock
 
         this.oldConnectionBehavior = oldConnectionBehavior;
         Lonely = lonely;
+
+        this.spritePath = spritePath;
+        this.sideAlpha = sideAlpha;
     }
 
     public override void Update()
@@ -210,6 +219,8 @@ public class CustomCassetteBlock : CassetteBlock
         IL.Celeste.CassetteBlock.Update += CassetteBlock_Update;
         On.Celeste.CassetteBlock.FindInGroup += CassetteBlock_FindInGroup;
         On.Celeste.CassetteBlock.CheckForSame += CassetteBlock_CheckForSame;
+        On.Celeste.CassetteBlock.SetImage += CassetteBlock_SetImage;
+        On.Celeste.CassetteBlock.BoxSide.Render += CassetteBlock_BoxSide_Render;
         On.Celeste.Level.LoadLevel += Level_LoadLevel;
         Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
 
@@ -224,6 +235,8 @@ public class CustomCassetteBlock : CassetteBlock
         IL.Celeste.CassetteBlock.Update -= CassetteBlock_Update;
         On.Celeste.CassetteBlock.FindInGroup -= CassetteBlock_FindInGroup;
         On.Celeste.CassetteBlock.CheckForSame -= CassetteBlock_CheckForSame;
+        On.Celeste.CassetteBlock.SetImage -= CassetteBlock_SetImage;
+        On.Celeste.CassetteBlock.BoxSide.Render -= CassetteBlock_BoxSide_Render;
         On.Celeste.Level.LoadLevel -= Level_LoadLevel;
         Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
 
@@ -351,6 +364,30 @@ public class CustomCassetteBlock : CassetteBlock
             }
         }
         return false;
+    }
+
+    private static void CassetteBlock_SetImage(On.Celeste.CassetteBlock.orig_SetImage orig, CassetteBlock self, float x, float y, int tx, int ty)
+    {
+        if (self is not CustomCassetteBlock customCassetteBlock)
+        {
+            orig(self, x, y, tx, ty);
+            return;
+        }
+
+        List<MTexture> atlasSubtextures = GFX.Game.GetAtlasSubtextures(customCassetteBlock.SuffixFromSpritePathOrDefault("/pressed", "objects/cassetteblock/pressed"));
+        self.pressed.Add(self.CreateImage(x, y, tx, ty, atlasSubtextures[self.Index % atlasSubtextures.Count]));
+        self.solid.Add(self.CreateImage(x, y, tx, ty, GFX.Game[customCassetteBlock.SuffixFromSpritePathOrDefault("/solid", "objects/cassetteblock/solid")]));
+    }
+
+    private static void CassetteBlock_BoxSide_Render(On.Celeste.CassetteBlock.BoxSide.orig_Render orig, Entity self)
+    {
+        if (self is not BoxSide side || side.block is not CustomCassetteBlock customCassetteBlock)
+        {
+            orig(self);
+            return;
+        }
+        
+        Draw.Rect(customCassetteBlock.X, customCassetteBlock.Y + customCassetteBlock.Height - 8f, customCassetteBlock.Width, 8 + customCassetteBlock.blockHeight, side.color * customCassetteBlock.sideAlpha);
     }
 
     private static void Level_LoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes introType, bool isFromLoader = false)

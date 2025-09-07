@@ -18,6 +18,10 @@ cassetteFallingBlock.fieldInformation = {
     },
     tempo = {
         minimumValue = 0.0
+    },
+    sideAlpha = {
+        minimumValue = 0.0,
+        maximumValue = 1.0
     }
 }
 
@@ -32,6 +36,8 @@ for i = 1, 4 do
             height = 16,
             customColor = colors[i],
             oldConnectionBehavior = false,
+            spritePath = "",
+            sideAlpha = 1.0,
         }
     }
 end
