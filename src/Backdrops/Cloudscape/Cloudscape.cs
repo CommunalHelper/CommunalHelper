@@ -469,6 +469,7 @@ public class Cloudscape : Backdrop
         Engine.Graphics.GraphicsDevice.SetRenderTarget(buffer);
         Engine.Graphics.GraphicsDevice.Clear(sky);
         Engine.Graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;
+        Engine.Graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
         EffectParameterCollection parameters = CommunalHelperGFX.CloudscapeShader.Parameters;
 
@@ -505,8 +506,7 @@ public class Cloudscape : Backdrop
         // present onto RT
         Engine.Instance.GraphicsDevice.SetRenderTarget(rt);
 
-        BackdropRenderer renderer = level.Background;
-        renderer.StartSpritebatch(blend);
+        Renderer.StartSpritebatch(blend);
         switch (ZoomBehavior)
         {
             case ZoomBehaviors.StaySame:
@@ -516,7 +516,7 @@ public class Cloudscape : Backdrop
                 Draw.SpriteBatch.Draw(buffer, Vector2.Zero, Color.White * BufferAlpha);
                 break;
         }
-        renderer.EndSpritebatch();
+        Renderer.EndSpritebatch();
     }
 
     public override void Ended(Scene scene)
