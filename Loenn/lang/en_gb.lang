@@ -1098,6 +1098,16 @@ triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.a
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.redirectConsumesNormalDash=Whether dream tunnel dash redirects should consume the player's normal dashes instead of their dream tunnel dashes.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.allowTransitions=Whether to allow screen transitions while dream tunnel dashing.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.bounceOnCollision=Whether the player should bounce on collision with a dream block while dream tunnel dashing.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.respectBoosters=If enabled, dashing via a green booster will not trigger a dream tunnel dash.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.revertOnLeave=Whether to revert this trigger's effects when the player leaves it.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.revertOnDeath=Whether to revert this trigger's effects when the player dies.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.onlyOnce=Whether this trigger should only activate once per room load.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.flag=The flag this trigger should react to. Leave empty for this trigger to not be affected by flags.
+triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.flagInverted=If checked, the trigger will be disabled when the flag is active.\nIf unchecked, the trigger will be enabled when the flag is active.
+
+# Configure Seeker Dash Trigger
+triggers.CommunalHelper/ConfigureSeekerDashTrigger.placements.name.trigger=Configure Seeker Dash
+triggers.CommunalHelper/ConfigureSeekerDashTrigger.attributes.description.respectBoosters=If enabled, dashing via a green booster will not trigger a seeker dash.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.revertOnLeave=Whether to revert this trigger's effects when the player leaves it.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.revertOnDeath=Whether to revert this trigger's effects when the player dies.
 triggers.CommunalHelper/ConfigureDreamTunnelDashTrigger.attributes.description.onlyOnce=Whether this trigger should only activate once per room load.

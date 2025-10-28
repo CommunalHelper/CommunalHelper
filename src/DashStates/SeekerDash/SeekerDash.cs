@@ -35,6 +35,16 @@ public static class SeekerDash
     private static readonly FieldInfo f_Seeker_dead = typeof(Seeker).GetField("dead", BindingFlags.NonPublic | BindingFlags.Instance);
 
     private static IDetour hook_Player_get_CanDash;
+    
+    public struct SeekerDashConfiguration
+    {
+        public bool RespectBoosters;
+    }
+
+    public static readonly SeekerDashConfiguration DefaultSeekerDashConfiguration = new()
+    {
+        RespectBoosters = false
+    };
 
     internal static void Load()
     {
@@ -167,6 +177,10 @@ public static class SeekerDash
     private static void Player_DashBegin(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
         orig(self);
+
+        if (CommunalHelperModule.Session.CurrentSeekerDashConfiguration.RespectBoosters && self.CurrentBooster is not null)
+            return;
+        
         if (HasSeekerDash)
         {
             seekerDashAttacking = true;

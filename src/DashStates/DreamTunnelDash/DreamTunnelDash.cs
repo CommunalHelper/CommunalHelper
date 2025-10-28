@@ -79,6 +79,7 @@ public static class DreamTunnelDash
         public bool RedirectConsumesNormalDash;
         public bool AllowTransitions;
         public bool BounceOnCollision;
+        public bool RespectBoosters;
     }
 
     public static readonly DreamTunnelDashConfiguration DefaultDreamTunnelDashConfiguration = new()
@@ -92,7 +93,8 @@ public static class DreamTunnelDash
         AllowDashCancels = false,
         RedirectConsumesNormalDash = false,
         AllowTransitions = false,
-        BounceOnCollision = false
+        BounceOnCollision = false,
+        RespectBoosters = false
     };
 
 
@@ -234,6 +236,9 @@ public static class DreamTunnelDash
     private static void Player_DashBegin(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
         orig(self);
+        
+        if (CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.RespectBoosters && self.CurrentBooster is not null)
+            return;
 
         UseDreamTunnelDash();
         if (!CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.AllowDashCancels)
@@ -263,13 +268,16 @@ public static class DreamTunnelDash
          * inserts a call to StartDreamTunnelDashAttacking (without overriding Speed and DashDir) after the call to CallDashEvents if the current dream dash config allows dash cancels
          * is this the best place to put this logic?
          */
-        ILLabel afterStartDashAttack = cursor.DefineLabel();
         cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<Player>("CallDashEvents"));
-        cursor.EmitDelegate(() => CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.AllowDashCancels);
-        cursor.Emit(OpCodes.Brfalse, afterStartDashAttack);
         cursor.Emit(OpCodes.Ldloc_1);
-        cursor.EmitDelegate<Action<Player>>(player => StartDreamTunnelDashAttacking(player, player.DashDir));
-        cursor.MarkLabel(afterStartDashAttack);
+        cursor.EmitDelegate<Action<Player>>(player =>
+        {
+            if (CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.RespectBoosters && player.CurrentBooster is not null)
+                return;
+            
+            if (CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration.AllowDashCancels)
+                StartDreamTunnelDashAttacking(player, player.DashDir);
+        });
 
         /*
          * adds a check for !dreamTunnelDashAttacking to

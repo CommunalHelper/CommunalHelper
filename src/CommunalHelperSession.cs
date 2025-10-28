@@ -28,6 +28,8 @@ public class CommunalHelperSession : EverestModuleSession
 
     public DashStates.DreamTunnelDash.DreamTunnelDashConfiguration CurrentDreamTunnelDashConfiguration { get; set; } = DashStates.DreamTunnelDash.DefaultDreamTunnelDashConfiguration;
 
+    public DashStates.SeekerDash.SeekerDashConfiguration CurrentSeekerDashConfiguration { get; set; } = DashStates.SeekerDash.DefaultSeekerDashConfiguration;
+    
     internal float PrevGasTimer { get; set; }
     public float GasTimer { get; set; }
 

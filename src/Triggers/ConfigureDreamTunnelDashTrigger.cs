@@ -22,7 +22,8 @@ public class ConfigureDreamTunnelDashTrigger : AbstractConfigureStateTrigger<Dre
             AllowDashCancels = data.Bool("allowDashCancels", false),
             RedirectConsumesNormalDash = data.Bool("redirectConsumesNormalDash", false),
             AllowTransitions = data.Bool("allowTransitions", false),
-            BounceOnCollision = data.Bool("bounceOnCollision", false)
+            BounceOnCollision = data.Bool("bounceOnCollision", false),
+            RespectBoosters = data.Bool("respectBoosters", false)
         };
     protected override DreamTunnelDashConfiguration GetCurrentOptions(Player player)
         => CommunalHelperModule.Session.CurrentDreamTunnelDashConfiguration;
@@ -41,7 +42,8 @@ public class ConfigureDreamTunnelDashTrigger : AbstractConfigureStateTrigger<Dre
             NewAllowDashCancels = to.AllowDashCancels == from.AllowDashCancels ? null : from.AllowDashCancels,
             NewRedirectConsumesNormalDash = to.RedirectConsumesNormalDash == from.RedirectConsumesNormalDash ? null : from.RedirectConsumesNormalDash,
             NewAllowTransitions = to.AllowTransitions == from.AllowTransitions ? null : from.AllowTransitions,
-            NewBounceOnCollision = to.BounceOnCollision == from.BounceOnCollision ? null : from.BounceOnCollision
+            NewBounceOnCollision = to.BounceOnCollision == from.BounceOnCollision ? null : from.BounceOnCollision,
+            NewRespectBoosters = to.RespectBoosters == from.RespectBoosters ? null : from.RespectBoosters
         };
     protected override DreamTunnelDashConfiguration RevertChanges(DreamTunnelDashConfiguration current, DreamTunnelDashConfigurationChanges? changesNeededToRevert)
         => new()
@@ -55,7 +57,8 @@ public class ConfigureDreamTunnelDashTrigger : AbstractConfigureStateTrigger<Dre
             AllowDashCancels = changesNeededToRevert?.NewAllowDashCancels ?? current.AllowDashCancels,
             RedirectConsumesNormalDash = changesNeededToRevert?.NewRedirectConsumesNormalDash ?? current.RedirectConsumesNormalDash,
             AllowTransitions = changesNeededToRevert?.NewAllowTransitions ?? current.AllowTransitions,
-            BounceOnCollision = changesNeededToRevert?.NewBounceOnCollision ?? current.BounceOnCollision
+            BounceOnCollision = changesNeededToRevert?.NewBounceOnCollision ?? current.BounceOnCollision,
+            RespectBoosters = changesNeededToRevert?.NewRespectBoosters ?? current.RespectBoosters
         };
 }
 
@@ -71,4 +74,5 @@ public struct DreamTunnelDashConfigurationChanges
     public bool? NewRedirectConsumesNormalDash;
     public bool? NewAllowTransitions;
     public bool? NewBounceOnCollision;
+    public bool? NewRespectBoosters;
 }
