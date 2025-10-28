@@ -1,6 +1,8 @@
+using Celeste.Mod.Helpers;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -9,14 +11,18 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/GlowController")]
 public class GlowController : Entity
 {
+    #region Hooks
+    
     public static void Load()
     {
         IL.Celeste.LightingRenderer.BeforeRender += IL_LightingRenderer_BeforeRender;
+        IL.Monocle.EntityList.UpdateLists += IL_EntityList_UpdateLists;
     }
 
     public static void Unload()
     {
         IL.Celeste.LightingRenderer.BeforeRender -= IL_LightingRenderer_BeforeRender;
+        IL.Monocle.EntityList.UpdateLists -= IL_EntityList_UpdateLists;
     }
 
     private static void IL_LightingRenderer_BeforeRender(ILContext il)
@@ -39,6 +45,49 @@ public class GlowController : Entity
             }
         });
     }
+    
+    private static void IL_EntityList_UpdateLists(ILContext il)
+    {
+        ILCursor cursor = new(il);
+
+        if (!cursor.TryGotoNextBestFit(MoveType.Before,
+            instr => instr.MatchLdarg(0),
+            instr => instr.MatchLdfld<EntityList>("toAwake"),
+            instr => instr.MatchCallvirt<List<Entity>>("GetEnumerator"),
+            instr => instr.MatchStloc(4)))
+            return;
+        
+        VariableDefinition allGlowControllers = new(il.Import(typeof(GlowController[])));
+        il.Body.Variables.Add(allGlowControllers);
+
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.EmitDelegate<Func<EntityList, GlowController[]>>(entityList =>
+        {
+            // not sure whether the tracker will work here so doing this just in case
+            IEnumerable<Entity> allEntities = entityList.Concat(entityList.ToAdd);
+            return allEntities.Where(entity => entity is GlowController)
+                              .Cast<GlowController>()
+                              .ToArray();
+        });
+        cursor.Emit(OpCodes.Stloc, allGlowControllers);
+
+        if (!cursor.TryGotoNextBestFit(MoveType.After,
+            instr => instr.MatchLdloc(5),
+            instr => instr.MatchLdarg(0),
+            instr => instr.MatchCallvirt<EntityList>("get_Scene"),
+            instr => instr.MatchCallvirt<Entity>("Awake")))
+            return;
+        
+        cursor.Emit(OpCodes.Ldloc, 5);
+        cursor.Emit(OpCodes.Ldloc, allGlowControllers);
+        cursor.EmitDelegate<Action<Entity, GlowController[]>>((entity, glowControllers) =>
+        {
+            foreach (GlowController controller in glowControllers)
+                controller.Process(entity);
+        });
+    }
+    
+    #endregion
 
     private readonly string[] lightWhitelist;
     private readonly string[] lightBlacklist;
@@ -79,44 +128,39 @@ public class GlowController : Entity
         respawnAnimationIds = data.Attr("respawnAnimationIds", "respawn").Split(',');
     }
 
-    public override void Awake(Scene scene)
+    private void Process(Entity entity)
     {
-        base.Awake(scene);
-        var allEntities = scene.Entities.Concat(scene.Entities.ToAdd);
-        foreach (var entity in allEntities)
+        var type = entity.GetType();
+        var typeName = type.FullName;
+        var requiresRemovalRoutine = false;
+
+        if (lightBlacklist.Contains(typeName))
         {
-            var type = entity.GetType();
-            var typeName = type.FullName;
-            var requiresRemovalRoutine = false;
+            entity.Remove(entity.Components.GetAll<VertexLight>().ToArray<Component>());
+        }
+        if (lightWhitelist.Contains(typeName))
+        {
+            entity.Add(new VertexLight(lightOffset, lightColor, lightAlpha, lightStartFade, lightEndFade));
+            requiresRemovalRoutine = true;
+        }
 
-            if (lightBlacklist.Contains(typeName))
-            {
-                entity.Remove(entity.Components.GetAll<VertexLight>().ToArray<Component>());
-            }
-            if (lightWhitelist.Contains(typeName))
-            {
-                entity.Add(new VertexLight(lightOffset, lightColor, lightAlpha, lightStartFade, lightEndFade));
-                requiresRemovalRoutine = true;
-            }
+        if (bloomBlacklist.Contains(typeName))
+        {
+            entity.Remove(entity.Components.GetAll<BloomPoint>().ToArray<Component>());
+            entity.Remove(entity.Components.GetAll<CustomBloom>().ToArray<Component>());
+        }
+        if (bloomWhitelist.Contains(typeName))
+        {
+            entity.Add(new BloomPoint(bloomOffset, bloomAlpha, bloomRadius));
+            requiresRemovalRoutine = true;
+        }
 
-            if (bloomBlacklist.Contains(typeName))
-            {
-                entity.Remove(entity.Components.GetAll<BloomPoint>().ToArray<Component>());
-                entity.Remove(entity.Components.GetAll<CustomBloom>().ToArray<Component>());
-            }
-            if (bloomWhitelist.Contains(typeName))
-            {
-                entity.Add(new BloomPoint(bloomOffset, bloomAlpha, bloomRadius));
-                requiresRemovalRoutine = true;
-            }
-
-            // some entities get a special coroutine that hides lights and blooms
-            // if it's a glider or otherwise has a sprite with an animation id contained in `deathAnimationIds`
-            if (requiresRemovalRoutine &&
-                entity.Components.GetAll<Sprite>().FirstOrDefault(s => deathAnimationIds.Any(s.Has)) is { } sprite)
-            {
-                entity.Add(new Coroutine(DeathRemovalRoutine(entity, sprite)));
-            }
+        // some entities get a special coroutine that hides lights and blooms
+        // if it's a glider or otherwise has a sprite with an animation id contained in `deathAnimationIds`
+        if (requiresRemovalRoutine &&
+            entity.Components.GetAll<Sprite>().FirstOrDefault(s => deathAnimationIds.Any(s.Has)) is { } sprite)
+        {
+            entity.Add(new Coroutine(DeathRemovalRoutine(entity, sprite)));
         }
     }
 
