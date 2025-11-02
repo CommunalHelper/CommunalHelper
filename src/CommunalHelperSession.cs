@@ -23,12 +23,26 @@ public class CommunalHelperSession : EverestModuleSession
     public double ExpiringDashRemainingTime { get; set; }
     public float ExpiringDashFlashThreshold { get; set; }
 
+    // todo: this is ugly
+    #region Player States
+    
     public bool CanDeployElytra { get; set; }
     public Elytra.ElytraConfiguration CurrentElytraConfiguration { get; set; } = Elytra.DefaultElytraConfiguration;
+    internal bool PerRoomCanDeployElytra { get; set; }
+    internal bool PerRoomHasInfiniteElytra { get; set; }
+    internal Elytra.ElytraConfiguration PerRoomElytraConfiguration { get; set; } = Elytra.DefaultElytraConfiguration;
 
-    public DashStates.DreamTunnelDash.DreamTunnelDashConfiguration CurrentDreamTunnelDashConfiguration { get; set; } = DashStates.DreamTunnelDash.DefaultDreamTunnelDashConfiguration;
+    public DashStates.DreamTunnelDash.DreamTunnelDashConfiguration CurrentDreamTunnelDashConfiguration { get; set; }
+        = DashStates.DreamTunnelDash.DefaultDreamTunnelDashConfiguration;
+    internal DashStates.DreamTunnelDash.DreamTunnelDashConfiguration PerRoomDreamTunnelDashConfiguration { get; set; }
+        = DashStates.DreamTunnelDash.DefaultDreamTunnelDashConfiguration;
 
-    public DashStates.SeekerDash.SeekerDashConfiguration CurrentSeekerDashConfiguration { get; set; } = DashStates.SeekerDash.DefaultSeekerDashConfiguration;
+    public DashStates.SeekerDash.SeekerDashConfiguration CurrentSeekerDashConfiguration { get; set; }
+        = DashStates.SeekerDash.DefaultSeekerDashConfiguration;
+    internal DashStates.SeekerDash.SeekerDashConfiguration PerRoomSeekerDashConfiguration { get; set; }
+        = DashStates.SeekerDash.DefaultSeekerDashConfiguration;
+    
+    #endregion
     
     internal float PrevGasTimer { get; set; }
     public float GasTimer { get; set; }

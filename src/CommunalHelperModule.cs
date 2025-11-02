@@ -104,6 +104,7 @@ public class CommunalHelperModule : EverestModule
         
         ConfigureDreamTunnelDashTrigger.Load();
         ConfigureElytraTrigger.Load();
+        ConfigureSeekerDashTrigger.Load();
 
         AeroBlockCharged.Load();
 
@@ -199,6 +200,7 @@ public class CommunalHelperModule : EverestModule
         
         ConfigureDreamTunnelDashTrigger.Unload();
         ConfigureElytraTrigger.Unload();
+        ConfigureSeekerDashTrigger.Unload();
 
         AeroBlockCharged.Unload();
 

@@ -4,13 +4,11 @@ using System.Linq;
 namespace Celeste.Mod.CommunalHelper.Triggers;
 
 // unfortunately, due to this class being generic, `[Tracked(true)]` doesn't really do anything here
-// all children of this class need to be marked as `[TrackedAs(typeof(AbstractConfigureStateTrigger<TOptions, TChanges>))]` in order to be tracked properly
+// all children of this class need to be marked as `[TrackedAs(typeof(AbstractConfigureStateTrigger<T>))]` in order to be tracked properly
 [Tracked(true)]
-public abstract class AbstractConfigureStateTrigger<TOptions, TChanges> : Trigger
-    where TOptions : struct where TChanges : struct
+internal abstract class AbstractConfigureStateTrigger<T> : Trigger
 {
-    private readonly TOptions options;
-    private TChanges? changesNeededToRevert;
+    private readonly T options;
 
     private readonly bool revertOnLeave;
     private readonly bool revertOnDeath;
@@ -19,9 +17,9 @@ public abstract class AbstractConfigureStateTrigger<TOptions, TChanges> : Trigge
     public AbstractConfigureStateTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
     {
-        revertOnLeave = data.Bool("revertOnLeave", false);
-        revertOnDeath = data.Bool("revertOnDeath", true);
-        onlyOnce = data.Bool("onlyOnce", false);
+        revertOnLeave = data.Bool("revertOnLeave");
+        revertOnDeath = data.Bool("revertOnDeath");
+        onlyOnce = data.Bool("onlyOnce");
 
         options = GetConfiguredOptions(data);
 
@@ -32,52 +30,64 @@ public abstract class AbstractConfigureStateTrigger<TOptions, TChanges> : Trigge
         }
     }
 
-    protected abstract TOptions GetConfiguredOptions(EntityData data);
-    protected abstract TOptions GetCurrentOptions(Player player);
-    protected abstract void SaveOptions(Player player, TOptions options);
-
-    protected abstract TChanges CalculateChangesNeededToRevert(TOptions from, TOptions to);
-    protected abstract TOptions RevertChanges(TOptions current, TChanges? changesNeededToRevert);
+    protected abstract T GetConfiguredOptions(EntityData data);
+    
+    protected abstract T GetCurrentOptions(Player player);
+    protected abstract void SaveCurrentOptions(Player player, T options);
+    
+    protected abstract T GetPerRoomOptions();
+    protected abstract void SavePerRoomOptions(T options);
 
     public override void OnEnter(Player player)
     {
-        changesNeededToRevert = CalculateChangesNeededToRevert(GetCurrentOptions(player), options);
-        SaveOptions(player, options);
+        SaveCurrentOptions(player, options);
+        if (!revertOnDeath && !revertOnLeave)
+            SavePerRoomOptions(options);
 
         if (onlyOnce)
-        {
             RemoveSelf();
-        }
     }
 
     public override void OnLeave(Player player)
     {
         if (revertOnLeave && !player.Dead)
-        {
-            SaveOptions(player, RevertChanges(options, changesNeededToRevert));
-        }
+            SaveCurrentOptions(player, GetPerRoomOptions());
     }
 
     #region Hooks
 
     internal static void Load()
     {
-        Everest.Events.Player.OnDie += OnDie;
+        Everest.Events.Player.OnSpawn += ResetCurrentOptions;
+        Everest.Events.Player.OnDie += ResetCurrentOptions;
+        Everest.Events.Level.OnTransitionTo += OnTransitionTo;
     }
 
     internal static void Unload()
     {
-        Everest.Events.Player.OnDie -= OnDie;
+        Everest.Events.Player.OnSpawn -= ResetCurrentOptions;
+        Everest.Events.Player.OnDie -= ResetCurrentOptions;
+        Everest.Events.Level.OnTransitionTo -= OnTransitionTo;
     }
 
-    private static void OnDie(Player player)
+    private static void ResetCurrentOptions(Player player)
     {
-        foreach (AbstractConfigureStateTrigger<TOptions, TChanges> trigger in player.SceneAs<Level>().Tracker.GetEntities<AbstractConfigureStateTrigger<TOptions, TChanges>>()
-                                                         .Cast<AbstractConfigureStateTrigger<TOptions, TChanges>>()
-                                                         .Where(trigger => trigger.revertOnDeath && trigger.changesNeededToRevert is not null))
-        {
-            trigger.SaveOptions(player, trigger.RevertChanges(trigger.options, trigger.changesNeededToRevert));
-        }
+        if (player.Scene.Tracker.GetEntities<AbstractConfigureStateTrigger<T>>()
+                                .Cast<AbstractConfigureStateTrigger<T>>()
+                                .FirstOrDefault(t => t.revertOnDeath) is { } trigger)
+            trigger.SaveCurrentOptions(player, trigger.GetPerRoomOptions());
+    }
+
+    private static void OnTransitionTo(Level level, LevelData next, Vector2 direction)
+    {
+        Player player = level.Tracker.GetEntity<Player>();
+        if (player is null)
+            return;
+        
+        if (level.Tracker.GetEntities<AbstractConfigureStateTrigger<T>>()
+                         .Cast<AbstractConfigureStateTrigger<T>>()
+                         .FirstOrDefault() is { } trigger) 
+            trigger.SavePerRoomOptions(trigger.GetCurrentOptions(player));
     }
 
     #endregion

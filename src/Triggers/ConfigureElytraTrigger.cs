@@ -4,8 +4,8 @@ using static Celeste.Mod.CommunalHelper.States.Elytra;
 namespace Celeste.Mod.CommunalHelper.Triggers;
 
 [CustomEntity("CommunalHelper/ConfigureElytraTrigger")]
-[TrackedAs(typeof(AbstractConfigureStateTrigger<ElytraOptions, ElytraOptionsChanges>))]
-internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOptions, ElytraOptionsChanges>
+[TrackedAs(typeof(AbstractConfigureStateTrigger<ElytraOptions>))]
+internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOptions>
 {
     public ConfigureElytraTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
@@ -18,10 +18,11 @@ internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOpti
             Infinite = data.Bool("infinite", false),
             Configuration = new ElytraConfiguration
             {
-                DisableReverseVerticalMomentum = data.Bool("disableReverseVerticalMomentum"),
+                DisableReverseVerticalMomentum = data.Bool("disableReverseVerticalMomentum", false),
                 UpdateCooldownInEveryState = data.Bool("updateCooldownInEveryState", false),
             },
         };
+
     protected override ElytraOptions GetCurrentOptions(Player player)
         => new()
         {
@@ -29,53 +30,31 @@ internal class ConfigureElytraTrigger : AbstractConfigureStateTrigger<ElytraOpti
             Infinite = player.HasInfiniteElytra(),
             Configuration = CommunalHelperModule.Session.CurrentElytraConfiguration,
         };
-    protected override void SaveOptions(Player player, ElytraOptions options)
+    protected override void SaveCurrentOptions(Player player, ElytraOptions options)
     {
         CommunalHelperModule.Session.CanDeployElytra = options.Allow;
         player.SetInfiniteElytra(options.Infinite);
         CommunalHelperModule.Session.CurrentElytraConfiguration = options.Configuration;
     }
 
-    protected override ElytraOptionsChanges CalculateChangesNeededToRevert(ElytraOptions from, ElytraOptions to)
+    protected override ElytraOptions GetPerRoomOptions()
         => new()
         {
-            NewAllow = to.Allow == from.Allow ? null : from.Allow,
-            NewInfinite = to.Infinite == from.Infinite ? null : from.Infinite,
-            NewConfiguration = new ElytraOptionsChanges.ElytraConfigurationChanges
-            {
-                NewDisableReverseVerticalMomentum = to.Configuration.DisableReverseVerticalMomentum == from.Configuration.DisableReverseVerticalMomentum ? null : from.Configuration.DisableReverseVerticalMomentum,
-                NewUpdateCooldownInEveryState = to.Configuration.UpdateCooldownInEveryState == from.Configuration.UpdateCooldownInEveryState ? null : from.Configuration.UpdateCooldownInEveryState,
-            }
+            Allow = CommunalHelperModule.Session.PerRoomCanDeployElytra,
+            Infinite = CommunalHelperModule.Session.PerRoomHasInfiniteElytra,
+            Configuration = CommunalHelperModule.Session.PerRoomElytraConfiguration,
         };
-    protected override ElytraOptions RevertChanges(ElytraOptions current, ElytraOptionsChanges? changesNeededToRevert)
-        => new()
-        {
-            Allow = changesNeededToRevert?.NewAllow ?? current.Allow,
-            Infinite = changesNeededToRevert?.NewInfinite ?? current.Infinite,
-            Configuration = new ElytraConfiguration
-            {
-                DisableReverseVerticalMomentum = changesNeededToRevert?.NewConfiguration.NewDisableReverseVerticalMomentum ?? current.Configuration.DisableReverseVerticalMomentum,
-                UpdateCooldownInEveryState = changesNeededToRevert?.NewConfiguration.NewUpdateCooldownInEveryState ?? current.Configuration.UpdateCooldownInEveryState,
-            }
-        };
+    protected override void SavePerRoomOptions(ElytraOptions options)
+    {
+        CommunalHelperModule.Session.PerRoomCanDeployElytra = options.Allow;
+        CommunalHelperModule.Session.PerRoomHasInfiniteElytra = options.Infinite;
+        CommunalHelperModule.Session.PerRoomElytraConfiguration = options.Configuration;
+    }
 }
 
-public struct ElytraOptions
+internal struct ElytraOptions
 {
     public bool Allow;
     public bool Infinite;
     public ElytraConfiguration Configuration;
-}
-
-public struct ElytraOptionsChanges
-{
-    public struct ElytraConfigurationChanges
-    {
-        public bool? NewDisableReverseVerticalMomentum;
-        public bool? NewUpdateCooldownInEveryState;
-    }
-
-    public bool? NewAllow;
-    public bool? NewInfinite;
-    public ElytraConfigurationChanges NewConfiguration;
 }
