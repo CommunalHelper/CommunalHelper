@@ -62,13 +62,10 @@ public class GlowController : Entity
 
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.EmitDelegate<Func<EntityList, GlowController[]>>(entityList =>
-        {
-            // not sure whether the tracker will work here so doing this just in case
-            IEnumerable<Entity> allEntities = entityList.Concat(entityList.ToAdd);
-            return allEntities.Where(entity => entity is GlowController)
-                              .Cast<GlowController>()
-                              .ToArray();
-        });
+            entityList.Scene.Tracker.GetEntities<GlowController>()
+                                    .Cast<GlowController>()
+                                    .ToArray()
+        );
         cursor.Emit(OpCodes.Stloc, allGlowControllers);
 
         if (!cursor.TryGotoNextBestFit(MoveType.After,
