@@ -1,4 +1,4 @@
-﻿using Celeste.Mod.CommunalHelper.DashStates;
+﻿using Celeste.Mod.CommunalHelper.States;
 using MonoMod.ModInterop;
 
 namespace Celeste.Mod.CommunalHelper.Imports;
@@ -9,16 +9,33 @@ public static class SpeedrunTool
     {
         typeof(SaveLoadImports).ModInterop();
 
-        SaveLoadImports.RegisterStaticTypes?.Invoke(typeof(DreamTunnelDash), [
-            "St.DreamTunnelDash",
-            "hasDreamTunnelDash",
+        // state fields
+        // todo: eventually migrate to using components on the player to store this data
+        SaveLoadImports.RegisterStaticTypes?.Invoke(typeof(DashStates.DreamTunnelDash), [
             "dreamTunnelDashCount",
+            "canStartDreamTunnelDashAttack",
             "dreamTunnelDashAttacking",
             "dreamTunnelDashTimer",
             "nextDashFeather",
             "FeatherMode",
             "overrideDreamDashCheck",
             "DreamTrailColorIndex"
+        ]);
+        SaveLoadImports.RegisterStaticTypes?.Invoke(typeof(DashStates.SeekerDash), [
+            "hasSeekerDash",
+            "seekerDashAttacking",
+            "seekerDashTimer",
+            "seekerDashLaunched",
+            "launchPossible"
+        ]);
+        SaveLoadImports.RegisterStaticTypes?.Invoke(typeof(Elytra), [
+            "elytraToggle"
+        ]);
+
+        // state indices
+        SaveLoadImports.RegisterStaticTypes?.Invoke(typeof(St), [
+            "DreamTunnelDash",
+            "Elytra"
         ]);
     }
 

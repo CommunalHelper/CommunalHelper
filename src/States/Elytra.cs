@@ -59,6 +59,7 @@ public static class Elytra
     public static readonly ElytraConfiguration DefaultElytraConfiguration = new()
     {
         DisableReverseVerticalMomentum = false,
+        UpdateCooldownInEveryState = false
     };
 
     /// <summary>

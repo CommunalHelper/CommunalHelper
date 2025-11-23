@@ -23,7 +23,6 @@ public class CommunalHelperSession : EverestModuleSession
     public double ExpiringDashRemainingTime { get; set; }
     public float ExpiringDashFlashThreshold { get; set; }
 
-    // todo: this is ugly
     #region Player States
     
     public bool CanDeployElytra { get; set; }

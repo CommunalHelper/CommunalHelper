@@ -60,14 +60,14 @@ internal abstract class AbstractConfigureStateTrigger<T> : Trigger
     {
         Everest.Events.Player.OnSpawn += ResetCurrentOptions;
         Everest.Events.Player.OnDie += ResetCurrentOptions;
-        Everest.Events.Level.OnTransitionTo += OnTransitionTo;
+        Everest.Events.Level.OnLoadLevel += OnLoadLevel;
     }
 
     internal static void Unload()
     {
         Everest.Events.Player.OnSpawn -= ResetCurrentOptions;
         Everest.Events.Player.OnDie -= ResetCurrentOptions;
-        Everest.Events.Level.OnTransitionTo -= OnTransitionTo;
+        Everest.Events.Level.OnLoadLevel -= OnLoadLevel;
     }
 
     private static void ResetCurrentOptions(Player player)
@@ -78,7 +78,7 @@ internal abstract class AbstractConfigureStateTrigger<T> : Trigger
             trigger.SaveCurrentOptions(player, trigger.GetPerRoomOptions());
     }
 
-    private static void OnTransitionTo(Level level, LevelData next, Vector2 direction)
+    private static void OnLoadLevel(Level level, Player.IntroTypes introType, bool isFromLoader)
     {
         Player player = level.Tracker.GetEntity<Player>();
         if (player is null)
