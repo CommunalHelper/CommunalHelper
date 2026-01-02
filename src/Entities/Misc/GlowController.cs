@@ -9,7 +9,7 @@ using System.Reflection;
 namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/GlowController")]
-public class GlowController : Entity
+public class GlowController(EntityData data, Vector2 offset) : Entity(data.Position + offset)
 {
     #region Hooks
     
@@ -27,23 +27,26 @@ public class GlowController : Entity
 
     private static void IL_LightingRenderer_BeforeRender(ILContext il)
     {
-        ILCursor cursor = new ILCursor(il);
+        ILCursor cursor = new(il);
+        
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.Emit(OpCodes.Ldfld, typeof(LightingRenderer).GetField("lights", BindingFlags.NonPublic | BindingFlags.Instance));
+        cursor.EmitDelegate(RemoveOrphanedLights);
 
-        cursor.EmitDelegate<Action<VertexLight[]>>(lights =>
+        return;
+
+        // remove lights that were removed from their entity before vanilla code tries to read lights[i].Entity.Scene and crashes
+        static void RemoveOrphanedLights(VertexLight[] lights)
         {
-            // remove lights that were removed from their entity before vanilla code tries to read lights[i].Entity.Scene and crashes
-            // LightingRenderer.MaxLights == 64
-            for (int i = 0; i < 64 && i < lights.Length; i++)
+            for (int i = 0; i < Math.Min(lights.Length, LightingRenderer.MaxLights); i++)
             {
-                if (lights[i] is not null && lights[i].Entity is null)
-                {
-                    lights[i].Index = -1;
-                    lights[i] = null;
-                }
+                if (lights[i] is not { Entity: null })
+                    continue;
+            
+                lights[i].Index = -1;
+                lights[i] = null;
             }
-        });
+        }
     }
     
     private static void IL_EntityList_UpdateLists(ILContext il)
@@ -57,18 +60,11 @@ public class GlowController : Entity
             instr => instr.MatchStloc(4)))
             return;
         
-        VariableDefinition allGlowControllers = new(il.Import(typeof(GlowController[])));
+        VariableDefinition allGlowControllers = new(il.Import(typeof(IEnumerable<GlowController>)));
         il.Body.Variables.Add(allGlowControllers);
 
         cursor.Emit(OpCodes.Ldarg_0);
-        cursor.EmitDelegate<Func<EntityList, GlowController[]>>(entityList =>
-        {
-            // not sure whether the tracker will work here so doing this just in case
-            IEnumerable<Entity> allEntities = entityList.Concat(entityList.ToAdd);
-            return allEntities.Where(entity => entity is GlowController)
-                              .Cast<GlowController>()
-                              .ToArray();
-        });
+        cursor.EmitDelegate(GetGlowControllers);
         cursor.Emit(OpCodes.Stloc, allGlowControllers);
 
         if (!cursor.TryGotoNextBestFit(MoveType.After,
@@ -80,68 +76,57 @@ public class GlowController : Entity
         
         cursor.Emit(OpCodes.Ldloc, 5);
         cursor.Emit(OpCodes.Ldloc, allGlowControllers);
-        cursor.EmitDelegate<Action<Entity, GlowController[]>>((entity, glowControllers) =>
+        cursor.EmitDelegate(ProcessEntity);
+
+        return;
+        
+        // maybe a bit expensive to be doing every frame
+        static IEnumerable<GlowController> GetGlowControllers(EntityList entityList)
+            => entityList.Concat(entityList.ToAdd).OfType<GlowController>();
+
+        static void ProcessEntity(Entity entity, IEnumerable<GlowController> glowControllers)
         {
             foreach (GlowController controller in glowControllers)
                 controller.Process(entity);
-        });
+        }
     }
     
     #endregion
 
-    private readonly string[] lightWhitelist;
-    private readonly string[] lightBlacklist;
-    private readonly Color lightColor;
-    private readonly float lightAlpha;
-    private readonly int lightStartFade;
-    private readonly int lightEndFade;
-    private readonly Vector2 lightOffset;
-    // private readonly string targetEntityType;
+    private const StringSplitOptions SplitOptions = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
 
-    private readonly string[] bloomWhitelist;
-    private readonly string[] bloomBlacklist;
-    private readonly float bloomAlpha;
-    private readonly float bloomRadius;
-    private readonly Vector2 bloomOffset;
+    private readonly string[] lightWhitelist = data.Attr("lightWhitelist").Split(',', SplitOptions);
+    private readonly string[] lightBlacklist = data.Attr("lightBlacklist").Split(',', SplitOptions);
+    private readonly Color lightColor = data.HexColor("lightColor", Color.White);
+    private readonly float lightAlpha = data.Float("lightAlpha", 1f);
+    private readonly int lightStartFade = data.Int("lightStartFade", 24);
+    private readonly int lightEndFade = data.Int("lightEndFade", 48);
+    private readonly Vector2 lightOffset = new(data.Int("lightOffsetX"), data.Int("lightOffsetY", -10));
 
-    private readonly string[] deathAnimationIds;
-    private readonly string[] respawnAnimationIds;
+    private readonly string[] bloomWhitelist = data.Attr("bloomWhitelist").Split(',', SplitOptions);
+    private readonly string[] bloomBlacklist = data.Attr("bloomBlacklist").Split(',', SplitOptions);
+    private readonly float bloomAlpha = data.Float("bloomAlpha", 1f);
+    private readonly float bloomRadius = data.Float("bloomRadius", 8f);
+    private readonly Vector2 bloomOffset = new(data.Int("bloomOffsetX"), data.Int("bloomOffsetY", -10));
 
-    public GlowController(EntityData data, Vector2 offset)
-        : base(data.Position + offset)
-    {
-        lightWhitelist = data.Attr("lightWhitelist").Split(',');
-        lightBlacklist = data.Attr("lightBlacklist").Split(',');
-        lightColor = data.HexColor("lightColor", Color.White);
-        lightAlpha = data.Float("lightAlpha", 1f);
-        lightStartFade = data.Int("lightStartFade", 24);
-        lightEndFade = data.Int("lightEndFade", 48);
-        lightOffset = new Vector2(data.Int("lightOffsetX"), data.Int("lightOffsetY", -10));
+    private readonly string[] deathAnimationIds = data.Attr("deathAnimationIds", "death").Split(',', SplitOptions);
+    private readonly string[] respawnAnimationIds = data.Attr("respawnAnimationIds", "respawn").Split(',', SplitOptions);
 
-        bloomWhitelist = data.Attr("bloomWhitelist").Split(',');
-        bloomBlacklist = data.Attr("bloomBlacklist").Split(',');
-        bloomAlpha = data.Float("bloomAlpha", 1f);
-        bloomRadius = data.Float("bloomRadius", 8f);
-        bloomOffset = new Vector2(data.Int("bloomOffsetX"), data.Int("bloomOffsetY", -10));
-
-        deathAnimationIds = data.Attr("deathAnimationIds", "death").Split(',');
-        respawnAnimationIds = data.Attr("respawnAnimationIds", "respawn").Split(',');
-    }
+    private readonly string flag = data.Attr("flag");
+    private readonly float flagFadeTime = data.Float("flagFadeTime", 1f);
 
     private void Process(Entity entity)
     {
-        var type = entity.GetType();
-        var typeName = type.FullName;
-        var requiresRemovalRoutine = false;
+        Type type = entity.GetType();
+        string typeName = type.FullName;
+        bool lightOrBloomAdded = false;
 
         if (lightBlacklist.Contains(typeName))
-        {
             entity.Remove(entity.Components.GetAll<VertexLight>().ToArray<Component>());
-        }
         if (lightWhitelist.Contains(typeName))
         {
             entity.Add(new VertexLight(lightOffset, lightColor, lightAlpha, lightStartFade, lightEndFade));
-            requiresRemovalRoutine = true;
+            lightOrBloomAdded = true;
         }
 
         if (bloomBlacklist.Contains(typeName))
@@ -152,70 +137,97 @@ public class GlowController : Entity
         if (bloomWhitelist.Contains(typeName))
         {
             entity.Add(new BloomPoint(bloomOffset, bloomAlpha, bloomRadius));
-            requiresRemovalRoutine = true;
+            lightOrBloomAdded = true;
         }
 
-        // some entities get a special coroutine that hides lights and blooms
-        // if it's a glider or otherwise has a sprite with an animation id contained in `deathAnimationIds`
-        if (requiresRemovalRoutine &&
-            entity.Components.GetAll<Sprite>().FirstOrDefault(s => deathAnimationIds.Any(s.Has)) is { } sprite)
+        if (!lightOrBloomAdded)
+            return;
+
+        // list of multiplier IEnumerators for the 
+        List<IEnumerator> multipliers = [];
+        
+        // if a flag is specified, add a multiplier that will fade the entity's lights and blooms in/out with the flag
+        if (!string.IsNullOrEmpty(flag))
+            multipliers.Add(FlagFadeMultiplier(entity, flag));
+        // some entities get a special multiplier that fades out/in lights and blooms on death/respawn if they have a sprite with an animation id contained in `deathAnimationIds`
+        if (entity.Components.GetAll<Sprite>().FirstOrDefault(s => deathAnimationIds.Any(s.Has)) is { } sprite)
+            multipliers.Add(DeathFadeMultiplier(entity, sprite));
+        
+        entity.Add(new Coroutine(AlphaFadeRoutine(entity, multipliers)));
+    }
+
+    private static IEnumerator AlphaFadeRoutine(Entity entity, List<IEnumerator> multipliers)
+    {
+        if (multipliers.Count <= 0)
+            yield break;
+        
+        while (entity.Scene is not null)
         {
-            entity.Add(new Coroutine(DeathRemovalRoutine(entity, sprite)));
+            float alpha = 1f;
+            foreach (IEnumerator multiplier in multipliers)
+            {
+                if (multiplier.MoveNext() && multiplier.Current is float m)
+                    alpha *= m;
+            }
+            
+            foreach (VertexLight vertexLight in entity.Components.GetAll<VertexLight>())
+                vertexLight.Alpha = alpha;
+            foreach (BloomPoint bloomPoint in entity.Components.GetAll<BloomPoint>())
+                bloomPoint.Alpha = alpha;
+            
+            yield return null;
         }
     }
 
-    private IEnumerator DeathRemovalRoutine(Entity entity, Sprite sprite)
+    private IEnumerator FlagFadeMultiplier(Entity entity, string flag)
     {
-        void SetAlpha(float alpha)
-        {
-            foreach (VertexLight vertexLight in entity.Components.GetAll<VertexLight>())
-                vertexLight.Alpha = alpha;
-
-            foreach (BloomPoint bloomPoint in entity.Components.GetAll<BloomPoint>())
-                bloomPoint.Alpha = alpha;
-        }
-
-        if (sprite.Animations.FirstOrDefault(kvp => deathAnimationIds.Contains(kvp.Key)).Value is not { } deathAnimation)
+        if (entity.Scene is not Level level)
             yield break;
+        
+        bool flagValue = level.Session.GetFlag(flag);
+        float fade = flagValue ? 1f : 0f;
+        yield return fade;
 
-        while (entity.Scene is not null)
+        while (true)
         {
-            // wait until the sprite plays the death animation
-            while (entity.Scene is not null && !deathAnimationIds.Contains(sprite.CurrentAnimationID))
-            {
-                yield return null;
-            }
+            fade = Calc.Approach(fade, level.Session.GetFlag(flag) ? 1f : 0f, Engine.DeltaTime / flagFadeTime);
+            yield return fade;
+        }
+    }
+
+    private IEnumerator DeathFadeMultiplier(Entity entity, Sprite sprite)
+    {
+        while (true)
+        {
+            // wait until the sprite plays a death animation
+            while (!deathAnimationIds.Contains(sprite.CurrentAnimationID))
+                yield return 1f;
 
             // fade out over the length of that animation
-            var fadeTime = deathAnimation.Frames.Length * deathAnimation.Delay;
-            var fadeRemaining = fadeTime;
+            if (!sprite.Animations.TryGetValue(sprite.CurrentAnimationID, out Sprite.Animation deathAnimation)) break;
+            float fadeTime = deathAnimation.Frames.Length * deathAnimation.Delay;
+            float fadeRemaining = fadeTime;
 
-            while (entity.Scene is not null && deathAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
+            while (deathAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
             {
                 fadeRemaining -= Engine.DeltaTime;
-                SetAlpha(Math.Max(fadeRemaining / fadeTime, 0f));
-                yield return null;
+                yield return Math.Max(fadeRemaining / fadeTime, 0f);
             }
-            SetAlpha(0f);
 
             // if the sprite has a respawn animation, wait until it's playing it
-            if (sprite.Animations.FirstOrDefault(kvp => respawnAnimationIds.Contains(kvp.Key)).Value is not { } respawnAnimation) break;
-            while (entity.Scene is not null && !respawnAnimationIds.Contains(sprite.CurrentAnimationID))
-            {
-                yield return null;
-            }
+            while (!respawnAnimationIds.Contains(sprite.CurrentAnimationID))
+                yield return 0f;
 
             // fade in over the length of that animation
+            if (!sprite.Animations.TryGetValue(sprite.CurrentAnimationID, out Sprite.Animation respawnAnimation)) break;
             fadeTime = respawnAnimation.Frames.Length * respawnAnimation.Delay;
             fadeRemaining = fadeTime;
 
-            while (entity.Scene is not null && respawnAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
+            while (respawnAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
             {
                 fadeRemaining -= Engine.DeltaTime;
-                SetAlpha(1f - Math.Max(fadeRemaining / fadeTime, 0f));
-                yield return null;
+                yield return 1f - Math.Max(fadeRemaining / fadeTime, 0f);
             }
-            SetAlpha(1f);
         }
     }
 }

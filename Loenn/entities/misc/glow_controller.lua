@@ -5,6 +5,12 @@ glowController.depth = -1000000
 glowController.texture = "objects/CommunalHelper/glowController/icon"
 
 glowController.fieldInformation = {
+    lightWhitelist = {
+        fieldType = "list",
+    },
+    lightBlacklist = {
+        fieldType = "list",
+    },
     lightColor = {
         fieldType = "color",
     },
@@ -23,6 +29,12 @@ glowController.fieldInformation = {
     lightOffsetY = {
         fieldType = "integer",
     },
+    bloomWhitelist = {
+        fieldType = "list",
+    },
+    bloomBlacklist = {
+        fieldType = "list",
+    },
     bloomAlpha = {
         fieldType = "number",
     },
@@ -34,6 +46,15 @@ glowController.fieldInformation = {
     },
     bloomOffsetY = {
         fieldType = "integer",
+    },
+    deathAnimationIds = {
+        fieldType = "list",
+    },
+    respawnAnimationIds = {
+        fieldType = "list",
+    },
+    flagFadeTime = {
+        minimumValue = 0.0,
     },
 }
 
@@ -57,6 +78,8 @@ glowController.placements = {
             bloomOffsetY = 0,
             deathAnimationIds = "death",
             respawnAnimationIds = "respawn",
+            flag = "",
+            flagFadeTime = 1.0,
         },
     },
 }
