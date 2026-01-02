@@ -143,13 +143,13 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
         if (!lightOrBloomAdded)
             return;
 
-        // list of multiplier IEnumerators for the 
+        // list of multiplier enumerators for the alpha of lights and bloom
         List<IEnumerator> multipliers = [];
         
-        // if a flag is specified, add a multiplier that will fade the entity's lights and blooms in/out with the flag
+        // if a flag is specified, add a multiplier that will fade the entity's lights and bloom in/out with the flag
         if (!string.IsNullOrEmpty(flag))
             multipliers.Add(FlagFadeMultiplier(entity, flag));
-        // some entities get a special multiplier that fades out/in lights and blooms on death/respawn if they have a sprite with an animation id contained in `deathAnimationIds`
+        // some entities get a special multiplier that fades out/in lights and bloom on death/respawn if they have a sprite with an animation id contained in `deathAnimationIds`
         if (entity.Components.GetAll<Sprite>().FirstOrDefault(s => deathAnimationIds.Any(s.Has)) is { } sprite)
             multipliers.Add(DeathFadeMultiplier(entity, sprite));
         
