@@ -50,8 +50,8 @@ public class DisableAutoCameraOffsetController(EntityData data, Vector2 offset) 
             instr => instr.MatchBeq(out _)))
             return;
         
-        ILCursor cameraOffsetLabelCursor = cursor.Clone();
-        ILLabel setCameraOffset = cameraOffsetLabelCursor.DefineLabel();
+        ILCursor setCameraOffsetLabelCursor = cursor.Clone();
+        ILLabel setCameraOffset = setCameraOffsetLabelCursor.DefineLabel();
         
         /*
          * IL_0036: ldloc.1
@@ -59,14 +59,14 @@ public class DisableAutoCameraOffsetController(EntityData data, Vector2 offset) 
          * IL_0038: ldfld class Celeste.Level Celeste.Player::level
          * IL_003d: ldflda valuetype [FNA]Microsoft.Xna.Framework.Vector2 Celeste.Level::CameraOffset
          */
-        if (!cameraOffsetLabelCursor.TryGotoNextBestFit(MoveType.Before,
+        if (!setCameraOffsetLabelCursor.TryGotoNextBestFit(MoveType.Before,
             instr => instr.MatchLdloc(1),
             instr => instr.MatchLdarg(0),
             instr => instr.MatchLdfld<Player>("level"),
             instr => instr.MatchLdflda<Level>("CameraOffset")))
             return;
         
-        cameraOffsetLabelCursor.MarkLabel(setCameraOffset);
+        setCameraOffsetLabelCursor.MarkLabel(setCameraOffset);
 
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.EmitDelegate(IsControllerActive);
