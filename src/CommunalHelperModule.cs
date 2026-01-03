@@ -119,6 +119,8 @@ public class CommunalHelperModule : EverestModule
         AffectSpriteTrigger.Load();
 
         MelvinTargetable.Load();
+        
+        DisableAutoCameraOffsetController.Load();
 
         #region Imports
 
@@ -217,6 +219,8 @@ public class CommunalHelperModule : EverestModule
         AffectSpriteTrigger.Unload();
 
         MelvinTargetable.Unload();
+        
+        DisableAutoCameraOffsetController.Unload();
 
         LaserEmitter.Unload();
     }

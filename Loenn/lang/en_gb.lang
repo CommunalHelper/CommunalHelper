@@ -1,5 +1,7 @@
 mods.CommunalHelper.name=Communal Helper
 
+# ---------------------- ENTITIES --------------------------
+
 # Dream Refill
 entities.CommunalHelper/DreamRefill.placements.name.dream_refill=Dream Refill
 entities.CommunalHelper/DreamRefill.placements.name.double_dream_refill=Dream Refill (Two Dashes)
@@ -994,6 +996,9 @@ entities.CommunalHelper/DreamTunnelBlocker.placements.name.normal=Dream Tunnel B
 entities.CommunalHelper/DreamTunnelBlocker.attributes.description.blockDreamTunnelDashes=Whether to prevent dream tunneling when dashing into a solid covered by this entity.
 entities.CommunalHelper/DreamTunnelBlocker.attributes.description.blockDreamDashes=Whether to prevent dream dashing when dashing into a dream block covered by this entity.
 
+entities.CommunalHelper/DisableAutoCameraOffsetController.placements.name.controller=Disable Auto Camera Offset Controller
+entities.CommunalHelper/DisableAutoCameraOffsetController.attributes.description.flag=The flag this controller should use to determine when to disable the automatic camera offset that some player states impart.\nLeave empty for this controller to be active always.
+
 # ---------------------- TRIGGERS --------------------------
 
 # [Strawberry Jam] Show Hitbox Trigger
@@ -1114,6 +1119,8 @@ triggers.CommunalHelper/FollowShapeshifterPathTrigger.attributes.description.pat
 triggers.CommunalHelper/SolarElevatorLevelTrigger.placements.name.trigger=Set Solar Elevator Level
 triggers.CommunalHelper/SolarElevatorLevelTrigger.attributes.description.elevatorID=The entity ID of the elevator to modify in this room. (integer)
 triggers.CommunalHelper/SolarElevatorLevelTrigger.attributes.description.position=Determines which of the two floors the elevator is sent to.\n- Closest: the one closest to the player when entering the trigger.\n- Bottom: always the bottom floor.\n- Top: always the top floor.
+
+# ---------------------- STYLEGROUNDS --------------------------
 
 # Cloudscape
 style.effects.CommunalHelper/Cloudscape.name=Cloudscape
