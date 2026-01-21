@@ -9,6 +9,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 // Originally I made this as a standalone entity for someone's map they were working on, but to make this fully work with DreamTunnelDash I moved it to CommunalHelper
 // I gave them a plugin for the old version when i finished and I'd like to keep some compatability to the old version so they dont have to redo their berries using it
 [CustomEntity("CommunalHelper/DreamStrawberry", "DreamDashListener/DreamDashBerry")]
+[RegisterStrawberry(false, false)]
 public class DreamStrawberry : Strawberry
 {
     // Original OnDash method from Celeste.Strawberry
@@ -173,4 +174,13 @@ public class DreamStrawberry : Strawberry
     }
 
     #endregion
+}
+
+// is this the right way to do it? maybe!
+[CustomEntity("CommunalHelper/DreamStrawberryTracked")]
+[RegisterStrawberry(true, false)]
+public class DreamStrawberryTracked : DreamStrawberry
+{
+    public DreamStrawberryTracked(EntityData data, Vector2 offset, EntityID id) : base(data, offset, id)
+    { }
 }
