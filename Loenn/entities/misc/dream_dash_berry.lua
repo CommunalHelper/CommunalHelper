@@ -44,4 +44,7 @@ local function createHandler(name)
     return handler
 end
 
-return createHandler("CommunalHelper/DreamStrawberry"), createHandler("CommunalHelper/DreamStrawberryTracked")
+return {
+    createHandler("CommunalHelper/DreamStrawberry"),
+    createHandler("CommunalHelper/DreamStrawberryTracked")
+}
