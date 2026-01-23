@@ -48,6 +48,9 @@ public class ManualCassetteController : AbstractInputController
         currentIndex = startIndex;
 
         SetActiveIndex(currentIndex, true);
+        SetFlag(currentIndex);
+        SetHeldIndex(currentIndex, true);
+        SetHeldFlag(currentIndex);
     }
 
     public override void Update()

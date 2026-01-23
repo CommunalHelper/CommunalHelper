@@ -59,7 +59,6 @@ public class CommunalHelperModule : EverestModule
 
         ConnectedSwapBlockHooks.Hook();
         CustomCassetteBlock.Hook();
-        HeldCassetteBlock.Hook();
 
         AttachedWallBooster.Hook();
         MoveBlockRedirect.Load();
@@ -157,7 +156,6 @@ public class CommunalHelperModule : EverestModule
 
         ConnectedSwapBlockHooks.Unhook();
         CustomCassetteBlock.Unhook();
-        HeldCassetteBlock.Unhook();
 
         AttachedWallBooster.Unhook();
         MoveBlockRedirect.Unload();
@@ -246,7 +244,6 @@ public class CommunalHelperModule : EverestModule
 
         // Register CustomCassetteBlock types
         CustomCassetteBlock.Initialize();
-        HeldCassetteBlock.Initialize();
 
         // We may hook methods in other mods, so this needs to be done after they're loaded
         AbstractPanel.LoadDelayed();
