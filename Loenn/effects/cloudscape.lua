@@ -2,7 +2,7 @@ local cloudscape = {}
 
 cloudscape.name = "CommunalHelper/Cloudscape"
 cloudscape.canBackground = true
-cloudscape.canForeground = false
+cloudscape.canForeground = true
 
 cloudscape.fieldInformation = {
     bgColor = {
