@@ -1,5 +1,5 @@
-﻿using FMOD.Studio;
-using System.Linq;
+﻿using Celeste.Mod.Helpers;
+using FMOD.Studio;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
@@ -55,6 +55,9 @@ public class Chain : Entity
     private readonly MTexture texture;
     private readonly MTexture segment;
 
+    private readonly bool updateOffscreen;
+    private readonly Vector2[] oldNodePositions;
+
     public Chain(EntityData data, Vector2 offset)
         : this(
             data.Bool("outline", true),
@@ -62,11 +65,12 @@ public class Chain : Entity
             8,
             () => data.Position + offset,
             () => data.Nodes[0] + offset,
-            GFX.Game.GetOrDefault(data.Attr("texture", DEFAULT_CHAIN_PATH), DefaultChain)
+            GFX.Game.GetOrDefault(data.Attr("texture", DEFAULT_CHAIN_PATH), DefaultChain),
+            data.Bool("updateOffscreen", true)
         )
     { }
 
-    public Chain(bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter, MTexture texture)
+    public Chain(bool outline, int nodeCount, float distanceConstraint, Func<Vector2> attachedStartGetter, Func<Vector2> attachedEndGetter, MTexture texture, bool updateOffscreen)
         : base(attachedStartGetter())
     {
         this.texture = texture;
@@ -76,6 +80,7 @@ public class Chain : Entity
         this.attachedStartGetter = attachedStartGetter;
         this.attachedEndGetter = attachedEndGetter;
         this.distanceConstraint = distanceConstraint;
+        this.updateOffscreen = updateOffscreen;
 
         this.outline = outline;
 
@@ -89,6 +94,7 @@ public class Chain : Entity
 
         UpdateChain();
         sfx = Audio.Play(CustomSFX.game_chain_move);
+        oldNodePositions = new Vector2[nodes.Length];
     }
 
     private void AttachedEndsToSolids(Scene scene)
@@ -181,9 +187,13 @@ public class Chain : Entity
     {
         base.Update();
 
-        Vector2[] oldPositions = nodes.Select(node => node.Position).ToArray();
+        if (!updateOffscreen && !IsVisible())
+            return;
+
+        for (int i = 0; i < nodes.Length; i++)
+            oldNodePositions[i] = nodes[i].Position;
         UpdateChain();
-        UpdateSfx(oldPositions);
+        UpdateSfx(oldNodePositions);
 
         if (Vector2.Distance(nodes[0].Position, nodes[^1].Position) > (nodes.Length + 1) * distanceConstraint)
             BreakInHalf();
@@ -195,11 +205,11 @@ public class Chain : Entity
         Vector2 middleNode = nodes[nodes.Length / 2].Position;
 
         Chain a, b;
-        Scene.Add(a = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedStartGetter, texture));
+        Scene.Add(a = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedStartGetter, texture, updateOffscreen));
         a.AttachedEndsToSolids(Scene);
         a.ShakeImpulse();
 
-        Scene.Add(b = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedEndGetter, texture));
+        Scene.Add(b = new Chain(outline, nodes.Length / 2, 8, () => middleNode, attachedEndGetter, texture, updateOffscreen));
         b.AttachedEndsToSolids(Scene);
         b.ShakeImpulse();
 
@@ -262,9 +272,28 @@ public class Chain : Entity
         }
     }
 
+    private bool IsVisible()
+    {
+        // Construct a rectangle containing the first, middle and last node, which acts as the bounding box of this chain.
+        // Code adapted from CullHelper.IsCurveVisible
+        Vector2 begin = nodes[0].Position;
+        Vector2 control = nodes[nodes.Length / 2].Position;
+        Vector2 end = nodes[^1].Position;
+
+        float x = Math.Min(begin.X, Math.Min(control.X, end.X));
+        float right = Math.Max(begin.X, Math.Max(control.X, end.X));
+        float y = Math.Min(begin.Y, Math.Min(control.Y, end.Y));
+        float bottom = Math.Max(begin.Y, Math.Max(control.Y, end.Y));
+
+        return CullHelper.IsRectangleVisible(x, y, right - x, bottom - y, lenience: segment.Width + 2);
+    }
+    
     public override void Render()
     {
         base.Render();
+        
+        if (!IsVisible())
+            return;
 
         if (outline)
         {

@@ -548,6 +548,7 @@ entities.CommunalHelper/Chain.placements.name.chain=Chain
 entities.CommunalHelper/Chain.attributes.description.outline=Whether this chain has an outline (black).
 entities.CommunalHelper/Chain.attributes.description.extraJoints=The additional 'chain nodes' this chain has. Used to make the chain longer without distancing the endpoints of the chain any further away from eachother.
 entities.CommunalHelper/Chain.attributes.description.texture=This chain's texture.
+entities.CommunalHelper/Chain.attributes.description.updateOffscreen=Whether the chain physics should be calculated even if the chain is currently off-screen.\nIf you don't expect the chain to get broken off-screen, this is likely safe to disable, reducing lag in large rooms.
 
 # Core Mode Music Controller
 entities.CommunalHelper/CoreModeMusicController.placements.name.enable=Core Mode Music Controller
