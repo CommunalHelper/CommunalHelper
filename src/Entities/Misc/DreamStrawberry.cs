@@ -184,3 +184,75 @@ public class DreamStrawberryTracked : DreamStrawberry
     public DreamStrawberryTracked(EntityData data, Vector2 offset, EntityID id) : base(data, offset, id)
     { }
 }
+
+// this doesn't really need to be a separate class
+[CustomEntity("CommunalHelper/DreamStrawberryGolden = LoadGolden")]
+[RegisterStrawberry(false, false)]
+public class DreamStrawberryGolden : DreamStrawberry
+{
+    // don't load it at all if it shouldn't be there
+    public static DreamStrawberryGolden LoadGolden(Level level, LevelData levelData, Vector2 offset, EntityData entityData)
+    {
+        if (CommunalHelperModule.Session.DreamDashes == 0 && (level.Session.StartedFromBeginning || level.Session.RestartedFromGolden))
+            return new DreamStrawberryGolden(entityData, offset, new EntityID(levelData.Name, entityData.ID));
+
+        return null;
+    }
+    
+    public DreamStrawberryGolden(EntityData data, Vector2 offset, EntityID id) : base(FixData(data), offset, id)
+    { }
+    
+    private static EntityData FixData(EntityData data)
+    {
+        data.Values["golden"] = true;
+        return data;
+    }
+}
+
+internal class DreamDashTracker : Entity
+{
+    private DreamDashTracker()
+    {
+        Tag = Tags.Global;
+        
+        Add(new DreamDashListener(_ => CommunalHelperModule.Session.DreamDashes++));
+    }
+    
+    #region Hooks
+
+    internal static void Load()
+    {
+        Everest.Events.LevelLoader.OnLoadingThread += OnLoadingThread;
+
+        On.Celeste.Level.Reload += Level_Reload;
+        On.Celeste.Session.UpdateLevelStartDashes += Session_UpdateLevelStartDashes;
+    }
+
+    internal static void Unload()
+    {
+        Everest.Events.LevelLoader.OnLoadingThread -= OnLoadingThread;
+
+        On.Celeste.Level.Reload -= Level_Reload;
+        On.Celeste.Session.UpdateLevelStartDashes -= Session_UpdateLevelStartDashes;
+    }
+
+    private static void OnLoadingThread(Level level)
+        => level.Add(new DreamDashTracker());
+
+    private static void Level_Reload(On.Celeste.Level.orig_Reload orig, Level self)
+    {
+        orig(self);
+        
+        if (!self.Completed)
+            CommunalHelperModule.Session.DreamDashes = CommunalHelperModule.Session.DreamDashesAtLevelStart;
+    } 
+    
+    private static void Session_UpdateLevelStartDashes(On.Celeste.Session.orig_UpdateLevelStartDashes orig, Session self)
+    {
+        orig(self);
+
+        CommunalHelperModule.Session.DreamDashesAtLevelStart = CommunalHelperModule.Session.DreamDashes;
+    }
+
+    #endregion
+}

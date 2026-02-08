@@ -46,5 +46,6 @@ end
 
 return {
     createHandler("CommunalHelper/DreamStrawberry"),
-    createHandler("CommunalHelper/DreamStrawberryTracked")
+    createHandler("CommunalHelper/DreamStrawberryTracked"),
+    createHandler("CommunalHelper/DreamStrawberryGolden")
 }

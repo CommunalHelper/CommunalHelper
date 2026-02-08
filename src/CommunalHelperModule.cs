@@ -87,6 +87,7 @@ public class CommunalHelperModule : EverestModule
 
         DreamDashListener.Load();
         DreamStrawberry.Hook();
+        DreamDashTracker.Load();
 
         RedlessBerry.Hook();
 
@@ -182,6 +183,7 @@ public class CommunalHelperModule : EverestModule
 
         DreamDashListener.Unload();
         DreamStrawberry.Unhook();
+        DreamDashTracker.Unload();
 
         RedlessBerry.Unhook();
 
