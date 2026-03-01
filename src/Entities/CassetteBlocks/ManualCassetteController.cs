@@ -3,7 +3,6 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
