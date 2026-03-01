@@ -1,4 +1,4 @@
-﻿using MonoMod.Utils;
+using MonoMod.Utils;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 

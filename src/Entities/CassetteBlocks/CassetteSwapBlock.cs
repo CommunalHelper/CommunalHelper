@@ -1,4 +1,4 @@
-﻿using FMOD.Studio;
+using FMOD.Studio;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 

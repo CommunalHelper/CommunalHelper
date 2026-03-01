@@ -1,4 +1,4 @@
-﻿using MonoMod.Cil;
+using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Collections.Generic;
 using System.Linq;
