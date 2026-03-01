@@ -858,6 +858,8 @@ entities.CommunalHelper/GlowController.attributes.description.bloomOffsetX=The X
 entities.CommunalHelper/GlowController.attributes.description.bloomOffsetY=The Y offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
 entities.CommunalHelper/GlowController.attributes.description.deathAnimationIds=A list of animation IDs to treat as "death" animations, that is, when the targeted entities' Sprites start playing one of these animations, their light/bloom will fade out.
 entities.CommunalHelper/GlowController.attributes.description.respawnAnimationIds=A list of animation IDs to treat as "respawn" animations, that is, when the targeted entities' Sprites start playing one of these animations, their light/bloom will fade back in.
+entities.CommunalHelper/GlowController.attributes.description.flag=A flag that should control the opacity of the light and bloom added to these entities.
+entities.CommunalHelper/GlowController.attributes.description.flagFadeTime=The time in seconds it takes for the light and bloom to fade in/out on these entities when the flag in "Flag" is set/unset.\nDoes nothing if "Flag" is not specified.
 
 # Poison Gas
 entities.CommunalHelper/PoisonGas.placements.name.main=Poison Gas
