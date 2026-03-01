@@ -81,7 +81,7 @@ public class ManualCassetteController : AbstractInputController
 
     public void HeldTick()
     {
-        heldIndex = 1- heldIndex;
+        heldIndex = 1 - heldIndex;
         SetHeldFlag(heldIndex);
         SetHeldIndex(heldIndex);
 /*      Audio.Play("event:/game/general/cassette_block_switch_" + ((heldIndex % 2) + 1));
