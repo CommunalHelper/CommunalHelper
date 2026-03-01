@@ -215,8 +215,8 @@ public class CassetteZipMover : CustomCassetteBlock
 
     private readonly MTexture cog, cogPressed, cogWhite;
 
-    public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] nodes, int index, float tempo, bool oldConnectionBehavior, bool noReturn, bool perm, bool waits, bool ticking, Color? overrideColor, string spritePath, float sideAlpha)
-        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor, spritePath, sideAlpha)
+    public CassetteZipMover(Vector2 position, EntityID id, int width, int height, Vector2[] nodes, int index, float tempo, bool oldConnectionBehavior, bool noReturn, bool perm, bool waits, bool ticking, Color? overrideColor, string spritePath, float sideAlpha, bool held)
+        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor, spritePath, sideAlpha, held)
     {
         this.noReturn = noReturn;
         permanent = perm;
@@ -236,12 +236,7 @@ public class CassetteZipMover : CustomCassetteBlock
     }
 
     public CassetteZipMover(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.NodesWithPosition(offset), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true),
-              data.Bool("noReturn", false),
-              data.Bool("permanent"),
-              data.Bool("waiting"),
-              data.Bool("ticking"),
-              data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f))
+        : this(data.Position + offset, id, data.Width, data.Height, data.NodesWithPosition(offset), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.Bool("noReturn", false), data.Bool("permanent"), data.Bool("waiting"), data.Bool("ticking"), data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f), data.Bool("held"))
     { }
 
     public override void Awake(Scene scene)

@@ -65,8 +65,8 @@ public class CassetteSwapBlock : CustomCassetteBlock
 
     private readonly bool noReturn;
 
-    public CassetteSwapBlock(Vector2 position, EntityID id, int width, int height, Vector2 node, int index, float tempo, bool oldConnectionBehavior, bool noReturn, Color? overrideColor, string spritePath, float sideAlpha)
-        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor, spritePath, sideAlpha)
+    public CassetteSwapBlock(Vector2 position, EntityID id, int width, int height, Vector2 node, int index, float tempo, bool oldConnectionBehavior, bool noReturn, Color? overrideColor, string spritePath, float sideAlpha, bool held)
+        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, false, overrideColor, spritePath, sideAlpha, held)
     {
         start = Position;
         end = node;
@@ -107,9 +107,8 @@ public class CassetteSwapBlock : CustomCassetteBlock
     }
 
     public CassetteSwapBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.Bool("noReturn", false), data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f))
-    {
-    }
+        : this(data.Position + offset, id, data.Width, data.Height, data.Nodes[0] + offset, data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.Bool("noReturn", false), data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f), data.Bool("held"))
+    { }
 
     public override void Awake(Scene scene)
     {

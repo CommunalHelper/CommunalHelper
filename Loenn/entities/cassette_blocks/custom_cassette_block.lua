@@ -36,8 +36,12 @@ for i = 1, 4 do
             height = 16,
             customColor = colors[i],
             oldConnectionBehavior = false,
+<<<<<<< HEAD
             spritePath = "",
             sideAlpha = 1.0,
+=======
+            held = false,
+>>>>>>> 5ef928fe414af767303da25d68d3523b2af49bdf
         }
     }
 end

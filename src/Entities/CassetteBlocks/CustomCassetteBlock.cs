@@ -73,6 +73,8 @@ public class CustomCassetteBlock : CassetteBlock
     }
     // Whether the block is collidable according to cassette state
     private bool virtualCollidable = true;
+    
+    public bool Held { get; set; }
 
     protected DynamicData blockData;
 
@@ -101,13 +103,14 @@ public class CustomCassetteBlock : CassetteBlock
         => string.IsNullOrEmpty(spritePath) ? defaultValue : spritePath + suffix;
 
     public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.Bool("oldConnectionBehavior", true), false, data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f)) { }
+        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.Bool("oldConnectionBehavior", true), false, data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f), data.Bool("held")) { }
 
-    public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool lonely, bool oldConnectionBehavior, bool dynamicHitbox = false, Color? overrideColor = null, string spritePath = "", float sideAlpha = 1f)
+    public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool lonely, bool oldConnectionBehavior, bool dynamicHitbox = false, Color? overrideColor = null, string spritePath = "", float sideAlpha = 1f, bool held = false)
         : base(position, id, width, height, index, tempo)
     {
         blockData = new(typeof(CassetteBlock), this);
 
+        Held = held;
         Index = index;
         color = overrideColor ?? colorOptions[index];
         pressedColor = color.Mult(Calc.HexToColor("667da5"));

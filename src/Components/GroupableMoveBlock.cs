@@ -55,7 +55,7 @@ public class GroupableMoveBlock : Component
     public Color HighlightColor(Color? color = null)
     {
         Color baseColor = color ?? Color.Transparent;
-        return Group is null ?
+        return Group is null || Group.DisablePulse ?
             baseColor :
             Color.Lerp(baseColor, Group.Color, Calc.SineMap(Scene.TimeActive * 3, 0, 1));
     }

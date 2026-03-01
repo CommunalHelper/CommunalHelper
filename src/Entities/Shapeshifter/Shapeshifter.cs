@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.Utils;
+using FMOD.Studio;
 using System.Collections;
 using System.Linq;
 
@@ -89,6 +90,7 @@ public class Shapeshifter : Solid
     private readonly float rainbowMix;
 
     private readonly SoundSource sfx;
+    private EventInstance quakeSfx;
 
     public Shapeshifter(EntityData data, Vector2 offset, EntityID id)
         : this
@@ -244,10 +246,11 @@ public class Shapeshifter : Solid
 
         if (path.QuakeTime > 0.0f)
         {
-            var quakeSfx = Audio.Play(CustomSFX.game_shapeshifter_shake, Position);
+            quakeSfx = Audio.Play(CustomSFX.game_shapeshifter_shake, Position);
             StartShaking(path.QuakeTime);
             yield return path.QuakeTime;
-            quakeSfx.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            quakeSfx.stop(STOP_MODE.ALLOWFADEOUT);
+            quakeSfx = null;
         }
 
         Audio.Play(startSound, Position);
@@ -372,4 +375,45 @@ public class Shapeshifter : Solid
         base.Update();
         mesh.Matrix = Matrix.CreateFromYawPitchRoll(yaw, pitch, roll);
     }
+
+    private void StopSfx()
+    {
+        sfx?.Stop();
+        quakeSfx?.stop(STOP_MODE.IMMEDIATE);
+    }
+
+    public override void Removed(Scene scene)
+    {
+        StopSfx();
+        base.Removed(scene);
+    }
+
+    public override void SceneEnd(Scene scene)
+    {
+        StopSfx();
+        base.SceneEnd(scene);
+    }
+    
+    #region Hooks
+
+    internal static void Load()
+    {
+        Everest.Events.Player.OnDie += OnDie;
+    }
+
+    internal static void Unload()
+    {
+        Everest.Events.Player.OnDie -= OnDie;
+    }
+
+    private static void OnDie(Player player)
+    {
+        if (player.Scene?.Tracker?.GetEntities<Shapeshifter>()?.Cast<Shapeshifter>() is not { } shapeshifters)
+            return;
+        
+        foreach (Shapeshifter shapeshifter in shapeshifters)
+            shapeshifter.StopSfx();
+    }
+    
+    #endregion
 }
