@@ -36,6 +36,7 @@ for i = 1, 4 do
             customColor = colors[i],
             noReturn = false,
             oldConnectionBehavior = false,
+            held = false,
         }
     }
 end

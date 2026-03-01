@@ -9,7 +9,9 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [TrackedAs(typeof(CassetteBlock), true)]
 [CustomEntity("CommunalHelper/CustomCassetteBlock")]
 public class CustomCassetteBlock : CassetteBlock
-{
+{   
+
+
     public static List<string> CustomCassetteBlockNames = new();
 
     public static void Initialize()
@@ -71,6 +73,9 @@ public class CustomCassetteBlock : CassetteBlock
             Collidable = value && virtualCollidable;
         }
     }
+
+    public bool Held { get; set; }
+
     // Whether the block is collidable according to cassette state
     private bool virtualCollidable = true;
 
@@ -95,13 +100,14 @@ public class CustomCassetteBlock : CassetteBlock
     }
 
     public CustomCassetteBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.Bool("oldConnectionBehavior", true), false, data.HexColorNullable("customColor")) { }
+        : this(data.Position + offset, id, data.Width, data.Height, data.Int("index"), data.Float("tempo", 1f), false, data.Bool("oldConnectionBehavior", true), data.Bool("held"), false, data.HexColorNullable("customColor")) { }
 
-    public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool lonely, bool oldConnectionBehavior, bool dynamicHitbox = false, Color? overrideColor = null)
+    public CustomCassetteBlock(Vector2 position, EntityID id, int width, int height, int index, float tempo, bool lonely, bool oldConnectionBehavior, bool held, bool dynamicHitbox = false, Color? overrideColor = null)
         : base(position, id, width, height, index, tempo)
     {
         blockData = new(typeof(CassetteBlock), this);
 
+        Held = held;
         Index = index;
         color = overrideColor ?? colorOptions[index];
         pressedColor = color.Mult(Calc.HexToColor("667da5"));
