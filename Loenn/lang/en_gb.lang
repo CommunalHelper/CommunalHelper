@@ -457,6 +457,7 @@ entities.CommunalHelper/ConnectedMoveBlock.attributes.description.crashTime=The 
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.regenTime=The time it takes for this Connected Move Block to respawn after breaking in seconds.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.shakeOnCollision=Whether this Connected Move Block should start shaking if it collides with a solid for longer than the default break time.
 entities.CommunalHelper/ConnectedMoveBlock.attributes.description.noDebris=Whether this Connected Move Block should not spawn debris when it breaks.
+entities.CommunalHelper/ConnectedMoveBlock.attributes.description.redirectIsPersistent=Whether the effects of any Move Block Redirects on this block should persist after this block breaks and respawns.
 
 # Connected Temple Cracked Block
 entities.CommunalHelper/ConnectedTempleCrackedBlock.placements.name.normal=Connected Temple Cracked Block
@@ -492,6 +493,7 @@ entities.CommunalHelper/EquationMoveBlock.attributes.description.crashTime=The t
 entities.CommunalHelper/EquationMoveBlock.attributes.description.regenTime=The time it takes for this Equation Move Block to respawn after breaking in seconds.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.shakeOnCollision=Whether this Equation Move Block should start shaking if it collides with a solid for longer than the default break time.
 entities.CommunalHelper/EquationMoveBlock.attributes.description.noDebris=Whether this Equation Move Block should not spawn debris when it breaks.
+entities.CommunalHelper/EquationMoveBlock.attributes.description.redirectIsPersistent=Whether the effects of any Move Block Redirects on this block should persist after this block breaks and respawns.
 
 # Bouncy Panel
 entities.CommunalHelper/BouncyPanel.placements.name.up=Bouncy Panel (Up)
