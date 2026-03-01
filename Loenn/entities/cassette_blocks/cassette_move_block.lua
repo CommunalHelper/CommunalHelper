@@ -33,6 +33,10 @@ cassetteMoveBlock.fieldInformation = {
     },
     tempo = {
         minimumValue = 0.0
+    },
+    sideAlpha = {
+        minimumValue = 0.0,
+        maximumValue = 1.0
     }
 }
 
@@ -54,16 +58,20 @@ for i = 1, 4 do
             regenTime = 3.0,
             shakeOnCollision = true,
             noDebris = false,
+            spritePath = "",
+            sideAlpha = 1.0,
         }
     }
 end
 
-local arrowTextures = {
-    up = "objects/CommunalHelper/cassetteMoveBlock/arrow02",
-    left = "objects/CommunalHelper/cassetteMoveBlock/arrow04",
-    right = "objects/CommunalHelper/cassetteMoveBlock/arrow00",
-    down = "objects/CommunalHelper/cassetteMoveBlock/arrow06"
-}
+local function arrowTextures(entity) 
+    return {
+        up = communalHelper.suffixFromPathOrDefault(entity.spritePath, "/arrow02", "objects/CommunalHelper/cassetteMoveBlock/arrow02"),
+        left = communalHelper.suffixFromPathOrDefault(entity.spritePath, "/arrow04", "objects/CommunalHelper/cassetteMoveBlock/arrow04"),
+        right = communalHelper.suffixFromPathOrDefault(entity.spritePath, "/arrow00", "objects/CommunalHelper/cassetteMoveBlock/arrow00"),
+        down = communalHelper.suffixFromPathOrDefault(entity.spritePath, "/arrow06", "objects/CommunalHelper/cassetteMoveBlock/arrow06")
+    }
+end
 
 function cassetteMoveBlock.sprite(room, entity)
     local sprites = communalHelper.getCustomCassetteBlockSprites(room, entity, true, entity.oldConnectionBehavior)
@@ -72,7 +80,7 @@ function cassetteMoveBlock.sprite(room, entity)
     local color = communalHelper.getCustomCassetteBlockColor(entity)
 
     local direction = string.lower(entity.direction)
-    local arrowTexture = arrowTextures[direction] or arrowTextures["right"]
+    local arrowTexture = arrowTextures(entity)[direction] or arrowTextures(entity)["right"]
 
     local arrowSprite = drawableSprite.fromTexture(arrowTexture, entity)
     arrowSprite:addPosition(math.floor(width / 2), math.floor(height / 2))

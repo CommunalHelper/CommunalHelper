@@ -156,6 +156,8 @@ entities.CommunalHelper/CustomCassetteBlock.attributes.description.index=The col
 entities.CommunalHelper/CustomCassetteBlock.attributes.description.tempo=The tempo of the cassette music in the room.
 entities.CommunalHelper/CustomCassetteBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
 entities.CommunalHelper/CustomCassetteBlock.attributes.description.oldConnectionBehavior=Force the old texture connection behavior (cassette entities connect to anything around them that is on the same index).
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.spritePath=Path to a folder to use for custom sprites, starting from Graphics/Atlases/Gameplay. The following textures must be defined:\n- solid: Used when the block is currently active.\n- pressed00 to pressed03: Used when the block is currently inactive, with the number of the texture corresponding to the block's index (00 for blue, 01 for pink, 02 for yellow, 03 for green).\nIf left empty, the default textures will be used.
+entities.CommunalHelper/CustomCassetteBlock.attributes.description.sideAlpha=The alpha (opacity) of the darker rectangle at the bottom of the block. 0 will make it fully transparent, 1 will make it fully opaque.
 entities.CommunalHelper/CustomCassetteBlock.attributes.description.held=Whether this Cassette Block is activated by holding the manual cassette key binding (using the Manual Cassette Controller).\nThis only works if this block's index is 0 or 1:\n- index 0: ACTIVE when key is HELD.\n- index 1: INACTIVE when key is HELD.
 
 # Cassette Falling Block
@@ -167,6 +169,8 @@ entities.CommunalHelper/CassetteFallingBlock.attributes.description.index=The co
 entities.CommunalHelper/CassetteFallingBlock.attributes.description.tempo=The tempo of the cassette music in the room.
 entities.CommunalHelper/CassetteFallingBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
 entities.CommunalHelper/CassetteFallingBlock.attributes.description.oldConnectionBehavior=Force the old texture connection behavior (cassette entities connect to anything around them that is on the same index).
+entities.CommunalHelper/CassetteFallingBlock.attributes.description.spritePath=Path to a folder to use for custom sprites, starting from Graphics/Atlases/Gameplay. The following textures must be defined:\n- solid: Used when the block is currently active.\n- pressed00 to pressed03: Used when the block is currently inactive, with the number of the texture corresponding to the block's index (00 for blue, 01 for pink, 02 for yellow, 03 for green).\nIf left empty, the default textures will be used.
+entities.CommunalHelper/CassetteFallingBlock.attributes.description.sideAlpha=The alpha (opacity) of the darker rectangle at the bottom of the block. 0 will make it fully transparent, 1 will make it fully opaque.
 entities.CommunalHelper/CassetteFallingBlock.attributes.description.held=Whether this Cassette Block is activated by holding the manual cassette key binding (using the Manual Cassette Controller).\nThis only works if this block's index is 0 or 1:\n- index 0: ACTIVE when key is HELD.\n- index 1: INACTIVE when key is HELD.
 
 # Cassette Zip Mover
@@ -182,6 +186,8 @@ entities.CommunalHelper/CassetteZipMover.attributes.description.waiting=Whether 
 entities.CommunalHelper/CassetteZipMover.attributes.description.ticking=Causes this block to tick 5 times at every node before going back to its starting point, unless the player triggers it again. If `permanent` is true and the player doesn't trigger the Zip Mover in time, it'll lock in place.
 entities.CommunalHelper/CassetteZipMover.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
 entities.CommunalHelper/CassetteZipMover.attributes.description.oldConnectionBehavior=Force the old texture connection behavior (cassette entities connect to anything around them that is on the same index).
+entities.CommunalHelper/CassetteZipMover.attributes.description.spritePath=Path to a folder to use for custom sprites, starting from Graphics/Atlases/Gameplay. The following textures must be defined:\n- solid: Used when the block is currently active.\n- pressed00 to pressed03: Used when the block is currently inactive, with the number of the texture corresponding to the block's index (00 for blue, 01 for pink, 02 for yellow, 03 for green).\n- x, xPressed: Used for the cross if "No Return" is checked.\n- cog, cogPressed, cogWhite: Used for the cogs.\nIf left empty, the default textures will be used.
+entities.CommunalHelper/CassetteZipMover.attributes.description.sideAlpha=The alpha (opacity) of the darker rectangle at the bottom of the block. 0 will make it fully transparent, 1 will make it fully opaque.
 entities.CommunalHelper/CassetteZipMover.attributes.description.held=Whether this Cassette Block is activated by holding the manual cassette key binding (using the Manual Cassette Controller).\nThis only works if this block's index is 0 or 1:\n- index 0: ACTIVE when key is HELD.\n- index 1: INACTIVE when key is HELD.
 
 # Cassette Move Block
@@ -201,6 +207,8 @@ entities.CommunalHelper/CassetteMoveBlock.attributes.description.crashTime=The t
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.regenTime=The time it takes for this Cassette Move Block to respawn after breaking in seconds.
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.shakeOnCollision=Whether this Cassette Move Block should start shaking if it collides with a solid for longer than the default break time.
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.noDebris=Whether this Cassette Move Block should not spawn debris when it breaks.
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.spritePath=Path to a folder to use for custom sprites, starting from Graphics/Atlases/Gameplay. The following textures must be defined:\n- solid: Used when the block is currently active.\n- pressed00 to pressed03: Used when the block is currently inactive, with the number of the texture corresponding to the block's index (00 for blue, 01 for pink, 02 for yellow, 03 for green).\n- arrow00 to arrow07, arrowPressed00 to arrowPressed07, arrowHighlight00 to arrowHighlight07, arrowHighlightPressed00 to arrowHighlightPressed07: Used for the arrow.\n- x, xPressed, xHighlight, xHighlightPressed: Used for the breaking cross.\n- debris00 to debris02: Used for the debris.\nIf left empty, the default textures will be used.
+entities.CommunalHelper/CassetteMoveBlock.attributes.description.sideAlpha=The alpha (opacity) of the darker rectangle at the bottom of the block. 0 will make it fully transparent, 1 will make it fully opaque.
 entities.CommunalHelper/CassetteMoveBlock.attributes.description.held=Whether this Cassette Block is activated by holding the manual cassette key binding (using the Manual Cassette Controller).\nThis only works if this block's index is 0 or 1:\n- index 0: ACTIVE when key is HELD.\n- index 1: INACTIVE when key is HELD.
 
 # Cassette Swap Block
@@ -213,6 +221,8 @@ entities.CommunalHelper/CassetteSwapBlock.attributes.description.index=The color
 entities.CommunalHelper/CassetteSwapBlock.attributes.description.tempo=The tempo of the cassette music in the room.
 entities.CommunalHelper/CassetteSwapBlock.attributes.description.customColor=Optional hexadecimal color code, visual-only change.
 entities.CommunalHelper/CassetteSwapBlock.attributes.description.oldConnectionBehavior=Force the old texture connection behavior (cassette entities connect to anything around them that is on the same index).
+entities.CommunalHelper/CassetteSwapBlock.attributes.description.spritePath=Path to a folder to use for custom sprites, starting from Graphics/Atlases/Gameplay. The following textures must be defined:\n- solid: Used when the block is currently active.\n- pressed00 to pressed03: Used when the block is currently inactive, with the number of the texture corresponding to the block's index (00 for blue, 01 for pink, 02 for yellow, 03 for green).\n- x, xPressed: Used for the cross if "No Return" is checked.\n- target: Used for the path indicator rectangle.\nIf left empty, the default textures will be used.
+entities.CommunalHelper/CassetteSwapBlock.attributes.description.sideAlpha=The alpha (opacity) of the darker rectangle at the bottom of the block. 0 will make it fully transparent, 1 will make it fully opaque.
 entities.CommunalHelper/CassetteSwapBlock.attributes.description.held=Whether this Cassette Block is activated by holding the manual cassette key binding (using the Manual Cassette Controller).\nThis only works if this block's index is 0 or 1:\n- index 0: ACTIVE when key is HELD.\n- index 1: INACTIVE when key is HELD.
 
 # Cassette Jump Fix Controller
