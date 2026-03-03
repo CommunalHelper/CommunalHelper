@@ -11,6 +11,7 @@ dreamRefill.placements = {
         data = {
             oneUse = false,
             respawnTime = 2.5,
+            forceRefillDash = false,
             twoDash = false,
         }
     },
@@ -19,6 +20,7 @@ dreamRefill.placements = {
         data = {
             oneUse = false,
             respawnTime = 2.5,
+            forceRefillDash = false,
             twoDash = true,
         }
     }
