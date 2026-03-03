@@ -17,7 +17,7 @@ for _, dir in ipairs(directions) do
         placement.data.Rainbow = false
         placement.data.Reusable = false
         placement.data.ReusableTimer = 0.0
-        placement.data.legacyBehavior = true
+        placement.data.legacyBehavior = false
     end
 
     table.insert(timedTriggerSpikes, spikes)
