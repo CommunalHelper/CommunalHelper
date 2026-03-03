@@ -82,6 +82,7 @@ for i, direction in ipairs(enums.move_block_directions) do
             regenTime = 3.0,
             shakeOnCollision = true,
             noDebris = false,
+            redirectIsPersistent = false
         }
     }
 end
@@ -105,6 +106,7 @@ equationMoveBlock.placements[5] = {
         regenTime = 3.0,
         shakeOnCollision = true,
         noDebris = false,
+        redirectIsPersistent = false
     }
 }
 equationMoveBlock.placements[6] = {
@@ -127,6 +129,7 @@ equationMoveBlock.placements[6] = {
         regenTime = 3.0,
         shakeOnCollision = true,
         noDebris = false,
+        redirectIsPersistent = false,
         activatorFlags = "_pressed",
         breakerFlags = "_obstructed",
         onActivateFlags = "",

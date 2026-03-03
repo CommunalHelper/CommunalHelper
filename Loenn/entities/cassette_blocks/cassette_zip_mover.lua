@@ -29,6 +29,10 @@ cassetteZipMover.fieldInformation = {
     },
     tempo = {
         minimumValue = 0.0
+    },
+    sideAlpha = {
+        minimumValue = 0.0,
+        maximumValue = 1.0
     }
 }
 
@@ -47,6 +51,9 @@ for i = 1, 4 do
             noReturn = false,
             customColor = colors[i],
             oldConnectionBehavior = false,
+            spritePath = "",
+            sideAlpha = 1.0,
+            held = false,
         }
     }
 end
@@ -66,13 +73,13 @@ function cassetteZipMover.sprite(room, entity)
 
     local nodes = entity.nodes or { { x = 0, y = 0 } }
     local nodeSprites = communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes,
-        "objects/CommunalHelper/cassetteZipMover/cog", color, ropeColor)
+        communalHelper.suffixFromPathOrDefault(entity.spritePath, "/cog", "objects/CommunalHelper/cassetteZipMover/cog"), color, ropeColor)
     for _, sprite in ipairs(nodeSprites) do
         table.insert(sprites, sprite)
     end
 
     if entity.noReturn then
-        local cross = drawableSprite.fromTexture("objects/CommunalHelper/cassetteMoveBlock/x")
+        local cross = drawableSprite.fromTexture(communalHelper.suffixFromPathOrDefault(entity.spritePath, "/x", "objects/CommunalHelper/cassetteMoveBlock/x"))
         cross:setPosition(centerX, centerY)
         cross:setColor(color)
         cross.depth = -11

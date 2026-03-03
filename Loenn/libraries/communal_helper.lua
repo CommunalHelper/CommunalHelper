@@ -18,6 +18,10 @@ function communalHelper.hexToColor(hex, default)
     return color
 end
 
+function communalHelper.suffixFromPathOrDefault(path, suffix, defaultValue)
+    return (path or "") ~= "" and (path .. suffix) or defaultValue
+end
+
 -- cassette blocks
 
 communalHelper.cassetteBlockColors = {
@@ -123,7 +127,7 @@ function communalHelper.getCustomCassetteBlockSprites(room, entity, lonely, oldB
     local tileWidth, tileHeight = math.ceil(width / 8), math.ceil(height / 8)
 
     local color = communalHelper.getCustomCassetteBlockColor(entity)
-    local frame = "objects/cassetteblock/solid"
+    local frame = communalHelper.suffixFromPathOrDefault(entity.spritePath, "/solid", "objects/cassetteblock/solid")
     local depth = -10
 
     for x = 1, tileWidth do
