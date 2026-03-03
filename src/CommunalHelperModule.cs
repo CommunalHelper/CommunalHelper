@@ -120,6 +120,8 @@ public class CommunalHelperModule : EverestModule
         AffectSpriteTrigger.Load();
 
         MelvinTargetable.Load();
+        
+        Shapeshifter.Load();
 
         #region Imports
 
@@ -219,6 +221,8 @@ public class CommunalHelperModule : EverestModule
         AffectSpriteTrigger.Unload();
 
         MelvinTargetable.Unload();
+        
+        Shapeshifter.Unload();
 
         LaserEmitter.Unload();
     }
@@ -277,8 +281,6 @@ public class CommunalHelperModule : EverestModule
         StationBlock.InitializeParticles();
         StationBlockTrack.InitializeTextures();
         TrackSwitchBox.InitializeParticles();
-
-        CassetteZipMover.InitializeTextures();
 
         DreamTunnelRefill.InitializeParticles();
         DreamTunnelDash.InitializeParticles();

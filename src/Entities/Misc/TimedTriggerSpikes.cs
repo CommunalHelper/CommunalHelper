@@ -195,12 +195,14 @@ public class TimedTriggerSpikes : Entity
     private readonly bool reusable;
     private readonly float reusableTimer;
 
+    private bool legacyBehavior;
+
     public TimedTriggerSpikes(EntityData data, Vector2 offset, Directions dir)
         : this(
               data.Position, offset, GetSize(data, dir), dir,
               data.Attr("type", "default"), data.Float("Delay", 0.4f), data.Bool("WaitForPlayer", false),
               data.Bool("Grouped", false), data.Bool("Rainbow", false), data.Bool("TriggerAlways", false),
-              data.Bool("Reusable"), data.Float("ReusableTimer")
+              data.Bool("Reusable"), data.Float("ReusableTimer"), data.Bool("legacyBehavior", true)
               )
     {
     }
@@ -209,7 +211,7 @@ public class TimedTriggerSpikes : Entity
         Vector2 position, Vector2 offset, int size, Directions direction,
         string overrideType, float Delay, bool waitForPlayer,
         bool grouped, bool rainbow, bool triggerAlways,
-        bool reusable, float reusableTimer
+        bool reusable, float reusableTimer, bool legacyBehavior
         )
         : base(position + offset)
     {
@@ -233,6 +235,7 @@ public class TimedTriggerSpikes : Entity
         this.triggerAlways = triggerAlways;
         this.reusable = reusable;
         this.reusableTimer = reusableTimer;
+        this.legacyBehavior = legacyBehavior;
 
         SafeGroundBlocker safeGroundBlocker = null;
         LedgeBlocker ledgeBlocker = null;
@@ -350,8 +353,8 @@ public class TimedTriggerSpikes : Entity
 
     private bool SideSafeBlockCheck(Player player)
     {
-        int top = (int) ((player.Top - Top) / 4f);
-        int bottom = (int) ((player.Bottom - Top) / 4f);
+        int top = (int) ((player.Top - Top) / (legacyBehavior ? 4f: 8f));
+        int bottom = (int) ((player.Bottom - Top) / (legacyBehavior ? 4f: 8f));
 
         if (bottom < 0 || top >= spikes.Length)
             return false;

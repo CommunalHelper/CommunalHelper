@@ -187,6 +187,8 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             yield return 0.2f;
 
             BreakParticles();
+            if (!redirectIsPersistent)
+                ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
 
             List<MoveBlockDebris> debris = new();
             if (!noDebris)

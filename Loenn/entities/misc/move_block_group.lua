@@ -35,6 +35,7 @@ moveBlockGroup.placements = {
         name = "move_block_group",
         data = {
             color = defaultColorValue,
+            disablePulse = false,
             syncActivation = true,
             respawnBehavior = "Simultaneous"
         }

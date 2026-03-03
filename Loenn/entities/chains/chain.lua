@@ -19,6 +19,7 @@ chain.placements = {
         extraJoints = 0,
         outline = true,
         texture = "objects/CommunalHelper/chains/chain",
+        updateOffscreen = true,
     }
 }
 

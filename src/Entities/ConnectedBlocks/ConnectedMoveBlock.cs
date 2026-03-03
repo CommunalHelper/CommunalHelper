@@ -124,6 +124,9 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected readonly bool noDebris;
 
+    // whether any MoveBlockRedirects' effects on this move block should persist after respawn
+    protected readonly bool redirectIsPersistent;
+
     public ConnectedMoveBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f))
     {
@@ -203,6 +206,8 @@ public class ConnectedMoveBlock : ConnectedSolid
         shakeOnCollision = data.Bool("shakeOnCollision", true);
 
         noDebris = data.Bool("noDebris");
+
+        redirectIsPersistent = data.Bool("redirectIsPersistent", true);
     }
 
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
@@ -368,6 +373,8 @@ public class ConnectedMoveBlock : ConnectedSolid
             yield return 0.2f;
 
             BreakParticles();
+            if (!redirectIsPersistent)
+                ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
 
             List<MoveBlockDebris> debris = new();
             if (!noDebris)
