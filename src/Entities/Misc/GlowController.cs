@@ -67,14 +67,12 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
         cursor.EmitDelegate(GetGlowControllers);
         cursor.Emit(OpCodes.Stloc, allGlowControllers);
 
-        if (!cursor.TryGotoNextBestFit(MoveType.After,
-            instr => instr.MatchLdloc(5),
-            instr => instr.MatchLdarg(0),
-            instr => instr.MatchCallvirt<EntityList>("get_Scene"),
-            instr => instr.MatchCallvirt<Entity>("Awake")))
+        if (!cursor.TryGotoNextBestFit(MoveType.Before,
+            instr => instr.MatchLdfld<EntityList>("toAwake"),
+            instr => instr.MatchCallvirt<List<Entity>>("Clear")))
             return;
-        
-        cursor.Emit(OpCodes.Ldloc, 5);
+
+        cursor.Emit(OpCodes.Ldarg, 0);
         cursor.Emit(OpCodes.Ldloc, allGlowControllers);
         cursor.EmitDelegate(ProcessEntity);
 
@@ -84,11 +82,11 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
         static IEnumerable<GlowController> GetGlowControllers(EntityList entityList)
             => entityList.Concat(entityList.ToAdd).OfType<GlowController>();
 
-        static void ProcessEntity(Entity entity, IEnumerable<GlowController> glowControllers)
-        {
+        static void ProcessEntity(EntityList entities, IEnumerable<GlowController> glowControllers) {
             foreach (GlowController controller in glowControllers)
-                controller.Process(entity);
-        }
+                foreach (Entity entity in entities.toAwake)
+                    controller.Process(entity);
+         }
     }
     
     #endregion
