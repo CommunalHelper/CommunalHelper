@@ -1,14 +1,87 @@
 using Celeste.Mod.CommunalHelper.Components;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Triggers;
 
 // unfortunately, due to this class being generic, `[Tracked(true)]` doesn't really do anything here
-// all children of this class need to be marked as `[TrackedAs(typeof(AbstractConfigureStateTrigger<T>))]` in order to be tracked properly
+// all children of this class need to be marked as `[TrackedAs(typeof(AbstractConfigureStateTrigger<TOptions, TChanges>))]` (with the correct type parameters) in order to be tracked properly
 [Tracked(true)]
-internal abstract class AbstractConfigureStateTrigger<T> : Trigger
+internal abstract class AbstractConfigureStateTrigger<TOptions, TChanges> : Trigger
 {
-    private readonly T options;
+    #region Utilities
+    
+    protected enum Actions
+    {
+        None,
+        Enable,
+        Disable
+    }
+
+    protected static bool? BoolNullable(EntityData data, string key, bool? defaultValue = null)
+    {
+        if (!(data.Values?.TryGetValue(key, out object obj) ?? false))
+            return defaultValue;
+        
+        if (obj is bool result1)
+            return result1;
+        if (bool.TryParse(obj.ToString(), out bool result2))
+            return result2;
+
+        if (obj is Actions action1)
+            return ToNullableBool(action1);
+        if (Enum.TryParse(obj.ToString(), out Actions action2))
+            return ToNullableBool(action2);
+        
+        return defaultValue;
+        
+        static bool? ToNullableBool(Actions action)
+            => action switch
+            {
+                Actions.None => null,
+                Actions.Enable => true,
+                Actions.Disable => false,
+                _ => null
+            };
+    }
+
+    protected static int? IntNullable(EntityData data, string key, int? defaultValue = null)
+    {
+        if (!(data.Values?.TryGetValue(key, out object obj) ?? false))
+            return defaultValue;
+        
+        if (obj is int result1)
+            return result1;
+        
+        string s = obj.ToString();
+        if (string.IsNullOrEmpty(s))
+            return null;
+        if (int.TryParse(s, out int result2))
+            return result2;
+        
+        return defaultValue;
+    }
+    
+    protected static float? FloatNullable(EntityData data, string key, float? defaultValue = null)
+    {
+        if (!(data.Values?.TryGetValue(key, out object obj) ?? false))
+            return defaultValue;
+        
+        if (obj is float result1)
+            return result1;
+        
+        string s = obj.ToString();
+        if (string.IsNullOrEmpty(s))
+            return null;
+        if (float.TryParse(s, out float result2))
+            return result2;
+        
+        return defaultValue;
+    }
+    
+    #endregion
+    
+    private readonly TChanges changes;
 
     private readonly bool revertOnLeave;
     private readonly bool revertOnDeath;
@@ -21,7 +94,7 @@ internal abstract class AbstractConfigureStateTrigger<T> : Trigger
         revertOnDeath = data.Bool("revertOnDeath");
         onlyOnce = data.Bool("onlyOnce");
 
-        options = GetConfiguredOptions(data);
+        changes = GetConfiguredChanges(data);
 
         string flag = data.Attr("flag");
         if (!string.IsNullOrEmpty(flag))
@@ -30,19 +103,21 @@ internal abstract class AbstractConfigureStateTrigger<T> : Trigger
         }
     }
 
-    protected abstract T GetConfiguredOptions(EntityData data);
+    protected abstract TChanges GetConfiguredChanges(EntityData data);
+    protected abstract TOptions ApplyChanges(TOptions options, TChanges changes);
     
-    protected abstract T GetCurrentOptions(Player player);
-    protected abstract void SaveCurrentOptions(Player player, T options);
+    protected abstract TOptions GetCurrentOptions(Player player);
+    protected abstract void SaveCurrentOptions(Player player, TOptions options);
     
-    protected abstract T GetPerRoomOptions();
-    protected abstract void SavePerRoomOptions(T options);
+    protected abstract TOptions GetPerRoomOptions();
+    protected abstract void SavePerRoomOptions(TOptions options);
 
     public override void OnEnter(Player player)
     {
-        SaveCurrentOptions(player, options);
+        TOptions newOptions = ApplyChanges(GetCurrentOptions(player), changes);
+        SaveCurrentOptions(player, newOptions);
         if (!revertOnDeath && !revertOnLeave)
-            SavePerRoomOptions(options);
+            SavePerRoomOptions(newOptions);
 
         if (onlyOnce)
             RemoveSelf();
@@ -50,7 +125,7 @@ internal abstract class AbstractConfigureStateTrigger<T> : Trigger
 
     public override void OnLeave(Player player)
     {
-        if (revertOnLeave && !player.Dead)
+        if (revertOnLeave && !player.Dead) // hmm
             SaveCurrentOptions(player, GetPerRoomOptions());
     }
 
@@ -72,8 +147,8 @@ internal abstract class AbstractConfigureStateTrigger<T> : Trigger
 
     private static void ResetCurrentOptions(Player player)
     {
-        if (player.Scene.Tracker.GetEntities<AbstractConfigureStateTrigger<T>>()
-                                .Cast<AbstractConfigureStateTrigger<T>>()
+        if (player.Scene.Tracker.GetEntities<AbstractConfigureStateTrigger<TOptions, TChanges>>()
+                                .Cast<AbstractConfigureStateTrigger<TOptions, TChanges>>()
                                 .FirstOrDefault(t => t.revertOnDeath) is { } trigger)
             trigger.SaveCurrentOptions(player, trigger.GetPerRoomOptions());
     }
@@ -84,8 +159,8 @@ internal abstract class AbstractConfigureStateTrigger<T> : Trigger
         if (player is null)
             return;
         
-        if (level.Tracker.GetEntities<AbstractConfigureStateTrigger<T>>()
-                         .Cast<AbstractConfigureStateTrigger<T>>()
+        if (level.Tracker.GetEntities<AbstractConfigureStateTrigger<TOptions, TChanges>>()
+                         .Cast<AbstractConfigureStateTrigger<TOptions, TChanges>>()
                          .FirstOrDefault() is { } trigger) 
             trigger.SavePerRoomOptions(trigger.GetCurrentOptions(player));
     }

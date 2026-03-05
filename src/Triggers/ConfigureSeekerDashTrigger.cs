@@ -3,19 +3,29 @@ using static Celeste.Mod.CommunalHelper.DashStates.SeekerDash;
 namespace Celeste.Mod.CommunalHelper.Triggers;
 
 [CustomEntity("CommunalHelper/ConfigureSeekerDashTrigger")]
-[TrackedAs(typeof(AbstractConfigureStateTrigger<SeekerDashConfiguration>))]
-internal class ConfigureSeekerDashTrigger : AbstractConfigureStateTrigger<SeekerDashConfiguration>
+[TrackedAs(typeof(AbstractConfigureStateTrigger<SeekerDashConfiguration, SeekerDashChanges>))]
+internal class ConfigureSeekerDashTrigger : AbstractConfigureStateTrigger<SeekerDashConfiguration, ConfigureSeekerDashTrigger.SeekerDashChanges>
 {
+    public struct SeekerDashChanges
+    {
+        public bool? RespectBoosters;
+    }
+    
     public ConfigureSeekerDashTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
     { }
 
-    protected override SeekerDashConfiguration GetConfiguredOptions(EntityData data)
+    protected override SeekerDashChanges GetConfiguredChanges(EntityData data)
         => new()
         {
-            RespectBoosters = data.Bool("respectBoosters", false)
+            RespectBoosters = BoolNullable(data, "respectBoosters", false)
         };
-    
+    protected override SeekerDashConfiguration ApplyChanges(SeekerDashConfiguration options, SeekerDashChanges changes)
+        => new()
+        {
+            RespectBoosters = changes.RespectBoosters ?? options.RespectBoosters,
+        };
+
     protected override SeekerDashConfiguration GetCurrentOptions(Player player)
         => CommunalHelperModule.Session.CurrentSeekerDashConfiguration;
     protected override void SaveCurrentOptions(Player player, SeekerDashConfiguration options)
