@@ -65,29 +65,6 @@ public abstract class AbstractPanel : Entity
 
     protected virtual void OnAttach(Platform platform)
     {
-        platform.OnDashCollide = DelegateHelper.ApplyDashCollisionHook(platform.OnDashCollide, OnDashCollide);
-    }
-
-    /// <summary>
-    /// Does not check dash direction or direct collision with the Panel.
-    /// Use CheckDashCollision as needed.
-    /// </summary>
-    protected virtual DashCollisionResults OnDashCollide(DashCollision orig, Player player, Vector2 dir)
-    {
-        return orig(player, dir);
-    }
-
-    protected bool CheckDashCollision(Player player, Vector2 dir)
-    {
-        switch (Orientation)
-        {
-            case Directions.Up when dir.Y > 0:
-            case Directions.Down when dir.Y < 0:
-            case Directions.Left when dir.X > 0:
-            case Directions.Right when dir.X < 0:
-                return player.CollideCheck(this, player.Position + dir);
-        }
-        return false;
     }
 
     // Make sure at least one side aligns, and the rest are contained within the solid
@@ -143,14 +120,6 @@ public abstract class AbstractPanel : Entity
         }
 
         base.Update();
-    }
-
-    public override void Removed(Scene scene)
-    {
-        if (staticMover.Platform is not null && (staticMover.Platform.TagCheck(Tags.Global) || staticMover.Platform.TagCheck(Tags.Persistent)))
-            DelegateHelper.RemoveDashCollisionHook(staticMover.Platform.OnDashCollide, OnDashCollide);
-
-        base.Removed(scene);
     }
 
     #region Hooks

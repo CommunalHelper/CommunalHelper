@@ -1,7 +1,7 @@
 ﻿namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/DashCollisionPanel")]
-public class DashCollisionPanel : AbstractPanel
+public class DashCollisionPanel : AbstractDashCollisionPanel
 {
     public DashCollisionResults dashCollisionOverride;
     public bool overrideCollision;
