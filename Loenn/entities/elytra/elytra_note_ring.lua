@@ -1,6 +1,7 @@
 local drawableLine = require "structs.drawable_line"
 local drawableSprite = require "structs.drawable_sprite"
 local utils = require "utils"
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local elytraNoteRing = {}
 
@@ -53,6 +54,13 @@ elytraNoteRing.fieldInformation = {
             ["35 = B6"] = 35,
             ["36 = C7"] = 36,
         }
+    },
+    color = {
+        fieldType = "color",
+    },
+    volume = {
+        minimumValue = 0,
+        maximumValue = 5, --don't blow people's ears off, 500% volume is more than enough
     }
 }
 
@@ -61,14 +69,19 @@ elytraNoteRing.placements = {
         name = "elytra_note_ring",
         data = {
             semitone = 12,
+            volume = 1,
+            eventName = "event:/CommunalHelperEvents/game/elytra/rings/note",
+            parameters = "",
+            color = "ffffff",
         }
     }
 }
 
 local dotTexture = "objects/CommunalHelper/elytraRing/dot"
-local ringColor = {0.8, 0.8, 0.8, 1.0}
 
 function elytraNoteRing.sprite(room, entity)
+    local ringColor = communalHelper.hexToColor(entity.color, "ffffff")
+
     local sprites = {}
 
     local x, y = entity.x or 0, entity.y or 0
