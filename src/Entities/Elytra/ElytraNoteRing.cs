@@ -40,11 +40,12 @@ public class ElytraNoteRing : ElytraRing
 
         if (@params is not null && @params.Length > 0)
         {
-            parameters = @params.Split(";").Select(s =>
-            {
-                string[] parts = s.Split('=');
-                return new Param() { name = parts[0], value = float.TryParse(parts[1], out float val) ? val : 0f };
-            }).ToArray();
+            parameters = @params.Split(";")
+                .Select(s => s.Split("="))
+                .Where(parts => parts.Length == 2)
+                .Select(parts => new Param() { name = parts[0], value = float.TryParse(parts[1], out float val) ? val : 0f })
+                .Where(param => !string.IsNullOrWhiteSpace(param.name))
+                .ToArray();
         }
 
         parameters ??= [];
