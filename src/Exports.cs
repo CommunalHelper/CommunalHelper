@@ -4,7 +4,6 @@ using Celeste.Mod.CommunalHelper.States;
 using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
 using MonoMod.ModInterop;
-using System.Collections;
 using System.Collections.Generic;
 using DreamTunnelDash = Celeste.Mod.CommunalHelper.DashStates.DreamTunnelDash;
 
