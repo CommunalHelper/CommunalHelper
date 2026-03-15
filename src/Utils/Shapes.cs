@@ -715,7 +715,7 @@ internal class Shapes
         return mesh;
     }
 
-    private static Mesh<VertexPCTN> BuildMesh(Vector3[] vertices, int[] indices, Color color, float rainbow = 0f, float scale = 1f)
+    internal static Mesh<VertexPCTN> BuildMesh(Vector3[] vertices, int[] indices, Color color, float rainbow = 0f, float scale = 1f)
     {
         Mesh<VertexPCTN> mesh = new();
         for (int i = 0; i < indices.Length; i += 3)
