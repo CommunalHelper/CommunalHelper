@@ -367,13 +367,14 @@ entities.CommunalHelper/DreamFallingBlock.attributes.description.oneUse=Whether 
 entities.CommunalHelper/DreamFallingBlock.attributes.description.refillCount=Number of dashes the Dream Falling Block should refill (-1 for default).
 entities.CommunalHelper/DreamFallingBlock.attributes.description.below=Determines whether the Dream Falling Block should render below foreground tiles.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.noCollide=Whether the Dream Falling Block should go through solids.
-entities.CommunalHelper/DreamFallingBlock.attributes.description.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+entities.CommunalHelper/DreamFallingBlock.attributes.description.fallDistance=The maximum distance (in pixels) this block can fall before the chain tightens and stops the block (in other words, the chain length).
 entities.CommunalHelper/DreamFallingBlock.attributes.description.centeredChain=Renders only one chain at the horizontal center of this block.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.quickDestroy=Makes this Dream Falling Block shatter a little faster.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.chainTexture=The texture for this Dream Falling Block's chain (if chained).
+entities.CommunalHelper/DreamFallingBlock.attributes.description.chainBelow=Determines if the chain should appear farther behind in the scene.\nDoes nothing if 'Below' is also enabled.
 entities.CommunalHelper/DreamFallingBlock.attributes.description.legacyLandingBehavior=Whether the Dream Falling Block should not emit particles or make sound when landing, and immediately resume falling if the platform it lands on is removed.
 
 # Dream Switch Gate
@@ -556,14 +557,15 @@ entities.CommunalHelper/ChainedKevin.attributes.description.chainTexture=The tex
 # Chained Falling Block
 entities.CommunalHelper/ChainedFallingBlock.placements.name.chained_falling_block=Falling Block (Chained)
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.tiletype=Changes the visual appearance of this block.
-entities.CommunalHelper/ChainedFallingBlock.attributes.description.climbFall=Whether the block should start falling when the player is climbing it.
-entities.CommunalHelper/ChainedFallingBlock.attributes.description.behind=Whether this entity should appear farther behind in the scene or not.
-entities.CommunalHelper/ChainedFallingBlock.attributes.description.fallDistance=The maximum distance this block can fall before the chains tightens and stops the block (in other words, the chain length).
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.climbFall=Whether this block should start falling when the player is climbing it.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.behind=Whether this block and its chain should both appear farther behind in the scene.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.fallDistance=The maximum distance (in pixels) this block can fall before the chain tightens and stops the block (in other words, the chain length).
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.centeredChain=Renders only one chain at the horizontal center of this block.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainOutline=Whether the chain of this block should have a black outline.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainTexture=The texture for this Falling Block's chain.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainBehind=Whether the chain should appear farther behind in the scene.\nDoes nothing if 'Behind' is also enabled.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.staticMoverForceShake=Whether this block should shake for longer when triggered by an attached static mover (e.g. a spring).
 
 # Chain

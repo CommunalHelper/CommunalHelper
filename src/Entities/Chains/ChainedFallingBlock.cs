@@ -5,6 +5,36 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 [CustomEntity("CommunalHelper/ChainedFallingBlock")]
 public class ChainedFallingBlock : Solid
 {
+    private class FallingBlockChainRenderer : Entity
+    {
+        private readonly ChainedFallingBlock block;
+
+        public FallingBlockChainRenderer(ChainedFallingBlock chainedFallingBlock)
+        {
+            block = chainedFallingBlock;
+            Depth = chainedFallingBlock.chainBehind ? Depths.SolidsBelow + 1 : Depths.Solids + 1;
+        }
+
+        public override void Render()
+        {
+            if ((block.hasStartedFalling || block.indicatorAtStart) && block.indicator && !block.held)
+            {
+                float toY = block.startY + ((block.chainStopY + block.Height - block.startY) * Ease.ExpoOut(block.pathLerp));
+                Draw.Rect(block.X, block.Y, block.Width, toY - block.Y, Color.Black * 0.75f);
+            }
+
+            if (block.centeredChain)
+                Chain.DrawChainLine(new Vector2(block.X + (block.Width / 2f), block.startY), new Vector2(block.X + (block.Width / 2f), block.Y), block.chainTexture, block.chainOutline);
+            else
+            {
+                Chain.DrawChainLine(new Vector2(block.X + 3, block.startY), new Vector2(block.X + 3, block.Y), block.chainTexture, block.chainOutline);
+                Chain.DrawChainLine(new Vector2(block.X + block.Width - 4, block.startY), new Vector2(block.X + block.Width - 4, block.Y), block.chainTexture, block.chainOutline);
+            }
+        }
+    }
+
+    private FallingBlockChainRenderer chainRenderer;
+
     private readonly char tileType;
     private readonly TileGrid tiles;
 
@@ -16,6 +46,8 @@ public class ChainedFallingBlock : Solid
     private bool triggeredByStaticMover;
 
     private readonly MTexture chainTexture;
+
+    private readonly bool chainBehind;
 
     private readonly float chainStopY, startY;
     private readonly bool centeredChain;
@@ -31,13 +63,13 @@ public class ChainedFallingBlock : Solid
             data.Char("tiletype", '3'), data.Bool("climbFall", true), data.Bool("behind"),
             data.Int("fallDistance"), data.Bool("centeredChain"), data.Bool("chainOutline", true),
             data.Bool("indicator"), data.Bool("indicatorAtStart"), data.Attr("chainTexture", Chain.DEFAULT_CHAIN_PATH),
-            data.Bool("staticMoverForceShake", false)) { }
+            data.Bool("chainBehind", false), data.Bool("staticMoverForceShake", false)) { }
 
     public ChainedFallingBlock(Vector2 position, int width, int height,
         char tileType, bool climbFall, bool behind,
         int maxFallDistance, bool centeredChain, bool chainOutline,
         bool indicator, bool indicatorAtStart, string chainTexturePath = Chain.DEFAULT_CHAIN_PATH,
-        bool staticMoverForceShake = false)
+        bool chainBehind = false, bool staticMoverForceShake = false)
         : base(position, width, height, safe: false)
     {
         this.climbFall = climbFall;
@@ -68,8 +100,22 @@ public class ChainedFallingBlock : Solid
         });
 
         SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
+
         if (behind)
             Depth = Depths.SolidsBelow;
+        this.chainBehind = behind || chainBehind;
+    }
+
+    public override void Added(Scene scene)
+    {
+        base.Added(scene);
+        scene.Add(chainRenderer = new FallingBlockChainRenderer(this));
+    }
+
+    public override void Removed(Scene scene)
+    {
+        base.Removed(scene);
+        chainRenderer.RemoveSelf();
     }
 
     public override void OnShake(Vector2 amount)
@@ -231,24 +277,5 @@ public class ChainedFallingBlock : Solid
 
         if (hasStartedFalling && indicator && !indicatorAtStart)
             pathLerp = Calc.Approach(pathLerp, 1f, Engine.DeltaTime * 2f);
-    }
-
-    public override void Render()
-    {
-        if ((hasStartedFalling || indicatorAtStart) && indicator && !held)
-        {
-            float toY = startY + ((chainStopY + Height - startY) * Ease.ExpoOut(pathLerp));
-            Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
-        }
-
-        if (centeredChain)
-            Chain.DrawChainLine(new Vector2(X + (Width / 2f), startY), new Vector2(X + (Width / 2f), Y), chainTexture, chainOutline);
-        else
-        {
-            Chain.DrawChainLine(new Vector2(X + 3, startY), new Vector2(X + 3, Y), chainTexture, chainOutline);
-            Chain.DrawChainLine(new Vector2(X + Width - 4, startY), new Vector2(X + Width - 4, Y), chainTexture, chainOutline);
-        }
-
-        base.Render();
     }
 }
