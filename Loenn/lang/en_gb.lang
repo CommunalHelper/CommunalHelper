@@ -564,6 +564,7 @@ entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainOutline=
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicator=Renders below the block a dark transparent rectangle of the path it is going to take when it starts to fall. This indicator might not be visible against dark backgrounds.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.indicatorAtStart=Makes the indicator (if enabled) visible before the block is triggered.
 entities.CommunalHelper/ChainedFallingBlock.attributes.description.chainTexture=The texture for this Falling Block's chain.
+entities.CommunalHelper/ChainedFallingBlock.attributes.description.staticMoverForceShake=Whether this block should shake for longer when triggered by an attached static mover (e.g. a spring).
 
 # Chain
 entities.CommunalHelper/Chain.placements.name.chain=Chain

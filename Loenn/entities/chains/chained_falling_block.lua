@@ -18,7 +18,7 @@ function chainedFallingBlock.fieldInformation()
 end
 
 function chainedFallingBlock.depth(room, entity)
-    return entity.behind and 5000 or 0
+    return entity.behind and 5000 or -9000
 end
 
 chainedFallingBlock.placements = {
@@ -34,7 +34,8 @@ chainedFallingBlock.placements = {
         chainOutline = true,
         indicator = false,
         indicatorAtStart = false,
-        chainTexture = "objects/CommunalHelper/chains/chain"
+        chainTexture = "objects/CommunalHelper/chains/chain",
+        staticMoverForceShake = true
     }
 }
 

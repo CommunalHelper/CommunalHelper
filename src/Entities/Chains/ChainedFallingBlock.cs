@@ -12,6 +12,9 @@ public class ChainedFallingBlock : Solid
     private readonly bool climbFall;
     private bool held;
 
+    private readonly bool staticMoverForceShake;
+    private bool triggeredByStaticMover;
+
     private readonly MTexture chainTexture;
 
     private readonly float chainStopY, startY;
@@ -24,9 +27,17 @@ public class ChainedFallingBlock : Solid
     private readonly SoundSource rattle;
 
     public ChainedFallingBlock(EntityData data, Vector2 offset)
-        : this(data.Position + offset, data.Width, data.Height, data.Char("tiletype", '3'), data.Bool("climbFall", true), data.Bool("behind"), data.Int("fallDistance"), data.Bool("centeredChain"), data.Bool("chainOutline", true), data.Bool("indicator"), data.Bool("indicatorAtStart"), data.Attr("chainTexture", Chain.DEFAULT_CHAIN_PATH)) { }
+        : this(data.Position + offset, data.Width, data.Height,
+            data.Char("tiletype", '3'), data.Bool("climbFall", true), data.Bool("behind"),
+            data.Int("fallDistance"), data.Bool("centeredChain"), data.Bool("chainOutline", true),
+            data.Bool("indicator"), data.Bool("indicatorAtStart"), data.Attr("chainTexture", Chain.DEFAULT_CHAIN_PATH),
+            data.Bool("staticMoverForceShake", false)) { }
 
-    public ChainedFallingBlock(Vector2 position, int width, int height, char tileType, bool climbFall, bool behind, int maxFallDistance, bool centeredChain, bool chainOutline, bool indicator, bool indicatorAtStart, string chainTexturePath = Chain.DEFAULT_CHAIN_PATH)
+    public ChainedFallingBlock(Vector2 position, int width, int height,
+        char tileType, bool climbFall, bool behind,
+        int maxFallDistance, bool centeredChain, bool chainOutline,
+        bool indicator, bool indicatorAtStart, string chainTexturePath = Chain.DEFAULT_CHAIN_PATH,
+        bool staticMoverForceShake = false)
         : base(position, width, height, safe: false)
     {
         this.climbFall = climbFall;
@@ -41,6 +52,8 @@ public class ChainedFallingBlock : Solid
         pathLerp = Util.ToInt(indicatorAtStart);
 
         chainTexture = GFX.Game.GetOrDefault(chainTexturePath, Chain.DefaultChain);
+
+        this.staticMoverForceShake = staticMoverForceShake;
 
         Calc.PushRandom(Calc.Random.Next());
         Add(tiles = GFX.FGAutotiler.GenerateBox(tileType, width / 8, height / 8).TileGrid);
@@ -68,6 +81,7 @@ public class ChainedFallingBlock : Solid
     public override void OnStaticMoverTrigger(StaticMover sm)
     {
         hasStartedFalling = true;
+        triggeredByStaticMover = true;
     }
 
     private bool PlayerFallCheck()
@@ -77,6 +91,9 @@ public class ChainedFallingBlock : Solid
 
     private bool PlayerWaitCheck()
     {
+        if (staticMoverForceShake && triggeredByStaticMover)
+            return true;
+
         if (PlayerFallCheck())
             return true;
 
