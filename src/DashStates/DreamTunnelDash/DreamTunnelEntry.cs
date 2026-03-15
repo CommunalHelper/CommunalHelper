@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.States;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.States;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -90,6 +91,8 @@ public class DreamTunnelEntry : AbstractPanel
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(0, 0, 7, 7, null),
             GFX.Game["objects/dreamblock/particles"].GetSubtexture(7, 0, 7, 7, null)
         ];
+
+        Add(new DreamTunnelDangerous(Collider, () => PlayerHasDreamDash));
     }
 
     protected override DashCollisionResults OnDashCollide(DashCollision orig, Player player, Vector2 dir)

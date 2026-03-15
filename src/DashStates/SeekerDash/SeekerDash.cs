@@ -39,12 +39,12 @@ public static class SeekerDash
     public struct SeekerDashConfiguration
     {
         public bool RespectBoosters;
+        
+        public static readonly SeekerDashConfiguration Default = new()
+        {
+            RespectBoosters = false
+        };
     }
-
-    public static readonly SeekerDashConfiguration DefaultSeekerDashConfiguration = new()
-    {
-        RespectBoosters = false
-    };
 
     internal static void Load()
     {

@@ -26,12 +26,12 @@ public static class ModExports
 
         public static bool HasDreamTunnelDash()
         {
-            return DreamTunnelDash.DreamTunnelDashCount > 0;
+            return Util.TryGetPlayer(out Player player) && (player.Get<DreamTunnelDash.DreamTunnelDashComponent>()?.DreamTunnelDashCount ?? 0) > 0;
         }
 
         public static int GetDreamTunnelDashCount()
         {
-            return DreamTunnelDash.DreamTunnelDashCount;
+            return Util.TryGetPlayer(out Player player) ? player.Get<DreamTunnelDash.DreamTunnelDashComponent>()?.DreamTunnelDashCount ?? 0 : 0;
         }
 
         public static Component DreamTunnelInteraction(Action<Player> onPlayerEnter, Action<Player> onPlayerExit)

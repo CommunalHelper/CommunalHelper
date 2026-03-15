@@ -54,13 +54,13 @@ public static class Elytra
     {
         public bool DisableReverseVerticalMomentum;
         public bool UpdateCooldownInEveryState;
+        
+        public static readonly ElytraConfiguration Default = new()
+        {
+            DisableReverseVerticalMomentum = false,
+            UpdateCooldownInEveryState = true
+        };
     }
-
-    public static readonly ElytraConfiguration DefaultElytraConfiguration = new()
-    {
-        DisableReverseVerticalMomentum = false,
-        UpdateCooldownInEveryState = true
-    };
 
     /// <summary>
     /// Refills the player's dashes and stamina.

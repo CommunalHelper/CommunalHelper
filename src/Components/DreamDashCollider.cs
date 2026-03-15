@@ -29,11 +29,14 @@ internal class DreamDashCollider : Component
 
     public Action<Player> OnEnter, OnExit;
 
+    private DreamTunnelDangerous dangerous;
+
     public DreamDashCollider(Collider collider, Action<Player> onEnter = null, Action<Player> onExit = null)
         : base(active: true, visible: false)
     {
         Collider = collider;
         Dummy = new(Entity, this);
+        
         OnEnter = onEnter;
         OnExit = onExit;
     }
@@ -41,7 +44,25 @@ internal class DreamDashCollider : Component
     public override void Added(Entity entity)
     {
         base.Added(entity);
+        
         Dummy.Entity = entity;
+        entity.Add(dangerous = new DreamTunnelDangerous(Collider, () => Active));
+    }
+
+    public override void Removed(Entity entity)
+    {
+        base.Removed(entity);
+
+        Dummy = null;
+        entity.Remove(dangerous);
+    }
+    
+    public override void EntityRemoved(Scene scene)
+    {
+        base.EntityRemoved(Scene);
+
+        Dummy = null;
+        Entity.Remove(dangerous);
     }
 
     /// <summary>
@@ -53,7 +74,6 @@ internal class DreamDashCollider : Component
         if (Active && Collider is not null && Entity is not null &&
             player.GetData().Data.TryGetValue(Player_canEnterDreamDashCollider, out object canEnter) && canEnter.Equals(true))
         {
-
             Collider collider = Entity.Collider;
 
             Entity.Collider = Collider;

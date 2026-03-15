@@ -61,7 +61,8 @@ public class DreamTunnelRefill : DashStateRefill
 
     protected override bool CanActivate(Player player)
     {
-        return player.Stamina < 20f || DreamTunnelDashCount < (twoDashes ? 2 : 1);
+        DreamTunnelDashComponent component = player.Get<DreamTunnelDashComponent>();
+        return player.Stamina < 20f || (component?.DreamTunnelDashCount ?? 0) < (twoDashes ? 2 : 1);
     }
 
     protected override void Activated(Player player)

@@ -283,7 +283,6 @@ public class CommunalHelperModule : EverestModule
         TrackSwitchBox.InitializeParticles();
 
         DreamTunnelRefill.InitializeParticles();
-        DreamTunnelDash.InitializeParticles();
 
         DreamZipMover.InitializeTextures();
         DreamMoveBlock.InitializeParticles();

@@ -26,20 +26,20 @@ public class CommunalHelperSession : EverestModuleSession
     #region Player States
     
     public bool CanDeployElytra { get; set; }
-    public Elytra.ElytraConfiguration CurrentElytraConfiguration { get; set; } = Elytra.DefaultElytraConfiguration;
+    public Elytra.ElytraConfiguration CurrentElytraConfiguration { get; set; } = Elytra.ElytraConfiguration.Default;
     internal bool PerRoomCanDeployElytra { get; set; }
     internal bool PerRoomHasInfiniteElytra { get; set; }
-    internal Elytra.ElytraConfiguration PerRoomElytraConfiguration { get; set; } = Elytra.DefaultElytraConfiguration;
+    internal Elytra.ElytraConfiguration PerRoomElytraConfiguration { get; set; } = Elytra.ElytraConfiguration.Default;
 
     public DashStates.DreamTunnelDash.DreamTunnelDashConfiguration CurrentDreamTunnelDashConfiguration { get; set; }
-        = DashStates.DreamTunnelDash.DefaultDreamTunnelDashConfiguration;
+        = DashStates.DreamTunnelDash.DreamTunnelDashConfiguration.Default;
     internal DashStates.DreamTunnelDash.DreamTunnelDashConfiguration PerRoomDreamTunnelDashConfiguration { get; set; }
-        = DashStates.DreamTunnelDash.DefaultDreamTunnelDashConfiguration;
+        = DashStates.DreamTunnelDash.DreamTunnelDashConfiguration.Default;
 
     public DashStates.SeekerDash.SeekerDashConfiguration CurrentSeekerDashConfiguration { get; set; }
-        = DashStates.SeekerDash.DefaultSeekerDashConfiguration;
+        = DashStates.SeekerDash.SeekerDashConfiguration.Default;
     internal DashStates.SeekerDash.SeekerDashConfiguration PerRoomSeekerDashConfiguration { get; set; }
-        = DashStates.SeekerDash.DefaultSeekerDashConfiguration;
+        = DashStates.SeekerDash.SeekerDashConfiguration.Default;
     
     #endregion
     

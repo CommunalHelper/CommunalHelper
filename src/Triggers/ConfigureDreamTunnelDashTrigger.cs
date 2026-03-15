@@ -12,7 +12,7 @@ internal class ConfigureDreamTunnelDashTrigger : AbstractConfigureStateTrigger<D
         public bool? AllowSameDirectionRedirect;
         public float? SameDirectionSpeedMultiplier;
         public bool? UseEntryDirection;
-        public SpeedConfiguration? SpeedConfiguration;
+        public DreamTunnelDashConfiguration.SpeedConfigurations? SpeedConfiguration;
         public float? CustomSpeed;
         public bool? AllowDashCancels;
         public bool? RedirectConsumesNormalDash;
@@ -32,7 +32,7 @@ internal class ConfigureDreamTunnelDashTrigger : AbstractConfigureStateTrigger<D
             AllowSameDirectionRedirect = BoolNullable(data, "allowSameDirectionRedirect", false),
             SameDirectionSpeedMultiplier = data.Float("sameDirectionSpeedMultiplier", 1f),
             UseEntryDirection = BoolNullable(data, "useEntryDirection", false),
-            SpeedConfiguration = IntNullable(data, "speedConfiguration", 0) is { } value ? (SpeedConfiguration) value : null, // `as` doesn't work
+            SpeedConfiguration = IntNullable(data, "speedConfiguration", 0) is { } value ? (DreamTunnelDashConfiguration.SpeedConfigurations) value : null, // `as` doesn't work
             CustomSpeed = FloatNullable(data, "customSpeed", 0f),
             AllowDashCancels = BoolNullable(data, "allowDashCancels", false),
             RedirectConsumesNormalDash = BoolNullable(data, "redirectConsumesNormalDash", false),
