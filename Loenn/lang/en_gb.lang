@@ -836,6 +836,10 @@ entities.CommunalHelper/ElytraStopRing.attributes.description.refill=Whether the
 # Elytra Note Ring
 entities.CommunalHelper/ElytraNoteRing.placements.name.elytra_note_ring=Elytra Note Ring
 entities.CommunalHelper/ElytraNoteRing.attributes.description.semitone=The note to play when this ring is crossed. You can input your own integer value if you want to go above or below the range available in the dropdown options.\n0 is C4, input negative integer to go below.
+entities.CommunalHelper/ElytraNoteRing.attributes.description.volume=How loud the played note is.
+entities.CommunalHelper/ElytraNoteRing.attributes.description.parameters=A semicolon-separated parameter list to be passed to the audio event when played.\nEach entry should be formatted as "<paramName>=<paramValue>", without spaces.\ne.g. "param_a=1.5;param_b=0;param_c=0.5"
+entities.CommunalHelper/ElytraNoteRing.attributes.description.eventName=The FMOD audio event the ring plays when crossed.
+entities.CommunalHelper/ElytraNoteRing.attributes.description.color=The ring's color, as RRGGBB.
 
 # Badeline Boost (Keep Holdables)
 entities.CommunalHelper/BadelineBoostKeepHoldables.placements.name.boost=Badeline Boost (Keep Holdables)
