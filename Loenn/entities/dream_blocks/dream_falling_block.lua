@@ -67,6 +67,7 @@ dreamFallingBlock.placements = {
             indicatorAtStart = false,
             chained = true,
             chainTexture = "objects/CommunalHelper/chains/chain",
+            chainBelow = false,
             legacyLandingBehavior = false
         }
     }

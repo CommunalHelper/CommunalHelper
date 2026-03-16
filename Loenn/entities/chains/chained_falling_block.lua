@@ -4,22 +4,6 @@ local fakeTilesHelper = require("helpers.fake_tiles")
 local chainedFallingBlock = {}
 
 chainedFallingBlock.name = "CommunalHelper/ChainedFallingBlock"
-function chainedFallingBlock.fieldInformation()
-    return {
-        tiletype = {
-            options = fakeTilesHelper.getTilesOptions(),
-            editable = false
-        },
-        fallDistance = {
-            minimumValue = 0,
-            fieldType = "integer"
-        }
-    }
-end
-
-function chainedFallingBlock.depth(room, entity)
-    return entity.behind and 5000 or 0
-end
 
 chainedFallingBlock.placements = {
     name = "chained_falling_block",
@@ -34,9 +18,32 @@ chainedFallingBlock.placements = {
         chainOutline = true,
         indicator = false,
         indicatorAtStart = false,
-        chainTexture = "objects/CommunalHelper/chains/chain"
+        chainTexture = "objects/CommunalHelper/chains/chain",
+        chainBehind = false,
+        staticMoverForceShake = true
     }
 }
+
+chainedFallingBlock.fieldOrder = {
+    "x", "y", "width", "height",
+    "chainTexture", "fallDistance",
+    "tiletype", "behind", "climbFall",
+    "centeredChain", "chainOutline", "chainBehind", "staticMoverForceShake",
+    "indicator", "indicatorAtStart"
+}
+
+function chainedFallingBlock.fieldInformation()
+    return {
+        tiletype = {
+            options = fakeTilesHelper.getTilesOptions(),
+            editable = false
+        },
+        fallDistance = {
+            minimumValue = 0,
+            fieldType = "integer"
+        }
+    }
+end
 
 local fakeTilesSpriteFunction = fakeTilesHelper.getEntitySpriteFunction("tiletype", false)
 
@@ -52,6 +59,10 @@ function chainedFallingBlock.sprite(room, entity)
     table.insert(sprites, rect)
 
     return sprites
+end
+
+function chainedFallingBlock.depth(room, entity)
+    return entity.behind and 5000 or -9000
 end
 
 return chainedFallingBlock
