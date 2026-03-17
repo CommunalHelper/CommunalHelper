@@ -69,7 +69,11 @@ public class ConnectedDreamBlock : CustomDreamBlock
 
     private List<SpaceJamEdge> GroupEdges;
     private List<SpaceJamCorner> GroupCorners;
-    private Rectangle GroupRect;
+    private Rectangle GroupRect => new(
+        (int) GroupBoundsMin.X,
+        (int) GroupBoundsMin.Y,
+        (int) (GroupBoundsMax.X - GroupBoundsMin.X),
+        (int) (GroupBoundsMax.Y - GroupBoundsMin.Y));
 
     private enum Edges
     {
@@ -118,11 +122,6 @@ public class ConnectedDreamBlock : CustomDreamBlock
             AddToGroupAndFindChildren(this);
             SetupCustomParticles(0, 0); // Parameters are ignored
 
-            GroupRect = new Rectangle(
-                (int) GroupBoundsMin.X,
-                (int) GroupBoundsMin.Y,
-                (int) (GroupBoundsMax.X - GroupBoundsMin.X),
-                (int) (GroupBoundsMax.Y - GroupBoundsMin.Y));
             GroupOffset = new Vector2(GroupBoundsMin.X, GroupBoundsMin.Y) - Position;
 
             float groupW = GroupBoundsMax.X - GroupBoundsMin.X;
@@ -743,11 +742,6 @@ public class ConnectedDreamBlock : CustomDreamBlock
             Level level = SceneAs<Level>();
             level.Shake(.65f);
             Vector2 camera = level.Camera.Position;
-            Rectangle GroupRect = new(
-                (int) GroupBoundsMin.X,
-                (int) GroupBoundsMin.Y,
-                (int) (GroupBoundsMax.X - GroupBoundsMin.X),
-                (int) (GroupBoundsMax.Y - GroupBoundsMin.Y));
 
             Vector2 centre = new(GroupRect.Center.X, GroupRect.Center.Y);
             for (int i = 0; i < particles.Length; i++)
