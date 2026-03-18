@@ -361,7 +361,7 @@ public class AeroBlockCharged : AeroBlockFlying
         SetButtonProperties(Button.PressState.Unpressed, Color.White, inactiveColor);
         
         if (cassetteIndex != -1)
-            Remove(listener);
+            Scene.OnEndOfFrame += () => Remove(listener); // can't remove the listener while the `CassetteBlockManager` is updating
 
         MTexture icon = GFX.Game["objects/CommunalHelper/aero_block/icons/x5"];
         AeroScreen_Blinker blinker;
