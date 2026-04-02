@@ -122,15 +122,6 @@ public class CommunalHelperModule : EverestModule
         
         Shapeshifter.Load();
 
-        #region Imports
-
-        typeof(Imports.CavernHelper).ModInterop();
-        typeof(Imports.GravityHelper).ModInterop();
-        typeof(Imports.ReverseHelper).ModInterop();
-        typeof(Imports.LylyraHelper).ModInterop();
-
-        #endregion
-
         ModExports.Initialize();
     }
 
@@ -241,11 +232,6 @@ public class CommunalHelperModule : EverestModule
             LaserEmitter.Load();
         }
 
-        if (Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "LylyraHelper", Version = new Version("1.3.12") }))
-        {
-            LylyraHelper.Load();
-        }
-
         // Register CustomCassetteBlock types
         CustomCassetteBlock.Initialize();
 
@@ -256,20 +242,18 @@ public class CommunalHelperModule : EverestModule
 
         BetaCube.Initialize();
 
-        Imports.ReverseHelper.RegisterDreamBlockLike?.Invoke(typeof(DreamTunnelEntry),
-            e => (e as DreamTunnelEntry).ActivateNoRoutine(),
-            e => (e as DreamTunnelEntry).DeactivateNoRoutine());
-        /*
-         * Some Communal Helper mechanics don't work well with Gravity Helper.
-         * To fix this, Gravity Helper has implemented hooks that patch some of Communal Helper's methods.
-         * From now on though, we'll be supporting Gravity Helper with the methods it exports, and fix quirks ourselves.
-         * So, we need to call RegisterModSupportBlacklist, which will discard hooks implemented in Gravity Helper.
-         */
-        Imports.GravityHelper.RegisterModSupportBlacklist?.Invoke("CommunalHelper");
-
-        Imports.SpeedrunTool.Initialize();
-
         AeroBlockCharged.SpirialisHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata() { Name = "SpirialisHelper", Version = new Version(1, 0, 8) });
+        
+        #region Imports
+        
+        CavernHelper.Initialize();
+        GravityHelper.Initialize();
+        ReverseHelper.Initialize();
+        LylyraHelper.Initialize();
+        SpeedrunTool.Initialize();
+        EeveeHelper.Initialize();
+
+        #endregion
     }
 
     public override void LoadContent(bool firstLoad)
