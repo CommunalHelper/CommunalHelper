@@ -72,8 +72,6 @@ public class SolarElevator : Solid
 
     private Background bg;
 
-    private readonly HashSet<Actor> riders;
-
     public EntityID ID { get; }
 
     public SolarElevator(EntityData data, Vector2 offset, EntityID id)
@@ -150,8 +148,6 @@ public class SolarElevator : Solid
         img.JustifyOrigin(0.5f, 1.0f);
         img.Position.Y = 10;
         Add(img);
-
-        riders = new DynamicData(typeof(Solid), this).Get<HashSet<Actor>>("riders");
     }
 
     public override void Awake(Scene scene)

@@ -400,8 +400,6 @@ public class ConnectedSolid : Solid
         GetRiders();
         Player player = Scene.Tracker.GetEntity<Player>();
 
-        HashSet<Actor> riders = data.Get<HashSet<Actor>>("riders");
-
         if (player is not null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + (Vector2.UnitX * move) - Vector2.UnitY))
         {
             player.MoveV(1f);
@@ -461,7 +459,6 @@ public class ConnectedSolid : Solid
         GravityHelper.BeginOverride?.Invoke();
 
         GetRiders();
-        HashSet<Actor> riders = data.Get<HashSet<Actor>>("riders");
 
         Y += move;
         MoveStaticMovers(Vector2.UnitY * move);
