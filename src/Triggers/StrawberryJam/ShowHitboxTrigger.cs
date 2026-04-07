@@ -2,6 +2,7 @@
 using MonoMod.Cil;
 using System.Collections.Generic;
 using System.Linq;
+using Celeste.Mod.Registry;
 
 namespace Celeste.Mod.CommunalHelper.Triggers.StrawberryJam;
 
@@ -55,24 +56,26 @@ public class ShowHitboxTrigger : Trigger
         }
     }
 
+    #region Hooks
+
     public static void Load()
     {
-        IL.Celeste.GameplayRenderer.Render += PatchGameplayRendererRender;
-        On.Celeste.SoundSource.DebugRender += SoundSourceOnDebugRender;
+        IL.Celeste.GameplayRenderer.Render += IL_GameplayRenderer_Render;
+        On.Celeste.SoundSource.DebugRender += On_SoundSource_DebugRender;
         // below are hitbox fixes from CelesteTAS, maybe they will get integrated into Everest
-        On.Monocle.Draw.HollowRect_float_float_float_float_Color += ModDrawHollowRect;
-        On.Monocle.Draw.Circle_Vector2_float_Color_int += ModDrawCircle;
+        On.Monocle.Draw.HollowRect_float_float_float_float_Color += On_Draw_HollowRect_float_float_float_float_Color;
+        On.Monocle.Draw.Circle_Vector2_float_Color_int += On_Draw_Circle_Vector2_float_Color_int;
     }
 
     public static void Unload()
     {
-        IL.Celeste.GameplayRenderer.Render -= PatchGameplayRendererRender;
-        On.Celeste.SoundSource.DebugRender -= SoundSourceOnDebugRender;
-        On.Monocle.Draw.HollowRect_float_float_float_float_Color -= ModDrawHollowRect;
-        On.Monocle.Draw.Circle_Vector2_float_Color_int -= ModDrawCircle;
+        IL.Celeste.GameplayRenderer.Render -= IL_GameplayRenderer_Render;
+        On.Celeste.SoundSource.DebugRender -= On_SoundSource_DebugRender;
+        On.Monocle.Draw.HollowRect_float_float_float_float_Color -= On_Draw_HollowRect_float_float_float_float_Color;
+        On.Monocle.Draw.Circle_Vector2_float_Color_int -= On_Draw_Circle_Vector2_float_Color_int;
     }
 
-    private static void PatchGameplayRendererRender(ILContext il)
+    private static void IL_GameplayRenderer_Render(ILContext il)
     {
         ILCursor cursor = new(il);
         if (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCall<GameplayRenderer>("End")))
@@ -96,7 +99,12 @@ public class ShowHitboxTrigger : Trigger
             cursor.MoveAfterLabels();
             cursor.Emit(OpCodes.Ldarg_0); // self
             cursor.Emit(OpCodes.Ldarg_1); // scene
-            cursor.EmitDelegate<Action<GameplayRenderer, Scene>>((self, scene) =>
+            cursor.EmitDelegate(DrawEnabledHitboxes);
+            cursor.MarkLabel(beforeGameplayRendererEnd);
+
+            return;
+
+            static void DrawEnabledHitboxes(GameplayRenderer self, Scene scene)
             {
                 if (EnabledTypeNames.Count == 0)
                 {
@@ -105,17 +113,20 @@ public class ShowHitboxTrigger : Trigger
 
                 foreach (Entity entity in scene.Entities)
                 {
-                    if (EnabledTypeNames.Contains(entity.GetType().FullName) || EnabledTypeNames.Contains(entity.GetType().Name))
+                    Type type = entity.GetType();
+                    if (EnabledTypeNames.Contains(type.FullName) || EnabledTypeNames.Contains(type.Name)
+                        || (entity.SourceData?.Name is { } sourceSid
+                            ? EnabledTypeNames.Contains(sourceSid)
+                            : EnabledTypeNames.Overlaps(EntityRegistry.GetKnownSidsFromType(type))))
                     {
                         entity.DebugRender(self.Camera);
                     }
                 }
-            });
-            cursor.MarkLabel(beforeGameplayRendererEnd);
+            }
         }
     }
 
-    private static void SoundSourceOnDebugRender(On.Celeste.SoundSource.orig_DebugRender orig, SoundSource self, Camera camera)
+    private static void On_SoundSource_DebugRender(On.Celeste.SoundSource.orig_DebugRender orig, SoundSource self, Camera camera)
     {
         if (EnabledTypeNames.Count == 0 || Engine.Commands.Open)
         {
@@ -123,7 +134,7 @@ public class ShowHitboxTrigger : Trigger
         }
     }
 
-    private static void ModDrawHollowRect(On.Monocle.Draw.orig_HollowRect_float_float_float_float_Color orig, float x, float y, float width, float height, Color color)
+    private static void On_Draw_HollowRect_float_float_float_float_Color(On.Monocle.Draw.orig_HollowRect_float_float_float_float_Color orig, float x, float y, float width, float height, Color color)
     {
         if (EnabledTypeNames.Count == 0)
         {
@@ -138,7 +149,7 @@ public class ShowHitboxTrigger : Trigger
         orig(fx, fy, cw, cy, color);
     }
 
-    private static void ModDrawCircle(On.Monocle.Draw.orig_Circle_Vector2_float_Color_int orig, Vector2 center, float radius, Color color, int resolution)
+    private static void On_Draw_Circle_Vector2_float_Color_int(On.Monocle.Draw.orig_Circle_Vector2_float_Color_int orig, Vector2 center, float radius, Color color, int resolution)
     {
         // Adapted from John Kennedy, "A Fast Bresenham Type Algorithm For Drawing Circles"
         // https://web.engr.oregonstate.edu/~sllu/bcircle.pdf
@@ -240,4 +251,6 @@ public class ShowHitboxTrigger : Trigger
 
         Draw.SpriteBatch.Draw(Draw.Pixel.Texture.Texture, rect, Draw.Pixel.ClipRect, color);
     }
+
+    #endregion
 }

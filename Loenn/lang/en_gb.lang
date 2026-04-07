@@ -854,16 +854,16 @@ entities.CommunalHelper/BadelineBoostKeepHoldables.attributes.description.finalC
 
 # Glow Controller
 entities.CommunalHelper/GlowController.placements.name.controller=Glow Controller
-entities.CommunalHelper/GlowController.attributes.description.lightWhitelist=A comma-separated list of fully qualified entity class names to apply VertexLights to.  Defaults to empty string.
-entities.CommunalHelper/GlowController.attributes.description.lightBlacklist=A comma-separated list of fully qualified entity class names to remove VertexLights from.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.lightWhitelist=A comma-separated list of fully qualified entity class names or entity SIDs to apply VertexLights to.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.lightBlacklist=A comma-separated list of fully qualified entity class names or entity SIDs to remove VertexLights from.  Defaults to empty string.
 entities.CommunalHelper/GlowController.attributes.description.lightColor=The colour to use for the lights, as a hex representation.  Defaults to white (FFFFFF).
 entities.CommunalHelper/GlowController.attributes.description.lightAlpha=The opacity of the light, ranging from 0 (invisible) to 1 (opaque).  Defaults to 1.
 entities.CommunalHelper/GlowController.attributes.description.lightStartFade=The distance from the entity's position at which the light should begin to fade in.  Defaults to 24.
 entities.CommunalHelper/GlowController.attributes.description.lightEndFade=The distance from the entity's position at which the light should begin to fade out.  Defaults to 48.
 entities.CommunalHelper/GlowController.attributes.description.lightOffsetX=The X offset from the entity's position at which to place the VertexLight.  Defaults to 0.
 entities.CommunalHelper/GlowController.attributes.description.lightOffsetY=The Y offset from the entity's position at which to place the VertexLight.  Defaults to 0.
-entities.CommunalHelper/GlowController.attributes.description.bloomWhitelist=A comma-separated list of fully qualified entity class names to apply BloomPoints to.  Defaults to empty string.
-entities.CommunalHelper/GlowController.attributes.description.bloomBlacklist=A comma-separated list of fully qualified entity class names to remove BloomPoints and CustomBlooms from.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.bloomWhitelist=A comma-separated list of fully qualified entity class names or entity SIDs to apply BloomPoints to.  Defaults to empty string.
+entities.CommunalHelper/GlowController.attributes.description.bloomBlacklist=A comma-separated list of fully qualified entity class names or entity SIDs to remove BloomPoints and CustomBlooms from.  Defaults to empty string.
 entities.CommunalHelper/GlowController.attributes.description.bloomAlpha=The opacity of the bloom, ranging from 0 (invisible) to 1 (opaque).  Defaults to 1.
 entities.CommunalHelper/GlowController.attributes.description.bloomRadius=The radius of the bloom in pixels.  Defaults to 8.
 entities.CommunalHelper/GlowController.attributes.description.bloomOffsetX=The X offset from the entity's position at which to place the BloomPoint.  Defaults to 0.
@@ -1039,7 +1039,7 @@ entities.CommunalHelper/DreamTunnelBlocker.attributes.description.blockDreamDash
 # [Strawberry Jam] Show Hitbox Trigger
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox [Strawberry Jam]
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.description.trigger=Shows the hitboxes of specified entities while inside.
-triggers.CommunalHelper/SJ/ShowHitboxTrigger.attributes.description.typeNames=A comma-separated list of class names of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill
+triggers.CommunalHelper/SJ/ShowHitboxTrigger.attributes.description.typeNames=A comma-separated list of class names or entity SIDs of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill,FrostHelper/IceSpinner
 
 # [Strawberry Jam] Oshiro Attack Time Trigger
 triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.name.trigger=Oshiro Faster Attack [Strawberry Jam]

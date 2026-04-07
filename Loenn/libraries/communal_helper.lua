@@ -4,6 +4,8 @@ local drawableSprite = require("structs.drawable_sprite")
 local drawableNinePatch = require("structs.drawable_nine_patch")
 local utils = require("utils")
 local connectedEntities = require("helpers.connected_entities")
+local loadedState = require("loaded_state")
+local entities = require("entities")
 
 local communalHelper = {}
 
@@ -396,5 +398,36 @@ communalHelper.easers = {
     ["Bounce Out"] = "BounceOut",
     ["Bounce In Out"] = "BounceInOut",
 }
+
+-- sids
+
+function communalHelper.getAllSIDs()
+    local sids = {}
+    for sid, _ in pairs(entities.registeredEntities) do
+        table.insert(sids, sid)
+    end
+    table.sort(sids)
+
+    return sids
+end
+
+function communalHelper.getMapSIDs()
+    if not loadedState.map then return communalHelper.getAllSIDs() end
+
+    local sidsInMap = {}
+    for _, room in pairs(loadedState.map.rooms) do
+        for _, entity in pairs(room.entities) do
+            sidsInMap[entity._name] = true
+        end
+    end
+
+    local sids = {}
+    for sid, _ in pairs(sidsInMap) do
+        table.insert(sids, sid)
+    end
+    table.sort(sids)
+
+    return sids
+end
 
 return communalHelper
