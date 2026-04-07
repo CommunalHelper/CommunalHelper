@@ -1,15 +1,42 @@
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
+
 local glowController = {}
 
 glowController.name = "CommunalHelper/GlowController"
 glowController.depth = -1000000
 glowController.texture = "objects/CommunalHelper/glowController/icon"
 
+glowController.fieldOrder = {
+    "x", "y",
+    "lightBlacklist", "bloomBlacklist",
+    "lightWhitelist", "bloomWhitelist",
+    "lightColor", "bloomAlpha",
+    "lightAlpha", "bloomRadius",
+    "lightStartFade", "bloomOffsetX",
+    "lightEndFade", "bloomOffsetY",
+    "lightOffsetX", "deathAnimationIds",
+    "lightOffsetY", "respawnAnimationIds",
+    "flag", "flagFadeTime"
+}
+
 glowController.fieldInformation = {
     lightWhitelist = {
         fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "",
+        elementOptions = {
+             options = function() return communalHelper.getMapSIDs() end,
+             searchable = true,
+        },
     },
     lightBlacklist = {
         fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "",
+        elementOptions = {
+             options = function() return communalHelper.getMapSIDs() end,
+             searchable = true,
+        },
     },
     lightColor = {
         fieldType = "color",
@@ -31,9 +58,21 @@ glowController.fieldInformation = {
     },
     bloomWhitelist = {
         fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "",
+        elementOptions = {
+             options = function() return communalHelper.getMapSIDs() end,
+             searchable = true,
+        },
     },
     bloomBlacklist = {
         fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "",
+        elementOptions = {
+             options = function() return communalHelper.getMapSIDs() end,
+             searchable = true,
+        },
     },
     bloomAlpha = {
         fieldType = "number",

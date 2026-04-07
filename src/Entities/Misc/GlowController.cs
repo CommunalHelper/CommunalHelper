@@ -5,10 +5,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Celeste.Mod.Registry;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/GlowController")]
+[Tracked]
 public class GlowController(EntityData data, Vector2 offset) : Entity(data.Position + offset)
 {
     #region Hooks
@@ -60,49 +62,51 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
             instr => instr.MatchStloc(4)))
             return;
         
-        VariableDefinition allGlowControllers = new(il.Import(typeof(IEnumerable<GlowController>)));
+        VariableDefinition allGlowControllers = new(il.Import(typeof(GlowController[])));
         il.Body.Variables.Add(allGlowControllers);
 
         cursor.Emit(OpCodes.Ldarg_0);
         cursor.EmitDelegate(GetGlowControllers);
         cursor.Emit(OpCodes.Stloc, allGlowControllers);
 
-        if (!cursor.TryGotoNextBestFit(MoveType.Before,
-            instr => instr.MatchLdfld<EntityList>("toAwake"),
-            instr => instr.MatchCallvirt<List<Entity>>("Clear")))
+        if (!cursor.TryGotoNextBestFit(MoveType.After,
+            instr => instr.MatchLdloc(5),
+            instr => instr.MatchLdarg(0),
+            instr => instr.MatchCallvirt<EntityList>("get_Scene"),
+            instr => instr.MatchCallvirt<Entity>("Awake")))
             return;
 
-        cursor.Emit(OpCodes.Ldarg, 0);
+        cursor.Emit(OpCodes.Ldloc, 5);
         cursor.Emit(OpCodes.Ldloc, allGlowControllers);
         cursor.EmitDelegate(ProcessEntity);
 
         return;
         
-        // maybe a bit expensive to be doing every frame
-        static IEnumerable<GlowController> GetGlowControllers(EntityList entityList)
-            => entityList.Concat(entityList.ToAdd).OfType<GlowController>();
+        // new entities have already been added to the tracker at this point in UpdateLists (and toAdd has been cleared anyway), so using the tracker should be sufficient
+        static GlowController[] GetGlowControllers(EntityList entityList)
+            => entityList.Scene.Tracker.GetEntities<GlowController>().Cast<GlowController>().ToArray();
 
-        static void ProcessEntity(EntityList entities, IEnumerable<GlowController> glowControllers) {
+        static void ProcessEntity(Entity entity, GlowController[] glowControllers)
+        {
             foreach (GlowController controller in glowControllers)
-                foreach (Entity entity in entities.toAwake)
-                    controller.Process(entity);
-         }
+                controller.Process(entity);
+        }
     }
     
     #endregion
 
     private const StringSplitOptions SplitOptions = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
 
-    private readonly string[] lightWhitelist = data.Attr("lightWhitelist").Split(',', SplitOptions);
-    private readonly string[] lightBlacklist = data.Attr("lightBlacklist").Split(',', SplitOptions);
+    private readonly HashSet<string> lightWhitelist = data.Attr("lightWhitelist").Split(',', SplitOptions).ToHashSet();
+    private readonly HashSet<string> lightBlacklist = data.Attr("lightBlacklist").Split(',', SplitOptions).ToHashSet();
     private readonly Color lightColor = data.HexColor("lightColor", Color.White);
     private readonly float lightAlpha = data.Float("lightAlpha", 1f);
     private readonly int lightStartFade = data.Int("lightStartFade", 24);
     private readonly int lightEndFade = data.Int("lightEndFade", 48);
     private readonly Vector2 lightOffset = new(data.Int("lightOffsetX"), data.Int("lightOffsetY", -10));
 
-    private readonly string[] bloomWhitelist = data.Attr("bloomWhitelist").Split(',', SplitOptions);
-    private readonly string[] bloomBlacklist = data.Attr("bloomBlacklist").Split(',', SplitOptions);
+    private readonly HashSet<string> bloomWhitelist = data.Attr("bloomWhitelist").Split(',', SplitOptions).ToHashSet();
+    private readonly HashSet<string> bloomBlacklist = data.Attr("bloomBlacklist").Split(',', SplitOptions).ToHashSet();
     private readonly float bloomAlpha = data.Float("bloomAlpha", 1f);
     private readonly float bloomRadius = data.Float("bloomRadius", 8f);
     private readonly Vector2 bloomOffset = new(data.Int("bloomOffsetX"), data.Int("bloomOffsetY", -10));
@@ -117,22 +121,26 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
     {
         Type type = entity.GetType();
         string typeName = type.FullName;
+        Func<HashSet<string>, bool> containsSid = entity.SourceData?.Name is { } sourceSid
+            ? typeList => typeList.Contains(sourceSid)
+            : typeList => typeList.Overlaps(EntityRegistry.GetKnownSidsFromType(type));
+
         bool lightOrBloomAdded = false;
 
-        if (lightBlacklist.Contains(typeName))
+        if (lightBlacklist.Contains(typeName) || containsSid(lightBlacklist))
             entity.Remove(entity.Components.GetAll<VertexLight>().ToArray<Component>());
-        if (lightWhitelist.Contains(typeName))
+        if (lightWhitelist.Contains(typeName) || containsSid(lightWhitelist))
         {
             entity.Add(new VertexLight(lightOffset, lightColor, lightAlpha, lightStartFade, lightEndFade));
             lightOrBloomAdded = true;
         }
 
-        if (bloomBlacklist.Contains(typeName))
+        if (bloomBlacklist.Contains(typeName) || containsSid(bloomBlacklist))
         {
             entity.Remove(entity.Components.GetAll<BloomPoint>().ToArray<Component>());
             entity.Remove(entity.Components.GetAll<CustomBloom>().ToArray<Component>());
         }
-        if (bloomWhitelist.Contains(typeName))
+        if (bloomWhitelist.Contains(typeName) || containsSid(bloomWhitelist))
         {
             entity.Add(new BloomPoint(bloomOffset, bloomAlpha, bloomRadius));
             lightOrBloomAdded = true;
@@ -152,6 +160,8 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
             multipliers.Add(DeathFadeMultiplier(entity, sprite));
         
         entity.Add(new Coroutine(AlphaFadeRoutine(entity, multipliers)));
+
+        return;
     }
 
     private static IEnumerator AlphaFadeRoutine(Entity entity, List<IEnumerator> multipliers)
