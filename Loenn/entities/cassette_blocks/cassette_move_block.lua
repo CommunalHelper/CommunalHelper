@@ -60,6 +60,7 @@ for i = 1, 4 do
             noDebris = false,
             spritePath = "",
             sideAlpha = 1.0,
+            ignore="",
         }
     }
 end

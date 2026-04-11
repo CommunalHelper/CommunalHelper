@@ -61,7 +61,8 @@ for i, direction in ipairs(enums.move_block_directions) do
             regenTime = 3.0,
             shakeOnCollision = true,
             noDebris = false,
-            redirectIsPersistent = false
+            redirectIsPersistent = false,
+            ignore=""
         }
     }
 end
