@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.Registry;
 using FMOD.Studio;
 using MonoMod.Utils;
 using System.Collections;
@@ -127,6 +128,10 @@ public class ConnectedMoveBlock : ConnectedSolid
     // whether any MoveBlockRedirects' effects on this move block should persist after respawn
     protected readonly bool redirectIsPersistent;
 
+    // when moving, ignore these solid types
+    protected readonly IEnumerable<Type> ignores;
+    protected bool HasIgnores => ignores.Count() > 0;
+
     public ConnectedMoveBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f))
     {
@@ -208,6 +213,8 @@ public class ConnectedMoveBlock : ConnectedSolid
         noDebris = data.Bool("noDebris");
 
         redirectIsPersistent = data.Bool("redirectIsPersistent", true);
+
+        ignores = data.String("ignore", "").Split(',').SelectMany(EntityRegistry.GetKnownTypesFromSid);
     }
 
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
@@ -577,6 +584,14 @@ public class ConnectedMoveBlock : ConnectedSolid
     {
         if (speed.X != 0f)
         {
+            if (HasIgnores)
+            {
+                if (ignores.ContainsAllFrom(CollideAll<Solid>(Position + speed.XComp()).Select(s => s.GetType())))
+                {
+                    MoveH(speed.X);
+                    return false;
+                }
+            }
             if (MoveHCollideSolids(speed.X, thruDashBlocks: false))
             {
                 for (int i = 1; i <= 3; i++)
@@ -598,8 +613,23 @@ public class ConnectedMoveBlock : ConnectedSolid
         }
         if (speed.Y != 0f)
         {
+            if (HasIgnores)
+            {
+                if (ignores.ContainsAllFrom(CollideAll<Solid>(Position + speed.YComp()).Select(s => s.GetType())))
+                {
+                    MoveV(speed.Y);
+                    return false;
+                }
+            }
             if (MoveVCollideSolids(speed.Y, thruDashBlocks: false))
             {
+                if (HasIgnores)
+                {
+                    if (ignores.ContainsAllFrom(CollideAll<Solid>().Select(s => s.GetType())))
+                    {
+                        return false;
+                    }
+                }
                 for (int j = 1; j <= 3; j++)
                 {
                     for (int num2 = 1; num2 >= -1; num2 -= 2)
