@@ -1,3 +1,15 @@
+--1.25.0 (16/04/2026)--
+* Reduced lag when entering large rooms containing Glow Controllers. @AAA1459
+* Confined Abstract Panel dash collision logic to prevent unnecessary side effects. @karl2883 and @tkavner
+* Added Elytra Note Ring customization. @SunsetQuasar
+* Added more chain rendering options to Chained Falling Blocks. @earthwise01
+* Added ModInterop for Shapes and Shape3Ds. @SunsetQuasar
+* Fixed rendering bugs when using EeveeHelper on Connected Solids. @aonkeeper4
+* Fixed crash with Cassette Charged Aero Blocks. @aonkeeper4
+* Fixed savestates interacting badly with Solar Elevators. @aonkeeper4
+* Added support for using entity SIDs to Glow Controllers and Show Hitbox Triggers. @earthwise01
+* Added the option for Connected Move Blocks to ignore certain solids. @SunsetQuasar
+
 --1.24.5 (03/03/2026)--
 * Fixed ILCursor extension methods moving the wrong way with one predicate. @aonkeeper4
 * Fixed being allowed to climb into triggered sideways Timed Trigger spikes. @AAA1459
