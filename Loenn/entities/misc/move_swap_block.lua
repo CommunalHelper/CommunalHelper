@@ -29,9 +29,10 @@ moveSwapBlock.fieldInformation = {
     },
     ignore = {
         fieldType = "list",
+        elementDefault = "",
         elementOptions = {
             fieldType = "string",
-            options = communalHelper.getMapSids,
+            options = function() return communalHelper.getMapSIDs() end,
             editable = true
         }
     }

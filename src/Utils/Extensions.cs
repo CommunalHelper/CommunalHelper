@@ -1081,4 +1081,115 @@ public static class Extensions
     }
     
     #endregion
+    
+    public static bool CollideCheckExcluding<T>(this Entity entity, Type[] ignores, Vector2? at = null) where T : Entity
+    {
+        List<Entity> toCollide = entity.Scene.Tracker.Entities[typeof(T)];
+        return toCollide.Any(e =>
+            !ignores.Contains(e.GetType())
+            && (at is { } v
+                ? Collide.Check(entity, e, v)
+                : Collide.Check(entity, e)));
+    }
+    
+    public static T CollideFirstExcluding<T>(this Entity entity, Type[] ignores, Vector2? at = null) where T : Entity
+    {
+        List<Entity> toCollide = entity.Scene.Tracker.Entities[typeof(T)];
+        return toCollide.Cast<T>().FirstOrDefault(e =>
+            !ignores.Contains(e.GetType())
+            && (at is { } v
+                ? Collide.Check(entity, e, v)
+                : Collide.Check(entity, e)));
+    }
+
+    public static T CollideFirstOutsideExcluding<T>(this Entity entity, Type[] ignores, Vector2 at) where T : Entity
+    {
+        List<Entity> toCollide = entity.Scene.Tracker.Entities[typeof(T)];
+        return toCollide.Cast<T>().FirstOrDefault(e =>
+            !ignores.Contains(e.GetType())
+            && !Collide.Check(entity, e)
+            && Collide.Check(entity, e, at));
+    }
+
+    public static bool MoveHCollideSolidsExcluding(this Platform entity, Type[] ignores, float moveH)
+    {
+        if (Engine.DeltaTime == 0f)
+        {
+            entity.LiftSpeed.X = 0f;
+        }
+        else
+        {
+            entity.LiftSpeed.X = moveH / Engine.DeltaTime;
+        }
+        entity.movementCounter.X += moveH;
+        int num = (int)Math.Round(entity.movementCounter.X);
+        if (num != 0)
+        {
+            entity.movementCounter.X -= num;
+            float x = entity.X;
+            int sign = Math.Sign(num);
+            int num2 = 0;
+            Solid solid = null;
+            while (num != 0)
+            {
+                solid = entity.CollideFirstExcluding<Solid>(ignores, entity.Position + Microsoft.Xna.Framework.Vector2.UnitX * sign);
+                if (solid != null)
+                {
+                    break;
+                }
+                num2 += sign;
+                num -= sign;
+                entity.X += sign;
+            }
+            entity.X = x;
+            entity.MoveHExact(num2);
+            return solid != null;
+        }
+        return false;
+    }
+    
+    public static bool MoveVCollideSolidsExcluding(this Platform entity, Type[] ignores, float moveV)
+    {
+        if (Engine.DeltaTime == 0f)
+        {
+            entity.LiftSpeed.Y = 0f;
+        }
+        else
+        {
+            entity.LiftSpeed.Y = moveV / Engine.DeltaTime;
+        }
+        entity.movementCounter.Y += moveV;
+        int num = (int)Math.Round(entity.movementCounter.Y);
+        if (num != 0)
+        {
+            entity.movementCounter.Y -= num;
+            float y = entity.Y;
+            int sign = Math.Sign(num);
+            int num2 = 0;
+            Platform platform = null;
+            while (num != 0)
+            {
+                platform = entity.CollideFirstExcluding<Solid>(ignores, entity.Position + Microsoft.Xna.Framework.Vector2.UnitY * sign);
+                if (platform != null)
+                {
+                    break;
+                }
+                if (num > 0)
+                {
+                    platform = entity.CollideFirstOutsideExcluding<JumpThru>(ignores, entity.Position + Microsoft.Xna.Framework.Vector2.UnitY * sign);
+                    if (platform != null)
+                    {
+                        break;
+                    }
+                }
+                num2 += sign;
+                num -= sign;
+                entity.Y += sign;
+            }
+            entity.Y = y;
+            entity.MoveVExact(num2);
+            return platform != null;
+        }
+        return false;
+    }
 }
