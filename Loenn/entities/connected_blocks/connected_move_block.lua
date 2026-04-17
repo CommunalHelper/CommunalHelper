@@ -3,6 +3,7 @@ local drawableSprite = require("structs.drawable_sprite")
 local utils = require("utils")
 local enums = require("consts.celeste_enums")
 local connectedEntities = require("helpers.connected_entities")
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local connectedMoveBlock = {}
 
@@ -38,6 +39,14 @@ connectedMoveBlock.fieldInformation = {
     },
     breakColor = {
         fieldType = "color"
+    },
+    ignore = {
+        fieldType = "list",
+        elementOptions = {
+            fieldType = "string",
+            options = communalHelper.getMapSids,
+            editable = true
+        }
     }
 }
 
@@ -62,7 +71,7 @@ for i, direction in ipairs(enums.move_block_directions) do
             shakeOnCollision = true,
             noDebris = false,
             redirectIsPersistent = false,
-            ignore=""
+            ignore = ""
         }
     }
 end
@@ -84,7 +93,8 @@ connectedMoveBlock.placements[5] = {
         regenTime = 3.0,
         shakeOnCollision = true,
         noDebris = false,
-        redirectIsPersistent = false
+        redirectIsPersistent = false,
+        ignore = ""
     }
 }
 connectedMoveBlock.placements[6] = {
@@ -111,7 +121,8 @@ connectedMoveBlock.placements[6] = {
         onActivateFlags = "",
         onBreakFlags = "",
         barrierBlocksFlags = false,
-        waitForFlags = false
+        waitForFlags = false,
+        ignore = ""
     }
 }
 

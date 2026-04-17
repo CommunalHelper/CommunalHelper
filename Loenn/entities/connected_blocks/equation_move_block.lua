@@ -3,6 +3,7 @@ local drawableSprite = require("structs.drawable_sprite")
 local enums = require("consts.celeste_enums")
 local utils = require("utils")
 local connectedEntities = require("helpers.connected_entities")
+local communalHelper = require("mods").requireFromPlugin("libraries.communal_helper")
 
 local equationMoveBlock = {}
 
@@ -53,6 +54,14 @@ equationMoveBlock.fieldInformation = {
     equation = {
         options = equations,
         editable = false
+    },
+    ignore = {
+        fieldType = "list",
+        elementOptions = {
+            fieldType = "string",
+            options = communalHelper.getMapSids,
+            editable = true
+        }
     }
 }
 
@@ -107,7 +116,8 @@ equationMoveBlock.placements[5] = {
         regenTime = 3.0,
         shakeOnCollision = true,
         noDebris = false,
-        redirectIsPersistent = false
+        redirectIsPersistent = false,
+        ignore = ""
     }
 }
 equationMoveBlock.placements[6] = {
@@ -136,7 +146,8 @@ equationMoveBlock.placements[6] = {
         onActivateFlags = "",
         onBreakFlags = "",
         barrierBlocksFlags = false,
-        waitForFlags = false
+        waitForFlags = false,
+        ignore = ""
     }
 }
 

@@ -114,6 +114,9 @@ public class MoveSwapBlock : SwapBlock
 
     private readonly Chooser<MTexture> debrisTextures;
 
+    private readonly Type[] ignores;
+    private bool HasIgnores => ignores.Length > 0;
+
     public MoveSwapBlock(EntityData data, Vector2 offset)
         : base(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, Themes.Normal)
     {
@@ -235,6 +238,8 @@ public class MoveSwapBlock : SwapBlock
                 MoveBlockRedirectable.GetControllerDelegate(dynamicData, 4)(coroutine);
             },
         });
+        
+        ignores = data.Types("ignore");
     }
 
     public override void Awake(Scene scene)
@@ -810,41 +815,71 @@ public class MoveSwapBlock : SwapBlock
         }
     }
 
-    private bool MoveCheck(Vector2 speed)
+    protected bool MoveCheck(Vector2 speed)
     {
         if (speed.X != 0f)
         {
+            if (HasIgnores)
+            {
+                if (ignores.ContainsAllFrom(CollideAll<Solid>(Position + speed.XComp()).Select(s => s.GetType())))
+                {
+                    MoveH(speed.X);
+                    return false;
+                }
+            }
             if (MoveHCollideSolids(speed.X, thruDashBlocks: false))
             {
-                for (int offsetY = 1; offsetY <= 3; offsetY++)
+                if (HasIgnores)
                 {
-                    for (int sign = 1; sign >= -1; sign -= 2)
+                    if (ignores.ContainsAllFrom(CollideAll<Solid>().Select(s => s.GetType())))
                     {
-                        Vector2 value = new(Math.Sign(speed.X), offsetY * sign);
-                        if (!(CollideCheck<Solid>(Position) || CollideCheck<Solid>(Position + value)))
+                        return false;
+                    }
+                }
+                for (int i = 1; i <= 3; i++)
+                {
+                    for (int num = 1; num >= -1; num -= 2)
+                    {
+                        Vector2 value = new(Math.Sign(speed.X), i * num);
+                        if (CollideCheck<Solid>(Position + value))
                         {
-                            MoveVExact(offsetY * sign);
+                            MoveVExact(i * num);
                             MoveHExact(Math.Sign(speed.X));
                             return false;
-
                         }
                     }
                 }
                 return true;
             }
+            return false;
         }
-        else if (speed.Y != 0f)
+        if (speed.Y != 0f)
         {
+            if (HasIgnores)
+            {
+                if (ignores.ContainsAllFrom(CollideAll<Solid>(Position + speed.YComp()).Select(s => s.GetType())))
+                {
+                    MoveV(speed.Y);
+                    return false;
+                }
+            }
             if (MoveVCollideSolids(speed.Y, thruDashBlocks: false))
             {
-                for (int offsetX = 1; offsetX <= 3; offsetX++)
+                if (HasIgnores)
                 {
-                    for (int sign = 1; sign >= -1; sign -= 2)
+                    if (ignores.ContainsAllFrom(CollideAll<Solid>().Select(s => s.GetType())))
                     {
-                        Vector2 value2 = new(offsetX * sign, Math.Sign(speed.Y));
+                        return false;
+                    }
+                }
+                for (int j = 1; j <= 3; j++)
+                {
+                    for (int num2 = 1; num2 >= -1; num2 -= 2)
+                    {
+                        Vector2 value2 = new(j * num2, Math.Sign(speed.Y));
                         if (!CollideCheck<Solid>(Position + value2))
                         {
-                            MoveHExact(offsetX * sign);
+                            MoveHExact(j * num2);
                             MoveVExact(Math.Sign(speed.Y));
                             return false;
                         }
@@ -852,6 +887,7 @@ public class MoveSwapBlock : SwapBlock
                 }
                 return true;
             }
+            return false;
         }
         return false;
     }

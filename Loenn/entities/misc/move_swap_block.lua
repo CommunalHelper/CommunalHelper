@@ -26,6 +26,14 @@ moveSwapBlock.fieldInformation = {
     },
     swapSpeedMultiplier = {
         minimumValue = 0.0
+    },
+    ignore = {
+        fieldType = "list",
+        elementOptions = {
+            fieldType = "string",
+            options = communalHelper.getMapSids,
+            editable = true
+        }
     }
 }
 
@@ -47,6 +55,7 @@ moveSwapBlock.placements = {
             regenTime = 3.0,
             shakeOnCollision = true,
             noDebris = false,
+            ignore = ""
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.CommunalHelper.Entities;
 using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.Helpers;
+using Celeste.Mod.Registry;
 using FMOD.Studio;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
@@ -114,6 +115,12 @@ public static class Extensions
             "BounceInOut" => Ease.BounceInOut,
             _ => defaultEaser ?? Ease.Linear,
         };
+    
+    public static Type[] Types(this EntityData data, string key)
+        => data.String("ignore", "")
+               .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+               .SelectMany(EntityRegistry.GetKnownTypesFromSid)
+               .ToArray();
 
     public static Vector2 CorrectJoystickPrecision(this Vector2 dir)
     {

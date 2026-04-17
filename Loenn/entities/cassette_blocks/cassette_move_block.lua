@@ -37,6 +37,14 @@ cassetteMoveBlock.fieldInformation = {
     sideAlpha = {
         minimumValue = 0.0,
         maximumValue = 1.0
+    },
+    ignore = {
+        fieldType = "list",
+        elementOptions = {
+            fieldType = "string",
+            options = communalHelper.getMapSids,
+            editable = true
+        }
     }
 }
 
@@ -60,7 +68,7 @@ for i = 1, 4 do
             noDebris = false,
             spritePath = "",
             sideAlpha = 1.0,
-            ignore="",
+            ignore = "",
         }
     }
 end

@@ -659,6 +659,7 @@ entities.CommunalHelper/MoveSwapBlock.attributes.description.crashTime=The time 
 entities.CommunalHelper/MoveSwapBlock.attributes.description.regenTime=The time it takes for this Move Swap Block to respawn after breaking in seconds.
 entities.CommunalHelper/MoveSwapBlock.attributes.description.shakeOnCollision=Whether this Move Swap Block should start shaking if it collides with a solid for longer than the default break time.
 entities.CommunalHelper/MoveSwapBlock.attributes.description.noDebris=Whether this Move Swap Block should not spawn debris when it breaks.
+entities.CommunalHelper/MoveSwapBlock.attributes.description.ignore=Comma-separated list of entity placement names to ignore.\ne.g. "zipMover,XaphanHelper/FlagDashSwitch,templeCrackedBlock"
 
 # Player Bubble Region
 entities.CommunalHelper/PlayerBubbleRegion.placements.name.player_bubble_region=Player Bubble Region

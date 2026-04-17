@@ -129,8 +129,8 @@ public class ConnectedMoveBlock : ConnectedSolid
     protected readonly bool redirectIsPersistent;
 
     // when moving, ignore these solid types
-    protected readonly IEnumerable<Type> ignores;
-    protected bool HasIgnores => ignores.Count() > 0;
+    protected readonly Type[] ignores;
+    protected bool HasIgnores => ignores.Length > 0;
 
     public ConnectedMoveBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f))
@@ -214,7 +214,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
         redirectIsPersistent = data.Bool("redirectIsPersistent", true);
 
-        ignores = data.String("ignore", "").Split(',').SelectMany(EntityRegistry.GetKnownTypesFromSid);
+        ignores = data.Types("ignore");
     }
 
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
@@ -594,6 +594,13 @@ public class ConnectedMoveBlock : ConnectedSolid
             }
             if (MoveHCollideSolids(speed.X, thruDashBlocks: false))
             {
+                if (HasIgnores)
+                {
+                    if (ignores.ContainsAllFrom(CollideAll<Solid>().Select(s => s.GetType())))
+                    {
+                        return false;
+                    }
+                }
                 for (int i = 1; i <= 3; i++)
                 {
                     for (int num = 1; num >= -1; num -= 2)
