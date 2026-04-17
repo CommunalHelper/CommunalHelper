@@ -1,3 +1,6 @@
+--1.25.1 (17/04/2026)--
+* Fixed incorrect collision logic in Connected Move Blocks. @SunsetQuasar and @aonkeeper4
+
 --1.25.0 (16/04/2026)--
 * Reduced lag when entering large rooms containing Glow Controllers. @AAA1459
 * Confined Abstract Panel dash collision logic to prevent unnecessary side effects. @karl2883 and @tkavner
