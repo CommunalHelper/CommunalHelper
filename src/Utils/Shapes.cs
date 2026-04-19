@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Utils;
@@ -16,6 +18,8 @@ internal class Shapes
     // 1-icosphere, an icosahedron subdivided 1 times.
     private static readonly Vector3[] icosphere1_vertices;
     private static readonly int[] icosphere1_indices;
+    
+    private static Dictionary<string, Mesh<VertexPCTN>> objCache;
 
     static Shapes()
     {
@@ -28,6 +32,36 @@ internal class Shapes
         data = GenerateIcosphereGeometry(1);
         icosphere1_vertices = data.Item1;
         icosphere1_indices = data.Item2;
+
+        objCache = new Dictionary<string, Mesh<VertexPCTN>>();
+    }
+
+    internal static void LoadContent()
+    {
+        objCache.Clear();
+    }
+
+    internal static void UnloadContent()
+    {
+        if (objCache is null)
+            return;
+
+        for (int i = 0; i < objCache.Values.Count; i++)
+        {
+            Mesh<VertexPCTN> mesh = objCache.Values.ElementAtOrDefault(i);
+            if (mesh is null)
+                continue;
+            
+            DisposeAndSetNull(ref mesh);
+        }
+
+        objCache.Clear();
+    }
+    
+    public static void DisposeAndSetNull<TVertex>(ref Mesh<TVertex> mesh) where TVertex: struct, IVertexType
+    {
+        mesh?.Dispose();
+        mesh = null;
     }
 
     public static Mesh<VertexPCTN> Gear(float teeth, float depth, float slope, float innerRadius, float thickness, float scale, Color color)
@@ -900,5 +934,149 @@ internal class Shapes
             vertices[i] = Vector3.Normalize(vertices[i]);
 
         return Tuple.Create(vertices.ToArray(), faces.SelectMany(_ => _).ToArray());
+    }
+    
+    public static Mesh<VertexPCTN> Obj(string modelPath)
+    {
+        if (!Everest.Content.TryGet<ObjModel>(modelPath, out ModAsset modelAsset))
+        {
+            Util.Log($"Unable to find .obj file at path {modelPath}.");
+            return null;
+        }
+
+        if (objCache?.TryGetValue(modelPath, out Mesh<VertexPCTN> modelMesh) ?? false)
+            return modelMesh;
+
+        if (!TryCreateMeshFromObjStream(modelAsset.Stream, out modelMesh))
+        {
+            Util.Log($"Failed building mesh from model path {modelPath}.");
+            return null;
+        }
+        
+        Util.Log($"Mesh successfully built from model path {modelPath} ({modelMesh.VertexCount} vertices, {modelMesh.Triangles} tris).");
+        if (objCache is not null)
+            objCache[modelPath] = modelMesh;
+        return modelMesh;
+    }
+    
+    public static Texture2D Texture(string texturePath)
+    {
+        Texture2D modelTexture = null;
+
+        if (string.IsNullOrEmpty(texturePath))
+            modelTexture = CommunalHelperGFX.Blank;
+        else if (!GFX.Game.Has(texturePath))
+            Util.Log($"Failed to find texture at path {texturePath} in the Gameplay atlas.");
+        else
+            modelTexture = GFX.Game[texturePath].Texture.Texture_Safe;
+
+        return modelTexture;
+    }
+    
+    private static bool TryCreateMeshFromObjStream(Stream stream, out Mesh<VertexPCTN> mesh, bool detectBlender = true)
+    {
+        mesh = new Mesh<VertexPCTN>();
+
+        List<VertexPCTN> verts = [];
+        List<Vector3> positions = [];
+        List<Vector2> uvs = [];
+        List<Vector3> normals = [];
+        int triCount = 0;
+        
+        bool fromBlender = false;
+        
+        using StreamReader streamReader = new(stream);
+
+        if (streamReader.ReadLine() is { } fileStart && fileStart.StartsWith("# Blender") && detectBlender)
+        {
+            fromBlender = true;
+            Util.Log(".obj file was exported from Blender, rewinding faces and flipping normals.");
+        }
+        
+        while (streamReader.ReadLine() is { } text)
+        {
+            string[] array = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (array.Length == 0)
+                continue;
+            
+            switch (array[0])
+            {
+                case "v":
+                    positions.Add(new Vector3(Float(array[1]), Float(array[2]), Float(array[3])));
+                    break;
+                
+                case "vt":
+                    uvs.Add(new Vector2(Float(array[1]), Float(array[2])));
+                    break;
+                
+                case "vn":
+                    normals.Add(new Vector3(Float(array[1]), Float(array[2]), Float(array[3])) * (fromBlender ? -1f : 1f));
+                    break;
+                
+                case "f":
+                    if (array.Length != 4)
+                    {
+                        Util.Log($"Found non-tri face ({array.Length - 1} vertices), skipping.");
+                        break;
+                    }
+
+                    VertexPCTN[] faceVerts = new VertexPCTN[3];
+                    bool[] hasNormals = new bool[3];
+                    
+                    for (int i = 0; i < 3; i++)
+                    {
+                        VertexPCTN vert = new(Vector3.Zero, Color.White, Vector2.Zero, Vector3.Zero);
+                        string[] vertDataIndices = array[i + 1].Split('/');
+                        
+                        if (TryGetElementFromIndices(positions, vertDataIndices, 0, out Vector3 position))
+                            vert.Position = position;
+                        if (TryGetElementFromIndices(uvs, vertDataIndices, 1, out Vector2 uv))
+                            vert.Texture = uv;
+                        if (TryGetElementFromIndices(normals, vertDataIndices, 2, out Vector3 normal))
+                        {
+                            vert.Normal = normal;
+                            hasNormals[i] = true;
+                        }
+                        
+                        faceVerts[fromBlender ? 2 - i : i] = vert;
+                    }
+                    
+                    Vector3 v1 = faceVerts[0].Position;
+                    Vector3 v2 = faceVerts[1].Position;
+                    Vector3 v3 = faceVerts[2].Position;
+                    Vector3 computedNormal = Vector3.Normalize(Vector3.Cross(v2 - v1, v3 - v1));
+                    
+                    for (int i = 0; i < faceVerts.Length; i++)
+                        if (!hasNormals[i])
+                            faceVerts[i].Normal = computedNormal;
+                    
+                    verts.AddRange(faceVerts);
+                    triCount++;
+                    break;
+            }
+        }
+        
+        mesh.AddVertices(verts.ToArray());
+        for (int i = 0; i < triCount; i++)
+            mesh.AddTriangle(i * 3, i * 3 + 1, i * 3 + 2);
+        mesh.Bake();
+        
+        return true;
+        
+        static float Float(string data)
+            => float.Parse(data, CultureInfo.InvariantCulture);
+        
+        static bool TryGetElementFromIndices<T>(IEnumerable<T> list, string[] indices, int index, out T result, int offset = -1)
+        {
+            if ((indices.ElementAtOrDefault(index)?.Length ?? 0) > 0
+                && list.ElementAtOrDefault(int.Parse(indices[index]) + offset) is { } res)
+            {
+                result = res;
+                return true;
+            }
+            
+            result = default;
+            return false;
+        }
     }
 }

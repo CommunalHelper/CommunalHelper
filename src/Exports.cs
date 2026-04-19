@@ -359,6 +359,14 @@ public static class ModExports
         {
             return Shapes.HalfRing(height, thickness, color);
         }
+        public static object CreateFromObj(string modelPath)
+        {
+            return Shapes.Obj(modelPath);
+        }
+        public static Texture2D CreateTexture(string texturePath)
+        {
+            return Shapes.Texture(texturePath);
+        }
 
         #endregion
     }
