@@ -1,4 +1,5 @@
 using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Utils;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Reflection;
@@ -40,6 +41,8 @@ public static class CommunalHelperGFX
 
         PCTN_MRT = LoadShader("3d_pctn_mrt");
         PCTN_COMPOSE = LoadShader("3d_pctn_compose");
+
+        Shapes.LoadContent();
     }
 
     internal static void Load()
@@ -70,6 +73,8 @@ public static class CommunalHelperGFX
             buffer.Dispose();
         }
         Util.Log(LogLevel.Info, "destroyed all dream sprite buffers.");
+        
+        Shapes.UnloadContent();
     }
 
     public static void QueryMRTBuffers(int rendererDepth, out RenderTarget2D albedo, out RenderTarget2D depth, out RenderTarget2D normal, out RenderTarget2D final)

@@ -68,6 +68,7 @@ public static class Extensions
         }
         return defaultValue;
     }
+    
     public static Vector2? Vector2Nullable(this EntityData data, string key, Vector2? defaultValue = null)
     {
         var split = (data.Values[key] as string).Split(',');
@@ -78,6 +79,33 @@ public static class Extensions
         else if (split.Length == 1 && float.TryParse(split[0], out float z))
         {
             return new Vector2(z, z);
+        }
+        return defaultValue;
+    }
+    
+    public static Vector3 Vector3(this EntityData data, string key, Vector3 defaultValue)
+    {
+        var split = (data.Values[key] as string).Split(',');
+        if (split.Length == 3 && float.TryParse(split[0], out float x) && float.TryParse(split[1], out float y) && float.TryParse(split[2], out float z))
+        {
+            return new Vector3(x, y, z);
+        }
+        else if (split.Length == 1 && float.TryParse(split[0], out float w))
+        {
+            return Microsoft.Xna.Framework.Vector3.One * w;
+        }
+        return defaultValue;
+    }
+    public static Vector3? Vector3Nullable(this EntityData data, string key, Vector3? defaultValue = null)
+    {
+        var split = (data.Values[key] as string).Split(',');
+        if (split.Length == 3 && float.TryParse(split[0], out float x) && float.TryParse(split[1], out float y) && float.TryParse(split[2], out float z))
+        {
+            return new Vector3(x, y, z);
+        }
+        else if (split.Length == 1 && float.TryParse(split[0], out float w))
+        {
+            return Microsoft.Xna.Framework.Vector3.One * w;
         }
         return defaultValue;
     }
