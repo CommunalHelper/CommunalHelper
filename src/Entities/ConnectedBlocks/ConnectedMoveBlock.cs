@@ -130,7 +130,6 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     // when moving, ignore these solid types
     protected readonly Type[] ignores;
-    protected bool HasIgnores => ignores.Length > 0;
 
     public ConnectedMoveBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f))
@@ -315,14 +314,14 @@ public class ConnectedMoveBlock : ConnectedSolid
                 {
                     flag2 = MoveCheck(vec.XComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveVCollideSolids(vec.Y, thruDashBlocks: false);
+                    this.MoveVCollideSolidsExcluding(ignores, vec.Y);
                     noSquish = null;
                 }
                 else
                 {
                     flag2 = MoveCheck(vec.YComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveHCollideSolids(vec.X, thruDashBlocks: false);
+                    this.MoveHCollideSolidsExcluding(ignores, vec.X);
                     noSquish = null;
                     if (Direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32)
                     {
@@ -454,7 +453,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 item.StopMoving();
             }
-            while (CollideCheck<Actor>() || CollideCheck<Solid>() || AnySetEnabled(BreakerFlags))
+            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores) || AnySetEnabled(BreakerFlags))
             {
                 yield return null;
             }

@@ -143,12 +143,17 @@ public static class Extensions
             "BounceInOut" => Ease.BounceInOut,
             _ => defaultEaser ?? Ease.Linear,
         };
-    
+
     public static Type[] Types(this EntityData data, string key)
-        => data.String("ignore", "")
-               .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-               .SelectMany(EntityRegistry.GetKnownTypesFromSid)
-               .ToArray();
+    {
+        string[] types = data.String(key, "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        Type[] allTypes = FakeAssembly.GetFakeEntryAssembly().GetTypesSafe();
+        
+        List<Type> result = [];
+        result.AddRange(types.SelectMany(EntityRegistry.GetKnownTypesFromSid));
+        result.AddRange(allTypes.Where(t => types.Contains(t.FullName)));
+        return result.Distinct().ToArray();
+    }
 
     public static Vector2 CorrectJoystickPrecision(this Vector2 dir)
     {
@@ -1128,6 +1133,22 @@ public static class Extensions
             && (at is { } v
                 ? Collide.Check(entity, e, v)
                 : Collide.Check(entity, e)));
+    }
+    
+    public static bool CollideCheckExcluding<T>(this Scene scene, Type[] ignores, Vector2 at) where T : Entity
+    {
+        List<Entity> toCollide = scene.Tracker.Entities[typeof(T)];
+        return toCollide.Any(e =>
+            !ignores.Contains(e.GetType())
+            && Collide.CheckPoint(e, at));
+    }
+    
+    public static T CollideFirstExcluding<T>(this Scene scene, Type[] ignores, Vector2 at) where T : Entity
+    {
+        List<Entity> toCollide = scene.Tracker.Entities[typeof(T)];
+        return toCollide.Cast<T>().FirstOrDefault(e =>
+            !ignores.Contains(e.GetType())
+            && Collide.CheckPoint(e, at));
     }
 
     public static T CollideFirstOutsideExcluding<T>(this Entity entity, Type[] ignores, Vector2 at) where T : Entity

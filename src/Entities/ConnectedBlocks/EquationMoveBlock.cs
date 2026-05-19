@@ -132,8 +132,8 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                     moveCheck = true;
                 Vector2 start = Position;
                 noSquish = Scene.Tracker.GetEntity<Player>();
-                MoveVCollideSolids(vec.Y, thruDashBlocks: false);
-                MoveHCollideSolids(vec.X, thruDashBlocks: false);
+                this.MoveVCollideSolidsExcluding(ignores, vec.Y);
+                this.MoveHCollideSolidsExcluding(ignores, vec.X);
                 noSquish = null;
                 moveTime += Engine.DeltaTime;
 
@@ -260,7 +260,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             {
                 item.StopMoving();
             }
-            while (CollideCheck<Actor>() || CollideCheck<Solid>() || AnySetEnabled(BreakerFlags))
+            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores) || AnySetEnabled(BreakerFlags))
             {
                 yield return null;
             }

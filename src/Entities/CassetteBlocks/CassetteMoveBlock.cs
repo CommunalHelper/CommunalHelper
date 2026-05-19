@@ -66,7 +66,6 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
     // when moving, ignore these solid types
     protected readonly Type[] ignores;
-    protected bool HasIgnores => ignores.Length > 0;
 
     public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, bool oldConnectionBehavior, Color? overrideColor, string spritePath, float sideAlpha, bool held, float crashTime, float regenTime, bool shakeOnCollision, bool noDebris, Type[] ignores)
         : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, dynamicHitbox: true, overrideColor, spritePath, sideAlpha, held)
@@ -189,7 +188,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 {
                     hit = MoveCheck(move.XComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveVCollideSolids(move.Y, thruDashBlocks: false);
+                    this.MoveVCollideSolidsExcluding(ignores, move.Y);
                     noSquish = null;
                     if (Scene.OnInterval(0.03f))
                     {
@@ -207,7 +206,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 {
                     hit = MoveCheck(move.YComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveHCollideSolids(move.X, thruDashBlocks: false);
+                    this.MoveHCollideSolidsExcluding(ignores, move.X);
                     noSquish = null;
                     if (Scene.OnInterval(0.03f))
                     {
@@ -308,7 +307,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
             foreach (MoveBlockDebris d in debris)
                 d.StopMoving();
-            while (CollideCheck<Actor>() || CollideCheck<Solid>())
+            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores))
                 yield return null;
 
             Present = true;
@@ -577,7 +576,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 for (int i = 0; i < Height; i += 8)
                 {
                     Vector2 vector = new(x, Top + 4f + i);
-                    if (Scene.CollideCheck<Solid>(vector))
+                    if (Scene.CollideCheckExcluding<Solid>(ignores, vector))
                     {
                         SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector);
                     }
@@ -589,7 +588,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 for (int j = 0; j < Width; j += 8)
                 {
                     Vector2 vector2 = new(Left + 4f + j, y);
-                    if (Scene.CollideCheck<Solid>(vector2))
+                    if (Scene.CollideCheckExcluding<Solid>(ignores, vector2))
                     {
                         SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector2);
                     }

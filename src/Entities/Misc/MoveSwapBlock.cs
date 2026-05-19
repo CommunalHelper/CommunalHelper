@@ -115,7 +115,6 @@ public class MoveSwapBlock : SwapBlock
     private readonly Chooser<MTexture> debrisTextures;
 
     private readonly Type[] ignores;
-    private bool HasIgnores => ignores.Length > 0;
 
     public MoveSwapBlock(EntityData data, Vector2 offset)
         : base(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, Themes.Normal)
@@ -410,7 +409,7 @@ public class MoveSwapBlock : SwapBlock
                         shouldBreak = MoveCheck(vector.XComp());
 
                         noSquish = Scene.Tracker.GetEntity<Player>();
-                        MoveVCollideSolids(vector.Y, thruDashBlocks: false);
+                        this.MoveVCollideSolidsExcluding(ignores, vector.Y);
                         noSquish = null;
 
                         if (Scene.OnInterval(0.03f))
@@ -430,7 +429,7 @@ public class MoveSwapBlock : SwapBlock
                         shouldBreak = MoveCheck(vector.YComp());
 
                         noSquish = Scene.Tracker.GetEntity<Player>();
-                        MoveHCollideSolids(vector.X, thruDashBlocks: false);
+                        this.MoveHCollideSolidsExcluding(ignores, vector.X);
                         noSquish = null;
 
                         if (Scene.OnInterval(0.03f))
@@ -553,7 +552,7 @@ public class MoveSwapBlock : SwapBlock
                 debris.StopMoving();
             }
 
-            while (CollideCheck<Actor>() || CollideCheck<Solid>())
+            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores))
             {
                 yield return null;
             }
@@ -750,7 +749,7 @@ public class MoveSwapBlock : SwapBlock
             for (int i = 0; i < Height; i += 8)
             {
                 Vector2 vector = new(x, Top + 4f + i);
-                if (Scene.CollideCheck<Solid>(vector))
+                if (Scene.CollideCheckExcluding<Solid>(ignores, vector))
                 {
                     SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector);
                 }
@@ -762,7 +761,7 @@ public class MoveSwapBlock : SwapBlock
             for (int j = 0; j < Width; j += 8)
             {
                 Vector2 vector2 = new(Left + 4f + j, y);
-                if (Scene.CollideCheck<Solid>(vector2))
+                if (Scene.CollideCheckExcluding<Solid>(ignores, vector2))
                 {
                     SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector2);
                 }
