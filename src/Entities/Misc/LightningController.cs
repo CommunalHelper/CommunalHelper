@@ -91,7 +91,7 @@ public class LightningController : Entity
             int seed = Calc.Random.Next();
 
             level.DirectionalShake(Vector2.UnitY, shakeAmount);
-            level.Add(new ColoredLightningStrike(at, color, seed, level.Bounds.Width - 20, 0f, depth));
+            level.Add(new ColoredLightningStrike(at, color, seed, cam.GetBounds().Width, 0f, depth));
             if (flashes)
                 level.Add(new Flash(flashColor, flash, depth - 1, flashDuration));
 
