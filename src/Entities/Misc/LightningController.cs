@@ -27,7 +27,7 @@ public class LightningController : Entity
             base.Render();
 
             Camera cam = (Scene as Level).Camera;
-            Draw.Rect(cam.Position - Vector2.One, 320 + 2, 180 + 2, color * alpha * opacity);
+            Draw.Rect(cam.Position - Vector2.One, cam.GetBounds().Width + 2, cam.GetBounds().Height + 2, color * alpha * opacity);
         }
 
         public IEnumerator FlashRoutine(float time)
@@ -87,11 +87,11 @@ public class LightningController : Entity
             if (Calc.Random.NextFloat() >= probability)
                 continue;
 
-            Vector2 at = cam.Position + new Vector2(160, -90);
+            Vector2 at = cam.Position + new Vector2(cam.GetBounds().Width / 2, cam.GetBounds().Height / -2);
             int seed = Calc.Random.Next();
 
             level.DirectionalShake(Vector2.UnitY, shakeAmount);
-            level.Add(new ColoredLightningStrike(at, color, seed, 300f, 0f, depth));
+            level.Add(new ColoredLightningStrike(at, color, seed, cam.GetBounds().Width, 0f, depth));
             if (flashes)
                 level.Add(new Flash(flashColor, flash, depth - 1, flashDuration));
 
