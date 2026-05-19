@@ -330,7 +330,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 }
                 Vector2 move = Position - start;
                 if (Scene.OnInterval(0.03f))
-                    SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
+                    SpawnScrapeParticlesExcluding(ignores, Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
 
                 curMoveCheck = flag2;
 
