@@ -5,7 +5,7 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/SJ/PhotosensitiveFlagController" PhotosensitiveFlagController(x::Integer, y::Integer, flag::String="")
 
 const placements = Ahorn.PlacementDict(
-    "Photosensitive Flag Controller (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Photosensitive Flag Controller (Communal Helper)" => Ahorn.EntityPlacement(
         PhotosensitiveFlagController
     )
 )

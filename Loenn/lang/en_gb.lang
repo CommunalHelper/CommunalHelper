@@ -884,14 +884,14 @@ entities.CommunalHelper/PoisonGas.attributes.description.radius=The radius of th
 entities.CommunalHelper/PoisonGas.attributes.description.spritePath=The game will pick a random image from Graphics/Atlases/Gameplay/<spritePath>##.png to display the poison gas region.\nImages should be 24x24px.
 
 # [Strawberry Jam] Bullet Time Controller
-entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller [Strawberry Jam]
+entities.CommunalHelper/SJ/BulletTimeController.placements.name.controller=Bullet Time Controller
 entities.CommunalHelper/SJ/BulletTimeController.placements.description.controller=Slows down time while the player has dashes.
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.timerate=The timerate that the game should run at while the player has dashes, as a multiplier of normal speed.
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.flag=If present, time will only be affected if this flag is set.
 entities.CommunalHelper/SJ/BulletTimeController.attributes.description.minDashes=The number of dashes required for time to be slowed down.
 
 # [Strawberry Jam] Dash Zip Mover
-entities.CommunalHelper/SJ/DashZipMover.placements.name.main=Dash Zip Mover [Strawberry Jam]
+entities.CommunalHelper/SJ/DashZipMover.placements.name.main=Dash Zip Mover
 entities.CommunalHelper/SJ/DashZipMover.placements.description.main=A zip mover that moves when the player dashes into it.
 entities.CommunalHelper/SJ/DashZipMover.attributes.description.spritePath=The path to the folder containing the Zip Mover sprites.\nThe folder must include: block.png, cog.png, innercog##.png, light00.png, light01.png, light02.png, light03.png
 entities.CommunalHelper/SJ/DashZipMover.attributes.description.drawBlackBorder=Draws a black border around the Zip Mover.
@@ -902,7 +902,7 @@ entities.CommunalHelper/SJ/DashZipMover.attributes.description.soundEvent=The so
 entities.CommunalHelper/SJ/DashZipMover.attributes.description.slow=Makes the Zip Mover slower.\nTo make up for the slower speed, it slams harder, allowing for more liftspeed.
 
 # [Strawberry Jam] Flag Breaker Box 
-entities.CommunalHelper/SJ/FlagBreakerBox.placements.name.breaker_box=Flag Breaker Box [Strawberry Jam]
+entities.CommunalHelper/SJ/FlagBreakerBox.placements.name.breaker_box=Flag Breaker Box
 entities.CommunalHelper/SJ/FlagBreakerBox.placements.description.breaker_box=A Lightning Breaker Box that sets a flag when broken instead of turning off lightning in that room.
 entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.flag=The flag to be set or unset
 entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.flipX=Whether the sprite should be vertically mirrored.
@@ -910,7 +910,7 @@ entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.music=Change th
 entities.CommunalHelper/SJ/FlagBreakerBox.attributes.description.music_progress=The new music progress once box is broken.\n-1 keeps the same progress.
 
 # [Strawberry Jam] Momentum Block
-entities.CommunalHelper/SJ/MomentumBlock.placements.name.momentum=Boost Block [Strawberry Jam]
+entities.CommunalHelper/SJ/MomentumBlock.placements.name.momentum=Boost Block
 entities.CommunalHelper/SJ/MomentumBlock.attributes.description.speed=The speed magnitude to impart on the player.
 entities.CommunalHelper/SJ/MomentumBlock.attributes.description.speedFlagged=The speed magnitude to impart on the player when the given flag is set.
 entities.CommunalHelper/SJ/MomentumBlock.attributes.description.direction=The angle of the momentum imparted on the player.
@@ -918,24 +918,24 @@ entities.CommunalHelper/SJ/MomentumBlock.attributes.description.directionFlagged
 entities.CommunalHelper/SJ/MomentumBlock.attributes.description.flag=When this flag is set, the speedFlagged and directionFlagged attributes will be used instead of speed/direction.\nLeave blank for speed/direction to always be used.
 
 # [Strawberry Jam] Photosensitive Flag Controller
-entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.name.controller=Photosensitive Flag Controller [Strawberry Jam]
+entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.name.controller=Photosensitive Flag Controller
 entities.CommunalHelper/SJ/PhotosensitiveFlagController.placements.description.controller=Sets a flag when photosensitive mode is enabled.
 entities.CommunalHelper/SJ/PhotosensitiveFlagController.attributes.description.flag=The flag to set.
 
 # [Strawberry Jam] Grab Temple Gate
-entities.CommunalHelper/SJ/GrabTempleGate.placements.name.open=Grab Temple Gate (Open) [Strawberry Jam]
-entities.CommunalHelper/SJ/GrabTempleGate.placements.name.closed=Grab Temple Gate (Closed) [Strawberry Jam]
+entities.CommunalHelper/SJ/GrabTempleGate.placements.name.open=Grab Temple Gate (Open)
+entities.CommunalHelper/SJ/GrabTempleGate.placements.name.closed=Grab Temple Gate (Closed)
 entities.CommunalHelper/SJ/GrabTempleGate.attributes.description.closed=Whether the gate should initially be closed. This causes this gate to open when others close, and vice-versa.
 
 # [Strawberry Jam] Loop Block
-entities.CommunalHelper/SJ/LoopBlock.placements.name.loop_block=Loop Block [Strawberry Jam]
+entities.CommunalHelper/SJ/LoopBlock.placements.name.loop_block=Loop Block
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.edgeThickness=How thick this loop block's edges are, measured in tiles.
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.color=The hexadecimal color code for this block's tint.
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.noHole=Whether the block should have no hole in the center.
 entities.CommunalHelper/SJ/LoopBlock.attributes.description.texture=The path to this loop block's texture in the Gameplay atlas. Leave at default value or empty for the default texture (original texture from Strawberry Jam).
 
 # [Strawberry Jam] Solar Elevator
-entities.CommunalHelper/SJ/SolarElevator.placements.name.solar_elevator=Solar Elevator [Strawberry Jam]
+entities.CommunalHelper/SJ/SolarElevator.placements.name.solar_elevator=Solar Elevator
 entities.CommunalHelper/SJ/SolarElevator.attributes.description.distance=The height at which this elevator goes. 
 entities.CommunalHelper/SJ/SolarElevator.attributes.description.time=The time in seconds this elevator takes to move from one floor to the other.
 entities.CommunalHelper/SJ/SolarElevator.attributes.description.delay=The time in seconds waited before movement.
@@ -949,31 +949,31 @@ entities.CommunalHelper/SJ/SolarElevator.attributes.description.holdableHintDial
 entities.CommunalHelper/SJ/SolarElevator.attributes.description.reskinDirectory=The path to the directory that contains custom textures for this elevator, starting from "Graphics/Atlases/Gameplay/". Leave empty for default appearance.\nThe directory must contain a "front.png", "back.png", and "rails.png". Missing textures will fall back to the default textures. If something isn't working, check the Celeste console or log.txt for missing texture warnings.
 
 # [Strawberry Jam] Exploding Strawberry
-entities.CommunalHelper/SJ/ExplodingStrawberry.placements.name.strawberry=Exploding Strawberry [Strawberry Jam]
+entities.CommunalHelper/SJ/ExplodingStrawberry.placements.name.strawberry=Exploding Strawberry
 entities.CommunalHelper/SJ/ExplodingStrawberry.placements.description.strawberry=Strawberry that explodes when a pufferfish explodes.
 
 # [Strawberry Jam] Expiring Dash Refill
-entities.CommunalHelper/SJ/ExpiringDashRefill.placements.name.expiring_dash_refill=Expiring Dash Refill [Strawberry Jam]
+entities.CommunalHelper/SJ/ExpiringDashRefill.placements.name.expiring_dash_refill=Expiring Dash Refill
 entities.CommunalHelper/SJ/ExpiringDashRefill.attributes.description.oneUse=Whether this refill can only be used once.
 entities.CommunalHelper/SJ/ExpiringDashRefill.attributes.description.dashExpirationTime=The amount of time given before the dash is revoked if not used.
 entities.CommunalHelper/SJ/ExpiringDashRefill.attributes.description.hairFlashThreshold=The threshold ratio that determines when the warning flash begins (0 - 1).
 
 # [Strawberry Jam] Air Time Music Controller
-entities.CommunalHelper/SJ/AirTimeMusicController.placements.name.air_time_music_controller=Airtime Music Controller [Strawberry Jam]
+entities.CommunalHelper/SJ/AirTimeMusicController.placements.name.air_time_music_controller=Airtime Music Controller
 entities.CommunalHelper/SJ/AirTimeMusicController.attributes.description.activationThreshold=The amount of airtime in seconds required before the music parameter is enabled.
 entities.CommunalHelper/SJ/AirTimeMusicController.attributes.description.musicParam=The music parameter that will be adjusted by this controller. Its value will be set to 1.0 when the airtime threshold is reached, and is 0.0 by default or when disabled.
 
 # [Strawberry Jam] Wormhole Booster
-entities.CommunalHelper/SJ/WormholeBooster.placements.name.booster=Wormhole Booster [Strawberry Jam]
+entities.CommunalHelper/SJ/WormholeBooster.placements.name.booster=Wormhole Booster
 entities.CommunalHelper/SJ/WormholeBooster.placements.description.booster=Booster that teleports you to the nearest of its kind, or kills you if none exist.
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.deathColor=The color to use for the booster when it becomes deadly.
 entities.CommunalHelper/SJ/WormholeBooster.attributes.description.instantCamera=Whether the camera should transition instantly or not.
 
 # [Strawberry Jam] Laser Emitter
-entities.CommunalHelper/SJ/LaserEmitter.placements.name.up=Laser Emitter (Up) [Strawberry Jam]
-entities.CommunalHelper/SJ/LaserEmitter.placements.name.down=Laser Emitter (Down) [Strawberry Jam]
-entities.CommunalHelper/SJ/LaserEmitter.placements.name.left=Laser Emitter (Left) [Strawberry Jam]
-entities.CommunalHelper/SJ/LaserEmitter.placements.name.right=Laser Emitter (Right) [Strawberry Jam]
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.up=Laser Emitter (Up)
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.down=Laser Emitter (Down)
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.left=Laser Emitter (Left)
+entities.CommunalHelper/SJ/LaserEmitter.placements.name.right=Laser Emitter (Right)
 entities.CommunalHelper/SJ/LaserEmitter.attributes.description.color=Colour of the laser emitted.
 entities.CommunalHelper/SJ/LaserEmitter.attributes.description.colorChannel=Colour of linked zip movers that will be triggered if enabled.
 entities.CommunalHelper/SJ/LaserEmitter.attributes.description.alpha=Base alpha if flickering is disabled.
@@ -996,14 +996,14 @@ entities.CommunalHelper/SJ/LaserEmitter.attributes.description.flagName=The name
 entities.CommunalHelper/SJ/LaserEmitter.attributes.description.spriteName=The name of the custom emitter sprite ID to use. Leave blank to use the default sprite.
 
 # [Strawberry Jam] Paintbrush
-entities.CommunalHelper/SJ/Paintbrush.placements.name.up_0=Paintbrush (Up, Blue) [Strawberry Jam]
-entities.CommunalHelper/SJ/Paintbrush.placements.name.up_1=Paintbrush (Up, Pink) [Strawberry Jam]
-entities.CommunalHelper/SJ/Paintbrush.placements.name.down_0=Paintbrush (Down, Blue) [Strawberry Jam]
-entities.CommunalHelper/SJ/Paintbrush.placements.name.down_1=Paintbrush (Down, Pink) [Strawberry Jam]
-entities.CommunalHelper/SJ/Paintbrush.placements.name.left_0=Paintbrush (Left, Blue) [Strawberry Jam]
-entities.CommunalHelper/SJ/Paintbrush.placements.name.left_1=Paintbrush (Left, Pink) [Strawberry Jam]
-entities.CommunalHelper/SJ/Paintbrush.placements.name.right_0=Paintbrush (Right, Blue) [Strawberry Jam]
-entities.CommunalHelper/SJ/Paintbrush.placements.name.right_1=Paintbrush (Right, Pink) [Strawberry Jam]
+entities.CommunalHelper/SJ/Paintbrush.placements.name.up_0=Paintbrush (Up, Blue)
+entities.CommunalHelper/SJ/Paintbrush.placements.name.up_1=Paintbrush (Up, Pink)
+entities.CommunalHelper/SJ/Paintbrush.placements.name.down_0=Paintbrush (Down, Blue)
+entities.CommunalHelper/SJ/Paintbrush.placements.name.down_1=Paintbrush (Down, Pink)
+entities.CommunalHelper/SJ/Paintbrush.placements.name.left_0=Paintbrush (Left, Blue)
+entities.CommunalHelper/SJ/Paintbrush.placements.name.left_1=Paintbrush (Left, Pink)
+entities.CommunalHelper/SJ/Paintbrush.placements.name.right_0=Paintbrush (Right, Blue)
+entities.CommunalHelper/SJ/Paintbrush.placements.name.right_1=Paintbrush (Right, Pink)
 entities.CommunalHelper/SJ/Paintbrush.attributes.description.cassetteIndex=The cassette color on which to fire. Defaults to Blue. The charging animation will play in the previous tick.
 entities.CommunalHelper/SJ/Paintbrush.attributes.description.killPlayer=Whether or not the beam will kill the player on contact.
 entities.CommunalHelper/SJ/Paintbrush.attributes.description.collideWithSolids=Whether or not the beam will stop at solids.
@@ -1011,18 +1011,18 @@ entities.CommunalHelper/SJ/Paintbrush.attributes.description.halfLength=If set t
 entities.CommunalHelper/SJ/Paintbrush.attributes.description.orientation=The direction the paintbrush faces.
 
 # [Strawberry Jam] Pellet Emitter
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.up_0=Pellet Emitter (Up, Blue) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.up_1=Pellet Emitter (Up, Pink) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.up_both=Pellet Emitter (Up, Both) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.down_0=Pellet Emitter (Down, Blue) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.down_1=Pellet Emitter (Down, Pink) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.down_both=Pellet Emitter (Down, Both) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.left_0=Pellet Emitter (Left, Blue) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.left_1=Pellet Emitter (Left, Pink) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.left_both=Pellet Emitter (Left, Both) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.right_0=Pellet Emitter (Right, Blue) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.right_1=Pellet Emitter (Right, Pink) [Strawberry Jam]
-entities.CommunalHelper/SJ/PelletEmitter.placements.name.right_both=Pellet Emitter (Right, Both) [Strawberry Jam]
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.up_0=Pellet Emitter (Up, Blue)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.up_1=Pellet Emitter (Up, Pink)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.up_both=Pellet Emitter (Up, Both)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.down_0=Pellet Emitter (Down, Blue)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.down_1=Pellet Emitter (Down, Pink)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.down_both=Pellet Emitter (Down, Both)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.left_0=Pellet Emitter (Left, Blue)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.left_1=Pellet Emitter (Left, Pink)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.left_both=Pellet Emitter (Left, Both)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.right_0=Pellet Emitter (Right, Blue)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.right_1=Pellet Emitter (Right, Pink)
+entities.CommunalHelper/SJ/PelletEmitter.placements.name.right_both=Pellet Emitter (Right, Both)
 entities.CommunalHelper/SJ/PelletEmitter.attributes.description.pelletSpeed=The speed at which pellets will travel, in pixels per second. Defaults to 100.
 entities.CommunalHelper/SJ/PelletEmitter.attributes.description.pelletCount=The number of pellets to fire at once. Defaults to 1.
 entities.CommunalHelper/SJ/PelletEmitter.attributes.description.pelletDelay=The delay in seconds between each shot, if pelletCount is greater than 1. Defaults to 0.25.
@@ -1057,12 +1057,12 @@ entities.CommunalHelper/Shape3DEntity.attributes.description.rainbowMix=The rain
 # ---------------------- TRIGGERS --------------------------
 
 # [Strawberry Jam] Show Hitbox Trigger
-triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox [Strawberry Jam]
+triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.name.trigger=Show Hitbox
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.placements.description.trigger=Shows the hitboxes of specified entities while inside.
 triggers.CommunalHelper/SJ/ShowHitboxTrigger.attributes.description.typeNames=A comma-separated list of class names or entity SIDs of the entities to show hitboxes when player is inside the trigger.\nExample: Celeste.Player,Celeste.CrystalStaticSpinner,Refill,FrostHelper/IceSpinner
 
 # [Strawberry Jam] Oshiro Attack Time Trigger
-triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.name.trigger=Oshiro Faster Attack [Strawberry Jam]
+triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.name.trigger=Oshiro Faster Attack
 triggers.CommunalHelper/SJ/OshiroAttackTimeTrigger.placements.description.trigger=Toggles Oshiro attacking in his B-side pattern (every 1.916 seconds) in A-side maps.
 
 # Affect Sprite Trigger

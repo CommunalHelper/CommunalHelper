@@ -6,7 +6,7 @@ using ..Ahorn, Maple
 
 
 const placements = Ahorn.PlacementDict(
-    "Wormhole Booster (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Wormhole Booster (Communal Helper)" => Ahorn.EntityPlacement(
         WormholeBooster,
         "rectangle"
     )
