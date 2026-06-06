@@ -10,7 +10,7 @@ using ..Ahorn, Maple
 )
 
 const placements = Ahorn.PlacementDict(
-    "Airtime Music Controller (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Airtime Music Controller (Communal Helper)" => Ahorn.EntityPlacement(
         AirTimeMusicController
     )
 )

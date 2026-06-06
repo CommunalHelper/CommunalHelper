@@ -5,7 +5,7 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/SJ/MomentumBlock" MomentumBlock(x::Integer, y::Integer, width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight, speed::Number=10.0, direction::Number=0.0, speedFlagged::Number=10.0, directionFlagged::Number=0.0, startColor::String="9a0000", endColor::String="00ffff", flag::String="")
 
 const placements = Ahorn.PlacementDict(
-   "Boost Block (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+   "Boost Block (Communal Helper)" => Ahorn.EntityPlacement(
       MomentumBlock,
       "rectangle"
    )
