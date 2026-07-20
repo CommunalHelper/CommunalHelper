@@ -133,11 +133,12 @@ public class DreamStrawberry : Strawberry
     {
         ILCursor cursor = new(il);
 
-        cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<Player>("get_LoseShards"));
-
-        // don't lose seeds if this is a dream strawberry
-        cursor.Emit(OpCodes.Ldarg_0);
-        cursor.EmitDelegate<Func<bool, StrawberrySeed, bool>>((orig, seed) => orig && seed.Strawberry is not DreamStrawberry);
+        while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchCallvirt<Player>("get_LoseShards")))
+        {
+            // don't lose seeds if this is a dream strawberry
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Func<bool, StrawberrySeed, bool>>((orig, seed) => orig && seed.Strawberry is not DreamStrawberry);
+        }
     }
 
     private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self)
