@@ -133,15 +133,11 @@ public class DreamStrawberry : Strawberry
     {
         ILCursor cursor = new(il);
 
-        ILLabel label = null;
-        cursor.GotoNext(instr => instr.MatchStfld<StrawberrySeed>("losing"));
-        cursor.GotoPrev(MoveType.After, instr => instr.MatchBrfalse(out label));
+        cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<Player>("get_LoseShards"));
 
-        // We have the label at which to break if don't want the seed to be lost.
-        // Let's break to it if the following predicate is true.
+        // don't lose seeds if this is a dream strawberry
         cursor.Emit(OpCodes.Ldarg_0);
-        cursor.EmitDelegate<Predicate<StrawberrySeed>>(seed => seed.Strawberry is DreamStrawberry);
-        cursor.Emit(OpCodes.Brtrue_S, label);
+        cursor.EmitDelegate<Func<bool, StrawberrySeed, bool>>((orig, seed) => orig && seed.Strawberry is not DreamStrawberry);
     }
 
     private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self)
