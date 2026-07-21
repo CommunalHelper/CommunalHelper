@@ -1,6 +1,10 @@
+--1.25.4 (21/07/2026)--
+* Made Dream Strawberries' hooks more robust. @aonkeeper4
+* Fixed incompatibility between Aqua and Connected Move Blocks. @aonkeeper4
+
 --1.25.3 (19/05/2026)--
 * Added zoomout support to Lightning Controller. @ozmarie
-* Tidy collision logic in Connected Move Blocks. @aonkeeper4
+* Tidied collision logic in Connected Move Blocks. @aonkeeper4
 
 --1.25.2 (01/05/2026)--
 * Fixed Cloudscape rotation and timerate. @SunsetQuasar

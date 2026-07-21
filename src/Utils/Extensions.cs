@@ -1162,6 +1162,11 @@ public static class Extensions
 
     public static bool MoveHCollideSolidsExcluding(this Platform entity, Type[] ignores, float moveH)
     {
+        if (ignores.Length == 0)
+        {
+            return entity.MoveHCollideSolids(moveH, false, null);
+        }
+
         if (Engine.DeltaTime == 0f)
         {
             entity.LiftSpeed.X = 0f;
@@ -1199,6 +1204,11 @@ public static class Extensions
     
     public static bool MoveVCollideSolidsExcluding(this Platform entity, Type[] ignores, float moveV)
     {
+        if (ignores.Length == 0)
+        {
+            return entity.MoveVCollideSolids(moveV, false, null);
+        }
+
         if (Engine.DeltaTime == 0f)
         {
             entity.LiftSpeed.Y = 0f;
