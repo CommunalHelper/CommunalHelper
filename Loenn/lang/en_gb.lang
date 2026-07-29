@@ -994,6 +994,7 @@ entities.CommunalHelper/SJ/LaserEmitter.attributes.description.useTintOverlay=Wh
 entities.CommunalHelper/SJ/LaserEmitter.attributes.description.flagAction=The action to perform on the flag (if provided) when the laser is triggered.
 entities.CommunalHelper/SJ/LaserEmitter.attributes.description.flagName=The name of the flag that will be set when the laser is triggered.
 entities.CommunalHelper/SJ/LaserEmitter.attributes.description.spriteName=The name of the custom emitter sprite ID to use. Leave blank to use the default sprite.
+entities.CommunalHelper/SJ/LaserEmitter.attributes.description.particleColor=The color of the sparks created by the laser, if Emit Sparks is true.
 
 # [Strawberry Jam] Paintbrush
 entities.CommunalHelper/SJ/Paintbrush.placements.name.up_0=Paintbrush (Up, Blue)
