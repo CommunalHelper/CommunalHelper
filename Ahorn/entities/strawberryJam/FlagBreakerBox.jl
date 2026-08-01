@@ -4,7 +4,7 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/SJ/FlagBreakerBox" FlagBreakerBox(x::Integer, y::Integer, width::Integer=32, height::Integer=32, flag::String="", music::String="", music_progress::Integer=-1, music_session::Bool=true, aliveState::Bool=true, flipX::Bool=false)
 
 const placements = Ahorn.PlacementDict(
-    "Flag Breaker Box (Strawberry Jam) (CommunalHelper)" => Ahorn.EntityPlacement(
+    "Flag Breaker Box (CommunalHelper)" => Ahorn.EntityPlacement(
         FlagBreakerBox,
         "rectangle"
     )

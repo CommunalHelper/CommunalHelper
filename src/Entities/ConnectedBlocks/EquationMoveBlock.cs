@@ -132,14 +132,14 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                     moveCheck = true;
                 Vector2 start = Position;
                 noSquish = Scene.Tracker.GetEntity<Player>();
-                MoveVCollideSolids(vec.Y, thruDashBlocks: false);
-                MoveHCollideSolids(vec.X, thruDashBlocks: false);
+                this.MoveVCollideSolidsExcluding(ignores, vec.Y);
+                this.MoveHCollideSolidsExcluding(ignores, vec.X);
                 noSquish = null;
                 moveTime += Engine.DeltaTime;
 
                 Vector2 move = Position - start;
                 if (Scene.OnInterval(0.03f))
-                    SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
+                    SpawnScrapeParticlesExcluding(ignores, Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
 
                 curMoveCheck = moveCheck;
 
@@ -187,6 +187,8 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             yield return 0.2f;
 
             BreakParticles();
+            if (!redirectIsPersistent)
+                ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
 
             List<MoveBlockDebris> debris = new();
             if (!noDebris)
@@ -258,7 +260,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             {
                 item.StopMoving();
             }
-            while (CollideCheck<Actor>() || CollideCheck<Solid>() || AnySetEnabled(BreakerFlags))
+            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores) || AnySetEnabled(BreakerFlags))
             {
                 yield return null;
             }

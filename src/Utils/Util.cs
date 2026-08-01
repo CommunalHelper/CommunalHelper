@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.CommunalHelper;
@@ -317,5 +318,15 @@ public static class Util
             middle.RenderPosition = pos + new Vector2(width / 2f, height / 2f);
             middle.Render();
         }
+    }
+
+    public static bool SharesAnyValueWith<T>(this IEnumerable<T> a, IEnumerable<T> b)
+    {
+        return a.Intersect(b).Any();
+    }
+
+    public static bool ContainsAllFrom<T>(this IEnumerable<T> a, IEnumerable<T> b)
+    {
+        return !b.Except(a).Any();
     }
 }

@@ -5,14 +5,14 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/SJ/GrabTempleGate" GrabTempleGate(x::Integer, y::Integer, closed::Bool = false)
 
 const placements = Ahorn.PlacementDict(
-    "Grab Temple Gate (Open) (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Grab Temple Gate (Open) (Communal Helper)" => Ahorn.EntityPlacement(
         GrabTempleGate,
         "point",
         Dict{String, Any}(
             "closed" => false
         )
     ),
-    "Grab Temple Gate (Closed) (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Grab Temple Gate (Closed) (Communal Helper)" => Ahorn.EntityPlacement(
         GrabTempleGate,
         "point",
         Dict{String, Any}(

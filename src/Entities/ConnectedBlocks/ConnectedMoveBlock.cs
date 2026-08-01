@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.Registry;
 using FMOD.Studio;
 using MonoMod.Utils;
 using System.Collections;
@@ -124,6 +125,12 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected readonly bool noDebris;
 
+    // whether any MoveBlockRedirects' effects on this move block should persist after respawn
+    protected readonly bool redirectIsPersistent;
+
+    // when moving, ignore these solid types
+    protected readonly Type[] ignores;
+
     public ConnectedMoveBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Enum<MoveBlock.Directions>("direction"), data.Bool("fast") ? 75f : data.Float("moveSpeed", 60f))
     {
@@ -203,6 +210,10 @@ public class ConnectedMoveBlock : ConnectedSolid
         shakeOnCollision = data.Bool("shakeOnCollision", true);
 
         noDebris = data.Bool("noDebris");
+
+        redirectIsPersistent = data.Bool("redirectIsPersistent", true);
+
+        ignores = data.Types("ignore");
     }
 
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
@@ -303,14 +314,14 @@ public class ConnectedMoveBlock : ConnectedSolid
                 {
                     flag2 = MoveCheck(vec.XComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveVCollideSolids(vec.Y, thruDashBlocks: false);
+                    this.MoveVCollideSolidsExcluding(ignores, vec.Y);
                     noSquish = null;
                 }
                 else
                 {
                     flag2 = MoveCheck(vec.YComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveHCollideSolids(vec.X, thruDashBlocks: false);
+                    this.MoveHCollideSolidsExcluding(ignores, vec.X);
                     noSquish = null;
                     if (Direction == MoveBlock.Directions.Down && Top > SceneAs<Level>().Bounds.Bottom + 32)
                     {
@@ -319,7 +330,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 }
                 Vector2 move = Position - start;
                 if (Scene.OnInterval(0.03f))
-                    SpawnScrapeParticles(Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
+                    SpawnScrapeParticlesExcluding(ignores, Math.Abs(move.X) != 0, Math.Abs(move.Y) != 0);
 
                 curMoveCheck = flag2;
 
@@ -368,6 +379,8 @@ public class ConnectedMoveBlock : ConnectedSolid
             yield return 0.2f;
 
             BreakParticles();
+            if (!redirectIsPersistent)
+                ((MoveBlockRedirectable) Get<Redirectable>())?.ResetBlock();
 
             List<MoveBlockDebris> debris = new();
             if (!noDebris)
@@ -440,7 +453,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 item.StopMoving();
             }
-            while (CollideCheck<Actor>() || CollideCheck<Solid>() || AnySetEnabled(BreakerFlags))
+            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores) || AnySetEnabled(BreakerFlags))
             {
                 yield return null;
             }
@@ -570,14 +583,14 @@ public class ConnectedMoveBlock : ConnectedSolid
     {
         if (speed.X != 0f)
         {
-            if (MoveHCollideSolids(speed.X, thruDashBlocks: false))
+            if (this.MoveHCollideSolidsExcluding(ignores, speed.X))
             {
                 for (int i = 1; i <= 3; i++)
                 {
                     for (int num = 1; num >= -1; num -= 2)
                     {
-                        Vector2 value = new(Math.Sign(speed.X), i * num);
-                        if (!CollideCheck<Solid>(Position + value))
+                        Vector2 vector = new Vector2(Math.Sign(speed.X), i * num);
+                        if (!this.CollideCheckExcluding<Solid>(ignores, Position + vector))
                         {
                             MoveVExact(i * num);
                             MoveHExact(Math.Sign(speed.X));
@@ -591,14 +604,14 @@ public class ConnectedMoveBlock : ConnectedSolid
         }
         if (speed.Y != 0f)
         {
-            if (MoveVCollideSolids(speed.Y, thruDashBlocks: false))
+            if (this.MoveVCollideSolidsExcluding(ignores, speed.Y))
             {
                 for (int j = 1; j <= 3; j++)
                 {
                     for (int num2 = 1; num2 >= -1; num2 -= 2)
                     {
-                        Vector2 value2 = new(j * num2, Math.Sign(speed.Y));
-                        if (!CollideCheck<Solid>(Position + value2))
+                        Vector2 vector2 = new Vector2(j * num2, Math.Sign(speed.Y));
+                        if (!this.CollideCheckExcluding<Solid>(ignores, Position + vector2))
                         {
                             MoveHExact(j * num2);
                             MoveVExact(Math.Sign(speed.Y));

@@ -1,3 +1,43 @@
+--1.25.4 (21/07/2026)--
+* Made Dream Strawberries' hooks more robust. @aonkeeper4
+* Fixed incompatibility between Aqua and Connected Move Blocks. @aonkeeper4
+
+--1.25.3 (19/05/2026)--
+* Added zoomout support to Lightning Controller. @ozmarie
+* Tidied collision logic in Connected Move Blocks. @aonkeeper4
+
+--1.25.2 (01/05/2026)--
+* Fixed Cloudscape rotation and timerate. @SunsetQuasar
+
+--1.25.1 (17/04/2026)--
+* Fixed incorrect collision logic in Connected Move Blocks. @SunsetQuasar and @aonkeeper4
+
+--1.25.0 (16/04/2026)--
+* Reduced lag when entering large rooms containing Glow Controllers. @AAA1459
+* Confined Abstract Panel dash collision logic to prevent unnecessary side effects. @karl2883 and @tkavner
+* Added Elytra Note Ring customization. @SunsetQuasar
+* Added more chain rendering options to Chained Falling Blocks. @earthwise01
+* Added ModInterop for Shapes and Shape3Ds. @SunsetQuasar
+* Fixed rendering bugs when using EeveeHelper on Connected Solids. @aonkeeper4
+* Fixed crash with Cassette Charged Aero Blocks. @aonkeeper4
+* Fixed savestates interacting badly with Solar Elevators. @aonkeeper4
+* Added support for using entity SIDs to Glow Controllers and Show Hitbox Triggers. @earthwise01
+* Added the option for Connected Move Blocks to ignore certain solids. @SunsetQuasar
+
+--1.24.5 (03/03/2026)--
+* Fixed ILCursor extension methods moving the wrong way with one predicate. @aonkeeper4
+* Fixed being allowed to climb into triggered sideways Timed Trigger spikes. @AAA1459
+* Added cassette functionality to Charged Aero Blocks. @aonkeeper4
+* Added camera culling for Chains. @JaThePlayer
+* Added support for custom tilesets to Chained Falling Blocks. @aonkeeper4
+* Added reskin support for custom cassette entities. @aonkeeper4
+* Allowed adding Cloudscapes as foreground stylegrounds. @earthwise01
+* Fixed Move Block Redirects' effects persisting after redirected blocks have respawned. @aonkeeper4
+* Fixed Glow Controllers not affecting entities added after the scene starts. @aonkeeper4
+* Added an option to disable the pulsing of Move Block Groups. @aonkeeper4
+* Fixed the rumble sound from Shapeshifters persisting through level reloads. @aonkeeper4
+* Added the ability to make Custom Cassette Blocks using the Manual Cassette Controller active while the input is held. @Etpio
+
 --1.24.4 (02/07/2025)--
 * Fixed Connected Temple Cracked Blocks not rendering due to logic error. @catapillie
 

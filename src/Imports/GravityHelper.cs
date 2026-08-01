@@ -39,6 +39,19 @@ public static class GravityHelper
     public static Action EndOverride;
     public static Action<Action> ExecuteOverride;
     public static Func<IDisposable> WithOverride;
+
+    public static void Initialize()
+    {
+        typeof(GravityHelper).ModInterop();
+        
+        /*
+         * Some Communal Helper mechanics don't work well with Gravity Helper.
+         * To fix this, Gravity Helper has implemented hooks that patch some of Communal Helper's methods.
+         * From now on though, we'll be supporting Gravity Helper with the methods it exports, and fix quirks ourselves.
+         * So, we need to call RegisterModSupportBlacklist, which will discard hooks implemented in Gravity Helper.
+         */
+        RegisterModSupportBlacklist?.Invoke("CommunalHelper");
+    }
 }
 
 public enum GravityType

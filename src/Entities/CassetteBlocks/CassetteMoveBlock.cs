@@ -1,9 +1,11 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.Registry;
 using FMOD.Studio;
 using MonoMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using static MonoMod.InlineRT.MonoModRule;
 using Directions = Celeste.MoveBlock.Directions;
 
 // TODO
@@ -62,8 +64,11 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
     private readonly bool noDebris;
 
-    public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, bool oldConnectionBehavior, Color? overrideColor, float crashTime, float regenTime, bool shakeOnCollision, bool noDebris)
-        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, dynamicHitbox: true, overrideColor)
+    // when moving, ignore these solid types
+    protected readonly Type[] ignores;
+
+    public CassetteMoveBlock(Vector2 position, EntityID id, int width, int height, Directions direction, float moveSpeed, int index, float tempo, bool oldConnectionBehavior, Color? overrideColor, string spritePath, float sideAlpha, bool held, float crashTime, float regenTime, bool shakeOnCollision, bool noDebris, Type[] ignores)
+        : base(position, id, width, height, index, tempo, true, oldConnectionBehavior, dynamicHitbox: true, overrideColor, spritePath, sideAlpha, held)
     {
         startPosition = position;
         Direction = direction;
@@ -95,10 +100,10 @@ public class CassetteMoveBlock : CustomCassetteBlock
             dir =>
             {
                 int index = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
-                arrow.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index];
-                arrowPressed.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index];
-                arrowHighlight.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlight")[index];
-                arrowHighlightPressed.Texture = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlightPressed")[index];
+                arrow = new Image(GFX.Game.GetAtlasSubtextures(SuffixFromSpritePathOrDefault("/arrow", "objects/CommunalHelper/cassetteMoveBlock/arrow"))[index]);
+                arrowPressed = new Image(GFX.Game.GetAtlasSubtextures(SuffixFromSpritePathOrDefault("/arrowPressed", "objects/CommunalHelper/cassetteMoveBlock/arrowPressed"))[index]);
+                arrowHighlight = new Image(GFX.Game.GetAtlasSubtextures(SuffixFromSpritePathOrDefault("/arrowHighlight", "objects/CommunalHelper/cassetteMoveBlock/arrowHighlight"))[index]);
+                arrowHighlightPressed = new Image(GFX.Game.GetAtlasSubtextures(SuffixFromSpritePathOrDefault("/arrowHighlightPressed", "objects/CommunalHelper/cassetteMoveBlock/arrowHighlightPressed"))[index]);
                 Direction = dir;
             }
         )
@@ -118,24 +123,25 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 MoveBlockRedirectable.GetControllerDelegate(dynamicData, 4)(coroutine);
             },
         });
+
+        this.ignores = ignores;
     }
 
     public CassetteMoveBlock(EntityData data, Vector2 offset, EntityID id)
-        : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.HexColorNullable("customColor"), data.Float("crashTime", 0.15f), data.Float("regenTime", 3f), data.Bool("shakeOnCollision", true), data.Bool("noDebris"))
-    {
-    }
+        : this(data.Position + offset, id, data.Width, data.Height, data.Enum("direction", Directions.Left), data.Bool("fast") ? FastMoveSpeed : data.Float("moveSpeed", MoveSpeed), data.Int("index"), data.Float("tempo", 1f), data.Bool("oldConnectionBehavior", true), data.HexColorNullable("customColor"), data.Attr("spritePath", ""), data.Float("sideAlpha", 1f), data.Bool("held"), data.Float("crashTime", 0.15f), data.Float("regenTime", 3f), data.Bool("shakeOnCollision", true), data.Bool("noDebris"), data.Types("ignore"))
+    { }
 
     public override void Awake(Scene scene)
     {
         int index = (int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f);
-        arrow = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrow")[index]);
-        arrowPressed = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowPressed")[index]);
-        arrowHighlight = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlight")[index]);
-        arrowHighlightPressed = new Image(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/arrowHighlightPressed")[index]);
-        cross = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/x"]);
-        crossPressed = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xPressed"]);
-        crossHighlight = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xHighlight"]);
-        crossHighlightPressed = new Image(GFX.Game["objects/CommunalHelper/cassetteMoveBlock/xHighlightPressed"]);
+        arrow = new Image(GFX.Game.GetAtlasSubtextures(SuffixFromSpritePathOrDefault("/arrow", "objects/CommunalHelper/cassetteMoveBlock/arrow"))[index]);
+        arrowPressed = new Image(GFX.Game.GetAtlasSubtextures(SuffixFromSpritePathOrDefault("/arrowPressed", "objects/CommunalHelper/cassetteMoveBlock/arrowPressed"))[index]);
+        arrowHighlight = new Image(GFX.Game.GetAtlasSubtextures(SuffixFromSpritePathOrDefault("/arrowHighlight", "objects/CommunalHelper/cassetteMoveBlock/arrowHighlight"))[index]);
+        arrowHighlightPressed = new Image(GFX.Game.GetAtlasSubtextures(SuffixFromSpritePathOrDefault("/arrowHighlightPressed", "objects/CommunalHelper/cassetteMoveBlock/arrowHighlightPressed"))[index]);
+        cross = new Image(GFX.Game[SuffixFromSpritePathOrDefault("/x", "objects/CommunalHelper/cassetteMoveBlock/x")]);
+        crossPressed = new Image(GFX.Game[SuffixFromSpritePathOrDefault("/xPressed", "objects/CommunalHelper/cassetteMoveBlock/xPressed")]);
+        crossHighlight = new Image(GFX.Game[SuffixFromSpritePathOrDefault("/xHighlight", "objects/CommunalHelper/cassetteMoveBlock/xHighlight")]);
+        crossHighlightPressed = new Image(GFX.Game[SuffixFromSpritePathOrDefault("/xHighlightPressed", "objects/CommunalHelper/cassetteMoveBlock/xHighlightPressed")]);
 
         base.Awake(scene);
         AddCenterSymbol(arrow, arrowPressed);
@@ -182,7 +188,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 {
                     hit = MoveCheck(move.XComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveVCollideSolids(move.Y, thruDashBlocks: false);
+                    this.MoveVCollideSolidsExcluding(ignores, move.Y);
                     noSquish = null;
                     if (Scene.OnInterval(0.03f))
                     {
@@ -200,7 +206,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 {
                     hit = MoveCheck(move.YComp());
                     noSquish = Scene.Tracker.GetEntity<Player>();
-                    MoveHCollideSolids(move.X, thruDashBlocks: false);
+                    this.MoveHCollideSolidsExcluding(ignores, move.X);
                     noSquish = null;
                     if (Scene.OnInterval(0.03f))
                     {
@@ -277,7 +283,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                         {
                             spr.Color = Activated ? color : pressedColor;
                         });
-                        d.Sprite.Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/cassetteMoveBlock/debris"));
+                        d.Sprite.Texture = Calc.Random.Choose(GFX.Game.GetAtlasSubtextures(SuffixFromSpritePathOrDefault("/debris", "objects/CommunalHelper/cassetteMoveBlock/debris")));
                         debris.Add(d);
                         Scene.Add(d);
                     }
@@ -301,7 +307,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
 
             foreach (MoveBlockDebris d in debris)
                 d.StopMoving();
-            while (CollideCheck<Actor>() || CollideCheck<Solid>())
+            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores))
                 yield return null;
 
             Present = true;
@@ -407,14 +413,14 @@ public class CassetteMoveBlock : CustomCassetteBlock
     {
         if (speed.X != 0f)
         {
-            if (MoveHCollideSolids(speed.X, thruDashBlocks: false))
+            if (this.MoveHCollideSolidsExcluding(ignores, speed.X))
             {
                 for (int i = 1; i <= 3; i++)
                 {
                     for (int num = 1; num >= -1; num -= 2)
                     {
-                        Vector2 value = new(Math.Sign(speed.X), i * num);
-                        if (!CollideCheck<Solid>(Position + value))
+                        Vector2 vector = new Vector2(Math.Sign(speed.X), i * num);
+                        if (!this.CollideCheckExcluding<Solid>(ignores, Position + vector))
                         {
                             MoveVExact(i * num);
                             MoveHExact(Math.Sign(speed.X));
@@ -428,14 +434,14 @@ public class CassetteMoveBlock : CustomCassetteBlock
         }
         if (speed.Y != 0f)
         {
-            if (MoveVCollideSolids(speed.Y, thruDashBlocks: false))
+            if (this.MoveVCollideSolidsExcluding(ignores, speed.Y))
             {
                 for (int j = 1; j <= 3; j++)
                 {
                     for (int num2 = 1; num2 >= -1; num2 -= 2)
                     {
-                        Vector2 value2 = new(j * num2, Math.Sign(speed.Y));
-                        if (!CollideCheck<Solid>(Position + value2))
+                        Vector2 vector2 = new Vector2(j * num2, Math.Sign(speed.Y));
+                        if (!this.CollideCheckExcluding<Solid>(ignores, Position + vector2))
                         {
                             MoveHExact(j * num2);
                             MoveVExact(Math.Sign(speed.Y));
@@ -570,7 +576,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 for (int i = 0; i < Height; i += 8)
                 {
                     Vector2 vector = new(x, Top + 4f + i);
-                    if (Scene.CollideCheck<Solid>(vector))
+                    if (Scene.CollideCheckExcluding<Solid>(ignores, vector))
                     {
                         SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector);
                     }
@@ -582,7 +588,7 @@ public class CassetteMoveBlock : CustomCassetteBlock
                 for (int j = 0; j < Width; j += 8)
                 {
                     Vector2 vector2 = new(Left + 4f + j, y);
-                    if (Scene.CollideCheck<Solid>(vector2))
+                    if (Scene.CollideCheckExcluding<Solid>(ignores, vector2))
                     {
                         SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector2);
                     }

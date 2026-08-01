@@ -4,6 +4,8 @@ local drawableSprite = require("structs.drawable_sprite")
 local drawableNinePatch = require("structs.drawable_nine_patch")
 local utils = require("utils")
 local connectedEntities = require("helpers.connected_entities")
+local loadedState = require("loaded_state")
+local entities = require("entities")
 
 local communalHelper = {}
 
@@ -16,6 +18,10 @@ function communalHelper.hexToColor(hex, default)
         color = { r, g, b, a }
     end
     return color
+end
+
+function communalHelper.suffixFromPathOrDefault(path, suffix, defaultValue)
+    return (path or "") ~= "" and (path .. suffix) or defaultValue
 end
 
 -- cassette blocks
@@ -123,7 +129,7 @@ function communalHelper.getCustomCassetteBlockSprites(room, entity, lonely, oldB
     local tileWidth, tileHeight = math.ceil(width / 8), math.ceil(height / 8)
 
     local color = communalHelper.getCustomCassetteBlockColor(entity)
-    local frame = "objects/cassetteblock/solid"
+    local frame = communalHelper.suffixFromPathOrDefault(entity.spritePath, "/solid", "objects/cassetteblock/solid")
     local depth = -10
 
     for x = 1, tileWidth do
@@ -392,5 +398,36 @@ communalHelper.easers = {
     ["Bounce Out"] = "BounceOut",
     ["Bounce In Out"] = "BounceInOut",
 }
+
+-- sids
+
+function communalHelper.getAllSIDs()
+    local sids = {}
+    for sid, _ in pairs(entities.registeredEntities) do
+        table.insert(sids, sid)
+    end
+    table.sort(sids)
+
+    return sids
+end
+
+function communalHelper.getMapSIDs()
+    if not loadedState.map then return communalHelper.getAllSIDs() end
+
+    local sidsInMap = {}
+    for _, room in pairs(loadedState.map.rooms) do
+        for _, entity in pairs(room.entities) do
+            sidsInMap[entity._name] = true
+        end
+    end
+
+    local sids = {}
+    for sid, _ in pairs(sidsInMap) do
+        table.insert(sids, sid)
+    end
+    table.sort(sids)
+
+    return sids
+end
 
 return communalHelper

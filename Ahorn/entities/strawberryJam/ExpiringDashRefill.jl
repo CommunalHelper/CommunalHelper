@@ -11,7 +11,7 @@ using ..Ahorn, Maple
 )
 
 const placements = Ahorn.PlacementDict(
-    "Expiring Dash Refill (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Expiring Dash Refill (Communal Helper)" => Ahorn.EntityPlacement(
         ExpiringDashRefill
     )
 )

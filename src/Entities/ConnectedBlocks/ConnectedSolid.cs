@@ -214,6 +214,43 @@ public class ConnectedSolid : Solid
 
         Collidable = true;
     }
+    
+    public void SpawnScrapeParticlesExcluding(Type[] ignores, bool doOnX = true, bool doOnY = true)
+    {
+        Collidable = false;
+
+        Level level = SceneAs<Level>();
+        foreach (Hitbox hitbox in Colliders)
+        {
+            if (doOnX)
+            {
+                for (float t = 0; t < hitbox.Width; t += 8)
+                {
+                    Vector2 vecTop = Position + hitbox.Position + new Vector2(t, -1);
+                    Vector2 vecBottom = Position + hitbox.Position + new Vector2(t, hitbox.Height + 1);
+                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecTop))
+                        level.ParticlesFG.Emit(ZipMover.P_Scrape, vecTop);
+                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecBottom))
+                        level.ParticlesFG.Emit(ZipMover.P_Scrape, vecBottom);
+                }
+            }
+
+            if (doOnY)
+            {
+                for (float t = 0; t < hitbox.Height; t += 8)
+                {
+                    Vector2 vecLeft = Position + hitbox.Position + new Vector2(-1, t);
+                    Vector2 vecRight = Position + hitbox.Position + new Vector2(hitbox.Width + 1, t);
+                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecLeft))
+                        level.ParticlesFG.Emit(ZipMover.P_Scrape, vecLeft);
+                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecRight))
+                        level.ParticlesFG.Emit(ZipMover.P_Scrape, vecRight);
+                }
+            }
+        }
+
+        Collidable = true;
+    }
 
     /// <summary>
     /// Optionnal function to do auto-tiling for the entire group, with specified textures.
@@ -400,8 +437,6 @@ public class ConnectedSolid : Solid
         GetRiders();
         Player player = Scene.Tracker.GetEntity<Player>();
 
-        HashSet<Actor> riders = data.Get<HashSet<Actor>>("riders");
-
         if (player is not null && Input.MoveX.Value == Math.Sign(move) && Math.Sign(player.Speed.X) == Math.Sign(move) && !riders.Contains(player) && CollideCheck(player, Position + (Vector2.UnitX * move) - Vector2.UnitY))
         {
             player.MoveV(1f);
@@ -461,7 +496,6 @@ public class ConnectedSolid : Solid
         GravityHelper.BeginOverride?.Invoke();
 
         GetRiders();
-        HashSet<Actor> riders = data.Get<HashSet<Actor>>("riders");
 
         Y += move;
         MoveStaticMovers(Vector2.UnitY * move);

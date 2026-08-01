@@ -5,7 +5,7 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/SJ/ExplodingStrawberry" ExplodingStrawberry(x::Integer, y::Integer)
 
 const placements = Ahorn.PlacementDict(
-    "Strawberry (Exploding) (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Strawberry (Exploding) (Communal Helper)" => Ahorn.EntityPlacement(
         ExplodingStrawberry
     )
 )

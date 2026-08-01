@@ -5,7 +5,7 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/SJ/LoopBlock" LoopBlock(x::Integer, y::Integer, width::Integer=16, height::Integer=16, edgeThickness::Integer=1, color::String="FFFFFF")
 
 const placements = Ahorn.PlacementDict(
-    "Loop Block (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Loop Block (Communal Helper)" => Ahorn.EntityPlacement(
         LoopBlock,
         "rectangle"
     )

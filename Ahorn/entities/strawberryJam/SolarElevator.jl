@@ -19,7 +19,7 @@ using ..Ahorn, Maple
 )
 
 const placements = Ahorn.PlacementDict(
-    "Solar Elevator (Strawberry Jam) (Communal Helper)" => Ahorn.EntityPlacement(
+    "Solar Elevator (Communal Helper)" => Ahorn.EntityPlacement(
         SolarElevator,
         "point",
     ),

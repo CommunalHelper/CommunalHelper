@@ -9,4 +9,9 @@ namespace Celeste.Mod.CommunalHelper.Imports;
 public static class CavernHelper
 {
     public static Func<Action<Vector2>, Collider, Component> GetCrystalBombExplosionCollider;
+
+    public static void Initialize()
+    {
+        typeof(CavernHelper).ModInterop();
+    }
 }

@@ -10,11 +10,17 @@ public class ChainedDreamFallingBlock : DreamFallingBlock
         public DreamFallingBlockChainRenderer(ChainedDreamFallingBlock dreamFallingBlock)
         {
             block = dreamFallingBlock;
-            Depth = Depths.FGTerrain + 1;
+            Depth = dreamFallingBlock.chainBelow ? Depths.SolidsBelow + 1 : Depths.FGTerrain + 1;
         }
 
         public override void Render()
         {
+            if ((block.HasStartedFalling || block.indicatorAtStart) && block.indicator && !block.heldByChain)
+            {
+                float toY = block.startY + ((block.chainStopY + block.Height - block.startY) * Ease.ExpoOut(block.pathLerp));
+                Draw.Rect(block.X, block.Y, block.Width, toY - block.Y, Color.Black * 0.75f);
+            }
+
             if (block.centeredChain)
                 Chain.DrawChainLine(new Vector2(block.X + (block.Width / 2f), block.startY), new Vector2(block.X + (block.Width / 2f), block.Y), block.chainTexture, block.chainOutline);
             else
@@ -27,10 +33,12 @@ public class ChainedDreamFallingBlock : DreamFallingBlock
 
     private DreamFallingBlockChainRenderer chainRenderer;
 
-    private readonly MTexture chainTexture;
-
     private bool heldByChain;
     protected override bool Held => heldByChain || base.Held;
+
+    private readonly MTexture chainTexture;
+
+    private readonly bool chainBelow;
 
     private readonly float chainStopY, startY;
     private readonly bool centeredChain;
@@ -57,6 +65,8 @@ public class ChainedDreamFallingBlock : DreamFallingBlock
         string chainTexturePath = data.Attr("chainTexture", Chain.DEFAULT_CHAIN_PATH);
         chainTexture = GFX.Game.GetOrDefault(chainTexturePath, Chain.DefaultChain);
 
+        chainBelow = data.Bool("below") || data.Bool("chainBelow");
+
         Add(rattle = new SoundSource()
         {
             Position = Vector2.UnitX * Width / 2f
@@ -81,17 +91,6 @@ public class ChainedDreamFallingBlock : DreamFallingBlock
 
         if (HasStartedFalling && indicator && !indicatorAtStart)
             pathLerp = Calc.Approach(pathLerp, 1f, Engine.DeltaTime * 2f);
-    }
-
-    public override void Render()
-    {
-        if ((HasStartedFalling || indicatorAtStart) && indicator && !heldByChain)
-        {
-            float toY = startY + ((chainStopY + Height - startY) * Ease.ExpoOut(pathLerp));
-            Draw.Rect(X, Y, Width, toY - Y, Color.Black * 0.75f);
-        }
-
-        base.Render();
     }
 
     protected override bool ShouldStopFalling()

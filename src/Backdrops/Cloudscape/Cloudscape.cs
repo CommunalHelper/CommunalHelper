@@ -227,6 +227,8 @@ public class Cloudscape : Backdrop
 
     private readonly ZoomBehaviors ZoomBehavior;
 
+    private float age;
+
     public Cloudscape(BinaryPacker.Element child)
         : this(new Options(child)) { }
 
@@ -424,6 +426,8 @@ public class Cloudscape : Backdrop
         if (!Visible)
             return;
 
+        age += Engine.DeltaTime;
+
         // calculate colors once for each cloud, and store them in the color buffer texture.
         // it will be sent to the gpu so it can be sampled, instead of changing the color of each vertex (old & slow method)
         for (int i = 0; i < clouds.Length; i++)
@@ -489,7 +493,7 @@ public class Cloudscape : Backdrop
         parameters["inner_rotation"].SetValue(innerRotation);
         parameters["outer_rotation"].SetValue(outerRotation);
         parameters["rotation_exponent"].SetValue(rotationExponent);
-        parameters["time"].SetValue(scene.TimeActive);
+        parameters["time"].SetValue(age);
         parameters["dimensions"].SetValue(new Vector2(buffer.Width, buffer.Height));
 
         var technique = CommunalHelperGFX.CloudscapeShader.Techniques[0];

@@ -5,7 +5,7 @@ using ..Ahorn, Maple
 @mapdef Entity "CommunalHelper/SJ/DashZipMover" DashZipMover(x::Integer, y::Integer, width::Integer=16, height::Integer=16, nodes::Array{Tuple{Integer, Integer}, 1}=Tuple{Integer, Integer}[])
 
 const placements = Ahorn.PlacementDict(
-    "Dash Zip Mover (Strawberry Jam) (CommunalHelper)" => Ahorn.EntityPlacement(
+    "Dash Zip Mover (CommunalHelper)" => Ahorn.EntityPlacement(
         DashZipMover,
         "rectangle",
         Dict{String, Any}(),

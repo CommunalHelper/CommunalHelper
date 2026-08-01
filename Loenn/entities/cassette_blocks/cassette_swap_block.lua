@@ -21,6 +21,10 @@ cassetteSwapBlock.fieldInformation = {
     },
     tempo = {
         minimumValue = 0.0
+    },
+    sideAlpha = {
+        minimumValue = 0.0,
+        maximumValue = 1.0
     }
 }
 
@@ -36,6 +40,9 @@ for i = 1, 4 do
             customColor = colors[i],
             noReturn = false,
             oldConnectionBehavior = false,
+            spritePath = "",
+            sideAlpha = 1.0,
+            held = false,
         }
     }
 end
@@ -46,7 +53,7 @@ local function getBlockSprites(room, entity)
     local color = communalHelper.getCustomCassetteBlockColor(entity)
 
     if entity.noReturn then
-        local cross = drawableSprite.fromTexture("objects/CommunalHelper/cassetteMoveBlock/x", entity)
+        local cross = drawableSprite.fromTexture(communalHelper.suffixFromPathOrDefault(entity.spritePath, "/x", "objects/CommunalHelper/cassetteMoveBlock/x"), entity)
         cross:addPosition(math.floor(entity.width / 2), math.floor(entity.height / 2))
         cross:setColor(color)
         cross.depth = -11
@@ -66,7 +73,7 @@ function cassetteSwapBlock.sprite(room, entity)
     local sprites = getBlockSprites(room, entity)
 
     local color = communalHelper.getCustomCassetteBlockColor(entity)
-    communalHelper.addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, "objects/swapblock/target", color)
+    communalHelper.addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, communalHelper.suffixFromPathOrDefault(entity.spritePath, "/target", "objects/swapblock/target"), color)
 
     return sprites
 end

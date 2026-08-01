@@ -27,7 +27,7 @@ namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/DreamTunnelEntry = LoadDreamTunnelEntry")]
 [Tracked]
-public class DreamTunnelEntry : AbstractPanel
+public class DreamTunnelEntry : AbstractDashCollisionPanel
 {
     private struct DreamParticle
     {
