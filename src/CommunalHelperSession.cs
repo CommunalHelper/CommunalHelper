@@ -19,6 +19,9 @@ public class CommunalHelperSession : EverestModuleSession
 
     public bool PlayerWasTired { get; set; } = false;
 
+    public int DreamDashes { get; set; } = 0;
+    public int DreamDashesAtLevelStart { get; set; } = 0;
+
     // used by expiring dash refills
     public double ExpiringDashRemainingTime { get; set; }
     public float ExpiringDashFlashThreshold { get; set; }

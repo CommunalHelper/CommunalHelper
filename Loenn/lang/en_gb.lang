@@ -702,6 +702,12 @@ entities.CommunalHelper/RedlessBerry.attributes.description.winged=Makes this Re
 entities.CommunalHelper/DreamStrawberry.placements.name.dream_dash_berry=Dream Strawberry
 entities.CommunalHelper/DreamStrawberry.attributes.description.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
 entities.CommunalHelper/DreamStrawberry.attributes.description.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+entities.CommunalHelper/DreamStrawberryTracked.placements.name.dream_dash_berry=Dream Strawberry (Counts Toward Total)
+entities.CommunalHelper/DreamStrawberryTracked.attributes.description.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+entities.CommunalHelper/DreamStrawberryTracked.attributes.description.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+entities.CommunalHelper/DreamStrawberryGolden.placements.name.dream_dash_berry=Dream Strawberry (Golden)
+entities.CommunalHelper/DreamStrawberryGolden.attributes.description.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+entities.CommunalHelper/DreamStrawberryGolden.attributes.description.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
 
 # Seeker Dash Refill
 entities.CommunalHelper/SeekerDashRefill.placements.name.seeker_dash_refill=Seeker Dash Refill
