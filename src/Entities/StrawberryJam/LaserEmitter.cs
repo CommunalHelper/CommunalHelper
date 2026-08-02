@@ -31,6 +31,7 @@ public class LaserEmitter : Entity
     public string FlagName { get; }
     public string SpriteName { get; }
     public bool UseTintOverlay { get; }
+    public Color ParticleColor { get; }
 
     #endregion
 
@@ -48,6 +49,8 @@ public class LaserEmitter : Entity
     private readonly LaserColliderComponent laserCollider;
 
     private static ParticleType P_Sparks;
+
+    private readonly ParticleType customParticle;
 
     #endregion
 
@@ -73,8 +76,10 @@ public class LaserEmitter : Entity
     {
         string colorString = data.Attr("color", null);
         string colorChannelString = data.Attr("colorChannel", null);
+        string particleColorString = data.Attr("particleColor", null);
         colorString ??= colorChannelString ?? "ff0000";
         colorChannelString ??= colorString;
+        particleColorString ??= "fff538";
 
         LoadParticles();
 
@@ -96,6 +101,16 @@ public class LaserEmitter : Entity
         EmitterColliderWidth = Math.Max(0, data.Int("emitterColliderWidth", 14));
         EmitterColliderHeight = Math.Max(0, data.Int("emitterColliderHeight", 6));
         EmitSparks = data.Bool("emitSparks", true);
+        ParticleColor = Calc.HexToColor(particleColorString.ToLower());
+
+        customParticle = P_Sparks;
+        if (ParticleColor != ZipMover.P_Sparks.Color)
+        {
+            customParticle = new ParticleType(P_Sparks)
+            {
+                Color = ParticleColor
+            };
+        }
 
         Depth = Depths.Above;
 
@@ -257,8 +272,8 @@ public class LaserEmitter : Entity
             };
             var startPos = new Vector2(startX + X, startY + Y);
             var perp = Orientation.Normal().Perpendicular().Abs();
-            SceneAs<Level>().ParticlesBG.Emit(P_Sparks, startPos + perp * 3, angle);
-            SceneAs<Level>().ParticlesBG.Emit(P_Sparks, startPos - perp * 2, angle);
+            SceneAs<Level>().ParticlesBG.Emit(customParticle, startPos + perp * 3, angle);
+            SceneAs<Level>().ParticlesBG.Emit(customParticle, startPos - perp * 2, angle);
         }
     }
 

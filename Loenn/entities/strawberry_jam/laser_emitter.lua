@@ -32,7 +32,10 @@ laserEmitter.fieldInformation = {
             "Left",
             "Right"
         }
-    }
+    },
+    particleColor = {
+        fieldType = "color"
+    },
 }
 
 laserEmitter.placements = {}
@@ -58,6 +61,7 @@ local function addPlacement(orientation)
             emitterColliderWidth = 14,
             emitterColliderHeight = 6,
             emitSparks = true,
+            particleColor = "fff538",
         }
     })
 end
