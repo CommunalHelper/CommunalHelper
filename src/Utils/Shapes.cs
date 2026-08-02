@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Utils;
 
-internal class Shapes
+public class Shapes
 {
     // φ, the golden ratio.
     private static readonly float phi = (float) ((1 + Math.Sqrt(5)) / 2);
@@ -749,7 +749,7 @@ internal class Shapes
         return mesh;
     }
 
-    internal static Mesh<VertexPCTN> BuildMesh(Vector3[] vertices, int[] indices, Color color, float rainbow = 0f, float scale = 1f)
+    public static Mesh<VertexPCTN> BuildMesh(Vector3[] vertices, int[] indices, Color color, float rainbow = 0f, float scale = 1f)
     {
         Mesh<VertexPCTN> mesh = new();
         for (int i = 0; i < indices.Length; i += 3)

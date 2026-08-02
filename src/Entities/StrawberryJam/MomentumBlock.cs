@@ -104,7 +104,7 @@ public class MomentumBlock : Solid
         Player player = GetPlayerRider();
         if (ridingPlayer is not null && player is null && ridingPlayer.Speed.Y < 0 && speed.Length() > 1f)
         {
-            Audio.Play(CustomSFX.game_strawberryJam_boost_block_boost).setVolume(0.5f); // -6dB
+            Audio.Play(CustomSFX.game_strawberryJam_boost_block_boost)?.setVolume(0.5f); // -6dB
             Flash();
         }
 
