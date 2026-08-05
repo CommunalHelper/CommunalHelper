@@ -87,7 +87,7 @@ public class AffectSpriteTrigger : Trigger
                     return true;
                 }
                 return false;
-            })) { Console.WriteLine("no matches found"); }
+            })) { Util.Log("no matches found"); }
         if (sprite is null)
         {
             throw new Exception("AffectSpriteTrigger failed! Either select `player` or add a node to point to the affected entity.");

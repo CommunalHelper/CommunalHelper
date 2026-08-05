@@ -78,7 +78,7 @@ internal static class OptionalDependencies
         catch (Exception e)
         {
             Util.Log(LogLevel.Error, "Failed loading optional dependency: " + module.Metadata.Name);
-            Console.WriteLine(e.ToString());
+            Util.Log(e.ToString());
             // Show something on screen to alert user
             failedLoadingDeps = true;
         }

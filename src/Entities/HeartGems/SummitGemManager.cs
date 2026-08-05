@@ -100,7 +100,7 @@ public class CustomSummitGemManager : Entity
                 double remainder = note - Math.Truncate(note);
                 if (remainder != 0) {
                     Logger.Log("CommunalHelper", "Begin logging for experimental summitgem tones...");
-                    Console.WriteLine("Retrieving ChannelGroup...");
+                    Util.Log("Retrieving ChannelGroup...");
                     RESULT result = instance.getChannelGroup(out ChannelGroup group);
                     while (result != RESULT.OK) {
                         yield return null;
@@ -108,22 +108,22 @@ public class CustomSummitGemManager : Entity
                     }
 
                     Console.Write("Getting Number of Groups...\t");
-                    Console.WriteLine(group.getNumGroups(out int num));
-                    Console.WriteLine("Number of Groups: " + num);
+                    Util.Log(group.getNumGroups(out int num));
+                    Util.Log("Number of Groups: " + num);
                     Console.Write("Getting Inner Group...\t");
-                    Console.WriteLine(group.getGroup(0, out group));
+                    Util.Log(group.getGroup(0, out group));
 
                     Console.Write("Getting Number of Channels...\t");
-                    Console.WriteLine(group.getNumChannels(out int numChannels));
-                    Console.WriteLine("Number of Channels: " + numChannels);
+                    Util.Log(group.getNumChannels(out int numChannels));
+                    Util.Log("Number of Channels: " + numChannels);
                     Console.Write("Getting Channel...\t");
-                    Console.WriteLine(group.getChannel(0, out Channel channel));
+                    Util.Log(group.getChannel(0, out Channel channel));
 
                     Console.Write("Getting Frequency...\t");
-                    Console.WriteLine(channel.getFrequency(out float freq));
-                    Console.WriteLine("Channel Frequency: " + freq);
-                    Console.WriteLine("Setting Frequency to " + freq * (float) Math.Pow(2, remainder * 100f / 1200f));
-                    Console.WriteLine(channel.setFrequency(freq * (float) Math.Pow(2, remainder * 100f / 1200f)));
+                    Util.Log(channel.getFrequency(out float freq));
+                    Util.Log("Channel Frequency: " + freq);
+                    Util.Log("Setting Frequency to " + freq * (float) Math.Pow(2, remainder * 100f / 1200f));
+                    Util.Log(channel.setFrequency(freq * (float) Math.Pow(2, remainder * 100f / 1200f)));
                     Logger.Log("CommunalHelper", "End logging for experimental summitgem tones.");
                 }
                 */
