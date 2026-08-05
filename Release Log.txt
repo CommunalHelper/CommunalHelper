@@ -1,3 +1,9 @@
+--1.25.5 (02/08/2026)--
+* Fixed Dream Strawberries always being tracked as moon berries. @aonkeeper4
+* Added particle color customization to Laser Emitters. @AdamKorinek
+* Made the Shapes class public. @aonkeeper4
+* Fixed a crash when muting Momentum Blocks. @aonkeeper4
+
 --1.25.4 (21/07/2026)--
 * Made Dream Strawberries' hooks more robust. @aonkeeper4
 * Fixed incompatibility between Aqua and Connected Move Blocks. @aonkeeper4
