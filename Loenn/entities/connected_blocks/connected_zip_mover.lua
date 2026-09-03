@@ -21,6 +21,14 @@ connectedZipMover.fieldInformation = {
     theme = {
         options = themes,
         editable = false
+    },
+    colors = {
+        fieldType = "list",
+        elementOptions = {
+            fieldType = "color"
+        },
+        minimumElements = 0,
+        maximumElements = 3
     }
 }
 
@@ -37,12 +45,11 @@ for i, theme in ipairs(themes) do
             waiting = false,
             ticking = false,
             customSkin = "",
-            colors = ""
+            colors = "",
+            drawBlackBorder = true
         }
     }
 end
-
-local zipMoverRoleColor = {102 / 255, 57 / 255, 49 / 255}
 
 local function getSearchPredicate()
     return function(target)
@@ -50,7 +57,7 @@ local function getSearchPredicate()
     end
 end
 
-local function getTileSprite(entity, x, y, block, inner, rectangles)
+local function getTileSprite(entity, x, y, tileset, rectangles)
     local hasAdjacent = connectedEntities.hasAdjacent
 
     local drawX, drawY = (x - 1) * 8, (y - 1) * 8
@@ -62,21 +69,18 @@ local function getTileSprite(entity, x, y, block, inner, rectangles)
     local completelyClosed = closedLeft and closedRight and closedUp and closedDown
 
     local quadX, quadY = false, false
-    local frame = block
 
     if completelyClosed then
-        frame = inner
         if not hasAdjacent(entity, drawX + 8, drawY - 8, rectangles) then
-            quadX, quadY = 8, 0
+            quadX, quadY = 32, 0
         elseif not hasAdjacent(entity, drawX - 8, drawY - 8, rectangles) then
-            quadX, quadY = 0, 0
+            quadX, quadY = 24, 0
         elseif not hasAdjacent(entity, drawX + 8, drawY + 8, rectangles) then
-            quadX, quadY = 8, 8
+            quadX, quadY = 32, 8
         elseif not hasAdjacent(entity, drawX - 8, drawY + 8, rectangles) then
-            quadX, quadY = 0, 8
+            quadX, quadY = 24, 8
         else
             quadX, quadY = 8, 8
-            frame = block
         end
     else
         if closedLeft and closedRight and not closedUp and closedDown then
@@ -99,7 +103,7 @@ local function getTileSprite(entity, x, y, block, inner, rectangles)
     end
 
     if quadX and quadY then
-        local sprite = drawableSprite.fromTexture(frame, entity)
+        local sprite = drawableSprite.fromTexture(tileset, entity)
 
         sprite:addPosition(drawX, drawY)
         sprite:useRelativeQuad(quadX, quadY, 8, 8)
@@ -109,26 +113,20 @@ local function getTileSprite(entity, x, y, block, inner, rectangles)
 end
 
 local function getConnectedZipMoverThemeData(entity)
-    local theme = string.lower(entity.theme or "normal")
-    local cliffside = theme == "cliffside"
-    local folder = cliffside and "CommunalHelper/connectedZipMover" or "zipmover"
-    local themePath = (theme == "normal") and "" or (theme .. "/")
-
     local customSkin = entity.customSkin or ""
     if customSkin ~= "" then
         return {
-            block = customSkin .. "/block",
+            tileset = customSkin .. "/tileset",
             light = customSkin .. "/light01",
-            cog = customSkin .. "/cog",
-            inner = customSkin .. "/innerCorners"
+            cog = customSkin .. "/cog"
         }
     end
 
+    local themePath = "objects/CommunalHelper/connectedZipMover/" .. string.lower(entity.theme or "normal")
     return {
-        block = "objects/" .. folder .. "/" .. themePath .. "block",
-        light = "objects/" .. folder .. "/" .. themePath .. "light01",
-        cog = "objects/" .. folder .. "/" .. themePath .. "cog",
-        inner = "objects/" .. ((cliffside and "" or "CommunalHelper/") .. folder) .. "/" .. themePath .. "innerCorners"
+        tileset = themePath .. "/tileset",
+        light = themePath .. "/light01",
+        cog = themePath .. "/cog"
     }
 end
 
@@ -142,8 +140,10 @@ function connectedZipMover.sprite(room, entity)
 
     local themeData = getConnectedZipMoverThemeData(entity)
 
+    local ropeColorString = string.match(entity.colors or "", ",([^,]*)") -- i hate lua
+    local ropeColor = ropeColorString ~= "" and utils.getColor(ropeColorString) or {102 / 255, 57 / 255, 49 / 255}
     local nodes = entity.nodes or {{x = 0, y = 0}}
-    local nodeSprites = communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, themeData.cog, {1, 1, 1}, zipMoverRoleColor)
+    local nodeSprites = communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, themeData.cog, {1, 1, 1}, ropeColor)
     for _, sprite in ipairs(nodeSprites) do
         table.insert(sprites, sprite)
     end
@@ -154,7 +154,7 @@ function connectedZipMover.sprite(room, entity)
 
     for i = 1, tileWidth do
         for j = 1, tileHeight do
-            local sprite = getTileSprite(entity, i, j, themeData.block, themeData.inner, rectangles)
+            local sprite = getTileSprite(entity, i, j, themeData.tileset, rectangles)
 
             if sprite then
                 table.insert(sprites, sprite)

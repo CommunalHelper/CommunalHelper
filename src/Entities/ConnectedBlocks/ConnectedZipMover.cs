@@ -208,13 +208,12 @@ public class ConnectedZipMover : ConnectedSolid
     private readonly bool ticking;
     private readonly Coroutine seq;
 
-    private readonly string themePath;
+    private readonly string sfxPath;
     private Color backgroundColor;
 
     private readonly Vector2[] nodes;
 
-    private readonly Color ropeColor = Calc.HexToColor("663931");
-    private readonly Color ropeLightColor = Calc.HexToColor("9b6157");
+    private readonly Color ropeColor, ropeLightColor;
     private readonly MTexture cog;
 
     private float percent;
@@ -227,10 +226,11 @@ public class ConnectedZipMover : ConnectedSolid
               data.Bool("ticking"),
               data.Attr("customSkin").Trim(),
               data.Attr("colors").Trim(),
+              data.Bool("drawBlackBorder", true),
               data.Attr("customBlockTexture").Trim())
     { }
 
-    public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes theme, bool permanent, bool waits, bool ticking, string customSkin, string colors, string legacyCustomTexture)
+    public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes theme, bool permanent, bool waits, bool ticking, string customSkin, string colors, bool drawBlackBorder, string legacyCustomTexture)
         : base(position, width, height, safe: false)
     {
         Depth = Depths.FGTerrain + 1;
@@ -247,74 +247,83 @@ public class ConnectedZipMover : ConnectedSolid
 
         SurfaceSoundIndex = SurfaceIndex.Girder;
 
-        string path, id, key, corners;
-        if (!string.IsNullOrEmpty(customSkin))
-        {
-            path = customSkin + "/light";
-            id = customSkin + "/block";
-            key = customSkin + "/innercog";
-            corners = customSkin + "/innerCorners";
-            cog = GFX.Game[customSkin + "/cog"];
-            themePath = "normal";
-            backgroundColor = Color.Black;
-            if (this.theme == Themes.Moon)
-                themePath = "moon";
-        }
-        else
-        {
-            switch (this.theme)
-            {
-                default:
-                case Themes.Normal:
-                    path = "objects/zipmover/light";
-                    id = "objects/zipmover/block";
-                    key = "objects/zipmover/innercog";
-                    corners = "objects/CommunalHelper/zipmover/innerCorners";
-                    cog = GFX.Game["objects/zipmover/cog"];
-                    themePath = "normal";
-                    drawBlackBorder = true;
-                    backgroundColor = Color.Black;
-                    break;
-
-                case Themes.Moon:
-                    path = "objects/zipmover/moon/light";
-                    id = "objects/zipmover/moon/block";
-                    key = "objects/zipmover/moon/innercog";
-                    corners = "objects/CommunalHelper/zipmover/moon/innerCorners";
-                    cog = GFX.Game["objects/zipmover/moon/cog"];
-                    themePath = "moon";
-                    drawBlackBorder = false;
-                    backgroundColor = Color.Black;
-                    break;
-
-                case Themes.Cliffside:
-                    path = "objects/CommunalHelper/connectedZipMover/cliffside/light";
-                    id = "objects/CommunalHelper/connectedZipMover/cliffside/block";
-                    key = "objects/CommunalHelper/connectedZipMover/cliffside/innercog";
-                    corners = "objects/CommunalHelper/connectedZipMover/cliffside/innerCorners";
-                    cog = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/cog"];
-                    themePath = "normal";
-                    drawBlackBorder = true;
-                    backgroundColor = Calc.HexToColor("171018");
-                    break;
-            }
-        }
-
         if (!string.IsNullOrEmpty(colors))
         {
             // Comma seperated list of colors
             // First is background color, second is main rope color, third is light rope color
             string[] colorList = colors.Split(',');
             if (colorList.Length > 0)
-                backgroundColor = Calc.HexToColor(colorList[0]);
+                backgroundColor = Calc.HexToColorWithAlpha(colorList[0]);
             if (colorList.Length > 1)
-                ropeColor = Calc.HexToColor(colorList[1]);
+                ropeColor = Calc.HexToColorWithAlpha(colorList[1]);
             if (colorList.Length > 2)
-                ropeLightColor = Calc.HexToColor(colorList[2]);
+                ropeLightColor = Calc.HexToColorWithAlpha(colorList[2]);
+        }
+        this.drawBlackBorder = drawBlackBorder;
+
+        string light, innerCog, block = null, corners = null, tileset = null;
+        if (!string.IsNullOrEmpty(customSkin))
+        {
+            light = customSkin + "/light";
+            innerCog = customSkin + "/innercog";
+            cog = GFX.Game[customSkin + "/cog"];
+            sfxPath = this.theme switch
+            {
+                Themes.Normal or Themes.Cliffside => "normal",
+                Themes.Moon => "moon",
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            if (GFX.Game.Has(customSkin + "/tileset"))
+            {
+                tileset = customSkin + "/tileset";
+            }
+            else
+            {
+                block = customSkin + "/block";
+                corners = customSkin + "/innerCorners";
+            }
+        }
+        else
+        {
+            string themeName;
+            switch (this.theme)
+            {
+                default:
+                case Themes.Normal:
+                    themeName = "normal";
+                    this.drawBlackBorder = true;
+                    backgroundColor = Color.Black;
+                    ropeColor = Calc.HexToColor("663931");
+                    ropeLightColor = Calc.HexToColor("9b6157");
+                    break;
+
+                case Themes.Moon:
+                    themeName = "moon";
+                    this.drawBlackBorder = false;
+                    backgroundColor = Color.Black;
+                    ropeColor = Calc.HexToColor("663931");
+                    ropeLightColor = Calc.HexToColor("9b6157");
+                    break;
+
+                case Themes.Cliffside:
+                    themeName = "cliffside";
+                    this.drawBlackBorder = true;
+                    backgroundColor = Calc.HexToColor("171018");
+                    ropeColor = Calc.HexToColor("663931");
+                    ropeLightColor = Calc.HexToColor("9b6157");
+                    break;
+            }
+
+            string themePath = "objects/CommunalHelper/connectedZipMover/" + themeName;
+            light = themePath + "/light";
+            innerCog = themePath + "/innercog";
+            cog = GFX.Game[themePath + "/cog"];
+            tileset = themePath + "/tileset";
         }
 
-        innerCogs = GFX.Game.GetAtlasSubtextures(key);
-        streetlight = new Sprite(GFX.Game, path)
+        innerCogs = GFX.Game.GetAtlasSubtextures(innerCog);
+        streetlight = new Sprite(GFX.Game, light)
         {
             Active = false
         };
@@ -327,7 +336,7 @@ public class ConnectedZipMover : ConnectedSolid
             Position = new Vector2(Width / 2f, 4f)
         });
 
-        if (!string.IsNullOrEmpty(legacyCustomTexture))
+        if (!string.IsNullOrEmpty(legacyCustomTexture) || tileset is not null)
         {
             Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(legacyCustomTexture);
             edges = customTiles.Item1;
@@ -337,8 +346,7 @@ public class ConnectedZipMover : ConnectedSolid
         {
             for (int i = 0; i < 3; i++)
                 for (int j = 0; j < 3; j++)
-                    edges[i, j] = GFX.Game[id].GetSubtexture(i * 8, j * 8, 8, 8);
-
+                    edges[i, j] = GFX.Game[block].GetSubtexture(i * 8, j * 8, 8, 8);
             for (int i = 0; i < 2; i++)
                 for (int j = 0; j < 2; j++)
                     innerCorners[i, j] = GFX.Game[corners].GetSubtexture(i * 8, j * 8, 8, 8);
@@ -515,7 +523,7 @@ public class ConnectedZipMover : ConnectedSolid
                 to = nodes[i];
 
                 // Start shaking.
-                sfx.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/start");
+                sfx.Play($"event:/CommunalHelperEvents/game/zipMover/{sfxPath}/start");
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                 StartShaking(0.1f);
                 yield return 0.1f;
@@ -544,7 +552,7 @@ public class ConnectedZipMover : ConnectedSolid
 
                 // Arrived, will wait for 0.5 secs.
                 StartShaking(0.2f);
-                Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/impact", Center);
+                Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{sfxPath}/impact", Center);
                 streetlight.SetAnimationFrame(((waits && !last) || (ticking && !last) || (permanent && last)) ? 1 : 2);
                 Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
                 SceneAs<Level>().Shake();
@@ -568,7 +576,7 @@ public class ConnectedZipMover : ConnectedSolid
                         {
                             tickTime = 0.0f;
                             ++tickNum;
-                            Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/tick", Center);
+                            Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{sfxPath}/tick", Center);
                             StartShaking(0.1f);
                         }
                     }
@@ -596,7 +604,7 @@ public class ConnectedZipMover : ConnectedSolid
                     // Goes back to start with a speed that is four times slower.
                     StopPlayerRunIntoAnimation = false;
                     streetlight.SetAnimationFrame(2);
-                    sfx.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/return");
+                    sfx.Play($"event:/CommunalHelperEvents/game/zipMover/{sfxPath}/return");
                     at = 0f;
                     while (at < 1f)
                     {
@@ -612,7 +620,7 @@ public class ConnectedZipMover : ConnectedSolid
                         from = nodes[i];
 
                     StartShaking(0.2f);
-                    Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/finish", Center);
+                    Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{sfxPath}/finish", Center);
                 }
 
                 StopPlayerRunIntoAnimation = true;
@@ -625,8 +633,8 @@ public class ConnectedZipMover : ConnectedSolid
             {
                 // Done, will never be activated again.
                 StartShaking(0.3f);
-                Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/finish", Center);
-                Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{themePath}/tick", Center);
+                Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{sfxPath}/finish", Center);
+                Audio.Play($"event:/CommunalHelperEvents/game/zipMover/{sfxPath}/tick", Center);
                 SceneAs<Level>().Shake(0.15f);
                 streetlight.SetAnimationFrame(0);
                 while (true)

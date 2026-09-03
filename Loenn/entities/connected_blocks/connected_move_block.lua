@@ -1,5 +1,6 @@
 local drawableRectangle = require("structs.drawable_rectangle")
 local drawableSprite = require("structs.drawable_sprite")
+local atlases = require("atlases")
 local utils = require("utils")
 local enums = require("consts.celeste_enums")
 local connectedEntities = require("helpers.connected_entities")
@@ -12,11 +13,11 @@ local moveSpeeds = {
     ["Fast"] = 75.0
 }
 
-local arrowTextures = {
-    up = "objects/moveBlock/arrow02",
-    left = "objects/moveBlock/arrow04",
-    right = "objects/moveBlock/arrow00",
-    down = "objects/moveBlock/arrow06"
+local arrowIndices = {
+    up = "02",
+    left = "04",
+    right = "00",
+    down = "06"
 }
 
 connectedMoveBlock.name = "CommunalHelper/ConnectedMoveBlock"
@@ -46,7 +47,8 @@ connectedMoveBlock.fieldInformation = {
         elementOptions = {
             fieldType = "string",
             options = function() return communalHelper.getMapSIDs() end,
-            editable = true
+            editable = true,
+            searchable = true
         }
     }
 }
@@ -61,16 +63,18 @@ for i, direction in ipairs(enums.move_block_directions) do
             height = 16,
             direction = direction,
             moveSpeed = 60.0,
-            customBlockTexture = "",
-            customSoundEffect = "",
             idleColor = "474070",
             pressedColor = "30b335",
             breakColor = "cc2541",
+            customSkin = "",
+            customSoundEffect = "",
+            noArrowSprite = false,
+            noBreakingSprite = false,
+            noDebris = false,
             outline = true,
             crashTime = 0.15,
             regenTime = 3.0,
             shakeOnCollision = true,
-            noDebris = false,
             redirectIsPersistent = false,
             ignore = ""
         }
@@ -84,16 +88,18 @@ connectedMoveBlock.placements[5] = {
         height = 16,
         direction = "Right",
         moveSpeed = 60.0,
-        customBlockTexture = "CommunalHelper/customConnectedBlock/customConnectedBlock",
-        customSoundEffect = "",
         idleColor = "474070",
         pressedColor = "30b335",
         breakColor = "cc2541",
+        customSkin = "objects/CommunalHelper/connectedMoveBlock",
+        customSoundEffect = "",
+        noArrowSprite = false,
+        noBreakingSprite = false,
+        noDebris = false,
         outline = true,
         crashTime = 0.15,
         regenTime = 3.0,
         shakeOnCollision = true,
-        noDebris = false,
         redirectIsPersistent = false,
         ignore = ""
     }
@@ -106,28 +112,28 @@ connectedMoveBlock.placements[6] = {
         height = 16,
         direction = "Right",
         moveSpeed = 60.0,
-        customBlockTexture = "",
-        customSoundEffect = "",
         idleColor = "474070",
         pressedColor = "30b335",
         breakColor = "cc2541",
-        outline = true,
-        crashTime = 0.15,
-        regenTime = 3.0,
-        shakeOnCollision = true,
+        customSkin = "",
+        customSoundEffect = "",
+        noArrowSprite = false,
+        noBreakingSprite = false,
         noDebris = false,
-        redirectIsPersistent = false,
+        outline = true,
         activatorFlags = "_pressed",
         breakerFlags = "_obstructed",
         onActivateFlags = "",
         onBreakFlags = "",
         barrierBlocksFlags = false,
         waitForFlags = false,
+        crashTime = 0.15,
+        regenTime = 3.0,
+        shakeOnCollision = true,
+        redirectIsPersistent = false,
         ignore = ""
     }
 }
-
-local highlightColor = { 59 / 255, 50 / 255, 101 / 255 }
 
 local function getSearchPredicate()
     return function(target)
@@ -135,7 +141,7 @@ local function getSearchPredicate()
     end
 end
 
-local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
+local function getTileSprite(entity, x, y, tileset, rectangles)
     local hasAdjacent = connectedEntities.hasAdjacent
 
     local drawX, drawY = (x - 1) * 8, (y - 1) * 8
@@ -147,21 +153,18 @@ local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
     local completelyClosed = closedLeft and closedRight and closedUp and closedDown
 
     local quadX, quadY = false, false
-    local frame = block
 
     if completelyClosed then
-        frame = inner
         if not hasAdjacent(entity, drawX + 8, drawY - 8, rectangles) then
-            quadX, quadY = 8 + txo, 0
+            quadX, quadY = 32, 0
         elseif not hasAdjacent(entity, drawX - 8, drawY - 8, rectangles) then
-            quadX, quadY = 0 + txo, 0
+            quadX, quadY = 24, 0
         elseif not hasAdjacent(entity, drawX + 8, drawY + 8, rectangles) then
-            quadX, quadY = 8 + txo, 8
+            quadX, quadY = 32, 8
         elseif not hasAdjacent(entity, drawX - 8, drawY + 8, rectangles) then
-            quadX, quadY = 0 + txo, 8
+            quadX, quadY = 24, 8
         else
             quadX, quadY = 8, 8
-            frame = block
         end
     else
         if closedLeft and closedRight and not closedUp and closedDown then
@@ -184,7 +187,7 @@ local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
     end
 
     if quadX and quadY then
-        local sprite = drawableSprite.fromTexture(frame, entity)
+        local sprite = drawableSprite.fromTexture(tileset, entity)
 
         sprite:addPosition(drawX, drawY)
         sprite:useRelativeQuad(quadX, quadY, 8, 8)
@@ -194,21 +197,33 @@ local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
 end
 
 local function getConnectedMoveBlockThemeData(entity)
-    local customBlockTexture = entity.customBlockTexture or ""
-    if customBlockTexture ~= "" then
-        local full = "objects/" .. customBlockTexture
-        return {
-            block = full,
-            inner = full,
-            txOffset = 24
-        }
-    end
-
-    return {
-        block = "objects/moveBlock/base",
-        inner = "objects/CommunalHelper/connectedMoveBlock/innerCorners",
-        txOffset = 0
+    local default = {
+        tileset = "objects/CommunalHelper/connectedMoveBlock/tileset",
+        arrows = "objects/CommunalHelper/connectedMoveBlock/arrow"
     }
+
+    local customBlockTexture = entity.customBlockTexture or ""
+    if customBlockTexture == "" then customBlockTexture = entity.customSkin or "" end
+    if customBlockTexture == "" then return default end
+
+    local basePath = "objects/" .. customBlockTexture
+    local tilesetPath = "objects/" .. customBlockTexture .. "/tileset"
+    if atlases.gameplay[basePath] then
+        local containingFolder = basePath:match("(.*)/") -- i hate lua
+        local arrowPath = containingFolder .. "/arrow"
+        return {
+            tileset = basePath,
+            arrows = arrowPath
+        }
+    elseif atlases.gameplay[tilesetPath] then
+        local arrowPath = basePath .. "/arrow"
+        return {
+            tileset = tilesetPath,
+            arrows = arrowPath
+        }
+    else
+        return default
+    end
 end
 
 function connectedMoveBlock.sprite(room, entity)
@@ -218,8 +233,8 @@ function connectedMoveBlock.sprite(room, entity)
 
     local sprites = {}
 
-    local highlightRectangle = drawableRectangle.fromRectangle("fill", x + 2, y + 2, width - 4, height - 4,
-        highlightColor)
+    local highlightColor = utils.getColor(entity.pressedColor or { 59 / 255, 50 / 255, 101 / 255 })
+    local highlightRectangle = drawableRectangle.fromRectangle("fill", x + 2, y + 2, width - 4, height - 4, highlightColor)
     table.insert(sprites, highlightRectangle:getDrawableSprite())
 
     local relevantBlocks = utils.filter(getSearchPredicate(), room.entities)
@@ -230,7 +245,7 @@ function connectedMoveBlock.sprite(room, entity)
 
     for i = 1, tileWidth do
         for j = 1, tileHeight do
-            local sprite = getTileSprite(entity, i, j, themeData.block, themeData.inner, themeData.txOffset, rectangles)
+            local sprite = getTileSprite(entity, i, j, themeData.tileset, rectangles)
 
             if sprite then
                 table.insert(sprites, sprite)
@@ -238,20 +253,20 @@ function connectedMoveBlock.sprite(room, entity)
         end
     end
 
-    local direction = string.lower(entity.direction or "right")
+    if not (entity.noArrowSprite or false) then
+        local direction = string.lower(entity.direction or "right")
 
-    local arrowTexture = arrowTextures[direction]
-    local arrowSprite = drawableSprite.fromTexture(arrowTexture, entity)
-    arrowSprite:addPosition(math.floor(width / 2), math.floor(height / 2))
+        local arrowTexture = themeData.arrows .. arrowIndices[direction]
+        local arrowSprite = drawableSprite.fromTexture(arrowTexture, entity)
+        arrowSprite:addPosition(math.floor(width / 2), math.floor(height / 2))
 
-    local arrowSpriteWidth, arrowSpriteHeight = arrowSprite.meta.width, arrowSprite.meta.height
-    local arrowX, arrowY = x + math.floor((width - arrowSpriteWidth) / 2),
-        y + math.floor((height - arrowSpriteHeight) / 2)
-    local arrowRectangle = drawableRectangle.fromRectangle("fill", arrowX, arrowY, arrowSpriteWidth, arrowSpriteHeight,
-        highlightColor)
+        local arrowSpriteWidth, arrowSpriteHeight = arrowSprite.meta.width, arrowSprite.meta.height
+        local arrowX, arrowY = x + math.floor((width - arrowSpriteWidth) / 2), y + math.floor((height - arrowSpriteHeight) / 2)
+        local arrowRectangle = drawableRectangle.fromRectangle("fill", arrowX, arrowY, arrowSpriteWidth, arrowSpriteHeight, highlightColor)
 
-    table.insert(sprites, arrowRectangle:getDrawableSprite())
-    table.insert(sprites, arrowSprite)
+        table.insert(sprites, arrowRectangle:getDrawableSprite())
+        table.insert(sprites, arrowSprite)
+    end
 
     return sprites
 end

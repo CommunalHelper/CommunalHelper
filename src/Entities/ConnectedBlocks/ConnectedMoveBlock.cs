@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.CommunalHelper.Components;
-using Celeste.Mod.Registry;
 using FMOD.Studio;
 using MonoMod.Utils;
 using System.Collections;
@@ -48,18 +47,24 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected GroupableMoveBlock groupable;
 
-    private static readonly MTexture[,] masterEdges = new MTexture[3, 3];
-    private static readonly MTexture[,] masterInnerCorners = new MTexture[2, 2];
-    private static List<MTexture> masterArrows = [];
-    protected MTexture xTexture;
+    protected static readonly MTexture[,] masterEdges = new MTexture[3, 3];
+    protected static readonly MTexture[,] masterInnerCorners = new MTexture[2, 2];
+    protected static List<MTexture> masterArrows = [];
+    protected static List<MTexture> masterDebris = [];
+    protected static MTexture masterX;
 
     //Custom Texture support
     protected bool customTexture;
     protected Tuple<MTexture[,], MTexture[,]> tiles;
     protected List<MTexture> arrows;
+    protected MTexture x;
+    protected List<MTexture> debris;
+
+    protected readonly bool noArrowSprite, noBreakingSprite;
 
     //Custom Sound support
     protected string ActivateSoundEffect = SFX.game_04_arrowblock_activate;
+    protected string MoveSoundEffect = CustomSFX.game_redirectMoveBlock_arrowblock_move;
     protected string BreakSoundEffect = SFX.game_04_arrowblock_break;
     protected string ReformBeginSoundEffect = SFX.game_04_arrowblock_reform_begin;
     protected string ReappearSoundEffect = SFX.game_04_arrowblock_reappear;
@@ -102,17 +107,17 @@ public class ConnectedMoveBlock : ConnectedSolid
     protected SoundSource moveSfx;
 
     // Flag options
-    // A list of sets of flags. When all in a set are on (or off, and preceded by !), the move block will activate.
+    // A list of sets of flags. When all in a set are on (or off, and preceded by "!"), the Connected Move Block will activate.
     // The flag "_pressed" is considered to be on when the player is riding the block. This is the only set by default.
-    // Sets are separated by '|' and flags in a set are seperated by ','.
+    // Sets are separated by "|" and flags in a set are separated by ",".
     protected List<List<string>> ActivatorFlags = new();
-    // A list of flags to be enabled (or disabled when preceded by !, toggled when preceded by ~) when the move block activates.
+    // A list of flags to be enabled (or disabled when preceded by "!", or toggled when preceded by "~") when the Connected Move Block activates.
     protected List<string> OnActivateFlags = new();
-    // A list of sets of flags. When all are on (or off, and preceded by !), the move block will immediately break, and will not respawn until off.
+    // A list of sets of flags. When all are on (or off, and preceded by !), the Connected Move Block will immediately break.
     // The flag "_obstructed" is considered to be on when the block is obstructed (and not broken) by a solid or screen edge. This is the only set by default.
-    // Sets are separated by '|' and flags in a set are seperated by ','.
+    // Sets are separated by '|' and flags in a set are separated by ','.
     protected List<List<string>> BreakerFlags = new();
-    // A list of flags to be enabled (or disabled when preceded by !, toggled when preceded by ~) when the move block breaks.
+    // A list of flags to be enabled (or disabled when preceded by "!", or toggled when preceded by "~") when the Connected Move Block breaks.
     protected List<string> OnBreakFlags = new();
     // If true, OnBreakFlags will not be set if the block breaks inside a seeker barrier.
     protected bool BarrierBlocksFlags = false;
@@ -138,8 +143,9 @@ public class ConnectedMoveBlock : ConnectedSolid
         pressedBgFill = Util.TryParseColor(data.Attr("pressedColor", "30b335"));
         breakingBgFill = Util.TryParseColor(data.Attr("breakColor", "cc2541"));
         fillColor = idleBgFill;
-        string customTexturePath = data.Attr("customBlockTexture").Trim().TrimEnd('/');
+
         GFX.Game.PushFallback(null);
+        string customTexturePath = data.Attr("customSkin", data.Attr("customBlockTexture").Trim().TrimEnd('/')).Trim().TrimEnd('/');
         customTexture = !string.IsNullOrWhiteSpace(customTexturePath);
         if (customTexture)
         {
@@ -148,22 +154,31 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 if (GFX.Game["objects/" + customTexturePath + "/tileset"] is null)
                 {
-                    throw new Exception($"No valid tileset found, searched @ objects/{customTexturePath}.png & objects/{customTexturePath}/tileset.png\nFor custom arrow textures, use 'objects/{customTexturePath}/arrow', 'objects/{customTexturePath}/tileset' for tiles, and 'objects/{customTexturePath}/x.png' for the breaking X sprite.");
+                    throw new Exception($"No valid tileset found, searched @ objects/{customTexturePath}.png & objects/{customTexturePath}/tileset.png.\nFor custom textures, use 'objects/{customTexturePath}/arrow00.png' through 'objects/{customTexturePath}/arrow07.png' for the arrows, 'objects/{customTexturePath}/tileset.png' for the tileset, 'objects/{customTexturePath}/x.png' for the breaking X sprite, and 'objects/{customTexturePath}/debris.png' for debris.");
                 }
 
                 arrows = GFX.Game.GetAtlasSubtextures("objects/" + customTexturePath + "/arrow");
-                if (arrows.Count != 8)
+                if (arrows.Count < 8)
                 {
                     Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                     arrows = null;
                 }
-                temp = customTexturePath + "/tileset";
-                xTexture = GFX.Game[$"objects/{customTexturePath}/x"];
-                if (xTexture is null)
+                
+                x = GFX.Game["objects/" + customTexturePath + "/x"];
+                if (x is null)
                 {
-                    Util.Log("No breaking texture found, defaulting to normal");
-                    xTexture = GFX.Game["objects/moveBlock/x"];
+                    Util.Log("No breaking texture found, defaulting to normal.");
+                    x = null;
                 }
+
+                debris = GFX.Game.GetAtlasSubtextures("objects/" + customTexturePath + "/debris");
+                if (debris.Count < 1)
+                {
+                    Util.Log("Invalid or no custom debris textures found, defaulting to normal.");
+                    debris = null;
+                }
+
+                temp = customTexturePath + "/tileset";
             }
             else
             {
@@ -171,30 +186,42 @@ public class ConnectedMoveBlock : ConnectedSolid
                 temp1.AddRange(customTexturePath.Split('/'));
                 temp1.RemoveAt(temp1.Count - 1);
                 string temp2 = string.Join("/", temp1);
+
                 arrows = GFX.Game.GetAtlasSubtextures("objects/" + temp2 + "/arrow");
-                if (arrows.Count != 8)
+                if (arrows.Count < 8)
                 {
                     Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                     arrows = null;
                 }
-                temp = customTexturePath;
-                xTexture = GFX.Game[$"objects/{temp2}/x"];
-                if (xTexture is null)
-                {
-                    Util.Log("No breaking texture found, defaulting to normal");
-                    xTexture = GFX.Game["objects/moveBlock/x"];
-                }
-            }
-            tiles = SetupCustomTileset(temp);
 
-        }
-        else
-        {
-            xTexture = GFX.Game["objects/moveBlock/x"];
+                x = GFX.Game["objects/" + temp2 + "/x"];
+                if (x is null)
+                {
+                    Util.Log("No breaking texture found, defaulting to normal.");
+                    x = null;
+                }
+
+                debris = GFX.Game.GetAtlasSubtextures("objects/" + temp2 + "/debris");
+                if (debris.Count < 1)
+                {
+                    Util.Log("Invalid or no custom debris textures found, defaulting to normal.");
+                    debris = null;
+                }
+
+                temp = customTexturePath;
+            }
+
+            tiles = SetupCustomTileset(temp);
         }
         GFX.Game.PopFallback();
 
         LoadCustomSounds(data.Attr("customSoundEffect"));
+
+        noArrowSprite = data.Bool("noArrowSprite", false);
+        noBreakingSprite = data.Bool("noBreakingSprite", false);
+        noDebris = data.Bool("noDebris", false);
+
+        outline = data.Bool("outline", true);
 
         ActivatorFlags.AddRange(data.Attr("activatorFlags", "_pressed").Split('|').Select(l => l.Split(',').ToList()));
         BreakerFlags.AddRange(data.Attr("breakerFlags", "_obstructed").Split('|').Select(l => l.Split(',').ToList()));
@@ -203,13 +230,9 @@ public class ConnectedMoveBlock : ConnectedSolid
         BarrierBlocksFlags = data.Bool("barrierBlocksFlags", false);
         WaitForFlags = data.Bool("waitForFlags", false);
 
-        outline = data.Bool("outline", true);
-
         crashTime = data.Float("crashTime", 0.15f);
         regenTime = data.Float("regenTime", 3f);
         shakeOnCollision = data.Bool("shakeOnCollision", true);
-
-        noDebris = data.Bool("noDebris");
 
         redirectIsPersistent = data.Bool("redirectIsPersistent", true);
 
@@ -283,7 +306,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                         }
                         else if (flag.StartsWith("~"))
                         {
-                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), !SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
                         }
                         else
                             SceneAs<Level>().Session.SetFlag(flag);
@@ -293,7 +316,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 groupable.State = GroupableMoveBlock.MovementState.Breaking;
             yield return 0.2f;
             targetSpeed = moveSpeed;
-            moveSfx.Play(SFX.game_04_arrowblock_move_loop);
+            moveSfx.Play(MoveSoundEffect);
             moveSfx.Param("arrow_stop", 0f);
             StopPlayerRunIntoAnimation = false;
             float crashTimer = crashTime;
@@ -397,6 +420,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                             Vector2 value = new((i * 8) + 4, (j * 8) + 4);
                             Vector2 pos = value + Position + GroupOffset;
                             MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
+                            debris2.Sprite.Texture = Calc.Random.Choose(this.debris ?? masterDebris);
                             debris.Add(debris2);
                             Scene.Add(debris2);
                         }
@@ -428,6 +452,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             float debrisMoveTime = Calc.Clamp(regenTime, 0, 0.6f);
 
             if (shouldProcessBreakFlags)
+            {
                 foreach (string flag in OnBreakFlags)
                 {
                     if (flag.Length > 0)
@@ -438,12 +463,13 @@ public class ConnectedMoveBlock : ConnectedSolid
                         }
                         else if (flag.StartsWith("~"))
                         {
-                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), !SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
                         }
                         else
                             SceneAs<Level>().Session.SetFlag(flag);
                     }
                 }
+            }
             curMoveCheck = false;
             yield return waitTime;
 
@@ -527,7 +553,6 @@ public class ConnectedMoveBlock : ConnectedSolid
             }
         }
 
-
         customSoundEffectPath = customSoundEffectPath.Trim().TrimEnd('/');
         if (!string.IsNullOrWhiteSpace(customSoundEffectPath))
         {
@@ -538,6 +563,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             }
 
             LoadSfxIfPresent($"{customSoundEffectPath}_activate", ref ActivateSoundEffect);
+            LoadSfxIfPresent($"{customSoundEffectPath}_move_loop", ref MoveSoundEffect);
             LoadSfxIfPresent($"{customSoundEffectPath}_break", ref BreakSoundEffect);
             LoadSfxIfPresent($"{customSoundEffectPath}_reform_begin", ref ReformBeginSoundEffect);
             LoadSfxIfPresent($"{customSoundEffectPath}_reappear", ref ReappearSoundEffect);
@@ -804,23 +830,26 @@ public class ConnectedMoveBlock : ConnectedSolid
         }
 
         base.Render();
+
         int arrowIndex = Calc.Clamp((int) Math.Floor(((0f - angle + ((float) Math.PI * 2f)) % ((float) Math.PI * 2f) / ((float) Math.PI * 2f) * 8f) + 0.5f), 0, 7);
+        MTexture arrowTex = arrows is null ? masterArrows[arrowIndex] : arrows[arrowIndex];
+        MTexture xTex = x ?? masterX;
+        Color centerColor = groupable.HighlightColor(fillColor);
         foreach (Hitbox hitbox in ArrowsList)
         {
-            Color arrowColor = groupable.HighlightColor(fillColor);
-
-            Vector2 vec = hitbox.Center + Position;
-            Draw.Rect(vec.X - 4f, vec.Y - 4f, 8f, 8f, arrowColor);
-
+            Vector2 centerPos = hitbox.Center + Position;
             if (groupable.State != GroupableMoveBlock.MovementState.Breaking)
             {
-                if (arrows is null)
-                    masterArrows[arrowIndex].DrawCentered(vec);
-                else
-                    arrows[arrowIndex].DrawCentered(vec);
+                if (noArrowSprite) continue;
+                Draw.Rect(centerPos.X - arrowTex.Width / 2f, centerPos.Y - arrowTex.Height / 2f, arrowTex.Width, arrowTex.Height, centerColor);
+                arrowTex.DrawCentered(centerPos);
             }
             else
-                xTexture.DrawCentered(vec);
+            {
+                if (noBreakingSprite) continue;
+                Draw.Rect(centerPos.X - xTex.Width / 2f, centerPos.Y - xTex.Height / 2f, xTex.Width, xTex.Height, centerColor);
+                xTex.DrawCentered(centerPos);
+            }
         }
 
         foreach (Image img in Tiles)
@@ -831,25 +860,24 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     public static void InitializeTextures()
     {
-        MTexture edgeTiles = GFX.Game["objects/moveBlock/base"];
-        MTexture innerTiles = GFX.Game["objects/CommunalHelper/connectedMoveBlock/innerCorners"];
-        masterArrows = GFX.Game.GetAtlasSubtextures("objects/moveBlock/arrow");
+        MTexture masterTileset = GFX.Game["objects/CommunalHelper/connectedMoveBlock/tileset"];
+        masterArrows = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/connectedMoveBlock/arrow");
+        masterX = GFX.Game["objects/CommunalHelper/connectedMoveBlock/x"];
+        masterDebris = GFX.Game.GetAtlasSubtextures("objects/CommunalHelper/connectedMoveBlock/debris");
 
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
             {
-                masterEdges[i, j] = edgeTiles.GetSubtexture(i * 8, j * 8, 8, 8);
+                masterEdges[i, j] = masterTileset.GetSubtexture(i * 8, j * 8, 8, 8);
             }
         }
-
-        for (int i = 0; i < 2; i++)
+        for (int i = 4; i < 6; i++)
         {
             for (int j = 0; j < 2; j++)
             {
-                masterInnerCorners[i, j] = innerTiles.GetSubtexture(i * 8, j * 8, 8, 8);
+                masterInnerCorners[i, j] = masterTileset.GetSubtexture(i * 8, j * 8, 8, 8);
             }
         }
-
     }
 }
