@@ -146,9 +146,10 @@ public class ConnectedSolid : Solid
         BGRenderer.RemoveSelf();
     }
 
-    public static Tuple<MTexture[,], MTexture[,]> SetupCustomTileset(string path)
+    public static Tuple<MTexture[,], MTexture[,]> SetupCustomTileset(string path, bool withPrefix)
     {
-        MTexture tileset = GFX.Game["objects/" + path];
+        // why the fuck does it default to having the objects/ prefix?? hello???
+        MTexture tileset = GFX.Game[(withPrefix ? "objects/" : "") + path];
 
         MTexture[,] overrideEdgeTiles = new MTexture[3, 3];
         MTexture[,] overrideInCornersTiles = new MTexture[2, 2];

@@ -25,19 +25,7 @@ connectedSwapBlock.placements = {
             width = 16,
             height = 16,
             theme = "Normal",
-            customGreenBlockTexture = "",
-            customRedBlockTexture = ""
-        }
-    },
-    {
-        name = "reskinnable",
-        placementType = "rectangle",
-        data = {
-            width = 16,
-            height = 16,
-            theme = "Normal",
-            customGreenBlockTexture = "CommunalHelper/customConnectedBlock/customConnectedBlock",
-            customRedBlockTexture = "CommunalHelper/customConnectedBlock/customConnectedBlock"
+            customSkin = ""
         }
     }
 }
@@ -48,7 +36,7 @@ local function getSearchPredicate()
     end
 end
 
-local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
+local function getTileSprite(entity, x, y, tileset, rectangles)
     local hasAdjacent = connectedEntities.hasAdjacent
 
     local drawX, drawY = (x - 1) * 8, (y - 1) * 8
@@ -60,21 +48,18 @@ local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
     local completelyClosed = closedLeft and closedRight and closedUp and closedDown
 
     local quadX, quadY = false, false
-    local frame = block
 
     if completelyClosed then
-        frame = inner
         if not hasAdjacent(entity, drawX + 8, drawY - 8, rectangles) then
-            quadX, quadY = 8 + txo, 0
+            quadX, quadY = 32, 0
         elseif not hasAdjacent(entity, drawX - 8, drawY - 8, rectangles) then
-            quadX, quadY = 0 + txo, 0
+            quadX, quadY = 24, 0
         elseif not hasAdjacent(entity, drawX + 8, drawY + 8, rectangles) then
-            quadX, quadY = 8 + txo, 8
+            quadX, quadY = 32, 8
         elseif not hasAdjacent(entity, drawX - 8, drawY + 8, rectangles) then
-            quadX, quadY = 0 + txo, 8
+            quadX, quadY = 24, 8
         else
             quadX, quadY = 8, 8
-            frame = block
         end
     else
         if closedLeft and closedRight and not closedUp and closedDown then
@@ -97,7 +82,7 @@ local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
     end
 
     if quadX and quadY then
-        local sprite = drawableSprite.fromTexture(frame, entity)
+        local sprite = drawableSprite.fromTexture(tileset, entity)
 
         sprite:addPosition(drawX, drawY)
         sprite:useRelativeQuad(quadX, quadY, 8, 8)
@@ -107,30 +92,21 @@ local function getTileSprite(entity, x, y, block, inner, txo, rectangles)
 end
 
 local function getConnectedSwapBlockThemeData(entity)
-    local theme = string.lower(entity.theme or "normal")
-    local themePath = (theme == "normal") and "" or (theme .. "/")
-
-    local path = "objects/swapblock/" .. themePath .. "target"
-    local mid = "objects/swapblock/" .. themePath .. "midBlockRed00"
-
-    local customBlockTexture = entity.customRedBlockTexture or ""
-    if customBlockTexture ~= "" then
-        local full = "objects/" .. customBlockTexture
+    local customSkin = entity.customSkin or ""
+    if customSkin ~= "" then
         return {
-            block = full,
-            inner = full,
-            path = path,
-            mid = mid,
-            txOffset = 24
+            tileset = customSkin .. "/tilesetRed",
+            target = customSkin .. "/target",
+            center = customSkin .. "/centerRed00"
         }
     end
 
+    local theme = string.lower(entity.theme or "normal")
+    local themePath = "objects/CommunalHelper/connectedSwapBlock/" .. theme
     return {
-        block = "objects/swapblock/" .. themePath .. "blockRed",
-        inner = "objects/CommunalHelper/connectedSwapBlock/" .. themePath .. "innerCornersRed",
-        path = path,
-        mid = mid,
-        txOffset = 0
+        tileset = themePath .. "/tilesetRed",
+        target = themePath .. "/target",
+        center = themePath .. "/centerRed00"
     }
 end
 
@@ -141,7 +117,7 @@ local function addBlockSprites(sprites, room, entity, w, h, tw, th, themeData)
 
     for i = 1, tw do
         for j = 1, th do
-            local sprite = getTileSprite(entity, i, j, themeData.block, themeData.inner, themeData.txOffset, rectangles)
+            local sprite = getTileSprite(entity, i, j, themeData.tileset, rectangles)
 
             if sprite then
                 table.insert(sprites, sprite)
@@ -149,7 +125,7 @@ local function addBlockSprites(sprites, room, entity, w, h, tw, th, themeData)
         end
     end
 
-    local middleSprite = drawableSprite.fromTexture(themeData.mid, entity)
+    local middleSprite = drawableSprite.fromTexture(themeData.center, entity)
     middleSprite:addPosition(math.floor(w / 2), math.floor(h / 2))
     middleSprite.depth = -9999
     table.insert(sprites, middleSprite)
@@ -166,7 +142,7 @@ function connectedSwapBlock.sprite(room, entity)
 
     local sprites = {}
 
-    communalHelper.addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, themeData.path)
+    communalHelper.addTrailSprites(sprites, x, y, nodeX, nodeY, width, height, themeData.target)
     addBlockSprites(sprites, room, entity, width, height, tileWidth, tileHeight, themeData)
 
     return sprites

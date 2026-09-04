@@ -441,7 +441,7 @@ public class MoveBlockRedirect : Entity
         hook_MoveBlock_Controller.Dispose();
     }
 
-    // what the fuck
+    // force recompile method to fix inlining shenanigans. i don't think this is necessary anymore but i don't want to remove it
     private static void Solid_GetPlayerOnTop(ILContext il) { }
 
     private static void MoveBlock_Controller(ILContext il)
