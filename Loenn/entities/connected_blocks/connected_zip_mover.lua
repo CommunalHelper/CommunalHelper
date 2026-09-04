@@ -115,10 +115,12 @@ end
 local function getConnectedZipMoverThemeData(entity)
     local customSkin = entity.customSkin or ""
     if customSkin ~= "" then
+        local colors = string.split(entity.colors or "", ",")
         return {
             tileset = customSkin .. "/tileset",
             light = customSkin .. "/light01",
-            cog = customSkin .. "/cog"
+            cog = customSkin .. "/cog",
+            colors = colors
         }
     end
 
@@ -126,7 +128,8 @@ local function getConnectedZipMoverThemeData(entity)
     return {
         tileset = themePath .. "/tileset",
         light = themePath .. "/light01",
-        cog = themePath .. "/cog"
+        cog = themePath .. "/cog",
+        colors = {}
     }
 end
 
@@ -135,13 +138,13 @@ function connectedZipMover.sprite(room, entity)
     local width, height = entity.width or 16, entity.height or 16
     local tileWidth, tileHeight = math.ceil(width / 8), math.ceil(height / 8)
 
-    local rectangle = drawableRectangle.fromRectangle("fill", x + 2, y + 2, width - 4, height - 4, {0, 0, 0})
-    local sprites = {rectangle:getDrawableSprite()}
-
     local themeData = getConnectedZipMoverThemeData(entity)
 
-    local ropeColorString = string.match(entity.colors or "", ",([^,]*)") -- i hate lua
-    local ropeColor = ropeColorString ~= "" and utils.getColor(ropeColorString) or {102 / 255, 57 / 255, 49 / 255}
+    local fillColor = themeData.colors[1] ~= "" and utils.getColor(themeData.colors[1]) or {0, 0, 0}
+    local rectangle = drawableRectangle.fromRectangle("fill", x + 2, y + 2, width - 4, height - 4, fillColor)
+    local sprites = {rectangle:getDrawableSprite()}
+
+    local ropeColor = themeData.colors[2] ~= "" and utils.getColor(themeData.colors[2]) or {102 / 255, 57 / 255, 49 / 255}
     local nodes = entity.nodes or {{x = 0, y = 0}}
     local nodeSprites = communalHelper.getZipMoverNodeSprites(x, y, width, height, nodes, themeData.cog, {1, 1, 1}, ropeColor)
     for _, sprite in ipairs(nodeSprites) do
