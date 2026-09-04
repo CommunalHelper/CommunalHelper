@@ -217,7 +217,7 @@ function connectedMoveBlock.sprite(room, entity)
 
     local sprites = {}
 
-    local highlightColor = utils.getColor(entity.pressedColor or { 59 / 255, 50 / 255, 101 / 255 })
+    local highlightColor = utils.getColor(entity.idleColor or { 59 / 255, 50 / 255, 101 / 255 })
     local highlightRectangle = drawableRectangle.fromRectangle("fill", x + 2, y + 2, width - 4, height - 4, highlightColor)
     table.insert(sprites, highlightRectangle:getDrawableSprite())
 

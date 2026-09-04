@@ -394,7 +394,12 @@ public class ConnectedZipMover : ConnectedSolid
         base.Update();
 
         bloom.Visible = streetlight.CurrentAnimationFrame != 0;
-        bloom.Y = (theme == Themes.Normal) ? streetlight.CurrentAnimationFrame * 3 : (theme == Themes.Cliffside) ? 5 : 9;
+        bloom.Y = theme switch {
+            Themes.Normal => streetlight.CurrentAnimationFrame * 3,
+            Themes.Moon => 9,
+            Themes.Cliffside => 5,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     public override void Render()

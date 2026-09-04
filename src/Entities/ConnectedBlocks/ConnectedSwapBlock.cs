@@ -148,7 +148,7 @@ public class ConnectedSwapBlock : ConnectedSolid
             customGreenInnerCornerTiles = customGreenTiles.Item2;
 
             middleGreen = BuildCenterSprite(customSkin + "/centerGreen");
-            middleRed = BuildCenterSprite(customSkin + "/middleRed");
+            middleRed = BuildCenterSprite(customSkin + "/centerRed");
 
             nineSliceTarget = new MTexture[3, 3];
             MTexture nineSliceTexture = GFX.Game[customSkin + "/target"];
@@ -476,11 +476,11 @@ public class ConnectedSwapBlock : ConnectedSolid
         }
 
         // inner corners
-        for (int i = 3; i < 5; i++)
+        for (int i = 0; i < 2; i++)
         {
             for (int j = 0; j < 2; j++)
             {
-                int x = i * 8, y = j * 8;
+                int x = 24 + i * 8, y = j * 8;
 
                 NormalGreenInnerCornerTiles[i, j] = normalGreenTileset.GetSubtexture(x, y, 8, 8);
                 NormalRedInnerCornerTiles[i, j] = normalRedTileset.GetSubtexture(x, y, 8, 8);

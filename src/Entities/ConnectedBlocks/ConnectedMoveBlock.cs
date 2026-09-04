@@ -853,11 +853,11 @@ public class ConnectedMoveBlock : ConnectedSolid
                 masterEdges[i, j] = masterTileset.GetSubtexture(i * 8, j * 8, 8, 8);
             }
         }
-        for (int i = 3; i < 5; i++)
+        for (int i = 0; i < 2; i++)
         {
             for (int j = 0; j < 2; j++)
             {
-                masterInnerCorners[i, j] = masterTileset.GetSubtexture(i * 8, j * 8, 8, 8);
+                masterInnerCorners[i, j] = masterTileset.GetSubtexture(24 + i * 8, j * 8, 8, 8);
             }
         }
     }
