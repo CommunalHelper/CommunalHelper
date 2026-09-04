@@ -148,6 +148,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         string legacyCustomTexture = data.Attr("customBlockTexture").Trim().TrimEnd('/');
         if (!string.IsNullOrEmpty(customSkin))
         {
+            // non-legacy
             tiles = SetupCustomTileset(customSkin + "/tileset", false);
             arrows = GFX.Game.GetAtlasSubtextures(customSkin + "/arrow");
             if (arrows.Count < 8)
@@ -161,6 +162,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         }
         else if (!string.IsNullOrEmpty(legacyCustomTexture))
         {
+            // legacy
             // im gonna crash out
             string tilesetPath;
             if (!GFX.Game.Has("objects/" + legacyCustomTexture))

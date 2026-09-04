@@ -139,6 +139,7 @@ public class ConnectedSwapBlock : ConnectedSolid
 
         if (!string.IsNullOrEmpty(customSkin))
         {
+            // non-legacy
             Tuple<MTexture[,], MTexture[,]> customRedTiles = SetupCustomTileset(customSkin + "/tilesetRed", false);
             customRedEdgeTiles = customRedTiles.Item1;
             customRedInnerCornerTiles = customRedTiles.Item2;
@@ -172,6 +173,7 @@ public class ConnectedSwapBlock : ConnectedSolid
                 nineSliceTarget = MoonTargetTiles;
             }
             
+            // legacy
             if (!string.IsNullOrEmpty(redCustomBlockPath))
             {
                 Tuple<MTexture[,], MTexture[,]> customRedTiles = SetupCustomTileset(redCustomBlockPath, true);
