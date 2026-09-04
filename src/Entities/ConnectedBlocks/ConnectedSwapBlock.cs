@@ -84,16 +84,17 @@ public class ConnectedSwapBlock : ConnectedSolid
     public SwapBlock.Themes Theme;
 
     private static MTexture[,]
-        GreenEdgeTiles, GreenInnerCornerTiles,
-        RedEdgeTiles, RedInnerCornerTiles,
+        NormalGreenEdgeTiles, NormalGreenInnerCornerTiles,
+        NormalRedEdgeTiles, NormalRedInnerCornerTiles,
         MoonGreenEdgeTiles, MoonGreenInnerCornerTiles,
         MoonRedEdgeTiles, MoonRedInnerCornerTiles,
-        TargetTiles, MoonTargetTiles;
+        NormalTargetTiles, MoonTargetTiles;
 
     private readonly MTexture[,]
         customGreenEdgeTiles, customGreenInnerCornerTiles,
         customRedEdgeTiles, customRedInnerCornerTiles;
     private readonly bool customRedTextures = false, customGreenTextures = false;
+    private readonly bool customSkin = false;
 
     private Vector2 start, end, offset;
     private float lerp;
@@ -120,7 +121,7 @@ public class ConnectedSwapBlock : ConnectedSolid
 
     private float particlesRemainder;
 
-    public ConnectedSwapBlock(Vector2 position, int width, int height, Vector2 node, SwapBlock.Themes theme, string greenCustomBlockPath, string redCustomBlockPath)
+    public ConnectedSwapBlock(Vector2 position, int width, int height, Vector2 node, SwapBlock.Themes theme, string customSkin, string greenCustomBlockPath, string redCustomBlockPath)
         : base(position, width, height, safe: false)
     {
         Theme = theme;
@@ -136,33 +137,55 @@ public class ConnectedSwapBlock : ConnectedSolid
             OnDash = OnDash
         });
 
-        MTexture mTexture = Theme == SwapBlock.Themes.Moon ? GFX.Game["objects/swapblock/moon/target"] : GFX.Game["objects/swapblock/target"];
-        if (!string.IsNullOrEmpty(redCustomBlockPath))
+        if (!string.IsNullOrEmpty(customSkin))
         {
-            Tuple<MTexture[,], MTexture[,]> customRedTiles = SetupCustomTileset(redCustomBlockPath);
+            Tuple<MTexture[,], MTexture[,]> customRedTiles = SetupCustomTileset(customSkin + "/tilesetRed", false);
             customRedEdgeTiles = customRedTiles.Item1;
             customRedInnerCornerTiles = customRedTiles.Item2;
-            customRedTextures = true;
-        }
-        if (!string.IsNullOrEmpty(greenCustomBlockPath))
-        {
-            Tuple<MTexture[,], MTexture[,]> customGreenTiles = SetupCustomTileset(greenCustomBlockPath);
+            Tuple<MTexture[,], MTexture[,]> customGreenTiles = SetupCustomTileset(customSkin + "/tilesetGreen", false);
             customGreenEdgeTiles = customGreenTiles.Item1;
             customGreenInnerCornerTiles = customGreenTiles.Item2;
-            customGreenTextures = true;
-        }
 
-        if (Theme == SwapBlock.Themes.Normal)
-        {
-            middleGreen = GFX.SpriteBank.Create("swapBlockLight");
-            middleRed = GFX.SpriteBank.Create("swapBlockLightRed");
-            nineSliceTarget = TargetTiles;
+            middleGreen = BuildCenterSprite(customSkin + "/centerGreen");
+            middleRed = BuildCenterSprite(customSkin + "/middleRed");
+
+            nineSliceTarget = new MTexture[3, 3];
+            MTexture nineSliceTexture = GFX.Game[customSkin + "/target"];
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    nineSliceTarget[i, j] = nineSliceTexture.GetSubtexture(i * 8, j * 8, 8, 8);
+
+            this.customSkin = true;
         }
-        else if (Theme == SwapBlock.Themes.Moon)
+        else
         {
-            middleGreen = GFX.SpriteBank.Create("swapBlockLightMoon");
-            middleRed = GFX.SpriteBank.Create("swapBlockLightRedMoon");
-            nineSliceTarget = MoonTargetTiles;
+            if (Theme == SwapBlock.Themes.Normal)
+            {
+                middleGreen = GFX.SpriteBank.Create("swapBlockLight");
+                middleRed = GFX.SpriteBank.Create("swapBlockLightRed");
+                nineSliceTarget = NormalTargetTiles;
+            }
+            else if (Theme == SwapBlock.Themes.Moon)
+            {
+                middleGreen = GFX.SpriteBank.Create("swapBlockLightMoon");
+                middleRed = GFX.SpriteBank.Create("swapBlockLightRedMoon");
+                nineSliceTarget = MoonTargetTiles;
+            }
+            
+            if (!string.IsNullOrEmpty(redCustomBlockPath))
+            {
+                Tuple<MTexture[,], MTexture[,]> customRedTiles = SetupCustomTileset(redCustomBlockPath, true);
+                customRedEdgeTiles = customRedTiles.Item1;
+                customRedInnerCornerTiles = customRedTiles.Item2;
+                customRedTextures = true;
+            }
+            if (!string.IsNullOrEmpty(greenCustomBlockPath))
+            {
+                Tuple<MTexture[,], MTexture[,]> customGreenTiles = SetupCustomTileset(greenCustomBlockPath, true);
+                customGreenEdgeTiles = customGreenTiles.Item1;
+                customGreenInnerCornerTiles = customGreenTiles.Item2;
+                customGreenTextures = true;
+            }
         }
 
         middleRed.Position = middleGreen.Position = new Vector2(width, height) / 2f;
@@ -171,9 +194,20 @@ public class ConnectedSwapBlock : ConnectedSolid
         Depth = Depths.FGTerrain + 1;
     }
 
+    private static Sprite BuildCenterSprite(string path)
+    {
+        Sprite sprite = new(GFX.Game, path);
+
+        sprite.AddLoop("idle", "", 0.08f, 0, 1, 2, 3);
+
+        sprite.JustifyOrigin(0.5f, 0.5f);
+        sprite.Play("idle");
+        return sprite;
+    }
+
     public ConnectedSwapBlock(EntityData data, Vector2 offset)
         : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Enum("theme", SwapBlock.Themes.Normal),
-              data.Attr("customGreenBlockTexture").Trim(), data.Attr("customRedBlockTexture").Trim())
+              data.Attr("customSkin").Trim().TrimEnd('/'), data.Attr("customGreenBlockTexture").Trim(), data.Attr("customRedBlockTexture").Trim())
     { }
 
     public override void Awake(Scene scene)
@@ -188,13 +222,13 @@ public class ConnectedSwapBlock : ConnectedSolid
         base.Awake(scene);
         if (Theme == SwapBlock.Themes.Normal)
         {
-            greenTiles = AutoTile(customGreenTextures ? customGreenEdgeTiles : GreenEdgeTiles, customGreenTextures ? customGreenInnerCornerTiles : GreenInnerCornerTiles, out greenBgTiles, false, false);
-            redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : RedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : RedInnerCornerTiles, out redBgTiles, false, false);
+            greenTiles = AutoTile(customGreenTextures || customSkin ? customGreenEdgeTiles : NormalGreenEdgeTiles, customGreenTextures || customSkin ? customGreenInnerCornerTiles : NormalGreenInnerCornerTiles, out greenBgTiles, false, false);
+            redTiles = AutoTile(customRedTextures || customSkin ? customRedEdgeTiles : NormalRedEdgeTiles, customRedTextures || customSkin ? customRedInnerCornerTiles : NormalRedInnerCornerTiles, out redBgTiles, false, false);
         }
-        else
+        else if (Theme == SwapBlock.Themes.Moon)
         {
-            greenTiles = AutoTile(customGreenTextures ? customGreenEdgeTiles : MoonGreenEdgeTiles, customGreenTextures ? customGreenInnerCornerTiles : MoonGreenInnerCornerTiles, out greenBgTiles, false, false);
-            redTiles = AutoTile(customRedTextures ? customRedEdgeTiles : MoonRedEdgeTiles, customRedTextures ? customRedInnerCornerTiles : MoonRedInnerCornerTiles, out redBgTiles, false, false);
+            greenTiles = AutoTile(customGreenTextures || customSkin ? customGreenEdgeTiles : MoonGreenEdgeTiles, customGreenTextures || customSkin ? customGreenInnerCornerTiles : MoonGreenInnerCornerTiles, out greenBgTiles, false, false);
+            redTiles = AutoTile(customRedTextures || customSkin ? customRedEdgeTiles : MoonRedEdgeTiles, customRedTextures || customSkin ? customRedInnerCornerTiles : MoonRedInnerCornerTiles, out redBgTiles, false, false);
         }
 
         greenTiles.RemoveAll(greenBgTiles.Contains);
@@ -204,10 +238,10 @@ public class ConnectedSwapBlock : ConnectedSolid
         Add(middleGreen);
 
         // Making the track rectangle always contain the connected swap block, entirely.
-        int x1 = (int) MathHelper.Min(GroupBoundsMin.X, offset.X + GroupBoundsMin.X);
-        int y1 = (int) MathHelper.Min(GroupBoundsMin.Y, offset.Y + GroupBoundsMin.Y);
-        int x2 = (int) MathHelper.Max(GroupBoundsMax.X, offset.X + GroupBoundsMax.X);
-        int y2 = (int) MathHelper.Max(GroupBoundsMax.Y, offset.Y + GroupBoundsMax.Y);
+        int x1 = (int) MathF.Min(GroupBoundsMin.X, offset.X + GroupBoundsMin.X);
+        int y1 = (int) MathF.Min(GroupBoundsMin.Y, offset.Y + GroupBoundsMin.Y);
+        int x2 = (int) MathF.Max(GroupBoundsMax.X, offset.X + GroupBoundsMax.X);
+        int y2 = (int) MathF.Max(GroupBoundsMax.Y, offset.Y + GroupBoundsMax.Y);
         moveRect = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 
         scene.Add(bgTiles = new ConnectedSwapBlockBGTilesRenderer(this));
@@ -381,12 +415,12 @@ public class ConnectedSwapBlock : ConnectedSolid
         }
     }
 
-    private void DrawBlock(Vector2 pos, List<Image> ninSlice, Sprite middle, Color color)
+    private void DrawBlock(Vector2 pos, List<Image> blockImages, Sprite middle, Color color)
     {
         if (!IsGroupVisibleAt(pos))
             return;
 
-        foreach (Image tile in ninSlice)
+        foreach (Image tile in blockImages)
         {
             tile.RenderPosition += pos;
             tile.Color = color;
@@ -403,28 +437,24 @@ public class ConnectedSwapBlock : ConnectedSolid
     public static void InitializeTextures()
     {
         // normal theme
-        GreenEdgeTiles = new MTexture[3, 3];
-        MTexture greenEdges = GFX.Game["objects/swapblock/block"];
-        RedEdgeTiles = new MTexture[3, 3];
-        MTexture redEdges = GFX.Game["objects/swapblock/blockRed"];
-        GreenInnerCornerTiles = new MTexture[2, 2];
-        MTexture greenInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/innerCornersGreen"];
-        RedInnerCornerTiles = new MTexture[2, 2];
-        MTexture redInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/innerCornersRed"];
-        TargetTiles = new MTexture[3, 3];
-        MTexture targetTiles = GFX.Game["objects/swapblock/target"];
+        NormalGreenEdgeTiles = new MTexture[3, 3];
+        NormalRedEdgeTiles = new MTexture[3, 3];
+        NormalGreenInnerCornerTiles = new MTexture[2, 2];
+        NormalRedInnerCornerTiles = new MTexture[2, 2];
+        NormalTargetTiles = new MTexture[3, 3];
+        MTexture normalGreenTileset = GFX.Game["objects/CommunalHelper/connectedSwapBlock/normal/tilesetGreen"];
+        MTexture normalRedTileset = GFX.Game["objects/CommunalHelper/connectedSwapBlock/normal/tilesetRed"];
+        MTexture normalTargetTiles = GFX.Game["objects/CommunalHelper/connectedSwapBlock/normal/target"];
 
         // moon theme
         MoonGreenEdgeTiles = new MTexture[3, 3];
-        MTexture moonGreenEdges = GFX.Game["objects/swapblock/moon/block"];
         MoonRedEdgeTiles = new MTexture[3, 3];
-        MTexture moonRedEdges = GFX.Game["objects/swapblock/moon/blockRed"];
         MoonGreenInnerCornerTiles = new MTexture[2, 2];
-        MTexture moonGreenInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/moon/innerCornersGreen"];
         MoonRedInnerCornerTiles = new MTexture[2, 2];
-        MTexture moonRedInnerCorners = GFX.Game["objects/CommunalHelper/connectedSwapBlock/moon/innerCornersRed"];
         MoonTargetTiles = new MTexture[3, 3];
-        MTexture moonTargetTiles = GFX.Game["objects/swapblock/moon/target"];
+        MTexture moonGreenTileset = GFX.Game["objects/CommunalHelper/connectedSwapBlock/moon/tilesetGreen"];
+        MTexture moonRedTileset = GFX.Game["objects/CommunalHelper/connectedSwapBlock/moon/tilesetRed"];
+        MTexture moonTargetTiles = GFX.Game["objects/CommunalHelper/connectedSwapBlock/moon/target"];
 
         // edges
         for (int i = 0; i < 3; i++)
@@ -432,26 +462,28 @@ public class ConnectedSwapBlock : ConnectedSolid
             for (int j = 0; j < 3; j++)
             {
                 int x = i * 8, y = j * 8;
-                GreenEdgeTiles[i, j] = greenEdges.GetSubtexture(x, y, 8, 8);
-                RedEdgeTiles[i, j] = redEdges.GetSubtexture(x, y, 8, 8);
-                MoonGreenEdgeTiles[i, j] = moonGreenEdges.GetSubtexture(x, y, 8, 8);
-                MoonRedEdgeTiles[i, j] = moonRedEdges.GetSubtexture(x, y, 8, 8);
 
-                TargetTiles[i, j] = targetTiles.GetSubtexture(x, y, 8, 8);
+                NormalGreenEdgeTiles[i, j] = normalGreenTileset.GetSubtexture(x, y, 8, 8);
+                NormalRedEdgeTiles[i, j] = normalRedTileset.GetSubtexture(x, y, 8, 8);
+                MoonGreenEdgeTiles[i, j] = moonGreenTileset.GetSubtexture(x, y, 8, 8);
+                MoonRedEdgeTiles[i, j] = moonRedTileset.GetSubtexture(x, y, 8, 8);
+
+                NormalTargetTiles[i, j] = normalTargetTiles.GetSubtexture(x, y, 8, 8);
                 MoonTargetTiles[i, j] = moonTargetTiles.GetSubtexture(x, y, 8, 8);
             }
         }
 
         // inner corners
-        for (int i = 0; i < 2; i++)
+        for (int i = 3; i < 5; i++)
         {
             for (int j = 0; j < 2; j++)
             {
                 int x = i * 8, y = j * 8;
-                GreenInnerCornerTiles[i, j] = greenInnerCorners.GetSubtexture(x, y, 8, 8);
-                RedInnerCornerTiles[i, j] = redInnerCorners.GetSubtexture(x, y, 8, 8);
-                MoonGreenInnerCornerTiles[i, j] = moonGreenInnerCorners.GetSubtexture(x, y, 8, 8);
-                MoonRedInnerCornerTiles[i, j] = moonRedInnerCorners.GetSubtexture(x, y, 8, 8);
+
+                NormalGreenInnerCornerTiles[i, j] = normalGreenTileset.GetSubtexture(x, y, 8, 8);
+                NormalRedInnerCornerTiles[i, j] = normalRedTileset.GetSubtexture(x, y, 8, 8);
+                MoonGreenInnerCornerTiles[i, j] = moonGreenTileset.GetSubtexture(x, y, 8, 8);
+                MoonRedInnerCornerTiles[i, j] = moonRedTileset.GetSubtexture(x, y, 8, 8);
             }
         }
     }
@@ -459,7 +491,6 @@ public class ConnectedSwapBlock : ConnectedSolid
 
 internal static class ConnectedSwapBlockHooks
 {
-
     private static readonly MethodInfo Player_DashCoroutine = typeof(Player).GetMethod("DashCoroutine", BindingFlags.Instance | BindingFlags.NonPublic);
     private static FieldInfo DashCoroutine_Hook_F_This /*, DashCoroutine_Hook_F_SwapCancel */ ;
 

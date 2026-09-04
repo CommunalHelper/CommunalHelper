@@ -336,20 +336,29 @@ public class ConnectedZipMover : ConnectedSolid
             Position = new Vector2(Width / 2f, 4f)
         });
 
-        if (!string.IsNullOrEmpty(legacyCustomTexture) || tileset is not null)
+        if (tileset is not null)
         {
-            Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(legacyCustomTexture);
+            // non-legacy, combined block and inner corner textures
+            Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(tileset, false);
             edges = customTiles.Item1;
             innerCorners = customTiles.Item2;
         }
-        else
+        else if (string.IsNullOrEmpty(legacyCustomTexture))
         {
+            // non-legacy, separate block and inner corner textures
             for (int i = 0; i < 3; i++)
                 for (int j = 0; j < 3; j++)
                     edges[i, j] = GFX.Game[block].GetSubtexture(i * 8, j * 8, 8, 8);
             for (int i = 0; i < 2; i++)
                 for (int j = 0; j < 2; j++)
                     innerCorners[i, j] = GFX.Game[corners].GetSubtexture(i * 8, j * 8, 8, 8);
+        }
+        else
+        {
+            // legacy
+            Tuple<MTexture[,], MTexture[,]> customTiles = SetupCustomTileset(legacyCustomTexture, true);
+            edges = customTiles.Item1;
+            innerCorners = customTiles.Item2;
         }
 
         Add(sfx = new SoundSource()

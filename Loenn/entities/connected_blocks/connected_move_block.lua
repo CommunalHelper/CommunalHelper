@@ -1,6 +1,5 @@
 local drawableRectangle = require("structs.drawable_rectangle")
 local drawableSprite = require("structs.drawable_sprite")
-local atlases = require("atlases")
 local utils = require("utils")
 local enums = require("consts.celeste_enums")
 local connectedEntities = require("helpers.connected_entities")
@@ -41,6 +40,52 @@ connectedMoveBlock.fieldInformation = {
     breakColor = {
         fieldType = "color"
     },
+    activatorFlags = {
+        fieldType = "list",
+        elementDefault = "",
+        elementSeparator = "|",
+        elementOptions = {
+            fieldType = "list",
+            elementDefault = "",
+            elementSeparator = ",",
+            elementOptions = {
+                fieldType = "string"
+            }
+        }
+    },
+    breakerFlags = {
+        fieldType = "list",
+        elementDefault = "",
+        elementSeparator = "|",
+        elementOptions = {
+            fieldType = "list",
+            elementDefault = "",
+            elementSeparator = ",",
+            elementOptions = {
+                fieldType = "string"
+            }
+        }
+    },
+    onActivateFlags = {
+        fieldType = "list",
+        elementDefault = "",
+        elementOptions = {
+            fieldType = "string"
+        }
+    },
+    onBreakFlags = {
+        fieldType = "list",
+        elementDefault = "",
+        elementOptions = {
+            fieldType = "string"
+        }
+    },
+    crashTime = {
+        minimumValue = 0.0
+    },
+    regenTime = {
+        minimumValue = 0.0
+    },
     ignore = {
         fieldType = "list",
         elementDefault = "",
@@ -72,6 +117,12 @@ for i, direction in ipairs(enums.move_block_directions) do
             noBreakingSprite = false,
             noDebris = false,
             outline = true,
+            activatorFlags = "_pressed",
+            breakerFlags = "_obstructed",
+            onActivateFlags = "",
+            onBreakFlags = "",
+            barrierBlocksFlags = false,
+            waitForFlags = false,
             crashTime = 0.15,
             regenTime = 3.0,
             shakeOnCollision = true,
@@ -80,60 +131,6 @@ for i, direction in ipairs(enums.move_block_directions) do
         }
     }
 end
-connectedMoveBlock.placements[5] = {
-    name = "reskinnable",
-    placementType = "rectangle",
-    data = {
-        width = 16,
-        height = 16,
-        direction = "Right",
-        moveSpeed = 60.0,
-        idleColor = "474070",
-        pressedColor = "30b335",
-        breakColor = "cc2541",
-        customSkin = "objects/CommunalHelper/connectedMoveBlock",
-        customSoundEffect = "",
-        noArrowSprite = false,
-        noBreakingSprite = false,
-        noDebris = false,
-        outline = true,
-        crashTime = 0.15,
-        regenTime = 3.0,
-        shakeOnCollision = true,
-        redirectIsPersistent = false,
-        ignore = ""
-    }
-}
-connectedMoveBlock.placements[6] = {
-    name = "flag_controlled",
-    placementType = "rectangle",
-    data = {
-        width = 16,
-        height = 16,
-        direction = "Right",
-        moveSpeed = 60.0,
-        idleColor = "474070",
-        pressedColor = "30b335",
-        breakColor = "cc2541",
-        customSkin = "",
-        customSoundEffect = "",
-        noArrowSprite = false,
-        noBreakingSprite = false,
-        noDebris = false,
-        outline = true,
-        activatorFlags = "_pressed",
-        breakerFlags = "_obstructed",
-        onActivateFlags = "",
-        onBreakFlags = "",
-        barrierBlocksFlags = false,
-        waitForFlags = false,
-        crashTime = 0.15,
-        regenTime = 3.0,
-        shakeOnCollision = true,
-        redirectIsPersistent = false,
-        ignore = ""
-    }
-}
 
 local function getSearchPredicate()
     return function(target)
@@ -202,28 +199,15 @@ local function getConnectedMoveBlockThemeData(entity)
         arrows = "objects/CommunalHelper/connectedMoveBlock/arrow"
     }
 
-    local customBlockTexture = entity.customBlockTexture or ""
-    if customBlockTexture == "" then customBlockTexture = entity.customSkin or "" end
-    if customBlockTexture == "" then return default end
+    local customSkin = entity.customSkin or ""
+    if customSkin == "" then return default end
 
-    local basePath = "objects/" .. customBlockTexture
-    local tilesetPath = "objects/" .. customBlockTexture .. "/tileset"
-    if atlases.gameplay[basePath] then
-        local containingFolder = basePath:match("(.*)/") -- i hate lua
-        local arrowPath = containingFolder .. "/arrow"
-        return {
-            tileset = basePath,
-            arrows = arrowPath
-        }
-    elseif atlases.gameplay[tilesetPath] then
-        local arrowPath = basePath .. "/arrow"
-        return {
-            tileset = tilesetPath,
-            arrows = arrowPath
-        }
-    else
-        return default
-    end
+    local tilesetPath = customSkin .. "/tileset"
+    local arrowPath = customSkin .. "/arrow"
+    return {
+        tileset = tilesetPath,
+        arrows = arrowPath
+    }
 end
 
 function connectedMoveBlock.sprite(room, entity)

@@ -144,76 +144,55 @@ public class ConnectedMoveBlock : ConnectedSolid
         breakingBgFill = Util.TryParseColor(data.Attr("breakColor", "cc2541"));
         fillColor = idleBgFill;
 
-        GFX.Game.PushFallback(null);
-        string customTexturePath = data.Attr("customSkin", data.Attr("customBlockTexture").Trim().TrimEnd('/')).Trim().TrimEnd('/');
-        customTexture = !string.IsNullOrWhiteSpace(customTexturePath);
-        if (customTexture)
+        string customSkin = data.Attr("customSkin").Trim().TrimEnd('/');
+        string legacyCustomTexture = data.Attr("customBlockTexture").Trim().TrimEnd('/');
+        if (!string.IsNullOrEmpty(customSkin))
         {
-            string temp;
-            if (!GFX.Game.Has("objects/" + customTexturePath))
+            tiles = SetupCustomTileset(customSkin + "/tileset", false);
+            arrows = GFX.Game.GetAtlasSubtextures(customSkin + "/arrow");
+            if (arrows.Count < 8)
+                arrows = null;
+            x = GFX.Game[customSkin + "/x"];
+            debris = GFX.Game.GetAtlasSubtextures(customSkin + "/debris");
+            if (debris.Count < 1)
+                debris = null;
+
+            customTexture = true;
+        }
+        else if (!string.IsNullOrEmpty(legacyCustomTexture))
+        {
+            // im gonna crash out
+            string tilesetPath;
+            if (!GFX.Game.Has("objects/" + legacyCustomTexture))
             {
-                if (GFX.Game["objects/" + customTexturePath + "/tileset"] is null)
-                {
-                    throw new Exception($"No valid tileset found, searched @ objects/{customTexturePath}.png & objects/{customTexturePath}/tileset.png.\nFor custom textures, use 'objects/{customTexturePath}/arrow00.png' through 'objects/{customTexturePath}/arrow07.png' for the arrows, 'objects/{customTexturePath}/tileset.png' for the tileset, 'objects/{customTexturePath}/x.png' for the breaking X sprite, and 'objects/{customTexturePath}/debris.png' for debris.");
-                }
-
-                arrows = GFX.Game.GetAtlasSubtextures("objects/" + customTexturePath + "/arrow");
+                tilesetPath = legacyCustomTexture + "/tileset";
+                arrows = GFX.Game.GetAtlasSubtextures("objects/" + legacyCustomTexture + "/arrow");
                 if (arrows.Count < 8)
-                {
-                    Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                     arrows = null;
-                }
-                
-                x = GFX.Game["objects/" + customTexturePath + "/x"];
-                if (x is null)
-                {
-                    Util.Log("No breaking texture found, defaulting to normal.");
-                    x = null;
-                }
-
-                debris = GFX.Game.GetAtlasSubtextures("objects/" + customTexturePath + "/debris");
+                x = GFX.Game["objects/" + legacyCustomTexture + "/x"];
+                debris = GFX.Game.GetAtlasSubtextures("objects/" + legacyCustomTexture + "/debris");
                 if (debris.Count < 1)
-                {
-                    Util.Log("Invalid or no custom debris textures found, defaulting to normal.");
                     debris = null;
-                }
-
-                temp = customTexturePath + "/tileset";
             }
             else
             {
-                List<string> temp1 = new();
-                temp1.AddRange(customTexturePath.Split('/'));
-                temp1.RemoveAt(temp1.Count - 1);
-                string temp2 = string.Join("/", temp1);
+                List<string> containingFolders = new();
+                containingFolders.AddRange(legacyCustomTexture.Split('/'));
+                containingFolders.RemoveAt(containingFolders.Count - 1);
+                string containingFolder = string.Join("/", containingFolders);
 
-                arrows = GFX.Game.GetAtlasSubtextures("objects/" + temp2 + "/arrow");
+                tilesetPath = legacyCustomTexture;
+                arrows = GFX.Game.GetAtlasSubtextures("objects/" + containingFolder + "/arrow");
                 if (arrows.Count < 8)
-                {
-                    Util.Log("Invalid or no custom arrow textures found, defaulting to normal.");
                     arrows = null;
-                }
-
-                x = GFX.Game["objects/" + temp2 + "/x"];
-                if (x is null)
-                {
-                    Util.Log("No breaking texture found, defaulting to normal.");
-                    x = null;
-                }
-
-                debris = GFX.Game.GetAtlasSubtextures("objects/" + temp2 + "/debris");
-                if (debris.Count < 1)
-                {
-                    Util.Log("Invalid or no custom debris textures found, defaulting to normal.");
+                x = GFX.Game["objects/" + containingFolder + "/x"];
+                debris = GFX.Game.GetAtlasSubtextures("objects/" + containingFolder + "/debris");
                     debris = null;
-                }
-
-                temp = customTexturePath;
             }
 
-            tiles = SetupCustomTileset(temp);
+            tiles = SetupCustomTileset(tilesetPath, true);
+            customTexture = true;
         }
-        GFX.Game.PopFallback();
 
         LoadCustomSounds(data.Attr("customSoundEffect"));
 
@@ -872,7 +851,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                 masterEdges[i, j] = masterTileset.GetSubtexture(i * 8, j * 8, 8, 8);
             }
         }
-        for (int i = 4; i < 6; i++)
+        for (int i = 3; i < 5; i++)
         {
             for (int j = 0; j < 2; j++)
             {
