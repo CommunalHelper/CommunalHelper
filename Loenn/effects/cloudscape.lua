@@ -5,8 +5,18 @@ cloudscape.canBackground = true
 cloudscape.canForeground = true
 
 cloudscape.fieldInformation = {
+    colors = {
+        fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "ffffffff",
+        elementOptions = {
+            fieldType = "color",
+            useAlpha = true
+        }
+    },
     bgColor = {
-        fieldType = "color"
+        fieldType = "color",
+        useAlpha = true
     },
     innerRadius = {
         minimumValue = 1.0
@@ -17,6 +27,14 @@ cloudscape.fieldInformation = {
     rings = {
         fieldType = "integer",
         minimumValue = 2
+    },
+    lightningColors = {
+        fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "ffffff",
+        elementOptions = {
+            fieldType = "color"
+        }
     },
     lightningFlashColor = {
         fieldType = "color"

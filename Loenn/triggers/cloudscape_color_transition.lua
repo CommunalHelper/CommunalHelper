@@ -7,21 +7,41 @@ return {
             editable = false,
             options = communalHelper.lerpDirections
         },
+        colorsFrom = {
+            fieldType = "list",
+            elementSeparator = ",",
+            elementDefault = "ffffffff",
+            elementOptions = {
+                fieldType = "color",
+                useAlpha = true
+            }
+        },
+        colorsTo = {
+            fieldType = "list",
+            elementSeparator = ",",
+            elementDefault = "ffffffff",
+            elementOptions = {
+                fieldType = "color",
+                useAlpha = true
+            }
+        },
         bgFrom = {
-            fieldType = "color"
+            fieldType = "color",
+            useAlpha = true
         },
         bgTo = {
-            fieldType = "color"
+            fieldType = "color",
+            useAlpha = true
         }
     },
     placements = {
         name = "trigger",
         data = {
             mode = "LeftToRight",
-            colorsFrom = "6d8ada,aea0c1,d9cbbc",
-            colorsTo = "ff0000,00ff00,0000ff",
-            bgFrom = "4f9af7",
-            bgTo = "000000"
+            colorsFrom = "6d8adaff,aea0c1ff,d9cbbcff",
+            colorsTo = "ff0000ff,00ff00ff,0000ffff",
+            bgFrom = "4f9af7ff",
+            bgTo = "000000ff"
         }
     }
 }
