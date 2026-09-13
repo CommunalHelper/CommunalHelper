@@ -5,22 +5,30 @@ betacube.canBackground = true
 betacube.canForeground = false
 
 betacube.fieldInformation = {
-    scale = {
-        minimumValue = 0.0,
-        fieldType = "number"
-    },
     texture = {
         editable = true,
         options = {
             "backdrops/CommunalHelper/betacube"
         }
+    },
+    colors = {
+        fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "ffffff",
+        elementOptions = {
+            fieldType = "color"
+        }
+    },
+    scale = {
+        minimumValue = 0.0,
+        fieldType = "number"
     }
 }
 
 betacube.defaultData =  {
     texture = "backdrops/CommunalHelper/betacube",
     colors = "ff172b,fda32c,298ca4,2f25fb",
-    scale = 1.0,
+    scale = 1.0
 }
 
 return betacube

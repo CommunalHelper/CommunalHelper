@@ -1,6 +1,14 @@
 return {
     name = "CommunalHelper/CloudscapeLightningConfigurationTrigger",
     fieldInformation = {
+        colorsFrom = {
+            fieldType = "list",
+            elementSeparator = ",",
+            elementDefault = "ffffff",
+            elementOptions = {
+                fieldType = "color"
+            }
+        },
         lightningFlashColor = {
             fieldType = "color"
         },
