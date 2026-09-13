@@ -14,31 +14,36 @@ public class CloudscapeColorTransitionTrigger : Trigger
         RightToLeft,
     }
 
+    private readonly string tag;
     private readonly Mode mode;
     private readonly Color[] from, to;
     private readonly Color bgFrom, bgTo;
 
-    private float oldLerp;
+    private float prevLerp;
 
     public CloudscapeColorTransitionTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
     {
+        tag = data.Attr("tag");
         mode = data.Enum("mode", Mode.LeftToRight);
-        from = data.Attr("colorsFrom", "6d8ada,aea0c1,d9cbbc")
+        from = data.Attr("colorsFrom", "6d8adaff,aea0c1ff,d9cbbcff")
                    .Split(',')
-                   .Select(str => Calc.HexToColor(str.Trim()))
+                   .Select(str => Util.HexToColorWithAlphaNonPremultiplied(str.Trim()))
                    .ToArray();
-        to = data.Attr("colorsTo", "ff0000,00ff00,0000ff")
+        to = data.Attr("colorsTo", "ff0000ff,00ff00ff,0000ffff")
                  .Split(',')
-                 .Select(str => Calc.HexToColor(str.Trim()))
+                 .Select(str => Util.HexToColorWithAlphaNonPremultiplied(str.Trim()))
                  .ToArray();
-        bgFrom = data.HexColor("bgFrom");
-        bgTo = data.HexColor("bgTo");
+        bgFrom = Util.HexToColorWithAlphaNonPremultiplied(data.Attr("bgFrom", "4f9af7ff").Trim());
+        bgTo = Util.HexToColorWithAlphaNonPremultiplied(data.Attr("bgTo", "000000ff").Trim());
     }
 
     public override void OnStay(Player player)
     {
         base.OnStay(player);
+
+        if (Scene is not Level level)
+            return;
 
         float lerp = mode switch
         {
@@ -49,13 +54,20 @@ public class CloudscapeColorTransitionTrigger : Trigger
             _ => 0f,
         };
 
-        if (oldLerp == lerp)
+        if (prevLerp == lerp)
             return;
-        oldLerp = lerp;
+        prevLerp = lerp;
 
         Color bg = Color.Lerp(bgFrom, bgTo, lerp);
 
-        ((Scene as Level).Background.Backdrops.FirstOrDefault(b => b is Cloudscape) as Cloudscape)
-            ?.ConfigureColors(bg, from, to, lerp);
+        if (string.IsNullOrEmpty(tag))
+        {
+            level.Background.Get<Cloudscape>()?.ConfigureColors(bg, from, to, lerp);
+        }
+        else
+        {
+            foreach (Cloudscape cloudscape in level.Background.GetEach<Cloudscape>(tag).Concat(level.Foreground.GetEach<Cloudscape>(tag)))
+                cloudscape.ConfigureColors(bg, from, to, lerp);
+        }
     }
 }

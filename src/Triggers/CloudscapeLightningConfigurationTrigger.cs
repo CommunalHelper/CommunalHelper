@@ -6,6 +6,7 @@ namespace Celeste.Mod.CommunalHelper.Triggers;
 [CustomEntity("CommunalHelper/CloudscapeLightningConfigurationTrigger")]
 public class CloudscapeLightningConfigurationTrigger : Trigger
 {
+    private readonly string tag;
     private readonly bool enable;
     private readonly Color[] lightningColors;
     private readonly Color lightningFlashColor;
@@ -16,6 +17,7 @@ public class CloudscapeLightningConfigurationTrigger : Trigger
     public CloudscapeLightningConfigurationTrigger(EntityData data, Vector2 offset)
         : base(data, offset)
     {
+        tag = data.Attr("tag");
         enable = data.Bool("enable", true);
         lightningColors = data.Attr("lightningColors", "384bc8,7a50d0,c84ddd,3397e2")
                               .Split(',')
@@ -33,12 +35,27 @@ public class CloudscapeLightningConfigurationTrigger : Trigger
     {
         base.OnEnter(player);
 
-        ((Scene as Level).Background.Backdrops.FirstOrDefault(b => b is Cloudscape) as Cloudscape)
-            ?.ConfigureLightning(
+        if (Scene is not Level level)
+            return;
+
+        if (string.IsNullOrEmpty(tag))
+        {
+            level.Background.Get<Cloudscape>()?.ConfigureLightning(
                 enable, lightningColors, lightningFlashColor,
                 lightningMinDelay, lightningMaxDelay,
                 lightningMinDuration, lightningMaxDuration,
                 lightningIntensity
             );
+        }
+        else
+        {
+            foreach (Cloudscape cloudscape in level.Background.GetEach<Cloudscape>(tag).Concat(level.Foreground.GetEach<Cloudscape>(tag)))
+                cloudscape.ConfigureLightning(
+                    enable, lightningColors, lightningFlashColor,
+                    lightningMinDelay, lightningMaxDelay,
+                    lightningMinDuration, lightningMaxDuration,
+                    lightningIntensity
+                );
+        }
     }
 }

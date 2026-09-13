@@ -38,6 +38,7 @@ return {
         {
             name = "enable",
             data = {
+                tag = "",
                 enable = true,
                 lightningColors = "384bc8,7a50d0,c84ddd,3397e2",
                 lightningFlashColor = "ffffff",
@@ -51,6 +52,7 @@ return {
         {
             name = "disable",
             data = {
+                tag = "",
                 enable = false
             }
         }
