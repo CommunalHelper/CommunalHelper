@@ -38,8 +38,8 @@ local connectTo = {
     "CommunalHelper/EquationMoveBlock"
 }
 
-local frame = "objects/CommunalHelper/connectedZipMover/extension_outline"
-local frameAlt = "objects/CommunalHelper/connectedZipMover/extension_outline_alt"
+local frame = "objects/CommunalHelper/connectedSolidExtension/outline"
+local frameAlt = "objects/CommunalHelper/connectedSolidExtension/outline_alt"
 
 local function getSearchPredicate()
     return function(target)

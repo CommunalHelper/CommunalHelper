@@ -74,7 +74,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                         }
                         else if (flag.StartsWith("~"))
                         {
-                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), !SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
                         }
                         else
                             SceneAs<Level>().Session.SetFlag(flag);
@@ -83,7 +83,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             yield return 0.2f;
 
             targetSpeed = moveSpeed;
-            moveSfx.Play(SFX.game_04_arrowblock_move_loop);
+            moveSfx.Play(MoveSoundEffect);
             moveSfx.Param("arrow_stop", 0f);
             StopPlayerRunIntoAnimation = false;
             float crashTimer = crashTime;
@@ -205,6 +205,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                             Vector2 value = new((i * 8) + 4, (j * 8) + 4);
                             Vector2 pos = value + Position + GroupOffset;
                             MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
+                            debris2.Sprite.Texture = Calc.Random.Choose(this.debris ?? masterDebris);
                             debris.Add(debris2);
                             Scene.Add(debris2);
                         }
@@ -245,7 +246,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                         }
                         else if (flag.StartsWith("~"))
                         {
-                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
+                            SceneAs<Level>().Session.SetFlag(flag.Substring(1), !SceneAs<Level>().Session.GetFlag(flag.Substring(1)));
                         }
                         else
                             SceneAs<Level>().Session.SetFlag(flag);

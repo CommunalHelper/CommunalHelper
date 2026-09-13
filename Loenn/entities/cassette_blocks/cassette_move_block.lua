@@ -44,7 +44,8 @@ cassetteMoveBlock.fieldInformation = {
         elementOptions = {
             fieldType = "string",
             options = function() return communalHelper.getMapSIDs() end,
-            editable = true
+            editable = true,
+            searchable = true
         }
     }
 }
