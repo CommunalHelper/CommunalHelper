@@ -14,6 +14,7 @@ public static class ModExports
     internal static void Initialize()
     {
         typeof(DashStates).ModInterop();
+        typeof(Elytra).ModInterop();
         typeof(Entities).ModInterop();
         typeof(Shape3DExports).ModInterop();
     }
@@ -38,6 +39,11 @@ public static class ModExports
             return DreamTunnelDash.DreamTunnelDashCount;
         }
 
+        public static bool IsDreamTunnelDashAttacking()
+        {
+            return DreamTunnelDash.DreamTunnelAttacking;
+        }
+
         public static Component DreamTunnelInteraction(Action<Player> onPlayerEnter, Action<Player> onPlayerExit)
         {
             return new DreamTunnelInteraction(onPlayerEnter, onPlayerExit);
@@ -58,12 +64,41 @@ public static class ModExports
         }
 
         #endregion
-            
+    }
+
+    [ModExportName("CommunalHelper.Elytra")]
+    public static class Elytra
+    {
         #region Elytra
 
         public static int GetElytraState()
         {
             return St.Elytra;
+        }
+
+        public static bool IsElytraEnabled()
+        {
+            return CommunalHelperModule.Session.CanDeployElytra;
+        }
+        
+        public static void SetElytraEnabled(bool enabled)
+        {
+            CommunalHelperModule.Session.CanDeployElytra = enabled;
+        }
+
+        public static bool HasInfiniteElytra(Player player)
+        {
+            return player.HasInfiniteElytra();
+        }
+
+        public static void SetInfiniteElytra(Player player, bool enabled)
+        {
+            player.SetInfiniteElytra(enabled);
+        }
+
+        public static Component ElytraCollision(Func<Player, int> onCollide)
+        {
+            return new ElytraCollision(player => (ElytraCollision.Result) onCollide(player));
         }
         
         #endregion

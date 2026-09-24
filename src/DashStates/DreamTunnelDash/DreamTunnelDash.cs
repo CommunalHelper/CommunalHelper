@@ -39,6 +39,8 @@ public static class DreamTunnelDash
     private static bool dreamTunnelDashAttacking;
     private static float dreamTunnelDashTimer;
 
+    public static bool DreamTunnelAttacking => dreamTunnelDashAttacking; // anything else?
+
     private static bool nextDashFeather;
     public static bool NextDashFeather
     {
