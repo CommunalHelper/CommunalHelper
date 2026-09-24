@@ -1,3 +1,7 @@
+--1.25.7 (24/09/2026)--
+* Add alpha and tag support for Cloudscape triggers. @earthwise01
+* Add backwards compatibility for other mods using Cliffside Zip Mover textures. @aonkeeper4
+
 --1.25.6 (24/09/2026)--
 * Add ModInterop exports for the Elytra state. @NonIdiot
 * Improve UX for reskinning connected blocks. @aonkeeper4
