@@ -58,6 +58,15 @@ public static class ModExports
         }
 
         #endregion
+            
+        #region Elytra
+
+        public static int GetElytraState()
+        {
+            return St.Elytra;
+        }
+        
+        #endregion
     }
 
     [ModExportName("CommunalHelper.Entities")]
