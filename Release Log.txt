@@ -1,3 +1,8 @@
+--1.25.6 (24/09/2026)--
+* Add ModInterop exports for the Elytra state. @NonIdiot
+* Improve UX for reskinning connected blocks. @aonkeeper4
+* Fix Glow Controllers not properly initializing fade values. @aonkeeper4
+
 --1.25.5 (02/08/2026)--
 * Fixed Dream Strawberries always being tracked as moon berries. @aonkeeper4
 * Added particle color customization to Laser Emitters. @AdamKorinek
