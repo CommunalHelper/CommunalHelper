@@ -160,8 +160,6 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
             multipliers.Add(DeathFadeMultiplier(entity, sprite));
         
         entity.Add(new Coroutine(AlphaFadeRoutine(entity, multipliers)));
-
-        return;
     }
 
     private static IEnumerator AlphaFadeRoutine(Entity entity, List<IEnumerator> multipliers)
@@ -192,8 +190,7 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
         if (entity.Scene is not Level level)
             yield break;
         
-        bool flagValue = level.Session.GetFlag(flag);
-        float fade = flagValue ? 1f : 0f;
+        float fade = level.Session.GetFlag(flag) ? 1f : 0f;
         yield return fade;
 
         while (true)
@@ -205,23 +202,39 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
 
     private IEnumerator DeathFadeMultiplier(Entity entity, Sprite sprite)
     {
+        if (entity.Scene is not Level)
+            yield break;
+        
+        bool startDead = deathAnimationIds.Contains(sprite.CurrentAnimationID);
+        float fade = startDead ? 0f : 1f;
+        yield return fade;
+        
         while (true)
         {
-            // wait until the sprite plays a death animation
-            while (!deathAnimationIds.Contains(sprite.CurrentAnimationID))
-                yield return 1f;
-
-            // fade out over the length of that animation
-            if (!sprite.Animations.TryGetValue(sprite.CurrentAnimationID, out Sprite.Animation deathAnimation)) break;
-            float fadeTime = deathAnimation.Frames.Length * deathAnimation.Delay;
-            float fadeRemaining = fadeTime;
-
-            while (deathAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
+            float fadeRemaining, fadeTime;
+            
+            // skip fading alongside the death animation if the entity starts dead
+            if (startDead)
+                startDead = false;
+            else
             {
-                fadeRemaining -= Engine.DeltaTime;
-                yield return Math.Max(fadeRemaining / fadeTime, 0f);
-            }
+                // wait until the sprite plays a death animation
+                while (!deathAnimationIds.Contains(sprite.CurrentAnimationID))
+                    yield return 1f;
 
+                // fade out over the length of that animation
+                if (!sprite.Animations.TryGetValue(sprite.CurrentAnimationID, out Sprite.Animation deathAnimation))
+                    break;
+                fadeTime = deathAnimation.Frames.Length * deathAnimation.Delay;
+                fadeRemaining = fadeTime;
+
+                while (deathAnimationIds.Contains(sprite.CurrentAnimationID) && fadeRemaining > 0)
+                {
+                    fadeRemaining -= Engine.DeltaTime;
+                    yield return Math.Max(fadeRemaining / fadeTime, 0f);
+                }
+            }
+            
             // if the sprite has a respawn animation, wait until it's playing it
             while (!respawnAnimationIds.Contains(sprite.CurrentAnimationID))
                 yield return 0f;
