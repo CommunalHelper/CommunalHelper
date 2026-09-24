@@ -37,6 +37,7 @@ return {
     placements = {
         name = "trigger",
         data = {
+            tag = "",
             mode = "LeftToRight",
             colorsFrom = "6d8adaff,aea0c1ff,d9cbbcff",
             colorsTo = "ff0000ff,00ff00ff,0000ffff",
