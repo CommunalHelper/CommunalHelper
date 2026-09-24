@@ -261,7 +261,7 @@ public class ConnectedZipMover : ConnectedSolid
         }
         this.drawBlackBorder = drawBlackBorder;
 
-        string light, innerCog, block = null, corners = null, tileset = null;
+        string light = null, innerCog = null, block = null, corners = null, tileset = null;
         if (!string.IsNullOrEmpty(customSkin))
         {
             light = customSkin + "/light";
@@ -655,5 +655,12 @@ public class ConnectedZipMover : ConnectedSolid
                     yield return null;
             }
         }
+    }
+    
+    internal static void InitializeTextures()
+    {
+        // people rely on `objects/CommunalHelper/connectedZipMover/cliffside/block` existing apparently? i hate modding
+        // i dont want to clutter the graphics folders so let's be evil. if they are evil to us we can be evil back
+        GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/block"] = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/tileset"].GetSubtexture(0, 0, 24, 24);
     }
 }

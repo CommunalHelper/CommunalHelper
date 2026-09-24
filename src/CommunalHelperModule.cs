@@ -275,6 +275,7 @@ public class CommunalHelperModule : EverestModule
 
         ConnectedMoveBlock.InitializeTextures();
         ConnectedSwapBlock.InitializeTextures();
+        ConnectedZipMover.InitializeTextures();
 
         HeartGemShard.InitializeParticles();
 
