@@ -2,6 +2,8 @@
 * Add ModInterop exports for the Elytra state. @NonIdiot
 * Improve UX for reskinning connected blocks. @aonkeeper4
 * Fix Glow Controllers not properly initializing fade values. @aonkeeper4
+* Use color list fields where appripriate in Loenn plugins. @earthwise01
+* Remove console logging. @aonkeeper4
 
 --1.25.5 (02/08/2026)--
 * Fixed Dream Strawberries always being tracked as moon berries. @aonkeeper4
