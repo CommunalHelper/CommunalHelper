@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -234,6 +235,7 @@ public class ConnectedZipMover : ConnectedSolid
         : base(position, width, height, safe: false)
     {
         Depth = Depths.FGTerrain + 1;
+        SurfaceSoundIndex = SurfaceIndex.Girder;
 
         this.nodes = nodes;
 
@@ -241,39 +243,45 @@ public class ConnectedZipMover : ConnectedSolid
         this.permanent = permanent;
         this.waits = waits;
         this.ticking = ticking;
-
-        Add(seq = new Coroutine(Sequence()));
-        Add(new LightOcclude());
-
-        SurfaceSoundIndex = SurfaceIndex.Girder;
-
-        if (!string.IsNullOrEmpty(colors))
+        
+        // set default theming attributes
+        string themeName;
+        switch (this.theme)
         {
-            // Comma seperated list of colors
-            // First is background color, second is main rope color, third is light rope color
-            string[] colorList = colors.Split(',');
-            if (colorList.Length > 0)
-                backgroundColor = Calc.HexToColorWithAlpha(colorList[0]);
-            if (colorList.Length > 1)
-                ropeColor = Calc.HexToColorWithAlpha(colorList[1]);
-            if (colorList.Length > 2)
-                ropeLightColor = Calc.HexToColorWithAlpha(colorList[2]);
-        }
-        this.drawBlackBorder = drawBlackBorder;
+            default:
+            case Themes.Normal:
+                themeName = "normal";
+                sfxPath = "normal";
+                this.drawBlackBorder = true;
+                backgroundColor = Color.Black;
+                break;
 
-        string light = null, innerCog = null, block = null, corners = null, tileset = null;
+            case Themes.Moon:
+                themeName = "moon";
+                sfxPath = "moon";
+                this.drawBlackBorder = false;
+                backgroundColor = Color.Black;
+                break;
+
+            case Themes.Cliffside:
+                themeName = "cliffside";
+                sfxPath = "normal";
+                this.drawBlackBorder = true;
+                backgroundColor = Calc.HexToColor("171018");
+                break;
+        }
+        ropeColor = Calc.HexToColor("663931");
+        ropeLightColor = Calc.HexToColor("9b6157");
+        
+        // set texture paths
+        string light, innerCog, block = null, corners = null, tileset = null;
         if (!string.IsNullOrEmpty(customSkin))
         {
             light = customSkin + "/light";
             innerCog = customSkin + "/innercog";
             cog = GFX.Game[customSkin + "/cog"];
-            sfxPath = this.theme switch
-            {
-                Themes.Normal or Themes.Cliffside => "normal",
-                Themes.Moon => "moon",
-                _ => throw new ArgumentOutOfRangeException()
-            };
 
+            // prefer combined block and inner corner textures over separate
             if (GFX.Game.Has(customSkin + "/tileset"))
             {
                 tileset = customSkin + "/tileset";
@@ -283,59 +291,32 @@ public class ConnectedZipMover : ConnectedSolid
                 block = customSkin + "/block";
                 corners = customSkin + "/innerCorners";
             }
+            
+            // override colors + border if we have a custom skin
+            if (!string.IsNullOrEmpty(colors))
+            {
+                // Comma seperated list of colors
+                // First is background color, second is main rope color, third is light rope color
+                string[] colorList = colors.Split(',');
+                if (colorList.Length > 0)
+                    backgroundColor = Calc.HexToColorWithAlpha(colorList[0]);
+                if (colorList.Length > 1)
+                    ropeColor = Calc.HexToColorWithAlpha(colorList[1]);
+                if (colorList.Length > 2)
+                    ropeLightColor = Calc.HexToColorWithAlpha(colorList[2]);
+            }
+            this.drawBlackBorder = drawBlackBorder;
         }
         else
         {
-            string themeName;
-            switch (this.theme)
-            {
-                default:
-                case Themes.Normal:
-                    themeName = "normal";
-                    this.drawBlackBorder = true;
-                    backgroundColor = Color.Black;
-                    ropeColor = Calc.HexToColor("663931");
-                    ropeLightColor = Calc.HexToColor("9b6157");
-                    break;
-
-                case Themes.Moon:
-                    themeName = "moon";
-                    this.drawBlackBorder = false;
-                    backgroundColor = Color.Black;
-                    ropeColor = Calc.HexToColor("663931");
-                    ropeLightColor = Calc.HexToColor("9b6157");
-                    break;
-
-                case Themes.Cliffside:
-                    themeName = "cliffside";
-                    this.drawBlackBorder = true;
-                    backgroundColor = Calc.HexToColor("171018");
-                    ropeColor = Calc.HexToColor("663931");
-                    ropeLightColor = Calc.HexToColor("9b6157");
-                    break;
-            }
-
             string themePath = "objects/CommunalHelper/connectedZipMover/" + themeName;
             light = themePath + "/light";
             innerCog = themePath + "/innercog";
             cog = GFX.Game[themePath + "/cog"];
             tileset = themePath + "/tileset";
         }
-
-        innerCogs = GFX.Game.GetAtlasSubtextures(innerCog);
-        streetlight = new Sprite(GFX.Game, light)
-        {
-            Active = false
-        };
-        streetlight.Add("frames", "", 1f);
-        streetlight.Play("frames");
-        streetlight.SetAnimationFrame(1);
-        streetlight.Position = new Vector2((Width / 2f) - (streetlight.Width / 2f), 0f);
-        Add(bloom = new BloomPoint(1f, 6f)
-        {
-            Position = new Vector2(Width / 2f, 4f)
-        });
-
+        
+        // setup tileset
         if (tileset is not null)
         {
             // non-legacy, combined block and inner corner textures
@@ -347,11 +328,11 @@ public class ConnectedZipMover : ConnectedSolid
         {
             // non-legacy, separate block and inner corner textures
             for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; j++)
-                    edges[i, j] = GFX.Game[block].GetSubtexture(i * 8, j * 8, 8, 8);
+            for (int j = 0; j < 3; j++)
+                edges[i, j] = GFX.Game[block].GetSubtexture(i * 8, j * 8, 8, 8);
             for (int i = 0; i < 2; i++)
-                for (int j = 0; j < 2; j++)
-                    innerCorners[i, j] = GFX.Game[corners].GetSubtexture(i * 8, j * 8, 8, 8);
+            for (int j = 0; j < 2; j++)
+                innerCorners[i, j] = GFX.Game[corners].GetSubtexture(i * 8, j * 8, 8, 8);
         }
         else
         {
@@ -361,10 +342,21 @@ public class ConnectedZipMover : ConnectedSolid
             innerCorners = customTiles.Item2;
         }
 
-        Add(sfx = new SoundSource()
+        innerCogs = GFX.Game.GetAtlasSubtextures(innerCog);
+        
+        streetlight = new Sprite(GFX.Game, light)
         {
-            Position = new Vector2(Width, Height) / 2f
-        });
+            Active = false
+        };
+        streetlight.Add("frames", "", 1f);
+        streetlight.Play("frames");
+        streetlight.SetAnimationFrame(1);
+        streetlight.Position = new Vector2((Width / 2f) - (streetlight.Width / 2f), 0f);
+        
+        Add(seq = new Coroutine(Sequence()));
+        
+        Add(sfx = new SoundSource { Position = new Vector2(Width, Height) / 2f });
+        Add(bloom = new BloomPoint(1f, 6f) { Position = new Vector2(Width / 2f, 4f) });
     }
 
     public override void Awake(Scene scene)
@@ -373,6 +365,8 @@ public class ConnectedZipMover : ConnectedSolid
         AutoTile(edges, innerCorners);
 
         Add(streetlight);
+        
+        AddLightOccluders(1f);
     }
 
     public override void Added(Scene scene)

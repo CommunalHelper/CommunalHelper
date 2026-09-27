@@ -253,6 +253,12 @@ public class ConnectedSolid : Solid
         Collidable = true;
     }
 
+    public void AddLightOccluders(float alpha = 1f)
+    {
+        foreach (Hitbox hitbox in Colliders)
+            Add(new LightOcclude(new Rectangle((int) hitbox.Position.X, (int) hitbox.Position.Y, (int) hitbox.Width, (int) hitbox.Height), alpha));
+    }
+
     /// <summary>
     /// Optionnal function to do auto-tiling for the entire group, with specified textures.
     /// If is called more than once, the auto-tiling logic will not be performed, but will use the data from previous calls to pick the right tiles.

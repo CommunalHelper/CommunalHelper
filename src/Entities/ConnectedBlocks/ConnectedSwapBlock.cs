@@ -1,4 +1,5 @@
-﻿using FMOD.Studio;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using FMOD.Studio;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -160,19 +161,6 @@ public class ConnectedSwapBlock : ConnectedSolid
         }
         else
         {
-            if (Theme == SwapBlock.Themes.Normal)
-            {
-                middleGreen = GFX.SpriteBank.Create("swapBlockLight");
-                middleRed = GFX.SpriteBank.Create("swapBlockLightRed");
-                nineSliceTarget = NormalTargetTiles;
-            }
-            else if (Theme == SwapBlock.Themes.Moon)
-            {
-                middleGreen = GFX.SpriteBank.Create("swapBlockLightMoon");
-                middleRed = GFX.SpriteBank.Create("swapBlockLightRedMoon");
-                nineSliceTarget = MoonTargetTiles;
-            }
-            
             // legacy
             if (!string.IsNullOrEmpty(redCustomBlockPath))
             {
@@ -188,11 +176,23 @@ public class ConnectedSwapBlock : ConnectedSolid
                 customGreenInnerCornerTiles = customGreenTiles.Item2;
                 customGreenTextures = true;
             }
+            
+            if (Theme == SwapBlock.Themes.Normal)
+            {
+                middleGreen = GFX.SpriteBank.Create("swapBlockLight");
+                middleRed = GFX.SpriteBank.Create("swapBlockLightRed");
+                nineSliceTarget = NormalTargetTiles;
+            }
+            else if (Theme == SwapBlock.Themes.Moon)
+            {
+                middleGreen = GFX.SpriteBank.Create("swapBlockLightMoon");
+                middleRed = GFX.SpriteBank.Create("swapBlockLightRedMoon");
+                nineSliceTarget = MoonTargetTiles;
+            }
         }
 
         middleRed.Position = middleGreen.Position = new Vector2(width, height) / 2f;
 
-        Add(new LightOcclude(0.2f));
         Depth = Depths.FGTerrain + 1;
     }
 
@@ -247,6 +247,8 @@ public class ConnectedSwapBlock : ConnectedSolid
         moveRect = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 
         scene.Add(bgTiles = new ConnectedSwapBlockBGTilesRenderer(this));
+        
+        AddLightOccluders(0.2f);
     }
 
     public override void Removed(Scene scene)

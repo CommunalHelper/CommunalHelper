@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.CommunalHelper.DashStates;
+﻿using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Imports;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -142,8 +143,6 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
                 for (int k = 0; k < frames; k++)
                     texture[tx, ty, k] = atlasSubtextures[k].GetSubtexture(tx * 8, ty * 8, 8, 8);
 
-        Add(new LightOcclude(0.5f));
-
         Component explosionCollider = CavernHelper.GetCrystalBombExplosionCollider?.Invoke(Break, null);
         if (explosionCollider is not null)
             Add(explosionCollider);
@@ -174,6 +173,13 @@ public class ConnectedTempleCrackedBlock : ConnectedSolid
         {
             Collidable = Visible = true;
         }
+    }
+
+    public override void Awake(Scene scene)
+    {
+        base.Awake(scene);
+        
+        AddLightOccluders(0.5f);
     }
 
     public override void Update()

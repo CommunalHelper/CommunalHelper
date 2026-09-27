@@ -234,7 +234,6 @@ public class ConnectedMoveBlock : ConnectedSolid
         Add(new Coroutine(Controller()));
         Add(groupable = new GroupableMoveBlock());
         UpdateColors();
-        Add(new LightOcclude(0.5f));
     }
 
     public override void OnStaticMoverTrigger(StaticMover sm)
@@ -782,6 +781,8 @@ public class ConnectedMoveBlock : ConnectedSolid
                 },
             });
         }
+        
+        AddLightOccluders(0.5f);
     }
 
     public override void Update()
