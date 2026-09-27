@@ -8,14 +8,20 @@ glowController.texture = "objects/CommunalHelper/glowController/icon"
 
 glowController.fieldOrder = {
     "x", "y",
-    "lightBlacklist", "bloomBlacklist",
-    "lightWhitelist", "bloomWhitelist",
-    "lightColor", "bloomAlpha",
-    "lightAlpha", "bloomRadius",
-    "lightStartFade", "bloomOffsetX",
-    "lightEndFade", "bloomOffsetY",
-    "lightOffsetX", "deathAnimationIds",
-    "lightOffsetY", "respawnAnimationIds",
+    "lightWhitelist", "lightBlacklist",
+    "lightOffsetX", "lightOffsetY",
+    "lightStartFade", "lightEndFade",
+    "lightColor", "lightAlpha",
+    "bloomWhitelist", "bloomBlacklist",
+    "bloomOffsetX", "bloomOffsetY",
+    "bloomRadius", "bloomAlpha",
+    "lightOccluderWhitelist", "lightOccluderBlacklist",
+    "lightOccluderOffsetX", "lightOccluderOffsetY",
+    "lightOccluderWidth", "lightOccluderHeight",
+    "useEntityBoundsForLightOccluders", "lightOccluderAlpha",
+    "effectCutoutWhitelist", "effectCutoutBlacklist",
+    "effectCutoutAlpha",
+    "deathAnimationIds", "respawnAnimationIds",
     "flag", "flagFadeTime"
 }
 
@@ -43,6 +49,8 @@ glowController.fieldInformation = {
     },
     lightAlpha = {
         fieldType = "number",
+        minimumValue = 0.0,
+        maximumValue = 1.0,
     },
     lightStartFade = {
         fieldType = "integer",
@@ -76,6 +84,8 @@ glowController.fieldInformation = {
     },
     bloomAlpha = {
         fieldType = "number",
+        minimumValue = 0.0,
+        maximumValue = 1.0,
     },
     bloomRadius = {
         fieldType = "number",
@@ -85,6 +95,67 @@ glowController.fieldInformation = {
     },
     bloomOffsetY = {
         fieldType = "integer",
+    },
+    lightOccluderWhitelist = {
+        fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "",
+        elementOptions = {
+             options = function() return communalHelper.getMapSIDs() end,
+             searchable = true,
+        },
+    },
+    lightOccluderBlacklist = {
+        fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "",
+        elementOptions = {
+             options = function() return communalHelper.getMapSIDs() end,
+             searchable = true,
+        },
+    },
+    lightOccluderOffsetX = {
+        fieldType = "integer",
+    },
+    lightOccluderOffsetY = {
+        fieldType = "integer",
+    },
+    lightOccluderWidth = {
+        fieldType = "integer",
+    },
+    lightOccluderHeight = {
+        fieldType = "integer",
+    },
+    useEntityBoundsForLightOccluders = {
+        fieldType = "boolean",
+    },
+    lightOccluderAlpha = {
+        fieldType = "number",
+        minimumValue = 0.0,
+        maximumValue = 1.0,
+    },
+    effectCutoutWhitelist = {
+        fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "",
+        elementOptions = {
+             options = function() return communalHelper.getMapSIDs() end,
+             searchable = true,
+        },
+    },
+    effectCutoutBlacklist = {
+        fieldType = "list",
+        elementSeparator = ",",
+        elementDefault = "",
+        elementOptions = {
+             options = function() return communalHelper.getMapSIDs() end,
+             searchable = true,
+        },
+    },
+    effectCutoutAlpha = {
+        fieldType = "number",
+        minimumValue = 0.0,
+        maximumValue = 1.0,
     },
     deathAnimationIds = {
         fieldType = "list",
@@ -115,6 +186,17 @@ glowController.placements = {
             bloomRadius = 8.0,
             bloomOffsetX = 0,
             bloomOffsetY = 0,
+            lightOccluderWhitelist = "",
+            lightOccluderBlacklist = "",
+            lightOccluderOffsetX = 0,
+            lightOccluderOffsetY = 0,
+            lightOccluderWidth = 16,
+            lightOccluderHeight = 16,
+            useEntityBoundsForLightOccluders = true,
+            lightOccluderAlpha = 1.0,
+            effectCutoutWhitelist = "",
+            effectCutoutBlacklist = "",
+            effectCutoutAlpha = 1.0,
             deathAnimationIds = "death",
             respawnAnimationIds = "respawn",
             flag = "",

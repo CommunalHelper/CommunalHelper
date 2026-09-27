@@ -97,6 +97,7 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
 
     private const StringSplitOptions SplitOptions = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
 
+    // lights
     private readonly HashSet<string> lightWhitelist = data.Attr("lightWhitelist").Split(',', SplitOptions).ToHashSet();
     private readonly HashSet<string> lightBlacklist = data.Attr("lightBlacklist").Split(',', SplitOptions).ToHashSet();
     private readonly Color lightColor = data.HexColor("lightColor", Color.White);
@@ -105,12 +106,25 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
     private readonly int lightEndFade = data.Int("lightEndFade", 48);
     private readonly Vector2 lightOffset = new(data.Int("lightOffsetX"), data.Int("lightOffsetY", -10));
 
+    // bloom
     private readonly HashSet<string> bloomWhitelist = data.Attr("bloomWhitelist").Split(',', SplitOptions).ToHashSet();
     private readonly HashSet<string> bloomBlacklist = data.Attr("bloomBlacklist").Split(',', SplitOptions).ToHashSet();
     private readonly float bloomAlpha = data.Float("bloomAlpha", 1f);
     private readonly float bloomRadius = data.Float("bloomRadius", 8f);
     private readonly Vector2 bloomOffset = new(data.Int("bloomOffsetX"), data.Int("bloomOffsetY", -10));
-
+    
+    // light occluders
+    private readonly HashSet<string> lightOccluderWhitelist = data.Attr("lightOccluderWhitelist").Split(',', SplitOptions).ToHashSet();
+    private readonly HashSet<string> lightOccluderBlacklist = data.Attr("lightOccluderBlacklist").Split(',', SplitOptions).ToHashSet();
+    private readonly Rectangle lightOccluderBounds = new(data.Int("lightOccluderOffsetX", -8), data.Int("lightOccluderOffsetY", -16), data.Int("lightOccluderWidth", 16), data.Int("lightOccluderHeight", 16));
+    private readonly bool useEntityBoundsForLightOccluders = data.Bool("useEntityBoundsForLightOccluders", true);
+    private readonly float lightOccluderAlpha = data.Float("lightOccluderAlpha", 1f);
+    
+    // effect cutouts
+    private readonly HashSet<string> effectCutoutWhitelist = data.Attr("effectCutoutWhitelist").Split(',', SplitOptions).ToHashSet();
+    private readonly HashSet<string> effectCutoutBlacklist = data.Attr("effectCutoutBlacklist").Split(',', SplitOptions).ToHashSet();
+    private readonly float effectCutoutAlpha = data.Float("effectCutoutAlpha", 1f);
+    
     private readonly string[] deathAnimationIds = data.Attr("deathAnimationIds", "death").Split(',', SplitOptions);
     private readonly string[] respawnAnimationIds = data.Attr("respawnAnimationIds", "respawn").Split(',', SplitOptions);
 
@@ -125,16 +139,18 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
             ? typeList => typeList.Contains(sourceSid)
             : typeList => typeList.Overlaps(EntityRegistry.GetKnownSidsFromType(type));
 
-        bool lightOrBloomAdded = false;
+        bool entityAffected = false;
 
+        // lights
         if (lightBlacklist.Contains(typeName) || containsSid(lightBlacklist))
             entity.Remove(entity.Components.GetAll<VertexLight>().ToArray<Component>());
         if (lightWhitelist.Contains(typeName) || containsSid(lightWhitelist))
         {
             entity.Add(new VertexLight(lightOffset, lightColor, lightAlpha, lightStartFade, lightEndFade));
-            lightOrBloomAdded = true;
+            entityAffected = true;
         }
-
+        
+        // bloom
         if (bloomBlacklist.Contains(typeName) || containsSid(bloomBlacklist))
         {
             entity.Remove(entity.Components.GetAll<BloomPoint>().ToArray<Component>());
@@ -143,43 +159,65 @@ public class GlowController(EntityData data, Vector2 offset) : Entity(data.Posit
         if (bloomWhitelist.Contains(typeName) || containsSid(bloomWhitelist))
         {
             entity.Add(new BloomPoint(bloomOffset, bloomAlpha, bloomRadius));
-            lightOrBloomAdded = true;
+            entityAffected = true;
+        }
+        
+        // light occluders
+        if (lightOccluderBlacklist.Contains(typeName) || containsSid(lightOccluderBlacklist))
+            entity.Remove(entity.Components.GetAll<LightOcclude>().ToArray<Component>());
+        if (lightOccluderWhitelist.Contains(typeName) || containsSid(lightOccluderWhitelist))
+        {
+            entity.Add(useEntityBoundsForLightOccluders ? new LightOcclude(lightOccluderAlpha) : new LightOcclude(lightOccluderBounds, lightOccluderAlpha));
+            entityAffected = true;
+        }
+        
+        // effect cutouts
+        if (effectCutoutBlacklist.Contains(typeName) || containsSid(effectCutoutBlacklist))
+            entity.Remove(entity.Components.GetAll<EffectCutout>().ToArray<Component>());
+        if (effectCutoutWhitelist.Contains(typeName) || containsSid(effectCutoutWhitelist))
+        {
+            entity.Add(new EffectCutout { Alpha = effectCutoutAlpha });
+            entityAffected = true;
         }
 
-        if (!lightOrBloomAdded)
-            return;
-
-        // list of multiplier enumerators for the alpha of lights and bloom
-        List<IEnumerator> multipliers = [];
+        if (entityAffected)
+        {
+            // list of multiplier enumerators for the alpha of lights and bloom
+            List<IEnumerator> multipliers = [];
         
-        // if a flag is specified, add a multiplier that will fade the entity's lights and bloom in/out with the flag
-        if (!string.IsNullOrEmpty(flag))
-            multipliers.Add(FlagFadeMultiplier(entity, flag));
-        // some entities get a special multiplier that fades out/in lights and bloom on death/respawn if they have a sprite with an animation id contained in `deathAnimationIds`
-        if (entity.Components.GetAll<Sprite>().FirstOrDefault(s => deathAnimationIds.Any(s.Has)) is { } sprite)
-            multipliers.Add(DeathFadeMultiplier(entity, sprite));
+            // if a flag is specified, add a multiplier that will fade the entity's lights and bloom in/out with the flag
+            if (!string.IsNullOrEmpty(flag))
+                multipliers.Add(FlagFadeMultiplier(entity, flag));
+            // some entities get a special multiplier that fades out/in lights and bloom on death/respawn if they have a sprite with an animation id contained in `deathAnimationIds`
+            if (entity.Components.GetAll<Sprite>().FirstOrDefault(s => deathAnimationIds.Any(s.Has)) is { } sprite)
+                multipliers.Add(DeathFadeMultiplier(entity, sprite));
         
-        entity.Add(new Coroutine(AlphaFadeRoutine(entity, multipliers)));
+            entity.Add(new Coroutine(AlphaFadeRoutine(entity, multipliers)));
+        }
     }
 
-    private static IEnumerator AlphaFadeRoutine(Entity entity, List<IEnumerator> multipliers)
+    private IEnumerator AlphaFadeRoutine(Entity entity, List<IEnumerator> multipliers)
     {
         if (multipliers.Count <= 0)
             yield break;
         
         while (entity.Scene is not null)
         {
-            float alpha = 1f;
+            float totalMultiplier = 1f;
             foreach (IEnumerator multiplier in multipliers)
             {
                 if (multiplier.MoveNext() && multiplier.Current is float m)
-                    alpha *= m;
+                    totalMultiplier *= m;
             }
             
             foreach (VertexLight vertexLight in entity.Components.GetAll<VertexLight>())
-                vertexLight.Alpha = alpha;
+                vertexLight.Alpha = totalMultiplier * lightAlpha;
             foreach (BloomPoint bloomPoint in entity.Components.GetAll<BloomPoint>())
-                bloomPoint.Alpha = alpha;
+                bloomPoint.Alpha = totalMultiplier * bloomAlpha;
+            foreach (LightOcclude lightOccluder in entity.Components.GetAll<LightOcclude>())
+                lightOccluder.Alpha = totalMultiplier * lightOccluderAlpha;
+            foreach (EffectCutout effectCutout in entity.Components.GetAll<EffectCutout>())
+                effectCutout.Alpha = totalMultiplier * effectCutoutAlpha;
             
             yield return null;
         }
