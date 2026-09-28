@@ -1,13 +1,18 @@
+--1.25.8 (28/09/2026)--
+* Made Glow Controllers able to affect light occluders and effect cutouts. @aonkeeper4
+* Fixed rendering logic for Cliffside Zip Movers. @aonkeeper4
+* Fixed visual bugs with light occluders on connected solids. @aonkeeper4
+
 --1.25.7 (24/09/2026)--
-* Add alpha and tag support for Cloudscape triggers. @earthwise01
-* Add backwards compatibility for other mods using Cliffside Zip Mover textures. @aonkeeper4
+* Added alpha and tag support for Cloudscape triggers. @earthwise01
+* Added backwards compatibility for other mods using Cliffside Zip Mover textures. @aonkeeper4
 
 --1.25.6 (24/09/2026)--
-* Add ModInterop exports for the Elytra state. @NonIdiot
-* Improve UX for reskinning connected blocks. @aonkeeper4
-* Fix Glow Controllers not properly initializing fade values. @aonkeeper4
-* Use color list fields where appripriate in Loenn plugins. @earthwise01
-* Remove console logging. @aonkeeper4
+* Added ModInterop exports for the Elytra state. @NonIdiot
+* Improved UX for reskinning connected blocks. @aonkeeper4
+* Fixed Glow Controllers not properly initializing fade values. @aonkeeper4
+* Used color list fields where appripriate in Loenn plugins. @earthwise01
+* Removed console logging. @aonkeeper4
 
 --1.25.5 (02/08/2026)--
 * Fixed Dream Strawberries always being tracked as moon berries. @aonkeeper4
