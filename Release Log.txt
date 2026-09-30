@@ -1,3 +1,6 @@
+--1.25.9 (30/09/2026)--
+* Fixed rendering logic for Connected Move Blocks. @aonkeeper4
+
 --1.25.8 (28/09/2026)--
 * Made Glow Controllers able to affect light occluders and effect cutouts. @aonkeeper4
 * Fixed rendering logic for Cliffside Zip Movers. @aonkeeper4
