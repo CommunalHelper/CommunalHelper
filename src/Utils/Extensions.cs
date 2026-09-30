@@ -144,9 +144,13 @@ public static class Extensions
             _ => defaultEaser ?? Ease.Linear,
         };
 
-    public static Type[] Types(this EntityData data, string key)
+    public static Type[] Types(this EntityData data, string key, Type[] defaultValue = null)
     {
-        string[] types = data.String(key, "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        string typesString = data.String(key);
+        if (typesString is null)
+            return defaultValue ?? [];
+        
+        string[] types = typesString.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         Type[] allTypes = FakeAssembly.GetFakeEntryAssembly().GetTypesSafe();
         
         List<Type> result = [];

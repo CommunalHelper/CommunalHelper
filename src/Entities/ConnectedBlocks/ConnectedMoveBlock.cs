@@ -144,19 +144,15 @@ public class ConnectedMoveBlock : ConnectedSolid
         breakingBgFill = Util.TryParseColor(data.Attr("breakColor", "cc2541"));
         fillColor = idleBgFill;
 
-        string customSkin = data.Attr("customSkin").Trim().TrimEnd('/');
-        string legacyCustomTexture = data.Attr("customBlockTexture").Trim().TrimEnd('/');
+        string customSkin = data.Attr("customSkin", "").Trim().TrimEnd('/');
+        string legacyCustomTexture = data.Attr("customBlockTexture", "").Trim().TrimEnd('/');
         if (!string.IsNullOrEmpty(customSkin))
         {
             // non-legacy
             tiles = SetupCustomTileset(customSkin + "/tileset", false);
             arrows = GFX.Game.GetAtlasSubtextures(customSkin + "/arrow");
-            if (arrows.Count < 8)
-                arrows = null;
             x = GFX.Game[customSkin + "/x"];
             debris = GFX.Game.GetAtlasSubtextures(customSkin + "/debris");
-            if (debris.Count < 1)
-                debris = null;
 
             customTexture = true;
         }
@@ -164,6 +160,8 @@ public class ConnectedMoveBlock : ConnectedSolid
         {
             // legacy
             // im gonna crash out
+            GFX.Game.PushFallback(null);
+            
             string tilesetPath;
             if (!GFX.Game.Has("objects/" + legacyCustomTexture))
             {
@@ -191,12 +189,13 @@ public class ConnectedMoveBlock : ConnectedSolid
                 debris = GFX.Game.GetAtlasSubtextures("objects/" + containingFolder + "/debris");
                     debris = null;
             }
-
             tiles = SetupCustomTileset(tilesetPath, true);
+            
+            GFX.Game.PopFallback();
             customTexture = true;
         }
 
-        LoadCustomSounds(data.Attr("customSoundEffect"));
+        LoadCustomSounds(data.Attr("customSoundEffect", ""));
 
         noArrowSprite = data.Bool("noArrowSprite", false);
         noBreakingSprite = data.Bool("noBreakingSprite", false);
@@ -217,7 +216,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
         redirectIsPersistent = data.Bool("redirectIsPersistent", true);
 
-        ignores = data.Types("ignore");
+        ignores = data.Types("ignore", []);
     }
 
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
