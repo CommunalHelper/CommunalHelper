@@ -49,6 +49,11 @@ public static class ModExports
             return new DreamTunnelInteraction(onPlayerEnter, onPlayerExit);
         }
 
+        public static void SetDreamTunnelDashCount(int amount)
+        {
+            DreamTunnelDash.DreamTunnelDashCount = amount;
+        }
+
         #endregion
 
         #region Seeker
@@ -61,6 +66,11 @@ public static class ModExports
         public static bool IsSeekerDashAttacking()
         {
             return SeekerDash.SeekerAttacking;
+        }
+
+        public static void SetSeekerDash(bool enabled)
+        {
+            SeekerDash.HasSeekerDash = enabled;
         }
 
         #endregion
