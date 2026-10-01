@@ -59,7 +59,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
 
             yield return new SwapImmediately(groupable.SyncGroupTriggers());
 
-            Audio.Play(SFX.game_04_arrowblock_activate, Position);
+            Audio.Play(ActivateSoundEffect, Position);
             groupable.State = GroupableMoveBlock.MovementState.Moving;
             StartShaking(0.2f);
             ActivateParticles();
@@ -177,7 +177,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                 }
                 yield return null;
             }
-            Audio.Play(SFX.game_04_arrowblock_break, Position);
+            Audio.Play(BreakSoundEffect, Position);
             moveSfx.Stop();
             groupable.State = GroupableMoveBlock.MovementState.Breaking;
             speed = targetSpeed = 0f;
@@ -267,7 +267,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             }
 
             Collidable = true;
-            EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris.FirstOrDefault()?.Position ?? Center);
+            EventInstance instance = Audio.Play(ReformBeginSoundEffect, debris.FirstOrDefault()?.Position ?? Center);
             Coroutine component;
             Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(instance, debris));
             Add(component);
@@ -291,7 +291,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
 
             groupable.WaitingForRespawn = false;
         Rebuild:
-            Audio.Play(SFX.game_04_arrowblock_reappear, Position);
+            Audio.Play(ReappearSoundEffect, Position);
             Visible = true;
             Collidable = true;
             EnableStaticMovers();
