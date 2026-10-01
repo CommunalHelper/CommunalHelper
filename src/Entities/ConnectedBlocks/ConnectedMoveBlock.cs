@@ -458,7 +458,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 item.StopMoving();
             }
-            while (CollideCheck<Actor>() || !this.CollideCheckWhere<Solid>(NotIgnored) || AnySetEnabled(BreakerFlags))
+            while (CollideCheck<Actor>() || this.CollideCheckWhere<Solid>(NotIgnored) || AnySetEnabled(BreakerFlags))
             {
                 yield return null;
             }
