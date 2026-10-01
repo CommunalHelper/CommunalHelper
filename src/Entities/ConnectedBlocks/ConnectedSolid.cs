@@ -32,6 +32,8 @@ public class ConnectedSolid : Solid
         {
             Position = solid.Position + solid.Shake;
             base.Render();
+
+            solid.BGRender();
         }
     }
     public BGTilesRenderer BGRenderer;
@@ -52,6 +54,7 @@ public class ConnectedSolid : Solid
     public Collider MasterCollider;
 
     // Auto-tiling stuff. (AllGroupTiles is similar to AllColliders)
+    public int TileWidth, TileHeight;
     public bool[,] GroupTiles, AllGroupTiles;
     private AutoTileData[,] autoTileData;
     private bool wasAutoTiled = false;
@@ -117,22 +120,22 @@ public class ConnectedSolid : Solid
             // You don't want disabled Solids hanging around in the level, so you remove them.
         }
 
-        int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-        int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
-        GroupTiles = new bool[tWidth + 2, tHeight + 2];
-        AllGroupTiles = new bool[tWidth + 2, tHeight + 2];
+        TileWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+        TileHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+        GroupTiles = new bool[TileWidth + 2, TileHeight + 2];
+        AllGroupTiles = new bool[TileWidth + 2, TileHeight + 2];
 
         Colliders[^1] = (Hitbox) Collider;
         AllColliders[^1] = (Hitbox) Collider;
 
         Collider = new ColliderList(AllColliders);
-        for (int x = 0; x < tWidth + 2; x++)
-            for (int y = 0; y < tHeight + 2; y++)
+        for (int x = 0; x < TileWidth + 2; x++)
+            for (int y = 0; y < TileHeight + 2; y++)
                 AllGroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
 
         Collider = new ColliderList(Colliders);
-        for (int x = 0; x < tWidth + 2; x++)
-            for (int y = 0; y < tHeight + 2; y++)
+        for (int x = 0; x < TileWidth + 2; x++)
+            for (int y = 0; y < TileHeight + 2; y++)
                 GroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
 
         scene.Add(BGRenderer = new BGTilesRenderer(this));
@@ -287,20 +290,17 @@ public class ConnectedSolid : Solid
 
     public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, out List<Image> bgTiles, bool storeTiles = true, bool addAsComponent = true)
     {
-        int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-        int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
-
         List<Image> res = [];
         bgTiles = [];
 
         if (!wasAutoTiled)
         {
-            autoTileData = new AutoTileData[tWidth, tHeight];
+            autoTileData = new AutoTileData[TileWidth, TileHeight];
         }
 
-        for (int x = 1; x < tWidth + 1; x++)
+        for (int x = 1; x < TileWidth + 1; x++)
         {
-            for (int y = 1; y < tHeight + 1; y++)
+            for (int y = 1; y < TileHeight + 1; y++)
             {
                 bool uncollidable = AllGroupTiles[x, y] && !GroupTiles[x, y];
                 bool[,] tiles = uncollidable ? AllGroupTiles : GroupTiles;
@@ -389,6 +389,8 @@ public class ConnectedSolid : Solid
         }
         return image;
     }
+
+    public virtual void BGRender() { }
 
     [Flags]
     private enum Sides

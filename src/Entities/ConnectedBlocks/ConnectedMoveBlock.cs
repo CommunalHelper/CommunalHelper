@@ -387,19 +387,22 @@ public class ConnectedMoveBlock : ConnectedSolid
             List<MoveBlockDebris> debris = new();
             if (!noDebris)
             {
-                int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-                int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
-
-                for (int i = 0; i < tWidth; i++)
+                for (int i = 0; i < TileWidth; i++)
                 {
-                    for (int j = 0; j < tHeight; j++)
+                    for (int j = 0; j < TileHeight; j++)
                     {
-                        if (AllGroupTiles[i, j])
+                        if (AllGroupTiles[i + 1, j + 1])
                         {
-                            Vector2 value = new((i * 8) + 4, (j * 8) + 4);
-                            Vector2 pos = value + Position + GroupOffset;
-                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
+                            Vector2 tileCenter = new((i * 8) + 4, (j * 8) + 4);
+                            Vector2 pos = tileCenter + Position + GroupOffset;
+                            Vector2 homePos = tileCenter + startPosition + GroupOffset;
+                            bool fgDebris = GroupTiles[i + 1, j + 1];
+                            
+                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, homePos);
                             debris2.Sprite.Texture = Calc.Random.Choose(this.debris ?? masterDebris);
+                            debris2.Sprite.Color = fgDebris ? Color.White : Color.Gray;
+                            debris2.Depth = fgDebris ? -1 : BGRenderer.Depth + 1;
+                            
                             debris.Add(debris2);
                             Scene.Add(debris2);
                         }
@@ -836,8 +839,38 @@ public class ConnectedMoveBlock : ConnectedSolid
             }
         }
 
-        foreach (Image img in Tiles)
-            Draw.Rect(img.Position + Position, 8, 8, Color.White * flash);
+        if (flash > 0f)
+        {
+            for (int i = 0; i < TileWidth; i++)
+            for (int j = 0; j < TileHeight; j++)
+                if (GroupTiles[i + 1, j + 1])
+                {
+                    Vector2 pos = Position + GroupOffset + new Vector2(i * 8, j * 8);
+                    Draw.Rect(pos, 8, 8, Color.White * flash);
+                }
+        }
+
+        Position = position;
+    }
+    
+    public override void BGRender()
+    {
+        // shake is already accounted for when rendering bg tiles
+        base.BGRender();
+        
+        Vector2 position = Position;
+        Position += Shake;
+
+        if (flash > 0f)
+        {
+            for (int i = 0; i < TileWidth; i++)
+            for (int j = 0; j < TileHeight; j++)
+                if (AllGroupTiles[i + 1, j + 1] && !GroupTiles[i + 1, j + 1])
+                {
+                    Vector2 pos = Position + GroupOffset + new Vector2(i * 8, j * 8);
+                    Draw.Rect(pos, 8, 8, Color.White * flash);
+                }
+        }
 
         Position = position;
     }
