@@ -458,7 +458,7 @@ public class ConnectedMoveBlock : ConnectedSolid
             {
                 item.StopMoving();
             }
-            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores) || AnySetEnabled(BreakerFlags))
+            while (CollideCheck<Actor>() || !this.CollideCheckWhere<Solid>(NotIgnored) || AnySetEnabled(BreakerFlags))
             {
                 yield return null;
             }
@@ -501,6 +501,9 @@ public class ConnectedMoveBlock : ConnectedSolid
             startInvisible = false;
         }
     }
+    
+    protected bool NotIgnored(Solid s)
+        => !ignores.Contains(s.GetType());
 
     protected IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debris)
     {
@@ -595,7 +598,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                     for (int num = 1; num >= -1; num -= 2)
                     {
                         Vector2 vector = new Vector2(Math.Sign(speed.X), i * num);
-                        if (!this.CollideCheckExcluding<Solid>(ignores, Position + vector))
+                        if (!this.CollideCheckWhere<Solid>(NotIgnored, Position + vector))
                         {
                             MoveVExact(i * num);
                             MoveHExact(Math.Sign(speed.X));
@@ -616,7 +619,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                     for (int num2 = 1; num2 >= -1; num2 -= 2)
                     {
                         Vector2 vector2 = new Vector2(j * num2, Math.Sign(speed.Y));
-                        if (!this.CollideCheckExcluding<Solid>(ignores, Position + vector2))
+                        if (!this.CollideCheckWhere<Solid>(NotIgnored, Position + vector2))
                         {
                             MoveHExact(j * num2);
                             MoveVExact(Math.Sign(speed.Y));

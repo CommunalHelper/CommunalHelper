@@ -192,9 +192,9 @@ public class ConnectedSolid : Solid
                 {
                     Vector2 vecTop = Position + hitbox.Position + new Vector2(t, -1);
                     Vector2 vecBottom = Position + hitbox.Position + new Vector2(t, hitbox.Height + 1);
-                    if (Scene.CollideCheck<Solid>(vecTop))
+                    if (Scene.CollideCheckWhere<Solid>(NotAttached, vecTop))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecTop);
-                    if (Scene.CollideCheck<Solid>(vecBottom))
+                    if (Scene.CollideCheckWhere<Solid>(NotAttached, vecBottom))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecBottom);
                 }
             }
@@ -205,15 +205,20 @@ public class ConnectedSolid : Solid
                 {
                     Vector2 vecLeft = Position + hitbox.Position + new Vector2(-1, t);
                     Vector2 vecRight = Position + hitbox.Position + new Vector2(hitbox.Width + 1, t);
-                    if (Scene.CollideCheck<Solid>(vecLeft))
+                    if (Scene.CollideCheckWhere<Solid>(NotAttached, vecLeft))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecLeft);
-                    if (Scene.CollideCheck<Solid>(vecRight))
+                    if (Scene.CollideCheckWhere<Solid>(NotAttached, vecRight))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecRight);
                 }
             }
         }
 
         Collidable = true;
+        return;
+        
+        bool NotAttached(Solid solid)
+            => solid != this
+               && staticMovers.All(s => solid != s.Entity);
     }
     
     public void SpawnScrapeParticlesExcluding(Type[] ignores, bool doOnX = true, bool doOnY = true)
@@ -229,9 +234,9 @@ public class ConnectedSolid : Solid
                 {
                     Vector2 vecTop = Position + hitbox.Position + new Vector2(t, -1);
                     Vector2 vecBottom = Position + hitbox.Position + new Vector2(t, hitbox.Height + 1);
-                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecTop))
+                    if (Scene.CollideCheckWhere<Solid>(NotIgnoredAndNotAttached, vecTop))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecTop);
-                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecBottom))
+                    if (Scene.CollideCheckWhere<Solid>(NotIgnoredAndNotAttached, vecBottom))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecBottom);
                 }
             }
@@ -242,15 +247,21 @@ public class ConnectedSolid : Solid
                 {
                     Vector2 vecLeft = Position + hitbox.Position + new Vector2(-1, t);
                     Vector2 vecRight = Position + hitbox.Position + new Vector2(hitbox.Width + 1, t);
-                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecLeft))
+                    if (Scene.CollideCheckWhere<Solid>(NotIgnoredAndNotAttached, vecLeft))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecLeft);
-                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecRight))
+                    if (Scene.CollideCheckWhere<Solid>(NotIgnoredAndNotAttached, vecRight))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecRight);
                 }
             }
         }
 
         Collidable = true;
+        return;
+
+        bool NotIgnoredAndNotAttached(Solid solid)
+            => !ignores.Contains(solid.GetType())
+               && solid != this
+               && staticMovers.All(s => solid != s.Entity);
     }
 
     public void AddLightOccluders(float alpha = 1f)

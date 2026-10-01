@@ -261,7 +261,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             {
                 item.StopMoving();
             }
-            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores) || AnySetEnabled(BreakerFlags))
+            while (CollideCheck<Actor>() || !this.CollideCheckWhere<Solid>(NotIgnored) || AnySetEnabled(BreakerFlags))
             {
                 yield return null;
             }
