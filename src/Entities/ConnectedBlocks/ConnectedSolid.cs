@@ -18,22 +18,22 @@ public class ConnectedSolid : Solid
         {
             this.solid = solid;
 
-            // Never rendering above solid.
+            // Never render above the solid.
             Depth = Math.Max(Depths.Player, solid.Depth) + 1;
-        }
-
-        public override void Update()
-        {
-            Visible = solid.Visible;
-            base.Update();
         }
 
         public override void Render()
         {
+            if (!solid.Visible)
+                return;
+            
+            Vector2 position = Position;
             Position = solid.Position + solid.Shake;
+            
             base.Render();
-
             solid.BGRender();
+
+            Position = position;
         }
     }
     public BGTilesRenderer BGRenderer;
