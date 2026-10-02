@@ -1,3 +1,7 @@
+--1.25.10 (02/10/2026)--
+* Fixed various rendering issues with Connected Move Blocks. @aonkeeper4
+* Added ModInterop exports for controlling Dream Tunnel Dash and Seeker Dash. @NonIdiot
+
 --1.25.9 (30/09/2026)--
 * Fixed rendering logic for Connected Move Blocks. @aonkeeper4
 

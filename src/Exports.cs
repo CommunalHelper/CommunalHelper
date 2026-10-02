@@ -39,6 +39,11 @@ public static class ModExports
             return DreamTunnelDash.DreamTunnelDashCount;
         }
 
+        public static void SetDreamTunnelDashCount(int amount)
+        {
+            DreamTunnelDash.DreamTunnelDashCount = amount;
+        }
+
         public static bool IsDreamTunnelDashAttacking()
         {
             return DreamTunnelDash.DreamTunnelAttacking;
@@ -47,11 +52,6 @@ public static class ModExports
         public static Component DreamTunnelInteraction(Action<Player> onPlayerEnter, Action<Player> onPlayerExit)
         {
             return new DreamTunnelInteraction(onPlayerEnter, onPlayerExit);
-        }
-
-        public static void SetDreamTunnelDashCount(int amount)
-        {
-            DreamTunnelDash.DreamTunnelDashCount = amount;
         }
 
         #endregion
@@ -63,14 +63,14 @@ public static class ModExports
             return SeekerDash.HasSeekerDash;
         }
 
-        public static bool IsSeekerDashAttacking()
-        {
-            return SeekerDash.SeekerAttacking;
-        }
-
         public static void SetSeekerDash(bool enabled)
         {
             SeekerDash.HasSeekerDash = enabled;
+        }
+
+        public static bool IsSeekerDashAttacking()
+        {
+            return SeekerDash.SeekerAttacking;
         }
 
         #endregion
