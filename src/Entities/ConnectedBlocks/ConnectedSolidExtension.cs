@@ -17,6 +17,7 @@ public class SolidExtension : Solid
     public SolidExtension(Vector2 position, int width, int height, bool collidable)
         : base(position, width, height, safe: false)
     {
+        AllowStaticMovers = false;
         HasHitbox = collidable;
     }
 

@@ -552,7 +552,7 @@ public class MoveSwapBlock : SwapBlock
                 debris.StopMoving();
             }
 
-            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores))
+            while (CollideCheck<Actor>() || this.CollideCheckWhere<Solid>(NotIgnored))
             {
                 yield return null;
             }
@@ -594,6 +594,9 @@ public class MoveSwapBlock : SwapBlock
             noSquish = null;
         }
     }
+    
+    private bool NotIgnored(Solid s)
+        => !ignores.Contains(s.GetType());
 
     private IEnumerator SoundFollowsDebrisCenter(EventInstance instance, List<MoveBlockDebris> debrisList)
     {
@@ -749,7 +752,7 @@ public class MoveSwapBlock : SwapBlock
             for (int i = 0; i < Height; i += 8)
             {
                 Vector2 vector = new(x, Top + 4f + i);
-                if (Scene.CollideCheckExcluding<Solid>(ignores, vector))
+                if (Scene.CollideCheckWhere<Solid>(NotIgnored, vector))
                 {
                     SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector);
                 }
@@ -761,7 +764,7 @@ public class MoveSwapBlock : SwapBlock
             for (int j = 0; j < Width; j += 8)
             {
                 Vector2 vector2 = new(Left + 4f + j, y);
-                if (Scene.CollideCheckExcluding<Solid>(ignores, vector2))
+                if (Scene.CollideCheckWhere<Solid>(NotIgnored, vector2))
                 {
                     SceneAs<Level>().ParticlesFG.Emit(ZipMover.P_Scrape, vector2);
                 }
@@ -825,7 +828,7 @@ public class MoveSwapBlock : SwapBlock
                     for (int num = 1; num >= -1; num -= 2)
                     {
                         Vector2 vector = new Vector2(Math.Sign(speed.X), i * num);
-                        if (!this.CollideCheckExcluding<Solid>(ignores, Position + vector))
+                        if (!this.CollideCheckWhere<Solid>(NotIgnored, Position + vector))
                         {
                             MoveVExact(i * num);
                             MoveHExact(Math.Sign(speed.X));
@@ -846,7 +849,7 @@ public class MoveSwapBlock : SwapBlock
                     for (int num2 = 1; num2 >= -1; num2 -= 2)
                     {
                         Vector2 vector2 = new Vector2(j * num2, Math.Sign(speed.Y));
-                        if (!this.CollideCheckExcluding<Solid>(ignores, Position + vector2))
+                        if (!this.CollideCheckWhere<Solid>(NotIgnored, Position + vector2))
                         {
                             MoveHExact(j * num2);
                             MoveVExact(Math.Sign(speed.Y));

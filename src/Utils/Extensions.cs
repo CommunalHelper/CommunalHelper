@@ -1119,47 +1119,47 @@ public static class Extensions
     
     #endregion
     
-    public static bool CollideCheckExcluding<T>(this Entity entity, Type[] ignores, Vector2? at = null) where T : Entity
+    public static bool CollideCheckWhere<T>(this Entity entity, Func<T, bool> predicate, Vector2? at = null) where T : Entity
     {
         List<Entity> toCollide = entity.Scene.Tracker.Entities[typeof(T)];
-        return toCollide.Any(e =>
-            !ignores.Contains(e.GetType())
+        return toCollide.Cast<T>().Any(e =>
+            predicate(e)
             && (at is { } v
                 ? Collide.Check(entity, e, v)
                 : Collide.Check(entity, e)));
     }
     
-    public static T CollideFirstExcluding<T>(this Entity entity, Type[] ignores, Vector2? at = null) where T : Entity
+    public static T CollideFirstWhere<T>(this Entity entity, Func<T, bool> predicate, Vector2? at = null) where T : Entity
     {
         List<Entity> toCollide = entity.Scene.Tracker.Entities[typeof(T)];
         return toCollide.Cast<T>().FirstOrDefault(e =>
-            !ignores.Contains(e.GetType())
+            predicate(e)
             && (at is { } v
                 ? Collide.Check(entity, e, v)
                 : Collide.Check(entity, e)));
     }
     
-    public static bool CollideCheckExcluding<T>(this Scene scene, Type[] ignores, Vector2 at) where T : Entity
+    public static bool CollideCheckWhere<T>(this Scene scene, Func<T, bool> predicate, Vector2 at) where T : Entity
     {
         List<Entity> toCollide = scene.Tracker.Entities[typeof(T)];
-        return toCollide.Any(e =>
-            !ignores.Contains(e.GetType())
+        return toCollide.Cast<T>().Any(e =>
+            predicate(e)
             && Collide.CheckPoint(e, at));
     }
     
-    public static T CollideFirstExcluding<T>(this Scene scene, Type[] ignores, Vector2 at) where T : Entity
+    public static T CollideFirstWhere<T>(this Scene scene, Func<T, bool> predicate, Vector2 at) where T : Entity
     {
         List<Entity> toCollide = scene.Tracker.Entities[typeof(T)];
         return toCollide.Cast<T>().FirstOrDefault(e =>
-            !ignores.Contains(e.GetType())
+            predicate(e)
             && Collide.CheckPoint(e, at));
     }
 
-    public static T CollideFirstOutsideExcluding<T>(this Entity entity, Type[] ignores, Vector2 at) where T : Entity
+    public static T CollideFirstOutsideWhere<T>(this Entity entity, Func<T, bool> predicate, Vector2 at) where T : Entity
     {
         List<Entity> toCollide = entity.Scene.Tracker.Entities[typeof(T)];
         return toCollide.Cast<T>().FirstOrDefault(e =>
-            !ignores.Contains(e.GetType())
+            predicate(e)
             && !Collide.Check(entity, e)
             && Collide.Check(entity, e, at));
     }
@@ -1190,7 +1190,7 @@ public static class Extensions
             Solid solid = null;
             while (num != 0)
             {
-                solid = entity.CollideFirstExcluding<Solid>(ignores, entity.Position + Microsoft.Xna.Framework.Vector2.UnitX * sign);
+                solid = entity.CollideFirstWhere<Solid>(NotIgnored, entity.Position + Microsoft.Xna.Framework.Vector2.UnitX * sign);
                 if (solid != null)
                 {
                     break;
@@ -1204,6 +1204,9 @@ public static class Extensions
             return solid != null;
         }
         return false;
+
+        bool NotIgnored(Solid s)
+            => !ignores.Contains(s.GetType());
     }
     
     public static bool MoveVCollideSolidsExcluding(this Platform entity, Type[] ignores, float moveV)
@@ -1232,14 +1235,14 @@ public static class Extensions
             Platform platform = null;
             while (num != 0)
             {
-                platform = entity.CollideFirstExcluding<Solid>(ignores, entity.Position + Microsoft.Xna.Framework.Vector2.UnitY * sign);
+                platform = entity.CollideFirstWhere<Solid>(NotIgnoredSolid, entity.Position + Microsoft.Xna.Framework.Vector2.UnitY * sign);
                 if (platform != null)
                 {
                     break;
                 }
                 if (num > 0)
                 {
-                    platform = entity.CollideFirstOutsideExcluding<JumpThru>(ignores, entity.Position + Microsoft.Xna.Framework.Vector2.UnitY * sign);
+                    platform = entity.CollideFirstOutsideWhere<JumpThru>(NotIgnoredJumpThru, entity.Position + Microsoft.Xna.Framework.Vector2.UnitY * sign);
                     if (platform != null)
                     {
                         break;
@@ -1254,5 +1257,10 @@ public static class Extensions
             return platform != null;
         }
         return false;
+        
+        bool NotIgnoredSolid(Solid s)
+            => !ignores.Contains(s.GetType());
+        bool NotIgnoredJumpThru(JumpThru jt)
+            => !ignores.Contains(jt.GetType());
     }
 }

@@ -18,20 +18,22 @@ public class ConnectedSolid : Solid
         {
             this.solid = solid;
 
-            // Never rendering above solid.
+            // Never render above the solid.
             Depth = Math.Max(Depths.Player, solid.Depth) + 1;
-        }
-
-        public override void Update()
-        {
-            Visible = solid.Visible;
-            base.Update();
         }
 
         public override void Render()
         {
+            if (!solid.Visible)
+                return;
+            
+            Vector2 position = Position;
             Position = solid.Position + solid.Shake;
+            
             base.Render();
+            solid.BGRender();
+
+            Position = position;
         }
     }
     public BGTilesRenderer BGRenderer;
@@ -52,6 +54,7 @@ public class ConnectedSolid : Solid
     public Collider MasterCollider;
 
     // Auto-tiling stuff. (AllGroupTiles is similar to AllColliders)
+    public int TileWidth, TileHeight;
     public bool[,] GroupTiles, AllGroupTiles;
     private AutoTileData[,] autoTileData;
     private bool wasAutoTiled = false;
@@ -117,22 +120,22 @@ public class ConnectedSolid : Solid
             // You don't want disabled Solids hanging around in the level, so you remove them.
         }
 
-        int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-        int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
-        GroupTiles = new bool[tWidth + 2, tHeight + 2];
-        AllGroupTiles = new bool[tWidth + 2, tHeight + 2];
+        TileWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
+        TileHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
+        GroupTiles = new bool[TileWidth + 2, TileHeight + 2];
+        AllGroupTiles = new bool[TileWidth + 2, TileHeight + 2];
 
         Colliders[^1] = (Hitbox) Collider;
         AllColliders[^1] = (Hitbox) Collider;
 
         Collider = new ColliderList(AllColliders);
-        for (int x = 0; x < tWidth + 2; x++)
-            for (int y = 0; y < tHeight + 2; y++)
+        for (int x = 0; x < TileWidth + 2; x++)
+            for (int y = 0; y < TileHeight + 2; y++)
                 AllGroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
 
         Collider = new ColliderList(Colliders);
-        for (int x = 0; x < tWidth + 2; x++)
-            for (int y = 0; y < tHeight + 2; y++)
+        for (int x = 0; x < TileWidth + 2; x++)
+            for (int y = 0; y < TileHeight + 2; y++)
                 GroupTiles[x, y] = TileCollideWithGroup(x - 1, y - 1);
 
         scene.Add(BGRenderer = new BGTilesRenderer(this));
@@ -192,9 +195,9 @@ public class ConnectedSolid : Solid
                 {
                     Vector2 vecTop = Position + hitbox.Position + new Vector2(t, -1);
                     Vector2 vecBottom = Position + hitbox.Position + new Vector2(t, hitbox.Height + 1);
-                    if (Scene.CollideCheck<Solid>(vecTop))
+                    if (Scene.CollideCheckWhere<Solid>(NotAttached, vecTop))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecTop);
-                    if (Scene.CollideCheck<Solid>(vecBottom))
+                    if (Scene.CollideCheckWhere<Solid>(NotAttached, vecBottom))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecBottom);
                 }
             }
@@ -205,15 +208,20 @@ public class ConnectedSolid : Solid
                 {
                     Vector2 vecLeft = Position + hitbox.Position + new Vector2(-1, t);
                     Vector2 vecRight = Position + hitbox.Position + new Vector2(hitbox.Width + 1, t);
-                    if (Scene.CollideCheck<Solid>(vecLeft))
+                    if (Scene.CollideCheckWhere<Solid>(NotAttached, vecLeft))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecLeft);
-                    if (Scene.CollideCheck<Solid>(vecRight))
+                    if (Scene.CollideCheckWhere<Solid>(NotAttached, vecRight))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecRight);
                 }
             }
         }
 
         Collidable = true;
+        return;
+        
+        bool NotAttached(Solid solid)
+            => solid != this
+               && staticMovers.All(s => solid != s.Entity);
     }
     
     public void SpawnScrapeParticlesExcluding(Type[] ignores, bool doOnX = true, bool doOnY = true)
@@ -229,9 +237,9 @@ public class ConnectedSolid : Solid
                 {
                     Vector2 vecTop = Position + hitbox.Position + new Vector2(t, -1);
                     Vector2 vecBottom = Position + hitbox.Position + new Vector2(t, hitbox.Height + 1);
-                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecTop))
+                    if (Scene.CollideCheckWhere<Solid>(NotIgnoredAndNotAttached, vecTop))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecTop);
-                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecBottom))
+                    if (Scene.CollideCheckWhere<Solid>(NotIgnoredAndNotAttached, vecBottom))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecBottom);
                 }
             }
@@ -242,15 +250,21 @@ public class ConnectedSolid : Solid
                 {
                     Vector2 vecLeft = Position + hitbox.Position + new Vector2(-1, t);
                     Vector2 vecRight = Position + hitbox.Position + new Vector2(hitbox.Width + 1, t);
-                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecLeft))
+                    if (Scene.CollideCheckWhere<Solid>(NotIgnoredAndNotAttached, vecLeft))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecLeft);
-                    if (Scene.CollideCheckExcluding<Solid>(ignores, vecRight))
+                    if (Scene.CollideCheckWhere<Solid>(NotIgnoredAndNotAttached, vecRight))
                         level.ParticlesFG.Emit(ZipMover.P_Scrape, vecRight);
                 }
             }
         }
 
         Collidable = true;
+        return;
+
+        bool NotIgnoredAndNotAttached(Solid solid)
+            => !ignores.Contains(solid.GetType())
+               && solid != this
+               && staticMovers.All(s => solid != s.Entity);
     }
 
     public void AddLightOccluders(float alpha = 1f)
@@ -276,20 +290,17 @@ public class ConnectedSolid : Solid
 
     public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, out List<Image> bgTiles, bool storeTiles = true, bool addAsComponent = true)
     {
-        int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-        int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
-
         List<Image> res = [];
         bgTiles = [];
 
         if (!wasAutoTiled)
         {
-            autoTileData = new AutoTileData[tWidth, tHeight];
+            autoTileData = new AutoTileData[TileWidth, TileHeight];
         }
 
-        for (int x = 1; x < tWidth + 1; x++)
+        for (int x = 1; x < TileWidth + 1; x++)
         {
-            for (int y = 1; y < tHeight + 1; y++)
+            for (int y = 1; y < TileHeight + 1; y++)
             {
                 bool uncollidable = AllGroupTiles[x, y] && !GroupTiles[x, y];
                 bool[,] tiles = uncollidable ? AllGroupTiles : GroupTiles;
@@ -378,6 +389,8 @@ public class ConnectedSolid : Solid
         }
         return image;
     }
+
+    public virtual void BGRender() { }
 
     [Flags]
     private enum Sides

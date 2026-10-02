@@ -59,7 +59,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
 
             yield return new SwapImmediately(groupable.SyncGroupTriggers());
 
-            Audio.Play(SFX.game_04_arrowblock_activate, Position);
+            Audio.Play(ActivateSoundEffect, Position);
             groupable.State = GroupableMoveBlock.MovementState.Moving;
             StartShaking(0.2f);
             ActivateParticles();
@@ -177,7 +177,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                 }
                 yield return null;
             }
-            Audio.Play(SFX.game_04_arrowblock_break, Position);
+            Audio.Play(BreakSoundEffect, Position);
             moveSfx.Stop();
             groupable.State = GroupableMoveBlock.MovementState.Breaking;
             speed = targetSpeed = 0f;
@@ -193,19 +193,22 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             List<MoveBlockDebris> debris = new();
             if (!noDebris)
             {
-                int tWidth = (int) ((GroupBoundsMax.X - GroupBoundsMin.X) / 8);
-                int tHeight = (int) ((GroupBoundsMax.Y - GroupBoundsMin.Y) / 8);
-
-                for (int i = 0; i < tWidth; i++)
+                for (int i = 0; i < TileWidth; i++)
                 {
-                    for (int j = 0; j < tHeight; j++)
+                    for (int j = 0; j < TileHeight; j++)
                     {
-                        if (AllGroupTiles[i, j])
+                        if (AllGroupTiles[i + 1, j + 1])
                         {
-                            Vector2 value = new((i * 8) + 4, (j * 8) + 4);
-                            Vector2 pos = value + Position + GroupOffset;
-                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, startPosition + GroupOffset + value);
+                            Vector2 tileCenter = new((i * 8) + 4, (j * 8) + 4);
+                            Vector2 pos = tileCenter + Position + GroupOffset;
+                            Vector2 homePos = tileCenter + startPosition + GroupOffset;
+                            bool fgDebris = GroupTiles[i + 1, j + 1];
+                            
+                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, homePos);
                             debris2.Sprite.Texture = Calc.Random.Choose(this.debris ?? masterDebris);
+                            debris2.OnUpdateSprite = sprite => sprite.Color = fgDebris ? Color.White : Color.Gray;
+                            debris2.Depth = fgDebris ? -1 : BGRenderer.Depth + 1;
+                            
                             debris.Add(debris2);
                             Scene.Add(debris2);
                         }
@@ -261,13 +264,13 @@ internal class EquationMoveBlock : ConnectedMoveBlock
             {
                 item.StopMoving();
             }
-            while (CollideCheck<Actor>() || this.CollideCheckExcluding<Solid>(ignores) || AnySetEnabled(BreakerFlags))
+            while (CollideCheck<Actor>() || this.CollideCheckWhere<Solid>(NotIgnored) || AnySetEnabled(BreakerFlags))
             {
                 yield return null;
             }
 
             Collidable = true;
-            EventInstance instance = Audio.Play(SFX.game_04_arrowblock_reform_begin, debris.FirstOrDefault()?.Position ?? Center);
+            EventInstance instance = Audio.Play(ReformBeginSoundEffect, debris.FirstOrDefault()?.Position ?? Center);
             Coroutine component;
             Coroutine routine = component = new Coroutine(SoundFollowsDebrisCenter(instance, debris));
             Add(component);
@@ -291,7 +294,7 @@ internal class EquationMoveBlock : ConnectedMoveBlock
 
             groupable.WaitingForRespawn = false;
         Rebuild:
-            Audio.Play(SFX.game_04_arrowblock_reappear, Position);
+            Audio.Play(ReappearSoundEffect, Position);
             Visible = true;
             Collidable = true;
             EnableStaticMovers();
