@@ -400,7 +400,7 @@ public class ConnectedMoveBlock : ConnectedSolid
                             
                             MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, homePos);
                             debris2.Sprite.Texture = Calc.Random.Choose(this.debris ?? masterDebris);
-                            debris2.Sprite.Color = fgDebris ? Color.White : Color.Gray;
+                            debris2.OnUpdateSprite = sprite => sprite.Color = fgDebris ? Color.White : Color.Gray;
                             debris2.Depth = fgDebris ? -1 : BGRenderer.Depth + 1;
                             
                             debris.Add(debris2);
