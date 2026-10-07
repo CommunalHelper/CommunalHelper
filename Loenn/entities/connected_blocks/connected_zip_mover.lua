@@ -46,7 +46,7 @@ for i, theme in ipairs(themes) do
             ticking = false,
             customSkin = "",
             colors = "",
-            drawBlackBorder = true
+            outline = true
         }
     }
 end

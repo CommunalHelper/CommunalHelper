@@ -15,7 +15,6 @@ public class ConnectedMoveBlock : ConnectedSolid
     protected class Border : Entity
     {
         public ConnectedMoveBlock Parent;
-        private static Vector2 offset = new(1, 1);
 
         public Border(ConnectedMoveBlock parent)
         {
@@ -33,14 +32,28 @@ public class ConnectedMoveBlock : ConnectedSolid
 
         public override void Render()
         {
-            foreach (Hitbox hitbox in Parent.AllColliders)
+            if (!Parent.IsGroupVisible())
+                return;
+            
+            base.Render();
+            
+            if (Parent.outline)
             {
-                if (Parent.outline)
-                    Draw.Rect(hitbox.Position + Parent.Position + Parent.Shake - offset, hitbox.Width + 2f, hitbox.Height + 2f, Color.Black);
+                Vector2 parentPosition = Parent.Position, parentBgPosition = Parent.BGRenderer.Position;
+                Parent.Position = Parent.BGRenderer.Position = Parent.Position + Parent.Shake;
+            
+                foreach (Image tile in Parent.Tiles)
+                    tile.DrawOutline();
+            
+                Parent.Position = parentPosition;
+                Parent.BGRenderer.Position = parentBgPosition;
+            }
 
-                float num = Parent.flash * 4f;
-                if (Parent.flash > 0f)
-                    Draw.Rect(hitbox.Position + Parent.Position - new Vector2(num, num), hitbox.Width + (2f * num), hitbox.Height + (2f * num), Color.White * Parent.flash);
+            float flashSize = Parent.flash * 4f;
+            if (Parent.flash > 0f)
+            {
+                foreach (Hitbox hitbox in Parent.AllColliders)
+                    Draw.Rect(hitbox.Position + Parent.Position - Vector2.One * flashSize, hitbox.Width + flashSize * 2f, hitbox.Height + flashSize * 2f, Color.White * Parent.flash);
             }
         }
     }
@@ -811,10 +824,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         Vector2 position = Position;
         Position += Shake;
 
-        foreach (Hitbox hitbox in Colliders)
-        {
-            Draw.Rect(hitbox.Position.X + Position.X, hitbox.Position.Y + Position.Y, hitbox.Width, hitbox.Height, fillColor);
-        }
+        DrawFill(fillColor, 3f);
 
         base.Render();
 
