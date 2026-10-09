@@ -178,12 +178,36 @@ public class ConnectedZipMover : ConnectedSolid
                     zipMover.cog.DrawCentered(node, Color.White, 1f, rotation);
                 }
             }
-
-            // 'bounds' doesn't include the zip mover itself, it will do its own camera cull checks
-            zipMover.DrawBorder();
         }
     }
     private PathRenderer pathRenderer;
+    
+    private class Border : Entity
+    {
+        private readonly ConnectedZipMover parent;
+        
+        public Border(ConnectedZipMover parent)
+        {
+            this.parent = parent;
+            Depth = parent.BGRenderer.Depth + 1;
+        }
+
+        public override void Render()
+        {
+            if (!parent.IsGroupVisible() || !parent.outline)
+                return;
+
+            base.Render();
+
+            Vector2 parentPosition = parent.Position;
+            parent.Position += parent.Shake;
+        
+            parent.DrawOutline(parent.edges, parent.innerCorners, Color.Black);
+        
+            parent.Position = parentPosition;
+        }
+    }
+    private Border border;
 
     public enum Themes
     {
@@ -191,7 +215,7 @@ public class ConnectedZipMover : ConnectedSolid
         Moon,
         Cliffside
     }
-    public readonly Themes theme;
+    public readonly Themes Theme;
 
     private readonly MTexture[,] edges = new MTexture[3, 3];
     private readonly MTexture[,] innerCorners = new MTexture[2, 2];
@@ -210,7 +234,7 @@ public class ConnectedZipMover : ConnectedSolid
     private readonly Coroutine seq;
 
     private readonly string sfxPath;
-    private Color backgroundColor;
+    private readonly Color backgroundColor;
 
     private readonly Vector2[] nodes;
 
@@ -239,14 +263,14 @@ public class ConnectedZipMover : ConnectedSolid
 
         this.nodes = nodes;
 
-        this.theme = theme;
+        Theme = theme;
         this.permanent = permanent;
         this.waits = waits;
         this.ticking = ticking;
         
         // set default theming attributes
         string themeName;
-        switch (this.theme)
+        switch (Theme)
         {
             default:
             case Themes.Normal:
@@ -362,24 +386,24 @@ public class ConnectedZipMover : ConnectedSolid
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
+        
         AutoTile(edges, innerCorners);
 
         Add(streetlight);
-        
         AddLightOccluders(1f);
-    }
-
-    public override void Added(Scene scene)
-    {
-        base.Added(scene);
-
-        scene.Add(pathRenderer = new(this, nodes, ropeColor, ropeLightColor));
+        
+        scene.Add(pathRenderer = new PathRenderer(this, nodes, ropeColor, ropeLightColor));
+        scene.Add(border = new Border(this));
     }
 
     public override void Removed(Scene scene)
     {
         scene.Remove(pathRenderer);
         pathRenderer = null;
+        
+        scene.Remove(border);
+        border = null;
+        
         base.Removed(scene);
     }
 
@@ -388,7 +412,7 @@ public class ConnectedZipMover : ConnectedSolid
         base.Update();
 
         bloom.Visible = streetlight.CurrentAnimationFrame != 0;
-        bloom.Y = theme switch {
+        bloom.Y = Theme switch {
             Themes.Normal => streetlight.CurrentAnimationFrame * 3,
             Themes.Moon => 9,
             Themes.Cliffside => 5,
@@ -404,7 +428,7 @@ public class ConnectedZipMover : ConnectedSolid
         Vector2 originalPosition = Position;
         Position += Shake;
 
-        DrawFill(backgroundColor, theme == Themes.Moon ? 2f : 0f);
+        DrawFill(backgroundColor, Theme == Themes.Moon ? 2f : 0f);
 
         int n = 1;
         float rot = 0f;
@@ -468,19 +492,6 @@ public class ConnectedZipMover : ConnectedSolid
 
         base.Render();
         Position = originalPosition;
-    }
-
-    public void DrawBorder()
-    {
-        if (!IsGroupVisible() || !outline)
-            return;
-
-        Vector2 position = Position;
-        Position += Shake;
-        
-        DrawOutline(Color.Black, 1f, 2f);
-        
-        Position = position;
     }
 
     private IEnumerator Sequence()

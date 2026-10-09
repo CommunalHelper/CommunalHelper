@@ -254,6 +254,26 @@ public class ConnectedSolid : Solid
     #region Auto-tiling
     
     [Flags]
+    private enum Sides
+    {
+        Up = 1 << 0,
+        Down = 1 << 1,
+        Left = 1 << 2,
+        Right = 1 << 3,
+        All = Up | Down | Left | Right
+    }
+
+    [Flags]
+    private enum Corners
+    {
+        UpLeft = 1 << 0,
+        UpRight = 1 << 1,
+        DownLeft = 1 << 2,
+        DownRight = 1 << 3,
+        All = UpLeft | UpRight | DownLeft | DownRight
+    }
+    
+    [Flags]
     private enum TileType
     {
         Filler = 0 << 2,
@@ -276,35 +296,15 @@ public class ConnectedSolid : Solid
         BottomLeftInnerCorner = InnerCorner | 2,
         BottomRightInnerCorner = InnerCorner | 3,
         
-        TypeMask = 0b1100,
-        VariantMask = 0b0011
+        TypeMask = Filler | Edge | Corner | InnerCorner,
+        VariantMask = 0 | 1 | 2 | 3
     }
 
-    private readonly struct AutoTileData(int textureXIndex, int textureYIndex, TileType type)
+    private readonly struct AutoTileData(int textureIndexX, int textureIndexY, TileType type)
     {
-        public readonly int TextureXIndex = textureXIndex, TextureYIndex = textureYIndex;
+        public readonly int TextureIndexX = textureIndexX, TextureIndexY = textureIndexY;
 
         public readonly TileType Type = type;
-    }
-    
-    [Flags]
-    private enum Sides
-    {
-        Up = 1,
-        Down = 2,
-        Left = 4,
-        Right = 8,
-        All = Up | Down | Left | Right
-    }
-
-    [Flags]
-    private enum Corners
-    {
-        UpLeft = 1,
-        UpRight = 2,
-        DownLeft = 4,
-        DownRight = 8,
-        All = UpLeft | UpRight | DownLeft | DownRight
     }
     
     public static Tuple<MTexture[,], MTexture[,]> SetupCustomTileset(string path, bool withPrefix)
@@ -312,23 +312,23 @@ public class ConnectedSolid : Solid
         // why the fuck does it default to having the objects/ prefix?? hello???
         MTexture tileset = GFX.Game[(withPrefix ? "objects/" : "") + path];
 
-        MTexture[,] overrideEdgeTiles = new MTexture[3, 3];
-        MTexture[,] overrideInCornersTiles = new MTexture[2, 2];
+        MTexture[,] edgeTiles = new MTexture[3, 3];
+        MTexture[,] innerCornerTiles = new MTexture[2, 2];
 
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
             {
-                overrideEdgeTiles[i, j] = tileset.GetSubtexture(i * 8, j * 8, 8, 8);
+                edgeTiles[i, j] = tileset.GetSubtexture(i * 8, j * 8, 8, 8);
                 if (i < 2 && j < 2)
-                    overrideInCornersTiles[i, j] = tileset.GetSubtexture((i * 8) + 24, j * 8, 8, 8);
+                    innerCornerTiles[i, j] = tileset.GetSubtexture((i * 8) + 24, j * 8, 8, 8);
             }
         }
-        return new Tuple<MTexture[,], MTexture[,]>(overrideEdgeTiles, overrideInCornersTiles);
+        return new Tuple<MTexture[,], MTexture[,]>(edgeTiles, innerCornerTiles);
     }
     
     /// <summary>
-    /// Optionnal function to do auto-tiling for the entire group, with specified textures.
+    /// Optional function to do auto-tiling for the entire group, with specified textures.
     /// If is called more than once, the auto-tiling logic will not be performed, but will use the data from previous calls to pick the right tiles.
     /// </summary>
     /// <returns>
@@ -338,9 +338,7 @@ public class ConnectedSolid : Solid
     /// <param name="innerCorners"> Split tiles from a 16x16 texture, for the inside turns. </param>
     /// <param name="addAsComponent"> Whether all the tiles should be added as components to this entity, therefore rendered automatically. </param>
     public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, bool storeTiles = true, bool addAsComponent = true)
-    {
-        return AutoTile(edges, innerCorners, out _, storeTiles, addAsComponent);
-    }
+        => AutoTile(edges, innerCorners, out _, storeTiles, addAsComponent);
 
     public List<Image> AutoTile(MTexture[,] edges, MTexture[,] innerCorners, out List<Image> bgTiles, bool storeTiles = true, bool addAsComponent = true)
     {
@@ -360,19 +358,15 @@ public class ConnectedSolid : Solid
                 bool[,] tiles = uncollidable ? AllGroupTiles : GroupTiles;
                 if (tiles[x, y])
                 {
-                    Image tile = AddTile(tiles, x, y, GroupOffset, edges, innerCorners, storeTiles, wasAutoTiled);
+                    Image tile = AddTile(tiles, x, y, GroupOffset, edges, innerCorners, storeTiles);
                     res.Add(tile);
 
                     if (addAsComponent)
                     {
                         if (uncollidable)
-                        {
                             BGRenderer.Add(tile);
-                        }
                         else
-                        {
                             Add(tile);
-                        }
                     }
 
                     if (uncollidable)
@@ -387,26 +381,26 @@ public class ConnectedSolid : Solid
         return res;
     }
 
-    private Image AddTile(bool[,] tiles, int x, int y, Vector2 offset, MTexture[,] edges, MTexture[,] innerCorners, bool storeTiles, bool recalculateTile)
+    private Image AddTile(bool[,] tiles, int x, int y, Vector2 offset, MTexture[,] edges, MTexture[,] innerCorners, bool storeTiles)
     {
         Image image;
         AutoTileData tileData;
 
-        if (!recalculateTile)
+        if (!wasAutoTiled)
         {
             bool up = tiles[x, y - 1];
             bool down = tiles[x, y + 1];
             bool left = tiles[x - 1, y];
             bool right = tiles[x + 1, y];
 
-            bool upleft = tiles[x - 1, y - 1];
-            bool upright = tiles[x + 1, y - 1];
-            bool downleft = tiles[x - 1, y + 1];
-            bool downright = tiles[x + 1, y + 1];
+            bool upLeft = tiles[x - 1, y - 1];
+            bool upRight = tiles[x + 1, y - 1];
+            bool downLeft = tiles[x - 1, y + 1];
+            bool downRight = tiles[x + 1, y + 1];
 
             image = AutoTileTexture(
                 (Sides) Util.ToBitFlag(up, down, left, right),
-                (Corners) Util.ToBitFlag(upleft, upright, downleft, downright),
+                (Corners) Util.ToBitFlag(upLeft, upRight, downLeft, downRight),
                 edges, innerCorners, out tileData);
             autoTileData[x - 1, y - 1] = tileData;
         }
@@ -414,9 +408,9 @@ public class ConnectedSolid : Solid
         {
             tileData = autoTileData[x - 1, y - 1];
             image = new Image(
-                    (tileData.Type & TileType.TypeMask) == TileType.InnerCorner ?
-                    innerCorners[tileData.TextureXIndex, tileData.TextureYIndex] :
-                    edges[tileData.TextureXIndex, tileData.TextureYIndex]);
+                (tileData.Type & TileType.TypeMask) == TileType.InnerCorner ?
+                    innerCorners[tileData.TextureIndexX, tileData.TextureIndexY] :
+                    edges[tileData.TextureIndexX, tileData.TextureIndexY]);
         }
 
         image.Position = new Vector2((x - 1) * 8f, (y - 1) * 8f) + offset;
@@ -472,8 +466,8 @@ public class ConnectedSolid : Solid
 
         return new Image(
             (data.Type & TileType.TypeMask) == TileType.InnerCorner ?
-                innerCorners[data.TextureXIndex, data.TextureYIndex] :
-                edges[data.TextureXIndex, data.TextureYIndex]);
+                innerCorners[data.TextureIndexX, data.TextureIndexY] :
+                edges[data.TextureIndexX, data.TextureIndexY]);
     }
     
     #endregion
@@ -609,7 +603,7 @@ public class ConnectedSolid : Solid
     public bool IsGroupVisibleAt(Vector2 pos)
     {
         Rectangle bounds = GetGroupBoundsAt(pos);
-        return CullHelper.IsRectangleVisible(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+        return CullHelper.IsRectangleVisible(bounds.X, bounds.Y, bounds.Width, bounds.Height, 4f); // leniency for connected move block flashes
     }
     
     #endregion
@@ -639,7 +633,7 @@ public class ConnectedSolid : Solid
                 if (hitbox.Width <= inset * 2f || hitbox.Height <= inset * 2f)
                     break;
                 
-                Draw.Rect(hitbox.Left + X + inset, hitbox.Top + Y + inset, hitbox.Width - inset * 2f, hitbox.Height - inset * 2f, color);
+                Draw.Rect(hitbox.Position + Position + Vector2.One * inset, hitbox.Width - inset * 2f, hitbox.Height - inset * 2f, color);
                 break;
             
             default:
@@ -706,73 +700,71 @@ public class ConnectedSolid : Solid
         }
     }
     
-    public void DrawOutline(Color color, float outset, float thickness)
+    public void DrawOutline(MTexture[,] edges, MTexture[,] innerCorners, Color color)
     {
-        if (!wasAutoTiled)
+        if (!wasAutoTiled || AllColliders.Length <= 0f)
             return;
 
-        outset = Calc.Clamp(outset, 0f, 8f);
-        thickness = Calc.Clamp(thickness, 0f, 8f);
-        switch (AllColliders.Length)
+        for (int i = 0; i < TileWidth; i++)
+        for (int j = 0; j < TileHeight; j++)
         {
-            case <= 0:
-                break;
-            
-            case 1:
-                Hitbox hitbox = AllColliders[0];
-                Draw.Rect(hitbox.Left + X - outset, hitbox.Top + Y - outset, hitbox.Width + 2f * outset, thickness, color);
-                Draw.Rect(hitbox.Left + X - outset, hitbox.Bottom + Y + outset - thickness, hitbox.Width + 2f * outset, thickness, color);
-                Draw.Rect(hitbox.Left + X - outset, hitbox.Top + Y - outset, thickness, hitbox.Height + 2f * outset, color);
-                Draw.Rect(hitbox.Right + X + outset - thickness, hitbox.Top + Y - outset, thickness, hitbox.Height + 2f * outset, color);
-                break;
-            
-            default:
-                for (int i = 0; i < TileWidth; i++)
-                for (int j = 0; j < TileHeight; j++)
-                {
-                    Vector2 tilePosition = Position + GroupOffset + new Vector2(i * 8f, j * 8f);
-                    AutoTileData data = autoTileData[i, j];
-                    if (!AllGroupTiles[i + 1, j + 1])
-                        continue;
-                
-                    switch (data.Type)
-                    {
-                        default:
-                        case TileType.Filler:
-                            break;
-                
-                        case TileType.TopEdge:
-                            Draw.Rect(tilePosition - Vector2.UnitY * outset, 8f, thickness, color);
-                            break;
-                        case TileType.BottomEdge:
-                            Draw.Rect(tilePosition + Vector2.UnitY * (8f + outset - thickness), 8f, thickness, color);
-                            break;
-                        case TileType.LeftEdge: 
-                            Draw.Rect(tilePosition - Vector2.UnitX * outset, thickness, 8f, color);
-                            break;
-                        case TileType.RightEdge:
-                            Draw.Rect(tilePosition + Vector2.UnitX * (8f + outset - thickness), thickness, 8f, color);
-                            break;
+            Vector2 tilePosition = Position + GroupOffset + new Vector2(i * 8f, j * 8f);
+            AutoTileData data = autoTileData[i, j];
+            if (!AllGroupTiles[i + 1, j + 1])
+                continue;
 
-                        case TileType.TopLeftCorner:
-                            Draw.Rect(tilePosition - Vector2.One * outset, 8f + outset, thickness, color);
-                            Draw.Rect(tilePosition - Vector2.One * outset, thickness, 8f + outset, color);
-                            break;
-                        case TileType.TopRightCorner:
-                            Draw.Rect(tilePosition - Vector2.UnitY * outset, 8f + outset, thickness, color);
-                            Draw.Rect(tilePosition - Vector2.UnitY * outset + Vector2.UnitX * (8f + outset - thickness), thickness, 8f + outset, color);
-                            break;
-                        case TileType.BottomLeftCorner:
-                            Draw.Rect(tilePosition - Vector2.UnitX * outset + Vector2.UnitY * (8f + outset - thickness), 8f + outset, thickness, color);
-                            Draw.Rect(tilePosition - Vector2.UnitX * outset, thickness, 8f + outset, color);
-                            break;
-                        case TileType.BottomRightCorner:
-                            Draw.Rect(tilePosition + Vector2.UnitY * (8f + outset - thickness), 8f + outset, thickness, color);
-                            Draw.Rect(tilePosition + Vector2.UnitX * (8f + outset - thickness), thickness, 8f + outset, color);
-                            break;
-                    }
-                }
-                break;
+            MTexture texture = (data.Type & TileType.TypeMask) == TileType.InnerCorner
+                ? innerCorners[data.TextureIndexX, data.TextureIndexY]
+                : edges[data.TextureIndexX, data.TextureIndexY];
+            switch (data.Type)
+            {
+                case TileType.TopEdge:
+                    texture.Draw(tilePosition - Vector2.UnitY, Vector2.Zero, color);
+                    break;
+                case TileType.BottomEdge:
+                    texture.Draw(tilePosition + Vector2.UnitY, Vector2.Zero, color);
+                    break;
+                case TileType.LeftEdge: 
+                    texture.Draw(tilePosition - Vector2.UnitX, Vector2.Zero, color);
+                    break;
+                case TileType.RightEdge:
+                    texture.Draw(tilePosition + Vector2.UnitX, Vector2.Zero, color);
+                    break;
+
+                case TileType.TopLeftCorner:
+                    texture.Draw(tilePosition - Vector2.UnitX, Vector2.Zero, color);
+                    texture.Draw(tilePosition - Vector2.UnitY, Vector2.Zero, color);
+                    texture.Draw(tilePosition + new Vector2(-1f, -1f), Vector2.Zero, color);
+                    break;
+                case TileType.TopRightCorner:
+                    texture.Draw(tilePosition + Vector2.UnitX, Vector2.Zero, color);
+                    texture.Draw(tilePosition - Vector2.UnitY, Vector2.Zero, color);
+                    texture.Draw(tilePosition + new Vector2(1f, -1f), Vector2.Zero, color);
+                    break;
+                case TileType.BottomLeftCorner:
+                    texture.Draw(tilePosition - Vector2.UnitX, Vector2.Zero, color);
+                    texture.Draw(tilePosition + Vector2.UnitY, Vector2.Zero, color);
+                    texture.Draw(tilePosition + new Vector2(-1f, 1f), Vector2.Zero, color);
+                    break;
+                case TileType.BottomRightCorner:
+                    texture.Draw(tilePosition + Vector2.UnitX, Vector2.Zero, color);
+                    texture.Draw(tilePosition + Vector2.UnitY, Vector2.Zero, color);
+                    texture.Draw(tilePosition + new Vector2(1f, 1f), Vector2.Zero, color);
+                    break;
+
+                case TileType.TopLeftInnerCorner:
+                    texture.Draw(tilePosition + new Vector2(-1f, -1f), Vector2.Zero, color);
+                    break;
+                case TileType.TopRightInnerCorner:
+                    texture.Draw(tilePosition + new Vector2(1f, -1f), Vector2.Zero, color);
+                    break;
+                case TileType.BottomLeftInnerCorner:
+                    texture.Draw(tilePosition + new Vector2(-1f, 1f), Vector2.Zero, color);
+                    break;
+                case TileType.BottomRightInnerCorner:
+                    texture.Draw(tilePosition + new Vector2(1f, 1f), Vector2.Zero, color);
+                    break;
+            }
         }
     }
     

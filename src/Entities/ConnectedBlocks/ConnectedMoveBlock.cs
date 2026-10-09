@@ -14,17 +14,17 @@ public class ConnectedMoveBlock : ConnectedSolid
     // Custom Border Entity
     protected class Border : Entity
     {
-        public ConnectedMoveBlock Parent;
+        private readonly ConnectedMoveBlock parent;
 
         public Border(ConnectedMoveBlock parent)
         {
-            Parent = parent;
+            this.parent = parent;
             Depth = parent.BGRenderer.Depth + 1;
         }
 
         public override void Update()
         {
-            if (Parent.Scene != Scene)
+            if (parent.Scene != Scene)
                 RemoveSelf();
 
             base.Update();
@@ -32,28 +32,28 @@ public class ConnectedMoveBlock : ConnectedSolid
 
         public override void Render()
         {
-            if (!Parent.IsGroupVisible())
+            if (!parent.IsGroupVisible())
                 return;
             
             base.Render();
             
-            if (Parent.outline)
+            if (parent.outline)
             {
-                Vector2 parentPosition = Parent.Position, parentBgPosition = Parent.BGRenderer.Position;
-                Parent.Position = Parent.BGRenderer.Position = Parent.Position + Parent.Shake;
+                Vector2 parentPosition = parent.Position;
+                parent.Position += parent.Shake;
+
+                MTexture[,] parentEdges = parent.customTexture ? parent.tiles.Item1 : masterEdges;
+                MTexture[,] parentInnerCorners = parent.customTexture ? parent.tiles.Item2 : masterInnerCorners;
+                parent.DrawOutline(parentEdges, parentInnerCorners, Color.Black);
             
-                foreach (Image tile in Parent.Tiles)
-                    tile.DrawOutline();
-            
-                Parent.Position = parentPosition;
-                Parent.BGRenderer.Position = parentBgPosition;
+                parent.Position = parentPosition;
             }
 
-            float flashSize = Parent.flash * 4f;
-            if (Parent.flash > 0f)
+            float flashSize = parent.flash * 4f;
+            if (parent.flash > 0f)
             {
-                foreach (Hitbox hitbox in Parent.AllColliders)
-                    Draw.Rect(hitbox.Position + Parent.Position - Vector2.One * flashSize, hitbox.Width + flashSize * 2f, hitbox.Height + flashSize * 2f, Color.White * Parent.flash);
+                foreach (Hitbox hitbox in parent.AllColliders)
+                    Draw.Rect(hitbox.Position + parent.Position - Vector2.One * flashSize, hitbox.Width + flashSize * 2f, hitbox.Height + flashSize * 2f, Color.White * parent.flash);
             }
         }
     }
@@ -66,7 +66,7 @@ public class ConnectedMoveBlock : ConnectedSolid
     protected static List<MTexture> masterDebris = [];
     protected static MTexture masterX;
 
-    //Custom Texture support
+    // Custom Texture support
     protected bool customTexture;
     protected Tuple<MTexture[,], MTexture[,]> tiles;
     protected List<MTexture> arrows;
@@ -75,7 +75,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected readonly bool noArrowSprite, noBreakingSprite;
 
-    //Custom Sound support
+    // Custom Sound support
     protected string ActivateSoundEffect = SFX.game_04_arrowblock_activate;
     protected string MoveSoundEffect = CustomSFX.game_redirectMoveBlock_arrowblock_move;
     protected string BreakSoundEffect = SFX.game_04_arrowblock_break;
@@ -851,13 +851,8 @@ public class ConnectedMoveBlock : ConnectedSolid
 
         if (flash > 0f)
         {
-            for (int i = 0; i < TileWidth; i++)
-            for (int j = 0; j < TileHeight; j++)
-                if (GroupTiles[i + 1, j + 1])
-                {
-                    Vector2 pos = Position + GroupOffset + new Vector2(i * 8, j * 8);
-                    Draw.Rect(pos, 8, 8, Color.White * flash);
-                }
+            foreach (Hitbox hitbox in Colliders)
+                Draw.Rect(hitbox.Position + Position, hitbox.Width, hitbox.Height, Color.White * flash);
         }
 
         Position = position;
@@ -873,13 +868,13 @@ public class ConnectedMoveBlock : ConnectedSolid
 
         if (flash > 0f)
         {
-            for (int i = 0; i < TileWidth; i++)
-            for (int j = 0; j < TileHeight; j++)
-                if (AllGroupTiles[i + 1, j + 1] && !GroupTiles[i + 1, j + 1])
-                {
-                    Vector2 pos = Position + GroupOffset + new Vector2(i * 8, j * 8);
-                    Draw.Rect(pos, 8, 8, Color.White * flash);
-                }
+            foreach (Hitbox hitbox in AllColliders)
+            {
+                if (Colliders.Contains(hitbox))
+                    continue;
+                
+                Draw.Rect(hitbox.Position + Position, hitbox.Width, hitbox.Height, Color.White * flash);
+            }
         }
 
         Position = position;
