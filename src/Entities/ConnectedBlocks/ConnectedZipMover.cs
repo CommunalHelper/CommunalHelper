@@ -164,9 +164,14 @@ public class ConnectedZipMover : ConnectedSolid
             if (cameraBounds.Intersects(bounds))
             {
                 foreach (Segment seg in segments)
-                    if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
-                        seg.RenderShadow(zipMover.percent);
-
+                    seg.Seen = cameraBounds.Intersects(seg.Bounds);
+                
+                if (zipMover.shadow)
+                {
+                    foreach (Segment seg in segments)
+                        if (seg.Seen)
+                            seg.RenderShadow(zipMover.percent);
+                }
                 foreach (Segment seg in segments)
                     if (seg.Seen)
                         seg.Render(zipMover.percent, color, lightColor);
@@ -174,7 +179,8 @@ public class ConnectedZipMover : ConnectedSolid
                 float rotation = zipMover.percent * MathHelper.TwoPi;
                 foreach (Vector2 node in nodes)
                 {
-                    zipMover.cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
+                    if (zipMover.shadow)
+                        zipMover.cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
                     zipMover.cog.DrawCentered(node, Color.White, 1f, rotation);
                 }
             }
@@ -223,7 +229,7 @@ public class ConnectedZipMover : ConnectedSolid
     private readonly List<MTexture> innerCogs;
     private readonly MTexture temp = new();
 
-    private readonly bool outline;
+    private readonly bool outline, shadow;
 
     private readonly SoundSource sfx;
     private readonly BloomPoint bloom;
@@ -252,10 +258,11 @@ public class ConnectedZipMover : ConnectedSolid
               data.Attr("customSkin").Trim(),
               data.Attr("colors").Trim(),
               data.Bool("outline", true),
+              data.Bool("shadow", true),
               data.Attr("customBlockTexture").Trim())
     { }
 
-    public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes theme, bool permanent, bool waits, bool ticking, string customSkin, string colors, bool outline, string legacyCustomTexture)
+    public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes theme, bool permanent, bool waits, bool ticking, string customSkin, string colors, bool outline, bool shadow, string legacyCustomTexture)
         : base(position, width, height, safe: false)
     {
         Depth = Depths.FGTerrain + 1;
@@ -277,6 +284,7 @@ public class ConnectedZipMover : ConnectedSolid
                 themeName = "normal";
                 sfxPath = "normal";
                 this.outline = true;
+                this.shadow = true;
                 backgroundColor = Color.Black;
                 break;
 
@@ -284,6 +292,7 @@ public class ConnectedZipMover : ConnectedSolid
                 themeName = "moon";
                 sfxPath = "moon";
                 this.outline = false;
+                this.shadow = true;
                 backgroundColor = Color.Black;
                 break;
 
@@ -291,6 +300,7 @@ public class ConnectedZipMover : ConnectedSolid
                 themeName = "cliffside";
                 sfxPath = "normal";
                 this.outline = true;
+                this.shadow = true;
                 backgroundColor = Calc.HexToColor("171018");
                 break;
         }
@@ -301,6 +311,8 @@ public class ConnectedZipMover : ConnectedSolid
         string light, innerCog, block = null, corners = null, tileset = null;
         if (!string.IsNullOrEmpty(customSkin))
         {
+            // override defaults if we have a custom skin
+            
             light = customSkin + "/light";
             innerCog = customSkin + "/innercog";
             cog = GFX.Game[customSkin + "/cog"];
@@ -316,7 +328,6 @@ public class ConnectedZipMover : ConnectedSolid
                 corners = customSkin + "/innerCorners";
             }
             
-            // override colors + border if we have a custom skin
             if (!string.IsNullOrEmpty(colors))
             {
                 // Comma seperated list of colors
@@ -329,7 +340,9 @@ public class ConnectedZipMover : ConnectedSolid
                 if (colorList.Length > 2)
                     ropeLightColor = Calc.HexToColorWithAlpha(colorList[2]);
             }
+            
             this.outline = outline;
+            this.shadow = shadow;
         }
         else
         {

@@ -22,14 +22,6 @@ public class ConnectedMoveBlock : ConnectedSolid
             Depth = parent.BGRenderer.Depth + 1;
         }
 
-        public override void Update()
-        {
-            if (parent.Scene != Scene)
-                RemoveSelf();
-
-            base.Update();
-        }
-
         public override void Render()
         {
             if (!parent.IsGroupVisible())
@@ -235,7 +227,6 @@ public class ConnectedMoveBlock : ConnectedSolid
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
         : base(position, width, height, safe: false)
     {
-
         Depth = Depths.Player - 1;
         startPosition = position;
         Direction = direction;
@@ -411,9 +402,8 @@ public class ConnectedMoveBlock : ConnectedSolid
                             Vector2 homePos = tileCenter + startPosition + GroupOffset;
                             bool fgDebris = GroupTiles[i + 1, j + 1];
                             
-                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, homePos);
+                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, homePos, sprite => sprite.Color = fgDebris ? Color.White : Color.Gray);
                             debris2.Sprite.Texture = Calc.Random.Choose(this.debris ?? masterDebris);
-                            debris2.OnUpdateSprite = sprite => sprite.Color = fgDebris ? Color.White : Color.Gray;
                             debris2.Depth = fgDebris ? -1 : BGRenderer.Depth + 1;
                             
                             debris.Add(debris2);
@@ -757,6 +747,7 @@ public class ConnectedMoveBlock : ConnectedSolid
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
+        
         if (customTexture)
         {
             AutoTile(tiles.Item1, tiles.Item2);
@@ -878,6 +869,14 @@ public class ConnectedMoveBlock : ConnectedSolid
         }
 
         Position = position;
+    }
+    
+    public override void Removed(Scene scene)
+    {
+        scene.Remove(border);
+        border = null;
+        
+        base.Removed(scene);
     }
 
     public static void InitializeTextures()

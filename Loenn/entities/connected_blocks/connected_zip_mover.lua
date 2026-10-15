@@ -46,7 +46,8 @@ for i, theme in ipairs(themes) do
             ticking = false,
             customSkin = "",
             colors = "",
-            outline = true
+            outline = true,
+            shadow = true
         }
     }
 end

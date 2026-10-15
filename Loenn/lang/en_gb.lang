@@ -435,7 +435,8 @@ entities.CommunalHelper/ConnectedZipMover.attributes.description.permanent=Wheth
 entities.CommunalHelper/ConnectedZipMover.attributes.description.waiting=Whether the Connected Zip Mover should wait for the player at each node. Only useful if it has more than one node.
 entities.CommunalHelper/ConnectedZipMover.attributes.description.ticking=Whether the Connected Zip Mover should be ticking at each node, forcing the player to reactivate it within a limited amount of time. Will return to initial position if the player doesn't reactivate it, or locks in place completely if Permanent is on. Only useful if it has more than one node.
 entities.CommunalHelper/ConnectedZipMover.attributes.description.colors=The background and rope colors for this Connected Zip Mover. Only useful if a Custom Skin is set.\nThis is a comma-seperated list of hex codes; the first is used as the background color, the second as the main rope color, and the third as the lighter rope color (when present).\nFor the Normal and Moon themes, this is "000000,663931,9b6157" by default; for the Cliffside theme, this is "171018,663931,9b6157" by default.
-entities.CommunalHelper/ConnectedZipMover.attributes.description.outline=Whether to draw a black outline around this Connected Zip Mover. Only useful if a Custom Skin is set. 
+entities.CommunalHelper/ConnectedZipMover.attributes.description.outline=Whether to draw a black outline around this Connected Zip Mover. Only useful if a Custom Skin is set.
+entities.CommunalHelper/ConnectedZipMover.attributes.description.shadow=Whether to draw a shadow under the rope for this Connected Zip Mover. Only useful if a Custom Skin is set.
 
 # Connected Swap Block
 entities.CommunalHelper/ConnectedSwapBlock.placements.name.normal=Connected Swap Block

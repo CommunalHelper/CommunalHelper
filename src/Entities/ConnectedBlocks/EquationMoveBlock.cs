@@ -204,9 +204,8 @@ internal class EquationMoveBlock : ConnectedMoveBlock
                             Vector2 homePos = tileCenter + startPosition + GroupOffset;
                             bool fgDebris = GroupTiles[i + 1, j + 1];
                             
-                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, homePos);
+                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, homePos, sprite => sprite.Color = fgDebris ? Color.White : Color.Gray);
                             debris2.Sprite.Texture = Calc.Random.Choose(this.debris ?? masterDebris);
-                            debris2.OnUpdateSprite = sprite => sprite.Color = fgDebris ? Color.White : Color.Gray;
                             debris2.Depth = fgDebris ? -1 : BGRenderer.Depth + 1;
                             
                             debris.Add(debris2);
