@@ -615,6 +615,7 @@ entities.CommunalHelper/HintController.attributes.description.singleUses=A comma
 entities.CommunalHelper/HintController.attributes.description.selectorCounter=The name of the session counter that selects the current dialog.\nDefaults to empty string, which means that there is no counter and only the first hint will be available.
 entities.CommunalHelper/HintController.attributes.description.selectNextHint=If true, the selector defined in selectorCounter will be automatically incremented when a hint is shown. Defaults to false.
 entities.CommunalHelper/HintController.attributes.description.flagWhileReading=This flag will be true while a hint is being read.
+entities.CommunalHelper/HintController.attributes.description.onlyIfFlag=If set, the hint will only appear in the pause menu while the given flag is true.
 
 # Input Flag Controller
 entities.CommunalHelper/InputFlagController.placements.name.controller=Input Flag Controller
