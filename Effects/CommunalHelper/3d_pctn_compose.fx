@@ -77,7 +77,7 @@ float depth_edge_indicator(float2 uv, float depth)
     i += (depth - sample_depth(uv, float2(-1, -1))) / 2;
     i += (depth - sample_depth(uv, float2(1, 1))) / 2;
     i += (depth - sample_depth(uv, float2(-1, -1))) / 2;
-    return smoothstep(0.01, 0.02, i);
+    return smoothstep(0.011, 0.022, i);
 }
 
 float neighbour_normal_edge_indicator(float2 uv, float3 normal, float depth, float2 offset)
