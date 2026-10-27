@@ -1083,6 +1083,22 @@ entities.CommunalHelper/Shape3DEntity.attributes.description.tint=The tint color
 entities.CommunalHelper/Shape3DEntity.attributes.description.highlightStrength=The edge highlight strength of this entity, between 0 (no edge highlight) and 1 (full edge highlight).
 entities.CommunalHelper/Shape3DEntity.attributes.description.rainbowMix=The rainbow mix strength of this entity, between 0 (no rainbow) and 1 (full rainbow).
 
+# [SSC26] Weight and Chain
+entities.CommunalHelper/WeightAndChain.placements.name.weightandchain=Weight and Chain
+entities.CommunalHelper/WeightAndChain.attributes.description.intro=If set, the weight will spawn invisible and inactive. This is only useful if you have a cutscene that manipulates it from code.
+
+# [SSC26] Weight Magnet
+entities.CommunalHelper/WeightMagnet.placements.name.magnet=Magnet
+entities.CommunalHelper/WeightMagnet.attributes.description.direction=The direction the magnet is pointed
+entities.CommunalHelper/WeightMagnet.attributes.description.fieldDistance=The distance the magnetic field extends from the magnet
+
+# [SSC26] Pinwheel Block
+entities.CommunalHelper/PinwheelBlock.placements.name.pinwheelBlock=Pinwheel Block
+entities.CommunalHelper/PinwheelBlock.attributes.description.group=Blocks with the same anchor position and the same group number will move together when any of them are dashed.
+entities.CommunalHelper/PinwheelBlock.attributes.description.moveTime=The amount of time it takes the block to move to its new position
+entities.CommunalHelper/PinwheelBlock.attributes.description.rotationDegrees=The amount of rotation, in degrees, to move when dashed
+entities.CommunalHelper/PinwheelBlock.attributes.description.texturesPath=The directory within Graphics/Atlases/Gameplay containing custom textures for the block. Expects the directory to contain [block.png | 24x24] a 9-patch texture for the block [block-anchor.png | 16x16] the sprite that covers the spot where the arm connects to the block [pinwheel-anchor.png | 16x16] the sprite that covers the pinwheel anchor point [connector00.png ~ connectorXX.png | 16x16, ] Frames for arm segments; the frames will advance forward or backward as the pinwheel rotates.
+
 # ---------------------- TRIGGERS --------------------------
 
 # [Strawberry Jam] Show Hitbox Trigger
