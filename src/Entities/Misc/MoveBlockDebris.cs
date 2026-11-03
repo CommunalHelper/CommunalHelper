@@ -31,8 +31,8 @@ public class MoveBlockDebris : Actor
         Add(Sprite = new Image(Calc.Random.Choose(GFX.Game.GetAtlasSubtextures("objects/moveblock/debris"))));
         Sprite.CenterOrigin();
         Sprite.FlipX = Calc.Random.Chance(0.5f);
-        onCollideH = collisiondata => speed.X = -speed.X * 0.5f;
-        onCollideV = collisiondata =>
+        onCollideH = _ => speed.X = -speed.X * 0.5f;
+        onCollideV = _ =>
         {
             if (firstHit || speed.Y > 50f)
             {
@@ -59,6 +59,7 @@ public class MoveBlockDebris : Actor
         shaking = false;
         Sprite.Scale = Vector2.One;
         Sprite.Color = Color.White;
+        OnUpdateSprite?.Invoke(Sprite);
         alpha = 1f;
         firstHit = false;
         spin = Calc.Random.Range(3.49065852f, 10.4719753f) * Calc.Random.Choose(1, -1);

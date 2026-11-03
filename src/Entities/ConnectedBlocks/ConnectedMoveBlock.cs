@@ -14,33 +14,38 @@ public class ConnectedMoveBlock : ConnectedSolid
     // Custom Border Entity
     protected class Border : Entity
     {
-        public ConnectedMoveBlock Parent;
-        private static Vector2 offset = new(1, 1);
+        private readonly ConnectedMoveBlock parent;
 
         public Border(ConnectedMoveBlock parent)
         {
-            Parent = parent;
+            this.parent = parent;
             Depth = parent.BGRenderer.Depth + 1;
-        }
-
-        public override void Update()
-        {
-            if (Parent.Scene != Scene)
-                RemoveSelf();
-
-            base.Update();
         }
 
         public override void Render()
         {
-            foreach (Hitbox hitbox in Parent.AllColliders)
+            if (!parent.IsGroupVisible())
+                return;
+            
+            base.Render();
+            
+            if (parent.outline)
             {
-                if (Parent.outline)
-                    Draw.Rect(hitbox.Position + Parent.Position + Parent.Shake - offset, hitbox.Width + 2f, hitbox.Height + 2f, Color.Black);
+                Vector2 parentPosition = parent.Position;
+                parent.Position += parent.Shake;
 
-                float num = Parent.flash * 4f;
-                if (Parent.flash > 0f)
-                    Draw.Rect(hitbox.Position + Parent.Position - new Vector2(num, num), hitbox.Width + (2f * num), hitbox.Height + (2f * num), Color.White * Parent.flash);
+                MTexture[,] parentEdges = parent.customTexture ? parent.tiles.Item1 : masterEdges;
+                MTexture[,] parentInnerCorners = parent.customTexture ? parent.tiles.Item2 : masterInnerCorners;
+                parent.DrawOutline(parentEdges, parentInnerCorners, Color.Black);
+            
+                parent.Position = parentPosition;
+            }
+
+            float flashSize = parent.flash * 4f;
+            if (parent.flash > 0f)
+            {
+                foreach (Hitbox hitbox in parent.AllColliders)
+                    Draw.Rect(hitbox.Position + parent.Position - Vector2.One * flashSize, hitbox.Width + flashSize * 2f, hitbox.Height + flashSize * 2f, Color.White * parent.flash);
             }
         }
     }
@@ -53,7 +58,7 @@ public class ConnectedMoveBlock : ConnectedSolid
     protected static List<MTexture> masterDebris = [];
     protected static MTexture masterX;
 
-    //Custom Texture support
+    // Custom Texture support
     protected bool customTexture;
     protected Tuple<MTexture[,], MTexture[,]> tiles;
     protected List<MTexture> arrows;
@@ -62,7 +67,7 @@ public class ConnectedMoveBlock : ConnectedSolid
 
     protected readonly bool noArrowSprite, noBreakingSprite;
 
-    //Custom Sound support
+    // Custom Sound support
     protected string ActivateSoundEffect = SFX.game_04_arrowblock_activate;
     protected string MoveSoundEffect = CustomSFX.game_redirectMoveBlock_arrowblock_move;
     protected string BreakSoundEffect = SFX.game_04_arrowblock_break;
@@ -222,7 +227,6 @@ public class ConnectedMoveBlock : ConnectedSolid
     public ConnectedMoveBlock(Vector2 position, int width, int height, MoveBlock.Directions direction, float moveSpeed)
         : base(position, width, height, safe: false)
     {
-
         Depth = Depths.Player - 1;
         startPosition = position;
         Direction = direction;
@@ -398,9 +402,8 @@ public class ConnectedMoveBlock : ConnectedSolid
                             Vector2 homePos = tileCenter + startPosition + GroupOffset;
                             bool fgDebris = GroupTiles[i + 1, j + 1];
                             
-                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, homePos);
+                            MoveBlockDebris debris2 = Engine.Pooler.Create<MoveBlockDebris>().Init(pos, GroupCenter, homePos, sprite => sprite.Color = fgDebris ? Color.White : Color.Gray);
                             debris2.Sprite.Texture = Calc.Random.Choose(this.debris ?? masterDebris);
-                            debris2.OnUpdateSprite = sprite => sprite.Color = fgDebris ? Color.White : Color.Gray;
                             debris2.Depth = fgDebris ? -1 : BGRenderer.Depth + 1;
                             
                             debris.Add(debris2);
@@ -744,6 +747,7 @@ public class ConnectedMoveBlock : ConnectedSolid
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
+        
         if (customTexture)
         {
             AutoTile(tiles.Item1, tiles.Item2);
@@ -811,10 +815,7 @@ public class ConnectedMoveBlock : ConnectedSolid
         Vector2 position = Position;
         Position += Shake;
 
-        foreach (Hitbox hitbox in Colliders)
-        {
-            Draw.Rect(hitbox.Position.X + Position.X, hitbox.Position.Y + Position.Y, hitbox.Width, hitbox.Height, fillColor);
-        }
+        DrawFill(fillColor, 3f);
 
         base.Render();
 
@@ -841,13 +842,8 @@ public class ConnectedMoveBlock : ConnectedSolid
 
         if (flash > 0f)
         {
-            for (int i = 0; i < TileWidth; i++)
-            for (int j = 0; j < TileHeight; j++)
-                if (GroupTiles[i + 1, j + 1])
-                {
-                    Vector2 pos = Position + GroupOffset + new Vector2(i * 8, j * 8);
-                    Draw.Rect(pos, 8, 8, Color.White * flash);
-                }
+            foreach (Hitbox hitbox in Colliders)
+                Draw.Rect(hitbox.Position + Position, hitbox.Width, hitbox.Height, Color.White * flash);
         }
 
         Position = position;
@@ -863,16 +859,24 @@ public class ConnectedMoveBlock : ConnectedSolid
 
         if (flash > 0f)
         {
-            for (int i = 0; i < TileWidth; i++)
-            for (int j = 0; j < TileHeight; j++)
-                if (AllGroupTiles[i + 1, j + 1] && !GroupTiles[i + 1, j + 1])
-                {
-                    Vector2 pos = Position + GroupOffset + new Vector2(i * 8, j * 8);
-                    Draw.Rect(pos, 8, 8, Color.White * flash);
-                }
+            foreach (Hitbox hitbox in AllColliders)
+            {
+                if (Colliders.Contains(hitbox))
+                    continue;
+                
+                Draw.Rect(hitbox.Position + Position, hitbox.Width, hitbox.Height, Color.White * flash);
+            }
         }
 
         Position = position;
+    }
+    
+    public override void Removed(Scene scene)
+    {
+        scene.Remove(border);
+        border = null;
+        
+        base.Removed(scene);
     }
 
     public static void InitializeTextures()
