@@ -1,5 +1,6 @@
 using MonoMod.Cil;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Celeste.Mod.CommunalHelper.Entities;
@@ -13,6 +14,7 @@ public class HintController : Entity
     public string SelectorCounter { get; }
     public bool SelectNextHint { get; }
     public string FlagWhileReading { get; private set; }
+    public string OnlyIfFlag { get; private set; }
 
     private int CurrentSelector
     {
@@ -53,6 +55,8 @@ public class HintController : Entity
         if (string.IsNullOrWhiteSpace(TitleDialog)) TitleDialog = "communalhelper_entities_hint_controller_menu";
 
         FlagWhileReading = data.Attr("flagWhileReading", "");
+
+        OnlyIfFlag = data.Attr("onlyIfFlag", "");
 
         DialogIds = data.Attr("dialogIds")
             .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
@@ -118,7 +122,13 @@ public class HintController : Entity
             return;
         }
 
-        var hintControllers = level.Entities.FindAll<HintController>();
+        var hintControllers = new List<HintController>();
+
+        foreach(HintController controller in level.Entities.FindAll<HintController>())
+        {
+            if(controller.OnlyIfFlag == "" || level.Session.GetFlag(controller.OnlyIfFlag)) hintControllers.Add(controller);
+        }
+
         int index = retryIndex;
         if (hintControllers is not null && hintControllers.Count > 0)
         {
