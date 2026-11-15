@@ -164,9 +164,14 @@ public class ConnectedZipMover : ConnectedSolid
             if (cameraBounds.Intersects(bounds))
             {
                 foreach (Segment seg in segments)
-                    if (seg.Seen = cameraBounds.Intersects(seg.Bounds))
-                        seg.RenderShadow(zipMover.percent);
-
+                    seg.Seen = cameraBounds.Intersects(seg.Bounds);
+                
+                if (zipMover.shadow)
+                {
+                    foreach (Segment seg in segments)
+                        if (seg.Seen)
+                            seg.RenderShadow(zipMover.percent);
+                }
                 foreach (Segment seg in segments)
                     if (seg.Seen)
                         seg.Render(zipMover.percent, color, lightColor);
@@ -174,16 +179,41 @@ public class ConnectedZipMover : ConnectedSolid
                 float rotation = zipMover.percent * MathHelper.TwoPi;
                 foreach (Vector2 node in nodes)
                 {
-                    zipMover.cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
+                    if (zipMover.shadow)
+                        zipMover.cog.DrawCentered(node + Vector2.UnitY, Color.Black, 1f, rotation);
                     zipMover.cog.DrawCentered(node, Color.White, 1f, rotation);
                 }
             }
-
-            // 'bounds' doesn't include the zip mover itself, it will do its own camera cull checks
-            zipMover.DrawBorder();
         }
     }
     private PathRenderer pathRenderer;
+    
+    private class Border : Entity
+    {
+        private readonly ConnectedZipMover parent;
+        
+        public Border(ConnectedZipMover parent)
+        {
+            this.parent = parent;
+            Depth = parent.BGRenderer.Depth + 1;
+        }
+
+        public override void Render()
+        {
+            if (!parent.IsGroupVisible() || !parent.outline)
+                return;
+
+            base.Render();
+
+            Vector2 parentPosition = parent.Position;
+            parent.Position += parent.Shake;
+        
+            parent.DrawOutline(parent.edges, parent.innerCorners, Color.Black);
+        
+            parent.Position = parentPosition;
+        }
+    }
+    private Border border;
 
     public enum Themes
     {
@@ -191,7 +221,7 @@ public class ConnectedZipMover : ConnectedSolid
         Moon,
         Cliffside
     }
-    public readonly Themes theme;
+    public readonly Themes Theme;
 
     private readonly MTexture[,] edges = new MTexture[3, 3];
     private readonly MTexture[,] innerCorners = new MTexture[2, 2];
@@ -199,7 +229,7 @@ public class ConnectedZipMover : ConnectedSolid
     private readonly List<MTexture> innerCogs;
     private readonly MTexture temp = new();
 
-    private readonly bool drawBlackBorder;
+    private readonly bool outline, shadow;
 
     private readonly SoundSource sfx;
     private readonly BloomPoint bloom;
@@ -210,7 +240,7 @@ public class ConnectedZipMover : ConnectedSolid
     private readonly Coroutine seq;
 
     private readonly string sfxPath;
-    private Color backgroundColor;
+    private readonly Color backgroundColor;
 
     private readonly Vector2[] nodes;
 
@@ -227,11 +257,12 @@ public class ConnectedZipMover : ConnectedSolid
               data.Bool("ticking"),
               data.Attr("customSkin").Trim(),
               data.Attr("colors").Trim(),
-              data.Bool("drawBlackBorder", true),
+              data.Bool("outline", true),
+              data.Bool("shadow", true),
               data.Attr("customBlockTexture").Trim())
     { }
 
-    public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes theme, bool permanent, bool waits, bool ticking, string customSkin, string colors, bool drawBlackBorder, string legacyCustomTexture)
+    public ConnectedZipMover(Vector2 position, int width, int height, Vector2[] nodes, Themes theme, bool permanent, bool waits, bool ticking, string customSkin, string colors, bool outline, bool shadow, string legacyCustomTexture)
         : base(position, width, height, safe: false)
     {
         Depth = Depths.FGTerrain + 1;
@@ -239,34 +270,37 @@ public class ConnectedZipMover : ConnectedSolid
 
         this.nodes = nodes;
 
-        this.theme = theme;
+        Theme = theme;
         this.permanent = permanent;
         this.waits = waits;
         this.ticking = ticking;
         
         // set default theming attributes
         string themeName;
-        switch (this.theme)
+        switch (Theme)
         {
             default:
             case Themes.Normal:
                 themeName = "normal";
                 sfxPath = "normal";
-                this.drawBlackBorder = true;
+                this.outline = true;
+                this.shadow = true;
                 backgroundColor = Color.Black;
                 break;
 
             case Themes.Moon:
                 themeName = "moon";
                 sfxPath = "moon";
-                this.drawBlackBorder = false;
+                this.outline = false;
+                this.shadow = true;
                 backgroundColor = Color.Black;
                 break;
 
             case Themes.Cliffside:
                 themeName = "cliffside";
                 sfxPath = "normal";
-                this.drawBlackBorder = true;
+                this.outline = true;
+                this.shadow = true;
                 backgroundColor = Calc.HexToColor("171018");
                 break;
         }
@@ -277,6 +311,8 @@ public class ConnectedZipMover : ConnectedSolid
         string light, innerCog, block = null, corners = null, tileset = null;
         if (!string.IsNullOrEmpty(customSkin))
         {
+            // override defaults if we have a custom skin
+            
             light = customSkin + "/light";
             innerCog = customSkin + "/innercog";
             cog = GFX.Game[customSkin + "/cog"];
@@ -292,7 +328,6 @@ public class ConnectedZipMover : ConnectedSolid
                 corners = customSkin + "/innerCorners";
             }
             
-            // override colors + border if we have a custom skin
             if (!string.IsNullOrEmpty(colors))
             {
                 // Comma seperated list of colors
@@ -305,7 +340,9 @@ public class ConnectedZipMover : ConnectedSolid
                 if (colorList.Length > 2)
                     ropeLightColor = Calc.HexToColorWithAlpha(colorList[2]);
             }
-            this.drawBlackBorder = drawBlackBorder;
+            
+            this.outline = outline;
+            this.shadow = shadow;
         }
         else
         {
@@ -362,24 +399,24 @@ public class ConnectedZipMover : ConnectedSolid
     public override void Awake(Scene scene)
     {
         base.Awake(scene);
+        
         AutoTile(edges, innerCorners);
 
         Add(streetlight);
-        
         AddLightOccluders(1f);
-    }
-
-    public override void Added(Scene scene)
-    {
-        base.Added(scene);
-
-        scene.Add(pathRenderer = new(this, nodes, ropeColor, ropeLightColor));
+        
+        scene.Add(pathRenderer = new PathRenderer(this, nodes, ropeColor, ropeLightColor));
+        scene.Add(border = new Border(this));
     }
 
     public override void Removed(Scene scene)
     {
         scene.Remove(pathRenderer);
         pathRenderer = null;
+        
+        scene.Remove(border);
+        border = null;
+        
         base.Removed(scene);
     }
 
@@ -388,7 +425,7 @@ public class ConnectedZipMover : ConnectedSolid
         base.Update();
 
         bloom.Visible = streetlight.CurrentAnimationFrame != 0;
-        bloom.Y = theme switch {
+        bloom.Y = Theme switch {
             Themes.Normal => streetlight.CurrentAnimationFrame * 3,
             Themes.Moon => 9,
             Themes.Cliffside => 5,
@@ -401,26 +438,10 @@ public class ConnectedZipMover : ConnectedSolid
         if (!IsGroupVisible())
             return;
 
-        Rectangle cameraBounds = (Scene as Level)?.Camera.GetBounds() ?? new();
-
         Vector2 originalPosition = Position;
         Position += Shake;
 
-        foreach (Hitbox extension in Colliders)
-        {
-            if (!cameraBounds.Intersects(extension.Bounds))
-                continue;
-
-            if (theme == Themes.Moon)
-            {
-                Draw.Rect(extension.Left + 2f + X, extension.Top + Y, extension.Width - 4f, extension.Height, backgroundColor);
-                Draw.Rect(extension.Left + X, extension.Top + 2f + Y, extension.Width, extension.Height - 4f, backgroundColor);
-                foreach (Image t in InnerCornerTiles)
-                    Draw.Rect(t.X + X, t.Y + Y, 8, 8, backgroundColor);
-            }
-            else
-                Draw.Rect(extension.Left + X, extension.Top + Y, extension.Width, extension.Height, backgroundColor);
-        }
+        DrawFill(backgroundColor, Theme == Themes.Moon ? 2f : 0f);
 
         int n = 1;
         float rot = 0f;
@@ -484,28 +505,6 @@ public class ConnectedZipMover : ConnectedSolid
 
         base.Render();
         Position = originalPosition;
-    }
-
-    public void DrawBorder()
-    {
-        if (!drawBlackBorder)
-            return;
-
-        if (!IsGroupVisible())
-            return;
-
-        foreach (Hitbox extension in AllColliders)
-        {
-            Draw.HollowRect(
-                new Rectangle(
-                    (int) (X + extension.Left - 1f + Shake.X),
-                    (int) (Y + extension.Top - 1f + Shake.Y),
-                    (int) extension.Width + 2,
-                    (int) extension.Height + 2
-                ),
-                Color.Black
-            );
-        }
     }
 
     private IEnumerator Sequence()
@@ -654,7 +653,9 @@ public class ConnectedZipMover : ConnectedSolid
     internal static void InitializeTextures()
     {
         // people rely on `objects/CommunalHelper/connectedZipMover/cliffside/block` existing apparently? i hate modding
-        // i dont want to clutter the graphics folders so let's be evil. if they are evil to us we can be evil back
+        // i don't want to clutter the graphics folders so let's be evil. if they are evil to us we can be evil back
+        GFX.Game["objects/CommunalHelper/connectedZipMover/normal/block"] = GFX.Game["objects/CommunalHelper/connectedZipMover/normal/tileset"].GetSubtexture(0, 0, 24, 24);
+        GFX.Game["objects/CommunalHelper/connectedZipMover/moon/block"] = GFX.Game["objects/CommunalHelper/connectedZipMover/moon/tileset"].GetSubtexture(0, 0, 24, 24);
         GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/block"] = GFX.Game["objects/CommunalHelper/connectedZipMover/cliffside/tileset"].GetSubtexture(0, 0, 24, 24);
     }
 }
