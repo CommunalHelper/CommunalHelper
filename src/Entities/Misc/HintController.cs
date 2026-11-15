@@ -6,6 +6,7 @@ using System.Linq;
 namespace Celeste.Mod.CommunalHelper.Entities;
 
 [CustomEntity("CommunalHelper/HintController")]
+[Tracked]
 public class HintController : Entity
 {
     public string TitleDialog { get; private set; }
@@ -122,28 +123,21 @@ public class HintController : Entity
             return;
         }
 
-        var hintControllers = new List<HintController>();
-
-        foreach(HintController controller in level.Entities.FindAll<HintController>())
-        {
-            if(controller.OnlyIfFlag == "" || level.Session.GetFlag(controller.OnlyIfFlag)) hintControllers.Add(controller);
-        }
-
+        var hintControllers = level.Tracker.GetEntities<HintController>()
+            .Cast<HintController>()
+            .Where(c => c.OnlyIfFlag == "" || level.Session.GetFlag(c.OnlyIfFlag));
         int index = retryIndex;
-        if (hintControllers is not null && hintControllers.Count > 0)
+        foreach (HintController hintController in hintControllers)
         {
-            foreach (HintController hintController in hintControllers)
+            menu.Insert(++index, new TextMenu.Button(Dialog.Clean(hintController.TitleDialog))
             {
-                menu.Insert(++index, new TextMenu.Button(Dialog.Clean(hintController.TitleDialog))
+                OnPressed = () =>
                 {
-                    OnPressed = () =>
-                    {
-                        menu.OnCancel();
-                        hintController.ShowHint();
-                    },
-                    Disabled = hintController.CurrentSingleUse && hintController.CurrentIsUsed,
-                });
-            }
+                    menu.OnCancel();
+                    hintController.ShowHint();
+                },
+                Disabled = hintController.CurrentSingleUse && hintController.CurrentIsUsed,
+            });
         }
     }
 
