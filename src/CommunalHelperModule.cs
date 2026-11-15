@@ -6,6 +6,7 @@ using Celeste.Mod.CommunalHelper.Backdrops;
 using Celeste.Mod.CommunalHelper.Components;
 using Celeste.Mod.CommunalHelper.DashStates;
 using Celeste.Mod.CommunalHelper.Entities;
+using Celeste.Mod.CommunalHelper.Entities.SSC26;
 using Celeste.Mod.CommunalHelper.Entities.StrawberryJam;
 using Celeste.Mod.CommunalHelper.Imports;
 using Celeste.Mod.CommunalHelper.States;
@@ -123,6 +124,8 @@ public class CommunalHelperModule : EverestModule
         
         Shapeshifter.Load();
 
+        WeightAndChain.Load();
+
         ModExports.Initialize();
     }
 
@@ -216,6 +219,8 @@ public class CommunalHelperModule : EverestModule
         Shapeshifter.Unload();
 
         LaserEmitter.Unload();
+
+        WeightAndChain.Unload();
     }
 
     public override void Initialize()

@@ -13,4 +13,10 @@
         <Anim id="iceShine" path="wallBooster/iceBottom" frames="0-4" delay="0.08" goto="ice"/>
     </BadAttachedWallBoosterBottom>
 
+	<communalhelper_weight_magnet path="objects/CommunalHelper/weightAndChain/magnet" start="normal">
+		<Justify x="0.5" y="0.5"/>
+		<Loop id="normal" delay="0.3" frames="0"/>
+		<Anim id="break" delay="0.08" frames="1-4" />
+	</communalhelper_weight_magnet>
+
 </Sprites>
