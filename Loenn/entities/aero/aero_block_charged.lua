@@ -54,7 +54,8 @@ aeroBlockCharged.placements = {
             wallbounceLeniency = true,
             cassetteIndex = -1,
             cassetteTempo = 1,
-            moveOnCassetteTick = false
+            moveOnCassetteTick = false,
+            dreamJumpActivated = true
         }
     }
 }
@@ -74,7 +75,8 @@ for i = 0, 3 do
             wallbounceLeniency = true,
             cassetteIndex = i,
             cassetteTempo = 1,
-            moveOnCassetteTick = false
+            moveOnCassetteTick = false,
+            dreamJumpActivated = true
         }
     })
 end

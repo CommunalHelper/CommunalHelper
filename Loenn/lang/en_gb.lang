@@ -800,6 +800,7 @@ entities.CommunalHelper/AeroBlockCharged.attributes.description.wallbounceLenien
 entities.CommunalHelper/AeroBlockCharged.attributes.description.cassetteIndex=The cassette index of this Charged Aero Block. If set to anything other than "None", the buttons on this block will (de)activate in sync with cassette blocks of this index.
 entities.CommunalHelper/AeroBlockCharged.attributes.description.cassetteTempo=The cassette tempo of this Charged Aero Block. See the tooltip of the "Tempo" field on Cassette Blocks for a thorough explanation.\nDoes nothing if "Cassette Index" is set to "None".
 entities.CommunalHelper/AeroBlockCharged.attributes.description.moveOnCassetteTick=Whether this block will move to the next node at the end of the current cassette tick if it has not already been activated.\nDoes nothing if "Cassette Index" is set to "None".
+entities.CommunalHelper/AeroBlockCharged.attributes.description.dreamJumpActivated=Whether this Charged Aero Block will boost the player when performing a dream jump out of it via Dream Tunnel Dash.
 
 # Aero Block Slingshot
 entities.CommunalHelper/AeroBlockSlingshot.placements.name.normal=Slingshot Aero Block

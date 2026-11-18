@@ -108,6 +108,9 @@ public static class DreamTunnelDash
         On.Celeste.Player.DreamDashCheck += Player_DreamDashCheck;
         On.Celeste.Player.Update += Player_Update;
         On.Celeste.Player.Die += Player_Die;
+        On.Celeste.Player.OnBoundsH += Player_OnBoundsH;
+        On.Celeste.Player.OnBoundsV += Player_OnBoundsV;
+        On.Celeste.Player.Jump += Player_Jump;
 
         hook_Player_DashCoroutine = new ILHook(
             typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(),
@@ -119,6 +122,7 @@ public static class DreamTunnelDash
         IL.Celeste.Player.BeforeUpTransition += Player_BeforeUpTransition;
         IL.Celeste.Player.BeforeDownTransition += Player_BeforeDownTransition;
         IL.Celeste.Player.TransitionTo += Player_TransitionTo;
+        IL.Celeste.Player.ClimbJump += Player_ClimbJump;
         hook_Player_orig_Update = new ILHook(
             typeof(Player).GetMethod("orig_Update"),
             Player_orig_Update);
@@ -129,8 +133,6 @@ public static class DreamTunnelDash
         IL.Celeste.Level.EnforceBounds += Level_EnforceBounds;
         On.Celeste.Level.Reload += Level_Reload;
         On.Celeste.LevelLoader.StartLevel += LevelLoader_StartLevel;
-        On.Celeste.Player.OnBoundsH += Player_OnBoundsH;
-        On.Celeste.Player.OnBoundsV += Player_OnBoundsV;
 
         IL.Celeste.FakeWall.Update += State_DreamDashNotEqual;
         IL.Celeste.Spring.OnCollide += State_DreamDashEqual_ShortCircuit;
@@ -147,6 +149,9 @@ public static class DreamTunnelDash
         On.Celeste.Player.DreamDashCheck -= Player_DreamDashCheck;
         On.Celeste.Player.Update -= Player_Update;
         On.Celeste.Player.Die -= Player_Die;
+        On.Celeste.Player.OnBoundsH -= Player_OnBoundsH;
+        On.Celeste.Player.OnBoundsV -= Player_OnBoundsV;
+        On.Celeste.Player.Jump -= Player_Jump;
 
         hook_Player_DashCoroutine.Dispose();
         IL.Celeste.Player.IsRiding_Solid -= State_DreamDashEqual;
@@ -156,14 +161,13 @@ public static class DreamTunnelDash
         IL.Celeste.Player.BeforeUpTransition -= Player_BeforeUpTransition;
         IL.Celeste.Player.BeforeDownTransition -= Player_BeforeDownTransition;
         IL.Celeste.Player.TransitionTo -= Player_TransitionTo;
+        IL.Celeste.Player.ClimbJump -= Player_ClimbJump;
         hook_Player_orig_Update.Dispose();
         hook_Player_orig_UpdateSprite.Dispose();
 
         IL.Celeste.Level.EnforceBounds -= Level_EnforceBounds;
         On.Celeste.Level.Reload -= Level_Reload;
         On.Celeste.LevelLoader.StartLevel -= LevelLoader_StartLevel;
-        On.Celeste.Player.OnBoundsH -= Player_OnBoundsH;
-        On.Celeste.Player.OnBoundsV -= Player_OnBoundsV;
 
         IL.Celeste.FakeWall.Update -= State_DreamDashNotEqual;
         IL.Celeste.Spring.OnCollide -= State_DreamDashEqual_ShortCircuit;
@@ -375,6 +379,13 @@ public static class DreamTunnelDash
         return orig(self, dir, evenIfInvincible, registerDeathInStats);
     }
 
+    private static void Player_Jump(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
+    {
+        orig(self, particles, playSfx);
+        
+        DreamTunnelInteraction.OnDreamJump(self);
+    }
+
     private static void Player_IsRiding_JumpThru(ILContext il)
     {
         if (il.Instrs[0].OpCode == OpCodes.Nop)
@@ -442,6 +453,20 @@ public static class DreamTunnelDash
         float toY = Calc.Approach(player.ExactPosition.Y, targetY, maxAmount);
         float moveY = (float) ((double) toY - player.Position.Y - player.movementCounter.Y);
         player.NaiveMove(Vector2.UnitY * moveY);
+    }
+
+    private static void Player_ClimbJump(ILContext il)
+    {
+        ILCursor cursor = new(il);
+        
+        if (cursor.TryGotoNext(MoveType.After,
+            instr => instr.MatchLdarg(0),
+            instr => instr.MatchLdcI4(0),
+            instr => instr.MatchStfld<Player>("dreamJump")))
+        {
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate(DreamTunnelInteraction.ResetDreamJumpActivation);
+        }
     }
 
     // Utilities to patch any method that checks the player's State.
@@ -537,11 +562,22 @@ public static class DreamTunnelDash
     private static void Player_orig_Update(ILContext il)
     {
         ILCursor cursor = new(il);
+        
         CheckState(cursor, Player.StDreamDash, true, false);
         CheckState(cursor, Player.StDreamDash, false, false);
         CheckState(cursor, Player.StDreamDash, false, false);
         // Not used because we DO want to enforce Level bounds.
         // CheckState(cursor, Player.StDreamDash, false, false);
+        
+        cursor.Index = 0;
+        if (cursor.TryGotoNext(MoveType.After,
+            instr => instr.MatchLdarg(0),
+            instr => instr.MatchLdcI4(0),
+            instr => instr.MatchStfld<Player>("dreamJump")))
+        {
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate(DreamTunnelInteraction.ResetDreamJumpActivation);
+        }
     }
 
     private static void Level_EnforceBounds(ILContext il)
@@ -767,7 +803,8 @@ public static class DreamTunnelDash
             {
                 DynamicData playerData = player.GetData();
                 player.StateMachine.State = St.DreamTunnelDash;
-                solid.Components.GetAll<DreamTunnelInteraction>().ToList().ForEach(i => i.OnPlayerEnter(player));
+                DreamTunnelInteraction.OnEnter(player, solid);
+                
                 playerData.Set(Player_solid, solid);
                 playerData.Set("dashAttackTimer", 0f);
                 playerData.Set("gliderBoostTimer", 0f);

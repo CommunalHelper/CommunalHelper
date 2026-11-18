@@ -49,7 +49,8 @@ public static class DreamTunnelDash
         player.Depth = Depths.PlayerDreamDashing;
         playerData.Set(Player_dreamTunnelDashCanEndTimer, 0.1f);
         player.Stamina = Player.ClimbMaxStamina;
-        playerData.Set("dreamJump", false);
+        player.dreamJump = false;
+        DreamTunnelInteraction.ResetDreamJumpActivation(player);
         player.Play(SFX.char_mad_dreamblock_enter, null, 0f);
         if (FeatherMode)
             player.Loop(player.dreamSfxLoop, CustomSFX.game_connectedDreamBlock_dreamblock_fly_travel);
@@ -79,6 +80,7 @@ public static class DreamTunnelDash
         }
         player.RefillStamina();
         player.TreatNaive = false;
+        
         Solid solid = playerData.Get<Solid>(Player_solid);
         if (solid is not null)
         {
@@ -86,14 +88,17 @@ public static class DreamTunnelDash
             {
                 player.jumpGraceTimer = 0.1f;
                 player.dreamJump = true;
+                DreamTunnelInteraction.ActivateDreamJump(solid);
             }
             else
             {
                 player.jumpGraceTimer = 0f;
             }
-            solid.Components.GetAll<DreamTunnelInteraction>().ToList().ForEach(i => i.OnPlayerExit(player));
-            solid = null;
+            
+            DreamTunnelInteraction.OnExit(player, solid);
+            playerData.Set(Player_solid, null);
         }
+        
         player.Stop(player.dreamSfxLoop);
         player.Play(SFX.char_mad_dreamblock_exit, null, 0f);
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
@@ -235,7 +240,8 @@ public static class DreamTunnelDash
         {
             playerData.Set(Player_dreamTunnelDashCanEndTimer, dreamDashCanEndTimer - Engine.DeltaTime);
         }
-        Solid solid = player.CollideFirst<Solid, DreamBlock>();
+        
+        Solid previousSolid = playerData.Get<Solid>(Player_solid), solid = player.CollideFirst<Solid, DreamBlock>();
         if (solid is null)
         {
             if (player.DreamTunneledIntoDeath())
@@ -248,6 +254,9 @@ public static class DreamTunnelDash
                 if (Input.Jump.Pressed && player.DashDir.X != 0f)
                 {
                     player.dreamJump = true;
+                    if (previousSolid is not null)
+                        DreamTunnelInteraction.ActivateDreamJump(previousSolid);
+                    
                     player.Jump(true, true);
                 }
                 else if (player.DashDir.Y >= 0f || player.DashDir.X != 0f)
@@ -260,6 +269,7 @@ public static class DreamTunnelDash
                     {
                         player.MoveHExact(5, null, null);
                     }
+                    
                     bool flag = player.ClimbCheck(-1, 0);
                     bool flag2 = player.ClimbCheck(1, 0);
                     int moveX = player.moveX;
@@ -270,20 +280,24 @@ public static class DreamTunnelDash
                         {
                             return Player.StClimb;
                         }
+                        
                         player.ClimbTrigger(moveX);
                         player.Speed.X = 0f;
                     }
                 }
+                
                 return Player.StNormal;
             }
         }
         else
         {
             playerData.Set(Player_solid, solid);
+            
             if (player.Scene.OnInterval(0.1f))
             {
                 player.CreateDreamTrail();
             }
+            
             Level level = player.level;
             if (level.OnInterval(0.04f))
             {
