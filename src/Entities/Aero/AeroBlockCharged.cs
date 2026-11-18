@@ -586,9 +586,7 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private void Player_DreamJump(Player self)
     {
-        bool onLeft = self.X <= Left;
-        bool onRight = self.X >= Right;
-        bool onTop = self.Y <= Top;
+        bool onTop = self.Y <= Top, onLeft = self.X <= Left, onRight = self.X >= Right;
         if (onTop)
             topButton?.UpdatePressState(-1f);
         else if (onLeft)
