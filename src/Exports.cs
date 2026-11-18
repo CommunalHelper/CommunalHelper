@@ -60,7 +60,7 @@ public static class ModExports
 
         #endregion
 
-        #region Seeker
+        #region Seeker Dash
 
         public static bool HasSeekerDash()
         {
@@ -77,7 +77,7 @@ public static class ModExports
             return SeekerDash.SeekerAttacking;
         }
 
-        #endregion Dash
+        #endregion
     }
 
     [ModExportName("CommunalHelper.Elytra")]
