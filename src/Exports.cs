@@ -22,7 +22,7 @@ public static class ModExports
     [ModExportName("CommunalHelper.DashStates")]
     public static class DashStates
     {
-        #region DreamTunnel
+        #region Dream Tunnel Dash
 
         public static int GetDreamTunnelDashState()
         {
@@ -53,10 +53,14 @@ public static class ModExports
         {
             return new DreamTunnelInteraction(onPlayerEnter, onPlayerExit);
         }
+        public static Component DreamTunnelInteraction(Action<Player> onPlayerEnter, Action<Player> onPlayerExit, Action<Player> onPlayerDreamJump)
+        {
+            return new DreamTunnelInteraction(onPlayerEnter, onPlayerExit, onPlayerDreamJump);
+        }
 
         #endregion
 
-        #region Seeker
+        #region Seeker Dash
 
         public static bool HasSeekerDash()
         {

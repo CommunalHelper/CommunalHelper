@@ -1,3 +1,5 @@
+using Celeste.Mod.CommunalHelper.Components;
+using Celeste.Mod.CommunalHelper.States;
 using MonoMod.RuntimeDetour;
 using System.Linq;
 
@@ -116,7 +118,7 @@ public class AeroBlockCharged : AeroBlockFlying
         // updates button's Pressed field + position accordingly
         public void UpdatePressState(float checkDistance = 3f)
         {
-            pressed = block.CollideCheck<Player>(block.Position - perp * checkDistance);
+            pressed = checkDistance < 0f || block.CollideCheckOutside<Player>(block.Position - perp * checkDistance);
             PressState pressState = pressed ? PressState.Pressed : defaultPressState;
 
             for (int i = 0; i < buttonPositions.Length; i++)
@@ -178,14 +180,16 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private bool activatedPreviously = false, activatedThisTick = false;
 
+    private readonly bool dreamJumpActivated;
+
     public AeroBlockCharged(EntityData data, Vector2 offset)
-        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("loop"), data.HexColor("activeColor", DefaultOnColor), data.HexColor("inactiveColor", DefaultEndColor), data.Bool("hover", true), data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE), data.Bool("wallbounceLeniency", false), data.Int("cassetteIndex", -1), data.Float("cassetteTempo", 1f), data.Bool("moveOnCassetteTick", false))
+        : this(data.NodesWithPosition(offset), data.Width, data.Height, data.Bool("loop"), data.HexColor("activeColor", DefaultOnColor), data.HexColor("inactiveColor", DefaultEndColor), data.Bool("hover", true), data.Attr("buttonSequence", DEFAULT_BUTTON_SEQUENCE), data.Bool("wallbounceLeniency", false), data.Int("cassetteIndex", -1), data.Float("cassetteTempo", 1f), data.Bool("moveOnCassetteTick", false), data.Bool("dreamJumpActivated", false))
     {
         // if the new attribute exists use that, but otherwise enable the bug if either the old attribute is set *or* spirialis helper is loaded
         SpirialisBug = data.Bool("SpirialisBugV2", SpirialisHelperLoaded || data.Bool("SpirialisBug", false));
     }
 
-    public AeroBlockCharged(Vector2[] positions, int width, int height, bool loop, Color activeColor, Color inactiveColor, bool hover = true, string buttonSequence = DEFAULT_BUTTON_SEQUENCE, bool wallbounceLeniency = true, int cassetteIndex = -1, float cassetteTempo = 1f, bool moveOnCassetteTick = false)
+    public AeroBlockCharged(Vector2[] positions, int width, int height, bool loop, Color activeColor, Color inactiveColor, bool hover = true, string buttonSequence = DEFAULT_BUTTON_SEQUENCE, bool wallbounceLeniency = true, int cassetteIndex = -1, float cassetteTempo = 1f, bool moveOnCassetteTick = false, bool dreamJumpActivated = false)
         : base(positions[0], width, height)
     {
         Hover = hover;
@@ -228,6 +232,10 @@ public class AeroBlockCharged : AeroBlockFlying
             });
             AddScreenLayer(cassetteLayer = new AeroScreen_Cassette(Width, Height, listener, activeColor));
         }
+
+        this.dreamJumpActivated = dreamJumpActivated;
+        if (dreamJumpActivated)
+            Add(new DreamTunnelInteraction(onPlayerDreamJump: Player_DreamJump));
     }
 
     private void SetButtonProperties(Button.PressState defaultPressState, Color unpressedColor, Color pressedColor)
@@ -313,9 +321,10 @@ public class AeroBlockCharged : AeroBlockFlying
         return $"objects/CommunalHelper/aero_block/blocks/{(left ? y : n)}{(top ? y : n)}{(right ? y : n)}";
     }
     
-    public bool CheckTopButton() => (topButton?.Pressed ?? false) && (listener?.Activated ?? true);
-    public bool CheckLeftButton() => (leftButton?.Pressed ?? false) && (listener?.Activated ?? true);
-    public bool CheckRightButton() => (rightButton?.Pressed ?? false) && (listener?.Activated ?? true);
+    private bool CheckButton(Button button) => (button?.Pressed ?? false) && (listener?.Activated ?? true);
+    public bool CheckTopButton() => CheckButton(topButton);
+    public bool CheckLeftButton() => CheckButton(leftButton);
+    public bool CheckRightButton() => CheckButton(rightButton);
     public bool CheckAnyButton() => CheckLeftButton() || CheckTopButton() || CheckRightButton();
 
     private void ChangeCombination(ButtonCombination combination, bool makeTiles = true)
@@ -482,7 +491,7 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private static void Player_Jump(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
     {
-        if (self.Scene.Tracker.GetEntities<AeroBlockCharged>().FirstOrDefault(b => self.CollideCheck(b, self.Position + Vector2.UnitY)) is not AeroBlockCharged block)
+        if (self.dreamJump || self.Scene.Tracker.GetEntities<AeroBlockCharged>().FirstOrDefault(b => self.CollideCheck(b, self.Position + Vector2.UnitY)) is not AeroBlockCharged block)
         {
             orig(self, particles, playSfx);
             return;
@@ -568,10 +577,27 @@ public class AeroBlockCharged : AeroBlockFlying
             button?.UpdatePressState(5f);
         
         // wallbounce
-        if ((button?.Pressed ?? false) && (block.listener?.Activated ?? true))
+        if (block.CheckButton(button))
             block.Smash(self, new Vector2(dir * 300f, -400f));
         
         if (block.SpirialisBug)
+            self.varJumpSpeed = self.Speed.Y;
+    }
+
+    private void Player_DreamJump(Player self)
+    {
+        Vector2 normalizedToPlayer = ((self.Center - Center) / new Vector2(Width, Height)).FourWayNormal();
+        if (normalizedToPlayer == -Vector2.UnitY)
+            topButton?.UpdatePressState(-1f);
+        else if (normalizedToPlayer == -Vector2.UnitX)
+            leftButton?.UpdatePressState(-1f);
+        else if (normalizedToPlayer == Vector2.UnitX)
+            rightButton?.UpdatePressState(-1f);
+        
+        if (CheckAnyButton())
+            Smash(self, new Vector2(MathF.Sign(self.Speed.X) * 300f, -300f));
+
+        if (SpirialisBug)
             self.varJumpSpeed = self.Speed.Y;
     }
 
