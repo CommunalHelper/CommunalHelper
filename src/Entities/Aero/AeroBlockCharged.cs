@@ -586,12 +586,12 @@ public class AeroBlockCharged : AeroBlockFlying
 
     private void Player_DreamJump(Player self)
     {
-        bool onTop = self.Y <= Top, onLeft = self.X <= Left, onRight = self.X >= Right;
-        if (onTop)
+        Vector2 normalizedToPlayer = ((self.Center - Center) / new Vector2(Width, Height)).FourWayNormal();
+        if (normalizedToPlayer == -Vector2.UnitY)
             topButton?.UpdatePressState(-1f);
-        else if (onLeft)
+        else if (normalizedToPlayer == -Vector2.UnitX)
             leftButton?.UpdatePressState(-1f);
-        else if (onRight)
+        else if (normalizedToPlayer == Vector2.UnitX)
             rightButton?.UpdatePressState(-1f);
         
         if (CheckAnyButton())
